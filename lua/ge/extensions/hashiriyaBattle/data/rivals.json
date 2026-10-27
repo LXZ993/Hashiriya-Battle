@@ -1,0 +1,13 @@
+{
+  "_hinweis": "Platzhalter-Rivalen fuer den Prototyp. Namen, Autos und Configs legen wir spaeter gemeinsam fest. aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet.",
+  "teams": [
+    { "id": "team_test", "name": "Test-Team" }
+  ],
+  "rivals": [
+    { "id": "r_01", "name": "Rivale 1", "team": "team_test", "model": "covet",     "config": "", "aggression": 0.45, "cruiseKmh": 90,  "maxSp": 900,  "rewardUsd": 1500 },
+    { "id": "r_02", "name": "Rivale 2", "team": "team_test", "model": "pessima",   "config": "", "aggression": 0.55, "cruiseKmh": 100, "maxSp": 1000, "rewardUsd": 2000 },
+    { "id": "r_03", "name": "Rivale 3", "team": "team_test", "model": "sunburst2", "config": "", "aggression": 0.65, "cruiseKmh": 105, "maxSp": 1100, "rewardUsd": 2500 },
+    { "id": "r_04", "name": "Test-Leader", "team": "team_test", "leader": true, "model": "sbr", "config": "", "aggression": 0.8, "cruiseKmh": 110, "maxSp": 1300, "rewardUsd": 6000 },
+    { "id": "w_01", "name": "Test-Wanderer", "wanderer": true, "conditions": { "minWins": 3 }, "model": "scintilla", "config": "", "aggression": 0.9, "cruiseKmh": 120, "maxSp": 1500, "rewardUsd": 10000 }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel'. config leer = Standard-Config des Modells. priceUsd wird in Yen umgerechnet und nur angezeigt.",
+  "starterCars": [
+    { "id": "starter_covet",    "name": "Ibishu Covet",     "model": "covet",     "config": "", "priceUsd": 9000 },
+    { "id": "starter_pessima",  "name": "Ibishu Pessima",   "model": "pessima",   "config": "", "priceUsd": 12000 },
+    { "id": "starter_sunburst", "name": "Hirochi Sunburst", "model": "sunburst2", "config": "", "priceUsd": 15000 }
+  ],
+  "startMoneyYen": 300000
+}
