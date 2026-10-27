@@ -30,12 +30,12 @@ angular.module('beamng.apps')
           '</div>' +
         '</div>' +
         '<style>' +
-          '.hb-panel{background:rgba(8,10,16,0.85);border-left:3px solid #e8352b;color:#eef1f4;padding:12px 14px;font-family:sans-serif;}' +
+          '.hb-panel{background:rgba(24,24,26,0.88);border-left:3px solid #ff6600;color:#eef1f4;padding:12px 14px;font-family:sans-serif;}' +
           '.hb-title{font-size:20px;font-weight:bold;letter-spacing:3px;margin-bottom:10px;color:#fff;}' +
           '.hb-sub{font-size:13px;opacity:.8;margin-bottom:6px;}' +
           '.hb-btn{display:block;width:100%;margin:4px 0;padding:8px 10px;text-align:left;background:rgba(255,255,255,0.08);' +
             'color:#eef1f4;border:1px solid rgba(255,255,255,0.15);font-size:14px;cursor:pointer;}' +
-          '.hb-btn:hover{background:#e8352b;border-color:#e8352b;}' +
+          '.hb-btn:hover{background:#ff6600;border-color:#ff6600;}' +
           '.hb-dim{opacity:.7;}' +
           '.hb-price{float:right;opacity:.85;}' +
           '.hb-row{display:flex;justify-content:space-between;font-size:14px;margin:3px 0;}' +

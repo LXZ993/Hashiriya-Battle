@@ -64,6 +64,25 @@ local function setWarnSignal(veh, on)
   veh:queueLuaCommand('electrics.set_warn_signal(' .. tostring(on) .. ')')
 end
 
+-- Diagnose: meldet, ob der Warnblinker beim Rivalen wirklich an ist.
+local function logWarnSignal(veh)
+  veh:queueLuaCommand([[
+    local v = electrics.values
+    obj:queueGameEngineLua(string.format('log(%q, %q, %q)', 'I', 'hashiriya',
+      'Warnblinker Rivale: hazard_enabled=' .. tostring(v.hazard_enabled) .. ' hazard=' .. tostring(v.hazard)
+      .. ' signal_L=' .. tostring(v.signal_L) .. ' signal_R=' .. tostring(v.signal_R)))
+  ]])
+end
+
+local function vehicleDisplayName(model)
+  local ok, info = pcall(core_vehicles.getModel, model)
+  if ok and info and info.model then
+    local m = info.model
+    return ((m.Brand and m.Brand ~= '') and (m.Brand .. ' ') or '') .. (m.Name or model)
+  end
+  return model
+end
+
 local function startCountdown(rival, rivalVeh)
   state = 'countdown'
   timer = cfg.countdown
@@ -76,7 +95,12 @@ local function startCountdown(rival, rivalVeh)
     lastRivalDamage = nil,
     rivalMode = nil,
     lastCount = nil,
+    time = 0,
+    rivalCar = vehicleDisplayName(rival.model),
   }
+  local save = core().save
+  local car = save and save.cars[save.activeCar or 1]
+  battle.playerCar = car and car.name or ''
   setWarnSignal(rivalVeh, true)
   core().msg(rival.name .. ' nimmt die Herausforderung an!', 3)
   log('I', logTag, 'Challenge gegen ' .. rival.id)
@@ -187,6 +211,11 @@ function M.getHudState()
     gap = battle.gap and math.floor(battle.gap) or 0,
     countdown = state == 'countdown' and math.ceil(timer) or nil,
     won = battle.won,
+    time = battle.time,
+    playerCar = battle.playerCar,
+    rivalCar = battle.rivalCar,
+    rivalTag = battle.rival.leader and 'LEAD' or (battle.rival.wanderer and 'WAND' or 'RIV'),
+    playerTitle = 'Neuling', -- wird später vom B.A.D.-System ersetzt
   }
 end
 
@@ -217,6 +246,10 @@ local function onUpdate(dtReal, dtSim)
     if battle.warnTimer <= 0 then
       battle.warnTimer = 0.5
       setWarnSignal(rivalVeh, true)
+      if not battle.warnLogged and timer < cfg.countdown - 1 then
+        battle.warnLogged = true
+        logWarnSignal(rivalVeh)
+      end
     end
     if timer <= 0 then
       setWarnSignal(rivalVeh, false)
@@ -224,6 +257,7 @@ local function onUpdate(dtReal, dtSim)
       core().msg('BATTLE!', 2)
     end
   elseif state == 'battle' then
+    battle.time = battle.time + dtSim
     updateBattle(dtSim, player, rivalVeh)
   elseif state == 'result' then
     timer = timer - dtSim
