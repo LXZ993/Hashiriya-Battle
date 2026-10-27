@@ -1,7 +1,6 @@
 -- Hashiriya Battle: Lichthupe, Countdown und SP-Battle
 local M = {}
 
-local im = ui_imgui
 local logTag = 'hashiriya'
 
 -- Einstellungen (zum Feintuning) -------------------------------------------------
@@ -174,29 +173,21 @@ local function updateBattle(dt, player, rivalVeh)
   end
 end
 
--- HUD -------------------------------------------------------------------------------
+-- HUD-Daten für die UI-App ------------------------------------------------------------
 
-local function spBar(label, value, max, color)
-  im.Text(label)
-  im.PushStyleColor2(im.Col_PlotHistogram, color)
-  im.ProgressBar(math.max(value, 0) / max, im.ImVec2(320, 18), string.format('%d SP', math.floor(math.max(value, 0))))
-  im.PopStyleColor(1)
-end
-
-local function drawHud()
-  if not battle then return end
-  im.SetNextWindowPos(im.ImVec2(760, 20), im.Cond_FirstUseEver)
-  im.Begin('SP Battle##hud', nil, im.WindowFlags_AlwaysAutoResize + im.WindowFlags_NoTitleBar)
-  spBar('Du', battle.playerSp, cfg.playerMaxSp, im.ImVec4(0.2, 0.6, 1.0, 1))
-  spBar(battle.rival.name, battle.rivalSp, battle.rivalMaxSp, im.ImVec4(1.0, 0.3, 0.2, 1))
-  if state == 'countdown' then
-    im.Text(string.format('Start in %d ...', math.ceil(timer)))
-  elseif state == 'battle' and battle.gap then
-    im.Text(string.format('Abstand: %s%d m', battle.gap > 0 and '-' or '+', math.floor(math.abs(battle.gap))))
-  elseif state == 'result' then
-    im.Text(battle.won and 'SIEG!' or 'NIEDERLAGE')
-  end
-  im.End()
+function M.getHudState()
+  if not battle then return nil end
+  return {
+    state = state,
+    rivalName = battle.rival.name,
+    playerSp = math.max(math.floor(battle.playerSp), 0),
+    playerMaxSp = cfg.playerMaxSp,
+    rivalSp = math.max(math.floor(battle.rivalSp), 0),
+    rivalMaxSp = battle.rivalMaxSp,
+    gap = battle.gap and math.floor(battle.gap) or 0,
+    countdown = state == 'countdown' and math.ceil(timer) or nil,
+    won = battle.won,
+  }
 end
 
 -- Update ----------------------------------------------------------------------------
@@ -221,7 +212,14 @@ local function onUpdate(dtReal, dtSim)
 
   if state == 'countdown' then
     timer = timer - dtSim
+    -- Warnblinker wiederholt setzen, falls die KI ihn wieder ausschaltet
+    battle.warnTimer = (battle.warnTimer or 0) - dtSim
+    if battle.warnTimer <= 0 then
+      battle.warnTimer = 0.5
+      setWarnSignal(rivalVeh, true)
+    end
     if timer <= 0 then
+      setWarnSignal(rivalVeh, false)
       state = 'battle'
       core().msg('BATTLE!', 2)
     end
@@ -235,7 +233,6 @@ local function onUpdate(dtReal, dtSim)
     end
   end
 
-  drawHud()
 end
 
 M.onUpdate = onUpdate

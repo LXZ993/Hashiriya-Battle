@@ -1,7 +1,6 @@
 -- Hashiriya Battle: Kern (Spielstand, Start, Menüs)
 local M = {}
 
-local im = ui_imgui
 local logTag = 'hashiriya'
 
 local dataDir = '/lua/ge/extensions/hashiriyaBattle/data/'
@@ -60,6 +59,7 @@ end
 function M.writeSave()
   if not M.save then return end
   jsonWriteFile(savePath, M.save, true)
+  M.hasSave = true
   log('I', logTag, 'Spielstand gespeichert')
 end
 
@@ -74,6 +74,7 @@ end
 local function loadData()
   M.carsData = jsonReadFile(dataDir .. 'cars.json') or { starterCars = {} }
   M.levelName = getLevelName()
+  M.hasSave = readSave() ~= nil
   M.mapData = M.levelName and jsonReadFile(dataDir .. 'maps/' .. M.levelName .. '.json') or nil
   log('I', logTag, 'Level: ' .. tostring(M.levelName) .. ', Map-Daten: ' .. tostring(M.mapData ~= nil))
 end
@@ -153,59 +154,78 @@ local function capturePosition()
   msg('Position gemerkt (' .. #list .. ' insgesamt).')
 end
 
--- Menüs (imgui) -------------------------------------------------------------
+-- UI (BeamNG UI-Apps unter ui/modules/apps/Hashiriya*) ------------------------
+-- Die Apps bekommen den Zustand über den Hook 'HashiriyaState' und melden Klicks über uiAction().
 
-local function bigButton(label)
-  return im.Button(label, im.ImVec2(260 * im.uiscale[0], 0))
+M.layoutName = 'hashiriyaBattle' -- settings/ui_apps/originalLayouts/default/hashiriyaBattle.uilayout.json
+local uiTimer = 0
+local uiInterval = 0.1
+
+local function setLayout(name)
+  local gs = rawget(_G, 'core_gamestate')
+  if gs and gs.setGameState then pcall(gs.setGameState, 'freeroam', name, 'freeroam') end
 end
 
-local function drawStartMenu()
-  im.SetNextWindowPos(im.ImVec2(760, 300), im.Cond_FirstUseEver)
-  im.Begin('Hashiriya Battle##hb_main', nil, im.WindowFlags_AlwaysAutoResize)
-  im.Text('HASHIRIYA BATTLE')
-  im.Text('Menü ein/aus: Taste Pos1 (in den Optionen änderbar)')
-  im.Separator()
-  if showCarSelect then
-    im.Text('Wähle dein erstes Auto:')
-    im.Separator()
+local function buildUiState()
+  local eco = M.economy()
+  local st = {
+    level = M.levelName,
+    active = M.active,
+    menuVisible = showMenu,
+    screen = M.active and 'status' or (showCarSelect and 'carSelect' or 'start'),
+    hasSave = M.hasSave,
+    cars = {},
+  }
+  if showCarSelect and M.carsData then
     for _, car in ipairs(M.carsData.starterCars or {}) do
-      local price = M.economy().formatYen(M.economy().usdToPrice(car.priceUsd or 0))
-      if bigButton(car.name .. '  (' .. price .. ')##' .. car.id) then
-        chooseStarterCar(car)
-      end
+      table.insert(st.cars, { id = car.id, name = car.name, price = eco.formatYen(eco.usdToPrice(car.priceUsd or 0)) })
     end
-    im.Separator()
-    if bigButton('Zurück') then showCarSelect = false end
-  else
-    if bigButton('Neues Spiel') then showCarSelect = true end
-    if readSave() then
-      if bigButton('Weiter') then continueGame() end
-    end
-    if bigButton('Ausblenden') then showMenu = false end
   end
-  im.End()
+  if M.active and M.save then
+    st.money = eco.formatYen(M.save.money)
+    st.wins = M.save.wins
+    st.losses = M.save.losses
+    local rival = extensions.hashiriyaBattle_rivals.getActiveRival()
+    st.rival = rival and rival.data.name or nil
+    st.battle = extensions.hashiriyaBattle_battle.getHudState()
+  end
+  return st
 end
 
-local function drawStatusWindow()
-  im.SetNextWindowPos(im.ImVec2(40, 300), im.Cond_FirstUseEver)
-  im.Begin('Hashiriya Battle##hb_status', nil, im.WindowFlags_AlwaysAutoResize)
-  im.Text('Geld: ' .. M.economy().formatYen(M.save.money))
-  im.Text('Siege: ' .. M.save.wins .. '   Niederlagen: ' .. M.save.losses)
-  local rival = extensions.hashiriyaBattle_rivals.getActiveRival()
-  im.Text('Rivale in der Nähe: ' .. (rival and rival.data.name or '-'))
-  im.Separator()
-  if im.Button('Rivale rufen (Test)') then extensions.hashiriyaBattle_rivals.spawnNext(true) end
-  if im.Button('Position merken') then capturePosition() end
-  if im.Button('Speichern') then M.writeSave(); msg('Gespeichert.') end
-  im.SameLine()
-  if im.Button('Modus beenden') then M.stopGame() end
-  im.SameLine()
-  if im.Button('Ausblenden') then showMenu = false end
-  im.End()
+function M.sendUiState()
+  guihooks.trigger('HashiriyaState', buildUiState())
+end
+
+-- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
+function M.uiAction(action, arg)
+  if action == 'newGame' then
+    showCarSelect = true
+  elseif action == 'back' then
+    showCarSelect = false
+  elseif action == 'chooseCar' then
+    for _, car in ipairs(M.carsData.starterCars or {}) do
+      if car.id == arg then chooseStarterCar(car) end
+    end
+  elseif action == 'continue' then
+    continueGame()
+  elseif action == 'hide' then
+    showMenu = false
+  elseif action == 'callRival' then
+    extensions.hashiriyaBattle_rivals.spawnNext(true)
+  elseif action == 'capture' then
+    capturePosition()
+  elseif action == 'save' then
+    M.writeSave()
+    msg('Gespeichert.')
+  elseif action == 'stop' then
+    M.stopGame()
+  end
+  M.sendUiState()
 end
 
 function M.toggleMenu()
   showMenu = not showMenu
+  M.sendUiState()
 end
 
 -- Hooks -----------------------------------------------------------------------
@@ -223,6 +243,8 @@ local function onClientPostStartMission()
   loadData()
   M.active = false
   showMenu = true
+  showCarSelect = false
+  setLayout(M.layoutName)
   msg('Hashiriya Battle bereit. Menü mit der Taste Pos1 ein- und ausblenden.', 8)
 end
 
@@ -230,12 +252,12 @@ local function onClientEndMission()
   M.stopGame()
 end
 
-local function onUpdate()
-  if not showMenu or not M.levelName then return end
-  if M.active and M.save then
-    drawStatusWindow()
-  else
-    drawStartMenu()
+local function onUpdate(dtReal)
+  if not M.levelName then return end
+  uiTimer = uiTimer - dtReal
+  if uiTimer <= 0 then
+    uiTimer = uiInterval
+    M.sendUiState()
   end
 end
 

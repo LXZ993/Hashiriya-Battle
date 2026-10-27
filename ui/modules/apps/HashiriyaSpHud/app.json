@@ -1,0 +1,14 @@
+{
+  "domElement": "<hashiriya-sp-hud></hashiriya-sp-hud>",
+  "name": "Hashiriya Battle: SP-Anzeige",
+  "types": ["ui.apps.categories.gameplay"],
+  "description": "SP-Balken, Abstand und Countdown im Battle.",
+  "css": { "top": "10px", "width": "640px", "height": "110px" },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaSpHud",
+  "appName": "hashiriyaSpHud",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}
