@@ -1,0 +1,7 @@
+{
+  "_hinweis": "Parkplätze auf der C1-Map. type: garage | shop. Positionen mit 'Position merken' gesammelt (27.10.2026).",
+  "parkingAreas": [
+    { "id": "pa_garage", "type": "garage", "pos": [5897.693, 4643.223, 873.129], "dir": [-0.93625, -0.34953, -0.03555], "radius": 30 },
+    { "id": "pa_shop",   "type": "shop",   "pos": [1099.163, 4758.111, 874.214], "dir": [0.99977, 0.01182, -0.01766], "radius": 30 }
+  ]
+}

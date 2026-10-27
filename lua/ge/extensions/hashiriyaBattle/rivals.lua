@@ -98,6 +98,9 @@ function M.spawnNext(force)
   local player = core().getPlayerVehicle()
   if not player then return end
 
+  -- Nicht in Parkplätzen spawnen (nur der Test-Knopf darf das)
+  if not force and extensions.hashiriyaBattle_parking.getCurrent() then return end
+
   local rival = pickRival(save)
   if not rival then
     if force then core().msg(core().t('msg.noRivals')) end

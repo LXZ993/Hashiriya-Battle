@@ -38,6 +38,24 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'dumpConfigs\')">{{ s.t[\'menu.dumpConfigs\'] }}</div>' +
           '</div>' +
 
+          '<div class="hbm-body" ng-if="s.screen == \'garage\' || s.screen == \'shop\'">' +
+            '<div class="hbm-area"><span class="hbm-area-tag">{{ s.screen == \'garage\' ? \'P\' : \'T\' }}</span>{{ s.area }}</div>' +
+            '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.car\'] }}</span><b>{{ s.carName }}</b></div>' +
+            '<div ng-if="s.screen == \'garage\'">' +
+              '<div class="hbm-section">{{ s.t[\'pa.garage\'] }}</div>' +
+              '<div class="hbm-item" ng-class="{\'hbm-off\': !s.repairCost || !s.canAffordRepair}" ng-click="s.repairCost && s.canAffordRepair && act(\'repair\')">' +
+                '<span class="hbm-car-name">{{ s.t[\'menu.repair\'] }}</span><span class="hbm-price">{{ s.repairCost || s.t[\'menu.noDamage\'] }}</span></div>' +
+              '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
+            '</div>' +
+            '<div ng-if="s.screen == \'shop\'">' +
+              '<div class="hbm-section">{{ s.t[\'pa.shop\'] }}</div>' +
+              '<div class="hbm-note">{{ s.t[\'menu.shopSoon\'] }}</div>' +
+              '<div class="hbm-item hbm-sub" ng-click="act(\'dumpParts\')">{{ s.t[\'menu.dumpParts\'] }}</div>' +
+            '</div>' +
+            '<div class="hbm-hint">{{ s.t[\'menu.driveOff\'] }}</div>' +
+          '</div>' +
+
           '<div class="hbm-foot"><span ng-click="act(\'hide\')" class="hbm-close">&#10005; {{ s.t[\'menu.hide\'] }}</span><span>{{ s.t[\'menu.hint\'] }}</span></div>' +
         '</div>' +
 
@@ -73,6 +91,12 @@ angular.module('beamng.apps')
           '.hbm-stat .hbm-label{display:inline;flex:none;}' +
           '.hbm-stat b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
           '.hbm-stat i{font-style:normal;color:var(--dim);}' +
+          '.hbm-area{display:flex;align-items:center;gap:10px;padding:10px 18px 2px;font-size:16px;font-weight:800;font-style:italic;letter-spacing:1px;text-transform:uppercase;}' +
+          '.hbm-area-tag{display:inline-block;width:24px;height:24px;line-height:25px;text-align:center;font-style:normal;font-size:14px;' +
+            'background:var(--o);color:#141414;border-radius:3px;}' +
+          '.hbm-off{opacity:.45;cursor:default;} .hbm-off:hover{background:none;padding-left:18px;} .hbm-off:hover:before{width:0;}' +
+          '.hbm-note{font-size:12px;line-height:1.45;color:rgba(244,244,244,.75);padding:4px 18px 8px;}' +
+          '.hbm-hint{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:8px 18px 2px;}' +
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +
             'border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.25);}' +
           '.hbm-close{cursor:pointer;} .hbm-close:hover{color:var(--o);}' +

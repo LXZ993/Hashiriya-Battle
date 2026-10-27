@@ -8,7 +8,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle' }
+local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -18,6 +18,7 @@ M.levelName = nil
 
 local showMenu = true
 local showCarSelect = false
+local menuAutoOpened = false -- Menü wurde vom Parkplatz geöffnet und schließt sich beim Wegfahren
 
 -- Hilfsfunktionen -----------------------------------------------------------
 
@@ -122,6 +123,9 @@ end
 
 local function spawnPlayerCar(car)
   local opts = { config = car.config ~= '' and car.config or nil }
+  -- Start in der Garage, falls die Map eine hat
+  local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
+  if pos then opts.pos, opts.rot = pos, rot end
   local current = M.getPlayerVehicle()
   if current then
     core_vehicles.replaceVehicle(car.model, opts)
@@ -158,6 +162,22 @@ function M.stopGame()
   M.active = false
   extensions.hashiriyaBattle_battle.reset()
   extensions.hashiriyaBattle_rivals.despawnAll()
+end
+
+-- Parkplätze (vom Parking-Modul aufgerufen) --------------------------------
+
+function M.onParkingArrived(area)
+  showMenu = true
+  menuAutoOpened = true
+  msg(M.t('msg.enterPa', M.t('pa.' .. area.type)), 4)
+  if area.type == 'garage' then M.writeSave() end
+  M.sendUiState()
+end
+
+function M.onParkingLeft(area)
+  if menuAutoOpened then showMenu = false end
+  menuAutoOpened = false
+  M.sendUiState()
 end
 
 -- Belohnungen (vom Battle-Modul aufgerufen) --------------------------------
@@ -266,6 +286,7 @@ local function buildUiState()
     active = M.active,
     menuVisible = showMenu,
     screen = M.active and 'status' or (showCarSelect and 'carSelect' or 'start'),
+    area = nil,
     hasSave = M.hasSave,
     cars = {},
     lang = M.lang,
@@ -283,6 +304,17 @@ local function buildUiState()
     local rival = extensions.hashiriyaBattle_rivals.getActiveRival()
     st.rival = rival and rival.data.name or nil
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
+    local parking = extensions.hashiriyaBattle_parking
+    if parking.isArrived() then
+      local area = parking.getCurrent()
+      st.screen = area.type
+      st.area = M.t('pa.' .. area.type)
+      local car = M.save.cars[M.save.activeCar or 1]
+      st.carName = car and car.name or ''
+      local cost = parking.repairCost()
+      st.repairCost = cost > 0 and eco.formatYen(cost) or nil
+      st.canAffordRepair = cost <= M.save.money
+    end
   end
   return st
 end
@@ -305,6 +337,7 @@ function M.uiAction(action, arg)
     continueGame()
   elseif action == 'hide' then
     showMenu = false
+    menuAutoOpened = false
   elseif action == 'callRival' then
     extensions.hashiriyaBattle_rivals.spawnNext(true)
   elseif action == 'capture' then
@@ -312,6 +345,10 @@ function M.uiAction(action, arg)
   elseif action == 'save' then
     M.writeSave()
     msg(M.t('msg.saved'))
+  elseif action == 'repair' then
+    extensions.hashiriyaBattle_parking.repair()
+  elseif action == 'dumpParts' then
+    extensions.hashiriyaBattle_parking.dumpParts(true)
   elseif action == 'dumpConfigs' then
     M.dumpConfigs()
   elseif action == 'setLanguage' then

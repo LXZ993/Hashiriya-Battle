@@ -39,5 +39,17 @@
   "msg.challenge": "%s nimmt die Herausforderung an!",
   "msg.battle": "BATTLE!",
   "msg.configDump": "Fahrzeug-Configs exportiert (%d Configs).",
-  "menu.dumpConfigs": "Configs exportieren"
+  "menu.dumpConfigs": "Configs exportieren",
+  "pa.garage": "Garage",
+  "pa.shop": "Tuning-Shop",
+  "msg.enterPa": "%s erreicht.",
+  "msg.noMoney": "Nicht genug Geld.",
+  "msg.repaired": "Repariert: -%s",
+  "msg.partsDump": "Teile exportiert (%s).",
+  "menu.car": "Auto",
+  "menu.repair": "Reparieren",
+  "menu.noDamage": "Keine Schäden",
+  "menu.dumpParts": "Teile exportieren",
+  "menu.shopSoon": "Der Teile-Katalog (Motor, Turbo, Fahrwerk, Bremsen, Reifen, Gewicht) kommt mit dem nächsten Update.",
+  "menu.driveOff": "Wegfahren schließt das Menü"
 }
