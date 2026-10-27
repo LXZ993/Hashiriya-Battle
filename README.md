@@ -25,12 +25,12 @@ Bei einem Update einfach den Ordner ersetzen.
 ## Testen
 
 1. Freeroam auf der C1-Map starten, Verkehr einschalten.
-2. Links erscheint das Fenster **Hashiriya Battle** → **Neues Spiel** → Startauto wählen.
+2. In der Bildmitte erscheint das Fenster **Hashiriya Battle** → **Neues Spiel** → Startauto wählen. Mit der Taste **Pos1** blendest du es ein und aus (änderbar unter Optionen → Steuerung → „Hashiriya Battle: Menü ein/aus“).
 3. Auf den Highway fahren und mindestens 60 km/h fahren. Nach einer Weile erscheint „Rivale gesichtet“, das Auto taucht rund 160 m vor dir auf. Zum schnellen Testen gibt es den Knopf **Rivale rufen (Test)**.
 4. Hinter den Rivalen fahren (unter 45 m, gleiche Spur) und kurz das **Fernlicht** einschalten (Lichthupe).
 5. Der Rivale schaltet den Warnblinker ein, nach 3 Sekunden startet das Battle. Wer hinten liegt, verliert SP. Unfälle kosten zusätzlich SP. Bei 0 SP oder 250 m Abstand ist das Battle vorbei.
 
-Das Fenster lässt sich ausblenden. Wieder einblenden über die Konsole (Taste `^`/`~`):
+Falls die Taste nicht reagiert, geht es auch über die Konsole (Taste `^`, Modus „GE – Lua“):
 `extensions.hashiriyaBattle_core.toggleMenu()`
 
 ### Bitte zurückmelden

@@ -185,7 +185,7 @@ end
 
 local function drawHud()
   if not battle then return end
-  im.SetNextWindowPos(im.ImVec2(560, 20), im.Cond_FirstUseEver)
+  im.SetNextWindowPos(im.ImVec2(760, 20), im.Cond_FirstUseEver)
   im.Begin('SP Battle##hud', nil, im.WindowFlags_AlwaysAutoResize + im.WindowFlags_NoTitleBar)
   spBar('Du', battle.playerSp, cfg.playerMaxSp, im.ImVec4(0.2, 0.6, 1.0, 1))
   spBar(battle.rival.name, battle.rivalSp, battle.rivalMaxSp, im.ImVec4(1.0, 0.3, 0.2, 1))

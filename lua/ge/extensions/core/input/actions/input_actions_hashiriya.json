@@ -1,0 +1,3 @@
+{
+    "hashiriyaToggleMenu" :{"cat":"debug", "order": 130, "ctx": "tlua", "onDown" :"extensions.hashiriyaBattle_core.toggleMenu()", "actionMap": "Global", "title": "Hashiriya Battle: Menü ein/aus", "desc": "Blendet das Hashiriya-Battle-Fenster ein oder aus" }
+}

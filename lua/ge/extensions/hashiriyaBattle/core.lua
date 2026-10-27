@@ -23,7 +23,11 @@ local showCarSelect = false
 -- Hilfsfunktionen -----------------------------------------------------------
 
 local function msg(text, ttl)
-  ui_message(text, ttl or 4, 'hashiriya', 'flag')
+  if ui_message then
+    ui_message(text, ttl or 4, 'hashiriya', 'flag')
+  else
+    guihooks.trigger('Message', { ttl = ttl or 4, msg = text, category = 'hashiriya', icon = 'flag' })
+  end
 end
 M.msg = msg
 
@@ -151,34 +155,40 @@ end
 
 -- Menüs (imgui) -------------------------------------------------------------
 
+local function bigButton(label)
+  return im.Button(label, im.ImVec2(260 * im.uiscale[0], 0))
+end
+
 local function drawStartMenu()
-  im.SetNextWindowPos(im.ImVec2(40, 120), im.Cond_FirstUseEver)
-  im.Begin('Hashiriya Battle##menu', nil, im.WindowFlags_AlwaysAutoResize)
+  im.SetNextWindowPos(im.ImVec2(760, 300), im.Cond_FirstUseEver)
+  im.Begin('Hashiriya Battle##hb_main', nil, im.WindowFlags_AlwaysAutoResize)
+  im.Text('HASHIRIYA BATTLE')
+  im.Text('Menü ein/aus: Taste Pos1 (in den Optionen änderbar)')
+  im.Separator()
   if showCarSelect then
     im.Text('Wähle dein erstes Auto:')
     im.Separator()
     for _, car in ipairs(M.carsData.starterCars or {}) do
       local price = M.economy().formatYen(M.economy().usdToPrice(car.priceUsd or 0))
-      if im.Button(car.name .. '  (' .. price .. ')##' .. car.id) then
+      if bigButton(car.name .. '  (' .. price .. ')##' .. car.id) then
         chooseStarterCar(car)
       end
     end
     im.Separator()
-    if im.Button('Zurück') then showCarSelect = false end
+    if bigButton('Zurück') then showCarSelect = false end
   else
-    if im.Button('Neues Spiel') then showCarSelect = true end
+    if bigButton('Neues Spiel') then showCarSelect = true end
     if readSave() then
-      im.SameLine()
-      if im.Button('Weiter') then continueGame() end
+      if bigButton('Weiter') then continueGame() end
     end
-    if im.Button('Ausblenden') then showMenu = false end
+    if bigButton('Ausblenden') then showMenu = false end
   end
   im.End()
 end
 
 local function drawStatusWindow()
-  im.SetNextWindowPos(im.ImVec2(40, 120), im.Cond_FirstUseEver)
-  im.Begin('Hashiriya Battle##status', nil, im.WindowFlags_AlwaysAutoResize)
+  im.SetNextWindowPos(im.ImVec2(40, 300), im.Cond_FirstUseEver)
+  im.Begin('Hashiriya Battle##hb_status', nil, im.WindowFlags_AlwaysAutoResize)
   im.Text('Geld: ' .. M.economy().formatYen(M.save.money))
   im.Text('Siege: ' .. M.save.wins .. '   Niederlagen: ' .. M.save.losses)
   local rival = extensions.hashiriyaBattle_rivals.getActiveRival()
@@ -213,6 +223,7 @@ local function onClientPostStartMission()
   loadData()
   M.active = false
   showMenu = true
+  msg('Hashiriya Battle bereit. Menü mit der Taste Pos1 ein- und ausblenden.', 8)
 end
 
 local function onClientEndMission()
