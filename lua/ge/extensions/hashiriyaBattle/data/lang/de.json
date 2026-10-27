@@ -51,5 +51,6 @@
   "menu.noDamage": "Keine Schäden",
   "menu.dumpParts": "Teile exportieren",
   "menu.shopSoon": "Der Teile-Katalog (Motor, Turbo, Fahrwerk, Bremsen, Reifen, Gewicht) kommt mit dem nächsten Update.",
-  "menu.driveOff": "Wegfahren schließt das Menü"
+  "menu.driveOff": "Wegfahren schließt das Menü",
+  "msg.stopHint": "Zum Betreten von %s anhalten"
 }

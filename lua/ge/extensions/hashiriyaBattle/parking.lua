@@ -10,7 +10,10 @@ local enterSpeed = 8 / 3.6   -- km/h -> m/s: unter diesem Tempo gilt man als "an
 local checkInterval = 0.25
 local repairYenPerDamage = 2 -- Reparaturpreis je BeamNG-Schadenspunkt (zum Feintuning)
 
+local markerDistance = 600   -- m: bis zu dieser Entfernung sind die Markierungen sichtbar
+
 local checkTimer = 0
+local hintShownFor = nil     -- Parkplatz, für den der Anhalte-Hinweis schon kam
 local current = nil          -- Parkplatz, in dem der Spieler gerade steht
 local arrived = false        -- im Parkplatz angehalten (Menü offen)
 local dumpedModels = {}
@@ -125,6 +128,43 @@ function M.dumpParts(force)
   if force then c.msg(c.t('msg.partsDump', model)) end
 end
 
+-- Markierungen ------------------------------------------------------------------
+-- Leuchtsäule in der Mitte, Kreis auf dem Boden und Name darüber (wie die PA-Schilder in TXR).
+
+local areaColors = {
+  garage = { 1.0, 0.4, 0.0 },
+  shop   = { 0.25, 0.75, 1.0 },
+}
+
+local function drawMarkers(playerPos)
+  if not debugDrawer then return end
+  for _, a in ipairs(areas()) do
+    local center = toVec(a.pos)
+    local dist = (playerPos - center):length()
+    if dist <= markerDistance then
+      local c = areaColors[a.type] or areaColors.garage
+      local r = a.radius or 30
+      local active = (current == a)
+      local alpha = active and 0.18 or 0.32
+      pcall(function()
+        debugDrawer:drawCylinder(center, center + vec3(0, 0, 25), 1.2, ColorF(c[1], c[2], c[3], alpha))
+        local segs = 48
+        local prev = nil
+        for i = 0, segs do
+          local ang = i / segs * math.pi * 2
+          local p = center + vec3(math.cos(ang) * r, math.sin(ang) * r, 0.3)
+          if prev then debugDrawer:drawLine(prev, p, ColorF(c[1], c[2], c[3], 0.9)) end
+          prev = p
+        end
+        local label = core().t('pa.' .. a.type)
+        if not active or not arrived then label = label .. '  ' .. string.format('%dm', math.floor(dist)) end
+        debugDrawer:drawTextAdvanced(center + vec3(0, 0, 6), String(label),
+          ColorF(1, 1, 1, 1), true, false, ColorI(math.floor(c[1] * 255), math.floor(c[2] * 255), math.floor(c[3] * 255), 220))
+      end)
+    end
+  end
+end
+
 -- Update ------------------------------------------------------------------------
 
 local function onUpdate(dtReal)
@@ -133,13 +173,14 @@ local function onUpdate(dtReal)
     current, arrived = nil, false
     return
   end
-  checkTimer = checkTimer - dtReal
-  if checkTimer > 0 then return end
-  checkTimer = checkInterval
-
   local veh = c.getPlayerVehicle()
   if not veh then return end
   local pos = veh:getPosition()
+  drawMarkers(pos) -- muss jeden Frame gezeichnet werden
+
+  checkTimer = checkTimer - dtReal
+  if checkTimer > 0 then return end
+  checkTimer = checkInterval
   local found = nil
   for _, a in ipairs(areas()) do
     if (pos - toVec(a.pos)):length() <= (a.radius or 30) then found = a; break end
@@ -149,6 +190,11 @@ local function onUpdate(dtReal)
     if current and arrived then c.onParkingLeft(current) end
     current, arrived = found, false
   end
+  if current and not arrived and hintShownFor ~= current then
+    hintShownFor = current
+    c.msg(c.t('msg.stopHint', c.t('pa.' .. current.type)), 5)
+  end
+  if not current then hintShownFor = nil end
   if current and not arrived and veh:getVelocity():length() < enterSpeed
     and not extensions.hashiriyaBattle_battle.isBusy() then
     arrived = true
