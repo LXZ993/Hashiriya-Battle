@@ -100,13 +100,13 @@ function M.spawnNext(force)
 
   local rival = pickRival(save)
   if not rival then
-    if force then core().msg('Keine offenen Rivalen mehr.') end
+    if force then core().msg(core().t('msg.noRivals')) end
     return
   end
 
   local pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), spawnDistance)
   if not pos then
-    if force then core().msg('Keine KI-Straße gefunden.') end
+    if force then core().msg(core().t('msg.noRoad')) end
     return
   end
 
@@ -123,7 +123,7 @@ function M.spawnNext(force)
 
   active = { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false }
   setCruise(veh, rival)
-  core().msg('Rivale gesichtet: ' .. rival.name .. (rival.leader and ' (Leader)' or '') .. (rival.wanderer and ' (Wanderer)' or ''))
+  core().msg(core().t('msg.rivalSpotted', rival.name) .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or ''))
   log('I', logTag, 'Rivale gespawnt: ' .. rival.id)
 end
 

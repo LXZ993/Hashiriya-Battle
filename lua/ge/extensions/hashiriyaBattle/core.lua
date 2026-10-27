@@ -30,6 +30,45 @@ local function msg(text, ttl)
 end
 M.msg = msg
 
+-- Sprache -------------------------------------------------------------------
+-- Texte liegen in data/lang/<sprache>.json; fehlende Schlüssel kommen aus en.json.
+-- Die Sprache kommt aus der BeamNG-Einstellung bzw. von der UI (setLanguage).
+
+M.lang = nil
+M.strings = {}
+
+local function loadLanguage(code)
+  local short = tostring(code or ''):sub(1, 2):lower()
+  local strings = {}
+  for k, v in pairs(jsonReadFile(dataDir .. 'lang/en.json') or {}) do strings[k] = v end
+  local own = short ~= '' and jsonReadFile(dataDir .. 'lang/' .. short .. '.json') or nil
+  if own then
+    for k, v in pairs(own) do strings[k] = v end
+  end
+  M.lang = own and short or 'en'
+  M.strings = strings
+  log('I', logTag, 'Sprache: ' .. M.lang)
+end
+
+local function detectLanguage()
+  local ok, v = pcall(function() return settings.getValue('userLanguage') end)
+  if ok and type(v) == 'string' and v ~= '' then return v end
+  return 'en'
+end
+
+-- Übersetzter Text, optional mit string.format-Parametern.
+function M.t(key, ...)
+  local s = M.strings[key] or key
+  if select('#', ...) > 0 then return string.format(s, ...) end
+  return s
+end
+
+-- Wird von den UI-Apps mit der aktuellen Spielsprache aufgerufen (z. B. "de-DE").
+function M.setLanguage(code)
+  local short = tostring(code or ''):sub(1, 2):lower()
+  if short ~= '' and short ~= M.lang then loadLanguage(short) end
+end
+
 local function getLevelName()
   if getCurrentLevelIdentifier then return getCurrentLevelIdentifier() end
   local mission = getMissionFilename and getMissionFilename() or ''
@@ -100,13 +139,13 @@ local function chooseStarterCar(car)
   spawnPlayerCar(car)
   M.active = true
   showCarSelect = false
-  msg('Willkommen bei Hashiriya Battle! Fahr los und fordere Rivalen per Lichthupe heraus.', 6)
+  msg(M.t('msg.welcome'), 6)
 end
 
 local function continueGame()
   M.save = readSave()
   if not M.save then
-    msg('Kein Spielstand gefunden.')
+    msg(M.t('msg.noSave'))
     return
   end
   local car = M.save.cars[M.save.activeCar or 1]
@@ -130,10 +169,10 @@ function M.onBattleResult(rival, won)
     M.save.money = M.save.money + reward
     M.save.defeated[rival.id] = true
     M.save.wins = M.save.wins + 1
-    msg('Sieg gegen ' .. rival.name .. '! +' .. M.economy().formatYen(reward), 6)
+    msg(M.t('msg.win', rival.name, M.economy().formatYen(reward)), 6)
   else
     M.save.losses = M.save.losses + 1
-    msg('Niederlage gegen ' .. rival.name .. '.', 6)
+    msg(M.t('msg.lose', rival.name), 6)
   end
   M.writeSave()
 end
@@ -151,7 +190,61 @@ local function capturePosition()
     dir = { d.x, d.y, d.z },
   })
   jsonWriteFile(capturePath, list, true)
-  msg('Position gemerkt (' .. #list .. ' insgesamt).')
+  msg(M.t('msg.posSaved', #list))
+end
+
+-- Config-Export ------------------------------------------------------------------
+-- Schreibt alle Configs der Marken Hirochi und Ibishu (inkl. Mod-Configs) nach
+-- settings/hashiriya_battle/config_dump.json. Daraus entsteht die Auswahlliste für Rivalen und Startautos.
+
+local dumpPath = saveDir .. 'config_dump.json'
+local dumpBrands = { Hirochi = true, Ibishu = true }
+
+local function getModelKeys()
+  local keys = {}
+  local ok, names = pcall(function() return core_vehicles.getModelNames() end)
+  if ok and type(names) == 'table' and #names > 0 then return names end
+  ok, names = pcall(function() return core_vehicles.getModelList(true) end)
+  if ok and type(names) == 'table' then
+    for k, v in pairs(names.models or names) do
+      table.insert(keys, type(k) == 'string' and k or (type(v) == 'table' and (v.key or v.model)) or tostring(v))
+    end
+    if #keys > 0 then return keys end
+  end
+  for _, dir in ipairs(FS:findFiles('/vehicles/', '*', 0, false, true) or {}) do
+    table.insert(keys, dir:match('([^/]+)/*$'))
+  end
+  return keys
+end
+
+local function scalars(t)
+  local out = {}
+  for k, v in pairs(t or {}) do
+    local tv = type(v)
+    if tv == 'string' or tv == 'number' or tv == 'boolean' then out[k] = v end
+  end
+  return out
+end
+
+function M.dumpConfigs()
+  local result, count = {}, 0
+  for _, key in ipairs(getModelKeys()) do
+    local ok, info = pcall(core_vehicles.getModel, key)
+    if ok and info and info.model and dumpBrands[info.model.Brand] then
+      local entry = { model = key, info = scalars(info.model), configs = {} }
+      for cfgKey, cfg in pairs(info.configs or {}) do
+        local c = scalars(cfg)
+        c.key = cfgKey
+        table.insert(entry.configs, c)
+        count = count + 1
+      end
+      table.insert(result, entry)
+    end
+  end
+  jsonWriteFile(dumpPath, { gameVersion = beamng_versiond or '', models = result }, true)
+  log('I', logTag, 'Config-Export: ' .. count .. ' Configs in ' .. #result .. ' Modellen')
+  msg(M.t('msg.configDump', count))
+  return count
 end
 
 -- UI (BeamNG UI-Apps unter ui/modules/apps/Hashiriya*) ------------------------
@@ -175,6 +268,8 @@ local function buildUiState()
     screen = M.active and 'status' or (showCarSelect and 'carSelect' or 'start'),
     hasSave = M.hasSave,
     cars = {},
+    lang = M.lang,
+    t = M.strings,
   }
   if showCarSelect and M.carsData then
     for _, car in ipairs(M.carsData.starterCars or {}) do
@@ -216,7 +311,11 @@ function M.uiAction(action, arg)
     capturePosition()
   elseif action == 'save' then
     M.writeSave()
-    msg('Gespeichert.')
+    msg(M.t('msg.saved'))
+  elseif action == 'dumpConfigs' then
+    M.dumpConfigs()
+  elseif action == 'setLanguage' then
+    M.setLanguage(arg)
   elseif action == 'stop' then
     M.stopGame()
   end
@@ -235,6 +334,7 @@ local function onExtensionLoaded()
     extensions.load(name)
     setExtensionUnloadMode(name, 'manual')
   end
+  loadLanguage(detectLanguage())
   loadData()
   log('I', logTag, 'Hashiriya Battle geladen')
 end
@@ -245,7 +345,8 @@ local function onClientPostStartMission()
   showMenu = true
   showCarSelect = false
   setLayout(M.layoutName)
-  msg('Hashiriya Battle bereit. Menü mit der Taste Pos1 ein- und ausblenden.', 8)
+  if not jsonReadFile(dumpPath) then pcall(M.dumpConfigs) end
+  msg(M.t('msg.ready'), 8)
 end
 
 local function onClientEndMission()
