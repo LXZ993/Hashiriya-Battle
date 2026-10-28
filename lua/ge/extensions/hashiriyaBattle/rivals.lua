@@ -19,6 +19,21 @@ function M.loadData()
   data = jsonReadFile(dataPath) or { rivals = {}, teams = {} }
 end
 
+function M.getData()
+  if not data then M.loadData() end
+  return data
+end
+
+-- "Marke Modell" für die Anzeige
+function M.vehicleName(model)
+  local ok, info = pcall(core_vehicles.getModel, model)
+  if ok and info and info.model then
+    local m = info.model
+    return ((m.Brand and m.Brand ~= '') and (m.Brand .. ' ') or '') .. (m.Name or model)
+  end
+  return model
+end
+
 function M.getActiveRival()
   return active
 end

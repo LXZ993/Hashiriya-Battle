@@ -171,7 +171,18 @@ angular.module('beamng.apps')
         '</style>' +
       '</div>',
     replace: true,
-    link: function (scope) {
+    link: function (scope, element) {
+      // Hover-Sound (BeamNG-Standard), einmal je Element
+      var hoverEl = null
+      element[0].addEventListener('mouseover', function (e) {
+        var el = e.target.closest && e.target.closest('.hbt-mi, .hbt-car, .hbt-paint, .hbt-btn')
+        if (!el || el === hoverEl) return
+        hoverEl = el
+        bngApi.engineLua('if extensions.hashiriyaBattle_core then extensions.hashiriyaBattle_core.sound("hover") end')
+      })
+      element[0].addEventListener('mouseout', function (e) {
+        if (hoverEl && !hoverEl.contains(e.relatedTarget)) hoverEl = null
+      })
       'use strict'
       scope.f = null
       scope.strings = {}

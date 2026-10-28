@@ -8,7 +8,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career' }
+local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -17,6 +17,8 @@ M.mapData = nil
 M.levelName = nil
 
 local showMenu = true
+local showDealer = false   -- Autohändler (aus dem Menü links)
+local homeTab = 'main'     -- Zuhause: main | lexicon
 local showCarSelect = false
 local platePriceYen = 15000 -- Kennzeichen ummelden
 local garageTab = 'service' -- Garage-Reiter: service, parts, setup
@@ -24,7 +26,25 @@ local menuAutoOpened = false -- Menü wurde vom Parkplatz geöffnet und schließ
 
 -- Hilfsfunktionen -----------------------------------------------------------
 
+-- Sounds ---------------------------------------------------------------------
+-- Vorerst BeamNG-eigene Sounds (data/sounds.json): Name -> FMOD-Event.
+
+local soundData = nil
+local lastMsgKey = nil -- zuletzt übersetzte Meldung (msg.*), für den Sound zur Meldung
+
+function M.sound(name)
+  soundData = soundData or jsonReadFile(dataDir .. 'sounds.json') or { events = {}, messages = {} }
+  local ev = soundData.events[name] or (tostring(name):match('^event:') and name)
+  if ev then pcall(function() Engine.Audio.playOnce('AudioGui', ev) end) end
+end
+
 local function msg(text, ttl)
+  local key = lastMsgKey
+  lastMsgKey = nil
+  if key then
+    soundData = soundData or jsonReadFile(dataDir .. 'sounds.json') or { events = {}, messages = {} }
+    if soundData.messages[key] then M.sound(soundData.messages[key]) end
+  end
   if ui_message then
     ui_message(text, ttl or 4, 'hashiriya', 'flag')
   else
@@ -61,6 +81,7 @@ end
 
 -- Übersetzter Text, optional mit string.format-Parametern.
 function M.t(key, ...)
+  if type(key) == 'string' and key:sub(1, 4) == 'msg.' then lastMsgKey = key end
   local s = M.strings[key] or key
   if select('#', ...) > 0 then return string.format(s, ...) end
   return s
@@ -103,8 +124,8 @@ function M.getWalkerPos()
 end
 
 -- Spieler steigt aus und steht zu Fuß am Startpunkt neben der Garage; das Auto bleibt in der Bucht.
-function M.goOnFoot(carVeh)
-  local pos, rot = extensions.hashiriyaBattle_parking.footSpawnTransform()
+function M.goOnFoot(carVeh, pos, rot)
+  if not pos then pos, rot = extensions.hashiriyaBattle_parking.footSpawnTransform() end
   local w = walk()
   if not w or not pos then return end
   if carVeh then M.carVehId = carVeh:getID() end
@@ -112,12 +133,19 @@ function M.goOnFoot(carVeh)
   if not ok then log('W', logTag, 'Zu Fuß starten fehlgeschlagen: ' .. tostring(err)) end
 end
 
+-- Zu Fuß am Shop-Eingang: fürs Menü ins Auto in der Bucht setzen (Teile-Vorschau braucht das Auto).
+function M.enterCarForShop(carVeh)
+  local w = walk()
+  local ok = w and w.getInVehicle and pcall(w.getInVehicle, carVeh)
+  if not ok then pcall(function() be:enterVehicle(0, carVeh) end) end
+end
+
 function M.economy() return extensions.hashiriyaBattle_economy end
 
 -- Spielstand ----------------------------------------------------------------
 
 function M.startMoney()
-  return M.carsData and M.carsData.startMoneyYen or 5000000
+  return M.carsData and M.carsData.startMoneyYen or 4500000
 end
 
 local function newSave()
@@ -129,6 +157,8 @@ local function newSave()
     defeated = {},
     wins = 0,
     losses = 0,
+    day = 1,
+    dealerSeed = math.random(1, 1000000),
   }
 end
 
@@ -172,7 +202,22 @@ local function onVehicleSpawned(vehId)
 end
 
 -- Verkehr: Freeroam startet ihn in 0.40 nur über den Freeroam-Startbildschirm, darum selbst einschalten.
+-- Fahrende und geparkte Autos nehmen die japanische Gruppe der Agent-Traffic-Mod, falls installiert
+-- (cars.json: trafficGroup), sonst den normalen BeamNG-Verkehr.
 local trafficStarted = false
+
+local function trafficGroup()
+  local path = M.carsData and M.carsData.trafficGroup
+  if not path or path == '' then return nil end
+  local g = jsonReadFile(path)
+  local list = g and g.data
+  if type(list) ~= 'table' or not list[1] then return nil end
+  -- nur Autos, deren Modell es gibt (Agent-Mod deaktiviert -> Vanilla-Verkehr)
+  local okM, m = pcall(core_vehicles.getModel, list[1].model)
+  if not okM or not m or not m.model then return nil end
+  return list
+end
+
 function M.startTraffic()
   if trafficStarted or (M.carsData and M.carsData.careerTraffic == false) then return end
   local tr = rawget(_G, 'gameplay_traffic')
@@ -181,8 +226,23 @@ function M.startTraffic()
   trafficStarted = true
   if okL and type(list) == 'table' and next(list) then return end -- läuft schon
   local amount = M.carsData and tonumber(M.carsData.trafficAmount) or -1
-  local ok, err = pcall(tr.setupTrafficHelper, amount, { police = false }, 0, {})
-  if ok then log('I', logTag, 'Verkehr gestartet') else log('W', logTag, 'Verkehr starten fehlgeschlagen: ' .. tostring(err)) end
+  local parked = M.carsData and tonumber(M.carsData.parkedAmount) or -1
+  local tOpts, pOpts = { police = false }, {}
+  local group = trafficGroup()
+  if group then
+    local ms = rawget(_G, 'core_multiSpawn') or extensions.core_multiSpawn
+    local n = amount
+    if n < 0 then
+      local okA, ideal = pcall(tr.getIdealSpawnAmount, nil, true)
+      n = okA and tonumber(ideal) or 10
+    end
+    local okF, fitted = pcall(function() return ms and ms.fitGroup and ms.fitGroup(group, n) end)
+    tOpts.vehGroup = okF and fitted or group
+    pOpts.vehGroup = group
+  end
+  local ok, err = pcall(tr.setupTrafficHelper, amount, tOpts, parked, pOpts)
+  if ok then log('I', logTag, 'Verkehr gestartet' .. (group and ' (Agent Traffic JP)' or ''))
+  else log('W', logTag, 'Verkehr starten fehlgeschlagen: ' .. tostring(err)) end
 end
 
 local function spawnPlayerCar(car)
@@ -200,6 +260,12 @@ local function spawnPlayerCar(car)
     opts.autoEnterVehicle = true
     core_vehicles.spawnNewVehicle(car.model, opts)
   end
+end
+
+-- Aktives Auto des Spielstands in die Garagenbucht stellen (Autowechsel in der Garage)
+function M.spawnActiveCar()
+  local car = M.save and M.save.cars[M.save.activeCar or 1]
+  if car then spawnPlayerCar(car) end
 end
 
 local function chooseStarterCar(car)
@@ -294,6 +360,7 @@ function M.onParkingArrived(area)
 end
 
 function M.onParkingLeft(area)
+  homeTab = 'main'
   -- Probeweise eingebaute Teile zurücknehmen, offene Setup-Änderungen verwerfen, Teile-Kamera lösen
   extensions.hashiriyaBattle_shop.releaseFocus()
   extensions.hashiriyaBattle_shop.cancelPreview()
@@ -333,6 +400,11 @@ local function capturePosition()
   end
   if not veh then return end
   local p, d = veh:getPosition(), veh:getDirectionVector()
+  if p:length() < 50 then
+    -- Kartenursprung: keine echte Position (z. B. Figur gerade nicht gespawnt)
+    msg(M.t('msg.posInvalid'))
+    return
+  end
   if onFoot then
     local okD, camDir = pcall(core_camera.getForward)
     if okD and camDir then d = vec3(camDir.x, camDir.y, 0):normalized() end
@@ -455,7 +527,11 @@ local function buildUiState()
     if tow and tow.reason ~= 'atGarage' then
       st.tow = { cost = eco.formatYen(tow.cost), can = tow.reason == nil, reason = tow.reason and M.t('msg.tow.' .. tow.reason) or nil }
     end
-    if parking.isArrived() then
+    st.day = extensions.hashiriyaBattle_home.dayText()
+    if showDealer then
+      st.screen = 'dealer'
+      st.dealer = extensions.hashiriyaBattle_dealer.getUiState()
+    elseif parking.isArrived() then
       local area = parking.getCurrent()
       st.screen = area.type
       st.area = M.t('pa.' .. area.type)
@@ -467,6 +543,11 @@ local function buildUiState()
       st.repairCost = cost > 0 and eco.formatYen(cost) or nil
       st.canAffordRepair = cost <= M.save.money
       if area.type == 'shop' then st.shop = extensions.hashiriyaBattle_shop.getUiState() end
+      if area.type == 'home' then
+        st.home = extensions.hashiriyaBattle_home.getUiState(homeTab)
+      end
+      if area.type == 'gas' then st.gas = extensions.hashiriyaBattle_fuel.getUiState() end
+      if area.type == 'garage' then st.garageCars = extensions.hashiriyaBattle_dealer.ownedCars() end
       if area.type == 'garage' then
         st.garageTab = garageTab
         if garageTab == 'parts' then st.shop = extensions.hashiriyaBattle_shop.getUiState('garage') end
@@ -505,8 +586,27 @@ function M.changePlate(text)
 end
 
 -- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
-function M.uiAction(action, arg)
+-- Klick-Sounds der Menüs (Meldungen bringen ihren eigenen Sound mit)
+local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true }
+local tabActions = { shopTab = true, garageTab = true, setupCat = true, paintSlot = true }
+local backActions = { back = true, hide = true, previewCancel = true, setupDiscard = true }
+
+local function actionSound(action, arg)
+  if silentActions[action] then return end
   if action == 'flow' then
+    local cmd = tostring(arg or ''):match('^([^|]*)')
+    M.sound(cmd == 'back' and 'back' or 'click')
+  elseif tabActions[action] then M.sound('tab')
+  elseif backActions[action] then M.sound('back')
+  elseif action == 'customPaint' then M.sound('slider')
+  else M.sound('click') end
+end
+
+function M.uiAction(action, arg)
+  actionSound(action, arg)
+  if action == 'sound' then
+    M.sound(arg)
+  elseif action == 'flow' then
     extensions.hashiriyaBattle_career.action(arg)
   elseif action == 'career' then
     -- Titelbildschirm im laufenden Level öffnen (Hashiriya-Menü -> Karriere)
@@ -525,6 +625,24 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_shop.releaseFocus()
     showMenu = false
     menuAutoOpened = false
+    showDealer = false
+    extensions.hashiriyaBattle_parking.leaveFootShop()
+  elseif action == 'dealer' then
+    showDealer = true
+    showMenu = true
+    M.sound('dealer')
+  elseif action == 'dealerBack' then
+    showDealer = false
+  elseif action == 'dealerBuy' then
+    extensions.hashiriyaBattle_dealer.buy(tonumber(arg))
+  elseif action == 'switchCar' then
+    extensions.hashiriyaBattle_dealer.switchCar(tonumber(arg))
+  elseif action == 'sleep' then
+    extensions.hashiriyaBattle_home.sleep()
+  elseif action == 'homeTab' then
+    homeTab = arg
+  elseif action == 'refuel' then
+    extensions.hashiriyaBattle_fuel.refuel()
   elseif action == 'callRival' then
     extensions.hashiriyaBattle_rivals.spawnNext(true)
   elseif action == 'capture' then

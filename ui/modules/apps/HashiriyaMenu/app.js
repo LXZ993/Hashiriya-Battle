@@ -31,6 +31,7 @@ angular.module('beamng.apps')
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.rivalNear\'] }}</span><b>{{ s.rival || \'\u2014\' }}</b></div>' +
             '<div class="hbm-section">{{ s.t[\'menu.career\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
+            '<div class="hbm-item" ng-click="act(\'dealer\')">{{ s.t[\'dealer.menu\'] }}</div>' +
             '<div class="hbm-item" ng-if="s.tow" ng-class="{\'hbm-off\': !s.tow.can}" ng-click="s.tow.can && towClick()" title="{{ s.tow.reason }}">' +
               '<span class="hbm-car-name">{{ towArmed ? s.t[\'menu.towConfirm\'] : s.t[\'menu.tow\'] }}</span><span class="hbm-price">{{ s.tow.can ? s.tow.cost : (s.tow.reason || s.tow.cost) }}</span></div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')">{{ s.t[\'menu.stop\'] }}</div>' +
@@ -56,6 +57,11 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-class="{\'hbm-off\': !s.repairCost || !s.canAffordRepair}" ng-click="s.repairCost && s.canAffordRepair && act(\'repair\')">' +
                 '<span class="hbm-car-name">{{ s.t[\'menu.repair\'] }}</span><span class="hbm-price">{{ s.repairCost || s.t[\'menu.noDamage\'] }}</span></div>' +
               '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
+              '<div ng-if="s.garageCars.length > 1">' +
+                '<div class="hbm-section">{{ s.t[\'garage.cars\'] }}</div>' +
+                '<div class="hbm-item hbm-sub" ng-repeat="gc in s.garageCars track by gc.index" ng-class="{\'hbm-off\': gc.active}" ng-click="!gc.active && act(\'switchCar\', gc.index)">' +
+                  '<span class="hbm-car-name">{{ gc.name }}</span><span class="hbm-price">{{ gc.active ? s.t[\'garage.active\'] : gc.plate }}</span></div>' +
+              '</div>' +
               '<div class="hbm-section">{{ s.t[\'garage.plate\'] }}</div>' +
               '<div class="hbm-plate">' +
                 '<input type="text" maxlength="12" ng-model="plate.text" placeholder="{{ s.plate }}">' +
@@ -159,6 +165,77 @@ angular.module('beamng.apps')
               '</div>' +
             '</div>' +
             '<div class="hbm-hint">{{ s.t[\'menu.driveOff\'] }}</div>' +
+          '</div>' +
+
+          // Zuhause (zu Fuß) ------------------------------------------------------
+          '<div class="hbm-body" ng-if="s.screen == \'home\' && s.home">' +
+            '<div class="hbm-area"><span class="hbm-area-tag">H</span>{{ s.area }}</div>' +
+            '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
+            '<div class="hbm-stat"><b>{{ s.day }}</b></div>' +
+            '<div ng-if="s.home.tab == \'main\'">' +
+              '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
+              '<div class="hbm-item" ng-click="act(\'sleep\')">{{ s.t[\'home.sleep\'] }}</div>' +
+              '<div class="hbm-note">{{ s.t[\'home.sleepNote\'] }}</div>' +
+              '<div class="hbm-item" ng-click="act(\'homeTab\', \'lexicon\')">{{ s.t[\'home.lexicon\'] }}</div>' +
+              '<div class="hbm-item hbm-off">{{ s.t[\'home.travel\'] }}</div>' +
+              '<div class="hbm-note">{{ s.t[\'home.travelSoon\'] }}</div>' +
+            '</div>' +
+            '<div ng-if="s.home.tab == \'lexicon\'">' +
+              '<div class="hbm-section">{{ s.t[\'home.lexicon\'] }}</div>' +
+              '<div class="hbm-scroll">' +
+                '<div class="hbm-lex" ng-repeat="r in s.home.lexicon" ng-class="{\'is-beaten\': r.beaten}">' +
+                  '<div class="hbm-lex-top"><span class="hbm-lex-name">{{ r.name }}</span>' +
+                    '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
+                    '<span class="hbm-lex-state">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
+                  '<div class="hbm-lex-sub">{{ r.team }} · {{ r.car }}</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="hbm-item hbm-sub" ng-click="act(\'homeTab\', \'main\')">{{ s.t[\'home.back\'] }}</div>' +
+            '</div>' +
+          '</div>' +
+
+          // Tankstelle ----------------------------------------------------------------
+          '<div class="hbm-body" ng-if="s.screen == \'gas\'">' +
+            '<div class="hbm-area"><span class="hbm-area-tag hbm-tag-gas">G</span>{{ s.area }}</div>' +
+            '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
+            '<div class="hbm-note" ng-if="!s.gas || s.gas.loading">{{ s.t[\'gas.loading\'] }}</div>' +
+            '<div ng-if="s.gas && !s.gas.loading">' +
+              '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gas.level\'] }}</span><b>{{ s.gas.liters }}</b></div>' +
+              '<div class="hbm-fuelbar"><i ng-style="{width: s.gas.level + \'%\'}"></i></div>' +
+              '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gas.perLiter\'] }}</span><b>{{ s.gas.perLiter }}</b></div>' +
+              '<div class="hbm-actions">' +
+                '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': s.gas.full || !s.gas.affordable}" ng-click="!s.gas.full && s.gas.affordable && act(\'refuel\')">' +
+                  '{{ s.gas.full ? s.t[\'gas.full\'] : (s.t[\'gas.refuel\'] + \' · \' + s.gas.cost) }}</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="hbm-hint">{{ s.t[\'menu.driveOff\'] }}</div>' +
+          '</div>' +
+
+          // Autohändler (Auktion) -----------------------------------------------------
+          '<div class="hbm-body" ng-if="s.screen == \'dealer\' && s.dealer">' +
+            '<div class="hbm-area"><span class="hbm-area-tag">¥</span>{{ s.t[\'dealer.title\'] }}<span class="hbm-day">{{ s.day }}</span></div>' +
+            '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
+            '<div class="hbm-note">{{ s.t[\'dealer.note\'] }}</div>' +
+            '<div class="hbm-note" ng-if="!s.dealer.offers.length">{{ s.t[\'dealer.none\'] }}</div>' +
+            '<div class="hbm-scroll hbm-scroll-tall">' +
+              '<div class="hbm-lot" ng-repeat="o in s.dealer.offers track by o.index" ng-class="{\'is-sold\': o.sold}">' +
+                '<div class="hbm-lot-img" ng-style="{\'background-image\': \'url(\' + o.preview + \')\'}">' +
+                  '<span class="hbm-lot-no">{{ s.t[\'dealer.lot\'] }} {{ o.lot }}</span>' +
+                  '<span class="hbm-lot-cond" ng-class="\'c-\' + o.condition">{{ o.condition }}</span>' +
+                  '<span class="hbm-lot-sold" ng-if="o.sold">{{ s.t[\'dealer.sold\'] }}</span>' +
+                '</div>' +
+                '<div class="hbm-lot-body">' +
+                  '<div class="hbm-lot-title hbm-mq"><span>{{ o.title }}</span></div>' +
+                  '<div class="hbm-lot-cfg hbm-mq"><span>{{ o.config }}</span></div>' +
+                  '<div class="hbm-lot-specs"><span>{{ o.km }}</span><span ng-repeat="sp in o.specs">{{ sp }}</span></div>' +
+                  '<div class="hbm-lot-buy">' +
+                    '<span class="hbm-lot-price">{{ o.price }}</span>' +
+                    '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': o.sold || !o.affordable}" ng-click="!o.sold && o.affordable && act(\'dealerBuy\', o.index)">{{ s.t[\'dealer.buy\'] }}</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'dealerBack\')">{{ s.t[\'menu.back\'] }}</div>' +
           '</div>' +
 
           '<div class="hbm-foot"><span ng-click="act(\'hide\')" class="hbm-close">&#10005; {{ s.t[\'menu.hide\'] }}</span><span>{{ s.t[\'menu.hint\'] }}</span></div>' +
@@ -278,10 +355,48 @@ angular.module('beamng.apps')
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +
             'border-top:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.25);}' +
           '.hbm-close{cursor:pointer;} .hbm-close:hover{color:var(--o);}' +
+          '.hbm-tag-gas{background:#5ae673;}' +
+          '.hbm-day{margin-left:auto;font-size:10px;font-style:normal;letter-spacing:1px;color:var(--dim);}' +
+          '.hbm-fuelbar{margin:4px 18px 6px;height:8px;background:rgba(255,255,255,.08);transform:skewX(-12deg);}' +
+          '.hbm-fuelbar i{display:block;height:100%;background:linear-gradient(90deg,var(--o),var(--o2));}' +
+          '.hbm-scroll-tall{max-height:440px;}' +
+          '.hbm-lot{margin:0 18px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);}' +
+          '.hbm-lot.is-sold{opacity:.5;}' +
+          '.hbm-lot-img{position:relative;height:112px;background:#0d0d10 center/cover no-repeat;}' +
+          '.hbm-lot-no{position:absolute;left:0;top:0;font-size:9px;font-weight:800;letter-spacing:1px;padding:2px 6px;background:rgba(0,0,0,.65);color:var(--dim);}' +
+          '.hbm-lot-cond{position:absolute;right:6px;top:6px;width:20px;height:20px;line-height:21px;text-align:center;font-size:12px;font-weight:900;color:#141414;border-radius:2px;}' +
+          '.hbm-lot-cond.c-A{background:#5ae673;} .hbm-lot-cond.c-B{background:#ffd27a;} .hbm-lot-cond.c-C{background:#ff7a4d;}' +
+          '.hbm-lot-sold{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg);padding:3px 12px;font-size:14px;font-weight:900;letter-spacing:3px;text-transform:uppercase;border:2px solid #ff4d4d;color:#ff4d4d;background:rgba(0,0,0,.6);}' +
+          '.hbm-lot-body{padding:6px 10px 8px;}' +
+          '.hbm-lot-title{font-size:14px;font-weight:800;font-style:italic;}' +
+          '.hbm-lot-cfg{font-size:11px;color:var(--dim);}' +
+          '.hbm-lot-specs{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0;}' +
+          '.hbm-lot-specs span{font-size:9.5px;font-weight:700;letter-spacing:.5px;padding:1px 5px;background:rgba(255,255,255,.07);color:rgba(244,244,244,.8);}' +
+          '.hbm-lot-buy{display:flex;align-items:center;gap:10px;}' +
+          '.hbm-lot-price{flex:1;font-size:18px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;color:var(--o2);}' +
+          '.hbm-lot-buy .hbm-btn{flex:none;padding:6px 14px;}' +
+          '.hbm-lex{padding:6px 18px;border-bottom:1px solid rgba(255,255,255,.05);}' +
+          '.hbm-lex-top{display:flex;align-items:baseline;gap:8px;}' +
+          '.hbm-lex-name{flex:1;font-size:13px;font-weight:800;}' +
+          '.hbm-lex-tag{font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#141414;background:var(--o2);padding:0 4px;}' +
+          '.hbm-lex-state{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);}' +
+          '.hbm-lex.is-beaten .hbm-lex-state{color:var(--o);}' +
+          '.hbm-lex-sub{font-size:11px;color:var(--dim);}' +
         '</style>' +
       '</div>',
     replace: true,
     link: function (scope, element) {
+      // Hover-Sound (BeamNG-Standard), einmal je Element
+      var hoverEl = null
+      element[0].addEventListener('mouseover', function (e) {
+        var el = e.target.closest && e.target.closest('.hbm-item, .hbm-opt, .hbm-tab, .hbm-btn')
+        if (!el || el === hoverEl) return
+        hoverEl = el
+        bngApi.engineLua('if extensions.hashiriyaBattle_core then extensions.hashiriyaBattle_core.sound("hover") end')
+      })
+      element[0].addEventListener('mouseout', function (e) {
+        if (hoverEl && !hoverEl.contains(e.relatedTarget)) hoverEl = null
+      })
       'use strict'
       scope.s = null
       scope.open = { slot: null }

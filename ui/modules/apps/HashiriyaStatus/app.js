@@ -30,6 +30,7 @@ angular.module('beamng.apps')
           '.hbt-pa{--c:#ff6600;display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:5px;padding-top:5px;' +
             'border-top:1px solid rgba(255,255,255,.12);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;}' +
           '.hbt-pa-shop{--c:#3fb6ff;}' +
+          '.hbt-pa-gas{--c:#5ae673;}' +
           '.hbt-pa-tag{font-size:9px;font-weight:900;font-style:italic;color:#141414;background:var(--c);padding:1px 4px 0;border-radius:2px;letter-spacing:.5px;}' +
           '.hbt-pa-name{font-weight:700;color:#f4f4f4;}' +
           '.hbt-pa-dist{font-variant-numeric:tabular-nums;color:rgba(244,244,244,.65);min-width:46px;}' +

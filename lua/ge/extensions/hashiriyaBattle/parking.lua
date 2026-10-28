@@ -25,6 +25,9 @@ local groundZ = {}           -- Bodenhöhe je Parkplatz (einmal ermittelt)
 local current = nil          -- Parkplatz, in dem der Spieler gerade steht
 local arrived = false        -- im Parkplatz angehalten (Menü offen)
 local onFoot = false         -- Parkplatz zu Fuß betreten (Fußbereich statt Bucht)
+local footShop = nil         -- Shop zu Fuß betreten: Spieler sitzt fürs Menü im Auto in der Bucht
+local footBlocked = nil      -- Fußbereich erst wieder auslösen, wenn man ihn verlassen hat
+local bayHint = nil          -- Hinweis "zu Fuß zum Eingang" nur einmal je Bucht
 local dumpedModels = {}
 
 local function core() return extensions.hashiriyaBattle_core end
@@ -55,6 +58,29 @@ function M.footSpawnTransform()
   local dir = toVec(g.markerDir or g.dir); dir.z = 0; dir = dir:normalized()
   local side = dir:cross(up):normalized()
   return toVec(g.markerPos or g.pos) + side * 4 + vec3(0, 0, 0.3), quatFromDir(dir, up)
+end
+
+-- Steht das Auto in der Bucht des Parkplatzes?
+function M.carInBay(veh, a)
+  local okC, center = pcall(function() return veh:getSpawnWorldOOBB():getCenter() end)
+  local p = (a.markerPos and okC and center) and vec3(center) or veh:getPosition()
+  local d = p - toVec(a.markerPos or a.pos)
+  d.z = d.z * 0.5
+  return d:length() <= (a.radius or triggerRadius)
+end
+
+function M.isFootShop() return footShop ~= nil end
+
+-- Shop zu Fuß verlassen: aussteigen und wieder am Eingang stehen.
+function M.leaveFootShop()
+  local a = footShop
+  if not a then return end
+  footShop = nil
+  if current and arrived then core().onParkingLeft(current) end
+  current, arrived, onFoot = nil, false, false
+  footBlocked = a
+  local dir = toVec(a.footDir or a.dir); dir.z = 0
+  core().goOnFoot(nil, toVec(a.footPos) + vec3(0, 0, 0.2), quatFromDir(dir:normalized(), vec3(0, 0, 1)))
 end
 
 function M.isArrived()
@@ -207,6 +233,7 @@ local outlineNear, outlineFar = 12, 45      -- m: Rahmen voll sichtbar / unsicht
 local colors = {
   garage = { 1.0, 0.45, 0.1 },
   shop   = { 0.3, 0.72, 1.0 },
+  gas    = { 0.35, 0.9, 0.45 },
 }
 
 local markers = {} -- [areaId] = { outlineId, decal, decalArr, alpha }
@@ -313,7 +340,7 @@ local function drawMarkers(playerPos)
   local show = markersOn and not photoMode and not rawget(_G, 'photoModeOpen')
     and not (editor and editor.active)
   for _, a in ipairs(areas()) do
-    local m = markers[a.id] or (show and createMarker(a))
+    local m = not a.footOnly and (markers[a.id] or (show and createMarker(a)))
     if m then
       local dist = (playerPos - m.pos):length()
       if not show or dist > decalFadeEnd + 100 then
@@ -339,7 +366,7 @@ local function navInfo(veh)
   local best, bestDist = nil, math.huge
   for _, a in ipairs(areas()) do
     local d = (pos - toVec(a.pos)):length()
-    if d < bestDist then best, bestDist = a, d end
+    if d < bestDist and not a.footOnly then best, bestDist = a, d end
   end
   if not best then return nil end
   local fwd = veh:getDirectionVector()
@@ -381,16 +408,32 @@ local function onUpdate(dtReal)
     local foundFoot = nil
     for _, a in ipairs(areas()) do
       if a.footPos then
-        local r = (a.footRadius or footRadius) + ((a == current and onFoot) and leaveMargin or 0)
+        local r = (a.footRadius or footRadius) + ((a == current and onFoot or a == footBlocked) and leaveMargin or 0)
         local d = wpos - toVec(a.footPos)
         d.z = d.z * 0.5
         if d:length() <= r then foundFoot = a; break end
       end
     end
+    if footBlocked and foundFoot ~= footBlocked then footBlocked = nil end
+    if foundFoot and foundFoot == footBlocked then return end
     if foundFoot ~= current or not onFoot then
       if current and arrived then c.onParkingLeft(current) end
       current, arrived, onFoot = foundFoot, false, foundFoot ~= nil
-      if current then
+      if current and current.footEntry then
+        -- Shop: Auto muss in der Bucht stehen, dann setzt man sich fürs Menü hinein
+        local carVeh = c.carVehId and be:getObjectByID(c.carVehId)
+        if carVeh and M.carInBay(carVeh, current) then
+          footShop = current
+          onFoot = false
+          arrived = true
+          c.enterCarForShop(carVeh)
+          c.onParkingArrived(current)
+        else
+          footBlocked = current
+          current, onFoot = nil, false
+          c.msg(c.t('msg.needCarInBay'), 4)
+        end
+      elseif current then
         arrived = true
         c.onParkingArrived(current)
       end
@@ -408,22 +451,34 @@ local function onUpdate(dtReal)
     if current and arrived then c.onParkingLeft(current) end
     current, arrived, onFoot = nil, false, false
   end
+  if footShop then return end -- sitzt nur fürs Shop-Menü im Auto
   -- Auslösen nur in der Bucht selbst: Fahrzeugmitte nahe der Buchtmitte (mit markerPos), sonst
   -- Referenzpunkt nahe der gespeicherten Position. Zum Verlassen etwas mehr Abstand.
   local okC, center = pcall(function() return veh:getSpawnWorldOOBB():getCenter() end)
   local found = nil
   for _, a in ipairs(areas()) do
-    local p = (a.markerPos and okC and center) and vec3(center) or pos
-    local r = (a.radius or triggerRadius) + (a == current and leaveMargin or 0)
-    local d = p - toVec(a.markerPos or a.pos)
-    d.z = d.z * 0.5 -- Höhe zählt weniger (Fahrzeugmitte liegt über der Fahrbahn)
-    if d:length() <= r then found = a; break end
+    if not a.footOnly then
+      local p = (a.markerPos and okC and center) and vec3(center) or pos
+      local r = (a.radius or triggerRadius) + (a == current and leaveMargin or 0)
+      local d = p - toVec(a.markerPos or a.pos)
+      d.z = d.z * 0.5 -- Höhe zählt weniger (Fahrzeugmitte liegt über der Fahrbahn)
+      if d:length() <= r then found = a; break end
+    end
   end
 
   if found ~= current then
     if current and arrived then c.onParkingLeft(current) end
     current, arrived = found, false
   end
+  if current and current.footEntry then
+    -- Shop-Bucht: nicht per Auto öffnen, sondern zu Fuß am Eingang
+    if bayHint ~= current and veh:getVelocity():length() < enterSpeed then
+      bayHint = current
+      c.msg(c.t('msg.walkToEntrance'), 5)
+    end
+    return
+  end
+  if not current then bayHint = nil end
   if current and not arrived and veh:getVelocity():length() < enterSpeed
     and not extensions.hashiriyaBattle_battle.isBusy() then
     arrived = true

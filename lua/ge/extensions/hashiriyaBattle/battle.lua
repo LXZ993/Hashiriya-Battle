@@ -247,6 +247,11 @@ local function onUpdate(dtReal, dtSim)
 
   if state == 'countdown' then
     timer = timer - dtSim
+    local count = math.ceil(timer)
+    if count ~= battle.beep and count > 0 then
+      battle.beep = count
+      core().sound('countdown')
+    end
     -- Warnblinker prüfen und nur bei Bedarf wieder einschalten (falls die KI ihn ausschaltet)
     battle.warnTimer = (battle.warnTimer or 1) - dtSim
     if battle.warnTimer <= 0 then
