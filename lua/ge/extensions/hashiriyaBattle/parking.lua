@@ -166,11 +166,16 @@ function M.loadSettings(save)
   markersOn = not (save and save.settings and save.settings.markers == false)
 end
 
+-- Fahrbahnhöhe an der Parkbucht. Die C1 ist aufgeständert, daher ein kurzer Strahl von knapp
+-- über der gespeicherten Position nach unten (trifft das Deck, nicht den Boden darunter).
 local function ground(a)
   if groundZ[a.id] == nil then
     local p = toVec(a.pos)
-    local ok, h = pcall(function() return be:getSurfaceHeightBelow(p + vec3(0, 0, 2)) end)
-    groundZ[a.id] = (ok and type(h) == 'number' and h > p.z - 5) and h or (p.z - 0.4)
+    local z = nil
+    local ok, dist = pcall(function() return castRayStatic(p + vec3(0, 0, 1.0), vec3(0, 0, -1), 5) end)
+    if ok and type(dist) == 'number' and dist < 5 then z = p.z + 1.0 - dist end
+    groundZ[a.id] = z or (p.z - 0.35)
+    log('I', logTag, string.format('Parkplatz %s: Boden bei %.2f (Position %.2f)', a.id, groundZ[a.id], p.z))
   end
   return groundZ[a.id]
 end
@@ -186,7 +191,7 @@ M.clearMarkers = clearMarkers
 
 local function createMarker(a)
   local pos = toVec(a.pos)
-  pos.z = ground(a)
+  pos.z = ground(a) + 0.02
   local fwd = toVec(a.dir); fwd.z = 0; fwd = fwd:normalized()
   local rot = quatFromDir(fwd, vec3(0, 0, 1))
   local m = { alpha = -1, pos = pos }
@@ -214,7 +219,7 @@ local function createMarker(a)
     position = vec3(pos),
     forwardVec = fwd,
     color = ColorF(c[1], c[2], c[3], decalAlpha),
-    scale = vec3(bayWidth, bayLength, 1),
+    scale = vec3(bayWidth, bayLength, 3), -- Projektionstiefe, damit leichte Neigung nicht abschneidet
     fadeStart = decalFadeStart,
     fadeEnd = decalFadeEnd,
   }

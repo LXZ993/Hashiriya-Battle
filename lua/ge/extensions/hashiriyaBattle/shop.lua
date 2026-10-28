@@ -114,10 +114,7 @@ local function currentConfig()
   return out, vd
 end
 
-local function availableParts(vd)
-  local io = rawget(_G, 'jbeamIO') or require('jbeam/io')
-  return io.getAvailableParts(vd.ioCtx)
-end
+local function jbeamIO() return rawget(_G, 'jbeamIO') or require('jbeam/io') end
 
 local function buildCatalog()
   local veh = core().getPlayerVehicle()
@@ -129,20 +126,37 @@ local function buildCatalog()
     log('W', logTag, 'Shop: kein ioCtx in den Fahrzeugdaten')
     return nil
   end
-  local okParts, available = pcall(availableParts, vd)
-  if not okParts or type(available) ~= 'table' then
-    log('E', logTag, 'Shop: Teileliste nicht lesbar: ' .. tostring(available))
+  local io = jbeamIO()
+  -- 0.40: getAvailableParts liefert nur noch Beschreibungen; die Slot-Zuordnung kommt aus
+  -- getAvailableSlotNameMap, Preis und englischer Name aus dem Teil selbst (getPart).
+  local okMap, slotMap = pcall(io.getAvailableSlotNameMap, vd.ioCtx)
+  local okDesc, descs = pcall(io.getAvailableParts, vd.ioCtx)
+  if not okMap or type(slotMap) ~= 'table' then
+    log('E', logTag, 'Shop: Slot-Liste nicht lesbar: ' .. tostring(slotMap))
     return nil
   end
+  if not okDesc or type(descs) ~= 'table' then descs = {} end
 
-  -- Teile nach Slot-Typ sortieren
-  local bySlot = {}
-  for name, info in pairs(available) do
-    local st = info.slotType
-    local list = type(st) == 'table' and st or { st }
-    for _, s in ipairs(list) do
-      if s then bySlot[s] = bySlot[s] or {}; table.insert(bySlot[s], { name = name, info = info }) end
+  local partCache = {}
+  local function partInfo(name)
+    if partCache[name] == nil then
+      local info = { value = 0 }
+      local ok, part = pcall(io.getPart, vd.ioCtx, name)
+      if ok and type(part) == 'table' and type(part.information) == 'table' then
+        info.value = tonumber(part.information.value) or 0
+        info.name = part.information.name
+      end
+      local d = descs[name]
+      info.display = niceName(d and d.description or info.name, name)
+      partCache[name] = info
     end
+    return partCache[name]
+  end
+
+  local bySlot = {}
+  for slotType, names in pairs(slotMap) do
+    bySlot[slotType] = {}
+    for _, n in ipairs(names) do table.insert(bySlot[slotType], { name = n }) end
   end
 
   car.stock = car.stock or {}
@@ -160,10 +174,12 @@ local function buildCatalog()
         if car.stock[f.slot] == nil then car.stock[f.slot] = f.part end
         local options = {}
         for _, p in ipairs(bySlot[f.slot]) do
-          local display = niceName(p.info.description or (p.info.information and p.info.information.name), p.name)
-          local lv = partLevel(p.name, display, item)
-          if lv > 0 and p.name ~= car.stock[f.slot] then
-            table.insert(options, { part = p.name, name = display, level = lv, price = yen(p.info.value) })
+          if p.name ~= car.stock[f.slot] then
+            local info = partInfo(p.name)
+            local lv = partLevel(p.name, tostring(info.name or '') .. ' ' .. info.display, item)
+            if lv > 0 then
+              table.insert(options, { part = p.name, name = info.display, level = lv, price = yen(info.value) })
+            end
           end
         end
         if #options > 0 then
@@ -171,10 +187,7 @@ local function buildCatalog()
             if a.level ~= b.level then return a.level < b.level end
             return a.price < b.price
           end)
-          local stockName = car.stock[f.slot]
-          for _, p in ipairs(bySlot[f.slot]) do
-            if p.name == stockName then stockName = niceName(p.info.description, p.name) end
-          end
+          local stockName = car.stock[f.slot] ~= '' and partInfo(car.stock[f.slot]).display or '—'
           local row = { slot = f.slot, key = f.key, item = item.id, multi = #found > 1, stockName = stockName, options = options }
           cat.slots[f.slot] = row
           table.insert(tabRows, row)
