@@ -120,6 +120,13 @@ local function membersBeatenTonight(teamId, save, night)
   return n
 end
 
+-- Leader: "appear": "sameNight" (kommt noch in derselben Nacht) oder "nextNight"; ohne Angabe gilt settings.leaderNotSameNight
+local function leaderWaitsNight(rival)
+  if rival.appear == 'sameNight' then return false end
+  if rival.appear == 'nextNight' then return true end
+  return settings().leaderNotSameNight ~= false
+end
+
 local function inHours(h, from, to)
   if from <= to then return h >= from and h < to end
   return h >= from or h < to
@@ -186,7 +193,7 @@ local function isEligible(rival, save)
     local team = teamById(rival.team)
     if team and progress().rankIndex(save) < (team.minRank or 0) then return false end
     if rival.leader then
-      if not teamMembersDefeated(rival.team, save, set.leaderNotSameNight ~= false and night or nil) then return false end
+      if not teamMembersDefeated(rival.team, save, leaderWaitsNight(rival) and night or nil) then return false end
     elseif membersBeatenTonight(rival.team, save, night) >= (set.teamMembersPerNight or 99) then
       return false
     end
@@ -228,10 +235,15 @@ end
 
 local function pickRival(save)
   -- Gibt es neue Gegner, kommt meist einer davon (rematch.weight = Anteil der Revanchen); sonst eine Revanche
-  local fresh, beaten = {}, {}
+  -- Ein Leader, dessen Mitglieder alle geschlagen sind, kommt bevorzugt (settings.leaderChance)
+  local fresh, beaten, leaders = {}, {}, {}
   for _, r in ipairs(data.rivals) do
-    if isEligible(r, save) then table.insert(save.defeated[r.id] and beaten or fresh, r) end
+    if isEligible(r, save) then
+      table.insert(save.defeated[r.id] and beaten or fresh, r)
+      if r.leader and not save.defeated[r.id] then table.insert(leaders, r) end
+    end
   end
+  if #leaders > 0 and math.random() < (settings().leaderChance or 0.7) then return leaders[math.random(#leaders)] end
   local rw = (settings().rematch or {}).weight or 0.25
   if #fresh > 0 and (#beaten == 0 or math.random() >= rw) then return fresh[math.random(#fresh)] end
   if #beaten > 0 then return rematchOf(beaten[math.random(#beaten)], save) end
@@ -486,7 +498,7 @@ function M.leaderStatus(rival, save)
   save = save or core().save
   if not (rival and rival.leader and save) then return nil end
   if not teamMembersDefeated(rival.team, save) then return 'members' end
-  if settings().leaderNotSameNight ~= false and not teamMembersDefeated(rival.team, save, extensions.hashiriyaBattle_home.nightId()) then return 'nextNight' end
+  if leaderWaitsNight(rival) and not teamMembersDefeated(rival.team, save, extensions.hashiriyaBattle_home.nightId()) then return 'nextNight' end
   return 'out'
 end
 

@@ -334,5 +334,5 @@
   "home.leader.members": "Shows up once all members are beaten.",
   "home.leader.nextNight": "Out on the road from next night on.",
   "home.leader.out": "Out on the road. Keep your eyes open.",
-  "msg.leader.out": "All members beaten. %s is out on the road now."
+  "msg.leader.out": "All members beaten. %s will show up tonight."
 }

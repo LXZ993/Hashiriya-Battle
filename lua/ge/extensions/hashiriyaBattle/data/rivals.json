@@ -8,6 +8,7 @@
   "rivalOncePerNight": false,
   "lostRivalCooldownNights": 0,
   "leaderNotSameNight": true,
+  "leaderChance": 0.7,
   "lossRep": -10,
   "cleanWinMaxDamageSp": 60,
   "closeWinMaxSpPercent": 15,
@@ -370,6 +371,7 @@
   },
   {
    "id": "t_lantern_leader",
+   "appear": "sameNight",
    "name": "Riku Tanabe",
    "nick": {
     "de": "Laternenträger",
@@ -471,6 +473,7 @@
   },
   {
    "id": "t_neon_leader",
+   "appear": "sameNight",
    "name": "Reika Hoshino",
    "nick": {
     "de": "Königin der Lichter",
@@ -572,6 +575,7 @@
   },
   {
    "id": "t_kasumi_leader",
+   "appear": "nextNight",
    "name": "Kaito Shirasagi",
    "nick": {
     "de": "Weißer Nebel",
@@ -673,6 +677,7 @@
   },
   {
    "id": "t_yamagumi_leader",
+   "appear": "nextNight",
    "name": "Jiro Takane",
    "nick": {
     "de": "Der Bergkönig",
@@ -774,6 +779,7 @@
   },
   {
    "id": "t_kitsune_leader",
+   "appear": "sameNight",
    "name": "Shiori Kitsuneda",
    "nick": {
     "de": "Neunschwanz",
@@ -875,6 +881,7 @@
   },
   {
    "id": "t_akatsuki_leader",
+   "appear": "nextNight",
    "name": "Ryo Akatsuki",
    "nick": {
     "de": "Der Teamchef",
@@ -976,6 +983,7 @@
   },
   {
    "id": "t_raijin_leader",
+   "appear": "sameNight",
    "name": "Genji Raijima",
    "nick": {
     "de": "Der Donnergott",
@@ -1077,6 +1085,7 @@
   },
   {
    "id": "t_kurogane_leader",
+   "appear": "nextNight",
    "name": "Masamune Kurogane",
    "nick": {
     "de": "Das Oberhaupt",
