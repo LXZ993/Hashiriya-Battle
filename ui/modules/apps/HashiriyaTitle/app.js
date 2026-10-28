@@ -1,8 +1,11 @@
+// BeamNG-Symbole (aus ui/ui-vue/src/assets/fonts/bngIcons, Farbe über currentColor)
+var HB_TITLE_ICONS = {"raceFlag": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 5,4 l 4,0 0,2 2,0 0,-2 2,0 0.39,0.08 0.32,0.21 0.21,0.32 0.08,0.39 0,2 1,0 0,-2 2,0 0,2 1,0 0,-2 0.08,-0.39 0.21,-0.32 0.32,-0.21 0.39,-0.08 0,10 -0.08,0.39 -0.21,0.32 -0.32,0.21 -0.39,0.08 0,-2 -1,0 0,2 -2,0 0,-2 -1,0 0,2 -0.39,-0.08 -0.32,-0.21 -0.21,-0.32 -0.08,-0.39 -2,0 0,-2 -2,0 0,2 -2,0 0,6 -2,0 0,-16 Z M 7,6 l 0,2 2,0 0,2 -2,0 0,2 2,0 0,-2 2,0 0,2 2,0 0,-2 -2,0 0,-2 2,0 0,-2 -2,0 0,2 -2,0 0,-2 -2,0 Z M 15,9 l 2,0 0,-2 -2,0 0,2 Z M 17,11 l -2,0 0,2 2,0 0,-2 Z M 15,11 l 0,-2 -1,0 0,2 1,0 Z M 17,11 l 1,0 0,-2 -1,0 0,2 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "playRound": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 12,22 l -1.02,-0.05 -1,-0.15 -0.95,-0.25 -0.92,-0.34 -1.7,-0.92 -1.48,-1.22 -1.22,-1.48 -0.92,-1.7 -0.34,-0.92 -0.25,-0.95 -0.15,-1 -0.05,-1.02 0.05,-1.02 0.15,-1 0.25,-0.95 0.34,-0.92 0.92,-1.7 1.22,-1.48 1.48,-1.22 1.7,-0.92 0.92,-0.34 0.95,-0.25 1,-0.15 1.02,-0.05 1.02,0.05 1,0.15 0.95,0.25 0.92,0.34 1.7,0.92 1.48,1.22 1.22,1.48 0.92,1.7 0.34,0.92 0.25,0.95 0.15,1 0.05,1.02 -0.05,1.02 -0.15,1 -0.25,0.95 -0.34,0.92 -0.92,1.7 -1.22,1.48 -1.48,1.22 -1.7,0.92 -0.92,0.34 -0.95,0.25 -1,0.15 -1.02,0.05 Z M 9.48,6.81 l -0.51,-0.13 -0.48,0.14 -0.35,0.36 -0.14,0.5 0,8.64 0.14,0.5 0.35,0.36 0.48,0.14 0.51,-0.13 7.91,-4.31 0.39,-0.38 0.13,-0.5 -0.13,-0.5 -0.39,-0.38 -7.91,-4.31 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "exit": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 17.13,4.35 l 2.37,-1.35 1.5,0 0,18 -1.5,0 -2.37,-1.35 -0.53,0.26 -0.6,0.09 -8,0 -0.78,-0.16 -0.63,-0.43 -0.43,-0.63 -0.16,-0.78 10,0 0,-12 -10,0 0.16,-0.78 0.43,-0.63 0.63,-0.43 0.78,-0.16 8,0 0.6,0.09 0.53,0.26 Z M 3,12 l 4,-4 1.5,0 -0.5,2.5 5,0 0,3 -5,0 0.5,2.5 -1.5,0 -4,-4 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "diceD6": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 10.66,4.17 l 0.66,-0.24 0.68,-0.08 0.68,0.08 0.66,0.24 5,2.5 0.69,0.47 0.52,0.64 0.33,0.75 0.12,0.82 0,5.3 -0.12,0.82 -0.33,0.75 -0.52,0.64 -0.69,0.47 -5,2.5 -0.66,0.24 -0.68,0.08 -0.68,-0.08 -0.66,-0.24 -5,-2.5 -0.69,-0.47 -0.52,-0.64 -0.33,-0.75 -0.12,-0.82 0,-5.3 0.12,-0.82 0.33,-0.75 0.52,-0.64 0.69,-0.47 5,-2.5 Z M 16.24,8.59 l -1.25,0.31 -0.99,0.5 -0.73,0.65 -0.51,0.79 -0.29,0.89 -0.1,0.96 0.16,0.96 0.46,0.76 0.33,0.3 0.41,0.22 0.48,0.13 0.54,0.05 0.63,-0.07 0.56,-0.19 0.46,-0.31 0.36,-0.42 0.22,-0.5 0.07,-0.57 -0.07,-0.58 -0.21,-0.5 -0.33,-0.41 -0.43,-0.32 -0.52,-0.2 -0.58,-0.06 -0.47,0.06 -0.37,0.15 0.23,-0.36 0.31,-0.29 0.79,-0.4 0.84,-0.21 0,-1.34 Z M 9.8,9.11 l 0,1.64 -0.39,-0.34 -0.51,-0.12 -0.53,0.08 -0.46,0.23 -0.39,0.37 -0.28,0.48 -0.19,0.58 -0.06,0.67 0.13,1.02 0.37,0.76 0.6,0.47 0.79,0.16 0.57,-0.13 0.35,-0.37 0,0.39 1.35,0 0,-6.5 -1.35,0.61 Z M 9.12,11.6 l 0.38,0.07 0.3,0.22 0,1.65 -0.27,0.2 -0.41,0.06 -0.44,-0.12 -0.25,-0.36 -0.09,-0.62 0.05,-0.48 0.15,-0.34 0.25,-0.21 0.33,-0.07 Z M 14.75,12.32 l 0.35,0.05 0.29,0.15 0.2,0.23 0.06,0.3 -0.12,0.39 -0.32,0.24 -0.46,0.09 -0.47,-0.09 -0.33,-0.24 -0.12,-0.39 0.12,-0.38 0.33,-0.26 0.47,-0.09 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "arrowLargeLeft": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 13,20 l -8,-8 8,-8 2,2 -6,6 6,6 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "arrowLargeRight": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 10,20 l -2,-2 6,-6 -6,-6 2,-2 8,8 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>"}
+
 // Hashiriya Battle: Titelbildschirm und "Neues Spiel" (Fahrer, Auto, Lack, Bestätigung).
 // Läuft im eigenen Layout 'hashiriyaTitle' ohne HUD. Zustand kommt als s.flow über 'HashiriyaState',
 // Eingaben gehen als uiAction('flow', 'befehl|wert') zurück an Lua (career.lua).
 angular.module('beamng.apps')
-.directive('hashiriyaTitle', [function () {
+.directive('hashiriyaTitle', ['$sce', function ($sce) {
   return {
     template:
       '<div class="bngApp hbt-root">' +
@@ -17,12 +20,12 @@ angular.module('beamng.apps')
               '<div class="hbt-logo-jp">走り屋バトル</div>' +
             '</div>' +
             '<div class="hbt-menu">' +
-              '<div class="hbt-mi" ng-click="cmd(\'newGame\')"><span class="hbt-mi-n">01</span>{{ t(\'title.newGame\') }}</div>' +
-              '<div class="hbt-mi" ng-class="{\'is-off\': !f.save}" ng-click="f.save && cmd(\'continue\')"><span class="hbt-mi-n">02</span>{{ t(\'title.continue\') }}</div>' +
+              '<div class="hbt-mi" ng-click="cmd(\'newGame\')"><span class="hbt-mi-n">01</span><i class="hbt-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ t(\'title.newGame\') }}</div>' +
+              '<div class="hbt-mi" ng-class="{\'is-off\': !f.save}" ng-click="f.save && cmd(\'continue\')"><span class="hbt-mi-n">02</span><i class="hbt-ico" ng-bind-html="ico(\'playRound\')"></i>{{ t(\'title.continue\') }}</div>' +
               '<div class="hbt-save" ng-if="f.save">' +
                 '<span>{{ f.save.name }}</span><span>{{ f.save.car }}</span><span class="hbt-yen">{{ f.save.money }}</span>' +
               '</div>' +
-              '<div class="hbt-mi hbt-mi-sub" ng-click="cmd(\'quit\')"><span class="hbt-mi-n">03</span>{{ t(\'title.quit\') }}</div>' +
+              '<div class="hbt-mi hbt-mi-sub" ng-click="cmd(\'quit\')"><span class="hbt-mi-n">03</span><i class="hbt-ico" ng-bind-html="ico(\'exit\')"></i>{{ t(\'title.quit\') }}</div>' +
             '</div>' +
             '<div class="hbt-foot">{{ t(\'title.hint\') }}</div>' +
           '</div>' +
@@ -43,7 +46,7 @@ angular.module('beamng.apps')
               '<label class="hbt-label">{{ t(\'new.plate\') }}</label>' +
               '<div class="hbt-plate-row">' +
                 '<input class="hbt-input hbt-plate" type="text" maxlength="12" ng-model="form.plate" placeholder="{{ f.plateHint }}">' +
-                '<span class="hbt-btn" ng-click="cmd(\'randomPlate\')">{{ t(\'new.random\') }}</span>' +
+                '<span class="hbt-btn" ng-click="cmd(\'randomPlate\')"><i class="hbt-ico hbt-ico-s" ng-bind-html="ico(\'diceD6\')"></i>{{ t(\'new.random\') }}</span>' +
               '</div>' +
               '<div class="hbt-note">{{ t(\'new.plateNote\') }}</div>' +
             '</div>' +
@@ -77,7 +80,7 @@ angular.module('beamng.apps')
 
             '<div class="hbt-busy" ng-if="f.busy">{{ t(\'new.loading\') }}</div>' +
             '<div class="hbt-nav">' +
-              '<span class="hbt-btn" ng-click="cmd(\'back\')">{{ t(\'menu.back\') }}</span>' +
+              '<span class="hbt-btn" ng-click="cmd(\'back\')"><i class="hbt-ico hbt-ico-s" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ t(\'menu.back\') }}</span>' +
               '<span class="hbt-btn hbt-btn-main" ng-class="{\'is-off\': !canNext()}" ng-click="canNext() && next()">' +
                 '{{ f.step == \'confirm\' ? t(\'new.start\') : t(\'new.next\') }}</span>' +
             '</div>' +
@@ -111,6 +114,10 @@ angular.module('beamng.apps')
             'cursor:pointer;transition:padding-left .14s,background .14s;}' +
           '.hbt-mi:hover{padding-left:30px;background:linear-gradient(90deg,rgba(255,102,0,.35),rgba(255,102,0,0));}' +
           '.hbt-mi:hover:before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:5px;background:var(--o);}' +
+          '.hbt-ico{display:inline-flex;width:26px;height:26px;flex:none;margin-right:14px;color:var(--o);}' +
+          '.hbt-ico svg{width:100%;height:100%;}' +
+          '.hbt-ico-s{width:14px;height:14px;margin-right:6px;vertical-align:-2px;color:inherit;transform:skewX(14deg);}' +
+          '.hbt-mi-sub .hbt-ico{width:20px;height:20px;}' +
           '.hbt-mi-n{font-size:13px;color:var(--o);width:42px;flex:none;}' +
           '.hbt-mi-sub{font-size:17px;color:rgba(244,244,244,.7);}' +
           '.hbt-mi.is-off{opacity:.35;cursor:default;} .hbt-mi.is-off:hover{padding-left:18px;background:none;} .hbt-mi.is-off:hover:before{display:none;}' +
@@ -172,6 +179,11 @@ angular.module('beamng.apps')
       '</div>',
     replace: true,
     link: function (scope, element) {
+      var iconCache = {}
+      scope.ico = function (name) {
+        if (!iconCache[name]) iconCache[name] = $sce.trustAsHtml(HB_TITLE_ICONS[name] || '')
+        return iconCache[name]
+      }
       // Hover-Sound (BeamNG-Standard), einmal je Element
       var hoverEl = null
       element[0].addEventListener('mouseover', function (e) {

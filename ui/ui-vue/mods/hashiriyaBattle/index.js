@@ -9,7 +9,7 @@ export function startCareer() {
 }
 
 function addButton(add) {
-  add({ title: "Hashiriya Battle", iconId: "raceFlag", action: startCareer })
+  add({ title: "Hashiriya Battle", iconId: "headlightCoins", action: startCareer })
 }
 
 export function onLoad() {
