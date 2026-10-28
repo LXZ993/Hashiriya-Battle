@@ -11,6 +11,7 @@ local titleLayout = 'hashiriyaTitle'
 local flow = nil          -- nil = kein Titel/Assistent offen
 local spawnTimer = 0      -- kurze Sperre, solange das Showroom-Auto spawnt
 local pendingTitle = false -- Level wird gerade für den Titelbildschirm geladen
+local fallbackTimer = 0   -- falls onLoadingScreenFadeout nicht kommt: Titel trotzdem öffnen
 
 local function core() return extensions.hashiriyaBattle_core end
 local function parking() return extensions.hashiriyaBattle_parking end
@@ -61,12 +62,47 @@ function M.startFromMainMenu()
   end
 end
 
+-- Feste Kameraansicht auf die Garagenbucht, solange noch kein Auto dasteht.
+-- (Ohne Auto schaltet Freeroam auf die freie Kamera; wir stellen sie nur passend hin.)
+local function garageCamera()
+  local area = parking().find('garage')
+  if not area or not area.pos then return end
+  local target = vec3(area.pos[1], area.pos[2], area.pos[3]) + vec3(0, 0, 0.6)
+  local dir = area.dir and vec3(area.dir[1], area.dir[2], 0) or vec3(0, 1, 0)
+  if dir:length() < 1e-3 then dir = vec3(0, 1, 0) end
+  dir = dir:normalized()
+  local side = dir:cross(vec3(0, 0, 1))
+  local camPos = target + dir * 5.5 + side * 3 + vec3(0, 0, 1.2)
+  local rot = quatFromDir((target - camPos):normalized(), vec3(0, 0, 1))
+  pcall(function()
+    if commands and commands.setFreeCamera then commands.setFreeCamera() end
+    core_camera.setPosRot(0, camPos.x, camPos.y, camPos.z, rot.x, rot.y, rot.z, rot.w)
+  end)
+end
+
+-- Ladebildschirm ist weg: BeamNG-Hauptmenü verlassen und Titel zeigen.
+local function showTitleAfterLoad()
+  if not pendingTitle then return end
+  pendingTitle = false
+  fallbackTimer = 0
+  local router = extensions.ui_router or (extensions.load('ui_router') and extensions.ui_router)
+  if router and router.navigate then pcall(router.navigate, 'play') end
+  garageCamera()
+  M.openTitle()
+  log('I', logTag, 'Karriere: Titelbildschirm geöffnet')
+end
+
 -- Nach dem Laden des Levels (von core.onClientPostStartMission)
 function M.onLevelReady()
   if pendingTitle then
-    pendingTitle = false
-    M.openTitle()
+    garageCamera()
+    fallbackTimer = 5
+    log('I', logTag, 'Karriere: Level geladen, warte auf Ende des Ladebildschirms')
   end
+end
+
+function M.onLoadingScreenFadeout()
+  showTitleAfterLoad()
 end
 
 -- Showroom: Auto in der Garagenbucht -------------------------------------------
@@ -274,6 +310,10 @@ end
 
 local function onUpdate(dtReal)
   if spawnTimer > 0 then spawnTimer = spawnTimer - dtReal end
+  if fallbackTimer > 0 then
+    fallbackTimer = fallbackTimer - dtReal
+    if fallbackTimer <= 0 then showTitleAfterLoad() end
+  end
 end
 
 M.onUpdate = onUpdate
