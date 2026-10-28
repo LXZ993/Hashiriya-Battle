@@ -587,7 +587,7 @@ end
 
 -- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
 -- Klick-Sounds der Menüs (Meldungen bringen ihren eigenen Sound mit)
-local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true }
+local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true, fuelHold = true }
 local tabActions = { shopTab = true, garageTab = true, setupCat = true, paintSlot = true }
 local backActions = { back = true, hide = true, previewCancel = true, setupDiscard = true }
 
@@ -641,8 +641,8 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_home.sleep()
   elseif action == 'homeTab' then
     homeTab = arg
-  elseif action == 'refuel' then
-    extensions.hashiriyaBattle_fuel.refuel()
+  elseif action == 'fuelHold' then
+    extensions.hashiriyaBattle_fuel.setHolding(arg == '1')
   elseif action == 'callRival' then
     extensions.hashiriyaBattle_rivals.spawnNext(true)
   elseif action == 'capture' then
@@ -767,7 +767,8 @@ local function onUpdate(dtReal)
   if not M.levelName then return end
   uiTimer = uiTimer - dtReal
   if uiTimer <= 0 then
-    uiTimer = uiInterval
+    -- beim Tanken öfter aktualisieren, damit Liter und Preis flüssig mitlaufen
+    uiTimer = extensions.hashiriyaBattle_fuel.isHolding() and 0.1 or uiInterval
     M.sendUiState()
   end
 end

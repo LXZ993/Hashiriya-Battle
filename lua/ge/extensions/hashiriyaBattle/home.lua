@@ -4,7 +4,7 @@
 local M = {}
 
 local logTag = 'hashiriya'
-local wakeHour = 21        -- nach dem Schlafen: 21 Uhr, die Nacht beginnt
+local wakeHour = 20        -- nach dem Schlafen: 20 Uhr, die Nacht beginnt
 local lastTime = nil       -- Tageszeit beim letzten Update (für den Tageswechsel um Mitternacht)
 
 local function core() return extensions.hashiriyaBattle_core end

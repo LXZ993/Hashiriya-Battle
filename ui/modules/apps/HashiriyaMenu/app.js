@@ -205,11 +205,15 @@ angular.module('beamng.apps')
             '<div ng-if="s.gas && !s.gas.loading">' +
               '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gas.level\'] }}</span><b>{{ s.gas.liters }}</b></div>' +
               '<div class="hbm-fuelbar"><i ng-style="{width: s.gas.level + \'%\'}"></i></div>' +
-              '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gas.perLiter\'] }}</span><b>{{ s.gas.perLiter }}</b></div>' +
+              '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gas.perLiter\'] }} <span class="hbm-badge" ng-class="{\'hbm-badge-night\': s.gas.night}">{{ s.gas.night ? s.t[\'gas.night\'] : s.t[\'gas.day\'] }}</span></span><b>{{ s.gas.perLiter }}</b></div>' +
+              '<div class="hbm-stat" ng-if="!s.gas.full"><span class="hbm-label">{{ s.t[\'gas.fullCost\'] }}</span><b>{{ s.gas.fullCost }}</b></div>' +
+              '<div class="hbm-stat hbm-stat-live" ng-if="s.gas.session"><span class="hbm-label">{{ s.t[\'gas.session\'] }}</span><b>{{ s.gas.session.liters }} · {{ s.gas.session.cost }}</b></div>' +
               '<div class="hbm-actions">' +
-                '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': s.gas.full || !s.gas.affordable}" ng-click="!s.gas.full && s.gas.affordable && act(\'refuel\')">' +
-                  '<i class="hbm-ico" ng-bind-html="ico(\'fuelPumpFilling\')"></i>{{ s.gas.full ? s.t[\'gas.full\'] : (s.t[\'gas.refuel\'] + \' · \' + s.gas.cost) }}</span>' +
+                '<span class="hbm-btn hbm-btn-main hbm-hold" ng-class="{\'hbm-dis\': s.gas.full || !s.gas.affordable, \'hbm-holding\': s.gas.holding}"' +
+                  ' ng-mousedown="fuelHold(true)" ng-mouseup="fuelHold(false)" ng-mouseleave="fuelHold(false)">' +
+                  '<i class="hbm-ico" ng-bind-html="ico(\'fuelPumpFilling\')"></i>{{ s.gas.full ? s.t[\'gas.full\'] : (s.gas.holding ? s.t[\'gas.holding\'] : s.t[\'gas.refuel\']) }}</span>' +
               '</div>' +
+              '<div class="hbm-note">{{ s.t[\'gas.nightNote\'] }}</div>' +
             '</div>' +
             '<div class="hbm-hint">{{ s.t[\'menu.driveOff\'] }}</div>' +
           '</div>' +
@@ -353,6 +357,11 @@ angular.module('beamng.apps')
           '.hbm-plate{display:flex;gap:6px;align-items:center;padding:4px 18px 8px;}' +
           '.hbm-plate input{flex:1;min-width:0;height:26px;padding:0 8px;font:700 13px "Overpass",sans-serif;letter-spacing:1px;color:#141414;background:#f4f1e6;border:2px solid #2a2a2a;border-radius:3px;outline:none;}' +
           '.hbm-plate .hbm-btn{flex:none;padding:6px 10px;}' +
+          '.hbm-badge{display:inline-block;margin-left:6px;padding:0 6px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.1);color:rgba(244,244,244,.8);transform:skewX(-12deg);}' +
+          '.hbm-badge-night{background:rgba(120,140,255,.25);color:#b8c4ff;}' +
+          '.hbm-stat-live b{color:var(--o);}' +
+          '.hbm-hold{user-select:none;}' +
+          '.hbm-holding{filter:brightness(1.25);box-shadow:0 0 0 2px var(--o) inset;}' +
           '.hbm-note{font-size:12px;line-height:1.45;color:rgba(244,244,244,.75);padding:4px 18px 8px;}' +
           '.hbm-hint{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:8px 18px 2px;}' +
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +
@@ -499,6 +508,16 @@ angular.module('beamng.apps')
         if (o.previewing) return
         scope.act('buyPart', r.slot + '|' + (o.part || ''))
       }
+      // Tanken: Knopf gedrückt halten, loslassen stoppt
+      var fuelHolding = false
+      scope.fuelHold = function (on) {
+        if (on && (!scope.s.gas || scope.s.gas.full || !scope.s.gas.affordable)) return
+        if (on === fuelHolding) return
+        fuelHolding = on
+        scope.act('fuelHold', on ? '1' : '0')
+      }
+      window.addEventListener('mouseup', function () { if (fuelHolding) scope.$evalAsync(function () { scope.fuelHold(false) }) })
+
       scope.act = function (action, arg) {
         // Lua-String: Steuerzeichen als \ddd, da Lua kein \uXXXX kennt
         var a = arg === undefined ? 'nil' : '"' + String(arg).replace(/[\\"]/g, '\\$&').replace(/[\u0000-\u001f\u007f]/g, function (ch) { return '\\' + ('00' + ch.charCodeAt(0)).slice(-3) }) + '"'
