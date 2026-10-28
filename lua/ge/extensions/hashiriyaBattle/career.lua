@@ -239,6 +239,7 @@ local function startCareer()
     playerName = flow.name,
     experience = flow.experience,
     carPrice = starterPriceYen(starter),
+    condition = starter.condition,
     car = { model = starter.model, config = cfg, name = starter.name, plate = plate,
       paintId = flow.paintId, paintIds = { flow.paintId }, ownedPaints = flow.paintId and { [flow.paintId] = true } or nil },
   })

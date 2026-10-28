@@ -8,7 +8,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style' }
+local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -218,6 +218,7 @@ local engineOffTimer = 0
 function M.engineOffAfterSpawn()
   engineOffTimer = 3
   extensions.hashiriyaBattle_fuel.keepAfterRespawn()
+  extensions.hashiriyaBattle_condition.keepAfterRespawn()
 end
 
 local function onVehicleSpawned(vehId)
@@ -339,8 +340,10 @@ end
 local function chooseStarterCar(car)
   M.save = newSave()
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
-  table.insert(M.save.cars, { model = car.model, config = car.config, name = car.name })
+  local entry = { model = car.model, config = car.config, name = car.name }
+  table.insert(M.save.cars, entry)
   M.save.activeCar = 1
+  extensions.hashiriyaBattle_condition.initUsedCar(entry, car.condition, nil)
   M.writeSave()
   spawnPlayerCar(car)
   M.startTraffic()
@@ -362,6 +365,8 @@ function M.newCareer(data)
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
   table.insert(M.save.cars, data.car)
   M.save.activeCar = 1
+  -- Starterautos sind gebraucht (cars.json: condition)
+  extensions.hashiriyaBattle_condition.initUsedCar(data.car, data.condition, M.getPlayerVehicle())
   extensions.hashiriyaBattle_home.applyClock(extensions.hashiriyaBattle_home.world().startHour)
   M.writeSave()
   M.active = true

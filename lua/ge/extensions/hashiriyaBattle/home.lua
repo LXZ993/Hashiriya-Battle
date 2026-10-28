@@ -59,9 +59,23 @@ function M.applyClock(hour)
     tod.dayLength = w.dayLengthMinutes * 60
     tod.dayScale = 1
     tod.nightScale = 1
+    -- setTimeOfDay tut nichts, solange Umgebungsänderungen gesperrt sind
+    if core_environment.canChange and not core_environment.canChange() and core_environment.enableChanges then core_environment.enableChanges(true) end
     core_environment.setTimeOfDay(tod)
   end)
   if not ok then log('W', logTag, 'Uhr stellen fehlgeschlagen: ' .. tostring(err)) end
+  -- Tempo direkt am TimeOfDay-Objekt (dayScale/nightScale setzt core_environment nicht; 0 hält die Uhr an)
+  pcall(function()
+    for _, name in ipairs(scenetree.findClassObjects('TimeOfDay') or {}) do
+      local obj = scenetree.findObject(name)
+      if obj then
+        obj.dayScale = 1
+        obj.nightScale = 1
+        obj.dayLength = w.dayLengthMinutes * 60
+        obj:setField('play', 0, 'true')
+      end
+    end
+  end)
   lastTime = timeOfDay()
 end
 
@@ -235,6 +249,8 @@ local function timeLocked(c)
   return c.active and c.save and c.buildData and c.buildData.release == true and c.buildData.lockTime ~= false
 end
 
+local stallTime, stallSim = nil, 0 -- erkennt eine stehende Uhr
+
 local function onUpdate(dtReal, dtSim)
   local t = timeOfDay()
   if not t then return end
@@ -252,12 +268,23 @@ local function onUpdate(dtReal, dtSim)
   if lastTime and lastTime < 0.5 and t >= 0.5 and t - lastTime < 0.05 and c.active then newDay() end
   lastTime = t
   if not c.active or not c.save then return end
+  stallSim = stallSim + (dtSim or 0)
   -- Uhr gelegentlich prüfen (falls sie über die BeamNG-Umgebung angehalten oder verstellt wurde)
   clockCheck = clockCheck - (dtReal or 0)
   if clockCheck <= 0 then
     clockCheck = 5
     local ok, tod = pcall(function() return core_environment.getTimeOfDay() end)
     if ok and tod and (not tod.play or math.abs((tod.dayLength or 0) - M.world().dayLengthMinutes * 60) > 1) then M.applyClock() end
+    -- Uhr steht trotzdem (z. B. Zeitskala 0 im Time-&-Weather-Menü): neu anstoßen
+    if stallSim > 4 and stallTime and t then
+      local moved = (t - stallTime) % 1
+      local expected = stallSim / (M.world().dayLengthMinutes * 60)
+      if moved < expected * 0.25 then
+        log('I', logTag, 'Uhr steht, starte sie neu')
+        M.applyClock()
+      end
+    end
+    stallTime, stallSim = t, 0
     if M.isNight() then extensions.hashiriyaBattle_progress.onNight(M.nightId()) end
   end
 end
