@@ -1,5 +1,5 @@
 // Hashiriya Battle: Eintrag im BeamNG-Hauptmenü (Seite "Mehr ...").
-// Der große Banner auf der ersten Seite kommt aus MainMenuBanner.vue (Slot mainmenu.top).
+// (Ein eigenes Bild geht bei diesen Knöpfen nicht, nur ein eingebautes Symbol.)
 import { useBridge } from "@/bridge"
 
 const { events } = useBridge()
@@ -9,7 +9,7 @@ export function startCareer() {
 }
 
 function addButton(add) {
-  add({ title: "Hashiriya Battle", iconId: "flag", action: startCareer })
+  add({ title: "Hashiriya Battle", iconId: "raceFlag", action: startCareer })
 }
 
 export function onLoad() {

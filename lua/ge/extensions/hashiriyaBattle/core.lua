@@ -158,7 +158,35 @@ end
 
 -- Auto des Spielers ---------------------------------------------------------
 
+-- Motor aus nach dem Spawnen (wie beim Autokauf in der BeamNG-Karriere).
+-- Gilt für das nächste Auto, das innerhalb kurzer Zeit spawnt (auch replaceVehicle).
+local engineOffTimer = 0
+function M.engineOffAfterSpawn() engineOffTimer = 3 end
+
+local function onVehicleSpawned(vehId)
+  if engineOffTimer <= 0 then return end
+  local veh = be:getObjectByID(vehId)
+  if not veh or veh:getJBeamFilename() == 'unicycle' then return end
+  engineOffTimer = 0
+  pcall(function() core_vehicleBridge.executeAction(veh, 'setIgnitionLevel', 0) end)
+end
+
+-- Verkehr: Freeroam startet ihn in 0.40 nur über den Freeroam-Startbildschirm, darum selbst einschalten.
+local trafficStarted = false
+function M.startTraffic()
+  if trafficStarted or (M.carsData and M.carsData.careerTraffic == false) then return end
+  local tr = rawget(_G, 'gameplay_traffic')
+  if not tr or not tr.setupTrafficHelper then return end
+  local okL, list = pcall(function() return tr.getTrafficList and tr.getTrafficList() end)
+  trafficStarted = true
+  if okL and type(list) == 'table' and next(list) then return end -- läuft schon
+  local amount = M.carsData and tonumber(M.carsData.trafficAmount) or -1
+  local ok, err = pcall(tr.setupTrafficHelper, amount, { police = false }, 0, {})
+  if ok then log('I', logTag, 'Verkehr gestartet') else log('W', logTag, 'Verkehr starten fehlgeschlagen: ' .. tostring(err)) end
+end
+
 local function spawnPlayerCar(car)
+  M.engineOffAfterSpawn()
   local opts = { config = car.config ~= '' and car.config or nil, licenseText = car.plate }
   -- Start in der Garage, falls die Map eine hat
   local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
@@ -181,6 +209,7 @@ local function chooseStarterCar(car)
   M.save.activeCar = 1
   M.writeSave()
   spawnPlayerCar(car)
+  M.startTraffic()
   M.active = true
   showCarSelect = false
   msg(M.t('msg.welcome'), 6)
@@ -215,6 +244,7 @@ function M.continueCareer()
   if pos then opts.pos, opts.rot = pos, rot end
   local current = M.getPlayerVehicle()
   local carVeh
+  M.engineOffAfterSpawn()
   if current then
     core_vehicles.replaceVehicle(car.model, opts)
     if car.plate then pcall(core_vehicles.setPlateText, car.plate, current:getID()) end
@@ -226,6 +256,7 @@ function M.continueCareer()
   showMenu = false
   msg(M.t('msg.welcomeBack', M.save.playerName or ''), 6)
   M.goOnFoot(carVeh)
+  M.startTraffic()
 end
 
 function M.setMenuVisible(on)
@@ -294,16 +325,27 @@ end
 
 local function capturePosition()
   local veh = M.getPlayerVehicle()
+  local onFoot = false
+  if not veh and M.isWalking() then
+    -- zu Fuß: Position der Spielfigur, Blickrichtung der Kamera
+    veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
+    onFoot = true
+  end
   if not veh then return end
   local p, d = veh:getPosition(), veh:getDirectionVector()
+  if onFoot then
+    local okD, camDir = pcall(core_camera.getForward)
+    if okD and camDir then d = vec3(camDir.x, camDir.y, 0):normalized() end
+  end
   -- Mitte des Autos (Bounding Box), nicht der Referenzpunkt: daraus wird die Mitte der Parkbucht
-  local okC, center = pcall(function() return veh:getSpawnWorldOOBB():getCenter() end)
+  local okC, center = pcall(function() return (not onFoot) and veh:getSpawnWorldOOBB():getCenter() or nil end)
   local list = jsonReadFile(capturePath) or {}
   table.insert(list, {
     level = M.levelName,
     pos = { p.x, p.y, p.z },
     dir = { d.x, d.y, d.z },
     center = okC and center and { center.x, center.y, center.z } or nil,
+    onFoot = onFoot or nil,
   })
   jsonWriteFile(capturePath, list, true)
   msg(M.t('msg.posSaved', #list))
@@ -585,6 +627,7 @@ end
 
 local function onClientPostStartMission()
   loadData()
+  trafficStarted = false
   M.active = false
   showMenu = true
   showCarSelect = false
@@ -602,6 +645,7 @@ local function onClientEndMission()
 end
 
 local function onUpdate(dtReal)
+  if engineOffTimer > 0 then engineOffTimer = engineOffTimer - dtReal end
   if not M.levelName then return end
   uiTimer = uiTimer - dtReal
   if uiTimer <= 0 then
@@ -614,5 +658,6 @@ M.onExtensionLoaded = onExtensionLoaded
 M.onClientPostStartMission = onClientPostStartMission
 M.onClientEndMission = onClientEndMission
 M.onUpdate = onUpdate
+M.onVehicleSpawned = onVehicleSpawned
 
 return M

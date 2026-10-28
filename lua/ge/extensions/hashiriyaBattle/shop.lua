@@ -359,6 +359,29 @@ local function respawn(cfg)
   if focusSlot then refocusTimer = 1.2 end -- nach dem Respawn das Teil wieder hervorheben
 end
 
+-- Lack ohne Neuladen des Autos (wie das BeamNG-Lackmenü): Farben live setzen und in die
+-- Fahrzeug-Config schreiben, damit sie beim nächsten Respawn und in currentConfig() erhalten bleiben.
+function M.applyPaintsLive(paints)
+  local veh = core().getPlayerVehicle()
+  local vm = rawget(_G, 'core_vehicle_manager')
+  if not veh or not vm or not vm.liveUpdateVehicleColors or type(paints) ~= 'table' then return false end
+  local ok = pcall(function()
+    local vd = vm.getPlayerVehicleData()
+    if not vd or not vd.config then error('keine Fahrzeugdaten') end
+    vd.config.paints = deepcopy and deepcopy(paints) or paints
+    for i = 1, 3 do
+      if paints[i] then vm.liveUpdateVehicleColors(veh:getID(), veh, i, paints[i]) end
+    end
+    veh:setField('partConfig', '', serialize(vd.config))
+  end)
+  return ok
+end
+
+-- Nur der Lack ändert sich: live färben. Lief vorher eine Teile-Vorschau, muss das Auto neu gespawnt werden.
+local function applyPaintCfg(cfg, wasPartPreview)
+  if wasPartPreview or not M.applyPaintsLive(cfg.paints) then respawn(cfg) end
+end
+
 local function withPart(cfg, slot, part)
   local changed = false
   for key in pairs(cfg.parts) do
@@ -434,8 +457,9 @@ end
 function M.cancelPreview(silent)
   if not preview then return end
   local original = preview.original
+  local kind = preview.kind
   preview = nil
-  respawn(original)
+  if kind == 'paint' then applyPaintCfg(original, false) else respawn(original) end
   if not silent then core().msg(core().t('msg.previewReverted')) end
 end
 
@@ -529,18 +553,19 @@ function M.selectPaint(paintId)
     return
   end
   local original = preview and preview.original or copyConfig(cfg)
+  local wasPart = preview and preview.kind == 'part'
   setPaint(cfg, entry.paint)
   if car.ownedPaints and car.ownedPaints[paintId] then
     preview = nil
     storePaintId(car, paintSlot, paintId)
     car.config = cfg
-    respawn(cfg)
+    applyPaintCfg(cfg, wasPart)
     c.writeSave()
     c.msg(c.t('msg.partInstalled', entry.name, c.t('shop.free')))
     return
   end
   preview = { kind = 'paint', id = paintId, paintSlot = paintSlot, name = entry.name, level = 0, price = rules.paintPriceYen or 29800, original = original, cfg = cfg }
-  respawn(cfg)
+  applyPaintCfg(cfg, wasPart)
 end
 
 -- Eigene Farbe: arg = "r,g,b,metallic,rauheit,klarlack,klarlackRauheit" (alles 0..1).
@@ -556,12 +581,13 @@ function M.selectCustomPaint(arg)
     return
   end
   local original = preview and preview.original or copyConfig(cfg)
+  local wasPart = preview and preview.kind == 'part'
   setPaint(cfg, {
     baseColor = { v[1], v[2], v[3], 1.2 },
     metallic = v[4], roughness = v[5], clearcoat = v[6], clearcoatRoughness = v[7],
   })
   preview = { kind = 'paint', id = 'custom', paintSlot = paintSlot, name = c.t('shop.customName'), level = 0, price = rules.customPaintPriceYen or 98000, original = original, cfg = cfg }
-  respawn(cfg)
+  applyPaintCfg(cfg, wasPart)
 end
 
 function M.confirmPreview()

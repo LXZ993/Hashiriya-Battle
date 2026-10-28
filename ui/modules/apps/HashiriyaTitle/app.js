@@ -57,9 +57,7 @@ angular.module('beamng.apps')
               '<div class="hbt-specs" ng-if="selectedCar()">' +
                 '<div class="hbt-spec" ng-repeat="sp in selectedCar().specs"><span>{{ sp.label }}</span><b>{{ sp.value }}</b></div>' +
               '</div>' +
-            '</div>' +
-
-            '<div class="hbt-wiz-body" ng-if="f.step == \'color\'">' +
+              '<label class="hbt-label">{{ t(\'new.tab.color\') }}</label>' +
               '<div class="hbt-paints">' +
                 '<div class="hbt-paint" ng-repeat="p in f.paints track by p.id" ng-class="{\'is-on\': p.selected}" ng-click="!p.selected && cmd(\'selectPaint\', p.id)" title="{{ p.name }}">' +
                   '<i ng-style="{background: p.swatch}"></i><span>{{ p.name }}</span>' +
@@ -86,7 +84,7 @@ angular.module('beamng.apps')
           '</div>' +
 
           // Großer Autoname unten rechts (Showroom)
-          '<div class="hbt-showname" ng-if="(f.step == \'car\' || f.step == \'color\') && selectedCar()">' +
+          '<div class="hbt-showname" ng-if="f.step == \'car\' && selectedCar()">' +
             '<div class="hbt-showname-a">{{ selectedCar().brand }}</div>' +
             '<div class="hbt-showname-b">{{ selectedCar().model }}</div>' +
             '<div class="hbt-showname-c">{{ selectedCar().price }}</div>' +
@@ -178,7 +176,7 @@ angular.module('beamng.apps')
       scope.f = null
       scope.strings = {}
       scope.form = { name: '', plate: '' }
-      scope.steps = ['driver', 'car', 'color', 'confirm']
+      scope.steps = ['driver', 'car', 'confirm']
       scope.t = function (k) { return scope.strings[k] || k }
       var send = function (action, arg) {
         // Lua-String: Steuerzeichen als \ddd, da Lua kein \uXXXX kennt

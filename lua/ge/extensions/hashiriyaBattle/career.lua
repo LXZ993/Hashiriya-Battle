@@ -1,5 +1,5 @@
 -- Hashiriya Battle: Karrierestart (Titelbildschirm, Neues Spiel, Weiterspielen)
--- Ablauf "Neues Spiel": Fahrer (Name, Kennzeichen) -> Auto (Showroom in der Garagenbucht) -> Lack -> Bestätigen.
+-- Ablauf "Neues Spiel": Fahrer (Name, Kennzeichen) -> Auto und Lack (Showroom in der Garagenbucht) -> Bestätigen.
 -- Danach steht das Auto in der Garagenbucht und der Spieler beginnt zu Fuß daneben.
 -- Gestartet wird über den Eintrag im BeamNG-Hauptmenü (lädt das Level ohne Standardauto) oder im Spiel
 -- über das Hashiriya-Menü.
@@ -112,6 +112,7 @@ local function showroomTransform()
 end
 
 local function spawnShowroomCar(starter, paint)
+  core().engineOffAfterSpawn()
   local pos, rot = showroomTransform()
   local opts = { config = starter.config, pos = pos, rot = rot, paint = paint, paint2 = paint, paint3 = paint }
   if flow and flow.plate and flow.plate ~= '' then opts.licenseText = flow.plate end
@@ -165,7 +166,10 @@ local function selectPaint(id)
   for _, p in ipairs(shop().factoryPaints(starter.model)) do
     if p.id == id then
       flow.paintId = id
-      spawnShowroomCar(starter, p.paint)
+      -- gleiches Auto steht schon da: nur umlackieren, nicht neu laden
+      local veh = core().getPlayerVehicle()
+      local same = veh and veh:getJBeamFilename() == starter.model
+      if not (same and shop().applyPaintsLive({ p.paint, p.paint, p.paint })) then spawnShowroomCar(starter, p.paint) end
       return
     end
   end
@@ -207,6 +211,7 @@ local function startCareer()
   })
   M.close()
   c.goOnFoot(veh)
+  c.startTraffic()
 end
 
 -- Eingaben aus der Titel-App: "befehl|wert"
@@ -217,8 +222,7 @@ function M.action(arg)
   if cmd == 'back' then
     if step == 'driver' then flow = { step = 'title' }
     elseif step == 'car' then flow.step = 'driver'
-    elseif step == 'color' then flow.step = 'car'
-    elseif step == 'confirm' then flow.step = 'color' end
+    elseif step == 'confirm' then flow.step = 'car' end
   elseif step == 'title' then
     if cmd == 'newGame' then
       flow = { step = 'driver', name = '', plate = '' }
@@ -246,10 +250,8 @@ function M.action(arg)
     end
   elseif step == 'car' then
     if cmd == 'selectCar' then selectCar(val)
-    elseif cmd == 'next' and flow.carId then flow.step = 'color' end
-  elseif step == 'color' then
-    if cmd == 'selectPaint' then selectPaint(val)
-    elseif cmd == 'next' then flow.step = 'confirm' end
+    elseif cmd == 'selectPaint' then selectPaint(val)
+    elseif cmd == 'next' and flow.carId then flow.step = 'confirm' end
   elseif step == 'confirm' then
     if cmd == 'next' then startCareer() end
   end
@@ -273,7 +275,7 @@ function M.getUiState()
     local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)
     st.plateHint = okP and p or ''
   end
-  if flow.step == 'car' or flow.step == 'color' then
+  if flow.step == 'car' then
     st.cars = {}
     for _, s in ipairs(starters()) do
       local specs, drivetrain, brand, modelName, price = carSpecs(s)
@@ -281,7 +283,7 @@ function M.getUiState()
         price = price, selected = s.id == flow.carId })
     end
   end
-  if flow.step == 'color' then
+  if flow.step == 'car' then
     st.paints = {}
     local starter = starterById(flow.carId)
     for _, p in ipairs(starter and shop().factoryPaints(starter.model) or {}) do

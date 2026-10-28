@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel' (von Alex gewählt). config = Pfad zur .pc-Datei, leer = Standard-Config. priceUsd (BeamNG-Wert) wird in Yen umgerechnet und nur angezeigt. startMoneyYen = Startgeld der Karriere. careerLevel = Level, das der Hauptmenü-Eintrag lädt.",
+  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel' (von Alex gewählt). config = Pfad zur .pc-Datei, leer = Standard-Config. priceUsd (BeamNG-Wert) wird in Yen umgerechnet und nur angezeigt. startMoneyYen = Startgeld der Karriere. careerLevel = Level, das der Hauptmenü-Eintrag lädt. careerTraffic = Verkehr beim Karrierestart einschalten, trafficAmount = Anzahl (-1 = aus den BeamNG-Einstellungen).",
   "starterCars": [
     {
       "id": "starter_covet",
@@ -24,5 +24,7 @@
     }
   ],
   "startMoneyYen": 5000000,
-  "careerLevel": "c1"
+  "careerLevel": "c1",
+  "careerTraffic": true,
+  "trafficAmount": -1
 }
