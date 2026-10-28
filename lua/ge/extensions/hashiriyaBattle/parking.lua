@@ -10,8 +10,7 @@ local enterSpeed = 8 / 3.6   -- km/h -> m/s: unter diesem Tempo gilt man als "an
 local checkInterval = 0.25
 local repairYenPerDamage = 2 -- Reparaturpreis je BeamNG-Schadenspunkt (zum Feintuning)
 
-local markerDistance = 150   -- m: ab hier ist die Markierung sichtbar
-local bayWidth, bayLength = 3.4, 6.0 -- Größe der markierten Parkbucht in m
+local bayWidth, bayLength = 3.0, 5.6 -- Größe der markierten Parkbucht in m
 
 local checkTimer = 0
 local markersOn = true       -- im Menü abschaltbar
@@ -135,12 +134,22 @@ function M.dumpParts(force)
 end
 
 -- Markierung -------------------------------------------------------------------
--- Dezente Parkbucht auf dem Boden (flache Fläche mit Eckwinkeln), nur in der Nähe.
+-- Wie die Parkplätze in der BeamNG-Karriere: flacher Rahmen (park_outline_marker) und
+-- ein Streifen-Decal auf dem Boden, beides leicht eingefärbt. Der Rahmen taucht erst in
+-- der Nähe auf. Im Fotomodus (photoModeOpen) und per Menü-Schalter ausgeblendet.
+
+local outlineShape = 'art/shapes/interface/park_outline_marker.dae'
+local decalTexture = 'art/shapes/interface/parkDecalStripes.png'
+local decalAlpha = 0.28       -- Deckkraft der Streifen (dezent)
+local decalFadeStart, decalFadeEnd = 30, 55 -- Ausblenden des Decals über die Kameraentfernung
+local outlineNear, outlineFar = 12, 45      -- m: Rahmen voll sichtbar / unsichtbar
 
 local colors = {
-  garage = { 255, 102, 0 },
-  shop   = { 63, 182, 255 },
+  garage = { 1.0, 0.45, 0.1 },
+  shop   = { 0.3, 0.72, 1.0 },
 }
+
+local markers = {} -- [areaId] = { outlineId, decal, decalArr, alpha }
 
 function M.markersEnabled() return markersOn end
 function M.setMarkersEnabled(on)
@@ -166,39 +175,84 @@ local function ground(a)
   return groundZ[a.id]
 end
 
+local function clearMarkers()
+  for id, m in pairs(markers) do
+    local obj = m.outlineId and scenetree.findObjectById(m.outlineId)
+    if obj then obj:delete() end
+    markers[id] = nil
+  end
+end
+M.clearMarkers = clearMarkers
+
+local function createMarker(a)
+  local pos = toVec(a.pos)
+  pos.z = ground(a)
+  local fwd = toVec(a.dir); fwd.z = 0; fwd = fwd:normalized()
+  local rot = quatFromDir(fwd, vec3(0, 0, 1))
+  local m = { alpha = -1, pos = pos }
+  local ok, err = pcall(function()
+    local outline = createObject('TSStatic')
+    outline:setField('shapeName', 0, outlineShape)
+    outline:setPosition(pos)
+    outline.scale = vec3(1, 1, 1)
+    outline.useInstanceRenderData = true
+    outline:setField('instanceColor', 0, '1 1 1 0')
+    outline:setField('collisionType', 0, 'None')
+    outline:setField('decalType', 0, 'None')
+    outline.canSave = false
+    outline:registerObject('hashiriya_pa_' .. a.id)
+    local tq = rot:toTorqueQuat()
+    outline:setField('rotation', 0, tq.x .. ' ' .. tq.y .. ' ' .. tq.z .. ' ' .. tq.w)
+    outline:setScaleXYZ(bayWidth, bayLength / 2.05, 0.01)
+    m.outlineId = outline:getId()
+  end)
+  if not ok then log('W', logTag, 'Parkplatz-Rahmen nicht erstellt: ' .. tostring(err)) end
+  local c = colors[a.type] or colors.garage
+  m.color = c
+  m.decal = {
+    texture = decalTexture,
+    position = vec3(pos),
+    forwardVec = fwd,
+    color = ColorF(c[1], c[2], c[3], decalAlpha),
+    scale = vec3(bayWidth, bayLength, 1),
+    fadeStart = decalFadeStart,
+    fadeEnd = decalFadeEnd,
+  }
+  m.decalArr = { m.decal }
+  markers[a.id] = m
+  return m
+end
+
+local function setOutline(m, alpha)
+  if math.abs(alpha - m.alpha) < 0.01 then return end
+  m.alpha = alpha
+  local obj = m.outlineId and scenetree.findObjectById(m.outlineId)
+  if not obj then return end
+  local c = m.color
+  local lin = ColorF(c[1], c[2], c[3], alpha):asLinear4F()
+  obj.instanceColor = lin
+  obj:updateInstanceRenderData()
+  obj:setScaleXYZ(bayWidth, bayLength / 2.05, math.max(alpha * 0.15, 0.01)) -- 1 bis 15 cm hoch
+end
+
 local function drawMarkers(playerPos)
-  if not markersOn or photoMode or not debugDrawer then return end
+  local show = markersOn and not photoMode and not rawget(_G, 'photoModeOpen')
+    and not (editor and editor.active)
   for _, a in ipairs(areas()) do
-    local center = toVec(a.pos)
-    local dist = (playerPos - center):length()
-    if dist <= markerDistance then
-      center.z = ground(a) + 0.04
-      local col = colors[a.type] or colors.garage
-      -- näher = etwas deutlicher, angekommen = fast unsichtbar
-      local fade = clamp(1 - (dist - 20) / (markerDistance - 20), 0.25, 1)
-      if current == a and arrived then fade = 0.15 end
-      local fwd = toVec(a.dir); fwd.z = 0; fwd = fwd:normalized()
-      local right = fwd:cross(vec3(0, 0, 1)):normalized()
-      local hl, hw = fwd * (bayLength / 2), right * (bayWidth / 2)
-      local c1, c2, c3, c4 = center - hl - hw, center + hl - hw, center + hl + hw, center - hl + hw
-      pcall(function()
-        local fill = ColorI(col[1], col[2], col[3], math.floor(38 * fade))
-        debugDrawer:drawTriangleFilled(c1, c2, c3, fill)
-        debugDrawer:drawTriangleFilled(c1, c3, c4, fill)
-      end)
-      pcall(function()
-        local line = ColorF(col[1] / 255, col[2] / 255, col[3] / 255, 0.85 * fade)
-        local k = 0.9 -- Länge der Eckwinkel in m
-        for _, corner in ipairs({ { c1, fwd, right }, { c2, -fwd, right }, { c3, -fwd, -right }, { c4, fwd, -right } }) do
-          local p, d1, d2 = corner[1], corner[2], corner[3]
-          debugDrawer:drawLine(p, p + d1 * k, line)
-          debugDrawer:drawLine(p, p + d2 * k, line)
+    local m = markers[a.id] or (show and createMarker(a))
+    if m then
+      local dist = (playerPos - m.pos):length()
+      if not show or dist > decalFadeEnd + 100 then
+        setOutline(m, 0)
+      else
+        local near = clamp(1 - (dist - outlineNear) / (outlineFar - outlineNear), 0, 1)
+        if current == a and arrived then near = near * 0.35 end
+        setOutline(m, near * 0.9)
+        if Engine and Engine.Render and Engine.Render.DynamicDecalMgr then
+          m.decal.color = ColorF(m.color[1], m.color[2], m.color[3], decalAlpha * ((current == a and arrived) and 0.5 or 1))
+          pcall(Engine.Render.DynamicDecalMgr.addDecals, m.decalArr, 1)
         end
-        if dist < 60 then
-          debugDrawer:drawTextAdvanced(center + vec3(0, 0, 1.2), String(core().t('pa.' .. a.type)),
-            ColorF(1, 1, 1, 0.9 * fade), true, false, ColorI(20, 20, 22, math.floor(150 * fade)))
-        end
-      end)
+      end
     end
   end
 end
@@ -238,6 +292,7 @@ local function onUpdate(dtReal)
   local c = core()
   if not c or not c.active then
     current, arrived = nil, false
+    for _, m in pairs(markers) do setOutline(m, 0) end
     return
   end
   local veh = c.getPlayerVehicle()
@@ -265,6 +320,17 @@ local function onUpdate(dtReal)
   end
 end
 
+local function onClientEndMission()
+  clearMarkers()
+  groundZ = {}
+end
+
+local function onExtensionUnloaded()
+  clearMarkers()
+end
+
 M.onUpdate = onUpdate
+M.onClientEndMission = onClientEndMission
+M.onExtensionUnloaded = onExtensionUnloaded
 
 return M
