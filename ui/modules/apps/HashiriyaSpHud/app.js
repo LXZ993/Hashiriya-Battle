@@ -47,6 +47,7 @@ angular.module('beamng.apps')
             '<div class="hbh-title hbh-title-r">{{ b.rivalName }}</div>' +
           '</div>' +
 
+          '<div class="hbh-sync" ng-if="b.state == \'sync\'">{{ t[\'hud.sync\'] }}</div>' +
           '<div class="hbh-count" ng-if="b.state == \'countdown\'"><span ng-attr-key="{{ b.countdown }}">{{ b.countdown }}</span></div>' +
           '<div class="hbh-result" ng-if="b.state == \'result\'" ng-class="b.won ? \'hbh-win\' : \'hbh-lose\'">' +
             '<div class="hbh-result-band"><span>{{ b.won ? t[\'hud.win\'] : t[\'hud.lose\'] }}</span></div>' +
@@ -108,6 +109,8 @@ angular.module('beamng.apps')
 
           /* Countdown und Ergebnis */
           '.hbh-count{text-align:center;margin-top:4px;height:62px;}' +
+          '.hbh-sync{text-align:center;margin-top:18px;font-size:14px;font-weight:900;font-style:italic;letter-spacing:2px;text-transform:uppercase;color:#ffd23f;text-shadow:0 1px 3px rgba(0,0,0,.9);animation:hbhSyncPulse .5s ease-in-out infinite alternate;}' +
+          '@keyframes hbhSyncPulse{from{opacity:1;}to{opacity:.45;}}' +
           '.hbh-count span{display:inline-block;font-size:58px;line-height:62px;font-weight:900;font-style:italic;color:var(--o);' +
             'text-shadow:0 0 18px rgba(255,102,0,.55),0 2px 4px rgba(0,0,0,.9);animation:hbhPop .9s ease-out;}' +
           '@keyframes hbhPop{0%{transform:scale(1.8);opacity:0;}25%{transform:scale(1);opacity:1;}100%{transform:scale(.92);opacity:.85;}}' +
@@ -148,7 +151,7 @@ angular.module('beamng.apps')
       scope.$on('HashiriyaState', function (event, data) {
         scope.$evalAsync(function () {
           var b = (data && data.battle) || null
-          if (b && (!scope.b || scope.b.state === 'result') && b.state === 'countdown') { lastP = null; lastR = null }
+          if (b && (!scope.b || scope.b.state === 'result') && (b.state === 'countdown' || b.state === 'sync')) { lastP = null; lastR = null }
           scope.b = b
           scope.t = (data && data.t) || scope.t
           if (!b) { lastP = null; lastR = null; return }

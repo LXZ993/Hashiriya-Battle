@@ -323,5 +323,8 @@
   "home.watchNote": "Haken setzen = auf deine Merkliste (im HUD sichtbar, solche Rivalen tauchen öfter auf).",
   "msg.watchFull": "Merkliste ist voll (max. %d).",
   "msg.watchDone": "%s geschlagen und von der Merkliste gestrichen.",
-  "msg.watched": " · Auf deiner Liste!"
+  "msg.watched": " · Auf deiner Liste!",
+  "msg.tooFast": "Zu schnell zum Herausfordern!",
+  "msg.tooSlow": "Zu langsam zum Herausfordern!",
+  "hud.sync": "Tempo angleichen …"
 }

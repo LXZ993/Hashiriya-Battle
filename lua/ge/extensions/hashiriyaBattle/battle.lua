@@ -10,6 +10,9 @@ local cfg = {
   challengeMaxLateral = 10, -- m seitlicher Versatz
   challengeMinSpeed = 40 / 3.6,
   countdown = 3,            -- s
+  maxChallengeDiffKmh = 30, -- km/h: größerer Tempounterschied zum Rivalen = Herausfordern nicht möglich
+  syncToleranceKmh = 5,     -- so nah am Battle-Tempo, dann startet der Countdown
+  syncTimeout = 10,         -- s: spätestens dann startet der Countdown trotzdem
   falseStartGap = 3,        -- m: so viel näher am Rivalen als beim Herausfordern = Frühstart
   falseStartKmh = 10,       -- km/h über dem Tempomat-Tempo = Frühstart
   playerMaxSp = 1000,
@@ -52,7 +55,7 @@ local function releasePlayerSpeed()
 end
 
 function M.reset()
-  if state == 'countdown' then releasePlayerSpeed() end
+  if state == 'countdown' or state == 'sync' then releasePlayerSpeed() end
   state = 'idle'
   battle = nil
   if rivals() and rivals().disengage then rivals().disengage() end
@@ -106,9 +109,10 @@ local function vehicleDisplayName(model)
   return model
 end
 
+-- Erst Tempo angleichen (Tempomat auf das Tempo des Rivalen), dann Countdown
 local function startCountdown(rival, rivalVeh)
-  state = 'countdown'
-  timer = cfg.countdown
+  state = 'sync'
+  timer = cfg.syncTimeout
   battle = {
     rival = rival,
     playerSp = cfg.playerMaxSp,
@@ -127,10 +131,8 @@ local function startCountdown(rival, rivalVeh)
   setWarnSignal(rivalVeh, true)
   local player = core().getPlayerVehicle()
   if player then
-    local speed = player:getVelocity():length()
+    local speed = math.max(rivalVeh:getVelocity():length(), (rival.cruiseKmh or 100) / 3.6 * 0.9)
     battle.lockSpeed = speed
-    local dir = (player:getDirectionVector() + rivalVeh:getDirectionVector()):normalized()
-    battle.startGap = (rivalVeh:getPosition() - player:getPosition()):dot(dir)
     lockPlayerSpeed(player, speed)
     rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", speed))
   end
@@ -150,6 +152,11 @@ function M.onHighbeam(vehId, value)
   for _, e in ipairs(rivals().getOnRoad()) do
     local rivalVeh = be:getObjectByID(e.vehId)
     if rivalVeh and not e.cooldown and playerBehindRival(player, rivalVeh) then
+      local diff = (player:getVelocity():length() - rivalVeh:getVelocity():length()) * 3.6
+      if math.abs(diff) > cfg.maxChallengeDiffKmh then
+        core().msg(core().t(diff > 0 and 'msg.tooFast' or 'msg.tooSlow'), 2)
+        return
+      end
       rivals().engage(e)
       startCountdown(rivals().challengeData(e), rivalVeh)
       return
@@ -248,6 +255,7 @@ function M.getHudState()
     rivalMaxSp = battle.rivalMaxSp,
     gap = battle.gap and math.floor(battle.gap) or 0,
     countdown = state == 'countdown' and math.ceil(timer) or nil,
+    syncing = state == 'sync' or nil,
     won = battle.won,
     time = battle.time,
     playerCar = battle.playerCar,
@@ -277,6 +285,26 @@ local function onUpdate(dtReal, dtSim)
 
   local rivalVeh = rivals().getRivalVehicle()
   if not rivalVeh then M.reset(); return end
+
+  if state == 'sync' then
+    -- Tempo angleichen: Tempomat bremst/beschleunigt auf das Battle-Tempo, dann startet der Countdown
+    timer = timer - dtSim
+    local gap = getGap(player, rivalVeh)
+    if gap < 2 then -- in der Angleich-Phase überholt = Frühstart
+      setWarnSignal(rivalVeh, false)
+      core().msg(core().t('msg.falseStart', battle.rival.name), 4)
+      M.reset()
+      return
+    end
+    local diff = math.abs(player:getVelocity():length() - battle.lockSpeed) * 3.6
+    if diff <= cfg.syncToleranceKmh or timer <= 0 then
+      state = 'countdown'
+      timer = cfg.countdown
+      battle.startGap = gap
+      battle.lockSpeed = math.max(battle.lockSpeed, player:getVelocity():length())
+    end
+    return
+  end
 
   if state == 'countdown' then
     timer = timer - dtSim

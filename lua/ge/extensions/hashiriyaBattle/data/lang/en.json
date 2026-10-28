@@ -323,5 +323,8 @@
   "home.watchNote": "Tick = add to your watch list (shown in the HUD, these rivals show up more often).",
   "msg.watchFull": "Watch list is full (max %d).",
   "msg.watchDone": "%s beaten and crossed off your list.",
-  "msg.watched": " · On your list!"
+  "msg.watched": " · On your list!",
+  "msg.tooFast": "Too fast to challenge!",
+  "msg.tooSlow": "Too slow to challenge!",
+  "hud.sync": "Matching speed …"
 }
