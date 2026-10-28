@@ -115,6 +115,64 @@ function M.sleep()
   c.msg(c.t('msg.slept', M.getDay()), 5)
 end
 
+-- Merkliste: bis zu 5 Rivalen aus dem Lexikon, die man suchen oder schlagen will (HUD zeigt sie an)
+local watchMax = 5
+
+function M.watchList()
+  local save = core().save
+  if not save then return {} end
+  save.watch = save.watch or {}
+  return save.watch
+end
+
+function M.isWatched(id)
+  for _, w in ipairs(M.watchList()) do if w == id then return true end end
+  return false
+end
+
+function M.toggleWatch(id)
+  local c = core()
+  local list = M.watchList()
+  for i, w in ipairs(list) do
+    if w == id then table.remove(list, i); return end
+  end
+  if #list >= watchMax then
+    c.msg(c.t('msg.watchFull', watchMax))
+    return
+  end
+  table.insert(list, id)
+end
+
+function M.unwatch(id)
+  local list = M.watchList()
+  for i, w in ipairs(list) do if w == id then table.remove(list, i); return true end end
+  return false
+end
+
+-- Für das HUD: Name (oder Hinweis, solange unbekannt), Farbe nach Art
+function M.watchHud()
+  local list = M.watchList()
+  if #list == 0 then return nil end
+  local rv = extensions.hashiriyaBattle_rivals
+  local pr = extensions.hashiriyaBattle_progress
+  local save = core().save
+  local byId = {}
+  for _, r in ipairs((rv.getData() or {}).rivals or {}) do byId[r.id] = r end
+  local onRoad = {}
+  for _, e in ipairs(rv.getOnRoad()) do onRoad[e.data.id] = true end
+  local out = {}
+  for _, id in ipairs(list) do
+    local r = byId[id]
+    if r then
+      local beaten = save.defeated and save.defeated[id]
+      local hidden = (r.wanderer or r.boss) and not beaten
+      table.insert(out, { id = id, name = hidden and '???' or r.name, kind = rv.markerKind(r), near = onRoad[id] or false,
+        hint = hidden and pr.loc(r.hint) or nil })
+    end
+  end
+  return out
+end
+
 -- Rivalen-Lexikon: nach Teams sortiert; Wanderer und Bosse erst nach dem Sieg mit Namen, vorher nur ein Hinweis
 local function lexicon()
   local c = core()
@@ -143,6 +201,7 @@ local function lexicon()
       desc = hidden and pr.loc(r.hint) or pr.loc(r.desc),
       leader = r.leader or false, boss = r.boss or false,
       beaten = beaten,
+      id = r.id, watched = M.isWatched(r.id),
     }
     local g = (r.boss and bosses) or (r.wanderer and wanderers) or byTeam[r.team]
     if g then table.insert(g.list, e) end
@@ -159,7 +218,11 @@ end
 
 function M.getUiState(tab)
   local st = { tab = tab or 'main', day = M.getDay() }
-  if st.tab == 'lexicon' then st.lexicon = lexicon() end
+  if st.tab == 'lexicon' then
+    st.lexicon = lexicon()
+    st.watchCount = #M.watchList()
+    st.watchMax = watchMax
+  end
   return st
 end
 

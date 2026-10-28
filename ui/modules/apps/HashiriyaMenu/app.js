@@ -45,6 +45,7 @@ angular.module('beamng.apps')
             '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'dealer\')"><i class="hbm-ico" ng-bind-html="ico(\'carDealer\')"></i>{{ s.t[\'dealer.menu\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'stats\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i>{{ s.t[\'menu.stats\'] }}</div>' +
+            '<div class="hbm-item" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
             '<div class="hbm-item" ng-if="s.tow" ng-class="{\'hbm-off\': !s.tow.can}" ng-click="s.tow.can && towClick()" title="{{ s.tow.reason }}"><i class="hbm-ico" ng-bind-html="ico(\'tow\')"></i>' +
               '<span class="hbm-car-name">{{ towArmed ? s.t[\'menu.towConfirm\'] : s.t[\'menu.tow\'] }}</span><span class="hbm-price">{{ s.tow.can ? s.tow.cost : (s.tow.reason || s.tow.cost) }}</span></div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
@@ -114,10 +115,10 @@ angular.module('beamng.apps')
                 '<div class="hbm-tab" ng-repeat="tb in s.shop.tabs track by tb.id" ng-class="{\'is-on\': tb.id == s.shop.tab}" ' +
                   'ng-click="act(\'shopTab\', tb.id); open.slot = null"><i class="hbm-ico" ng-bind-html="ico(tabIcons[tb.id])"></i>{{ tb.name }}</div>' +
               '</div>' +
-              '<div class="hbm-stats" ng-if="s.shop.stats && s.shop.stats.length">' +
-                '<div class="hbm-stat" ng-repeat="r in s.shop.stats"><span class="hbm-stat-k">{{ r.label }}</span>' +
-                  '<span class="hbm-stat-v">{{ r.value }}</span>' +
-                  '<span class="hbm-stat-d" ng-class="{\'is-good\': r.good, \'is-bad\': r.delta && !r.good}">{{ r.delta || \'\' }}</span></div>' +
+              '<div class="hbm-vstats" ng-if="s.shop.stats && s.shop.stats.length">' +
+                '<div class="hbm-vstat" ng-repeat="r in s.shop.stats"><span class="hbm-vstat-k">{{ r.label }}</span>' +
+                  '<span class="hbm-vstat-v">{{ r.value }}</span>' +
+                  '<span class="hbm-vstat-d" ng-class="{\'is-good\': r.good, \'is-bad\': r.delta && !r.good}">{{ r.delta || \'\' }}</span></div>' +
               '</div>' +
               '<div class="hbm-preview" ng-if="s.shop.preview">' +
                 '<div class="hbm-preview-top"><span class="hbm-preview-tag">{{ s.t[\'shop.cart\'] }} · {{ s.shop.preview.count }}</span></div>' +
@@ -199,13 +200,16 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
               '<div class="hbm-item" ng-click="act(\'sleep\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'home.sleep\'] }}</div>' +
               '<div class="hbm-note">{{ s.t[\'home.sleepNote\'] }}</div>' +
-              '<div class="hbm-item" ng-click="act(\'homeTab\', \'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
+              '<div class="hbm-item" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
               '<div class="hbm-item" ng-click="act(\'tutorial\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'home.tutorial\'] }}</div>' +
               '<div class="hbm-item hbm-off"><i class="hbm-ico" ng-bind-html="ico(\'fastTravel\')"></i>{{ s.t[\'home.travel\'] }}</div>' +
               '<div class="hbm-note">{{ s.t[\'home.travelSoon\'] }}</div>' +
             '</div>' +
-            '<div ng-if="s.home.tab == \'lexicon\'">' +
+          '</div>' +
+
+            '<div class="hbm-body" ng-if="s.screen == \'lexicon\' && s.home">' +
               '<div class="hbm-section">{{ s.t[\'home.lexicon\'] }}</div>' +
+              '<div class="hbm-note">{{ s.t[\'home.watchNote\'] }} <b>{{ s.home.watchCount }} / {{ s.home.watchMax }}</b></div>' +
               '<div class="hbm-scroll">' +
                 '<div class="hbm-lex-group" ng-repeat="g in s.home.lexicon" ng-style="{\'--tc\': g.color}" ng-class="{\'is-open\': lexOpen == $index, \'is-locked\': g.locked}">' +
                   '<div class="hbm-lex-head" ng-click="lexToggle($index)">' +
@@ -214,7 +218,7 @@ angular.module('beamng.apps')
                   '<div ng-if="lexOpen == $index">' +
                     '<div class="hbm-lex-desc" ng-if="g.desc">{{ g.desc }}</div>' +
                     '<div class="hbm-lex" ng-repeat="r in g.list" ng-class="{\'is-beaten\': r.beaten}">' +
-                      '<div class="hbm-lex-top"><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
+                      '<div class="hbm-lex-top"><span class="hbm-lex-check" ng-class="{\'is-on\': r.watched}" ng-click="act(\'watch\', r.id)"></span><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
                         '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
                         '<span class="hbm-lex-tag hbm-lex-boss" ng-if="r.boss">{{ s.t[\'home.boss\'] }}</span>' +
                         '<span class="hbm-lex-state">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
@@ -225,7 +229,6 @@ angular.module('beamng.apps')
                 '</div>' +
               '</div>' +
             '</div>' +
-          '</div>' +
 
           // Tankstelle ----------------------------------------------------------------
           '<div class="hbm-body" ng-if="s.screen == \'gas\'">' +
@@ -375,13 +378,17 @@ angular.module('beamng.apps')
           '.hbm-cart-total b{font-size:16px;font-style:italic;font-weight:900;color:#f4f4f4;letter-spacing:.5px;}' +
           '.hbm-cart-total b.is-poor{color:#ff6b5a;}' +
           '.hbm-cart-after{text-align:right;font-size:10px;color:var(--dim);}' +
-          '.hbm-stats{margin:0 18px 8px;padding:6px 10px;background:rgba(255,255,255,.04);border-left:2px solid var(--o2);}' +
-          '.hbm-stat{display:flex;align-items:baseline;gap:8px;font-size:11px;padding:1px 0;}' +
-          '.hbm-stat-k{flex:1 1 auto;color:var(--dim);letter-spacing:.5px;}' +
-          '.hbm-stat-v{font-variant-numeric:tabular-nums;font-weight:700;}' +
-          '.hbm-stat-d{min-width:58px;text-align:right;font-variant-numeric:tabular-nums;font-weight:800;}' +
-          '.hbm-stat-d.is-good{color:#5ae673;}' +
-          '.hbm-stat-d.is-bad{color:#ff6b5a;}' +
+          '.hbm-lex-check{flex:none;width:12px;height:12px;margin-right:7px;border:1.5px solid rgba(255,255,255,.45);border-radius:2px;cursor:pointer;position:relative;top:1px;}' +
+          '.hbm-lex-check:hover{border-color:var(--o2);}' +
+          '.hbm-lex-check.is-on{background:var(--o2);border-color:var(--o2);}' +
+          '.hbm-lex-check.is-on:after{content:"";position:absolute;left:3px;top:0;width:3px;height:7px;border:solid #141414;border-width:0 2px 2px 0;transform:rotate(45deg);}' +
+          '.hbm-vstats{margin:0 18px 8px;padding:6px 10px;background:rgba(255,255,255,.04);border-left:2px solid var(--o2);}' +
+          '.hbm-vstat{display:flex;align-items:baseline;gap:8px;font-size:11px;padding:1px 0;}' +
+          '.hbm-vstat-k{flex:1 1 auto;color:var(--dim);letter-spacing:.5px;}' +
+          '.hbm-vstat-v{font-variant-numeric:tabular-nums;font-weight:700;}' +
+          '.hbm-vstat-d{min-width:58px;text-align:right;font-variant-numeric:tabular-nums;font-weight:800;}' +
+          '.hbm-vstat-d.is-good{color:#5ae673;}' +
+          '.hbm-vstat-d.is-bad{color:#ff6b5a;}' +
           '.hbm-preview .hbm-actions{padding:8px 0 0;}' +
           '.hbm-actions{display:flex;gap:6px;padding:8px 18px 2px;}' +
           '.hbm-btn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;padding:6px 4px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;' +
@@ -615,13 +622,14 @@ angular.module('beamng.apps')
         if (s.screen == 'carSelect') return scope.act('back')
         if (s.screen == 'dealer') return scope.act('dealerBack')
         if (s.screen == 'stats') return scope.act('statsBack')
+        if (s.screen == 'lexicon') return scope.act('lexiconBack')
         if (s.screen == 'home' && s.home && s.home.tab != 'main') return scope.act('homeTab', 'main')
         if (scope.open && scope.open.slot) { scope.open.slot = null; scope.act('focusSlot', ''); return }
         scope.act('hide')
       }
       scope.backLabel = function () {
         var s = scope.s || {}, t = s.t || {}
-        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
+        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
           (scope.open && scope.open.slot)
         return sub ? t['menu.back'] : t['menu.hide']
       }

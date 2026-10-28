@@ -19,6 +19,7 @@ M.levelName = nil
 local showMenu = true
 local showDealer = false   -- Autohändler (aus dem Menü links)
 local showStats = false    -- Statistik (aus dem Menü links)
+local showLexicon = false  -- Rivalen-Lexikon (aus dem Menü links, überall)
 local homeTab = 'main'     -- Zuhause: main | lexicon
 local showCarSelect = false
 local platePriceYen = 15000 -- Kennzeichen ummelden
@@ -610,11 +611,15 @@ local function buildUiState()
     end
     st.day = extensions.hashiriyaBattle_home.dayText()
     st.clock = extensions.hashiriyaBattle_home.clockInfo()
+    st.watch = extensions.hashiriyaBattle_home.watchHud()
     st.progress = extensions.hashiriyaBattle_progress.getUiState()
     st.night = extensions.hashiriyaBattle_home.isNight()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
     if st.night and left then st.battlesLeft = left end
-    if showStats then
+    if showLexicon then
+      st.screen = 'lexicon'
+      st.home = extensions.hashiriyaBattle_home.getUiState('lexicon')
+    elseif showStats then
       st.screen = 'stats'
       st.stats = extensions.hashiriyaBattle_progress.getStatsUi()
     elseif showDealer then
@@ -718,6 +723,7 @@ function M.uiAction(action, arg)
     menuAutoOpened = false
     showDealer = false
     showStats = false
+    showLexicon = false
     extensions.hashiriyaBattle_parking.leaveFootShop()
   elseif action == 'dealer' then
     showDealer = true
@@ -731,6 +737,15 @@ function M.uiAction(action, arg)
     showMenu = true
   elseif action == 'statsBack' then
     showStats = false
+  elseif action == 'lexicon' then
+    showLexicon = true
+    showStats = false
+    showDealer = false
+    showMenu = true
+  elseif action == 'lexiconBack' then
+    showLexicon = false
+  elseif action == 'watch' then
+    extensions.hashiriyaBattle_home.toggleWatch(tostring(arg))
   elseif action == 'dealerBuy' then
     extensions.hashiriyaBattle_dealer.buy(tonumber(arg))
   elseif action == 'switchCar' then

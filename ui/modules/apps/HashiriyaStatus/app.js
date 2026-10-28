@@ -28,6 +28,10 @@ angular.module('beamng.apps')
               '<svg viewBox="0 0 12 12"><path d="M6 0.5 L11 11 L6 8.4 L1 11 Z"/></svg></span>' +
             '<span class="hbt-radar-dist" ng-if="s.radar.near">{{ s.radar.near.dist }}</span>' +
           '</div>' +
+          '<div class="hbt-watch" ng-if="s.watch && s.watch.length">' +
+            '<div class="hbt-watch-row" ng-repeat="w in s.watch track by w.id" ng-class="[\'k-\' + w.kind, {\'is-near\': w.near}]">' +
+              '<span class="hbt-watch-name">{{ w.name }}</span><i></i></div>' +
+          '</div>' +
           '<div class="hbt-pa" ng-if="s.nav && !s.nav.arrived && !(s.battle && s.battle.state !== \'idle\')" ng-class="\'hbt-pa-\' + s.nav.type">' +
             '<span class="hbt-pa-tag">PA</span>' +
             '<span class="hbt-pa-name">{{ s.nav.name }}</span>' +
@@ -94,6 +98,13 @@ angular.module('beamng.apps')
           '.hbt-bank{margin-top:5px;font-size:13px;font-weight:900;font-style:italic;color:#5ae673;font-variant-numeric:tabular-nums;animation:hbtPop .25s ease-out;}' +
           '.hbt-bank em{font-style:italic;color:#ffd23f;font-size:11px;}' +
           '.hbt-bank.is-lost{color:#ff3b30;font-size:11px;letter-spacing:1px;text-transform:uppercase;}' +
+          '.hbt-watch{margin-top:5px;padding-top:4px;border-top:1px solid rgba(255,255,255,.12);}' +
+          '.hbt-watch-row{display:flex;align-items:center;justify-content:flex-end;gap:6px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(244,244,244,.7);line-height:15px;}' +
+          '.hbt-watch-row i{width:6px;height:6px;border-radius:1px;transform:rotate(45deg);background:var(--k-rival);}' +
+          '.hbt-watch-row.k-leader i{background:var(--k-leader);} .hbt-watch-row.k-wanderer i{background:var(--k-wanderer);}' +
+          '.hbt-watch-row.k-boss i{background:var(--k-boss);} .hbt-watch-row.k-beaten i{background:var(--k-beaten);} .hbt-watch-row.k-lost i{background:var(--k-lost);}' +
+          '.hbt-watch-row.is-near{color:#f4f4f4;font-weight:800;}' +
+          '.hbt-watch-row.is-near i{animation:hbtPing .4s ease-in-out infinite alternate;}' +
           '@keyframes hbtPop{from{transform:scale(1.25);opacity:0;}to{transform:scale(1);opacity:1;}}' +
           '@keyframes hbtPing{from{opacity:1;}to{opacity:.25;}}' +
         '</style>' +

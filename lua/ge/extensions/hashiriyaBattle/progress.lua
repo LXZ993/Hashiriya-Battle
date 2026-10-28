@@ -87,6 +87,7 @@ function M.onBattle(rival, won, result)
   if result and result.time then st.longestBattle = math.max(st.longestBattle or 0, result.time) end
   if won then
     if result and result.time then st.bestWinTime = math.min(st.bestWinTime or 1e9, result.time) end
+    if extensions.hashiriyaBattle_home.unwatch(rival.id) then c.msg(c.t('msg.watchDone', rival.name), 4) end
     save.rep = (save.rep or 0) + math.floor((rival.rep or 30) * ((result and result.repFactor) or 1) + 0.5)
     save.defeatedNight = save.defeatedNight or {}
     if rival.rematch then

@@ -319,5 +319,9 @@
   "wd.4": "Do",
   "wd.5": "Fr",
   "wd.6": "Sa",
-  "hud.dayNo": "Tag %d"
+  "hud.dayNo": "Tag %d",
+  "home.watchNote": "Haken setzen = auf deine Merkliste (im HUD sichtbar, solche Rivalen tauchen öfter auf).",
+  "msg.watchFull": "Merkliste ist voll (max. %d).",
+  "msg.watchDone": "%s geschlagen und von der Merkliste gestrichen.",
+  "msg.watched": " · Auf deiner Liste!"
 }
