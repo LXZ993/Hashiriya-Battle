@@ -1,0 +1,13 @@
+{
+  "_hinweis": "release true = Release-Build: die Aktionen unten sind während der Karriere gesperrt. Für Tests/Entwicklung auf false lassen.",
+  "release": false,
+  "blockedActions": [
+    "reset_physics", "reset_all_physics", "recover_vehicle", "recover_vehicle_alt", "recover_to_last_road",
+    "reload_vehicle", "reload_all_vehicles", "loadHome", "saveHome", "dropPlayerAtCamera", "dropPlayerAtCameraNoReset",
+    "vehicle_selector", "parts_selector", "nodegrabberAction", "nodegrabberGrab", "nodegrabberRender",
+    "toggleConsoleNG", "toggleConsole", "editorToggle", "editorSafeModeToggle", "objectEditorToggle",
+    "slower_motion", "faster_motion", "toggle_slow_motion", "physicsStep"
+  ],
+  "blockBigMapTeleport": true,
+  "_bigMap": "Schnellreise über die große Karte: Sperre folgt, sobald die passende BeamNG-Funktion im Spielcode geprüft ist."
+}

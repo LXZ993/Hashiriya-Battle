@@ -202,6 +202,7 @@ M.peekSave = readSave
 
 local function loadData()
   M.carsData = jsonReadFile(dataDir .. 'cars.json') or { starterCars = {} }
+  M.buildData = jsonReadFile(dataDir .. 'build.json') or {}
   M.levelName = getLevelName()
   M.hasSave = readSave() ~= nil
   M.mapData = M.levelName and jsonReadFile(dataDir .. 'maps/' .. M.levelName .. '.json') or nil
@@ -846,7 +847,28 @@ local function onClientEndMission()
   M.stopGame()
 end
 
+-- Release-Build (data/build.json): Zurücksetzen, Konsole, Editor, Zeitlupe usw. während der Karriere sperren.
+-- Gleicher Weg wie die BeamNG-Karriere (core_input_actionFilter).
+local restrictionsOn = false
+local function updateRestrictions()
+  local want = M.active and M.buildData and M.buildData.release == true or false
+  if want == restrictionsOn then return end
+  local af = rawget(_G, 'core_input_actionFilter') or (extensions and extensions.core_input_actionFilter)
+  if not af or not af.setGroup or not af.addAction then
+    if want then log('W', logTag, 'core_input_actionFilter fehlt, Sperren nicht aktiv') end
+    restrictionsOn = want
+    return
+  end
+  local ok, err = pcall(function()
+    if want then af.setGroup('hashiriyaBlocked', M.buildData.blockedActions or {}) end
+    af.addAction(0, 'hashiriyaBlocked', want)
+  end)
+  restrictionsOn = want
+  log(ok and 'I' or 'W', logTag, 'Release-Sperren ' .. (want and 'an' or 'aus') .. (ok and '' or (': ' .. tostring(err))))
+end
+
 local function onUpdate(dtReal)
+  updateRestrictions()
   if engineOffTimer > 0 then engineOffTimer = engineOffTimer - dtReal end
   if not M.levelName then return end
   if M.active and trafficStarted then updateTrafficDensity(dtReal) end
