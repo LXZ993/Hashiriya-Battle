@@ -27,25 +27,28 @@
   },
   {
    "appName": "damageApp",
+   "appVersion": 2,
    "placement": {
-    "bottom": "444px",
-    "height": "280px",
-    "left": "5px",
+    "bottom": "0em",
+    "height": "13.18em",
+    "left": "75.06em",
     "position": "absolute",
     "right": "",
     "top": "",
-    "width": "158px"
-   },
-   "appVersion": 2
+    "width": "7.44em"
+   }
   },
   {
    "appName": "navigation",
    "appVersion": 5,
    "placement": {
-    "bottom": "90px",
-    "height": "350px",
-    "left": "5px",
-    "width": "300px"
+    "bottom": "0.62em",
+    "height": "17.19em",
+    "left": "1.25em",
+    "position": "absolute",
+    "right": "",
+    "top": "",
+    "width": "16.31em"
    }
   },
   {
@@ -105,40 +108,40 @@
    "appName": "hashiriyaSpHud",
    "appVersion": 1,
    "placement": {
-    "top": "0px",
+    "height": "150px",
     "left": 0,
-    "right": 0,
     "margin": "auto",
     "position": "absolute",
-    "width": "1000px",
-    "height": "150px"
+    "right": 0,
+    "top": "0px",
+    "width": "1000px"
    }
   },
   {
    "appName": "hashiriyaStatus",
    "appVersion": 1,
    "placement": {
-    "top": "64px",
-    "right": "10px",
+    "height": "560px",
     "position": "absolute",
-    "width": "280px",
-    "height": "560px"
+    "right": "10px",
+    "top": "64px",
+    "width": "280px"
    }
   },
   {
    "appName": "hashiriyaMenu",
    "appVersion": 1,
    "placement": {
-    "top": "200px",
+    "height": "640px",
     "left": "20px",
     "position": "absolute",
-    "width": "320px",
-    "height": "640px"
+    "top": "200px",
+    "width": "320px"
    }
   }
  ],
  "removedApps": {},
  "title": "Hashiriya Battle",
  "type": "hashiriyaBattle",
- "version": 5
+ "version": 6
 }
