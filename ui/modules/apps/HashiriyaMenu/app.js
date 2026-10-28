@@ -35,6 +35,9 @@ angular.module('beamng.apps')
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')">{{ s.t[\'menu.callRival\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'capture\')">{{ s.t[\'menu.capture\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
+              '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatMoney\')">{{ s.t[\'menu.cheatMoney\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'dumpConfigs\')">{{ s.t[\'menu.dumpConfigs\'] }}</div>' +
           '</div>' +
 
@@ -49,15 +52,28 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
             '</div>' +
             '<div ng-if="s.screen == \'shop\'">' +
-              '<div class="hbm-section">{{ s.t[\'shop.title\'] }}</div>' +
-              '<div class="hbm-note" ng-if="!s.shop || !s.shop.available">{{ s.t[\'shop.none\'] }}</div>' +
-              '<div class="hbm-cat" ng-repeat="c in s.shop.categories track by c.id">' +
-                '<div class="hbm-cat-head"><span>{{ c.name }}</span><i>{{ c.installed > 0 ? (\'LV\' + c.installed) : s.t[\'shop.stock\'] }}</i></div>' +
-                '<div class="hbm-tiers">' +
-                  '<div class="hbm-tier" ng-repeat="tr in c.tiers track by tr.level" ' +
-                    'ng-class="{\'is-on\': tr.installed, \'is-locked\': tr.locked, \'is-poor\': !tr.locked && !tr.affordable}" ' +
-                    'ng-click="!tr.installed && !tr.locked && tr.affordable && act(\'buyPart\', c.id + \':\' + tr.level)">' +
-                    '<b>LV{{ tr.level }}</b><span>{{ tr.locked ? tr.lockText : tr.price }}</span></div>' +
+              '<div class="hbm-tabs">' +
+                '<div class="hbm-tab" ng-repeat="tb in s.shop.tabs track by tb.id" ng-class="{\'is-on\': tb.id == s.shop.tab}" ' +
+                  'ng-click="act(\'shopTab\', tb.id); open.slot = null">{{ tb.name }}</div>' +
+              '</div>' +
+              '<div class="hbm-note" ng-if="s.shop.loading">{{ s.t[\'shop.loading\'] }}</div>' +
+              '<div class="hbm-note" ng-if="!s.shop.loading && !s.shop.rows.length">{{ s.t[\'shop.none\'] }}</div>' +
+              '<div class="hbm-scroll">' +
+                '<div class="hbm-part" ng-repeat="r in s.shop.rows track by r.slot" ng-class="{\'is-open\': open.slot == r.slot}">' +
+                  '<div class="hbm-part-head" ng-click="open.slot = (open.slot == r.slot ? null : r.slot)">' +
+                    '<span class="hbm-part-name">{{ r.name }}</span>' +
+                    '<span class="hbm-lv" ng-class="\'lv\' + r.currentLevel">{{ r.currentLevel > 0 ? (\'LV\' + r.currentLevel) : s.t[\'shop.stock\'] }}</span>' +
+                    '<span class="hbm-part-cur">{{ r.current }}</span>' +
+                  '</div>' +
+                  '<div class="hbm-opts" ng-if="open.slot == r.slot">' +
+                    '<div class="hbm-opt" ng-repeat="o in r.options track by o.part" ' +
+                      'ng-class="{\'is-on\': o.installed, \'is-locked\': o.locked, \'is-poor\': !o.locked && !o.affordable}" ' +
+                      'ng-click="!o.installed && !o.locked && o.affordable && act(\'buyPart\', r.slot + \'|\' + o.part)">' +
+                      '<span class="hbm-lv" ng-class="\'lv\' + o.level">{{ o.level > 0 ? (\'LV\' + o.level) : \'\u2014\' }}</span>' +
+                      '<span class="hbm-opt-name">{{ o.name }}</span>' +
+                      '<span class="hbm-opt-price">{{ o.locked ? o.lockText : o.price }}</span>' +
+                    '</div>' +
+                  '</div>' +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -103,19 +119,30 @@ angular.module('beamng.apps')
           '.hbm-area-tag{display:inline-block;width:24px;height:24px;line-height:25px;text-align:center;font-style:normal;font-size:14px;' +
             'background:var(--o);color:#141414;border-radius:3px;}' +
           '.hbm-off{opacity:.45;cursor:default;} .hbm-off:hover{background:none;padding-left:18px;} .hbm-off:hover:before{width:0;}' +
-          '.hbm-cat{padding:5px 18px 6px;border-bottom:1px solid rgba(255,255,255,.05);}' +
-          '.hbm-cat-head{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}' +
-          '.hbm-cat-head i{font-style:italic;font-weight:900;font-size:11px;color:var(--o2);}' +
-          '.hbm-tiers{display:flex;gap:4px;}' +
-          '.hbm-tier{flex:1;min-width:0;padding:4px 6px 3px;cursor:pointer;background:rgba(255,255,255,.06);border-bottom:2px solid transparent;' +
-            'transform:skewX(-10deg);transition:background .12s;}' +
-          '.hbm-tier > *{display:block;transform:skewX(10deg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
-          '.hbm-tier b{font-size:11px;font-weight:900;font-style:italic;color:var(--w);}' +
-          '.hbm-tier span{font-size:10px;font-variant-numeric:tabular-nums;color:var(--dim);}' +
-          '.hbm-tier:hover{background:rgba(255,102,0,.3);}' +
-          '.hbm-tier.is-on{background:rgba(255,102,0,.85);border-bottom-color:#fff;cursor:default;}' +
-          '.hbm-tier.is-on b,.hbm-tier.is-on span{color:#141414;}' +
-          '.hbm-tier.is-locked,.hbm-tier.is-poor{opacity:.4;cursor:default;} .hbm-tier.is-locked:hover,.hbm-tier.is-poor:hover{background:rgba(255,255,255,.06);}' +
+          '.hbm-toggle{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:1px 6px;border:1px solid var(--dim);color:var(--dim);}' +
+          '.hbm-toggle.is-on{border-color:var(--o);color:var(--o);}' +
+          '.hbm-tabs{display:flex;gap:3px;padding:6px 18px 8px;}' +
+          '.hbm-tab{flex:1 1 auto;text-align:center;padding:5px 4px;font-size:9.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;' +
+            'background:rgba(255,255,255,.06);color:var(--dim);transform:skewX(-12deg);white-space:nowrap;overflow:hidden;}' +
+          '.hbm-tab.is-on{background:var(--o);color:#141414;} .hbm-tab:hover{color:var(--w);} .hbm-tab.is-on:hover{color:#141414;}' +
+          '.hbm-scroll{max-height:330px;overflow-y:auto;overflow-x:hidden;}' +
+          '.hbm-scroll::-webkit-scrollbar{width:4px;} .hbm-scroll::-webkit-scrollbar-thumb{background:var(--o);}' +
+          '.hbm-part{border-bottom:1px solid rgba(255,255,255,.05);}' +
+          '.hbm-part-head{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;column-gap:8px;padding:6px 18px;cursor:pointer;}' +
+          '.hbm-part-head:hover,.hbm-part.is-open .hbm-part-head{background:linear-gradient(90deg,rgba(255,102,0,.2),rgba(255,102,0,0));}' +
+          '.hbm-part-name{font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;}' +
+          '.hbm-part-cur{grid-column:1 / span 2;font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+          '.hbm-lv{font-size:10px;font-weight:900;font-style:italic;color:var(--dim);}' +
+          '.hbm-lv.lv1{color:#ffd27a;} .hbm-lv.lv2{color:var(--o2);} .hbm-lv.lv3{color:#ff4d4d;}' +
+          '.hbm-opts{padding:2px 0 6px;background:rgba(0,0,0,.25);}' +
+          '.hbm-opt{display:flex;align-items:baseline;gap:8px;padding:5px 18px 5px 24px;font-size:12px;cursor:pointer;}' +
+          '.hbm-opt .hbm-lv{width:24px;flex:none;}' +
+          '.hbm-opt-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+          '.hbm-opt-price{font-size:11px;font-variant-numeric:tabular-nums;color:var(--o2);white-space:nowrap;}' +
+          '.hbm-opt:hover{background:rgba(255,102,0,.22);}' +
+          '.hbm-opt.is-on{background:rgba(255,102,0,.85);color:#141414;cursor:default;}' +
+          '.hbm-opt.is-on .hbm-lv,.hbm-opt.is-on .hbm-opt-price{color:#141414;}' +
+          '.hbm-opt.is-locked,.hbm-opt.is-poor{opacity:.4;cursor:default;} .hbm-opt.is-locked:hover,.hbm-opt.is-poor:hover{background:none;}' +
           '.hbm-note{font-size:12px;line-height:1.45;color:rgba(244,244,244,.75);padding:4px 18px 8px;}' +
           '.hbm-hint{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:8px 18px 2px;}' +
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +
@@ -127,6 +154,7 @@ angular.module('beamng.apps')
     link: function (scope) {
       'use strict'
       scope.s = null
+      scope.open = { slot: null }
       scope.act = function (action, arg) {
         var a = arg === undefined ? 'nil' : JSON.stringify(String(arg))
         bngApi.engineLua('if extensions.hashiriyaBattle_core then extensions.hashiriyaBattle_core.uiAction("' + action + '", ' + a + ') end')
@@ -140,6 +168,16 @@ angular.module('beamng.apps')
         scope.act('setLanguage', lang)
       }
       reportLanguage()
+
+      // Fotomodus melden, damit die Parkplatz-Markierung ausgeblendet wird.
+      var lastPhoto = null
+      var checkPhoto = function () {
+        var photo = false
+        try { if ($injector.has('$state')) photo = /photo/i.test($injector.get('$state').current.name || '') } catch (e) {}
+        if (photo !== lastPhoto) { lastPhoto = photo; scope.act('photoMode', photo ? 'true' : 'false') }
+      }
+      var photoTimer = setInterval(checkPhoto, 500)
+      scope.$on('$destroy', function () { clearInterval(photoTimer) })
       var langTimer = setInterval(reportLanguage, 5000)
       scope.$on('$destroy', function () { clearInterval(langTimer) })
 

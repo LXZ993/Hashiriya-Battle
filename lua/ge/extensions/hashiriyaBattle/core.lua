@@ -137,6 +137,7 @@ end
 
 local function chooseStarterCar(car)
   M.save = newSave()
+  extensions.hashiriyaBattle_parking.loadSettings(M.save)
   table.insert(M.save.cars, { model = car.model, config = car.config, name = car.name })
   M.save.activeCar = 1
   M.writeSave()
@@ -152,6 +153,7 @@ local function continueGame()
     msg(M.t('msg.noSave'))
     return
   end
+  extensions.hashiriyaBattle_parking.loadSettings(M.save)
   local car = M.save.cars[M.save.activeCar or 1]
   if car then spawnPlayerCar(car) end
   M.active = true
@@ -290,6 +292,7 @@ local function buildUiState()
     hasSave = M.hasSave,
     cars = {},
     lang = M.lang,
+    markers = extensions.hashiriyaBattle_parking.markersEnabled(),
     t = M.strings,
   }
   if showCarSelect and M.carsData then
@@ -359,10 +362,22 @@ function M.uiAction(action, arg)
   elseif action == 'dumpConfigs' then
     M.dumpConfigs()
   elseif action == 'buyPart' then
-    local cat, level = tostring(arg or ''):match('^([%w_]+):(%d+)$')
+    local slot, part = tostring(arg or ''):match('^([^|]+)|(.+)$')
     local parking = extensions.hashiriyaBattle_parking
     local area = parking.isArrived() and parking.getCurrent()
-    if cat and area and area.type == 'shop' then extensions.hashiriyaBattle_shop.buy(cat, tonumber(level)) end
+    if slot and area and area.type == 'shop' then extensions.hashiriyaBattle_shop.buy(slot, part) end
+  elseif action == 'shopTab' then
+    extensions.hashiriyaBattle_shop.setTab(tostring(arg))
+  elseif action == 'cheatMoney' then
+    -- Nur zum Testen
+    if M.save then
+      M.save.money = M.save.money + 1000000
+      M.writeSave()
+    end
+  elseif action == 'toggleMarkers' then
+    extensions.hashiriyaBattle_parking.setMarkersEnabled(not extensions.hashiriyaBattle_parking.markersEnabled())
+  elseif action == 'photoMode' then
+    extensions.hashiriyaBattle_parking.setPhotoMode(arg == 'true')
   elseif action == 'setLanguage' then
     M.setLanguage(arg)
   elseif action == 'stop' then

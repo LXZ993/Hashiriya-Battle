@@ -1,0 +1,292 @@
+{
+  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden).",
+  "tiers": [
+    {
+      "level": 1,
+      "unlock": {
+        "minWins": 0
+      }
+    },
+    {
+      "level": 2,
+      "unlock": {
+        "minWins": 3
+      }
+    },
+    {
+      "level": 3,
+      "unlock": {
+        "minWins": 6
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "id": "engine",
+      "items": [
+        {
+          "id": "ecu",
+          "slot": [
+            "_engine_ecu",
+            "_ecu"
+          ]
+        },
+        {
+          "id": "internals",
+          "slot": [
+            "_engine_internals",
+            "_internals"
+          ]
+        },
+        {
+          "id": "intake",
+          "slot": [
+            "_intake"
+          ]
+        },
+        {
+          "id": "header",
+          "slot": [
+            "_header"
+          ]
+        },
+        {
+          "id": "exhaust",
+          "slot": [
+            "_exhaust",
+            "_exhaust_na",
+            "_exhaust_turbo_stock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "drivetrain",
+      "items": [
+        {
+          "id": "transmission",
+          "slot": [
+            "_transmission",
+            "_transaxle"
+          ]
+        },
+        {
+          "id": "flywheel",
+          "slot": [
+            "_flywheel"
+          ]
+        },
+        {
+          "id": "diffF",
+          "slot": [
+            "_differential_F"
+          ]
+        },
+        {
+          "id": "diffR",
+          "slot": [
+            "_differential_R"
+          ]
+        },
+        {
+          "id": "finaldriveF",
+          "slot": [
+            "_finaldrive_F"
+          ]
+        },
+        {
+          "id": "finaldriveR",
+          "slot": [
+            "_finaldrive_R"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "chassis",
+      "items": [
+        {
+          "id": "springF",
+          "slot": [
+            "_coilover_F",
+            "_strut_F"
+          ]
+        },
+        {
+          "id": "springR",
+          "slot": [
+            "_coilover_R",
+            "_strut_R"
+          ]
+        },
+        {
+          "id": "swayF",
+          "slot": [
+            "_swaybar_F"
+          ]
+        },
+        {
+          "id": "swayR",
+          "slot": [
+            "_swaybar_R"
+          ]
+        },
+        {
+          "id": "strutbar",
+          "slot": [
+            "_strut_bar",
+            "_strut_bar_F",
+            "_strut_bar_R"
+          ],
+          "defaultLevel": 2
+        },
+        {
+          "id": "stiffen",
+          "slot": [
+            "_stiffening"
+          ],
+          "defaultLevel": 3
+        },
+        {
+          "id": "brakeF",
+          "slot": [
+            "_brake_F"
+          ]
+        },
+        {
+          "id": "brakeR",
+          "slot": [
+            "_brake_R"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "items": [
+        {
+          "id": "bumperF",
+          "slot": [
+            "_bumper_F"
+          ]
+        },
+        {
+          "id": "bumperR",
+          "slot": [
+            "_bumper_R"
+          ]
+        },
+        {
+          "id": "lip",
+          "slot": [
+            "_lip_F",
+            "_lip_F_fl"
+          ]
+        },
+        {
+          "id": "skirts",
+          "slot": [
+            "_sideskirts",
+            "_sideskirt_L",
+            "_sideskirt_R"
+          ]
+        },
+        {
+          "id": "hood",
+          "slot": [
+            "_hood"
+          ]
+        },
+        {
+          "id": "spoiler",
+          "slot": [
+            "_spoiler",
+            "_spoiler_sedan",
+            "_spoiler_wagon"
+          ]
+        }
+      ]
+    }
+  ],
+  "levelWords": {
+    "3": [
+      "race",
+      "stage2",
+      "stage3",
+      "ultra",
+      "sequential",
+      "sq",
+      "cf",
+      "carbon",
+      "bigwing",
+      "bigsplitter",
+      "adjustable",
+      "stiffening"
+    ],
+    "2": [
+      "stage1",
+      "gtz",
+      "rs",
+      "turbors",
+      "lsd",
+      "hlsd",
+      "vlsd",
+      "evolution",
+      "fiberglass",
+      "kit",
+      "bodykit",
+      "okudai",
+      "wide",
+      "widebody",
+      "gt",
+      "turbo"
+    ],
+    "1": [
+      "sport",
+      "s",
+      "light",
+      "lightened",
+      "tubular",
+      "custom",
+      "ss",
+      "scooped",
+      "vented",
+      "heavy",
+      "zxi",
+      "stock_turbo"
+    ]
+  },
+  "exclude": [
+    "rally",
+    "derby",
+    "drift",
+    "driftgear",
+    "proD",
+    "offroad",
+    "lifted",
+    "police",
+    "midengine",
+    "3wheel",
+    "boxutility",
+    "unpainted",
+    "welded",
+    "tubularbumper",
+    "hillclimb",
+    "carb",
+    "itb",
+    "alt",
+    "partition",
+    "stock"
+  ],
+  "overrides": {
+    "covet_turbo_stock": 2,
+    "covet_turbo_1,3_stock": 2,
+    "pessima_turbo": 2,
+    "sunburst2_engine_1_6_intake_turbo": 1,
+    "sunburst2_engine_2_0_intake_turbo": 1,
+    "sunburst2_engine_2_5_intake_turbo": 1,
+    "sunburst2_engine_1_6_ecu_turbo": 1,
+    "sunburst2_engine_2_0_ecu_turbo": 1,
+    "sunburst2_engine_2_5_ecu_turbo": 1
+  }
+}
