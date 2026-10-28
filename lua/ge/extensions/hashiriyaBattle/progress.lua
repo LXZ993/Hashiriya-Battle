@@ -148,8 +148,8 @@ local function onSpeedTrap(name, kmh)
 end
 
 -- BeamNG meldet Radarfallen über den Freeroam-Hook; als Rückfall zählen Trigger mit "speed" im Namen.
--- BeamNG (gameplay/speedTraps.lua): onSpeedTrapTriggered(data, playerSpeed m/s, overSpeed) feuert nur bei zu hohem Tempo.
--- Gezählt wird jede Radarfalle schon beim Durchfahren (onBeamNGTrigger mit speedTrapType), Schlüssel = triggerName.
+-- BeamNG (gameplay/speedTraps.lua): onSpeedTrapTriggered(data, playerSpeed m/s, overSpeed) feuert nur, wenn man
+-- geblitzt wird (über Limit + Toleranz, in Fahrtrichtung). Nur das zählt. Schlüssel = triggerName.
 local function trapKey(data)
   if type(data) ~= 'table' then return tostring(data) end
   return tostring(data.triggerName or data.triggerID or data.name or '')
@@ -162,12 +162,6 @@ function M.onSpeedTrapTriggered(trapData, playerSpeed)
   onSpeedTrap(trapKey(trapData), kmh)
 end
 
-function M.onBeamNGTrigger(data)
-  if type(data) ~= 'table' or data.event ~= 'enter' or data.speedTrapType ~= 'speed' then return end
-  local veh = core().getPlayerVehicle()
-  if not veh or data.subjectID ~= veh:getID() then return end
-  onSpeedTrap(trapKey(data), veh:getVelocity():length() * 3.6)
-end
 
 -- Laufende Statistik: Strecke, Höchsttempo, Geld rein/raus ------------------------
 local lastMoney = nil
