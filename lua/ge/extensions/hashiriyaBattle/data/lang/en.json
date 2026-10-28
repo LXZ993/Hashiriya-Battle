@@ -320,7 +320,7 @@
   "wd.5": "Fri",
   "wd.6": "Sat",
   "hud.dayNo": "Day %d",
-  "home.watchNote": "Tick = add to your watch list (shown in the HUD, these rivals show up more often).",
+  "home.watchNote": "Tick = add to your watch list (shown on the right of the HUD).",
   "msg.watchFull": "Watch list is full (max %d).",
   "msg.watchDone": "%s beaten and crossed off your list.",
   "msg.watched": " · On your list!",

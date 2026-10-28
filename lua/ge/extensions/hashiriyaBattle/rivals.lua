@@ -232,14 +232,6 @@ local function pickRival(save)
   for _, r in ipairs(data.rivals) do
     if isEligible(r, save) then table.insert(save.defeated[r.id] and beaten or fresh, r) end
   end
-  -- Rivalen auf der Merkliste kommen öfter (watchChance), sonst wie gewohnt
-  local watched = {}
-  for _, r in ipairs(fresh) do if home().isWatched(r.id) then table.insert(watched, { r = r }) end end
-  for _, r in ipairs(beaten) do if home().isWatched(r.id) then table.insert(watched, { r = r, rematch = true }) end end
-  if #watched > 0 and math.random() < (settings().watchChance or 0.5) then
-    local w = watched[math.random(#watched)]
-    return w.rematch and rematchOf(w.r, save) or w.r
-  end
   local rw = (settings().rematch or {}).weight or 0.25
   if #fresh > 0 and (#beaten == 0 or math.random() >= rw) then return fresh[math.random(#fresh)] end
   if #beaten > 0 then return rematchOf(beaten[math.random(#beaten)], save) end
