@@ -246,18 +246,25 @@ function M.startTraffic()
   if not tr or not tr.setupTrafficHelper then return end
   local okL, list = pcall(function() return tr.getTrafficList and tr.getTrafficList() end)
   trafficStarted = true
-  if okL and type(list) == 'table' and next(list) then return end -- läuft schon
+  if okL and type(list) == 'table' and next(list) then -- läuft schon
+    local n = 0
+    for _ in pairs(list) do n = n + 1 end
+    M.trafficTotal, M.trafficActive = n, nil
+    return
+  end
   local amount = M.carsData and tonumber(M.carsData.trafficAmount) or -1
   local parked = M.carsData and tonumber(M.carsData.parkedAmount) or -1
   local tOpts, pOpts = { police = false }, {}
   local group = trafficGroup()
+  local n = amount
+  if n < 0 then
+    local okA, ideal = pcall(tr.getIdealSpawnAmount, nil, true)
+    n = okA and tonumber(ideal) or 10
+  end
+  M.trafficTotal = n -- volle Menge (tagsüber); nachts fahren davon weniger (trafficByHour in world.json)
+  M.trafficActive = nil
   if group then
     local ms = rawget(_G, 'core_multiSpawn') or extensions.core_multiSpawn
-    local n = amount
-    if n < 0 then
-      local okA, ideal = pcall(tr.getIdealSpawnAmount, nil, true)
-      n = okA and tonumber(ideal) or 10
-    end
     local okF, fitted = pcall(function() return ms and ms.fitGroup and ms.fitGroup(group, n) end)
     tOpts.vehGroup = okF and fitted or group
     pOpts.vehGroup = group
@@ -265,6 +272,34 @@ function M.startTraffic()
   local ok, err = pcall(tr.setupTrafficHelper, amount, tOpts, parked, pOpts)
   if ok then log('I', logTag, 'Verkehr gestartet' .. (group and ' (Agent Traffic JP)' or ''))
   else log('W', logTag, 'Verkehr starten fehlgeschlagen: ' .. tostring(err)) end
+end
+
+-- Verkehr nach Uhrzeit: aktive Menge = volle Menge × trafficByHour[Stunde] %
+local trafficTimer = 0
+local trafficWarned = false
+local function updateTrafficDensity(dt)
+  trafficTimer = trafficTimer - dt
+  if trafficTimer > 0 or not M.trafficTotal then return end
+  trafficTimer = 10
+  local home = extensions.hashiriyaBattle_home
+  local byHour = home.world().trafficByHour
+  local h = home.hour()
+  if type(byHour) ~= 'table' or not h then return end
+  local pct = tonumber(byHour[math.floor(h) % 24 + 1]) or 100
+  local target = math.max(1, math.floor(M.trafficTotal * pct / 100 + 0.5))
+  if target == M.trafficActive then return end
+  local tr = rawget(_G, 'gameplay_traffic')
+  if not tr or not tr.setActiveAmount then
+    if not trafficWarned then trafficWarned = true; log('W', logTag, 'gameplay_traffic.setActiveAmount fehlt, Verkehr bleibt konstant') end
+    return
+  end
+  local ok, err = pcall(tr.setActiveAmount, target)
+  if ok then
+    M.trafficActive = target
+    log('I', logTag, string.format('Verkehr: %d von %d aktiv (%d %%, %02d Uhr)', target, M.trafficTotal, pct, math.floor(h)))
+  else
+    log('W', logTag, 'Verkehr anpassen fehlgeschlagen: ' .. tostring(err))
+  end
 end
 
 local function spawnPlayerCar(car)
@@ -808,6 +843,7 @@ end
 local function onUpdate(dtReal)
   if engineOffTimer > 0 then engineOffTimer = engineOffTimer - dtReal end
   if not M.levelName then return end
+  if M.active and trafficStarted then updateTrafficDensity(dtReal) end
   uiTimer = uiTimer - dtReal
   if uiTimer <= 0 then
     -- beim Tanken öfter aktualisieren, damit Liter und Preis flüssig mitlaufen
