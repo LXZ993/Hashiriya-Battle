@@ -470,6 +470,7 @@ function M.onBattleResult(rival, won, result)
     M.save.wins = M.save.wins + 1
     msg(M.t('msg.win', rival.name, M.economy().formatYen(reward)), 6)
     if streak >= 2 then msg(M.t('msg.streak', streak, math.floor((moneyF - 1) * 100 + 0.5)), 4) end
+    extensions.hashiriyaBattle_progress.leaderHint(rival)
   else
     M.save.losses = M.save.losses + 1
     msg(M.t('msg.lose', rival.name), 6)

@@ -329,5 +329,10 @@
   "hud.sync": "Tempo angleichen …",
   "new.carPrice": "Kaufpreis Auto",
   "new.restMoney": "Kontostand zum Start",
-  "msg.noQuickTravel": "Schnellreise ist im Hashiriya-Modus nicht möglich."
+  "msg.noQuickTravel": "Schnellreise ist im Hashiriya-Modus nicht möglich.",
+  "msg.leader.nextNight": "Alle Mitglieder geschlagen. %s ist ab der nächsten Nacht unterwegs.",
+  "home.leader.members": "Erscheint, wenn alle Mitglieder geschlagen sind.",
+  "home.leader.nextNight": "Ab der nächsten Nacht unterwegs.",
+  "home.leader.out": "Ist unterwegs. Halte die Augen offen.",
+  "msg.leader.out": "Alle Mitglieder geschlagen. %s ist jetzt unterwegs."
 }

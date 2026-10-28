@@ -223,6 +223,7 @@ angular.module('beamng.apps')
                         '<span class="hbm-lex-tag hbm-lex-boss" ng-if="r.boss">{{ s.t[\'home.boss\'] }}</span>' +
                         '<span class="hbm-lex-state">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
                       '<div class="hbm-lex-sub">{{ r.car }}</div>' +
+                      '<div class="hbm-lex-status" ng-if="r.status">{{ r.status }}</div>' +
                       '<div class="hbm-lex-text" ng-if="r.desc">{{ r.desc }}</div>' +
                     '</div>' +
                   '</div>' +
@@ -488,6 +489,7 @@ angular.module('beamng.apps')
           '.hbm-lex-state{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);}' +
           '.hbm-lex.is-beaten .hbm-lex-state{color:var(--o);}' +
           '.hbm-lex-sub{font-size:11px;color:var(--dim);}' +
+          '.hbm-lex-status{font-size:11px;color:var(--tc);margin-top:2px;letter-spacing:.02em;}' +
           '.hbm-ico{display:inline-flex;width:18px;height:18px;flex:none;margin-right:10px;color:var(--o);}' +
           '.hbm-ico svg{width:100%;height:100%;}' +
           '.hbm-sub .hbm-ico{width:15px;height:15px;color:rgba(244,244,244,.6);}' +

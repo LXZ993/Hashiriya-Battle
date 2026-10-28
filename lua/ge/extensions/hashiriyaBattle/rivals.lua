@@ -481,6 +481,17 @@ local function onExtensionLoaded()
   M.loadData()
 end
 
+-- Leader-Status für Lexikon und Hinweis: 'members' (noch Mitglieder offen), 'nextNight' (letzte heute geschlagen), 'out' (unterwegs)
+function M.leaderStatus(rival, save)
+  save = save or core().save
+  if not (rival and rival.leader and save) then return nil end
+  if not teamMembersDefeated(rival.team, save) then return 'members' end
+  if settings().leaderNotSameNight ~= false and not teamMembersDefeated(rival.team, save, extensions.hashiriyaBattle_home.nightId()) then return 'nextNight' end
+  return 'out'
+end
+
+function M.leaderOf(teamId) return leaderOf(teamId) end
+
 M.onExtensionLoaded = onExtensionLoaded
 M.onUpdate = onUpdate
 

@@ -329,5 +329,10 @@
   "hud.sync": "Matching speed …",
   "new.carPrice": "Car price",
   "new.restMoney": "Balance at start",
-  "msg.noQuickTravel": "Quick travel is not available in Hashiriya mode."
+  "msg.noQuickTravel": "Quick travel is not available in Hashiriya mode.",
+  "msg.leader.nextNight": "All members beaten. %s will be out on the road from next night on.",
+  "home.leader.members": "Shows up once all members are beaten.",
+  "home.leader.nextNight": "Out on the road from next night on.",
+  "home.leader.out": "Out on the road. Keep your eyes open.",
+  "msg.leader.out": "All members beaten. %s is out on the road now."
 }

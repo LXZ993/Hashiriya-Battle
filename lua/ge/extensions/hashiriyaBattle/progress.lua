@@ -114,6 +114,18 @@ function M.onBattle(rival, won, result)
   end
 end
 
+-- Nach dem Sieg über das letzte Mitglied eines Teams: Hinweis, wann der Leader auftaucht (core ruft das nach save.defeated)
+function M.leaderHint(rival)
+  local c = core()
+  local save = c.save
+  local rv = extensions.hashiriyaBattle_rivals
+  if not (rival.team and not rival.leader and not rival.rematch and rv.leaderOf) then return end
+  local leader = rv.leaderOf(rival.team)
+  if not leader or (save.defeated or {})[leader.id] then return end
+  local ls = rv.leaderStatus(leader, save)
+  if ls == 'nextNight' or ls == 'out' then c.msg(c.t('msg.leader.' .. ls, leader.name), 8) end
+end
+
 -- Radarfallen -----------------------------------------------------------------
 -- Pro Map zählt jede ausgelöste Radarfalle einmal (save.speedTraps[level][name] = höchstes Tempo in km/h).
 -- Gesamtzahl aus der Kartendatei (speedTrapsTotal). Alle ausgelöst = Bedingung "speedTraps": "all" bei einem Rivalen.

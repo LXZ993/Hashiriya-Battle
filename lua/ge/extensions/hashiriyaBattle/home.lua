@@ -203,6 +203,10 @@ local function lexicon()
       beaten = beaten,
       id = r.id, watched = M.isWatched(r.id),
     }
+    if r.leader and not beaten and rv.leaderStatus then
+      local ls = rv.leaderStatus(r, save)
+      if ls then e.status = c.t('home.leader.' .. ls) end
+    end
     local g = (r.boss and bosses) or (r.wanderer and wanderers) or byTeam[r.team]
     if g then table.insert(g.list, e) end
   end
