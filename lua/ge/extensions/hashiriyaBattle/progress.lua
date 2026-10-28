@@ -148,23 +148,25 @@ local function onSpeedTrap(name, kmh)
 end
 
 -- BeamNG meldet Radarfallen über den Freeroam-Hook; als Rückfall zählen Trigger mit "speed" im Namen.
+-- BeamNG (gameplay/speedTraps.lua): onSpeedTrapTriggered(data, playerSpeed m/s, overSpeed) feuert nur bei zu hohem Tempo.
+-- Gezählt wird jede Radarfalle schon beim Durchfahren (onBeamNGTrigger mit speedTrapType), Schlüssel = triggerName.
+local function trapKey(data)
+  if type(data) ~= 'table' then return tostring(data) end
+  return tostring(data.triggerName or data.triggerID or data.name or '')
+end
+
 function M.onSpeedTrapTriggered(trapData, playerSpeed)
-  local name = type(trapData) == 'table' and (trapData.name or trapData.triggerName or trapData.id) or tostring(trapData)
-  local kmh = tonumber(playerSpeed) and playerSpeed * 3.6 or nil
-  if not kmh then
-    local veh = core().getPlayerVehicle()
-    kmh = veh and veh:getVelocity():length() * 3.6 or 0
-  end
-  onSpeedTrap(tostring(name), kmh)
+  local veh = core().getPlayerVehicle()
+  if type(trapData) == 'table' and trapData.subjectID and (not veh or trapData.subjectID ~= veh:getID()) then return end
+  local kmh = tonumber(playerSpeed) and playerSpeed * 3.6 or (veh and veh:getVelocity():length() * 3.6) or 0
+  onSpeedTrap(trapKey(trapData), kmh)
 end
 
 function M.onBeamNGTrigger(data)
-  if type(data) ~= 'table' or data.event ~= 'enter' then return end
-  local name = tostring(data.triggerName or '')
-  if not name:lower():find('speed', 1, true) then return end
+  if type(data) ~= 'table' or data.event ~= 'enter' or data.speedTrapType ~= 'speed' then return end
   local veh = core().getPlayerVehicle()
   if not veh or data.subjectID ~= veh:getID() then return end
-  onSpeedTrap(name, veh:getVelocity():length() * 3.6)
+  onSpeedTrap(trapKey(data), veh:getVelocity():length() * 3.6)
 end
 
 -- Laufende Statistik: Strecke, Höchsttempo, Geld rein/raus ------------------------

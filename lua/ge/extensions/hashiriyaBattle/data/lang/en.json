@@ -328,5 +328,6 @@
   "msg.tooSlow": "Too slow to challenge!",
   "hud.sync": "Matching speed …",
   "new.carPrice": "Car price",
-  "new.restMoney": "Balance at start"
+  "new.restMoney": "Balance at start",
+  "msg.noQuickTravel": "Quick travel is not available in Hashiriya mode."
 }

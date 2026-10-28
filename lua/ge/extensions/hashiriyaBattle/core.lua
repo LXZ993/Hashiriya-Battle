@@ -906,6 +906,21 @@ local function updateRestrictions()
   end)
   restrictionsOn = want
   log(ok and 'I' or 'W', logTag, 'Release-Sperren ' .. (want and 'an' or 'aus') .. (ok and '' or (': ' .. tostring(err))))
+  -- Node Grabber: feste, realistische Stärke
+  if want and M.buildData.nodeGrabberStrength then
+    pcall(function() be.nodeGrabber:setStrength(M.buildData.nodeGrabberStrength) end)
+  end
+  -- Schnellreise über die große Karte (freeroam_bigMapMode.teleportToPoi) sperren, solange die Karriere läuft
+  local bm = rawget(_G, 'freeroam_bigMapMode')
+  if bm and bm.teleportToPoi and M.buildData.blockBigMapTeleport ~= false then
+    if want and not M.origTeleportToPoi then
+      M.origTeleportToPoi = bm.teleportToPoi
+      bm.teleportToPoi = function() msg(M.t('msg.noQuickTravel'), 3) end
+    elseif not want and M.origTeleportToPoi then
+      bm.teleportToPoi = M.origTeleportToPoi
+      M.origTeleportToPoi = nil
+    end
+  end
 end
 
 local function onUpdate(dtReal)

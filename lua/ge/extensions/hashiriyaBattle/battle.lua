@@ -286,8 +286,17 @@ local function onUpdate(dtReal, dtSim)
   local rivalVeh = rivals().getRivalVehicle()
   if not rivalVeh then M.reset(); return end
 
+  if state == 'sync' or state == 'countdown' then
+    -- Der BeamNG-Tempomat schaltet sich beim Bremsen ab: regelmäßig wieder einschalten
+    battle.relock = (battle.relock or 0.5) - dtSim
+    if battle.relock <= 0 then
+      battle.relock = 0.5
+      player:queueLuaCommand(string.format('if extensions.cruiseControl then extensions.cruiseControl.setSpeed(%f) extensions.cruiseControl.setEnabled(true) end', battle.lockSpeed))
+    end
+  end
+
   if state == 'sync' then
-    -- Tempo angleichen: Tempomat bremst/beschleunigt auf das Battle-Tempo, dann startet der Countdown
+    -- Tempo angleichen: Tempomat gibt Gas bzw. lässt ausrollen (er bremst nicht), dann startet der Countdown
     timer = timer - dtSim
     local gap = getGap(player, rivalVeh)
     if gap < 2 then -- in der Angleich-Phase überholt = Frühstart

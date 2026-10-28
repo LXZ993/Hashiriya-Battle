@@ -538,7 +538,7 @@ local function requestStats()
     local kw, nm = 0, 0
     local ok = pcall(function()
       local eng = powertrain.getDevicesByCategory('engine')[1]
-      if eng then kw = eng.maxPower or 0; nm = eng.maxTorque or 0 end
+      if eng then kw = eng.maxPower or 0; nm = eng.maxTorque or 0 end -- kw-Variable enthält PS
     end)
     local kg = 0
     pcall(function() for _, n in pairs(v.data.nodes) do kg = kg + (n.nodeWeight or 0) end end)
@@ -549,9 +549,11 @@ local function requestStats()
 end
 
 function M.onStats(kw, nm, kg, brake)
-  kw, nm, kg, brake = tonumber(kw) or 0, tonumber(nm) or 0, tonumber(kg) or 0, tonumber(brake) or 0
+  -- combustionEngine.maxPower ist in PS (metrisch), maxTorque in Nm
+  local ps
+  ps, nm, kg, brake = tonumber(kw) or 0, tonumber(nm) or 0, tonumber(kg) or 0, tonumber(brake) or 0
   if kg <= 0 then return end
-  carStats = { ps = kw * 1.35962, nm = nm, kg = kg, brake = brake, pw = kw > 0 and kg / (kw * 1.35962) or nil }
+  carStats = { ps = ps, nm = nm, kg = kg, brake = brake, pw = ps > 0 and kg / ps or nil }
   if not cart then baseStats = nil end
 end
 

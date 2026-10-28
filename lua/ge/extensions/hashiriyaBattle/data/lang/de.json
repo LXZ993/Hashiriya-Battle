@@ -328,5 +328,6 @@
   "msg.tooSlow": "Zu langsam zum Herausfordern!",
   "hud.sync": "Tempo angleichen …",
   "new.carPrice": "Kaufpreis Auto",
-  "new.restMoney": "Kontostand zum Start"
+  "new.restMoney": "Kontostand zum Start",
+  "msg.noQuickTravel": "Schnellreise ist im Hashiriya-Modus nicht möglich."
 }
