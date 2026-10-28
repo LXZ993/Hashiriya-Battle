@@ -8,7 +8,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop' }
+local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -18,6 +18,7 @@ M.levelName = nil
 
 local showMenu = true
 local showCarSelect = false
+local garageTab = 'service' -- Garage-Reiter: service, parts, setup
 local menuAutoOpened = false -- Menü wurde vom Parkplatz geöffnet und schließt sich beim Wegfahren
 
 -- Hilfsfunktionen -----------------------------------------------------------
@@ -177,6 +178,10 @@ function M.onParkingArrived(area)
 end
 
 function M.onParkingLeft(area)
+  -- Probeweise eingebaute Teile zurücknehmen, offene Setup-Änderungen verwerfen
+  extensions.hashiriyaBattle_shop.cancelPreview()
+  extensions.hashiriyaBattle_setup.onParkingLeft()
+  garageTab = 'service'
   if menuAutoOpened then showMenu = false end
   menuAutoOpened = false
   M.sendUiState()
@@ -324,6 +329,11 @@ local function buildUiState()
       st.repairCost = cost > 0 and eco.formatYen(cost) or nil
       st.canAffordRepair = cost <= M.save.money
       if area.type == 'shop' then st.shop = extensions.hashiriyaBattle_shop.getUiState() end
+      if area.type == 'garage' then
+        st.garageTab = garageTab
+        if garageTab == 'parts' then st.shop = extensions.hashiriyaBattle_shop.getUiState('garage') end
+        if garageTab == 'setup' then st.setup = extensions.hashiriyaBattle_setup.getUiState() end
+      end
     end
   end
   return st
@@ -331,6 +341,11 @@ end
 
 function M.sendUiState()
   guihooks.trigger('HashiriyaState', buildUiState())
+end
+
+local function arrivedArea()
+  local parking = extensions.hashiriyaBattle_parking
+  return parking.isArrived() and parking.getCurrent() or nil
 end
 
 -- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
@@ -362,12 +377,36 @@ function M.uiAction(action, arg)
   elseif action == 'dumpConfigs' then
     M.dumpConfigs()
   elseif action == 'buyPart' then
-    local slot, part = tostring(arg or ''):match('^([^|]+)|(.+)$')
-    local parking = extensions.hashiriyaBattle_parking
-    local area = parking.isArrived() and parking.getCurrent()
-    if slot and area and area.type == 'shop' then extensions.hashiriyaBattle_shop.buy(slot, part) end
+    -- Shop: fremde Teile erst als Vorschau; Garage: nur Serie/Besitz umrüsten.
+    -- Leerer Teilename = Slot leer lassen ("Nicht verbaut").
+    local slot, part = tostring(arg or ''):match('^([^|]+)|(.*)$')
+    local area = arrivedArea()
+    if slot and area and area.type == 'shop' then extensions.hashiriyaBattle_shop.select(slot, part) end
+    if slot and area and area.type == 'garage' then extensions.hashiriyaBattle_shop.buy(slot, part, true) end
+  elseif action == 'buyPaint' then
+    local area = arrivedArea()
+    if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.selectPaint(tostring(arg)) end
+  elseif action == 'previewBuy' then
+    extensions.hashiriyaBattle_shop.confirmPreview()
+  elseif action == 'previewCancel' then
+    extensions.hashiriyaBattle_shop.cancelPreview()
   elseif action == 'shopTab' then
     extensions.hashiriyaBattle_shop.setTab(tostring(arg))
+  elseif action == 'garageTab' then
+    garageTab = tostring(arg)
+  elseif action == 'setupAdjust' then
+    local name, dir = tostring(arg or ''):match('^(.+)|([%-%d]+)$')
+    local area = arrivedArea()
+    if name and area and area.type == 'garage' then extensions.hashiriyaBattle_setup.adjust(name, tonumber(dir) or 1) end
+  elseif action == 'setupCat' then
+    extensions.hashiriyaBattle_setup.toggleCategory(tostring(arg))
+  elseif action == 'setupApply' then
+    local area = arrivedArea()
+    if area and area.type == 'garage' then extensions.hashiriyaBattle_setup.apply() end
+  elseif action == 'setupDefaults' then
+    extensions.hashiriyaBattle_setup.resetDefaults()
+  elseif action == 'setupDiscard' then
+    extensions.hashiriyaBattle_setup.discard()
   elseif action == 'cheatMoney' then
     -- Nur zum Testen
     if M.save then

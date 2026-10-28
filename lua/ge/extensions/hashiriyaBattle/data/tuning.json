@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn).",
+  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn). Reiter 'paint' = Lackierer: Werkslacke des Modells (paintPriceYen) und Liveries (Slot paint_design, minPriceYen). Reiter 'misc' (all=true) sammelt alle übrigen Slots mit Auswahl; slotExclude = Lua-Muster für Slots, die dort nicht erscheinen.",
   "tiers": [
     {
       "level": 1,
@@ -239,6 +239,29 @@
           ]
         }
       ]
+    },
+    {
+      "id": "misc",
+      "items": [
+        {
+          "id": "other",
+          "all": true,
+          "defaultLevel": 1
+        }
+      ]
+    },
+    {
+      "id": "paint",
+      "items": [
+        {
+          "id": "livery",
+          "pattern": [
+            "^paint_design$"
+          ],
+          "defaultLevel": 1,
+          "minPriceYen": 19800
+        }
+      ]
     }
   ],
   "levelWords": {
@@ -332,5 +355,29 @@
     "sunburst2_engine_1_6_ecu_turbo": 1,
     "sunburst2_engine_2_0_ecu_turbo": 1,
     "sunburst2_engine_2_5_ecu_turbo": 1
-  }
+  },
+  "paintPriceYen": 29800,
+  "slotExclude": [
+    "licenseplate",
+    "_mod$",
+    "^paint_design$",
+    "enginemounts",
+    "oilpan",
+    "n2o_",
+    "_fueltank",
+    "_battery",
+    "skin",
+    "_body$",
+    "_engine$",
+    "_transfer",
+    "_converter",
+    "_driveshaft",
+    "_halfshaft",
+    "_hub",
+    "_axle",
+    "_spindle",
+    "_strut_bar",
+    "police",
+    "radar"
+  ]
 }

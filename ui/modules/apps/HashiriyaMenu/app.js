@@ -46,16 +46,58 @@ angular.module('beamng.apps')
             '<div class="hbm-area"><span class="hbm-area-tag">{{ s.screen == \'garage\' ? \'P\' : \'T\' }}</span>{{ s.area }}</div>' +
             '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.car\'] }}</span><b>{{ s.carName }}</b></div>' +
-            '<div ng-if="s.screen == \'garage\'">' +
-              '<div class="hbm-section">{{ s.t[\'pa.garage\'] }}</div>' +
+            '<div class="hbm-tabs" ng-if="s.screen == \'garage\'">' +
+              '<div class="hbm-tab" ng-repeat="g in [\'service\', \'parts\', \'setup\']" ng-class="{\'is-on\': g == s.garageTab}" ' +
+                'ng-click="act(\'garageTab\', g); open.slot = null">{{ s.t[\'garage.tab.\' + g] }}</div>' +
+            '</div>' +
+            '<div ng-if="s.screen == \'garage\' && s.garageTab == \'service\'">' +
               '<div class="hbm-item" ng-class="{\'hbm-off\': !s.repairCost || !s.canAffordRepair}" ng-click="s.repairCost && s.canAffordRepair && act(\'repair\')">' +
                 '<span class="hbm-car-name">{{ s.t[\'menu.repair\'] }}</span><span class="hbm-price">{{ s.repairCost || s.t[\'menu.noDamage\'] }}</span></div>' +
               '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
             '</div>' +
-            '<div ng-if="s.screen == \'shop\'">' +
-              '<div class="hbm-tabs">' +
+
+            '<div ng-if="s.screen == \'garage\' && s.garageTab == \'setup\' && s.setup">' +
+              '<div class="hbm-note" ng-if="!s.setup.cats.length">{{ s.t[\'setup.none\'] }}</div>' +
+              '<div class="hbm-scroll">' +
+                '<div class="hbm-part" ng-repeat="c in s.setup.cats track by c.id" ng-class="{\'is-open\': s.setup.open == c.id}">' +
+                  '<div class="hbm-part-head" ng-click="act(\'setupCat\', c.id)">' +
+                    '<span class="hbm-part-name">{{ c.name }}</span>' +
+                    '<span class="hbm-lv lv2">{{ c.changed ? s.t[\'setup.changed\'].replace(\'%d\', c.changed) : \'\' }}</span>' +
+                  '</div>' +
+                  '<div class="hbm-opts" ng-if="s.setup.open == c.id">' +
+                    '<div class="hbm-var" ng-repeat="v in c.rows track by v.name" ng-class="{\'is-changed\': v.changed}">' +
+                      '<span class="hbm-opt-name">{{ v.title }}</span>' +
+                      '<span class="hbm-step" ng-class="{\'hbm-dis\': v.atMin}" ng-click="!v.atMin && act(\'setupAdjust\', v.name + \'|-1\')">&#8722;</span>' +
+                      '<span class="hbm-var-val">{{ v.value }}</span>' +
+                      '<span class="hbm-step" ng-class="{\'hbm-dis\': v.atMax}" ng-click="!v.atMax && act(\'setupAdjust\', v.name + \'|1\')">+</span>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="hbm-actions" ng-if="s.setup.cats.length">' +
+                '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !s.setup.pending}" ng-click="s.setup.pending && act(\'setupApply\')">{{ s.t[\'setup.apply\'] }}</span>' +
+                '<span class="hbm-btn" ng-click="act(\'setupDefaults\')">{{ s.t[\'setup.defaults\'] }}</span>' +
+                '<span class="hbm-btn" ng-class="{\'hbm-dis\': !s.setup.pending}" ng-click="s.setup.pending && act(\'setupDiscard\')">{{ s.t[\'setup.discard\'] }}</span>' +
+              '</div>' +
+            '</div>' +
+
+            '<div ng-if="s.shop && (s.screen == \'shop\' || s.garageTab == \'parts\')">' +
+              '<div class="hbm-note" ng-if="s.screen == \'garage\'">{{ s.t[\'garage.partsHint\'] }}</div>' +
+              '<div class="hbm-tabs hbm-subtabs">' +
                 '<div class="hbm-tab" ng-repeat="tb in s.shop.tabs track by tb.id" ng-class="{\'is-on\': tb.id == s.shop.tab}" ' +
                   'ng-click="act(\'shopTab\', tb.id); open.slot = null">{{ tb.name }}</div>' +
+              '</div>' +
+              '<div class="hbm-preview" ng-if="s.shop.preview">' +
+                '<div class="hbm-preview-top"><span class="hbm-preview-tag">{{ s.t[\'shop.preview\'] }}</span>' +
+                  '<span class="hbm-lv" ng-class="\'lv\' + s.shop.preview.level">{{ s.shop.preview.level > 0 ? (\'LV\' + s.shop.preview.level) : \'\' }}</span>' +
+                  '<span class="hbm-opt-name">{{ s.shop.preview.name }}</span>' +
+                  '<span class="hbm-opt-price">{{ s.shop.preview.locked ? s.shop.preview.lockText : s.shop.preview.price }}</span></div>' +
+                '<div class="hbm-actions">' +
+                  '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': s.shop.preview.locked || !s.shop.preview.affordable}" ' +
+                    'ng-click="!s.shop.preview.locked && s.shop.preview.affordable && act(\'previewBuy\')">{{ s.t[\'shop.buy\'] }}</span>' +
+                  '<span class="hbm-btn" ng-click="act(\'previewCancel\')">{{ s.t[\'shop.cancel\'] }}</span>' +
+                '</div>' +
+                '<div class="hbm-preview-hint">{{ s.t[\'shop.previewHint\'] }}</div>' +
               '</div>' +
               '<div class="hbm-note" ng-if="s.shop.loading">{{ s.t[\'shop.loading\'] }}</div>' +
               '<div class="hbm-note" ng-if="!s.shop.loading && !s.shop.rows.length">{{ s.t[\'shop.none\'] }}</div>' +
@@ -68,9 +110,10 @@ angular.module('beamng.apps')
                   '</div>' +
                   '<div class="hbm-opts" ng-if="open.slot == r.slot">' +
                     '<div class="hbm-opt" ng-repeat="o in r.options track by o.part" ' +
-                      'ng-class="{\'is-on\': o.installed, \'is-locked\': o.locked, \'is-poor\': !o.locked && !o.affordable}" ' +
-                      'ng-click="!o.installed && !o.locked && o.affordable && act(\'buyPart\', r.slot + \'|\' + o.part)">' +
-                      '<span class="hbm-lv" ng-class="\'lv\' + o.level">{{ o.level > 0 ? (\'LV\' + o.level) : \'\u2014\' }}</span>' +
+                      'ng-class="{\'is-on\': o.installed, \'is-preview\': o.previewing, \'is-locked\': o.locked, \'is-poor\': !o.locked && !o.affordable}" ' +
+                      'ng-click="pick(r, o)">' +
+                      '<span class="hbm-swatch" ng-if="o.swatch" ng-style="{background: o.swatch}"></span>' +
+                      '<span class="hbm-lv" ng-if="!o.swatch" ng-class="\'lv\' + o.level">{{ o.level > 0 ? (\'LV\' + o.level) : \'—\' }}</span>' +
                       '<span class="hbm-opt-name">{{ o.name }}</span>' +
                       '<span class="hbm-opt-price">{{ o.locked ? o.lockText : o.price }}</span>' +
                     '</div>' +
@@ -144,6 +187,25 @@ angular.module('beamng.apps')
           '.hbm-opt.is-on{background:rgba(255,102,0,.85);color:#141414;cursor:default;}' +
           '.hbm-opt.is-on .hbm-lv,.hbm-opt.is-on .hbm-opt-price{color:#141414;}' +
           '.hbm-opt.is-locked,.hbm-opt.is-poor{opacity:.4;cursor:default;} .hbm-opt.is-locked:hover,.hbm-opt.is-poor:hover{background:none;}' +
+          '.hbm-subtabs{flex-wrap:wrap;padding-top:2px;} .hbm-subtabs .hbm-tab{flex:1 1 22%;}' +
+          '.hbm-opt.is-preview{background:rgba(255,154,60,.18);box-shadow:inset 3px 0 0 var(--o2);}' +
+          '.hbm-swatch{width:14px;height:14px;flex:none;align-self:center;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.35);margin-right:10px;}' +
+          '.hbm-preview{margin:0 18px 8px;padding:8px 10px;border:1px solid rgba(255,154,60,.55);background:rgba(255,102,0,.1);}' +
+          '.hbm-preview-top{display:flex;align-items:baseline;gap:8px;font-size:12px;}' +
+          '.hbm-preview-tag{font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#141414;background:var(--o2);padding:1px 5px;}' +
+          '.hbm-preview-hint{font-size:10px;color:var(--dim);margin-top:6px;}' +
+          '.hbm-preview .hbm-actions{padding:8px 0 0;}' +
+          '.hbm-actions{display:flex;gap:6px;padding:8px 18px 2px;}' +
+          '.hbm-btn{flex:1;text-align:center;padding:6px 4px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;' +
+            'background:rgba(255,255,255,.08);transform:skewX(-12deg);}' +
+          '.hbm-btn:hover{background:rgba(255,255,255,.16);}' +
+          '.hbm-btn-main{background:var(--o);color:#141414;} .hbm-btn-main:hover{background:var(--o2);}' +
+          '.hbm-dis,.hbm-dis:hover{opacity:.35;cursor:default;}' +
+          '.hbm-var{display:flex;align-items:center;gap:6px;padding:4px 18px 4px 24px;font-size:12px;}' +
+          '.hbm-var.is-changed .hbm-var-val{color:var(--o2);}' +
+          '.hbm-var-val{width:78px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;}' +
+          '.hbm-step{width:20px;height:20px;line-height:20px;text-align:center;flex:none;cursor:pointer;font-weight:900;background:rgba(255,255,255,.08);}' +
+          '.hbm-step:hover{background:var(--o);color:#141414;}' +
           '.hbm-note{font-size:12px;line-height:1.45;color:rgba(244,244,244,.75);padding:4px 18px 8px;}' +
           '.hbm-hint{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:8px 18px 2px;}' +
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +
@@ -156,6 +218,13 @@ angular.module('beamng.apps')
       'use strict'
       scope.s = null
       scope.open = { slot: null }
+      // Shop: Klick baut probeweise ein (Vorschau); Garage: nur Besitz/Serie umrüsten.
+      scope.pick = function (r, o) {
+        if (o.installed && !o.previewing) return
+        if (r.kind === 'paint') { if (!o.previewing) scope.act('buyPaint', o.part); return }
+        if (o.previewing) return
+        scope.act('buyPart', r.slot + '|' + (o.part || ''))
+      }
       scope.act = function (action, arg) {
         var a = arg === undefined ? 'nil' : JSON.stringify(String(arg))
         bngApi.engineLua('if extensions.hashiriyaBattle_core then extensions.hashiriyaBattle_core.uiAction("' + action + '", ' + a + ') end')

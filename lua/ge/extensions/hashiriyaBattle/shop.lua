@@ -61,6 +61,13 @@ local function niceName(desc, partName)
   return partName
 end
 
+local function slotExcluded(slot)
+  for _, pat in ipairs(rules.slotExclude or {}) do
+    if slot:find(pat) then return true end
+  end
+  return false
+end
+
 local function partLevel(partName, display, item)
   local o = rules.overrides and rules.overrides[partName]
   if o ~= nil then return o end
@@ -111,11 +118,12 @@ local function currentConfig()
     end
     return nil
   end
-  local out = { parts = {}, vars = {}, paints = cfg.paints }
+  local out = { parts = {}, vars = {}, paints = (deepcopy and cfg.paints) and deepcopy(cfg.paints) or cfg.paints }
   for k, v in pairs(parts) do out.parts[k] = v end
   for k, v in pairs(cfg.vars or {}) do out.vars[k] = v end
   return out, vd
 end
+M.currentConfig = function() return currentConfig() end
 
 local function jbeamIO() return rawget(_G, 'jbeamIO') or require('jbeam/io') end
 
@@ -164,13 +172,34 @@ local function buildCatalog()
 
   car.stock = car.stock or {}
   local cat = { vehId = veh:getID(), slots = {}, tabs = {} }
+  -- Slots der festen Reiter zuerst vormerken, damit 'Extras' nur den Rest bekommt
+  local usedSlots = {}
+  for _, tab in ipairs(rules.tabs or {}) do
+    for _, item in ipairs(tab.items) do
+      if not item.all then
+        for key in pairs(cfg.parts) do
+          local slot = lastSegment(key)
+          if slotMatches(slot, item) then usedSlots[slot] = true end
+        end
+      end
+    end
+  end
   for _, tab in ipairs(rules.tabs or {}) do
     local tabRows = {}
     for _, item in ipairs(tab.items) do
       local found = {}
       for key, part in pairs(cfg.parts) do
         local slot = lastSegment(key)
-        if slotMatches(slot, item) and bySlot[slot] then table.insert(found, { slot = slot, key = key, part = part }) end
+        local ok
+        if item.all then
+          -- Auswahl gibt es, wenn der Slot mehrere Teile hat oder ab Werk leer ist (Zubehör wie
+          -- Unterbodenbeleuchtung, Käfig, Shiftlight: dann ist 'Nicht verbaut' die Serien-Option).
+          local emptyStock = part == '' or car.stock[slot] == ''
+          ok = not usedSlots[slot] and bySlot[slot] and (#bySlot[slot] > 1 or (emptyStock and #bySlot[slot] > 0)) and not slotExcluded(slot)
+        else
+          ok = slotMatches(slot, item) and bySlot[slot]
+        end
+        if ok then table.insert(found, { slot = slot, key = key, part = part }); usedSlots[slot] = true end
       end
       table.sort(found, function(a, b) return a.slot < b.slot end)
       for _, f in ipairs(found) do
@@ -181,7 +210,7 @@ local function buildCatalog()
             local info = partInfo(p.name)
             local lv = partLevel(p.name, tostring(info.name or '') .. ' ' .. info.display, item)
             if lv > 0 then
-              table.insert(options, { part = p.name, name = info.display, level = lv, price = yen(info.value) })
+              table.insert(options, { part = p.name, name = info.display, level = lv, price = math.max(yen(info.value), item.minPriceYen or 0) })
             end
           end
         end
@@ -190,7 +219,7 @@ local function buildCatalog()
             if a.level ~= b.level then return a.level < b.level end
             return a.price < b.price
           end)
-          local stockName = car.stock[f.slot] ~= '' and partInfo(car.stock[f.slot]).display or '—'
+          local stockName = car.stock[f.slot] ~= '' and partInfo(car.stock[f.slot]).display or core().t('shop.notInstalled')
           local row = { slot = f.slot, key = f.key, item = item.id, multi = #found > 1, stockName = stockName, options = options }
           cat.slots[f.slot] = row
           table.insert(tabRows, row)
@@ -217,69 +246,19 @@ local function getCatalog()
   return catalog
 end
 
--- Kaufen / Einbauen ---------------------------------------------------------------
+-- Anzeigenamen ---------------------------------------------------------------
 
-function M.buy(slot, part)
-  local c = core()
+local function prettySlot(slot)
   local car = activeCar()
-  local cat = getCatalog()
-  local row = cat and cat.slots[slot]
-  if not row then return end
-
-  local option, price = nil, 0
-  if part == car.stock[slot] then
-    price = 0
-  else
-    for _, o in ipairs(row.options) do
-      if o.part == part then option = o end
-    end
-    if not option then return end
-    if not isUnlocked(option.level) then
-      c.msg(c.t('msg.partLocked'))
-      return
-    end
-    car.owned = car.owned or {}
-    price = car.owned[part] and 0 or option.price
-  end
-  if c.save.money < price then
-    c.msg(c.t('msg.noMoney'))
-    return
-  end
-
-  local cfg = currentConfig()
-  if not cfg then
-    c.msg(c.t('msg.partFailed'))
-    return
-  end
-  local changed = false
-  for key in pairs(cfg.parts) do
-    if lastSegment(key) == slot then cfg.parts[key] = part; changed = true end
-  end
-  if not changed then
-    c.msg(c.t('msg.partIncompatible'))
-    return
-  end
-
-  c.save.money = c.save.money - price
-  if option then car.owned[part] = true end
-  car.config = cfg
-  catalog = nil
-  retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
-  core_vehicles.replaceVehicle(car.model, { config = cfg })
-  c.writeSave()
-  local label = option and option.name or row.stockName
-  c.msg(c.t('msg.partInstalled', label, price > 0 and c.economy().formatYen(price) or c.t('shop.free')))
-  log('I', logTag, string.format('Shop: %s -> %s (%d Yen)', slot, part, price))
+  local s = slot
+  if car and s:sub(1, #car.model + 1) == car.model .. '_' then s = s:sub(#car.model + 2) end
+  s = s:gsub('_', ' ')
+  return (s:gsub('^%l', string.upper))
 end
-
-function M.setTab(tab)
-  activeTab = tab
-end
-
--- UI ---------------------------------------------------------------------------
 
 local function itemLabel(row)
   local c = core()
+  if row.item == 'other' then return prettySlot(row.slot) end
   local label = c.t('shop.item.' .. row.item)
   if row.multi then
     local side = row.slot:match('_([LR])$')
@@ -288,12 +267,279 @@ local function itemLabel(row)
   return label
 end
 
-function M.getUiState()
+-- Lackierer: Werkslacke des Modells ---------------------------------------------
+
+local function cleanPaint(p)
+  local bc = p.baseColor or {}
+  return {
+    baseColor = { bc[1] or bc.r or 0.5, bc[2] or bc.g or 0.5, bc[3] or bc.b or 0.5, bc[4] or bc.a or 1.2 },
+    metallic = p.metallic or 0, roughness = p.roughness or 0.5,
+    clearcoat = p.clearcoat or 1, clearcoatRoughness = p.clearcoatRoughness or 0.05,
+  }
+end
+
+local function factoryPaints(model)
+  local list, seen = {}, {}
+  local okM, m = pcall(core_vehicles.getModel, model)
+  local md = okM and m and m.model or {}
+  local vp = rawget(_G, 'core_vehiclePaints')
+  for _, colId in ipairs(md.paintCollections or {}) do
+    local okC, col = pcall(function() return vp and vp.getPaintCollectionById(colId) end)
+    if okC and col then
+      for _, pid in ipairs(col.paints or {}) do
+        local okP, paint = pcall(vp.getPaintById, pid)
+        if okP and type(paint) == 'table' and not seen[pid] then
+          seen[pid] = true
+          table.insert(list, { id = tostring(pid), name = paint.name or tostring(pid), paint = cleanPaint(paint) })
+        end
+      end
+    end
+  end
+  for name, paint in pairs(type(md.paints) == 'table' and md.paints or {}) do
+    if not seen[name] and type(paint) == 'table' then
+      seen[name] = true
+      table.insert(list, { id = tostring(name), name = tostring(name), paint = cleanPaint(paint) })
+    end
+  end
+  table.sort(list, function(a, b) return a.name < b.name end)
+  return list
+end
+
+local paintCache = {}
+local function paintsFor(model)
+  if not paintCache[model] then
+    local ok, res = pcall(factoryPaints, model)
+    paintCache[model] = ok and res or {}
+    if not ok then log('W', logTag, 'Shop: Werkslacke nicht lesbar: ' .. tostring(res)) end
+  end
+  return paintCache[model]
+end
+
+local function findPaint(model, paintId)
+  for _, p in ipairs(paintsFor(model)) do
+    if p.id == paintId then return p end
+  end
+end
+
+-- Einbauen, Vorschau, Kaufen ------------------------------------------------------
+-- Ein Klick auf ein fremdes Teil (oder einen Lack) baut es nur probeweise ein (preview).
+-- Erst confirmPreview() zieht das Geld ab; cancelPreview() oder Wegfahren stellt das Auto wieder her.
+
+local preview = nil -- { kind = 'part'|'paint', slot, id, name, level, price, original = cfg }
+
+local function copyConfig(cfg)
+  local out = { parts = {}, vars = {}, paints = deepcopy and deepcopy(cfg.paints) or cfg.paints }
+  for k, v in pairs(cfg.parts or {}) do out.parts[k] = v end
+  for k, v in pairs(cfg.vars or {}) do out.vars[k] = v end
+  return out
+end
+
+-- Ausgangszustand für Änderungen: bei laufender Vorschau das Auto vor der Vorschau.
+local function baseConfig()
+  if preview then return copyConfig(preview.original) end
+  return currentConfig()
+end
+
+local function respawn(cfg)
+  local car = activeCar()
+  catalog = nil
+  retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
+  core_vehicles.replaceVehicle(car.model, { config = cfg })
+end
+
+local function withPart(cfg, slot, part)
+  local changed = false
+  for key in pairs(cfg.parts) do
+    if lastSegment(key) == slot then cfg.parts[key] = part; changed = true end
+  end
+  return changed
+end
+
+local function findOption(slot, part)
+  local cat = getCatalog()
+  local row = cat and cat.slots[slot]
+  if not row then return nil end
+  for _, o in ipairs(row.options) do
+    if o.part == part then return o, row end
+  end
+  return nil, row
+end
+
+function M.hasPreview() return preview ~= nil end
+
+function M.cancelPreview(silent)
+  if not preview then return end
+  local original = preview.original
+  preview = nil
+  respawn(original)
+  if not silent then core().msg(core().t('msg.previewReverted')) end
+end
+
+-- Teil fest einbauen (Serie oder bereits gekauft, also kostenlos).
+local function install(slot, part, label)
   local c = core()
   local car = activeCar()
-  local st = { tabs = {}, tab = activeTab, rows = {}, loading = false }
+  local cfg = baseConfig()
+  if not cfg then
+    c.msg(c.t('msg.partFailed'))
+    return
+  end
+  if not withPart(cfg, slot, part) then
+    c.msg(c.t('msg.partIncompatible'))
+    return
+  end
+  preview = nil
+  car.config = cfg
+  respawn(cfg)
+  c.writeSave()
+  if part == '' then c.msg(c.t('msg.partRemoved', label)) else c.msg(c.t('msg.partInstalled', label, c.t('shop.free'))) end
+  log('I', logTag, string.format('Shop: %s -> %s (Besitz)', slot, part))
+end
+
+-- Garage: nur Serie und gekaufte Teile, ohne Vorschau.
+function M.buy(slot, part, garageOnly)
+  local car = activeCar()
+  local option, row = findOption(slot, part)
+  if not row then return end
+  if part == car.stock[slot] then return install(slot, part, part == '' and itemLabel(row) or row.stockName) end
+  if not option then return end
+  if car.owned and car.owned[part] then return install(slot, part, option.name) end
+  if not garageOnly then return M.select(slot, part) end
+end
+
+-- Shop: Klick auf eine Option.
+function M.select(slot, part)
+  local c = core()
+  local car = activeCar()
+  local option, row = findOption(slot, part)
+  if not row then return end
+  if part == car.stock[slot] then return install(slot, part, part == '' and itemLabel(row) or row.stockName) end
+  if not option then return end
+  if car.owned and car.owned[part] then return install(slot, part, option.name) end
+  local cfg = baseConfig()
+  if not cfg then
+    c.msg(c.t('msg.partFailed'))
+    return
+  end
+  local original = preview and preview.original or copyConfig(cfg)
+  if not withPart(cfg, slot, part) then
+    c.msg(c.t('msg.partIncompatible'))
+    return
+  end
+  preview = { kind = 'part', slot = slot, id = part, name = option.name, level = option.level, price = option.price, original = original, cfg = cfg }
+  respawn(cfg)
+end
+
+function M.selectPaint(paintId)
+  local c = core()
+  local car = activeCar()
+  local entry = findPaint(car.model, paintId)
+  if not entry then return end
+  local cfg = baseConfig()
+  if not cfg then
+    c.msg(c.t('msg.partFailed'))
+    return
+  end
+  local original = preview and preview.original or copyConfig(cfg)
+  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
+  cfg.paints[1] = entry.paint
+  if car.ownedPaints and car.ownedPaints[paintId] then
+    preview = nil
+    car.paintId = paintId
+    car.config = cfg
+    respawn(cfg)
+    c.writeSave()
+    c.msg(c.t('msg.partInstalled', entry.name, c.t('shop.free')))
+    return
+  end
+  preview = { kind = 'paint', id = paintId, name = entry.name, level = 0, price = rules.paintPriceYen or 29800, original = original, cfg = cfg }
+  respawn(cfg)
+end
+
+function M.confirmPreview()
+  local c = core()
+  local car = activeCar()
+  if not preview then return end
+  if preview.level > 0 and not isUnlocked(preview.level) then
+    c.msg(c.t('msg.partLocked'))
+    return
+  end
+  if c.save.money < preview.price then
+    c.msg(c.t('msg.noMoney'))
+    return
+  end
+  -- Nach dem Respawn steht im Auto die echte Konfiguration (z. B. passende Reifen zur neuen Felge).
+  local cfg = currentConfig() or preview.cfg
+  c.save.money = c.save.money - preview.price
+  if preview.kind == 'paint' then
+    car.ownedPaints = car.ownedPaints or {}
+    car.ownedPaints[preview.id] = true
+    car.paintId = preview.id
+  else
+    car.owned = car.owned or {}
+    car.owned[preview.id] = true
+  end
+  car.config = cfg
+  c.writeSave()
+  c.msg(c.t('msg.partInstalled', preview.name, c.economy().formatYen(preview.price)))
+  log('I', logTag, string.format('Shop: %s gekauft (%d Yen)', tostring(preview.id), preview.price))
+  preview = nil
+end
+
+local function previewState()
+  if not preview then return nil end
+  local c = core()
+  local unlocked, need = true, 0
+  if preview.level > 0 then unlocked, need = isUnlocked(preview.level) end
+  return {
+    name = preview.name, level = preview.level,
+    price = c.economy().formatYen(preview.price),
+    locked = not unlocked, lockText = not unlocked and c.t('shop.needWins', need) or nil,
+    affordable = c.save.money >= preview.price,
+  }
+end
+
+local function paintRow()
+  local c = core()
+  local car = activeCar()
+  local eco = c.economy()
+  local r = { slot = '__paint', kind = 'paint', name = c.t('shop.item.paint'), current = c.t('shop.stock'), currentLevel = 0, options = {} }
+  for _, p in ipairs(paintsFor(car.model)) do
+    local owned = car.ownedPaints and car.ownedPaints[p.id]
+    local price = rules.paintPriceYen or 29800
+    local bc = p.paint.baseColor
+    local installed = car.paintId == p.id
+    if installed then r.current = p.name end
+    table.insert(r.options, {
+      part = p.id, name = p.name, level = 0, installed = installed,
+      previewing = preview and preview.kind == 'paint' and preview.id == p.id or false,
+      swatch = string.format('rgb(%d,%d,%d)', math.floor(clamp(bc[1], 0, 1) * 255), math.floor(clamp(bc[2], 0, 1) * 255), math.floor(clamp(bc[3], 0, 1) * 255)),
+      price = owned and c.t('shop.owned') or eco.formatYen(price),
+      affordable = owned or c.save.money >= price,
+    })
+  end
+  return r
+end
+
+function M.setTab(tab)
+  activeTab = tab
+end
+
+-- UI ---------------------------------------------------------------------------
+
+-- mode 'shop': alles kaufen; mode 'garage': nur Serie und gekaufte Teile, kostenlos umrüsten.
+function M.getUiState(mode)
+  local c = core()
+  local car = activeCar()
+  local garage = mode == 'garage'
+  local tabId = activeTab
+  if garage and tabId == 'paint' then tabId = 'engine' end
+  local st = { tabs = {}, tab = tabId, rows = {}, loading = false }
+  st.preview = not garage and previewState() or nil
   for _, tab in ipairs(rules.tabs or {}) do
-    table.insert(st.tabs, { id = tab.id, name = c.t('shop.tab.' .. tab.id) })
+    if not (garage and tab.id == 'paint') then
+      table.insert(st.tabs, { id = tab.id, name = c.t('shop.tab.' .. tab.id) })
+    end
   end
   local cat = getCatalog()
   if not cat then
@@ -301,10 +547,11 @@ function M.getUiState()
     return st
   end
   local cfgParts = {}
-  local cfg = currentConfig()
+  local cfg = preview and preview.original or currentConfig()
   if cfg then for k, v in pairs(cfg.parts) do cfgParts[lastSegment(k)] = v end end
   local eco = c.economy()
-  for _, row in ipairs(cat.tabs[activeTab] or {}) do
+  if tabId == 'paint' then table.insert(st.rows, paintRow()) end
+  for _, row in ipairs(cat.tabs[tabId] or {}) do
     local installed = cfgParts[row.slot]
     local r = { slot = row.slot, name = itemLabel(row), current = row.stockName, currentLevel = 0, options = {} }
     table.insert(r.options, { part = car.stock[row.slot], name = c.t('shop.stock') .. ' · ' .. tostring(row.stockName),
@@ -313,16 +560,19 @@ function M.getUiState()
       local unlocked, need = isUnlocked(o.level)
       local owned = car.owned and car.owned[o.part]
       if installed == o.part then r.current, r.currentLevel = o.name, o.level end
-      table.insert(r.options, {
-        part = o.part, name = o.name, level = o.level,
-        price = owned and c.t('shop.owned') or eco.formatYen(o.price),
-        installed = installed == o.part,
-        locked = not unlocked,
-        lockText = not unlocked and c.t('shop.needWins', need) or nil,
-        affordable = owned or c.save.money >= o.price,
-      })
+      if not garage or owned then
+        table.insert(r.options, {
+          part = o.part, name = o.name, level = o.level,
+          price = owned and (garage and c.t('shop.free') or c.t('shop.owned')) or eco.formatYen(o.price),
+          installed = installed == o.part,
+          previewing = preview and preview.kind == 'part' and preview.id == o.part or false,
+          locked = not unlocked,
+          lockText = not unlocked and c.t('shop.needWins', need) or nil,
+          affordable = owned or c.save.money >= o.price,
+        })
+      end
     end
-    table.insert(st.rows, r)
+    if not garage or #r.options > 1 then table.insert(st.rows, r) end
   end
   return st
 end
