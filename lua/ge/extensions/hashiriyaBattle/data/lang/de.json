@@ -117,7 +117,7 @@
   "garage.tab.setup": "Setup",
   "garage.partsHint": "Hier rüstest du gekaufte Teile kostenlos um.",
   "setup.apply": "Übernehmen",
-  "setup.defaults": "Werkseinstellung",
+  "setup.defaults": "Standard",
   "setup.discard": "Verwerfen",
   "setup.none": "Für die verbauten Teile gibt es keine Einstellungen.",
   "setup.changed": "%d geändert",

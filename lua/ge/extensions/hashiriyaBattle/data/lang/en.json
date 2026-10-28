@@ -117,7 +117,7 @@
   "garage.tab.setup": "Setup",
   "garage.partsHint": "Swap parts you own here, free of charge.",
   "setup.apply": "Apply",
-  "setup.defaults": "Factory settings",
+  "setup.defaults": "Default",
   "setup.discard": "Discard",
   "setup.none": "The installed parts have no settings.",
   "setup.changed": "%d changed",

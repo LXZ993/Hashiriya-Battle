@@ -113,7 +113,7 @@ angular.module('beamng.apps')
                       'ng-class="{\'is-on\': o.installed, \'is-preview\': o.previewing, \'is-locked\': o.locked, \'is-poor\': !o.locked && !o.affordable}" ' +
                       'ng-click="pick(r, o)">' +
                       '<span class="hbm-swatch" ng-if="o.swatch" ng-style="{background: o.swatch}"></span>' +
-                      '<span class="hbm-lv" ng-if="!o.swatch" ng-class="\'lv\' + o.level">{{ o.level > 0 ? (\'LV\' + o.level) : \'—\' }}</span>' +
+                      '<span class="hbm-lv" ng-if="!o.swatch" ng-class="\'lv\' + o.level">{{ o.level > 0 ? (\'LV\' + o.level) : \'\u2014\' }}</span>' +
                       '<span class="hbm-opt-name">{{ o.name }}</span>' +
                       '<span class="hbm-opt-price">{{ o.locked ? o.lockText : o.price }}</span>' +
                     '</div>' +
@@ -187,7 +187,7 @@ angular.module('beamng.apps')
           '.hbm-opt.is-on{background:rgba(255,102,0,.85);color:#141414;cursor:default;}' +
           '.hbm-opt.is-on .hbm-lv,.hbm-opt.is-on .hbm-opt-price{color:#141414;}' +
           '.hbm-opt.is-locked,.hbm-opt.is-poor{opacity:.4;cursor:default;} .hbm-opt.is-locked:hover,.hbm-opt.is-poor:hover{background:none;}' +
-          '.hbm-subtabs{flex-wrap:wrap;padding-top:2px;} .hbm-subtabs .hbm-tab{flex:1 1 22%;}' +
+          '.hbm-subtabs{display:grid;grid-template-columns:repeat(4,1fr);padding-top:2px;}' +
           '.hbm-opt.is-preview{background:rgba(255,154,60,.18);box-shadow:inset 3px 0 0 var(--o2);}' +
           '.hbm-swatch{width:14px;height:14px;flex:none;align-self:center;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.35);margin-right:10px;}' +
           '.hbm-preview{margin:0 18px 8px;padding:8px 10px;border:1px solid rgba(255,154,60,.55);background:rgba(255,102,0,.1);}' +
@@ -196,7 +196,7 @@ angular.module('beamng.apps')
           '.hbm-preview-hint{font-size:10px;color:var(--dim);margin-top:6px;}' +
           '.hbm-preview .hbm-actions{padding:8px 0 0;}' +
           '.hbm-actions{display:flex;gap:6px;padding:8px 18px 2px;}' +
-          '.hbm-btn{flex:1;text-align:center;padding:6px 4px;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;' +
+          '.hbm-btn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;padding:6px 4px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;' +
             'background:rgba(255,255,255,.08);transform:skewX(-12deg);}' +
           '.hbm-btn:hover{background:rgba(255,255,255,.16);}' +
           '.hbm-btn-main{background:var(--o);color:#141414;} .hbm-btn-main:hover{background:var(--o2);}' +
