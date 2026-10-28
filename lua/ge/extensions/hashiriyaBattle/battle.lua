@@ -159,7 +159,8 @@ local function finishBattle(won)
     setWarnSignal(rivalVeh, false)
     rivals().setCruise(rivalVeh, battle.rival)
   end
-  core().onBattleResult(battle.rival, won)
+  core().onBattleResult(battle.rival, won, {
+    time = battle.time, playerSp = battle.playerSp, playerMaxSp = cfg.playerMaxSp, damageSp = battle.damageTaken or 0 })
 end
 
 local function damageSp(vehId, lastKey)
@@ -191,7 +192,9 @@ local function updateBattle(dt, player, rivalVeh)
   end
 
   -- Sim: Schaden kostet zusätzlich SP
-  battle.playerSp = battle.playerSp - damageSp(player:getID(), 'lastPlayerDamage')
+  local taken = damageSp(player:getID(), 'lastPlayerDamage')
+  battle.damageTaken = (battle.damageTaken or 0) + taken
+  battle.playerSp = battle.playerSp - taken
   battle.rivalSp = battle.rivalSp - damageSp(rivalVeh:getID(), 'lastRivalDamage')
 
   if battle.playerSp <= 0 or gap > cfg.winGap then
@@ -220,8 +223,9 @@ function M.getHudState()
     time = battle.time,
     playerCar = battle.playerCar,
     rivalCar = battle.rivalCar,
-    rivalTag = battle.rival.leader and 'leader' or (battle.rival.wanderer and 'wanderer' or 'rival'),
-    playerTitle = core().t('hud.title.rookie'), -- wird später vom B.A.D.-System ersetzt
+    rivalTag = battle.rival.boss and 'boss' or (battle.rival.leader and 'leader' or (battle.rival.wanderer and 'wanderer' or 'rival')),
+    rivalNick = extensions.hashiriyaBattle_progress.loc(battle.rival.nick),
+    playerTitle = extensions.hashiriyaBattle_progress.nickname() or extensions.hashiriyaBattle_progress.rankName(),
   }
 end
 

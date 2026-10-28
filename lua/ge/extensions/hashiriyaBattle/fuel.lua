@@ -1,12 +1,11 @@
 -- Hashiriya Battle: Tankstelle (24/7)
 -- Tanken solange der Knopf gedrückt ist: der Sprit läuft in Echtzeit, bezahlt wird je Liter.
--- Nachts (nightFrom bis nightTo Uhr) ist der Liter teurer.
+-- Nachts (nightFrom bis nightTo aus data/world.json) ist der Liter teurer.
 local M = {}
 
 local logTag = 'hashiriya'
 local yenPerLiter = 175
 local nightFactor = 1.45     -- Nachtzuschlag
-local nightFrom, nightTo = 20, 6
 local litersPerSecond = 1.2
 local pollInterval = 1
 
@@ -23,12 +22,9 @@ local function atGas()
   return a and a.type == 'gas'
 end
 
+-- Nacht wie in data/world.json (dieselbe Uhr wie für die Battles)
 local function isNight()
-  local ok, tod = pcall(function() return core_environment.getTimeOfDay() end)
-  local t = ok and tod and tonumber(tod.time)
-  if not t then return false end
-  local hour = (t * 24 + 12) % 24
-  return hour >= nightFrom or hour < nightTo
+  return extensions.hashiriyaBattle_home.isNight()
 end
 
 local function pricePerLiter()

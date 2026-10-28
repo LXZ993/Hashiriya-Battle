@@ -8,7 +8,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer' }
+local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -155,6 +155,9 @@ local function newSave()
     cars = {},
     activeCar = nil,
     defeated = {},
+    defeatedNight = {},
+    rep = 0,
+    stats = {},
     wins = 0,
     losses = 0,
     day = 1,
@@ -164,6 +167,8 @@ end
 
 function M.writeSave()
   if not M.save then return end
+  local hour = extensions.hashiriyaBattle_home and extensions.hashiriyaBattle_home.hour()
+  if hour then M.save.hour = hour end
   jsonWriteFile(savePath, M.save, true)
   M.hasSave = true
   log('I', logTag, 'Spielstand gespeichert')
@@ -288,6 +293,7 @@ function M.newCareer(data)
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
   table.insert(M.save.cars, data.car)
   M.save.activeCar = 1
+  extensions.hashiriyaBattle_home.applyClock(extensions.hashiriyaBattle_home.world().startHour)
   M.writeSave()
   M.active = true
   showCarSelect = false
@@ -320,6 +326,8 @@ function M.continueCareer()
   end
   M.active = true
   showMenu = false
+  -- Uhr dort weiterlaufen lassen, wo gespeichert wurde
+  extensions.hashiriyaBattle_home.applyClock(M.save.hour or extensions.hashiriyaBattle_home.world().startHour)
   msg(M.t('msg.welcomeBack', M.save.playerName or ''), 6)
   M.goOnFoot(carVeh)
   M.startTraffic()
@@ -373,8 +381,9 @@ end
 
 -- Belohnungen (vom Battle-Modul aufgerufen) --------------------------------
 
-function M.onBattleResult(rival, won)
+function M.onBattleResult(rival, won, result)
   if not M.save then return end
+  extensions.hashiriyaBattle_progress.onBattle(rival, won, result)
   if won then
     local reward = M.economy().usdToPrice(rival.rewardUsd or 1000)
     M.save.money = M.save.money + reward
@@ -528,6 +537,10 @@ local function buildUiState()
       st.tow = { cost = eco.formatYen(tow.cost), can = tow.reason == nil, reason = tow.reason and M.t('msg.tow.' .. tow.reason) or nil }
     end
     st.day = extensions.hashiriyaBattle_home.dayText()
+    st.progress = extensions.hashiriyaBattle_progress.getUiState()
+    st.night = extensions.hashiriyaBattle_home.isNight()
+    local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
+    if st.night and left then st.battlesLeft = left end
     if showDealer then
       st.screen = 'dealer'
       st.dealer = extensions.hashiriyaBattle_dealer.getUiState()

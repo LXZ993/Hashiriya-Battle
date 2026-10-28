@@ -91,9 +91,20 @@ local function tierInfo(level)
   return { level = level, unlock = {} }
 end
 
+-- Stufe freigeschaltet? Zweiter Wert = Text, was fehlt (Rang oder Siege)
 local function isUnlocked(level)
-  local need = tierInfo(level).unlock.minWins or 0
-  return (core().save.wins or 0) >= need, need
+  local c = core()
+  local unlock = tierInfo(level).unlock
+  if unlock.minRank then
+    local pr = extensions.hashiriyaBattle_progress
+    if pr.rankIndex(c.save) < unlock.minRank then
+      local r = (extensions.hashiriyaBattle_rivals.getData().ranks or {})[unlock.minRank + 1]
+      return false, c.t('shop.needRank', r and pr.loc(r.name) or tostring(unlock.minRank + 1))
+    end
+  end
+  local need = unlock.minWins or 0
+  if (c.save.wins or 0) < need then return false, c.t('shop.needWins', need) end
+  return true, nil
 end
 
 local function yen(usd) return core().economy().usdToPrice(usd or 0) end
@@ -628,7 +639,7 @@ local function previewState()
   return {
     name = preview.name, level = preview.level,
     price = c.economy().formatYen(preview.price),
-    locked = not unlocked, lockText = not unlocked and c.t('shop.needWins', need) or nil,
+    locked = not unlocked, lockText = not unlocked and need or nil,
     affordable = c.save.money >= preview.price,
   }
 end
@@ -743,7 +754,7 @@ function M.getUiState(mode)
           installed = installed == o.part,
           previewing = preview and preview.kind == 'part' and preview.id == o.part or false,
           locked = not unlocked,
-          lockText = not unlocked and c.t('shop.needWins', need) or nil,
+          lockText = not unlocked and need or nil,
           affordable = owned or c.save.money >= o.price,
         })
       end

@@ -30,6 +30,15 @@ angular.module('beamng.apps')
 
           '<div class="hbm-body" ng-if="s.screen == \'status\'">' +
             '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
+            '<div class="hbm-rank" ng-if="s.progress">' +
+              '<div class="hbm-rank-top"><span class="hbm-rank-no">{{ s.progress.rankNo }}</span><span class="hbm-rank-name">{{ s.progress.rank }}</span>' +
+                '<span class="hbm-rank-nick" ng-if="s.progress.nick">\u201e{{ s.progress.nick }}\u201c</span></div>' +
+              '<div class="hbm-fuelbar hbm-repbar"><i ng-style="{width: s.progress.progress + \'%\'}"></i></div>' +
+              '<div class="hbm-rank-sub">{{ s.t[\'rank.rep\'] }} {{ s.progress.rep }}<span ng-if="s.progress.next"> · {{ s.t[\'rank.next\'] }}: {{ s.progress.next }} ({{ s.progress.repNext }})</span></div>' +
+            '</div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.night ? s.t[\'menu.night\'] : s.t[\'menu.dayTime\'] }}</span><b>{{ s.day }}</b></div>' +
+            '<div class="hbm-stat" ng-if="s.battlesLeft != null"><span class="hbm-label">{{ s.t[\'menu.battlesLeft\'] }}</span><b>{{ s.battlesLeft }}</b></div>' +
+            '<div class="hbm-note" ng-if="!s.night">{{ s.t[\'menu.dayNote\'] }}</div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.record\'] }}</span><b>{{ s.wins }} <i>/</i> {{ s.losses }}</b></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.rivalNear\'] }}</span><b>{{ s.rival || \'\u2014\' }}</b></div>' +
             '<div class="hbm-section">{{ s.t[\'menu.career\'] }}</div>' +
@@ -186,11 +195,21 @@ angular.module('beamng.apps')
             '<div ng-if="s.home.tab == \'lexicon\'">' +
               '<div class="hbm-section">{{ s.t[\'home.lexicon\'] }}</div>' +
               '<div class="hbm-scroll">' +
-                '<div class="hbm-lex" ng-repeat="r in s.home.lexicon" ng-class="{\'is-beaten\': r.beaten}">' +
-                  '<div class="hbm-lex-top"><span class="hbm-lex-name">{{ r.name }}</span>' +
-                    '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
-                    '<span class="hbm-lex-state">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
-                  '<div class="hbm-lex-sub">{{ r.team }} · {{ r.car }}</div>' +
+                '<div class="hbm-lex-group" ng-repeat="g in s.home.lexicon" ng-style="{\'--tc\': g.color}" ng-class="{\'is-open\': lexOpen == $index, \'is-locked\': g.locked}">' +
+                  '<div class="hbm-lex-head" ng-click="lexToggle($index)">' +
+                    '<span class="hbm-lex-bar"></span><span class="hbm-lex-team">{{ g.name }}<small ng-if="g.jp">{{ g.jp }}</small></span>' +
+                    '<span class="hbm-lex-count">{{ g.locked ? g.lockText : g.count }}</span></div>' +
+                  '<div ng-if="lexOpen == $index">' +
+                    '<div class="hbm-lex-desc" ng-if="g.desc">{{ g.desc }}</div>' +
+                    '<div class="hbm-lex" ng-repeat="r in g.list" ng-class="{\'is-beaten\': r.beaten}">' +
+                      '<div class="hbm-lex-top"><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
+                        '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
+                        '<span class="hbm-lex-tag hbm-lex-boss" ng-if="r.boss">{{ s.t[\'home.boss\'] }}</span>' +
+                        '<span class="hbm-lex-state">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
+                      '<div class="hbm-lex-sub">{{ r.car }}</div>' +
+                      '<div class="hbm-lex-text" ng-if="r.desc">{{ r.desc }}</div>' +
+                    '</div>' +
+                  '</div>' +
                 '</div>' +
               '</div>' +
               '<div class="hbm-item hbm-sub" ng-click="act(\'homeTab\', \'main\')"><i class="hbm-ico" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ s.t[\'home.back\'] }}</div>' +
@@ -387,6 +406,25 @@ angular.module('beamng.apps')
           '.hbm-lot-buy{display:flex;align-items:center;gap:10px;}' +
           '.hbm-lot-price{flex:1;font-size:18px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;color:var(--o2);}' +
           '.hbm-lot-buy .hbm-btn{flex:none;padding:6px 14px;}' +
+          '.hbm-rank{padding:6px 18px 4px;}' +
+          '.hbm-rank-top{display:flex;align-items:baseline;gap:8px;}' +
+          '.hbm-rank-no{font-size:11px;font-weight:900;color:#141414;background:var(--o);padding:0 5px;transform:skewX(-12deg);}' +
+          '.hbm-rank-name{font-size:15px;font-weight:800;letter-spacing:.5px;}' +
+          '.hbm-rank-nick{flex:1;text-align:right;font-size:12px;font-style:italic;color:var(--o2);}' +
+          '.hbm-repbar{margin:5px 0 3px;height:5px;}' +
+          '.hbm-rank-sub{font-size:11px;color:var(--dim);}' +
+          '.hbm-lex-group{border-bottom:1px solid rgba(255,255,255,.06);}' +
+          '.hbm-lex-head{display:flex;align-items:center;gap:8px;padding:7px 18px;cursor:pointer;}' +
+          '.hbm-lex-head:hover{background:rgba(255,255,255,.05);}' +
+          '.hbm-lex-bar{width:4px;height:16px;background:var(--tc,var(--o));transform:skewX(-12deg);}' +
+          '.hbm-lex-team{flex:1;font-size:13px;font-weight:800;}' +
+          '.hbm-lex-team small{margin-left:6px;font-size:10px;font-weight:400;color:var(--dim);}' +
+          '.hbm-lex-count{font-size:11px;font-weight:700;color:var(--dim);}' +
+          '.hbm-lex-group.is-locked .hbm-lex-team{color:var(--dim);}' +
+          '.hbm-lex-desc{padding:0 18px 6px 30px;font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);font-style:italic;}' +
+          '.hbm-lex-name em{font-weight:400;font-size:11px;color:var(--o2);}' +
+          '.hbm-lex-boss{background:#ff5a36;}' +
+          '.hbm-lex-text{font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);margin-top:2px;}' +
           '.hbm-lex{padding:6px 18px;border-bottom:1px solid rgba(255,255,255,.05);}' +
           '.hbm-lex-top{display:flex;align-items:baseline;gap:8px;}' +
           '.hbm-lex-name{flex:1;font-size:13px;font-weight:800;}' +
@@ -508,6 +546,10 @@ angular.module('beamng.apps')
         if (o.previewing) return
         scope.act('buyPart', r.slot + '|' + (o.part || ''))
       }
+      // Lexikon: eine Gruppe aufgeklappt
+      scope.lexOpen = 0
+      scope.lexToggle = function (i) { scope.lexOpen = scope.lexOpen === i ? -1 : i }
+
       // Tanken: Knopf gedrückt halten, loslassen stoppt
       var fuelHolding = false
       scope.fuelHold = function (on) {

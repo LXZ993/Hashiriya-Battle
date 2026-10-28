@@ -1,0 +1,8 @@
+{
+  "_hinweis": "Spielzeit. dayLengthMinutes = echte Minuten pro Spieltag (24 h Spielzeit). Nachts (nightFrom bis nightTo Uhr) laufen die Battles auf dem Ring, tagsüber nur Shops und Fahrten. startHour = Uhrzeit bei einem neuen Spiel. wakeHour = Uhrzeit nach dem Schlafen zu Hause.",
+  "dayLengthMinutes": 24,
+  "nightFrom": 20,
+  "nightTo": 6,
+  "startHour": 20,
+  "wakeHour": 20
+}

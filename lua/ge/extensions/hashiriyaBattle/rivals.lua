@@ -43,23 +43,114 @@ function M.getRivalVehicle()
 end
 
 -- Wer darf als Nächstes erscheinen? -----------------------------------------
+-- Teams ab einem Rang, pro Nacht nur ein paar Mitglieder je Team, der Leader erst in einer späteren Nacht.
+-- Wanderer und Bosse haben eigene Bedingungen (Rang, Siege, Spieltag, Uhrzeit, Auto, Tuningteil, besiegte Teams).
 
-local function teamMembersDefeated(teamId, save)
+local function progress() return extensions.hashiriyaBattle_progress end
+local function home() return extensions.hashiriyaBattle_home end
+
+local function settings() return data.settings or {} end
+
+local function teamById(id)
+  for _, t in ipairs(data.teams or {}) do if t.id == id then return t end end
+end
+
+local function leaderOf(teamId)
+  for _, r in ipairs(data.rivals) do if r.team == teamId and r.leader then return r end end
+end
+
+local function teamBeaten(teamId, save)
+  local l = leaderOf(teamId)
+  return l and save.defeated[l.id] or false
+end
+
+local function teamMembersDefeated(teamId, save, beforeNight)
   for _, r in ipairs(data.rivals) do
-    if r.team == teamId and not r.leader and not save.defeated[r.id] then return false end
+    if r.team == teamId and not r.leader then
+      if not save.defeated[r.id] then return false end
+      if beforeNight and (save.defeatedNight or {})[r.id] == beforeNight then return false end
+    end
   end
+  return true
+end
+
+local function membersBeatenTonight(teamId, save, night)
+  local n = 0
+  for _, r in ipairs(data.rivals) do
+    if r.team == teamId and not r.leader and (save.defeatedNight or {})[r.id] == night then n = n + 1 end
+  end
+  return n
+end
+
+local function inHours(h, from, to)
+  if from <= to then return h >= from and h < to end
+  return h >= from or h < to
+end
+
+local function playerHasPart(word)
+  local ok, cfg = pcall(function() return extensions.hashiriyaBattle_shop.currentConfig() end)
+  if not ok or type(cfg) ~= 'table' then return false end
+  word = word:lower()
+  for slot, part in pairs(cfg.parts or {}) do
+    if type(part) == 'string' and part ~= '' and (part:lower():find(word, 1, true)) then return true end
+  end
+  return false
+end
+
+local function playerModel()
+  local veh = core().getPlayerVehicle()
+  return veh and veh:getJBeamFilename() or nil
+end
+
+local function conditionsMet(c, save)
+  if not c then return true end
+  local rank = progress().rankIndex(save)
+  if c.minRank and rank < c.minRank then return false end
+  if c.minWins and (save.wins or 0) < c.minWins then return false end
+  if c.minDay and (save.day or 1) < c.minDay then return false end
+  local hours = c.hours or c.timeWindow
+  if hours then
+    local h = home().hour()
+    if h and not inHours(h, hours[1], hours[2]) then return false end
+  end
+  if c.playerModel and playerModel() ~= c.playerModel then return false end
+  if c.playerPart and not playerHasPart(c.playerPart) then return false end
+  if c.beatenTeam and not teamBeaten(c.beatenTeam, save) then return false end
+  for _, id in ipairs(c.beatenTeams or {}) do if not teamBeaten(id, save) then return false end end
+  for _, id in ipairs(c.beatenRivals or c.requires or {}) do if not save.defeated[id] then return false end end
   return true
 end
 
 local function isEligible(rival, save)
   if save.defeated[rival.id] then return false end
-  if rival.leader and not teamMembersDefeated(rival.team, save) then return false end
-  local c = rival.conditions
-  if c then
-    if c.minWins and save.wins < c.minWins then return false end
-    -- weitere Bedingungen (Uhrzeit, Auto, Tuningteil) folgen in einem späteren Schritt
+  local set = settings()
+  local night = home().nightId()
+  -- jeder Rivale nur einmal pro Nacht; nach einer Niederlage eine Nacht Pause
+  local last = (save.lastBattle or {})[rival.id]
+  if last then
+    if set.rivalOncePerNight ~= false and last.night == night then return false end
+    if not last.won and night - last.night <= (set.lostRivalCooldownNights or 0) and last.night ~= night then return false end
   end
-  return true
+  if rival.team then
+    local team = teamById(rival.team)
+    if team and progress().rankIndex(save) < (team.minRank or 0) then return false end
+    if rival.leader then
+      if not teamMembersDefeated(rival.team, save, set.leaderNotSameNight ~= false and night or nil) then return false end
+    elseif membersBeatenTonight(rival.team, save, night) >= (set.teamMembersPerNight or 99) then
+      return false
+    end
+  end
+  return conditionsMet(rival.conditions, save)
+end
+
+-- Wie viele Battles diese Nacht noch gehen
+function M.battlesLeftTonight()
+  local save = core().save
+  local max = settings().maxBattlesPerNight
+  if not save or not max then return nil end
+  local nb = save.nightBattles
+  local used = (nb and nb.night == home().nightId()) and nb.count or 0
+  return math.max(0, max - used)
 end
 
 local function pickRival(save)
@@ -115,6 +206,18 @@ function M.spawnNext(force)
 
   -- Nicht in Parkplätzen spawnen (nur der Test-Knopf darf das)
   if not force and extensions.hashiriyaBattle_parking.getCurrent() then return end
+  -- Battles nur nachts und nur bis zum Limit pro Nacht
+  if not force then
+    if settings().nightOnly and not home().isNight() then return end
+    local left = M.battlesLeftTonight()
+    if left and left <= 0 then
+      if not save.nightLimitShown or save.nightLimitShown ~= home().nightId() then
+        save.nightLimitShown = home().nightId()
+        core().msg(core().t('msg.nightDone'), 6)
+      end
+      return
+    end
+  end
 
   local rival = pickRival(save)
   if not rival then
@@ -141,7 +244,9 @@ function M.spawnNext(force)
 
   active = { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false }
   setCruise(veh, rival)
-  core().msg(core().t('msg.rivalSpotted', rival.name) .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or ''))
+  local nick = progress().loc(rival.nick)
+  core().msg(core().t('msg.rivalSpotted', rival.name .. (nick ~= '' and (' "' .. nick .. '"') or ''))
+    .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or '') .. (rival.boss and core().t('msg.boss') or ''))
   log('I', logTag, 'Rivale gespawnt: ' .. rival.id)
 end
 
