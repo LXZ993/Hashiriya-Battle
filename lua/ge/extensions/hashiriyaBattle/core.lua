@@ -18,6 +18,7 @@ M.levelName = nil
 
 local showMenu = true
 local showDealer = false   -- Autohändler (aus dem Menü links)
+local showStats = false    -- Statistik (aus dem Menü links)
 local homeTab = 'main'     -- Zuhause: main | lexicon
 local showCarSelect = false
 local platePriceYen = 15000 -- Kennzeichen ummelden
@@ -560,7 +561,10 @@ local function buildUiState()
     st.night = extensions.hashiriyaBattle_home.isNight()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
     if st.night and left then st.battlesLeft = left end
-    if showDealer then
+    if showStats then
+      st.screen = 'stats'
+      st.stats = extensions.hashiriyaBattle_progress.getStatsUi()
+    elseif showDealer then
       st.screen = 'dealer'
       st.dealer = extensions.hashiriyaBattle_dealer.getUiState()
     elseif parking.isArrived() then
@@ -658,6 +662,7 @@ function M.uiAction(action, arg)
     showMenu = false
     menuAutoOpened = false
     showDealer = false
+    showStats = false
     extensions.hashiriyaBattle_parking.leaveFootShop()
   elseif action == 'dealer' then
     showDealer = true
@@ -665,6 +670,12 @@ function M.uiAction(action, arg)
     M.sound('dealer')
   elseif action == 'dealerBack' then
     showDealer = false
+  elseif action == 'stats' then
+    showStats = true
+    showDealer = false
+    showMenu = true
+  elseif action == 'statsBack' then
+    showStats = false
   elseif action == 'dealerBuy' then
     extensions.hashiriyaBattle_dealer.buy(tonumber(arg))
   elseif action == 'switchCar' then

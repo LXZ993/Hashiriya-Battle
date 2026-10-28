@@ -1,5 +1,5 @@
 {
- "_hinweis": "Rivalen fuer C1 (50 Gegner). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). conditions: minRank, minWins, minDay, hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals.",
+ "_hinweis": "Rivalen fuer C1 (50 Gegner). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). conditions: minRank, minWins, minDay, speedTraps (all oder Anzahl), hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals.",
  "settings": {
   "nightOnly": true,
   "teamMembersPerNight": 2,
@@ -1171,15 +1171,15 @@
    "rep": 100,
    "conditions": {
     "minRank": 4,
-    "minWins": 15
+    "speedTraps": "all"
    },
    "desc": {
-    "de": "Schneidet durch den Verkehr wie ein Messer. Wartet auf Fahrer mit Erfahrung.",
-    "en": "Cuts through traffic like a knife. Waits for experienced drivers."
+    "de": "Schneidet durch den Verkehr wie ein Messer. Fährt nur gegen jemanden, der jede Radarfalle der Stadt kennt.",
+    "en": "Cuts through traffic like a knife. Only races someone who knows every speed trap in the city."
    },
    "hint": {
-    "de": "Zeigt sich erst nach 15 Siegen.",
-    "en": "Shows up after 15 wins."
+    "de": "Löse alle Radarfallen der Map aus.",
+    "en": "Trigger every speed trap on the map."
    }
   },
   {

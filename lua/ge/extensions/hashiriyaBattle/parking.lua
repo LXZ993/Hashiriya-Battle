@@ -144,6 +144,7 @@ function M.repair()
     return
   end
   c.save.money = c.save.money - cost
+  extensions.hashiriyaBattle_progress.bump(c.save, 'repairs')
   veh:queueLuaCommand('obj:requestReset(RESET_PHYSICS)')
   c.writeSave()
   c.msg(c.t('msg.repaired', c.economy().formatYen(cost)))
@@ -178,6 +179,7 @@ function M.towToGarage()
   local veh = c.getPlayerVehicle()
   local pos, rot = M.spawnTransform(M.find('garage'))
   c.save.money = c.save.money - info.cost
+  extensions.hashiriyaBattle_progress.bump(c.save, 'tows')
   pcall(extensions.hashiriyaBattle_rivals.despawnActive)
   local ok = pcall(function() spawn.safeTeleport(veh, pos, rot) end)
   if not ok then veh:setPositionRotation(pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w) end

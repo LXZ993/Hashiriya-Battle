@@ -619,6 +619,7 @@ function M.confirmPreview()
   -- Nach dem Respawn steht im Auto die echte Konfiguration (z. B. passende Reifen zur neuen Felge).
   local cfg = currentConfig() or preview.cfg
   c.save.money = c.save.money - preview.price
+  extensions.hashiriyaBattle_progress.bump(c.save, preview.kind == 'paint' and 'paintsBought' or 'partsBought')
   if preview.kind == 'paint' then
     car.ownedPaints = car.ownedPaints or {}
     if preview.id ~= 'custom' then car.ownedPaints[preview.id] = true end

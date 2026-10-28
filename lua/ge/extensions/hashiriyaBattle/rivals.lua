@@ -115,6 +115,11 @@ local function conditionsMet(c, save)
   end
   if c.playerModel and playerModel() ~= c.playerModel then return false end
   if c.playerPart and not playerHasPart(c.playerPart) then return false end
+  if c.speedTraps then
+    local n, total = progress().speedTrapCount(save)
+    local need = c.speedTraps == 'all' and total or tonumber(c.speedTraps)
+    if not need or n < need then return false end
+  end
   if c.beatenTeam and not teamBeaten(c.beatenTeam, save) then return false end
   for _, id in ipairs(c.beatenTeams or {}) do if not teamBeaten(id, save) then return false end end
   for _, id in ipairs(c.beatenRivals or c.requires or {}) do if not save.defeated[id] then return false end end

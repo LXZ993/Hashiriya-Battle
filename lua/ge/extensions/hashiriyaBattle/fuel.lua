@@ -69,6 +69,9 @@ local function finish()
   session = nil
   if not s or s.liters < 0.05 then return end
   local c = core()
+  local pr = extensions.hashiriyaBattle_progress
+  pr.bump(c.save, 'fuelLiters', s.liters)
+  pr.bump(c.save, 'fuelCost', s.cost)
   c.writeSave()
   c.msg(c.t('msg.refueled', string.format('%.1f', s.liters), c.economy().formatYen(s.cost)), 5)
   log('I', logTag, string.format('Getankt: %.1f l für %d Yen', s.liters, s.cost))

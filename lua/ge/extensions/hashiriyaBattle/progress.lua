@@ -83,7 +83,10 @@ function M.onBattle(rival, won, result)
   save.nightBattles.count = save.nightBattles.count + 1
   save.lastBattle = save.lastBattle or {}
   save.lastBattle[rival.id] = { night = night, won = won }
+  local st = stats(save)
+  if result and result.time then st.longestBattle = math.max(st.longestBattle or 0, result.time) end
   if won then
+    if result and result.time then st.bestWinTime = math.min(st.bestWinTime or 1e9, result.time) end
     save.rep = (save.rep or 0) + (rival.rep or 30)
     save.defeatedNight = save.defeatedNight or {}
     if rival.rematch then
@@ -98,8 +101,8 @@ function M.onBattle(rival, won, result)
     if (result.damageSp or 0) <= (set.cleanWinMaxDamageSp or 60) then bump(save, 'cleanWins') end
     if result.playerMaxSp and result.playerSp and result.playerSp / result.playerMaxSp * 100 <= (set.closeWinMaxSpPercent or 15) then bump(save, 'closeWins') end
     if result.time and result.time <= (set.quickWinSeconds or 30) then bump(save, 'quickWins') end
-    if rival.leader then bump(save, 'leaderWins') end
-    if rival.boss then bump(save, 'bossWins') end
+    if rival.leader and not rival.rematch then bump(save, 'leaderWins') end
+    if rival.boss and not rival.rematch then bump(save, 'bossWins') end
   else
     save.rep = math.max(0, (save.rep or 0) + (set.lossRep or -10))
   end
@@ -108,6 +111,137 @@ function M.onBattle(rival, won, result)
     c.msg(c.t('msg.rankUp', M.rankName(save)), 7)
     c.sound('levelUp')
   end
+end
+
+-- Radarfallen -----------------------------------------------------------------
+-- Pro Map zählt jede ausgelöste Radarfalle einmal (save.speedTraps[level][name] = höchstes Tempo in km/h).
+-- Gesamtzahl aus der Kartendatei (speedTrapsTotal). Alle ausgelöst = Bedingung "speedTraps": "all" bei einem Rivalen.
+
+function M.speedTrapCount(save)
+  save = save or core().save
+  local c = core()
+  local list = save and save.speedTraps and save.speedTraps[c.levelName or ''] or {}
+  local n = 0
+  for _ in pairs(list) do n = n + 1 end
+  local total = c.mapData and c.mapData.speedTrapsTotal or nil
+  return n, total
+end
+
+local function onSpeedTrap(name, kmh)
+  local c = core()
+  local save = c.save
+  if not save or not c.active or not name or name == '' then return end
+  save.speedTraps = save.speedTraps or {}
+  local lvl = c.levelName or ''
+  save.speedTraps[lvl] = save.speedTraps[lvl] or {}
+  local list = save.speedTraps[lvl]
+  local isNew = list[name] == nil
+  list[name] = math.max(list[name] or 0, math.floor(kmh or 0))
+  local s = stats(save)
+  s.topTrapKmh = math.max(s.topTrapKmh or 0, math.floor(kmh or 0))
+  if isNew then
+    local n, total = M.speedTrapCount(save)
+    c.msg(c.t('msg.speedTrap', n, total or '?', math.floor(kmh or 0)), 4)
+    if total and n >= total then c.msg(c.t('msg.speedTrapsAll'), 7); c.sound('levelUp') end
+  end
+end
+
+-- BeamNG meldet Radarfallen über den Freeroam-Hook; als Rückfall zählen Trigger mit "speed" im Namen.
+function M.onSpeedTrapTriggered(trapData, playerSpeed)
+  local name = type(trapData) == 'table' and (trapData.name or trapData.triggerName or trapData.id) or tostring(trapData)
+  local kmh = tonumber(playerSpeed) and playerSpeed * 3.6 or nil
+  if not kmh then
+    local veh = core().getPlayerVehicle()
+    kmh = veh and veh:getVelocity():length() * 3.6 or 0
+  end
+  onSpeedTrap(tostring(name), kmh)
+end
+
+function M.onBeamNGTrigger(data)
+  if type(data) ~= 'table' or data.event ~= 'enter' then return end
+  local name = tostring(data.triggerName or '')
+  if not name:lower():find('speed', 1, true) then return end
+  local veh = core().getPlayerVehicle()
+  if not veh or data.subjectID ~= veh:getID() then return end
+  onSpeedTrap(name, veh:getVelocity():length() * 3.6)
+end
+
+-- Laufende Statistik: Strecke, Höchsttempo, Geld rein/raus ------------------------
+local lastMoney = nil
+local function onUpdate(dtReal, dtSim)
+  local c = core()
+  local save = c.save
+  if not c.active or not save then lastMoney = nil; return end
+  local s = stats(save)
+  local veh = c.getPlayerVehicle()
+  if veh and dtSim and dtSim > 0 then
+    local v = veh:getVelocity():length()
+    if v > 1 and v < 150 then
+      s.distanceKm = (s.distanceKm or 0) + v * dtSim / 1000
+      if extensions.hashiriyaBattle_battle.isBusy() then s.battleKm = (s.battleKm or 0) + v * dtSim / 1000 end
+    end
+    if v < 150 then s.topKmh = math.max(s.topKmh or 0, math.floor(v * 3.6)) end
+  end
+  if lastMoney and save.money ~= lastMoney then
+    local d = save.money - lastMoney
+    if d > 0 then s.moneyEarned = (s.moneyEarned or 0) + d else s.moneySpent = (s.moneySpent or 0) - d end
+  end
+  lastMoney = save.money
+end
+M.onUpdate = onUpdate
+function M.resetMoneyWatch() lastMoney = nil end
+
+-- Statistik-Seite im Menü
+function M.getStatsUi()
+  local c = core()
+  local save = c.save
+  if not save then return nil end
+  local s = stats(save)
+  local eco = c.economy()
+  local function km(v) return string.format('%.1f km', v or 0) end
+  local function time(t) if not t then return '—' end return string.format('%d:%04.1f', math.floor(t / 60), t % 60) end
+  local battles = (save.wins or 0) + (save.losses or 0)
+  local beaten, total = 0, 0
+  for _, r in ipairs(data().rivals or {}) do
+    total = total + 1
+    if save.defeated and save.defeated[r.id] then beaten = beaten + 1 end
+  end
+  local traps, trapTotal = M.speedTrapCount(save)
+  local groups = {
+    { id = 'battle', rows = {
+      { k = 'stats.rivals', v = beaten .. ' / ' .. total },
+      { k = 'stats.record', v = (save.wins or 0) .. ' / ' .. (save.losses or 0) },
+      { k = 'stats.winRate', v = battles > 0 and string.format('%d %%', math.floor((save.wins or 0) / battles * 100 + 0.5)) or '—' },
+      { k = 'stats.leaderWins', v = s.leaderWins or 0 },
+      { k = 'stats.bossWins', v = s.bossWins or 0 },
+      { k = 'stats.rematchWins', v = s.rematchWins or 0 },
+      { k = 'stats.cleanWins', v = s.cleanWins or 0 },
+      { k = 'stats.closeWins', v = s.closeWins or 0 },
+      { k = 'stats.quickWins', v = s.quickWins or 0 },
+      { k = 'stats.bestWin', v = time(s.bestWinTime) },
+      { k = 'stats.longestBattle', v = time(s.longestBattle) },
+    } },
+    { id = 'drive', rows = {
+      { k = 'stats.distance', v = km(s.distanceKm) },
+      { k = 'stats.battleKm', v = km(s.battleKm) },
+      { k = 'stats.topSpeed', v = (s.topKmh or 0) .. ' km/h' },
+      { k = 'stats.speedTraps', v = traps .. ' / ' .. (trapTotal or '?') },
+      { k = 'stats.topTrap', v = (s.topTrapKmh or 0) .. ' km/h' },
+      { k = 'stats.nights', v = s.nights or 0 },
+      { k = 'stats.day', v = save.day or 1 },
+    } },
+    { id = 'money', rows = {
+      { k = 'stats.earned', v = eco.formatYen(s.moneyEarned or 0) },
+      { k = 'stats.spent', v = eco.formatYen(s.moneySpent or 0) },
+      { k = 'stats.partsBought', v = s.partsBought or 0 },
+      { k = 'stats.paintsBought', v = s.paintsBought or 0 },
+      { k = 'stats.carsOwned', v = #(save.cars or {}) },
+      { k = 'stats.fuel', v = string.format('%.0f l', s.fuelLiters or 0) },
+      { k = 'stats.repairs', v = s.repairs or 0 },
+      { k = 'stats.tows', v = s.tows or 0 },
+    } },
+  }
+  return { groups = groups, rank = M.rankName(save), nick = M.nickname(save), rep = save.rep or 0 }
 end
 
 -- Neue Nacht zählen (Statistik für den Spitznamen)

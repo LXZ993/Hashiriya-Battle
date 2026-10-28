@@ -1,4 +1,6 @@
 {
+  "speedTrapsTotal": 45,
+  "_hinweisRadar": "speedTrapsTotal = Anzahl Radarfallen auf der Map (laut Alex 45 auf der C1; im Spiel noch prüfen).",
   "_hinweis": "Orte auf der C1-Map, mit 'Position merken' gesammelt (27./28.10.2026). type: garage | shop | home | gas. pos/dir/radius = Bucht für das Auto (Auslösebereich in m um die Buchtmitte). footPos/footRadius = Punkt zu Fuß. footOnly = nur zu Fuß (keine Bucht). Beim Shop (footEntry) parkt man das Auto in der Bucht und geht zu Fuß zum Eingang; dort öffnet sich das Menü, die Kamera zeigt vom Eingang aufs Auto. Ohne footEntry öffnet Reinfahren und Anhalten den Shop. Optional: markerPos/markerDir/markerSize für die exakte Bucht. playerSpawn = Startpunkt zu Fuß nach Neues Spiel/Weiterspielen (Zuhause). showroom = Präsentationsplatz für Autokauf/Neues Spiel (noch neu aufnehmen).",
   "playerSpawn": { "pos": [5848.501, 4637.323, 873.831], "dir": [0.93426, 0.35659, 0] },
   "parkingAreas": [

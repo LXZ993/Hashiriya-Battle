@@ -128,6 +128,7 @@ function M.buy(i)
     return
   end
   save.money = save.money - offer.price
+  extensions.hashiriyaBattle_progress.bump(save, 'carsBought')
   save.dealerSold[soldKey(i)] = true
   local name = offer.title .. ' ' .. offer.config
   table.insert(save.cars, {

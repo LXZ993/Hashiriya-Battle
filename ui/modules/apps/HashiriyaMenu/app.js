@@ -44,6 +44,7 @@ angular.module('beamng.apps')
             '<div class="hbm-section">{{ s.t[\'menu.career\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'dealer\')"><i class="hbm-ico" ng-bind-html="ico(\'carDealer\')"></i>{{ s.t[\'dealer.menu\'] }}</div>' +
+            '<div class="hbm-item" ng-click="act(\'stats\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i>{{ s.t[\'menu.stats\'] }}</div>' +
             '<div class="hbm-item" ng-if="s.tow" ng-class="{\'hbm-off\': !s.tow.can}" ng-click="s.tow.can && towClick()" title="{{ s.tow.reason }}"><i class="hbm-ico" ng-bind-html="ico(\'tow\')"></i>' +
               '<span class="hbm-car-name">{{ towArmed ? s.t[\'menu.towConfirm\'] : s.t[\'menu.tow\'] }}</span><span class="hbm-price">{{ s.tow.can ? s.tow.cost : (s.tow.reason || s.tow.cost) }}</span></div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
@@ -236,6 +237,20 @@ angular.module('beamng.apps')
             '<div class="hbm-hint">{{ s.t[\'menu.driveOff\'] }}</div>' +
           '</div>' +
 
+          // Statistik ------------------------------------------------------------------
+          '<div class="hbm-body" ng-if="s.screen == \'stats\' && s.stats">' +
+            '<div class="hbm-area"><span class="hbm-area-tag" ng-bind-html="ico(\'medal\')"></span>{{ s.t[\'menu.stats\'] }}<span class="hbm-day">{{ s.day }}</span></div>' +
+            '<div class="hbm-rank" ng-if="s.progress">' +
+              '<div class="hbm-rank-top"><span class="hbm-rank-no">{{ s.progress.rankNo }}</span><span class="hbm-rank-name">{{ s.progress.rank }}</span>' +
+                '<span class="hbm-rank-nick" ng-if="s.progress.nick">\u201e{{ s.progress.nick }}\u201c</span></div>' +
+              '<div class="hbm-rank-sub">{{ s.t[\'rank.rep\'] }} {{ s.progress.rep }}</div>' +
+            '</div>' +
+            '<div ng-repeat="g in s.stats.groups">' +
+              '<div class="hbm-section">{{ s.t[\'stats.group.\' + g.id] }}</div>' +
+              '<div class="hbm-stat hbm-stat-row" ng-repeat="r in g.rows"><span class="hbm-label">{{ s.t[r.k] }}</span><b>{{ r.v }}</b></div>' +
+            '</div>' +
+          '</div>' +
+
           // Autohändler (Auktion) -----------------------------------------------------
           '<div class="hbm-body" ng-if="s.screen == \'dealer\' && s.dealer">' +
             '<div class="hbm-area"><span class="hbm-area-tag" ng-bind-html="ico(\'carDealer\')"></span>{{ s.t[\'dealer.title\'] }}<span class="hbm-day">{{ s.day }}</span></div>' +
@@ -413,6 +428,7 @@ angular.module('beamng.apps')
           '.hbm-lot-price{flex:1;font-size:18px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;color:var(--o2);}' +
           '.hbm-lot-buy .hbm-btn{flex:none;padding:6px 14px;}' +
           '.hbm-rank{padding:6px 18px 4px;}' +
+          '.hbm-stat-row{padding:2px 18px;font-size:12px;} .hbm-stat-row b{font-variant-numeric:tabular-nums;}' +
           '.hbm-rank-top{display:flex;align-items:baseline;gap:8px;}' +
           '.hbm-rank-no{font-size:11px;font-weight:900;color:#141414;background:var(--o);padding:0 5px;transform:skewX(-12deg);}' +
           '.hbm-rank-name{font-size:15px;font-weight:800;letter-spacing:.5px;}' +
@@ -571,6 +587,7 @@ angular.module('beamng.apps')
         var s = scope.s || {}
         if (s.screen == 'carSelect') return scope.act('back')
         if (s.screen == 'dealer') return scope.act('dealerBack')
+        if (s.screen == 'stats') return scope.act('statsBack')
         if (s.screen == 'home' && s.home && s.home.tab != 'main') return scope.act('homeTab', 'main')
         if (s.shop && s.shop.preview) return scope.act('previewCancel')
         if (scope.open && scope.open.slot) { scope.open.slot = null; scope.act('focusSlot', ''); return }
@@ -578,7 +595,7 @@ angular.module('beamng.apps')
       }
       scope.backLabel = function () {
         var s = scope.s || {}, t = s.t || {}
-        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
+        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
           (s.shop && s.shop.preview) || (scope.open && scope.open.slot)
         return sub ? t['menu.back'] : t['menu.hide']
       }
