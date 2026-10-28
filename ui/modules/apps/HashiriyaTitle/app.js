@@ -82,7 +82,9 @@ angular.module('beamng.apps')
               '<div class="hbt-spec"><span>{{ t(\'new.plate\') }}</span><b>{{ f.summary.plate }}</b></div>' +
               '<div class="hbt-spec"><span>{{ t(\'new.tab.car\') }}</span><b>{{ f.summary.car }}</b></div>' +
               '<div class="hbt-spec"><span>{{ t(\'new.tab.color\') }}</span><b><i class="hbt-sw" ng-style="{background: f.summary.swatch}"></i>{{ f.summary.paint }}</b></div>' +
-              '<div class="hbt-money"><span>{{ t(\'new.startMoney\') }}</span><b>{{ f.summary.money }}</b></div>' +
+              '<div class="hbt-spec"><span>{{ t(\'new.startMoney\') }}</span><b>{{ f.summary.money }}</b></div>' +
+              '<div class="hbt-spec" ng-if="f.summary.carPrice"><span>{{ t(\'new.carPrice\') }}</span><b>− {{ f.summary.carPrice }}</b></div>' +
+              '<div class="hbt-money"><span>{{ t(\'new.restMoney\') }}</span><b>{{ f.summary.rest }}</b></div>' +
               '<div class="hbt-note">{{ t(\'new.confirmNote\') }}</div>' +
             '</div>' +
 

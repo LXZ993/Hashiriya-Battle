@@ -326,5 +326,7 @@
   "msg.watched": " · On your list!",
   "msg.tooFast": "Too fast to challenge!",
   "msg.tooSlow": "Too slow to challenge!",
-  "hud.sync": "Matching speed …"
+  "hud.sync": "Matching speed …",
+  "new.carPrice": "Car price",
+  "new.restMoney": "Balance at start"
 }

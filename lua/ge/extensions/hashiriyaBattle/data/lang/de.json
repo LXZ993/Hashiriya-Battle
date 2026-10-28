@@ -326,5 +326,7 @@
   "msg.watched": " · Auf deiner Liste!",
   "msg.tooFast": "Zu schnell zum Herausfordern!",
   "msg.tooSlow": "Zu langsam zum Herausfordern!",
-  "hud.sync": "Tempo angleichen …"
+  "hud.sync": "Tempo angleichen …",
+  "new.carPrice": "Kaufpreis Auto",
+  "new.restMoney": "Kontostand zum Start"
 }

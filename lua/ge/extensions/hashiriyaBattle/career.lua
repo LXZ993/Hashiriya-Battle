@@ -150,6 +150,15 @@ local function spawnShowroomCar(starter, paint)
   pcall(function() core_camera.setByName(0, 'orbit', true) end)
 end
 
+-- Kaufpreis des Starterautos in Yen (wird vom Startkapital abgezogen)
+local function starterPriceYen(starter)
+  local info = {}
+  local key = tostring(starter.config or ''):match('([^/]+)%.pc$')
+  local okM, m = pcall(core_vehicles.getModel, starter.model)
+  if okM and m and m.configs and key then info = m.configs[key] or {} end
+  return core().economy().usdToPrice(starter.priceUsd or info.Value or 0)
+end
+
 -- Daten für die Anzeige des Autos aus den Config-Infos von BeamNG
 local function carSpecs(starter)
   local c = core()
@@ -229,6 +238,7 @@ local function startCareer()
   c.newCareer({
     playerName = flow.name,
     experience = flow.experience,
+    carPrice = starterPriceYen(starter),
     car = { model = starter.model, config = cfg, name = starter.name, plate = plate,
       paintId = flow.paintId, paintIds = { flow.paintId }, ownedPaints = flow.paintId and { [flow.paintId] = true } or nil },
   })
@@ -357,6 +367,8 @@ function M.getUiState()
       name = flow.name, plate = (flow.plate ~= '' and flow.plate) or st.plateHint or '—',
       car = starter and starter.name or '', paint = paintName, swatch = swatch,
       money = eco.formatYen(c.startMoney()),
+      carPrice = starter and eco.formatYen(starterPriceYen(starter)) or nil,
+      rest = eco.formatYen(c.startMoney() - (starter and starterPriceYen(starter) or 0)),
     }
     if st.summary.plate == '—' then
       local veh = c.getPlayerVehicle()

@@ -348,6 +348,11 @@ function M.newCareer(data)
   M.save = newSave()
   M.save.playerName = data.playerName
   M.save.experience = data.experience
+  -- Startkapital minus Kaufpreis des Starterautos
+  if data.carPrice and data.carPrice > 0 then
+    M.save.money = math.max(0, M.save.money - data.carPrice)
+    extensions.hashiriyaBattle_progress.bump(M.save, 'carsBought')
+  end
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
   table.insert(M.save.cars, data.car)
   M.save.activeCar = 1
