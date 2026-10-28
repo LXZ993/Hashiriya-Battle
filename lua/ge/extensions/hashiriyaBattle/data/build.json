@@ -8,6 +8,7 @@
     "toggleConsoleNG", "toggleConsole", "editorToggle", "editorSafeModeToggle", "objectEditorToggle",
     "slower_motion", "faster_motion", "toggle_slow_motion", "physicsStep"
   ],
+  "lockTime": true,
   "blockBigMapTeleport": true,
   "_bigMap": "Schnellreise über die große Karte: Sperre folgt, sobald die passende BeamNG-Funktion im Spielcode geprüft ist."
 }

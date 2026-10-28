@@ -143,10 +143,24 @@ function M.getUiState(tab)
   return st
 end
 
-local function onUpdate(dtReal)
+-- Release-Build: Uhrzeit-Sprünge von außen (Time & Weather) rückgängig machen
+local function timeLocked(c)
+  return c.active and c.save and c.buildData and c.buildData.release == true and c.buildData.lockTime ~= false
+end
+
+local function onUpdate(dtReal, dtSim)
   local t = timeOfDay()
   if not t then return end
   local c = core()
+  if lastTime and timeLocked(c) then
+    local expected = (dtSim or dtReal or 0) / (M.world().dayLengthMinutes * 60)
+    local diff = ((t - lastTime - expected + 0.5) % 1) - 0.5
+    if math.abs(diff) > 0.005 then -- mehr als ~7 Spielminuten daneben
+      log('I', logTag, 'Uhrzeit wurde verstellt, setze zurück')
+      M.applyClock(hourOf((lastTime + expected) % 1))
+      return
+    end
+  end
   -- Mitternacht überschritten (kleiner Sprung, nicht durch Schlafen oder Zeit-Einstellung)
   if lastTime and lastTime < 0.5 and t >= 0.5 and t - lastTime < 0.05 and c.active then newDay() end
   lastTime = t
