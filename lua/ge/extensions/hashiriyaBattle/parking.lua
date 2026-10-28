@@ -10,7 +10,7 @@ local enterSpeed = 8 / 3.6   -- km/h -> m/s: unter diesem Tempo gilt man als "an
 local checkInterval = 0.25
 local repairYenPerDamage = 2 -- Reparaturpreis je BeamNG-Schadenspunkt (zum Feintuning)
 
-local bayWidth, bayLength = 3.0, 5.6 -- Größe der markierten Parkbucht in m
+local bayWidth, bayLength = 2.5, 5.0 -- Größe der markierten Parkbucht in m (wie Vanilla)
 
 local checkTimer = 0
 local markersOn = true       -- im Menü abschaltbar
@@ -170,7 +170,7 @@ end
 -- über der gespeicherten Position nach unten (trifft das Deck, nicht den Boden darunter).
 local function ground(a)
   if groundZ[a.id] == nil then
-    local p = toVec(a.pos)
+    local p = toVec(a.markerPos or a.pos)
     local z = nil
     local ok, dist = pcall(function() return castRayStatic(p + vec3(0, 0, 1.0), vec3(0, 0, -1), 5) end)
     if ok and type(dist) == 'number' and dist < 5 then z = p.z + 1.0 - dist end
@@ -189,12 +189,21 @@ local function clearMarkers()
 end
 M.clearMarkers = clearMarkers
 
+-- Optional je Parkplatz in der Kartendatei: markerPos/markerDir (Mitte und Richtung einer echten
+-- Bucht) und markerSize {Breite, Länge}. Ohne Angaben wird die Spawn-Position genommen.
+local function bayOf(a)
+  local w, l = bayWidth, bayLength
+  if type(a.markerSize) == 'table' then w, l = a.markerSize[1] or w, a.markerSize[2] or l end
+  return w, l
+end
+
 local function createMarker(a)
-  local pos = toVec(a.pos)
+  local pos = toVec(a.markerPos or a.pos)
   pos.z = ground(a) + 0.02
-  local fwd = toVec(a.dir); fwd.z = 0; fwd = fwd:normalized()
+  local fwd = toVec(a.markerDir or a.dir); fwd.z = 0; fwd = fwd:normalized()
+  local w, l = bayOf(a)
   local rot = quatFromDir(fwd, vec3(0, 0, 1))
-  local m = { alpha = -1, pos = pos }
+  local m = { alpha = -1, pos = pos, w = w, l = l }
   local ok, err = pcall(function()
     local outline = createObject('TSStatic')
     outline:setField('shapeName', 0, outlineShape)
@@ -208,7 +217,7 @@ local function createMarker(a)
     outline:registerObject('hashiriya_pa_' .. a.id)
     local tq = rot:toTorqueQuat()
     outline:setField('rotation', 0, tq.x .. ' ' .. tq.y .. ' ' .. tq.z .. ' ' .. tq.w)
-    outline:setScaleXYZ(bayWidth, bayLength / 2.05, 0.01)
+    outline:setScaleXYZ(w, l / 2.05, 0.01)
     m.outlineId = outline:getId()
   end)
   if not ok then log('W', logTag, 'Parkplatz-Rahmen nicht erstellt: ' .. tostring(err)) end
@@ -219,7 +228,7 @@ local function createMarker(a)
     position = vec3(pos),
     forwardVec = fwd,
     color = ColorF(c[1], c[2], c[3], decalAlpha),
-    scale = vec3(bayWidth, bayLength, 3), -- Projektionstiefe, damit leichte Neigung nicht abschneidet
+    scale = vec3(w, l, 1), -- Projektionstiefe 1 m wie Vanilla
     fadeStart = decalFadeStart,
     fadeEnd = decalFadeEnd,
   }
@@ -237,7 +246,7 @@ local function setOutline(m, alpha)
   local lin = ColorF(c[1], c[2], c[3], alpha):asLinear4F()
   obj.instanceColor = lin
   obj:updateInstanceRenderData()
-  obj:setScaleXYZ(bayWidth, bayLength / 2.05, math.max(alpha * 0.15, 0.01)) -- 1 bis 15 cm hoch
+  obj:setScaleXYZ(m.w, m.l / 2.05, math.max(alpha * 0.2, 0.01)) -- 1 bis 20 cm hoch wie in der Karriere
 end
 
 local function drawMarkers(playerPos)

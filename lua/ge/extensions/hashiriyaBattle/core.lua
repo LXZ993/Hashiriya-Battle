@@ -210,11 +210,14 @@ local function capturePosition()
   local veh = M.getPlayerVehicle()
   if not veh then return end
   local p, d = veh:getPosition(), veh:getDirectionVector()
+  -- Mitte des Autos (Bounding Box), nicht der Referenzpunkt: daraus wird die Mitte der Parkbucht
+  local okC, center = pcall(function() return veh:getSpawnWorldOOBB():getCenter() end)
   local list = jsonReadFile(capturePath) or {}
   table.insert(list, {
     level = M.levelName,
     pos = { p.x, p.y, p.z },
     dir = { d.x, d.y, d.z },
+    center = okC and center and { center.x, center.y, center.z } or nil,
   })
   jsonWriteFile(capturePath, list, true)
   msg(M.t('msg.posSaved', #list))
