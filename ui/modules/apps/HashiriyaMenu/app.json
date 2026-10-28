@@ -3,7 +3,7 @@
   "name": "Hashiriya Battle: Menü",
   "types": ["ui.apps.categories.gameplay"],
   "description": "Hauptmenü von Hashiriya Battle (Neues Spiel, Autowahl, Status). Ein/aus mit Pos1.",
-  "css": { "top": "200px", "left": "20px", "width": "320px", "height": "420px" },
+  "css": { "top": "200px", "left": "20px", "width": "320px", "height": "640px" },
   "author": "Hashiriya Battle",
   "version": "1.0",
   "directive": "hashiriyaMenu",

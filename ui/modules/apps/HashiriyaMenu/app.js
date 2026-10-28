@@ -49,9 +49,17 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
             '</div>' +
             '<div ng-if="s.screen == \'shop\'">' +
-              '<div class="hbm-section">{{ s.t[\'pa.shop\'] }}</div>' +
-              '<div class="hbm-note">{{ s.t[\'menu.shopSoon\'] }}</div>' +
-              '<div class="hbm-item hbm-sub" ng-click="act(\'dumpParts\')">{{ s.t[\'menu.dumpParts\'] }}</div>' +
+              '<div class="hbm-section">{{ s.t[\'shop.title\'] }}</div>' +
+              '<div class="hbm-note" ng-if="!s.shop || !s.shop.available">{{ s.t[\'shop.none\'] }}</div>' +
+              '<div class="hbm-cat" ng-repeat="c in s.shop.categories track by c.id">' +
+                '<div class="hbm-cat-head"><span>{{ c.name }}</span><i>{{ c.installed > 0 ? (\'LV\' + c.installed) : s.t[\'shop.stock\'] }}</i></div>' +
+                '<div class="hbm-tiers">' +
+                  '<div class="hbm-tier" ng-repeat="tr in c.tiers track by tr.level" ' +
+                    'ng-class="{\'is-on\': tr.installed, \'is-locked\': tr.locked, \'is-poor\': !tr.locked && !tr.affordable}" ' +
+                    'ng-click="!tr.installed && !tr.locked && tr.affordable && act(\'buyPart\', c.id + \':\' + tr.level)">' +
+                    '<b>LV{{ tr.level }}</b><span>{{ tr.locked ? tr.lockText : tr.price }}</span></div>' +
+                '</div>' +
+              '</div>' +
             '</div>' +
             '<div class="hbm-hint">{{ s.t[\'menu.driveOff\'] }}</div>' +
           '</div>' +
@@ -95,6 +103,19 @@ angular.module('beamng.apps')
           '.hbm-area-tag{display:inline-block;width:24px;height:24px;line-height:25px;text-align:center;font-style:normal;font-size:14px;' +
             'background:var(--o);color:#141414;border-radius:3px;}' +
           '.hbm-off{opacity:.45;cursor:default;} .hbm-off:hover{background:none;padding-left:18px;} .hbm-off:hover:before{width:0;}' +
+          '.hbm-cat{padding:5px 18px 6px;border-bottom:1px solid rgba(255,255,255,.05);}' +
+          '.hbm-cat-head{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}' +
+          '.hbm-cat-head i{font-style:italic;font-weight:900;font-size:11px;color:var(--o2);}' +
+          '.hbm-tiers{display:flex;gap:4px;}' +
+          '.hbm-tier{flex:1;min-width:0;padding:4px 6px 3px;cursor:pointer;background:rgba(255,255,255,.06);border-bottom:2px solid transparent;' +
+            'transform:skewX(-10deg);transition:background .12s;}' +
+          '.hbm-tier > *{display:block;transform:skewX(10deg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+          '.hbm-tier b{font-size:11px;font-weight:900;font-style:italic;color:var(--w);}' +
+          '.hbm-tier span{font-size:10px;font-variant-numeric:tabular-nums;color:var(--dim);}' +
+          '.hbm-tier:hover{background:rgba(255,102,0,.3);}' +
+          '.hbm-tier.is-on{background:rgba(255,102,0,.85);border-bottom-color:#fff;cursor:default;}' +
+          '.hbm-tier.is-on b,.hbm-tier.is-on span{color:#141414;}' +
+          '.hbm-tier.is-locked,.hbm-tier.is-poor{opacity:.4;cursor:default;} .hbm-tier.is-locked:hover,.hbm-tier.is-poor:hover{background:rgba(255,255,255,.06);}' +
           '.hbm-note{font-size:12px;line-height:1.45;color:rgba(244,244,244,.75);padding:4px 18px 8px;}' +
           '.hbm-hint{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:8px 18px 2px;}' +
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +

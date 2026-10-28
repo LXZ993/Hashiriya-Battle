@@ -8,7 +8,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking' }
+local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -320,6 +320,7 @@ local function buildUiState()
       local cost = parking.repairCost()
       st.repairCost = cost > 0 and eco.formatYen(cost) or nil
       st.canAffordRepair = cost <= M.save.money
+      if area.type == 'shop' then st.shop = extensions.hashiriyaBattle_shop.getUiState() end
     end
   end
   return st
@@ -357,6 +358,11 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_parking.dumpParts(true)
   elseif action == 'dumpConfigs' then
     M.dumpConfigs()
+  elseif action == 'buyPart' then
+    local cat, level = tostring(arg or ''):match('^([%w_]+):(%d+)$')
+    local parking = extensions.hashiriyaBattle_parking
+    local area = parking.isArrived() and parking.getCurrent()
+    if cat and area and area.type == 'shop' then extensions.hashiriyaBattle_shop.buy(cat, tonumber(level)) end
   elseif action == 'setLanguage' then
     M.setLanguage(arg)
   elseif action == 'stop' then
