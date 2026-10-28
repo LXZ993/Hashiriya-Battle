@@ -11,6 +11,7 @@ local rules = nil
 local catalog = nil        -- { vehId = id, slots = { [slot] = { key = configKey, options = {...} } } }
 local retryTimer = 0
 local activeTab = 'engine'
+local warnedNoConfig = false
 
 local function core() return extensions.hashiriyaBattle_core end
 
@@ -93,8 +94,20 @@ local function currentConfig()
   local ok, vd = pcall(function() return core_vehicle_manager.getPlayerVehicleData() end)
   if not ok or not vd then return nil end
   local cfg = vd.config or {}
-  local parts = cfg.parts or vd.chosenParts
-  if type(parts) ~= 'table' then return nil end
+  -- Ab 0.40 gibt es nur noch den Teilebaum (partsTree); BeamNG macht daraus selbst eine flache
+  -- Slot -> Teil-Liste (bei doppelten Slot-Namen ist der Schlüssel der volle Pfad).
+  local parts = cfg.parts
+  if type(parts) ~= 'table' and cfg.partsTree and core_vehicle_partmgmt and core_vehicle_partmgmt.partsTreeToPartsMap then
+    local okMap, map = pcall(core_vehicle_partmgmt.partsTreeToPartsMap, cfg.partsTree)
+    if okMap then parts = map end
+  end
+  if type(parts) ~= 'table' then
+    if not warnedNoConfig then
+      warnedNoConfig = true
+      log('W', logTag, 'Shop: Teileliste des Autos nicht lesbar (weder parts noch partsTree)')
+    end
+    return nil
+  end
   local out = { parts = {}, vars = {}, paints = cfg.paints }
   for k, v in pairs(parts) do out.parts[k] = v end
   for k, v in pairs(cfg.vars or {}) do out.vars[k] = v end
@@ -111,7 +124,11 @@ local function buildCatalog()
   local car = activeCar()
   if not veh or not car then return nil end
   local cfg, vd = currentConfig()
-  if not cfg or not vd.ioCtx then return nil end
+  if not cfg then return nil end
+  if not vd.ioCtx then
+    log('W', logTag, 'Shop: kein ioCtx in den Fahrzeugdaten')
+    return nil
+  end
   local okParts, available = pcall(availableParts, vd)
   if not okParts or type(available) ~= 'table' then
     log('E', logTag, 'Shop: Teileliste nicht lesbar: ' .. tostring(available))
@@ -166,6 +183,9 @@ local function buildCatalog()
     end
     cat.tabs[tab.id] = tabRows
   end
+  local n = 0
+  for _ in pairs(cat.slots) do n = n + 1 end
+  log('I', logTag, string.format('Shop: %d Slots mit Teilen für %s', n, tostring(car.model)))
   return cat
 end
 
