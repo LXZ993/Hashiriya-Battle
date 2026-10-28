@@ -95,5 +95,11 @@
   "menu.cheatMoney": "+¥1.000.000 (Test)",
   "menu.markers": "Parkplatz-Markierung",
   "menu.on": "an",
-  "menu.off": "aus"
+  "menu.off": "aus",
+  "shop.tab.wheels": "Räder",
+  "shop.item.rimF": "Felgen vorn",
+  "shop.item.rimR": "Felgen hinten",
+  "shop.item.tireF": "Reifen vorn",
+  "shop.item.tireR": "Reifen hinten",
+  "menu.cheatWins": "+1 Sieg (Test)"
 }

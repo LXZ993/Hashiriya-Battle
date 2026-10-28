@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden).",
+  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn).",
   "tiers": [
     {
       "level": 1,
@@ -162,6 +162,39 @@
       ]
     },
     {
+      "id": "wheels",
+      "items": [
+        {
+          "id": "rimF",
+          "pattern": [
+            "^wheel_F"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "rimR",
+          "pattern": [
+            "^wheel_R"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "tireF",
+          "pattern": [
+            "^tire_F"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "tireR",
+          "pattern": [
+            "^tire_R"
+          ],
+          "defaultLevel": 1
+        }
+      ]
+    },
+    {
       "id": "body",
       "items": [
         {
@@ -221,7 +254,9 @@
       "bigwing",
       "bigsplitter",
       "adjustable",
-      "stiffening"
+      "stiffening",
+      "slick",
+      "semislick"
     ],
     "2": [
       "stage1",
@@ -239,7 +274,9 @@
       "wide",
       "widebody",
       "gt",
-      "turbo"
+      "turbo",
+      "semi",
+      "performance"
     ],
     "1": [
       "sport",
@@ -276,7 +313,14 @@
     "itb",
     "alt",
     "partition",
-    "stock"
+    "stock",
+    "snow",
+    "winter",
+    "mud",
+    "allterrain",
+    "spare",
+    "steelie",
+    "hubcap"
   ],
   "overrides": {
     "covet_turbo_stock": 2,

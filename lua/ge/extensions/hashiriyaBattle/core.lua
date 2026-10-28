@@ -374,6 +374,12 @@ function M.uiAction(action, arg)
       M.save.money = M.save.money + 1000000
       M.writeSave()
     end
+  elseif action == 'cheatWins' then
+    -- Nur zum Testen: +1 Sieg (schaltet Tuning-Stufen frei)
+    if M.save then
+      M.save.wins = (M.save.wins or 0) + 1
+      M.writeSave()
+    end
   elseif action == 'toggleMarkers' then
     extensions.hashiriyaBattle_parking.setMarkersEnabled(not extensions.hashiriyaBattle_parking.markersEnabled())
   elseif action == 'photoMode' then

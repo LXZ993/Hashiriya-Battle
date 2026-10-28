@@ -38,8 +38,11 @@ local function lastSegment(key)
 end
 
 -- Passt der Slot zu einem Eintrag wie "_engine_ecu"? Erlaubt Varianten wie "_engine_ecu_2.0".
-local function slotMatches(slot, suffixes)
-  for _, suf in ipairs(suffixes) do
+local function slotMatches(slot, item)
+  for _, pat in ipairs(item.pattern or {}) do
+    if slot:find(pat) then return true end
+  end
+  for _, suf in ipairs(item.slot or {}) do
     if slot:sub(-#suf) == suf or slot:find(suf .. '_[%d%.]+$') then return true end
   end
   return false
@@ -167,7 +170,7 @@ local function buildCatalog()
       local found = {}
       for key, part in pairs(cfg.parts) do
         local slot = lastSegment(key)
-        if slotMatches(slot, item.slot) and bySlot[slot] then table.insert(found, { slot = slot, key = key, part = part }) end
+        if slotMatches(slot, item) and bySlot[slot] then table.insert(found, { slot = slot, key = key, part = part }) end
       end
       table.sort(found, function(a, b) return a.slot < b.slot end)
       for _, f in ipairs(found) do

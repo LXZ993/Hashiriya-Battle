@@ -38,6 +38,7 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
               '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatMoney\')">{{ s.t[\'menu.cheatMoney\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatWins\')">{{ s.t[\'menu.cheatWins\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'dumpConfigs\')">{{ s.t[\'menu.dumpConfigs\'] }}</div>' +
           '</div>' +
 

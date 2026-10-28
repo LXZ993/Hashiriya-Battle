@@ -95,5 +95,11 @@
   "menu.cheatMoney": "+¥1,000,000 (test)",
   "menu.markers": "Parking markers",
   "menu.on": "on",
-  "menu.off": "off"
+  "menu.off": "off",
+  "shop.tab.wheels": "Wheels",
+  "shop.item.rimF": "Front rims",
+  "shop.item.rimR": "Rear rims",
+  "shop.item.tireF": "Front tires",
+  "shop.item.tireR": "Rear tires",
+  "menu.cheatWins": "+1 win (test)"
 }
