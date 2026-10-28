@@ -126,6 +126,12 @@ local function onUpdate(dtReal, dtSim)
   end
   local cc = comboCfg()
   local veh = c.active and c.save and cc.enabled ~= false and c.getPlayerVehicle()
+  -- Kombos nur im laufenden Battle (illegales Rennen, also nachts), wenn battleOnly gesetzt
+  local inBattle = extensions.hashiriyaBattle_battle and extensions.hashiriyaBattle_battle.getState() == 'battle'
+  if veh and cc.battleOnly ~= false and not inBattle then
+    if combo then bankCombo() end
+    veh = nil
+  end
   if not veh or (cc.nightOnly and not extensions.hashiriyaBattle_home.isNight()) or (dtSim or 0) <= 0 then
     if combo and not veh then combo = nil end
     tracks = {}

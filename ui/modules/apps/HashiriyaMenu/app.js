@@ -15,6 +15,7 @@ angular.module('beamng.apps')
             '<div class="hbm-jp">\u8d70\u308a\u5c4b\u30d0\u30c8\u30eb</div>' +
           '</div>' +
           '<div class="hbm-topback" ng-click="goBack()"><i class="hbm-ico" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ backLabel() }}</div>' +
+          '<div class="hbm-leave" ng-if="s.footShop" ng-click="act(\'hide\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'shop.leave\'] }}</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'start\'">' +
             '<div class="hbm-item" ng-click="act(\'career\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'menu.career\'] }}</div>' +
@@ -488,6 +489,10 @@ angular.module('beamng.apps')
           '.hbm-lex-tag{font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#141414;background:var(--o2);padding:0 4px;}' +
           '.hbm-lex-state{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);}' +
           '.hbm-lex.is-beaten .hbm-lex-state{color:var(--o);}' +
+          '.hbm-leave{display:flex;align-items:center;gap:8px;margin:0 0 8px;padding:9px 12px;cursor:pointer;pointer-events:auto;' +
+            'background:#ff6600;color:#121214;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;font-size:12px;}' +
+          '.hbm-leave:hover{background:#ff7f26;}' +
+          '.hbm-leave .hbm-ico{width:16px;height:16px;}' +
           '.hbm-lex-sub{font-size:11px;color:var(--dim);}' +
           '.hbm-lex-status{font-size:11px;color:var(--tc);margin-top:2px;letter-spacing:.02em;}' +
           '.hbm-ico{display:inline-flex;width:18px;height:18px;flex:none;margin-right:10px;color:var(--o);}' +
@@ -633,7 +638,7 @@ angular.module('beamng.apps')
         var s = scope.s || {}, t = s.t || {}
         var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
           (scope.open && scope.open.slot)
-        return sub ? t['menu.back'] : t['menu.hide']
+        return sub ? t['menu.back'] : (s.footShop ? t['shop.leave'] : t['menu.hide'])
       }
 
       scope.act = function (action, arg) {

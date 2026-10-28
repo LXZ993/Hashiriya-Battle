@@ -3,7 +3,7 @@
   "name": "Hashiriya Battle: Status",
   "types": ["ui.apps.categories.gameplay"],
   "description": "Geld und nächster Rivale, immer sichtbar während der Modus läuft.",
-  "css": { "top": "10px", "right": "10px", "width": "240px", "height": "90px" },
+  "css": { "top": "64px", "right": "10px", "width": "280px", "height": "560px" },
   "author": "Hashiriya Battle",
   "version": "1.0",
   "directive": "hashiriyaStatus",

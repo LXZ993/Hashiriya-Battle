@@ -585,7 +585,8 @@ local function buildUiState()
   local st = {
     level = M.levelName,
     active = M.active,
-    menuVisible = showMenu and not extensions.hashiriyaBattle_career.isOpen(),
+    menuVisible = (showMenu or extensions.hashiriyaBattle_parking.isFootShop()) and not extensions.hashiriyaBattle_career.isOpen(),
+    footShop = extensions.hashiriyaBattle_parking.isFootShop(),
     screen = M.active and 'status' or (showCarSelect and 'carSelect' or 'start'),
     flow = extensions.hashiriyaBattle_career.getUiState(),
     area = nil,

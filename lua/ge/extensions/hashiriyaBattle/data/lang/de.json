@@ -334,5 +334,7 @@
   "home.leader.members": "Erscheint, wenn alle Mitglieder geschlagen sind.",
   "home.leader.nextNight": "Ab der nächsten Nacht unterwegs.",
   "home.leader.out": "Ist unterwegs. Halte die Augen offen.",
-  "msg.leader.out": "Alle Mitglieder geschlagen. %s taucht noch heute Nacht auf."
+  "msg.leader.out": "Alle Mitglieder geschlagen. %s taucht noch heute Nacht auf.",
+  "msg.shopClosed": "Der Shop hat geschlossen. Geöffnet von %s Uhr.",
+  "shop.leave": "Shop verlassen"
 }

@@ -37,6 +37,8 @@ local pollTimer = 0
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
 
+function M.getState() return state end
+
 function M.isBusy()
   return state ~= 'idle'
 end

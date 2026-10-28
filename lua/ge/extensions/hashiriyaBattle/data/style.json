@@ -11,7 +11,8 @@
   },
   "combo": {
     "enabled": true,
-    "nightOnly": false,
+    "nightOnly": true,
+    "battleOnly": true,
     "window": 4.0,
     "multPerChain": 0.25,
     "multMax": 4.0,

@@ -71,6 +71,17 @@ function M.carInBay(veh, a)
 end
 
 function M.isFootShop() return footShop ~= nil end
+
+-- Öffnungszeiten eines Shops: area.hours = {von, bis}, sonst world.json shopHours (Standard 8 bis 20 Uhr)
+function M.isOpen(a)
+  if not a or a.type ~= 'shop' then return true end
+  local home = extensions.hashiriyaBattle_home
+  local hours = a.hours or (home.world and home.world().shopHours) or { 8, 20 }
+  local h = home.hour() or 12
+  local from, to = hours[1], hours[2]
+  local open = (from <= to) and (h >= from and h < to) or (from > to and (h >= from or h < to))
+  return open, string.format('%02d:00 - %02d:00', from, to)
+end
 function M.refreshShopCamera(delay) if footShop then shopCamTimer = delay or 0.2 end end
 
 -- Shop zu Fuß verlassen: aussteigen und wieder am Eingang stehen.
@@ -87,10 +98,8 @@ function M.applyShopCamera()
   local away = eye - target; away.z = 0
   if away:length() > 0.1 then eye = eye + away:normalized() * 1.5 end
   local rot = quatFromDir((target - eye):normalized(), vec3(0, 0, 1))
-  pcall(function()
-    if commands and commands.setFreeCamera then commands.setFreeCamera() end
-    core_camera.setPosRot(0, eye.x, eye.y, eye.z, rot.x, rot.y, rot.z, rot.w)
-  end)
+  -- Orbit-Kamera ums Auto statt Freikamera: kein Herumfliegen (Noclip) im Shop, Maus dreht nur um das Auto
+  pcall(function() core_camera.setByName(0, 'orbit') end)
 end
 
 function M.leaveFootShop()
@@ -470,7 +479,12 @@ local function onUpdate(dtReal)
       if current and current.footEntry then
         -- Shop: Auto muss in der Bucht stehen, dann setzt man sich fürs Menü hinein
         local carVeh = c.carVehId and be:getObjectByID(c.carVehId)
-        if carVeh and M.carInBay(carVeh, current) then
+        local isOpen, openText = M.isOpen(current)
+        if not isOpen then
+          footBlocked = current
+          current, onFoot = nil, false
+          c.msg(c.t('msg.shopClosed', openText), 5)
+        elseif carVeh and M.carInBay(carVeh, current) then
           footShop = current
           onFoot = false
           arrived = true
@@ -523,7 +537,8 @@ local function onUpdate(dtReal)
     -- Shop-Bucht: nicht per Auto öffnen, sondern zu Fuß am Eingang
     if bayHint ~= current and veh:getVelocity():length() < enterSpeed then
       bayHint = current
-      c.msg(c.t('msg.walkToEntrance'), 5)
+      local isOpen, openText = M.isOpen(current)
+      if isOpen then c.msg(c.t('msg.walkToEntrance'), 5) else c.msg(c.t('msg.shopClosed', openText), 5) end
     end
     return
   end
