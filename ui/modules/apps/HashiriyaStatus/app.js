@@ -7,6 +7,17 @@ angular.module('beamng.apps')
       '<div class="bngApp hbt-root">' +
         '<div class="hbt" ng-if="s && s.active">' +
           '<div class="hbt-money">{{ s.money }}</div>' +
+          '<div class="hbt-streak" ng-if="s.style && s.style.streak >= 2">{{ s.t[\'hud.streak\'] }} <b>{{ s.style.streak }}</b></div>' +
+          '<div class="hbt-combo" ng-if="s.style && s.style.combo">' +
+            '<div class="hbt-combo-label" ng-if="s.style.combo.label">{{ s.style.combo.label }} <span>+{{ s.style.combo.labelPts }}</span></div>' +
+            '<div class="hbt-combo-main"><span class="hbt-combo-tag">{{ s.t[\'hud.combo\'] }}</span>' +
+              '<b>{{ s.style.combo.points }}</b><i>{{ s.style.combo.mult }}</i></div>' +
+            '<div class="hbt-combo-bar"><span ng-style="{width: s.style.combo.left + \'%\'}"></span></div>' +
+          '</div>' +
+          '<div class="hbt-bank" ng-if="s.style && s.style.banked && !s.style.combo" ng-class="{\'is-lost\': s.style.banked.lost}">' +
+            '<span ng-if="!s.style.banked.lost">+{{ s.style.banked.yen }}<em ng-if="s.style.banked.rep > 0"> · +{{ s.style.banked.rep }} REP</em></span>' +
+            '<span ng-if="s.style.banked.lost">{{ s.t[\'hud.comboLost\'] }}</span>' +
+          '</div>' +
           '<div class="hbt-rival" ng-if="s.rival" ng-class="\'k-\' + s.rivalKind"><i></i>VS <b>{{ s.rival }}</b></div>' +
           '<div class="hbt-radar" ng-if="s.radar">' +
             '<span class="hbt-radar-me"></span>' +
@@ -61,6 +72,22 @@ angular.module('beamng.apps')
           '.hbt-radar-dot.is-edge{opacity:.6;}' +
           '.hbt-radar-dot.is-engaged svg{animation:hbtPing .4s ease-in-out infinite alternate;}' +
           '.hbt-radar-dist{position:absolute;left:0;right:0;bottom:-14px;text-align:center;font-size:9px;letter-spacing:1px;color:rgba(244,244,244,.6);}' +
+          '.hbt-streak{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,244,244,.65);margin-top:1px;}' +
+          '.hbt-streak b{color:#ffd23f;font-weight:900;font-style:italic;font-size:12px;}' +
+          '.hbt-combo{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.12);}' +
+          '.hbt-combo-label{font-size:11px;font-weight:800;font-style:italic;letter-spacing:1px;text-transform:uppercase;color:#ff9a3c;' +
+            'animation:hbtPop .25s ease-out;}' +
+          '.hbt-combo-label span{color:#f4f4f4;font-weight:700;}' +
+          '.hbt-combo-main{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;}' +
+          '.hbt-combo-tag{font-size:9px;font-weight:900;font-style:italic;color:#141414;background:#ff6600;padding:1px 4px 0;border-radius:2px;letter-spacing:.5px;text-transform:uppercase;}' +
+          '.hbt-combo-main b{font-size:18px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;}' +
+          '.hbt-combo-main i{font-size:13px;font-weight:800;color:#ffd23f;}' +
+          '.hbt-combo-bar{height:2px;margin-top:3px;background:rgba(255,255,255,.12);}' +
+          '.hbt-combo-bar span{display:block;height:100%;margin-left:auto;background:#ff6600;transition:width .1s linear;}' +
+          '.hbt-bank{margin-top:5px;font-size:13px;font-weight:900;font-style:italic;color:#5ae673;font-variant-numeric:tabular-nums;animation:hbtPop .25s ease-out;}' +
+          '.hbt-bank em{font-style:italic;color:#ffd23f;font-size:11px;}' +
+          '.hbt-bank.is-lost{color:#ff3b30;font-size:11px;letter-spacing:1px;text-transform:uppercase;}' +
+          '@keyframes hbtPop{from{transform:scale(1.25);opacity:0;}to{transform:scale(1);opacity:1;}}' +
           '@keyframes hbtPing{from{opacity:1;}to{opacity:.25;}}' +
         '</style>' +
       '</div>',

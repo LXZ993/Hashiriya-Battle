@@ -281,5 +281,22 @@
   "msg.carBought": "%s gekauft für %s. Es steht in deiner Garage.",
   "msg.carSwitched": "%s steht jetzt bereit.",
   "msg.posInvalid": "Position ungültig, bitte noch einmal merken.",
-  "msg.falseStart": "Frühstart! %s nimmt das Battle nicht an."
+  "msg.falseStart": "Frühstart! %s nimmt das Battle nicht an.",
+  "msg.streak": "Siegesserie %d! +%d %% Preisgeld",
+  "msg.streakEnd": "Siegesserie beendet (%d Siege).",
+  "msg.comboLost": "Combo verloren!",
+  "combo.nearMiss": "Knapp vorbei",
+  "combo.razor": "Hauchdünn",
+  "combo.rivalPass": "Knapp überholt",
+  "combo.slipstream": "Windschatten",
+  "combo.drift": "Drift",
+  "combo.highSpeed": "Vollgas im Verkehr",
+  "hud.combo": "Combo",
+  "hud.streak": "Serie",
+  "hud.comboLost": "Combo verloren",
+  "stats.bestStreak": "Längste Siegesserie",
+  "stats.bestCombo": "Beste Combo",
+  "stats.nearMisses": "Knappe Manöver",
+  "stats.maneuvers": "Combo-Manöver",
+  "stats.comboYen": "Combo-Bonus gesamt"
 }

@@ -87,7 +87,7 @@ function M.onBattle(rival, won, result)
   if result and result.time then st.longestBattle = math.max(st.longestBattle or 0, result.time) end
   if won then
     if result and result.time then st.bestWinTime = math.min(st.bestWinTime or 1e9, result.time) end
-    save.rep = (save.rep or 0) + (rival.rep or 30)
+    save.rep = (save.rep or 0) + math.floor((rival.rep or 30) * ((result and result.repFactor) or 1) + 0.5)
     save.defeatedNight = save.defeatedNight or {}
     if rival.rematch then
       save.rematchWins = save.rematchWins or {}
@@ -227,6 +227,11 @@ function M.getStatsUi()
       { k = 'stats.topSpeed', v = (s.topKmh or 0) .. ' km/h' },
       { k = 'stats.speedTraps', v = traps .. ' / ' .. (trapTotal or '?') },
       { k = 'stats.topTrap', v = (s.topTrapKmh or 0) .. ' km/h' },
+      { k = 'stats.bestStreak', v = s.bestStreak or 0 },
+      { k = 'stats.bestCombo', v = s.bestCombo or 0 },
+      { k = 'stats.nearMisses', v = s.nearMisses or 0 },
+      { k = 'stats.maneuvers', v = s.maneuvers or 0 },
+      { k = 'stats.comboYen', v = eco.formatYen(s.comboYen or 0) },
       { k = 'stats.nights', v = s.nights or 0 },
       { k = 'stats.day', v = save.day or 1 },
     } },

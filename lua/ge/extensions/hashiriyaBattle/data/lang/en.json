@@ -281,5 +281,22 @@
   "msg.carBought": "Bought %s for %s. It is waiting in your garage.",
   "msg.carSwitched": "%s is ready.",
   "msg.posInvalid": "Invalid position, please save it again.",
-  "msg.falseStart": "False start! %s refuses the battle."
+  "msg.falseStart": "False start! %s refuses the battle.",
+  "msg.streak": "Win streak %d! +%d %% prize money",
+  "msg.streakEnd": "Win streak over (%d wins).",
+  "msg.comboLost": "Combo lost!",
+  "combo.nearMiss": "Near miss",
+  "combo.razor": "Razor close",
+  "combo.rivalPass": "Close overtake",
+  "combo.slipstream": "Slipstream",
+  "combo.drift": "Drift",
+  "combo.highSpeed": "Flat out in traffic",
+  "hud.combo": "Combo",
+  "hud.streak": "Streak",
+  "hud.comboLost": "Combo lost",
+  "stats.bestStreak": "Longest win streak",
+  "stats.bestCombo": "Best combo",
+  "stats.nearMisses": "Close calls",
+  "stats.maneuvers": "Combo maneuvers",
+  "stats.comboYen": "Total combo bonus"
 }

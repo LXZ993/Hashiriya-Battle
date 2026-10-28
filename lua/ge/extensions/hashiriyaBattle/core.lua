@@ -8,7 +8,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress' }
+local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -417,6 +417,7 @@ end
 -- Parkplätze (vom Parking-Modul aufgerufen) --------------------------------
 
 function M.onParkingArrived(area)
+  extensions.hashiriyaBattle_style.onParkingArrived(area)
   showMenu = true
   menuAutoOpened = true
   msg(M.t('msg.enterPa', M.t('pa.' .. area.type)), 4)
@@ -440,13 +441,23 @@ end
 
 function M.onBattleResult(rival, won, result)
   if not M.save then return end
-  extensions.hashiriyaBattle_progress.onBattle(rival, won, result)
+  local style = extensions.hashiriyaBattle_style
+  local streak, moneyF, repF = 0, 1, 1
   if won then
-    local reward = M.economy().usdToPrice(rival.rewardUsd or 1000)
+    streak = style.onBattleWon()
+    moneyF, repF = style.streakFactors(streak)
+  end
+  result = result or {}
+  result.repFactor = repF
+  extensions.hashiriyaBattle_progress.onBattle(rival, won, result)
+  if not won then style.resetStreak('loss') end
+  if won then
+    local reward = math.floor(M.economy().usdToPrice(rival.rewardUsd or 1000) * moneyF / 100 + 0.5) * 100
     M.save.money = M.save.money + reward
     M.save.defeated[rival.id] = true
     M.save.wins = M.save.wins + 1
     msg(M.t('msg.win', rival.name, M.economy().formatYen(reward)), 6)
+    if streak >= 2 then msg(M.t('msg.streak', streak, math.floor((moneyF - 1) * 100 + 0.5)), 4) end
   else
     M.save.losses = M.save.losses + 1
     msg(M.t('msg.lose', rival.name), 6)
@@ -585,6 +596,7 @@ local function buildUiState()
     st.rivalKind = rival and extensions.hashiriyaBattle_rivals.markerKind(rival.data) or nil
     st.radar = extensions.hashiriyaBattle_rivals.radarInfo(600)
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
+    st.style = extensions.hashiriyaBattle_style.getHudState()
     local parking = extensions.hashiriyaBattle_parking
     local nav = parking.getNavInfo()
     if nav then

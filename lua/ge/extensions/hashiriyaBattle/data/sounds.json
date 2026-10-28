@@ -21,7 +21,9 @@
     "lose": "event:>UI>Missions>End_Failed",
     "tow": "event:>UI>Bigmap>Whoosh_In",
     "sleep": "event:>UI>Bigmap>Whoosh_Out",
-    "save": "event:>UI>Career>Drift_Combo_5x"
+    "save": "event:>UI>Career>Drift_Combo_5x",
+    "combo": "event:>UI>Career>Drift_Combo_1x",
+    "comboBank": "event:>UI>Career>EndScreen_Receive_Money"
   },
   "messages": {
     "msg.partInstalled": "buy",
