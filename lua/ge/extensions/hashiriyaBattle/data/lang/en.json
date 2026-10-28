@@ -132,5 +132,12 @@
   "shop.roughness": "Roughness",
   "shop.clearcoat": "Clear coat",
   "shop.clearcoatRoughness": "Clear coat roughness",
-  "shop.sizeOther": "Other"
+  "shop.sizeOther": "Other",
+  "menu.tow": "Tow to garage",
+  "msg.towed": "Towed to the garage (%s).",
+  "msg.tow.atGarage": "You are already at the garage.",
+  "msg.tow.battle": "Not possible during a battle.",
+  "msg.tow.moving": "Stop the car first to get towed.",
+  "msg.tow.money": "Not enough money for towing.",
+  "menu.towConfirm": "Really tow? Click again"
 }

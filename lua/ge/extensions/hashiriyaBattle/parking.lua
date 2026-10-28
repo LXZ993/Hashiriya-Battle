@@ -9,6 +9,11 @@ local saveDir = 'settings/hashiriya_battle/'
 local enterSpeed = 8 / 3.6   -- km/h -> m/s: unter diesem Tempo gilt man als "angekommen"
 local checkInterval = 0.25
 local repairYenPerDamage = 2 -- Reparaturpreis je BeamNG-Schadenspunkt (zum Feintuning)
+local triggerRadius = 4       -- m um die Buchtmitte, in denen der Parkplatz auslöst (Kartendatei: radius)
+local leaveMargin = 2         -- m zusätzlich, bevor er als verlassen gilt (kein Flackern am Rand)
+local towBaseYen = 30000      -- Abschleppen: Grundgebühr
+local towYenPerKm = 2500      -- plus je km Luftlinie zur Garage
+local towMaxSpeed = 5 / 3.6   -- nur im Stand
 
 local bayWidth, bayLength = 2.5, 5.0 -- Größe der markierten Parkbucht in m (wie Vanilla)
 
@@ -76,6 +81,42 @@ function M.repair()
   veh:queueLuaCommand('obj:requestReset(RESET_PHYSICS)')
   c.writeSave()
   c.msg(c.t('msg.repaired', c.economy().formatYen(cost)))
+end
+
+-- Abschleppen zur Garage -----------------------------------------------------------
+-- Teuer genug, dass es keine Abkürzung ist; nicht während eines Battles und nur im Stand.
+
+function M.towInfo()
+  local c = core()
+  local veh = c.getPlayerVehicle()
+  local garage = M.find('garage')
+  if not veh or not garage or not c.save then return nil end
+  local km = (veh:getPosition() - toVec(garage.pos)):length() / 1000
+  local cost = math.floor((towBaseYen + km * towYenPerKm) / 100) * 100
+  local reason = nil
+  if current == garage then reason = 'atGarage'
+  elseif extensions.hashiriyaBattle_battle.isBusy() then reason = 'battle'
+  elseif veh:getVelocity():length() > towMaxSpeed then reason = 'moving'
+  elseif c.save.money < cost then reason = 'money' end
+  return { cost = cost, km = km, reason = reason }
+end
+
+function M.towToGarage()
+  local c = core()
+  local info = M.towInfo()
+  if not info then return end
+  if info.reason then
+    c.msg(c.t('msg.tow.' .. info.reason))
+    return
+  end
+  local veh = c.getPlayerVehicle()
+  local pos, rot = M.spawnTransform(M.find('garage'))
+  c.save.money = c.save.money - info.cost
+  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
+  local ok = pcall(function() spawn.safeTeleport(veh, pos, rot) end)
+  if not ok then veh:setPositionRotation(pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w) end
+  c.writeSave()
+  c.msg(c.t('msg.towed', c.economy().formatYen(info.cost)), 6)
 end
 
 -- Teile-Export (Grundlage für den Tuning-Katalog) --------------------------------
@@ -317,9 +358,16 @@ local function onUpdate(dtReal)
   checkTimer = checkTimer - dtReal
   if checkTimer > 0 then return end
   checkTimer = checkInterval
+  -- Auslösen nur in der Bucht selbst: Fahrzeugmitte nahe der Buchtmitte (mit markerPos), sonst
+  -- Referenzpunkt nahe der gespeicherten Position. Zum Verlassen etwas mehr Abstand.
+  local okC, center = pcall(function() return veh:getSpawnWorldOOBB():getCenter() end)
   local found = nil
   for _, a in ipairs(areas()) do
-    if (pos - toVec(a.pos)):length() <= (a.radius or 30) then found = a; break end
+    local p = (a.markerPos and okC and center) and vec3(center) or pos
+    local r = (a.radius or triggerRadius) + (a == current and leaveMargin or 0)
+    local d = p - toVec(a.markerPos or a.pos)
+    d.z = d.z * 0.5 -- Höhe zählt weniger (Fahrzeugmitte liegt über der Fahrbahn)
+    if d:length() <= r then found = a; break end
   end
 
   if found ~= current then

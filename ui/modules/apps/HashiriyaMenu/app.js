@@ -31,6 +31,8 @@ angular.module('beamng.apps')
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.rivalNear\'] }}</span><b>{{ s.rival || \'\u2014\' }}</b></div>' +
             '<div class="hbm-section">{{ s.t[\'menu.career\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
+            '<div class="hbm-item" ng-if="s.tow" ng-class="{\'hbm-off\': !s.tow.can}" ng-click="s.tow.can && towClick()" title="{{ s.tow.reason }}">' +
+              '<span class="hbm-car-name">{{ towArmed ? s.t[\'menu.towConfirm\'] : s.t[\'menu.tow\'] }}</span><span class="hbm-price">{{ s.tow.can ? s.tow.cost : (s.tow.reason || s.tow.cost) }}</span></div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')">{{ s.t[\'menu.stop\'] }}</div>' +
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')">{{ s.t[\'menu.callRival\'] }}</div>' +
@@ -266,6 +268,14 @@ angular.module('beamng.apps')
       'use strict'
       scope.s = null
       scope.open = { slot: null }
+      // Abschleppen kostet viel: erster Klick fragt nach, zweiter Klick (innerhalb 4 s) bestätigt.
+      scope.towArmed = false
+      var towTimer = null
+      scope.towClick = function () {
+        if (scope.towArmed) { scope.towArmed = false; clearTimeout(towTimer); scope.act('tow'); return }
+        scope.towArmed = true
+        towTimer = setTimeout(function () { scope.$evalAsync(function () { scope.towArmed = false }) }, 4000)
+      }
       // Aufgeklappte Zeile: Teil am Auto hervorheben, Kamera schwenkt drauf (zu: Ansicht zurück).
       // Felgen-Gruppen nach Zoll: die Gruppe mit dem verbauten Teil ist anfangs offen.
       scope.groups = {}

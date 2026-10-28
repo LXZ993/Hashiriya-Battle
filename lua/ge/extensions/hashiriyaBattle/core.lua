@@ -323,6 +323,10 @@ local function buildUiState()
       nav.distText = nav.dist < 1000 and string.format('%d m', nav.dist) or string.format('%.1f km', nav.dist / 1000)
       st.nav = nav
     end
+    local tow = parking.towInfo()
+    if tow and tow.reason ~= 'atGarage' then
+      st.tow = { cost = eco.formatYen(tow.cost), can = tow.reason == nil, reason = tow.reason and M.t('msg.tow.' .. tow.reason) or nil }
+    end
     if parking.isArrived() then
       local area = parking.getCurrent()
       st.screen = area.type
@@ -375,6 +379,8 @@ function M.uiAction(action, arg)
   elseif action == 'save' then
     M.writeSave()
     msg(M.t('msg.saved'))
+  elseif action == 'tow' then
+    extensions.hashiriyaBattle_parking.towToGarage()
   elseif action == 'repair' then
     extensions.hashiriyaBattle_parking.repair()
   elseif action == 'dumpParts' then

@@ -132,5 +132,12 @@
   "shop.roughness": "Rauheit",
   "shop.clearcoat": "Klarlack",
   "shop.clearcoatRoughness": "Klarlack-Rauheit",
-  "shop.sizeOther": "Sonstige"
+  "shop.sizeOther": "Sonstige",
+  "menu.tow": "Abschleppen zur Garage",
+  "msg.towed": "Zur Garage abgeschleppt (%s).",
+  "msg.tow.atGarage": "Du bist schon in der Garage.",
+  "msg.tow.battle": "Während eines Battles nicht möglich.",
+  "msg.tow.moving": "Zum Abschleppen erst anhalten.",
+  "msg.tow.money": "Nicht genug Geld zum Abschleppen.",
+  "menu.towConfirm": "Wirklich abschleppen? Nochmal klicken"
 }
