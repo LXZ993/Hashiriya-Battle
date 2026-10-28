@@ -127,9 +127,10 @@
   "shop.hue": "Farbton",
   "shop.saturation": "Sättigung",
   "shop.brightness": "Helligkeit",
-  "shop.finish.gloss": "Uni",
-  "shop.finish.metallic": "Metallic",
-  "shop.finish.pearl": "Perlmutt",
-  "shop.finish.matte": "Matt",
-  "shop.customName": "Eigene Farbe (%s)"
+  "shop.customName": "Eigene Farbe",
+  "shop.metallic": "Metallic",
+  "shop.roughness": "Rauheit",
+  "shop.clearcoat": "Klarlack",
+  "shop.clearcoatRoughness": "Klarlack-Rauheit",
+  "shop.sizeOther": "Sonstige"
 }

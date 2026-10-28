@@ -220,7 +220,7 @@ local function buildCatalog()
             return a.price < b.price
           end)
           local stockName = car.stock[f.slot] ~= '' and partInfo(car.stock[f.slot]).display or core().t('shop.notInstalled')
-          local row = { slot = f.slot, key = f.key, item = item.id, multi = #found > 1, stockName = stockName, options = options }
+          local row = { slot = f.slot, key = f.key, item = item.id, multi = #found > 1, stockName = stockName, options = options, groupBySize = item.groupBySize }
           cat.slots[f.slot] = row
           table.insert(tabRows, row)
         end
@@ -512,12 +512,13 @@ function M.selectPaint(paintId)
   respawn(cfg)
 end
 
--- Eigene Farbe: arg = "r,g,b,lackart" (r/g/b 0..1). Wird immer neu bezahlt (neue Lackierung).
+-- Eigene Farbe: arg = "r,g,b,metallic,rauheit,klarlack,klarlackRauheit" (alles 0..1).
+-- Wird immer neu bezahlt (neue Lackierung).
 function M.selectCustomPaint(arg)
   local c = core()
-  local r, g, b, finish = tostring(arg or ''):match('^([%d%.]+),([%d%.]+),([%d%.]+),(%a+)$')
-  local spec = finish and rules.customPaint and rules.customPaint[finish]
-  if not spec then return end
+  local v = {}
+  for n in tostring(arg or ''):gmatch('[^,]+') do table.insert(v, clamp(tonumber(n) or 0, 0, 1)) end
+  if #v ~= 7 then return end
   local cfg = baseConfig()
   if not cfg then
     c.msg(c.t('msg.partFailed'))
@@ -526,12 +527,10 @@ function M.selectCustomPaint(arg)
   local original = preview and preview.original or copyConfig(cfg)
   cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
   cfg.paints[1] = {
-    baseColor = { clamp(tonumber(r), 0, 1), clamp(tonumber(g), 0, 1), clamp(tonumber(b), 0, 1), 1.2 },
-    metallic = spec.metallic or 0, roughness = spec.roughness or 0.5,
-    clearcoat = spec.clearcoat or 1, clearcoatRoughness = spec.clearcoatRoughness or 0.05,
+    baseColor = { v[1], v[2], v[3], 1.2 },
+    metallic = v[4], roughness = v[5], clearcoat = v[6], clearcoatRoughness = v[7],
   }
-  local name = c.t('shop.customName', c.t('shop.finish.' .. finish))
-  preview = { kind = 'paint', id = 'custom', name = name, level = 0, price = spec.priceYen or 79800, original = original, cfg = cfg }
+  preview = { kind = 'paint', id = 'custom', name = c.t('shop.customName'), level = 0, price = rules.customPaintPriceYen or 98000, original = original, cfg = cfg }
   respawn(cfg)
 end
 
@@ -584,16 +583,7 @@ local function paintRow()
   local eco = c.economy()
   local r = { slot = '__paint', kind = 'paint', name = c.t('shop.item.paint'), current = c.t('shop.stock'), currentLevel = 0, options = {} }
   if car.paintId == 'custom' then r.current = c.t('shop.customPaint') end
-  if rules.customPaint then
-    r.custom = { prices = {}, finishes = {} }
-    for _, id in ipairs({ 'gloss', 'metallic', 'pearl', 'matte' }) do
-      local spec = rules.customPaint[id]
-      if spec then
-        r.custom.prices[id] = eco.formatYen(spec.priceYen or 0)
-        table.insert(r.custom.finishes, { id = id, name = c.t('shop.finish.' .. id) })
-      end
-    end
-  end
+  r.custom = { price = eco.formatYen(rules.customPaintPriceYen or 98000) }
   for _, p in ipairs(paintsFor(car.model)) do
     local owned = car.ownedPaints and car.ownedPaints[p.id]
     local price = rules.paintPriceYen or 29800
@@ -616,6 +606,33 @@ function M.setTab(tab)
 end
 
 -- UI ---------------------------------------------------------------------------
+
+-- Felgen nach Zoll gruppieren ("15x7" im Teilenamen -> 15"); Serie bleibt oben.
+local function groupBySize(r)
+  local groups, byId = {}, {}
+  local keep = {}
+  for i, o in ipairs(r.options) do
+    if i == 1 then
+      table.insert(keep, o)
+    else
+      local size = tostring(o.part):match('_(%d%d)x[%d%.]+') or tostring(o.name):match('(%d%d)x[%d%.]+') or tostring(o.name):match('(%d%d)"')
+      local id = size or 'other'
+      if not byId[id] then
+        byId[id] = { id = id, name = size and (size .. '"') or core().t('shop.sizeOther'), options = {} }
+        table.insert(groups, byId[id])
+      end
+      table.insert(byId[id].options, o)
+      if o.installed or o.previewing then byId[id].active = true end
+    end
+  end
+  table.sort(groups, function(a, b)
+    if a.id == 'other' or b.id == 'other' then return b.id == 'other' and a.id ~= 'other' end
+    return tonumber(a.id) < tonumber(b.id)
+  end)
+  for _, g in ipairs(groups) do g.count = #g.options end
+  r.options = keep
+  r.groups = groups
+end
 
 -- mode 'shop': alles kaufen; mode 'garage': nur Serie und gekaufte Teile, kostenlos umrüsten.
 function M.getUiState(mode)
@@ -663,7 +680,8 @@ function M.getUiState(mode)
         })
       end
     end
-    if not garage or #r.options > 1 then table.insert(st.rows, r) end
+    if row.groupBySize then groupBySize(r) end
+    if not garage or #r.options > 1 or r.groups then table.insert(st.rows, r) end
   end
   return st
 end

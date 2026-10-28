@@ -117,16 +117,29 @@ angular.module('beamng.apps')
                       '<span class="hbm-opt-name hbm-mq"><span>{{ o.name }}</span></span>' +
                       '<span class="hbm-opt-price">{{ o.locked ? o.lockText : o.price }}</span>' +
                     '</div>' +
+                    '<div class="hbm-group" ng-repeat="g in r.groups track by g.id">' +
+                      '<div class="hbm-group-head" ng-class="{\'is-open\': isGroupOpen(r, g), \'is-active\': g.active}" ng-click="toggleGroup(r, g)">' +
+                        '<span class="hbm-group-arrow">&#9656;</span><span class="hbm-opt-name">{{ g.name }}</span><span class="hbm-group-count">{{ g.count }}</span></div>' +
+                      '<div ng-if="isGroupOpen(r, g)">' +
+                      '<div class="hbm-opt hbm-opt-in" ng-repeat="o in g.options track by o.part" ' +
+                        'ng-class="{\'is-on\': o.installed, \'is-preview\': o.previewing, \'is-locked\': o.locked, \'is-poor\': !o.locked && !o.affordable}" ' +
+                        'ng-click="pick(r, o)">' +
+                        '<span class="hbm-swatch" ng-if="o.swatch" ng-style="{background: o.swatch}"></span>' +
+                        '<span class="hbm-lv" ng-if="!o.swatch" ng-class="\'lv\' + o.level">{{ o.level > 0 ? (\'LV\' + o.level) : \'\u2014\' }}</span>' +
+                        '<span class="hbm-opt-name hbm-mq"><span>{{ o.name }}</span></span>' +
+                        '<span class="hbm-opt-price">{{ o.locked ? o.lockText : o.price }}</span>' +
+                      '</div>' +
+                      '</div>' +
+                    '</div>' +
                     '<div class="hbm-custom" ng-if="r.kind == \'paint\' && r.custom">' +
                       '<div class="hbm-custom-head"><span class="hbm-swatch hbm-swatch-big" ng-style="{background: customCss()}"></span>' +
                         '<span class="hbm-opt-name">{{ s.t[\'shop.customPaint\'] }}</span>' +
-                        '<span class="hbm-opt-price">{{ r.custom.prices[custom.finish] }}</span></div>' +
+                        '<span class="hbm-opt-price">{{ r.custom.price }}</span></div>' +
                       '<div class="hbm-slider"><span>{{ s.t[\'shop.hue\'] }}</span><input type="range" min="0" max="360" step="1" ng-model="custom.h" class="hbm-hue"></div>' +
                       '<div class="hbm-slider"><span>{{ s.t[\'shop.saturation\'] }}</span><input type="range" min="0" max="100" step="1" ng-model="custom.s" ng-style="{background: satBg()}"></div>' +
                       '<div class="hbm-slider"><span>{{ s.t[\'shop.brightness\'] }}</span><input type="range" min="0" max="100" step="1" ng-model="custom.v" ng-style="{background: valBg()}"></div>' +
-                      '<div class="hbm-finish">' +
-                        '<span ng-repeat="f in r.custom.finishes" ng-class="{\'is-on\': f.id == custom.finish}" ng-click="custom.finish = f.id">{{ f.name }}</span>' +
-                      '</div>' +
+                      '<div class="hbm-slider" ng-repeat="m in materialSliders"><span>{{ s.t[m.label] }}</span>' +
+                        '<input type="range" min="0" max="100" step="1" ng-model="custom[m.id]" class="hbm-plain"><b>{{ custom[m.id] }}</b></div>' +
                       '<div class="hbm-actions"><span class="hbm-btn hbm-btn-main" ng-click="previewCustom()">{{ s.t[\'shop.preview\'] }}</span></div>' +
                     '</div>' +
                   '</div>' +
@@ -224,7 +237,7 @@ angular.module('beamng.apps')
           '.hbm-custom-head{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:6px;}' +
           '.hbm-swatch-big{width:22px;height:22px;margin-right:2px;}' +
           '.hbm-slider{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin:5px 0;}' +
-          '.hbm-slider span{width:70px;flex:none;}' +
+          '.hbm-slider span{width:112px;flex:none;white-space:nowrap;}' +
           '.hbm-slider input{flex:1;-webkit-appearance:none;height:8px;border-radius:4px;outline:none;margin:0;}' +
           '.hbm-slider input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:16px;background:#f4f4f4;border:2px solid #141414;border-radius:2px;cursor:pointer;}' +
           '.hbm-hue{background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);}' +
@@ -232,6 +245,15 @@ angular.module('beamng.apps')
           '.hbm-finish span{flex:1;text-align:center;padding:4px 2px;font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;background:rgba(255,255,255,.06);color:var(--dim);}' +
           '.hbm-finish span.is-on{background:var(--o2);color:#141414;}' +
           '.hbm-custom .hbm-actions{padding:8px 0 0;}' +
+          '.hbm-group-head{display:flex;align-items:center;gap:8px;padding:5px 18px 5px 24px;font-size:12px;font-weight:800;cursor:pointer;border-top:1px solid rgba(255,255,255,.05);}' +
+          '.hbm-group-head:hover{background:rgba(255,102,0,.15);}' +
+          '.hbm-group-head.is-active .hbm-opt-name{color:var(--o2);}' +
+          '.hbm-group-arrow{display:inline-block;width:10px;color:var(--o);transition:transform .12s;}' +
+          '.hbm-group-head.is-open .hbm-group-arrow{transform:rotate(90deg);}' +
+          '.hbm-group-count{font-size:10px;color:var(--dim);font-weight:600;}' +
+          '.hbm-opt-in{padding-left:42px;}' +
+          '.hbm-plain{background:rgba(255,255,255,.18);}' +
+          '.hbm-slider b{width:24px;text-align:right;font-size:10px;color:var(--w);font-variant-numeric:tabular-nums;}' +
           '.hbm-note{font-size:12px;line-height:1.45;color:rgba(244,244,244,.75);padding:4px 18px 8px;}' +
           '.hbm-hint{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:8px 18px 2px;}' +
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +
@@ -245,13 +267,23 @@ angular.module('beamng.apps')
       scope.s = null
       scope.open = { slot: null }
       // Aufgeklappte Zeile: Teil am Auto hervorheben, Kamera schwenkt drauf (zu: Ansicht zurück).
+      // Felgen-Gruppen nach Zoll: die Gruppe mit dem verbauten Teil ist anfangs offen.
+      scope.groups = {}
+      scope.isGroupOpen = function (r, g) {
+        var k = r.slot + '|' + g.id
+        return scope.groups[k] === undefined ? !!g.active : scope.groups[k]
+      }
+      scope.toggleGroup = function (r, g) { scope.groups[r.slot + '|' + g.id] = !scope.isGroupOpen(r, g) }
       scope.toggleRow = function (r) {
         scope.open.slot = scope.open.slot == r.slot ? null : r.slot
         scope.act('focusSlot', scope.open.slot || '')
       }
 
       // Eigene Lackfarbe: HSV-Regler, Vorschau erst auf Knopfdruck (Auto wird dafür neu gespawnt).
-      scope.custom = { h: 0, s: 80, v: 70, finish: 'gloss' }
+      scope.custom = { h: 0, s: 80, v: 70, metallic: 0, roughness: 30, clearcoat: 100, clearcoatRoughness: 5 }
+      scope.materialSliders = [
+        { id: 'metallic', label: 'shop.metallic' }, { id: 'roughness', label: 'shop.roughness' },
+        { id: 'clearcoat', label: 'shop.clearcoat' }, { id: 'clearcoatRoughness', label: 'shop.clearcoatRoughness' }]
       var hsv = function (h, sat, val) {
         h = (+h % 360) / 60; sat = +sat / 100; val = +val / 100
         var c = val * sat, x = c * (1 - Math.abs(h % 2 - 1)), m = val - c, r = 0, g = 0, b = 0
@@ -265,7 +297,8 @@ angular.module('beamng.apps')
       scope.valBg = function () { return 'linear-gradient(90deg,#000,' + css(hsv(scope.custom.h, scope.custom.s, 100)) + ')' }
       scope.previewCustom = function () {
         var c = hsv(scope.custom.h, scope.custom.s, scope.custom.v)
-        scope.act('customPaint', c.map(function (v) { return v.toFixed(3) }).join(',') + ',' + scope.custom.finish)
+        var m = ['metallic', 'roughness', 'clearcoat', 'clearcoatRoughness'].map(function (k) { return +scope.custom[k] / 100 })
+        scope.act('customPaint', c.concat(m).map(function (v) { return v.toFixed(3) }).join(','))
       }
 
       // Zu lange Texte laufen beim Drüberfahren durch (Laufschrift), danach wieder zurück.
