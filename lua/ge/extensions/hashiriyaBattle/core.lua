@@ -305,6 +305,12 @@ local function buildUiState()
     st.rival = rival and rival.data.name or nil
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
     local parking = extensions.hashiriyaBattle_parking
+    local nav = parking.getNavInfo()
+    if nav then
+      nav.name = M.t('pa.' .. nav.type)
+      nav.distText = nav.dist < 1000 and string.format('%d m', nav.dist) or string.format('%.1f km', nav.dist / 1000)
+      st.nav = nav
+    end
     if parking.isArrived() then
       local area = parking.getCurrent()
       st.screen = area.type

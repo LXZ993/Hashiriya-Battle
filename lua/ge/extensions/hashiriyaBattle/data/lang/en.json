@@ -52,5 +52,5 @@
   "menu.dumpParts": "Export parts",
   "menu.shopSoon": "The parts catalog (engine, turbo, suspension, brakes, tires, weight) arrives with the next update.",
   "menu.driveOff": "Drive off to close",
-  "msg.stopHint": "Stop to enter %s"
+  "hud.stopHere": "Stop here"
 }
