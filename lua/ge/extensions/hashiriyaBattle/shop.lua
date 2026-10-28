@@ -367,6 +367,7 @@ local function respawn(cfg)
   catalog = nil
   retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
   core_vehicles.replaceVehicle(car.model, { config = cfg })
+  extensions.hashiriyaBattle_parking.refreshShopCamera(0.8)
   if focusSlot then refocusTimer = 1.2 end -- nach dem Respawn das Teil wieder hervorheben
 end
 
@@ -463,6 +464,8 @@ function M.releaseFocus()
   if not pm or not veh then return end
   if wasFocused then pcall(pm.showHighlightedParts, veh:getID(), {}) end
   pcall(pm.releasePartFocusCamera)
+  -- Shop zu Fuß: wieder die Eingangskamera
+  extensions.hashiriyaBattle_parking.refreshShopCamera()
 end
 
 function M.cancelPreview(silent)

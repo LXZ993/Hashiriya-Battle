@@ -26,6 +26,7 @@ local current = nil          -- Parkplatz, in dem der Spieler gerade steht
 local arrived = false        -- im Parkplatz angehalten (Menü offen)
 local onFoot = false         -- Parkplatz zu Fuß betreten (Fußbereich statt Bucht)
 local footShop = nil         -- Shop zu Fuß betreten: Spieler sitzt fürs Menü im Auto in der Bucht
+local shopCamTimer = 0       -- verzögert die Eingangskamera (nach Einsteigen/Neuspawn setzt BeamNG seine Kamera)
 local footBlocked = nil      -- Fußbereich erst wieder auslösen, wenn man ihn verlassen hat
 local bayHint = nil          -- Hinweis "zu Fuß zum Eingang" nur einmal je Bucht
 local dumpedModels = {}
@@ -70,8 +71,28 @@ function M.carInBay(veh, a)
 end
 
 function M.isFootShop() return footShop ~= nil end
+function M.refreshShopCamera(delay) if footShop then shopCamTimer = delay or 0.2 end end
 
 -- Shop zu Fuß verlassen: aussteigen und wieder am Eingang stehen.
+-- Kamera beim Shop zu Fuß: vom Eingang (Augenhöhe, etwas zurück) aufs Auto in der Bucht.
+-- Intern sitzt der Spieler fürs Menü im Auto (die Tuning-Funktionen brauchen das Spielerauto), zu sehen ist das nicht.
+function M.applyShopCamera()
+  local a = footShop
+  local c = core()
+  local carVeh = a and c.carVehId and be:getObjectByID(c.carVehId)
+  if not carVeh then return end
+  local okC, center = pcall(function() return vec3(carVeh:getSpawnWorldOOBB():getCenter()) end)
+  local target = (okC and center) or carVeh:getPosition()
+  local eye = toVec(a.footPos) + vec3(0, 0, 1.65)
+  local away = eye - target; away.z = 0
+  if away:length() > 0.1 then eye = eye + away:normalized() * 1.5 end
+  local rot = quatFromDir((target - eye):normalized(), vec3(0, 0, 1))
+  pcall(function()
+    if commands and commands.setFreeCamera then commands.setFreeCamera() end
+    core_camera.setPosRot(0, eye.x, eye.y, eye.z, rot.x, rot.y, rot.z, rot.w)
+  end)
+end
+
 function M.leaveFootShop()
   local a = footShop
   if not a then return end
@@ -411,6 +432,10 @@ end
 -- Update ------------------------------------------------------------------------
 
 local function onUpdate(dtReal)
+  if shopCamTimer > 0 then
+    shopCamTimer = shopCamTimer - dtReal
+    if shopCamTimer <= 0 and footShop then M.applyShopCamera() end
+  end
   local c = core()
   if not c or not c.active then
     current, arrived = nil, false
@@ -448,6 +473,7 @@ local function onUpdate(dtReal)
           onFoot = false
           arrived = true
           c.enterCarForShop(carVeh)
+          shopCamTimer = 0.4 -- nach dem Einsteigen setzt BeamNG die Kamera, danach unsere
           c.onParkingArrived(current)
         else
           footBlocked = current
