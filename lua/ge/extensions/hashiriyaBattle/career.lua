@@ -45,8 +45,30 @@ function M.openTitle()
 end
 
 function M.close()
+  local fromHome = flow and flow.fromHome
   flow = nil
   setLayout(core().layoutName)
+  if fromHome then core().setMenuVisible(true) end
+end
+
+-- Tutorial ---------------------------------------------------------------------
+
+local tutorialPath = '/lua/ge/extensions/hashiriyaBattle/data/tutorial.json'
+local function tutorialPages()
+  local d = jsonReadFile(tutorialPath) or {}
+  return d.pages or {}
+end
+
+-- Tutorial später erneut ansehen (Zuhause)
+function M.openTutorial()
+  flow = { step = 'tutorial', page = 1, fromHome = true }
+  core().setMenuVisible(false)
+  setLayout(titleLayout)
+end
+
+local function endTutorial()
+  if flow.fromHome then M.close() return end
+  flow.step = 'driver'
 end
 
 -- Vom BeamNG-Hauptmenü: Level ohne Standardauto laden, dann Titelbildschirm.
@@ -206,6 +228,7 @@ local function startCareer()
   end
   c.newCareer({
     playerName = flow.name,
+    experience = flow.experience,
     car = { model = starter.model, config = cfg, name = starter.name, plate = plate,
       paintId = flow.paintId, paintIds = { flow.paintId }, ownedPaints = flow.paintId and { [flow.paintId] = true } or nil },
   })
@@ -219,13 +242,27 @@ function M.action(arg)
   if not flow then return end
   local cmd, val = tostring(arg or ''):match('^([^|]*)|?(.*)$')
   local step = flow.step
+  if step == 'tutorial' then
+    if cmd == 'next' then
+      flow.page = (flow.page or 1) + 1
+      if flow.page > #tutorialPages() then endTutorial() end
+    elseif cmd == 'skip' then
+      endTutorial()
+    elseif cmd == 'back' then
+      if (flow.page or 1) > 1 then flow.page = flow.page - 1
+      elseif flow.fromHome then M.close()
+      else flow.step = 'experience' end
+    end
+    return
+  end
   if cmd == 'back' then
-    if step == 'driver' then flow = { step = 'title' }
+    if step == 'experience' then flow = { step = 'title' }
+    elseif step == 'driver' then flow.step = 'experience'
     elseif step == 'car' then flow.step = 'driver'
     elseif step == 'confirm' then flow.step = 'car' end
   elseif step == 'title' then
     if cmd == 'newGame' then
-      flow = { step = 'driver', name = '', plate = '' }
+      flow = { step = 'experience', name = '', plate = '' }
     elseif cmd == 'continue' then
       M.close()
       core().continueCareer()
@@ -234,6 +271,15 @@ function M.action(arg)
       M.close()
       local back = rawget(_G, 'returnToMainMenu') or rawget(_G, 'endActiveGameMode')
       if back then pcall(back) else core().setMenuVisible(true) end
+    end
+  elseif step == 'experience' then
+    if cmd == 'experience' and (val == 'newbie' or val == 'pro') then
+      flow.experience = val
+      if val == 'newbie' and #tutorialPages() > 0 then
+        flow.step, flow.page = 'tutorial', 1
+      else
+        flow.step = 'driver'
+      end
     end
   elseif step == 'driver' then
     if cmd == 'randomPlate' then
@@ -261,7 +307,18 @@ function M.getUiState()
   if not flow then return nil end
   local c = core()
   local eco = c.economy()
-  local st = { step = flow.step, name = flow.name, plate = flow.plate, platePick = flow.platePick, busy = spawnTimer > 0 }
+  local st = { step = flow.step, name = flow.name, plate = flow.plate, platePick = flow.platePick, busy = spawnTimer > 0,
+    experience = flow.experience, fromHome = flow.fromHome }
+  st.steps = flow.experience == 'newbie' and { 'experience', 'tutorial', 'driver', 'car', 'confirm' } or { 'experience', 'driver', 'car', 'confirm' }
+  if flow.step == 'tutorial' then
+    local pages = tutorialPages()
+    local i = math.min(math.max(flow.page or 1, 1), math.max(#pages, 1))
+    local p = pages[i] or {}
+    local pr = extensions.hashiriyaBattle_progress
+    local img = p.image
+    if img and not (FS and FS:fileExists(img)) then img = nil end
+    st.tutorial = { page = i, count = #pages, title = pr.loc(p.title), text = pr.loc(p.text), image = img, last = i >= #pages }
+  end
   flow.platePick = nil
   if flow.step == 'title' then
     local save = c.peekSave()

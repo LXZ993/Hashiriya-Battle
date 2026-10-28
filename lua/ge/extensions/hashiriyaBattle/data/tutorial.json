@@ -1,0 +1,29 @@
+{
+  "_hinweis": "Tutorial-Seiten für Neulinge (beim neuen Spiel nach der Auswahl 'Neuling', später zu Hause erneut aufrufbar). image = Bild im Mod-Ordner (z. B. /art/tutorial/page1.png, am besten 1600x900); fehlt das Bild, steht nur der Text da. title/text je Sprache.",
+  "pages": [
+    {
+      "image": "/art/tutorial/page1.png",
+      "title": { "de": "Das Battle", "en": "The battle" },
+      "text": {
+        "de": "Nachts fahren Rivalen im Verkehr. Fahr dicht hinter einen und gib Lichthupe, um ihn herauszufordern. Nach dem Countdown verliert, wer hinten liegt, Spirit Points (SP); Schaden kostet zusätzlich SP. Wessen Balken zuerst leer ist, verliert. Wer weit genug vorne liegt, gewinnt sofort.",
+        "en": "At night rivals drive in traffic. Get close behind one and flash your headlights to challenge them. After the countdown, whoever is behind loses Spirit Points (SP); damage costs extra SP. Whoever runs out first loses. Pull far enough ahead and you win outright."
+      }
+    },
+    {
+      "image": "/art/tutorial/page2.png",
+      "title": { "de": "Rivalen, Teams und Ruf", "en": "Rivals, teams and reputation" },
+      "text": {
+        "de": "Teams haben vier Fahrer und einen Leader, der erst kommt, wenn du alle vier geschlagen hast. Wanderer und Bosse erscheinen nur unter bestimmten Bedingungen; Hinweise findest du im Lexikon zu Hause. Im Radar zeigt die Farbe, wer es ist: orange Rivale, gelb Leader, lila Wanderer, rot Boss, grau besiegt, blau verloren. Siege bringen Geld und Ruf, Ruf bringt Ränge und neue Tuning-Stufen.",
+        "en": "Teams have four drivers and a leader who only shows up once all four are beaten. Wanderers and bosses only appear under certain conditions; hints are in the lexicon at home. On the radar the colour tells you who it is: orange rival, yellow leader, purple wanderer, red boss, grey beaten, blue lost. Wins bring money and reputation, reputation brings ranks and new tuning levels."
+      }
+    },
+    {
+      "image": "/art/tutorial/page3.png",
+      "title": { "de": "Tag und Nacht", "en": "Day and night" },
+      "text": {
+        "de": "Ein Tag dauert 24 Minuten. Von 20 bis 6 Uhr ist Battle-Zeit, tagsüber kaufst du Teile, tankst und schaust beim Autohändler vorbei. In der Garage reparierst du, wechselst Autos und stellst dein Setup ein. Zu Hause schläfst du bis zum nächsten Abend und speicherst. Der GPS-Pfeil oben rechts zeigt dir den Weg zum nächsten Parkplatz.",
+        "en": "A day lasts 24 minutes. From 8 pm to 6 am it's battle time; during the day you buy parts, refuel and check the car dealer. At the garage you repair, switch cars and tune your setup. At home you sleep until the next evening and save. The GPS arrow top right points to the nearest parking area."
+      }
+    }
+  ]
+}

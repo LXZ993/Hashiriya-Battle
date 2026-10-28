@@ -190,6 +190,7 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-click="act(\'sleep\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'home.sleep\'] }}</div>' +
               '<div class="hbm-note">{{ s.t[\'home.sleepNote\'] }}</div>' +
               '<div class="hbm-item" ng-click="act(\'homeTab\', \'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
+              '<div class="hbm-item" ng-click="act(\'tutorial\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'home.tutorial\'] }}</div>' +
               '<div class="hbm-item hbm-off"><i class="hbm-ico" ng-bind-html="ico(\'fastTravel\')"></i>{{ s.t[\'home.travel\'] }}</div>' +
               '<div class="hbm-note">{{ s.t[\'home.travelSoon\'] }}</div>' +
             '</div>' +

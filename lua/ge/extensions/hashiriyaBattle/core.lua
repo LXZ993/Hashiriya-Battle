@@ -342,6 +342,7 @@ end
 function M.newCareer(data)
   M.save = newSave()
   M.save.playerName = data.playerName
+  M.save.experience = data.experience
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
   table.insert(M.save.cars, data.car)
   M.save.activeCar = 1
@@ -679,6 +680,8 @@ function M.uiAction(action, arg)
     M.sound(arg)
   elseif action == 'flow' then
     extensions.hashiriyaBattle_career.action(arg)
+  elseif action == 'tutorial' then
+    extensions.hashiriyaBattle_career.openTutorial()
   elseif action == 'career' then
     -- Titelbildschirm im laufenden Level öffnen (Hashiriya-Menü -> Karriere)
     extensions.hashiriyaBattle_career.openTitle()
