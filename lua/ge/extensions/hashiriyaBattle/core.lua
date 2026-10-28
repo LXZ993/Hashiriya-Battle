@@ -266,6 +266,12 @@ function M.startTraffic()
     local okA, ideal = pcall(tr.getIdealSpawnAmount, nil, true)
     n = okA and tonumber(ideal) or 10
   end
+  -- Verkehr im BeamNG-Hauptmenü ausgeschaltet (Menge 0): der Spielmodus braucht ihn trotzdem
+  local minAmount = M.carsData and tonumber(M.carsData.trafficMinAmount) or 12
+  if n < minAmount then
+    if n <= 0 then log('I', logTag, 'Verkehr war in den BeamNG-Einstellungen aus, wird für Hashiriya Battle eingeschaltet') end
+    n = minAmount
+  end
   M.trafficTotal = n -- volle Menge (tagsüber); nachts fahren davon weniger (trafficByHour in world.json)
   M.trafficActive = nil
   if group then
@@ -274,7 +280,7 @@ function M.startTraffic()
     tOpts.vehGroup = okF and fitted or group
     pOpts.vehGroup = group
   end
-  local ok, err = pcall(tr.setupTrafficHelper, amount, tOpts, parked, pOpts)
+  local ok, err = pcall(tr.setupTrafficHelper, n, tOpts, parked, pOpts)
   if ok then log('I', logTag, 'Verkehr gestartet' .. (group and ' (Agent Traffic JP)' or ''))
   else log('W', logTag, 'Verkehr starten fehlgeschlagen: ' .. tostring(err)) end
 end
