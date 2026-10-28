@@ -156,6 +156,13 @@ function M.enterCarForShop(carVeh)
   local w = walk()
   local ok = w and w.getInVehicle and pcall(w.getInVehicle, carVeh)
   if not ok then pcall(function() be:enterVehicle(0, carVeh) end) end
+  M.freezeCar(carVeh, true)
+end
+
+-- Auto im Shop festhalten: man sitzt nur fürs Menü darin und soll nicht wegfahren können
+function M.freezeCar(veh, on)
+  if not veh then return end
+  veh:queueLuaCommand(string.format('if controller and controller.setFreeze then controller.setFreeze(%d) end', on and 1 or 0))
 end
 
 function M.economy() return extensions.hashiriyaBattle_economy end

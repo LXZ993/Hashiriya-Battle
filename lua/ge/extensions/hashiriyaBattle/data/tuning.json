@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn). Reiter 'paint' = Lackierer: Werkslacke des Modells (paintPriceYen) und Liveries (Slot paint_design, minPriceYen). Reiter 'misc' (all=true) sammelt alle übrigen Slots mit Auswahl; slotExclude = Lua-Muster für Slots, die dort nicht erscheinen. 'customPaintPriceYen' = Preis einer eigenen Lackierung (Farbe und Material frei einstellbar). 'groupBySize' gruppiert die Optionen nach Zoll (Felgen). 'alt' ist bei BeamNG nur eine Größenvariante (z. B. tire_R_15x10_alt) und darf nicht in exclude stehen.",
+  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn). Reiter 'paint' = Lackierer: Werkslacke des Modells (paintPriceYen) und Liveries (Slot paint_design, minPriceYen). Reiter 'misc' (all=true) sammelt alle übrigen Slots mit Auswahl; slotExclude = Lua-Muster für Slots, die dort nicht erscheinen. 'customPaintPriceYen' = Preis einer eigenen Lackierung (Farbe und Material frei einstellbar). 'groupBySize' gruppiert die Optionen nach Zoll (Felgen). 'alt' ist bei BeamNG nur eine Größenvariante (z. B. tire_R_15x10_alt) und darf nicht in exclude stehen. Ein 'slot'-Eintrag passt auf das Ende des Slot-Namens oder direkt nach dem Modellnamen mit Varianten dahinter (z. B. '_engine_ecu' auf bx_engine_ecu_i4, '_bumper_F' auf bx_bumper_F_fixed). Reiter 'misc' (Extras) hat jetzt eine feste Liste (Sitze, Lenkrad, Schaltknauf, Käfig, Leichtglas, Innenraum, Dach, Schmutzfänger, Unterbodenbeleuchtung).",
   "tiers": [
     {
       "level": 1,
@@ -57,6 +57,12 @@
             "_exhaust_na",
             "_exhaust_turbo_stock"
           ]
+        },
+        {
+          "id": "radiator",
+          "slot": [
+            "_radiator"
+          ]
         }
       ]
     },
@@ -92,13 +98,15 @@
           "id": "finaldriveF",
           "slot": [
             "_finaldrive_F"
-          ]
+          ],
+          "defaultLevel": 1
         },
         {
           "id": "finaldriveR",
           "slot": [
             "_finaldrive_R"
-          ]
+          ],
+          "defaultLevel": 1
         }
       ]
     },
@@ -203,20 +211,23 @@
           "id": "bumperF",
           "slot": [
             "_bumper_F"
-          ]
+          ],
+          "defaultLevel": 1
         },
         {
           "id": "bumperR",
           "slot": [
             "_bumper_R"
-          ]
+          ],
+          "defaultLevel": 1
         },
         {
           "id": "lip",
           "slot": [
             "_lip_F",
             "_lip_F_fl"
-          ]
+          ],
+          "defaultLevel": 1
         },
         {
           "id": "skirts",
@@ -224,13 +235,15 @@
             "_sideskirts",
             "_sideskirt_L",
             "_sideskirt_R"
-          ]
+          ],
+          "defaultLevel": 1
         },
         {
           "id": "hood",
           "slot": [
             "_hood"
-          ]
+          ],
+          "defaultLevel": 1
         },
         {
           "id": "spoiler",
@@ -238,7 +251,30 @@
             "_spoiler",
             "_spoiler_sedan",
             "_spoiler_wagon"
-          ]
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "fender",
+          "slot": [
+            "_fender_L",
+            "_fender_R"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "quarter",
+          "slot": [
+            "_quarterpanels"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "grille",
+          "slot": [
+            "_grille_F"
+          ],
+          "defaultLevel": 1
         }
       ]
     },
@@ -246,8 +282,77 @@
       "id": "misc",
       "items": [
         {
-          "id": "other",
-          "all": true,
+          "id": "seats",
+          "slot": [
+            "_seat_FL",
+            "_seat_FR"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "steer",
+          "slot": [
+            "_steer"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "shiftknob",
+          "slot": [
+            "_shiftknob"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "rollcage",
+          "slot": [
+            "_rollcage"
+          ],
+          "defaultLevel": 2
+        },
+        {
+          "id": "glass",
+          "slot": [
+            "_windshield",
+            "_doorglass_L",
+            "_doorglass_R",
+            "_quarterglass_L",
+            "_quarterglass_R",
+            "_backlight",
+            "_tailgateglass"
+          ]
+        },
+        {
+          "id": "interior",
+          "slot": [
+            "_interior",
+            "_interior_coupe",
+            "_interior_hatch",
+            "_interior_sedan",
+            "_interior_wagon"
+          ]
+        },
+        {
+          "id": "roof",
+          "slot": [
+            "_roof_accessory"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "mudflap",
+          "slot": [
+            "_mudflap_FL",
+            "_mudflap_FR",
+            "_mudflap_R"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "underglow",
+          "slot": [
+            "_underglow"
+          ],
           "defaultLevel": 1
         }
       ]
@@ -301,7 +406,9 @@
       "gt",
       "turbo",
       "semi",
-      "performance"
+      "performance",
+      "lightweight",
+      "stripped"
     ],
     "1": [
       "sport",
@@ -344,7 +451,13 @@
     "allterrain",
     "spare",
     "steelie",
-    "hubcap"
+    "hubcap",
+    "prodrift",
+    "cargo",
+    "flashers",
+    "fartcan",
+    "fuelcell",
+    "trim"
   ],
   "overrides": {
     "covet_turbo_stock": 2,

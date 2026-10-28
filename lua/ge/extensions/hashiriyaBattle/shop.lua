@@ -44,6 +44,9 @@ local function slotMatches(slot, item)
   end
   for _, suf in ipairs(item.slot or {}) do
     if slot:sub(-#suf) == suf or slot:find(suf .. '_[%d%.]+$') then return true end
+    -- Varianten hinter dem Slot direkt nach dem Modellnamen, z. B. bx_engine_ecu_i4, bx_bumper_F_fixed
+    local esc = suf:gsub('%p', '%%%0')
+    if slot:find('^[^_]+' .. esc .. '_') then return true end
   end
   return false
 end
@@ -272,8 +275,8 @@ local function itemLabel(row)
   if row.item == 'other' then return prettySlot(row.slot) end
   local label = c.t('shop.item.' .. row.item)
   if row.multi then
-    local side = row.slot:match('_([LR])$')
-    label = label .. ' ' .. (side or row.slot:match('_([^_]+)$') or '')
+    local side = row.slot:match('_([LR])$') or row.slot:match('_F([LR])$') or row.slot:match('_([LR])_')
+    label = side and (label .. ' ' .. side) or (label .. ' · ' .. prettySlot(row.slot))
   end
   return label
 end

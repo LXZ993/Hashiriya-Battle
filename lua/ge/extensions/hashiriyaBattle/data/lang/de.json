@@ -336,5 +336,18 @@
   "home.leader.out": "Ist unterwegs. Halte die Augen offen.",
   "msg.leader.out": "Alle Mitglieder geschlagen. %s taucht noch heute Nacht auf.",
   "msg.shopClosed": "Der Shop hat geschlossen. Geöffnet von %s Uhr.",
-  "shop.leave": "Shop verlassen"
+  "shop.leave": "Shop verlassen",
+  "shop.item.radiator": "Kühler",
+  "shop.item.fender": "Kotflügel",
+  "shop.item.quarter": "Seitenteile hinten",
+  "shop.item.grille": "Kühlergrill",
+  "shop.item.seats": "Sitze",
+  "shop.item.steer": "Lenkrad",
+  "shop.item.shiftknob": "Schaltknauf",
+  "shop.item.rollcage": "Überrollkäfig",
+  "shop.item.glass": "Leichtbau-Scheiben",
+  "shop.item.interior": "Innenraum",
+  "shop.item.roof": "Dach",
+  "shop.item.mudflap": "Schmutzfänger",
+  "shop.item.underglow": "Unterbodenbeleuchtung"
 }

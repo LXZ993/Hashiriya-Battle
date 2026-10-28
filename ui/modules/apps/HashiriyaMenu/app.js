@@ -14,7 +14,7 @@ angular.module('beamng.apps')
             '<div class="hbm-logo">HASHIRIYA<span>BATTLE</span></div>' +
             '<div class="hbm-jp">\u8d70\u308a\u5c4b\u30d0\u30c8\u30eb</div>' +
           '</div>' +
-          '<div class="hbm-topback" ng-click="goBack()"><i class="hbm-ico" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ backLabel() }}</div>' +
+          '<div class="hbm-topback" ng-if="!(s.footShop && isTopLevel())" ng-click="goBack()"><i class="hbm-ico" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ backLabel() }}</div>' +
           '<div class="hbm-leave" ng-if="s.footShop" ng-click="act(\'hide\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'shop.leave\'] }}</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'start\'">' +
@@ -189,7 +189,7 @@ angular.module('beamng.apps')
                 '</div>' +
               '</div>' +
             '</div>' +
-            '<div class="hbm-hint">{{ s.t[\'menu.driveOff\'] }}</div>' +
+            '<div class="hbm-hint" ng-if="!s.footShop">{{ s.t[\'menu.driveOff\'] }}</div>' +
           '</div>' +
 
           // Zuhause (zu Fuß) ------------------------------------------------------
@@ -250,7 +250,7 @@ angular.module('beamng.apps')
               '</div>' +
               '<div class="hbm-note">{{ s.t[\'gas.nightNote\'] }}</div>' +
             '</div>' +
-            '<div class="hbm-hint">{{ s.t[\'menu.driveOff\'] }}</div>' +
+            '<div class="hbm-hint" ng-if="!s.footShop">{{ s.t[\'menu.driveOff\'] }}</div>' +
           '</div>' +
 
           // Statistik ------------------------------------------------------------------
@@ -634,11 +634,15 @@ angular.module('beamng.apps')
         if (scope.open && scope.open.slot) { scope.open.slot = null; scope.act('focusSlot', ''); return }
         scope.act('hide')
       }
+      scope.isTopLevel = function () {
+        var s = scope.s || {}
+        return !(s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || (s.screen == 'home' && s.home && s.home.tab != 'main') || (scope.open && scope.open.slot))
+      }
       scope.backLabel = function () {
         var s = scope.s || {}, t = s.t || {}
         var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
           (scope.open && scope.open.slot)
-        return sub ? t['menu.back'] : (s.footShop ? t['shop.leave'] : t['menu.hide'])
+        return sub ? t['menu.back'] : t['menu.hide']
       }
 
       scope.act = function (action, arg) {

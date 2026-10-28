@@ -92,6 +92,7 @@ function M.applyShopCamera()
   local c = core()
   local carVeh = a and c.carVehId and be:getObjectByID(c.carVehId)
   if not carVeh then return end
+  c.freezeCar(carVeh, true) -- auch nach einem Respawn (Teile einbauen) festhalten
   local okC, center = pcall(function() return vec3(carVeh:getSpawnWorldOOBB():getCenter()) end)
   local target = (okC and center) or carVeh:getPosition()
   local eye = toVec(a.footPos) + vec3(0, 0, 1.65)
@@ -106,6 +107,9 @@ function M.leaveFootShop()
   local a = footShop
   if not a then return end
   footShop = nil
+  extensions.hashiriyaBattle_shop.releaseFocus()
+  local c = core()
+  c.freezeCar(c.carVehId and be:getObjectByID(c.carVehId), false)
   if current and arrived then core().onParkingLeft(current) end
   current, arrived, onFoot = nil, false, false
   footBlocked = a

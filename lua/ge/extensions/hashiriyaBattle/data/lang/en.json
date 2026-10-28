@@ -336,5 +336,18 @@
   "home.leader.out": "Out on the road. Keep your eyes open.",
   "msg.leader.out": "All members beaten. %s will show up tonight.",
   "msg.shopClosed": "The shop is closed. Open from %s.",
-  "shop.leave": "Leave shop"
+  "shop.leave": "Leave shop",
+  "shop.item.radiator": "Radiator",
+  "shop.item.fender": "Fenders",
+  "shop.item.quarter": "Rear quarter panels",
+  "shop.item.grille": "Grille",
+  "shop.item.seats": "Seats",
+  "shop.item.steer": "Steering wheel",
+  "shop.item.shiftknob": "Shift knob",
+  "shop.item.rollcage": "Roll cage",
+  "shop.item.glass": "Lightweight glass",
+  "shop.item.interior": "Interior",
+  "shop.item.roof": "Roof",
+  "shop.item.mudflap": "Mud flaps",
+  "shop.item.underglow": "Underglow"
 }
