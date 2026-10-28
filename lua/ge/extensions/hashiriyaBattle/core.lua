@@ -779,6 +779,8 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_shop.confirmPreview()
   elseif action == 'previewCancel' then
     extensions.hashiriyaBattle_shop.cancelPreview()
+  elseif action == 'cartRemove' then
+    extensions.hashiriyaBattle_shop.removeFromCart(arg)
   elseif action == 'shopTab' then
     extensions.hashiriyaBattle_shop.releaseFocus()
     extensions.hashiriyaBattle_shop.setTab(tostring(arg))

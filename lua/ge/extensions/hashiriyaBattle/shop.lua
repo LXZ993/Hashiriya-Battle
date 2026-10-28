@@ -340,11 +340,12 @@ local function findPaint(model, paintId)
   end
 end
 
--- Einbauen, Vorschau, Kaufen ------------------------------------------------------
--- Ein Klick auf ein fremdes Teil (oder einen Lack) baut es nur probeweise ein (preview).
--- Erst confirmPreview() zieht das Geld ab; cancelPreview() oder Wegfahren stellt das Auto wieder her.
+-- Einbauen, Warenkorb, Kaufen ------------------------------------------------------
+-- Ein Klick auf ein fremdes Teil (oder einen Lack) legt es in den Warenkorb und baut es probeweise ein.
+-- Alles im Warenkorb ist gleichzeitig verbaut; an der Kasse wird der Gesamtbetrag bezahlt.
+-- Einzelne Teile lassen sich wieder herausnehmen; Abbrechen oder Wegfahren stellt das Auto wieder her.
 
-local preview = nil -- { kind = 'part'|'paint', slot, id, name, level, price, original = cfg }
+local cart = nil -- { original = cfg vor dem Warenkorb, items = { { key, kind, slot, id, name, level, price, paintSlot, paint } } }
 
 local function copyConfig(cfg)
   local out = { parts = {}, vars = {}, paints = deepcopy and deepcopy(cfg.paints) or cfg.paints }
@@ -353,9 +354,9 @@ local function copyConfig(cfg)
   return out
 end
 
--- Ausgangszustand für Änderungen: bei laufender Vorschau das Auto vor der Vorschau.
+-- Ausgangszustand für Änderungen am Besitz: bei vollem Warenkorb das Auto ohne die Warenkorb-Teile.
 local function baseConfig()
-  if preview then return copyConfig(preview.original) end
+  if cart then return copyConfig(cart.original) end
   return currentConfig()
 end
 
@@ -413,7 +414,6 @@ local function findOption(slot, part)
   return nil, row
 end
 
-function M.hasPreview() return preview ~= nil end
 
 -- Teile-Ansicht wie im BeamNG-Teilemenü: Auto durchsichtig, nur das Teil sichtbar, Kamera schwenkt drauf.
 local function findPartPath(slot)
@@ -469,16 +469,152 @@ function M.releaseFocus()
   extensions.hashiriyaBattle_parking.refreshShopCamera()
 end
 
+-- Lackschicht 1-3 (BeamNG: Haupt-, Zweit-, Drittfarbe; je nach Auto und Livery sichtbar)
+local paintSlot = 1
+function M.setPaintSlot(n) paintSlot = clamp(math.floor(tonumber(n) or 1), 1, 3) end
+
+local function paintIdOf(car, slot)
+  if car.paintIds and car.paintIds[slot] ~= nil then return car.paintIds[slot] end
+  if slot == 1 then return car.paintId end
+end
+
+-- Lack in eine Schicht schreiben; fehlende Schichten davor mit Schicht 1 auffüllen.
+local function setPaintAt(cfg, slot, paint)
+  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
+  for i = 1, slot - 1 do
+    if cfg.paints[i] == nil then cfg.paints[i] = deepcopy and deepcopy(cfg.paints[1] or paint) or (cfg.paints[1] or paint) end
+  end
+  cfg.paints[slot] = paint
+end
+
+local function storePaintId(car, slot, id)
+  car.paintIds = car.paintIds or {}
+  car.paintIds[slot] = id
+  if slot == 1 then car.paintId = id end
+end
+
+function M.hasPreview() return cart ~= nil end
+
+local function cartIndex(key)
+  if not cart then return nil end
+  for i, it in ipairs(cart.items) do if it.key == key then return i, it end end
+end
+
+local function cartHas(key, id)
+  local _, it = cartIndex(key)
+  return it ~= nil and it.id == id
+end
+
+local function buildCart()
+  local cfg = copyConfig(cart.original)
+  for _, it in ipairs(cart.items) do
+    if it.kind == 'part' then withPart(cfg, it.slot, it.id) else setPaintAt(cfg, it.paintSlot, it.paint) end
+  end
+  return cfg
+end
+
+-- Auto auf den Stand des Warenkorbs bringen (Teile: neu spawnen, nur Lack: live färben)
+local function applyCart(partsChanged)
+  if not cart then return end
+  local cfg
+  if #cart.items == 0 then
+    cfg = cart.original
+    cart = nil
+  else
+    cfg = buildCart()
+  end
+  if partsChanged then respawn(cfg) else applyPaintCfg(cfg, false) end
+end
+
+-- Fahrzeugwerte (Leistung, Drehmoment, Gewicht, Bremsen) vom Auto abfragen; Antwort über onStats
+local carStats = nil      -- aktuelle Werte des Autos (mit Warenkorb-Teilen)
+local baseStats = nil     -- Werte vor dem Warenkorb
+local statsTimer = 0
+
+local function requestStats()
+  local veh = core().getPlayerVehicle()
+  if not veh then return end
+  veh:queueLuaCommand([[
+    local kw, nm = 0, 0
+    local ok = pcall(function()
+      local eng = powertrain.getDevicesByCategory('engine')[1]
+      if eng then kw = eng.maxPower or 0; nm = eng.maxTorque or 0 end
+    end)
+    local kg = 0
+    pcall(function() for _, n in pairs(v.data.nodes) do kg = kg + (n.nodeWeight or 0) end end)
+    local brake = 0
+    pcall(function() for _, w in pairs(wheels.wheels) do brake = brake + (w.brakeTorque or 0) end end)
+    obj:queueGameEngineLua(string.format('if extensions.hashiriyaBattle_shop then extensions.hashiriyaBattle_shop.onStats(%f,%f,%f,%f) end', kw, nm, kg, brake))
+  ]])
+end
+
+function M.onStats(kw, nm, kg, brake)
+  kw, nm, kg, brake = tonumber(kw) or 0, tonumber(nm) or 0, tonumber(kg) or 0, tonumber(brake) or 0
+  if kg <= 0 then return end
+  carStats = { ps = kw * 1.35962, nm = nm, kg = kg, brake = brake, pw = kw > 0 and kg / (kw * 1.35962) or nil }
+  if not cart then baseStats = nil end
+end
+
+local function statsUi()
+  if not carStats then requestStats(); return nil end
+  local c = core()
+  local defs = {
+    { k = 'ps', label = 'shop.stat.power', fmt = '%d PS', better = 1 },
+    { k = 'nm', label = 'shop.stat.torque', fmt = '%d Nm', better = 1 },
+    { k = 'kg', label = 'shop.stat.weight', fmt = '%d kg', better = -1 },
+    { k = 'pw', label = 'shop.stat.ratio', fmt = '%.2f kg/PS', better = -1 },
+    { k = 'brake', label = 'shop.stat.brake', fmt = '%d Nm', better = 1 },
+  }
+  local rows = {}
+  for _, d in ipairs(defs) do
+    local v = carStats[d.k]
+    if v and v > 0 then
+      local r = { label = c.t(d.label), value = string.format(d.fmt, d.k == 'pw' and v or math.floor(v + 0.5)) }
+      local b = baseStats and baseStats[d.k]
+      if b and math.abs(v - b) > (d.k == 'pw' and 0.005 or 0.5) then
+        local diff = v - b
+        r.delta = (diff > 0 and '+' or '') .. string.format(d.k == 'pw' and '%.2f' or '%d', d.k == 'pw' and diff or math.floor(diff + (diff > 0 and 0.5 or -0.5)))
+        r.good = diff * d.better > 0
+      end
+      table.insert(rows, r)
+    end
+  end
+  return rows
+end
+M.requestStats = requestStats
+
+local function ensureCart()
+  if cart then return true end
+  local cfg = currentConfig()
+  if not cfg then return false end
+  cart = { original = copyConfig(cfg), items = {} }
+  baseStats = carStats and deepcopy and deepcopy(carStats) or carStats
+  return true
+end
+
+local function putInCart(item)
+  local i = cartIndex(item.key)
+  if i then cart.items[i] = item else table.insert(cart.items, item) end
+end
+
+function M.removeFromCart(key)
+  local i, it = cartIndex(key)
+  if not i then return end
+  table.remove(cart.items, i)
+  applyCart(it.kind == 'part')
+end
+
 function M.cancelPreview(silent)
-  if not preview then return end
-  local original = preview.original
-  local kind = preview.kind
-  preview = nil
-  if kind == 'paint' then applyPaintCfg(original, false) else respawn(original) end
+  if not cart then return end
+  local hadParts = false
+  for _, it in ipairs(cart.items) do if it.kind == 'part' then hadParts = true end end
+  local original = cart.original
+  cart = nil
+  if hadParts then respawn(original) else applyPaintCfg(original, false) end
   if not silent then core().msg(core().t('msg.previewReverted')) end
 end
 
--- Teil fest einbauen (Serie oder bereits gekauft, also kostenlos).
+-- Teil fest einbauen (Serie oder bereits gekauft, also kostenlos). Ein Warenkorb bleibt dabei erhalten.
 local function install(slot, part, label)
   local c = core()
   local car = activeCar()
@@ -491,15 +627,21 @@ local function install(slot, part, label)
     c.msg(c.t('msg.partIncompatible'))
     return
   end
-  preview = nil
   car.config = cfg
-  respawn(cfg)
+  if cart then
+    cart.original = copyConfig(cfg)
+    local i = cartIndex('part:' .. slot)
+    if i then table.remove(cart.items, i) end
+    applyCart(true)
+  else
+    respawn(cfg)
+  end
   c.writeSave()
   if part == '' then c.msg(c.t('msg.partRemoved', label)) else c.msg(c.t('msg.partInstalled', label, c.t('shop.free'))) end
   log('I', logTag, string.format('Shop: %s -> %s (Besitz)', slot, part))
 end
 
--- Garage: nur Serie und gekaufte Teile, ohne Vorschau.
+-- Garage: nur Serie und gekaufte Teile, ohne Warenkorb.
 function M.buy(slot, part, garageOnly)
   local car = activeCar()
   local option, row = findOption(slot, part)
@@ -510,7 +652,7 @@ function M.buy(slot, part, garageOnly)
   if not garageOnly then return M.select(slot, part) end
 end
 
--- Shop: Klick auf eine Option.
+-- Shop: Klick auf eine Option legt sie in den Warenkorb (ersetzt ein anderes Teil im selben Slot).
 function M.select(slot, part)
   local c = core()
   local car = activeCar()
@@ -519,42 +661,17 @@ function M.select(slot, part)
   if part == car.stock[slot] then return install(slot, part, part == '' and itemLabel(row) or row.stockName) end
   if not option then return end
   if car.owned and car.owned[part] then return install(slot, part, option.name) end
-  local cfg = baseConfig()
-  if not cfg then
+  if not ensureCart() then
     c.msg(c.t('msg.partFailed'))
     return
   end
-  local original = preview and preview.original or copyConfig(cfg)
-  if not withPart(cfg, slot, part) then
+  if not withPart(copyConfig(cart.original), slot, part) then
     c.msg(c.t('msg.partIncompatible'))
+    if #cart.items == 0 then cart = nil end
     return
   end
-  preview = { kind = 'part', slot = slot, id = part, name = option.name, level = option.level, price = option.price, original = original, cfg = cfg }
-  respawn(cfg)
-end
-
--- Lackschicht 1-3 (BeamNG: Haupt-, Zweit-, Drittfarbe; je nach Auto und Livery sichtbar)
-local paintSlot = 1
-function M.setPaintSlot(n) paintSlot = clamp(math.floor(tonumber(n) or 1), 1, 3) end
-
-local function paintIdOf(car, slot)
-  if car.paintIds and car.paintIds[slot] ~= nil then return car.paintIds[slot] end
-  if slot == 1 then return car.paintId end
-end
-
--- Lack in die gewählte Schicht schreiben; fehlende Schichten davor mit Schicht 1 auffüllen.
-local function setPaint(cfg, paint)
-  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
-  for i = 1, paintSlot - 1 do
-    if cfg.paints[i] == nil then cfg.paints[i] = deepcopy and deepcopy(cfg.paints[1] or paint) or (cfg.paints[1] or paint) end
-  end
-  cfg.paints[paintSlot] = paint
-end
-
-local function storePaintId(car, slot, id)
-  car.paintIds = car.paintIds or {}
-  car.paintIds[slot] = id
-  if slot == 1 then car.paintId = id end
+  putInCart({ key = 'part:' .. slot, kind = 'part', slot = slot, id = part, name = option.name, level = option.level, price = option.price })
+  applyCart(true)
 end
 
 function M.selectPaint(paintId)
@@ -562,25 +679,34 @@ function M.selectPaint(paintId)
   local car = activeCar()
   local entry = findPaint(car.model, paintId)
   if not entry then return end
-  local cfg = baseConfig()
-  if not cfg then
-    c.msg(c.t('msg.partFailed'))
-    return
-  end
-  local original = preview and preview.original or copyConfig(cfg)
-  local wasPart = preview and preview.kind == 'part'
-  setPaint(cfg, entry.paint)
   if car.ownedPaints and car.ownedPaints[paintId] then
-    preview = nil
+    local cfg = baseConfig()
+    if not cfg then
+      c.msg(c.t('msg.partFailed'))
+      return
+    end
+    setPaintAt(cfg, paintSlot, entry.paint)
     storePaintId(car, paintSlot, paintId)
     car.config = cfg
-    applyPaintCfg(cfg, wasPart)
+    if cart then
+      cart.original = copyConfig(cfg)
+      local i = cartIndex('paint:' .. paintSlot)
+      if i then table.remove(cart.items, i) end
+      applyCart(false)
+    else
+      applyPaintCfg(cfg, false)
+    end
     c.writeSave()
     c.msg(c.t('msg.partInstalled', entry.name, c.t('shop.free')))
     return
   end
-  preview = { kind = 'paint', id = paintId, paintSlot = paintSlot, name = entry.name, level = 0, price = rules.paintPriceYen or 29800, original = original, cfg = cfg }
-  applyPaintCfg(cfg, wasPart)
+  if not ensureCart() then
+    c.msg(c.t('msg.partFailed'))
+    return
+  end
+  putInCart({ key = 'paint:' .. paintSlot, kind = 'paint', id = paintId, paintSlot = paintSlot, paint = entry.paint,
+    name = entry.name, level = 0, price = rules.paintPriceYen or 29800 })
+  applyCart(false)
 end
 
 -- Eigene Farbe: arg = "r,g,b,metallic,rauheit,klarlack,klarlackRauheit" (alles 0..1).
@@ -590,63 +716,78 @@ function M.selectCustomPaint(arg)
   local v = {}
   for n in tostring(arg or ''):gmatch('[^,]+') do table.insert(v, clamp(tonumber(n) or 0, 0, 1)) end
   if #v ~= 7 then return end
-  local cfg = baseConfig()
-  if not cfg then
+  if not ensureCart() then
     c.msg(c.t('msg.partFailed'))
     return
   end
-  local original = preview and preview.original or copyConfig(cfg)
-  local wasPart = preview and preview.kind == 'part'
-  setPaint(cfg, {
-    baseColor = { v[1], v[2], v[3], 1.2 },
-    metallic = v[4], roughness = v[5], clearcoat = v[6], clearcoatRoughness = v[7],
-  })
-  preview = { kind = 'paint', id = 'custom', paintSlot = paintSlot, name = c.t('shop.customName'), level = 0, price = rules.customPaintPriceYen or 98000, original = original, cfg = cfg }
-  applyPaintCfg(cfg, wasPart)
+  putInCart({ key = 'paint:' .. paintSlot, kind = 'paint', id = 'custom', paintSlot = paintSlot,
+    paint = { baseColor = { v[1], v[2], v[3], 1.2 }, metallic = v[4], roughness = v[5], clearcoat = v[6], clearcoatRoughness = v[7] },
+    name = c.t('shop.customName') .. ' (' .. c.t('shop.paintSlot', paintSlot) .. ')', level = 0, price = rules.customPaintPriceYen or 98000 })
+  applyCart(false)
 end
 
+local function cartTotal()
+  local total = 0
+  for _, it in ipairs(cart and cart.items or {}) do total = total + it.price end
+  return total
+end
+
+-- Kasse: alles im Warenkorb auf einmal bezahlen
 function M.confirmPreview()
   local c = core()
   local car = activeCar()
-  if not preview then return end
-  if preview.level > 0 and not isUnlocked(preview.level) then
-    c.msg(c.t('msg.partLocked'))
-    return
+  if not cart or #cart.items == 0 then return end
+  for _, it in ipairs(cart.items) do
+    if it.level > 0 and not isUnlocked(it.level) then
+      c.msg(c.t('msg.partLocked'))
+      return
+    end
   end
-  if c.save.money < preview.price then
+  local total = cartTotal()
+  if c.save.money < total then
     c.msg(c.t('msg.noMoney'))
     return
   end
   -- Nach dem Respawn steht im Auto die echte Konfiguration (z. B. passende Reifen zur neuen Felge).
-  local cfg = currentConfig() or preview.cfg
-  c.save.money = c.save.money - preview.price
-  extensions.hashiriyaBattle_progress.bump(c.save, preview.kind == 'paint' and 'paintsBought' or 'partsBought')
-  if preview.kind == 'paint' then
-    car.ownedPaints = car.ownedPaints or {}
-    if preview.id ~= 'custom' then car.ownedPaints[preview.id] = true end
-    storePaintId(car, preview.paintSlot or 1, preview.id)
-  else
-    car.owned = car.owned or {}
-    car.owned[preview.id] = true
+  local cfg = currentConfig() or buildCart()
+  c.save.money = c.save.money - total
+  for _, it in ipairs(cart.items) do
+    extensions.hashiriyaBattle_progress.bump(c.save, it.kind == 'paint' and 'paintsBought' or 'partsBought')
+    if it.kind == 'paint' then
+      car.ownedPaints = car.ownedPaints or {}
+      if it.id ~= 'custom' then car.ownedPaints[it.id] = true end
+      storePaintId(car, it.paintSlot or 1, it.id)
+    else
+      car.owned = car.owned or {}
+      car.owned[it.id] = true
+    end
   end
+  local n = #cart.items
   car.config = cfg
+  cart = nil
   c.writeSave()
-  c.msg(c.t('msg.partInstalled', preview.name, c.economy().formatYen(preview.price)))
-  log('I', logTag, string.format('Shop: %s gekauft (%d Yen)', tostring(preview.id), preview.price))
-  preview = nil
+  c.msg(c.t('msg.cartBought', n, c.economy().formatYen(total)))
+  log('I', logTag, string.format('Shop: %d Teile gekauft (%d Yen)', n, total))
 end
 
 local function previewState()
-  if not preview then return nil end
+  if not cart or #cart.items == 0 then return nil end
   local c = core()
-  local unlocked, need = true, 0
-  if preview.level > 0 then unlocked, need = isUnlocked(preview.level) end
-  return {
-    name = preview.name, level = preview.level,
-    price = c.economy().formatYen(preview.price),
-    locked = not unlocked, lockText = not unlocked and need or nil,
-    affordable = c.save.money >= preview.price,
-  }
+  local eco = c.economy()
+  local st = { items = {}, locked = false }
+  for _, it in ipairs(cart.items) do
+    local unlocked, need = true, nil
+    if it.level > 0 then unlocked, need = isUnlocked(it.level) end
+    if not unlocked then st.locked = true end
+    table.insert(st.items, { key = it.key, name = it.name, level = it.level, kind = it.kind,
+      price = eco.formatYen(it.price), locked = not unlocked, lockText = not unlocked and need or nil })
+  end
+  local total = cartTotal()
+  st.total = eco.formatYen(total)
+  st.count = #cart.items
+  st.affordable = c.save.money >= total
+  st.after = eco.formatYen(c.save.money - total)
+  return st
 end
 
 local function paintRow()
@@ -676,7 +817,7 @@ local function paintRow()
     if installed then r.current = p.name end
     table.insert(r.options, {
       part = p.id, name = p.name, level = 0, installed = installed,
-      previewing = preview and preview.kind == 'paint' and preview.id == p.id and preview.paintSlot == paintSlot or false,
+      previewing = cartHas('paint:' .. paintSlot, p.id),
       swatch = string.format('rgb(%d,%d,%d)', math.floor(clamp(bc[1], 0, 1) * 255), math.floor(clamp(bc[2], 0, 1) * 255), math.floor(clamp(bc[3], 0, 1) * 255)),
       price = owned and c.t('shop.owned') or eco.formatYen(price),
       affordable = owned or c.save.money >= price,
@@ -727,6 +868,7 @@ function M.getUiState(mode)
   if garage and tabId == 'paint' then tabId = 'engine' end
   local st = { tabs = {}, tab = tabId, rows = {}, loading = false }
   st.preview = not garage and previewState() or nil
+  st.stats = statsUi()
   for _, tab in ipairs(rules.tabs or {}) do
     if not (garage and tab.id == 'paint') then
       table.insert(st.tabs, { id = tab.id, name = c.t('shop.tab.' .. tab.id) })
@@ -740,7 +882,7 @@ function M.getUiState(mode)
     return st
   end
   local cfgParts = {}
-  local cfg = preview and preview.original or currentConfig()
+  local cfg = cart and cart.original or currentConfig()
   if cfg then for k, v in pairs(cfg.parts) do cfgParts[lastSegment(k)] = v end end
   local eco = c.economy()
   for _, row in ipairs(cat.tabs[tabId] or {}) do
@@ -757,7 +899,7 @@ function M.getUiState(mode)
           part = o.part, name = o.name, level = o.level,
           price = owned and (garage and c.t('shop.free') or c.t('shop.owned')) or eco.formatYen(o.price),
           installed = installed == o.part,
-          previewing = preview and preview.kind == 'part' and preview.id == o.part or false,
+          previewing = cartHas('part:' .. row.slot, o.part),
           locked = not unlocked,
           lockText = not unlocked and need or nil,
           affordable = owned or c.save.money >= o.price,
@@ -772,6 +914,15 @@ end
 
 local function onUpdate(dtReal)
   if retryTimer > 0 then retryTimer = retryTimer - dtReal end
+  -- im Shop/in der Garage die Fahrzeugwerte regelmäßig auffrischen (nach jedem Respawn neu)
+  local p = extensions.hashiriyaBattle_parking
+  local area = p and p.isArrived() and p.getCurrent()
+  if area and (area.type == 'shop' or area.type == 'garage') then
+    statsTimer = statsTimer - dtReal
+    if statsTimer <= 0 then statsTimer = 1.5; requestStats() end
+  else
+    carStats, baseStats = nil, nil
+  end
   if refocusTimer > 0 then
     refocusTimer = refocusTimer - dtReal
     if refocusTimer <= 0 and focusSlot then applyFocus() end

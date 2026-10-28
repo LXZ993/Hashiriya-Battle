@@ -114,17 +114,27 @@ angular.module('beamng.apps')
                 '<div class="hbm-tab" ng-repeat="tb in s.shop.tabs track by tb.id" ng-class="{\'is-on\': tb.id == s.shop.tab}" ' +
                   'ng-click="act(\'shopTab\', tb.id); open.slot = null"><i class="hbm-ico" ng-bind-html="ico(tabIcons[tb.id])"></i>{{ tb.name }}</div>' +
               '</div>' +
+              '<div class="hbm-stats" ng-if="s.shop.stats && s.shop.stats.length">' +
+                '<div class="hbm-stat" ng-repeat="r in s.shop.stats"><span class="hbm-stat-k">{{ r.label }}</span>' +
+                  '<span class="hbm-stat-v">{{ r.value }}</span>' +
+                  '<span class="hbm-stat-d" ng-class="{\'is-good\': r.good, \'is-bad\': r.delta && !r.good}">{{ r.delta || \'\' }}</span></div>' +
+              '</div>' +
               '<div class="hbm-preview" ng-if="s.shop.preview">' +
-                '<div class="hbm-preview-top"><span class="hbm-preview-tag">{{ s.t[\'shop.preview\'] }}</span>' +
-                  '<span class="hbm-lv" ng-class="\'lv\' + s.shop.preview.level">{{ s.shop.preview.level > 0 ? (\'LV\' + s.shop.preview.level) : \'\' }}</span>' +
-                  '<span class="hbm-opt-name hbm-mq"><span>{{ s.shop.preview.name }}</span></span>' +
-                  '<span class="hbm-opt-price">{{ s.shop.preview.locked ? s.shop.preview.lockText : s.shop.preview.price }}</span></div>' +
+                '<div class="hbm-preview-top"><span class="hbm-preview-tag">{{ s.t[\'shop.cart\'] }} · {{ s.shop.preview.count }}</span></div>' +
+                '<div class="hbm-cart-item" ng-repeat="it in s.shop.preview.items track by it.key">' +
+                  '<span class="hbm-lv" ng-class="\'lv\' + it.level">{{ it.level > 0 ? (\'LV\' + it.level) : \'\' }}</span>' +
+                  '<span class="hbm-opt-name hbm-mq"><span>{{ it.name }}</span></span>' +
+                  '<span class="hbm-opt-price" ng-class="{\'is-lock\': it.locked}">{{ it.locked ? it.lockText : it.price }}</span>' +
+                  '<span class="hbm-cart-x" ng-click="act(\'cartRemove\', it.key)" title="{{ s.t[\'shop.cartRemove\'] }}">&times;</span>' +
+                '</div>' +
+                '<div class="hbm-cart-total"><span>{{ s.t[\'shop.cartTotal\'] }}</span><b ng-class="{\'is-poor\': !s.shop.preview.affordable}">{{ s.shop.preview.total }}</b></div>' +
+                '<div class="hbm-cart-after" ng-if="s.shop.preview.affordable">{{ s.t[\'shop.cartAfter\'] }} {{ s.shop.preview.after }}</div>' +
                 '<div class="hbm-actions">' +
                   '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': s.shop.preview.locked || !s.shop.preview.affordable}" ' +
-                    'ng-click="!s.shop.preview.locked && s.shop.preview.affordable && act(\'previewBuy\')">{{ s.t[\'shop.buy\'] }}</span>' +
-                  '<span class="hbm-btn" ng-click="act(\'previewCancel\')">{{ s.t[\'shop.cancel\'] }}</span>' +
+                    'ng-click="!s.shop.preview.locked && s.shop.preview.affordable && act(\'previewBuy\')">{{ s.t[\'shop.checkout\'] }}</span>' +
+                  '<span class="hbm-btn" ng-click="act(\'previewCancel\')">{{ s.t[\'shop.cartClear\'] }}</span>' +
                 '</div>' +
-                '<div class="hbm-preview-hint">{{ s.t[\'shop.previewHint\'] }}</div>' +
+                '<div class="hbm-preview-hint">{{ s.t[\'shop.cartHint\'] }}</div>' +
               '</div>' +
               '<div class="hbm-note" ng-if="s.shop.loading">{{ s.t[\'shop.loading\'] }}</div>' +
               '<div class="hbm-note" ng-if="!s.shop.loading && !s.shop.rows.length">{{ s.t[\'shop.none\'] }}</div>' +
@@ -356,6 +366,22 @@ angular.module('beamng.apps')
           '.hbm-preview-top{display:flex;align-items:baseline;gap:8px;font-size:12px;}' +
           '.hbm-preview-tag{font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;color:#141414;background:var(--o2);padding:1px 5px;}' +
           '.hbm-preview-hint{font-size:10px;color:var(--dim);margin-top:6px;}' +
+          '.hbm-cart-item{display:flex;align-items:baseline;gap:8px;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.08);}' +
+          '.hbm-cart-item .hbm-opt-name{flex:1 1 auto;min-width:0;}' +
+          '.hbm-cart-item .is-lock{color:#ff6b5a;}' +
+          '.hbm-cart-x{cursor:pointer;color:var(--dim);font-size:15px;line-height:1;padding:0 2px;}' +
+          '.hbm-cart-x:hover{color:#ff6b5a;}' +
+          '.hbm-cart-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);}' +
+          '.hbm-cart-total b{font-size:16px;font-style:italic;font-weight:900;color:#f4f4f4;letter-spacing:.5px;}' +
+          '.hbm-cart-total b.is-poor{color:#ff6b5a;}' +
+          '.hbm-cart-after{text-align:right;font-size:10px;color:var(--dim);}' +
+          '.hbm-stats{margin:0 18px 8px;padding:6px 10px;background:rgba(255,255,255,.04);border-left:2px solid var(--o2);}' +
+          '.hbm-stat{display:flex;align-items:baseline;gap:8px;font-size:11px;padding:1px 0;}' +
+          '.hbm-stat-k{flex:1 1 auto;color:var(--dim);letter-spacing:.5px;}' +
+          '.hbm-stat-v{font-variant-numeric:tabular-nums;font-weight:700;}' +
+          '.hbm-stat-d{min-width:58px;text-align:right;font-variant-numeric:tabular-nums;font-weight:800;}' +
+          '.hbm-stat-d.is-good{color:#5ae673;}' +
+          '.hbm-stat-d.is-bad{color:#ff6b5a;}' +
           '.hbm-preview .hbm-actions{padding:8px 0 0;}' +
           '.hbm-actions{display:flex;gap:6px;padding:8px 18px 2px;}' +
           '.hbm-btn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;padding:6px 4px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;' +
@@ -565,8 +591,8 @@ angular.module('beamng.apps')
       // Shop: Klick baut probeweise ein (Vorschau); Garage: nur Besitz/Serie umrüsten.
       scope.pick = function (r, o) {
         if (o.installed && !o.previewing) return
-        if (r.kind === 'paint') { if (!o.previewing) scope.act('buyPaint', o.part); return }
-        if (o.previewing) return
+        if (o.previewing) return scope.act('cartRemove', (r.kind === 'paint' ? 'paint:' + r.paintSlot : 'part:' + r.slot))
+        if (r.kind === 'paint') return scope.act('buyPaint', o.part)
         scope.act('buyPart', r.slot + '|' + (o.part || ''))
       }
       // Lexikon: eine Gruppe aufgeklappt
@@ -590,14 +616,13 @@ angular.module('beamng.apps')
         if (s.screen == 'dealer') return scope.act('dealerBack')
         if (s.screen == 'stats') return scope.act('statsBack')
         if (s.screen == 'home' && s.home && s.home.tab != 'main') return scope.act('homeTab', 'main')
-        if (s.shop && s.shop.preview) return scope.act('previewCancel')
         if (scope.open && scope.open.slot) { scope.open.slot = null; scope.act('focusSlot', ''); return }
         scope.act('hide')
       }
       scope.backLabel = function () {
         var s = scope.s || {}, t = s.t || {}
         var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
-          (s.shop && s.shop.preview) || (scope.open && scope.open.slot)
+          (scope.open && scope.open.slot)
         return sub ? t['menu.back'] : t['menu.hide']
       }
 

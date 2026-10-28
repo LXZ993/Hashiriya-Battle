@@ -298,5 +298,18 @@
   "stats.bestCombo": "Beste Combo",
   "stats.nearMisses": "Knappe Manöver",
   "stats.maneuvers": "Combo-Manöver",
-  "stats.comboYen": "Combo-Bonus gesamt"
+  "stats.comboYen": "Combo-Bonus gesamt",
+  "shop.cart": "Warenkorb",
+  "shop.cartTotal": "Gesamt",
+  "shop.cartAfter": "Danach:",
+  "shop.checkout": "Alles kaufen",
+  "shop.cartClear": "Warenkorb leeren",
+  "shop.cartRemove": "Aus dem Warenkorb",
+  "shop.cartHint": "Alles im Warenkorb ist probeweise eingebaut. Fährst du weg, wird es zurückgebaut.",
+  "msg.cartBought": "%d Artikel gekauft für %s.",
+  "shop.stat.power": "Leistung",
+  "shop.stat.torque": "Drehmoment",
+  "shop.stat.weight": "Gewicht",
+  "shop.stat.ratio": "Leistungsgewicht",
+  "shop.stat.brake": "Bremsmoment"
 }
