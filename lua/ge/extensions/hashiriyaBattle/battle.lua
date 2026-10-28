@@ -10,6 +10,8 @@ local cfg = {
   challengeMaxLateral = 10, -- m seitlicher Versatz
   challengeMinSpeed = 40 / 3.6,
   countdown = 3,            -- s
+  falseStartGap = 3,        -- m: so viel näher am Rivalen als beim Herausfordern = Frühstart
+  falseStartKmh = 10,       -- km/h über dem Tempomat-Tempo = Frühstart
   playerMaxSp = 1000,
   drainBase = 8,            -- SP/s, die der Hintere immer verliert
   drainPerMeter = 0.25,     -- zusätzliche SP/s pro Meter Abstand
@@ -36,7 +38,21 @@ function M.isBusy()
   return state ~= 'idle'
 end
 
+-- Countdown: Tempomat beim Spieler (übersteuert das Gaspedal), der Rivale fährt dasselbe Tempo.
+local function lockPlayerSpeed(veh, speed)
+  veh:queueLuaCommand(string.format([[
+    if not extensions.cruiseControl then extensions.load('cruiseControl') end
+    if extensions.cruiseControl then extensions.cruiseControl.setSpeed(%f) extensions.cruiseControl.setEnabled(true) end
+  ]], speed))
+end
+
+local function releasePlayerSpeed()
+  local veh = core().getPlayerVehicle()
+  if veh then veh:queueLuaCommand('if extensions.cruiseControl then extensions.cruiseControl.setEnabled(false) end') end
+end
+
 function M.reset()
+  if state == 'countdown' then releasePlayerSpeed() end
   state = 'idle'
   battle = nil
   if rivals() and rivals().disengage then rivals().disengage() end
@@ -109,6 +125,15 @@ local function startCountdown(rival, rivalVeh)
   local car = save and save.cars[save.activeCar or 1]
   battle.playerCar = car and car.name or ''
   setWarnSignal(rivalVeh, true)
+  local player = core().getPlayerVehicle()
+  if player then
+    local speed = player:getVelocity():length()
+    battle.lockSpeed = speed
+    local dir = (player:getDirectionVector() + rivalVeh:getDirectionVector()):normalized()
+    battle.startGap = (rivalVeh:getPosition() - player:getPosition()):dot(dir)
+    lockPlayerSpeed(player, speed)
+    rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", speed))
+  end
   core().msg(core().t('msg.challenge', rival.name), 3)
   log('I', logTag, 'Challenge gegen ' .. rival.id)
 end
@@ -270,8 +295,19 @@ local function onUpdate(dtReal, dtSim)
         logWarnSignal(rivalVeh)
       end
     end
+    -- Frühstart: vorgefahren oder schneller als der Tempomat
+    local gap = getGap(player, rivalVeh)
+    if battle.startGap and (gap < battle.startGap - cfg.falseStartGap
+        or player:getVelocity():length() > battle.lockSpeed + cfg.falseStartKmh / 3.6) then
+      setWarnSignal(rivalVeh, false)
+      core().msg(core().t('msg.falseStart', battle.rival.name), 4)
+      log('I', logTag, 'Frühstart gegen ' .. tostring(battle.rival.id))
+      M.reset()
+      return
+    end
     if timer <= 0 then
       setWarnSignal(rivalVeh, false)
+      releasePlayerSpeed()
       state = 'battle'
       core().msg(core().t('msg.battle'), 2)
     end

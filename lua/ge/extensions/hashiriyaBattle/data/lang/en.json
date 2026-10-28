@@ -280,5 +280,6 @@
   "msg.refueled": "Refueled %s l for %s.",
   "msg.carBought": "Bought %s for %s. It is waiting in your garage.",
   "msg.carSwitched": "%s is ready.",
-  "msg.posInvalid": "Invalid position, please save it again."
+  "msg.posInvalid": "Invalid position, please save it again.",
+  "msg.falseStart": "False start! %s refuses the battle."
 }
