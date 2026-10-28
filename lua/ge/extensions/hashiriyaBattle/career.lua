@@ -1,0 +1,281 @@
+-- Hashiriya Battle: Karrierestart (Titelbildschirm, Neues Spiel, Weiterspielen)
+-- Ablauf "Neues Spiel": Fahrer (Name, Kennzeichen) -> Auto (Showroom in der Garagenbucht) -> Lack -> Bestätigen.
+-- Danach steht das Auto in der Garagenbucht und der Spieler beginnt zu Fuß daneben.
+-- Gestartet wird über den Eintrag im BeamNG-Hauptmenü (lädt das Level ohne Standardauto) oder im Spiel
+-- über das Hashiriya-Menü.
+local M = {}
+
+local logTag = 'hashiriya'
+local titleLayout = 'hashiriyaTitle'
+
+local flow = nil          -- nil = kein Titel/Assistent offen
+local spawnTimer = 0      -- kurze Sperre, solange das Showroom-Auto spawnt
+local pendingTitle = false -- Level wird gerade für den Titelbildschirm geladen
+
+local function core() return extensions.hashiriyaBattle_core end
+local function parking() return extensions.hashiriyaBattle_parking end
+local function shop() return extensions.hashiriyaBattle_shop end
+
+local function setLayout(name)
+  local gs = rawget(_G, 'core_gamestate')
+  if gs and gs.setGameState then pcall(gs.setGameState, 'freeroam', name, 'freeroam') end
+end
+
+local function starters()
+  local d = core().carsData
+  return d and d.starterCars or {}
+end
+
+local function starterById(id)
+  for _, c in ipairs(starters()) do
+    if c.id == id then return c end
+  end
+end
+
+function M.isOpen() return flow ~= nil end
+function M.isPending() return pendingTitle end
+
+-- Titel ------------------------------------------------------------------------
+
+function M.openTitle()
+  flow = { step = 'title' }
+  core().setMenuVisible(false)
+  setLayout(titleLayout)
+end
+
+function M.close()
+  flow = nil
+  setLayout(core().layoutName)
+end
+
+-- Vom BeamNG-Hauptmenü: Level ohne Standardauto laden, dann Titelbildschirm.
+function M.startFromMainMenu()
+  local level = (core().carsData and core().carsData.careerLevel) or 'c1'
+  pendingTitle = true
+  local ff = rawget(_G, 'freeroam_freeroam') or (extensions.load('freeroam_freeroam') and freeroam_freeroam)
+  local ok = ff and ff.startFreeroamByName and ff.startFreeroamByName(level, nil, nil, false)
+  if not ok then
+    pendingTitle = false
+    log('E', logTag, 'Karriere: Level ' .. tostring(level) .. ' nicht gefunden')
+    core().msg(core().t('msg.levelMissing', level), 8)
+  end
+end
+
+-- Nach dem Laden des Levels (von core.onClientPostStartMission)
+function M.onLevelReady()
+  if pendingTitle then
+    pendingTitle = false
+    M.openTitle()
+  end
+end
+
+-- Showroom: Auto in der Garagenbucht -------------------------------------------
+
+local function showroomTransform()
+  return parking().spawnTransform(parking().find('garage'))
+end
+
+local function spawnShowroomCar(starter, paint)
+  local pos, rot = showroomTransform()
+  local opts = { config = starter.config, pos = pos, rot = rot, paint = paint, paint2 = paint, paint3 = paint }
+  if flow and flow.plate and flow.plate ~= '' then opts.licenseText = flow.plate end
+  local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
+  spawnTimer = 1.2
+  if veh and veh:getJBeamFilename() ~= 'unicycle' then
+    core_vehicles.replaceVehicle(starter.model, opts)
+    if opts.licenseText then pcall(core_vehicles.setPlateText, opts.licenseText, veh:getID()) end
+  else
+    opts.autoEnterVehicle = true
+    core_vehicles.spawnNewVehicle(starter.model, opts)
+  end
+  pcall(function() core_camera.setByName(0, 'orbit', true) end)
+end
+
+-- Daten für die Anzeige des Autos aus den Config-Infos von BeamNG
+local function carSpecs(starter)
+  local c = core()
+  local eco = c.economy()
+  local specs, info = {}, {}
+  local key = tostring(starter.config or ''):match('([^/]+)%.pc$')
+  local okM, m = pcall(core_vehicles.getModel, starter.model)
+  if okM and m and m.configs and key then info = m.configs[key] or {} end
+  local brand = okM and m and m.model and m.model.Brand or ''
+  local function add(label, value) if value then table.insert(specs, { label = c.t(label), value = value }) end end
+  local power = tonumber(info.Power)
+  local torque = tonumber(info.Torque)
+  local weight = tonumber(info.Weight)
+  add('spec.power', power and string.format('%d PS', math.floor(power + 0.5)))
+  add('spec.torque', torque and string.format('%d Nm', math.floor(torque + 0.5)))
+  add('spec.weight', weight and string.format('%d kg', math.floor(weight + 0.5)))
+  add('spec.drivetrain', info.Drivetrain)
+  add('spec.transmission', info.Transmission)
+  add('spec.price', eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0)))
+  local name = starter.name or ''
+  local modelName = brand ~= '' and name:sub(1, #brand) == brand and name:sub(#brand + 2) or name
+  return specs, info.Drivetrain, brand, modelName, eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0))
+end
+
+local function selectCar(id)
+  local starter = starterById(id)
+  if not starter then return end
+  flow.carId = id
+  flow.paintId = nil
+  spawnShowroomCar(starter, nil)
+end
+
+local function selectPaint(id)
+  local starter = starterById(flow.carId)
+  if not starter then return end
+  for _, p in ipairs(shop().factoryPaints(starter.model)) do
+    if p.id == id then
+      flow.paintId = id
+      spawnShowroomCar(starter, p.paint)
+      return
+    end
+  end
+end
+
+-- Kennzeichen: Vorschlag von BeamNG (zufällig) übernehmen
+local function randomPlate()
+  local text = nil
+  local okGen, gen = pcall(function()
+    local skia = extensions.core_skiaTemplate or (extensions.load('core_skiaTemplate') and extensions.core_skiaTemplate)
+    return skia and skia.generateText(nil, nil)
+  end)
+  if okGen and type(gen) == 'string' and gen ~= '' then text = gen end
+  if not text then text = string.format('%d%d-%02d', math.random(1, 9), math.random(0, 9), math.random(0, 99)) end
+  flow.plate = text
+  flow.platePick = text
+end
+
+-- Neues Spiel abschließen: Spielstand anlegen, Spieler zu Fuß neben die Garage.
+local function startCareer()
+  local c = core()
+  local starter = starterById(flow.carId)
+  if not starter then return end
+  local veh = c.getPlayerVehicle()
+  local cfg = shop().currentConfig()
+  if not veh or not cfg then
+    c.msg(c.t('msg.partFailed'))
+    return
+  end
+  local plate = flow.plate
+  if not plate or plate == '' then
+    local okP, p = pcall(core_vehicles.getVehicleLicenseText, veh)
+    plate = okP and p or nil
+  end
+  c.newCareer({
+    playerName = flow.name,
+    car = { model = starter.model, config = cfg, name = starter.name, plate = plate,
+      paintId = flow.paintId, paintIds = { flow.paintId }, ownedPaints = flow.paintId and { [flow.paintId] = true } or nil },
+  })
+  M.close()
+  c.goOnFoot(veh)
+end
+
+-- Eingaben aus der Titel-App: "befehl|wert"
+function M.action(arg)
+  if not flow then return end
+  local cmd, val = tostring(arg or ''):match('^([^|]*)|?(.*)$')
+  local step = flow.step
+  if cmd == 'back' then
+    if step == 'driver' then flow = { step = 'title' }
+    elseif step == 'car' then flow.step = 'driver'
+    elseif step == 'color' then flow.step = 'car'
+    elseif step == 'confirm' then flow.step = 'color' end
+  elseif step == 'title' then
+    if cmd == 'newGame' then
+      flow = { step = 'driver', name = '', plate = '' }
+    elseif cmd == 'continue' then
+      M.close()
+      core().continueCareer()
+    elseif cmd == 'quit' then
+      -- zurück ins BeamNG-Hauptmenü
+      M.close()
+      local back = rawget(_G, 'returnToMainMenu') or rawget(_G, 'endActiveGameMode')
+      if back then pcall(back) else core().setMenuVisible(true) end
+    end
+  elseif step == 'driver' then
+    if cmd == 'randomPlate' then
+      randomPlate()
+    elseif cmd == 'driver' then
+      local name, plate = val:match('^(.-)\031(.*)$')
+      name = (name or val):gsub('[%c]', ''):sub(1, 16)
+      if name == '' then return end
+      flow.name = name
+      flow.plate = (plate or ''):gsub('[%c]', ''):sub(1, 12)
+      flow.platePick = nil
+      flow.step = 'car'
+      if not flow.carId and starters()[1] then selectCar(starters()[1].id) end
+    end
+  elseif step == 'car' then
+    if cmd == 'selectCar' then selectCar(val)
+    elseif cmd == 'next' and flow.carId then flow.step = 'color' end
+  elseif step == 'color' then
+    if cmd == 'selectPaint' then selectPaint(val)
+    elseif cmd == 'next' then flow.step = 'confirm' end
+  elseif step == 'confirm' then
+    if cmd == 'next' then startCareer() end
+  end
+end
+
+function M.getUiState()
+  if not flow then return nil end
+  local c = core()
+  local eco = c.economy()
+  local st = { step = flow.step, name = flow.name, plate = flow.plate, platePick = flow.platePick, busy = spawnTimer > 0 }
+  flow.platePick = nil
+  if flow.step == 'title' then
+    local save = c.peekSave()
+    if save then
+      local car = save.cars and save.cars[save.activeCar or 1]
+      st.save = { name = save.playerName or '—', car = car and car.name or '', money = eco.formatYen(save.money or 0) }
+    end
+  end
+  if flow.step == 'driver' then
+    local veh = c.getPlayerVehicle()
+    local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)
+    st.plateHint = okP and p or ''
+  end
+  if flow.step == 'car' or flow.step == 'color' then
+    st.cars = {}
+    for _, s in ipairs(starters()) do
+      local specs, drivetrain, brand, modelName, price = carSpecs(s)
+      table.insert(st.cars, { id = s.id, name = s.name, specs = specs, drivetrain = drivetrain, brand = brand, model = modelName,
+        price = price, selected = s.id == flow.carId })
+    end
+  end
+  if flow.step == 'color' then
+    st.paints = {}
+    local starter = starterById(flow.carId)
+    for _, p in ipairs(starter and shop().factoryPaints(starter.model) or {}) do
+      table.insert(st.paints, { id = p.id, name = p.name, swatch = shop().paintSwatch(p.paint), selected = p.id == flow.paintId })
+    end
+  end
+  if flow.step == 'confirm' then
+    local starter = starterById(flow.carId)
+    local paintName, swatch = c.t('new.factoryPaint'), 'transparent'
+    for _, p in ipairs(starter and shop().factoryPaints(starter.model) or {}) do
+      if p.id == flow.paintId then paintName, swatch = p.name, shop().paintSwatch(p.paint) end
+    end
+    st.summary = {
+      name = flow.name, plate = (flow.plate ~= '' and flow.plate) or st.plateHint or '—',
+      car = starter and starter.name or '', paint = paintName, swatch = swatch,
+      money = eco.formatYen(c.startMoney()),
+    }
+    if st.summary.plate == '—' then
+      local veh = c.getPlayerVehicle()
+      local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)
+      if okP and p then st.summary.plate = p end
+    end
+  end
+  return st
+end
+
+local function onUpdate(dtReal)
+  if spawnTimer > 0 then spawnTimer = spawnTimer - dtReal end
+end
+
+M.onUpdate = onUpdate
+
+return M

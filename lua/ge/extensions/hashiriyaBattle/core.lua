@@ -8,7 +8,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup' }
+local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -78,18 +78,52 @@ local function getLevelName()
   return mission:match('levels/([^/]+)/')
 end
 
+-- Das Auto, in dem der Spieler sitzt. Zu Fuß (Einrad von BeamNG) gibt es keins.
 function M.getPlayerVehicle()
-  return getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
+  local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
+  if veh and veh:getJBeamFilename() == 'unicycle' then return nil end
+  return veh
+end
+
+local function walk()
+  return extensions.gameplay_walk or (extensions.load('gameplay_walk') and extensions.gameplay_walk)
+end
+
+function M.isWalking()
+  local w = walk()
+  local ok, res = pcall(function() return w and w.isWalking() end)
+  return ok and res or false
+end
+
+-- Position des Spielers zu Fuß (nil, wenn er im Auto sitzt)
+function M.getWalkerPos()
+  local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
+  if veh and veh:getJBeamFilename() == 'unicycle' then return veh:getPosition() end
+  return nil
+end
+
+-- Spieler steigt aus und steht zu Fuß am Startpunkt neben der Garage; das Auto bleibt in der Bucht.
+function M.goOnFoot(carVeh)
+  local pos, rot = extensions.hashiriyaBattle_parking.footSpawnTransform()
+  local w = walk()
+  if not w or not pos then return end
+  if carVeh then M.carVehId = carVeh:getID() end
+  local ok, err = pcall(w.setWalkingMode, true, pos, rot, true)
+  if not ok then log('W', logTag, 'Zu Fuß starten fehlgeschlagen: ' .. tostring(err)) end
 end
 
 function M.economy() return extensions.hashiriyaBattle_economy end
 
 -- Spielstand ----------------------------------------------------------------
 
+function M.startMoney()
+  return M.carsData and M.carsData.startMoneyYen or 5000000
+end
+
 local function newSave()
   return {
     version = 1,
-    money = M.carsData and M.carsData.startMoneyYen or 300000,
+    money = M.startMoney(),
     cars = {},
     activeCar = nil,
     defeated = {},
@@ -110,6 +144,7 @@ local function readSave()
   if data and data.version then return data end
   return nil
 end
+M.peekSave = readSave
 
 -- Daten laden ---------------------------------------------------------------
 
@@ -149,6 +184,53 @@ local function chooseStarterCar(car)
   M.active = true
   showCarSelect = false
   msg(M.t('msg.welcome'), 6)
+end
+
+-- Neues Spiel aus dem Karriere-Assistenten (career.lua): Auto steht schon in der Garagenbucht.
+function M.newCareer(data)
+  M.save = newSave()
+  M.save.playerName = data.playerName
+  extensions.hashiriyaBattle_parking.loadSettings(M.save)
+  table.insert(M.save.cars, data.car)
+  M.save.activeCar = 1
+  M.writeSave()
+  M.active = true
+  showCarSelect = false
+  showMenu = false
+  msg(M.t('msg.welcomeDriver', data.playerName or ''), 8)
+end
+
+-- Weiterspielen: Auto in die Garagenbucht stellen, Spieler zu Fuß daneben.
+function M.continueCareer()
+  M.save = readSave()
+  if not M.save then
+    msg(M.t('msg.noSave'))
+    return
+  end
+  extensions.hashiriyaBattle_parking.loadSettings(M.save)
+  local car = M.save.cars[M.save.activeCar or 1]
+  if not car then return end
+  local opts = { config = car.config ~= '' and car.config or nil, licenseText = car.plate, autoEnterVehicle = false }
+  local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
+  if pos then opts.pos, opts.rot = pos, rot end
+  local current = M.getPlayerVehicle()
+  local carVeh
+  if current then
+    core_vehicles.replaceVehicle(car.model, opts)
+    if car.plate then pcall(core_vehicles.setPlateText, car.plate, current:getID()) end
+    carVeh = current
+  else
+    carVeh = core_vehicles.spawnNewVehicle(car.model, opts)
+  end
+  M.active = true
+  showMenu = false
+  msg(M.t('msg.welcomeBack', M.save.playerName or ''), 6)
+  M.goOnFoot(carVeh)
+end
+
+function M.setMenuVisible(on)
+  showMenu = on and true or false
+  if not showMenu then menuAutoOpened = false end
 end
 
 local function continueGame()
@@ -298,8 +380,9 @@ local function buildUiState()
   local st = {
     level = M.levelName,
     active = M.active,
-    menuVisible = showMenu,
+    menuVisible = showMenu and not extensions.hashiriyaBattle_career.isOpen(),
     screen = M.active and 'status' or (showCarSelect and 'carSelect' or 'start'),
+    flow = extensions.hashiriyaBattle_career.getUiState(),
     area = nil,
     hasSave = M.hasSave,
     cars = {},
@@ -381,7 +464,12 @@ end
 
 -- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
 function M.uiAction(action, arg)
-  if action == 'newGame' then
+  if action == 'flow' then
+    extensions.hashiriyaBattle_career.action(arg)
+  elseif action == 'career' then
+    -- Titelbildschirm im laufenden Level öffnen (Hashiriya-Menü -> Karriere)
+    extensions.hashiriyaBattle_career.openTitle()
+  elseif action == 'newGame' then
     showCarSelect = true
   elseif action == 'back' then
     showCarSelect = false
@@ -390,7 +478,7 @@ function M.uiAction(action, arg)
       if car.id == arg then chooseStarterCar(car) end
     end
   elseif action == 'continue' then
-    continueGame()
+    M.continueCareer()
   elseif action == 'hide' then
     extensions.hashiriyaBattle_shop.releaseFocus()
     showMenu = false
@@ -502,7 +590,11 @@ local function onClientPostStartMission()
   showCarSelect = false
   setLayout(M.layoutName)
   if not jsonReadFile(dumpPath) then pcall(M.dumpConfigs) end
-  msg(M.t('msg.ready'), 8)
+  if extensions.hashiriyaBattle_career.isPending() then
+    extensions.hashiriyaBattle_career.onLevelReady()
+  else
+    msg(M.t('msg.ready'), 8)
+  end
 end
 
 local function onClientEndMission()

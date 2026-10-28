@@ -13,7 +13,7 @@ angular.module('beamng.apps')
           '</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'start\'">' +
-            '<div class="hbm-item" ng-click="act(\'newGame\')"><span class="hbm-num">01</span>{{ s.t[\'menu.newGame\'] }}</div>' +
+            '<div class="hbm-item" ng-click="act(\'career\')"><span class="hbm-num">01</span>{{ s.t[\'menu.career\'] }}</div>' +
             '<div class="hbm-item" ng-if="s.hasSave" ng-click="act(\'continue\')"><span class="hbm-num">02</span>{{ s.t[\'menu.continue\'] }}</div>' +
           '</div>' +
 

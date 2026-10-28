@@ -11,6 +11,7 @@ local checkInterval = 0.25
 local repairYenPerDamage = 2 -- Reparaturpreis je BeamNG-Schadenspunkt (zum Feintuning)
 local triggerRadius = 4       -- m um die Buchtmitte, in denen der Parkplatz auslöst (Kartendatei: radius)
 local leaveMargin = 2         -- m zusätzlich, bevor er als verlassen gilt (kein Flackern am Rand)
+local footRadius = 2.5        -- m um footPos (zu Fuß, z. B. vor der Garagentür)
 local towBaseYen = 30000      -- Abschleppen: Grundgebühr
 local towYenPerKm = 2500      -- plus je km Luftlinie zur Garage
 local towMaxSpeed = 5 / 3.6   -- nur im Stand
@@ -23,6 +24,7 @@ local photoMode = false      -- im Fotomodus immer aus
 local groundZ = {}           -- Bodenhöhe je Parkplatz (einmal ermittelt)
 local current = nil          -- Parkplatz, in dem der Spieler gerade steht
 local arrived = false        -- im Parkplatz angehalten (Menü offen)
+local onFoot = false         -- Parkplatz zu Fuß betreten (Fußbereich statt Bucht)
 local dumpedModels = {}
 
 local function core() return extensions.hashiriyaBattle_core end
@@ -36,6 +38,23 @@ local function toVec(t) return vec3(t[1], t[2], t[3]) end
 
 function M.getCurrent()
   return current
+end
+
+function M.isOnFoot() return onFoot and arrived end
+
+-- Startpunkt zu Fuß: playerSpawn der Kartendatei, sonst 4 m seitlich neben der Garagenbucht.
+function M.footSpawnTransform()
+  local md = core().mapData
+  local g = M.find('garage')
+  local up = vec3(0, 0, 1)
+  if md and md.playerSpawn and md.playerSpawn.pos then
+    local dir = toVec(md.playerSpawn.dir or (g and g.dir) or { 0, 1, 0 })
+    return toVec(md.playerSpawn.pos) + vec3(0, 0, 0.2), quatFromDir(dir, up)
+  end
+  if not g then return nil end
+  local dir = toVec(g.markerDir or g.dir); dir.z = 0; dir = dir:normalized()
+  local side = dir:cross(up):normalized()
+  return toVec(g.markerPos or g.pos) + side * 4 + vec3(0, 0, 0.3), quatFromDir(dir, up)
 end
 
 function M.isArrived()
@@ -351,13 +370,44 @@ local function onUpdate(dtReal)
     return
   end
   local veh = c.getPlayerVehicle()
-  if not veh then return end
+  if not veh then
+    -- Zu Fuß: nur die Fußbereiche (footPos/footRadius in der Kartendatei, z. B. Garagentür)
+    local wpos = c.getWalkerPos()
+    if not wpos then return end
+    drawMarkers(wpos)
+    checkTimer = checkTimer - dtReal
+    if checkTimer > 0 then return end
+    checkTimer = checkInterval
+    local foundFoot = nil
+    for _, a in ipairs(areas()) do
+      if a.footPos then
+        local r = (a.footRadius or footRadius) + ((a == current and onFoot) and leaveMargin or 0)
+        local d = wpos - toVec(a.footPos)
+        d.z = d.z * 0.5
+        if d:length() <= r then foundFoot = a; break end
+      end
+    end
+    if foundFoot ~= current or not onFoot then
+      if current and arrived then c.onParkingLeft(current) end
+      current, arrived, onFoot = foundFoot, false, foundFoot ~= nil
+      if current then
+        arrived = true
+        c.onParkingArrived(current)
+      end
+    end
+    return
+  end
   local pos = veh:getPosition()
   drawMarkers(pos) -- muss jeden Frame gezeichnet werden
 
   checkTimer = checkTimer - dtReal
   if checkTimer > 0 then return end
   checkTimer = checkInterval
+  if onFoot then
+    -- gerade eingestiegen: Fußbereich verlassen
+    if current and arrived then c.onParkingLeft(current) end
+    current, arrived, onFoot = nil, false, false
+  end
   -- Auslösen nur in der Bucht selbst: Fahrzeugmitte nahe der Buchtmitte (mit markerPos), sonst
   -- Referenzpunkt nahe der gespeicherten Position. Zum Verlassen etwas mehr Abstand.
   local okC, center = pcall(function() return veh:getSpawnWorldOOBB():getCenter() end)

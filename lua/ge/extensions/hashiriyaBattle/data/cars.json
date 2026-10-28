@@ -1,9 +1,28 @@
 {
-  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel' (von Alex gewählt). config = Pfad zur .pc-Datei, leer = Standard-Config. priceUsd (BeamNG-Wert) wird in Yen umgerechnet und nur angezeigt.",
+  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel' (von Alex gewählt). config = Pfad zur .pc-Datei, leer = Standard-Config. priceUsd (BeamNG-Wert) wird in Yen umgerechnet und nur angezeigt. startMoneyYen = Startgeld der Karriere. careerLevel = Level, das der Hauptmenü-Eintrag lädt.",
   "starterCars": [
-    { "id": "starter_covet",   "name": "Ibishu Covet 13S",            "model": "covet",   "config": "vehicles/covet/13s_M.pc",             "priceUsd": 18200 },
-    { "id": "starter_miramar", "name": "Ibishu Miramar",              "model": "miramar", "config": "vehicles/miramar/base_facelift_M.pc", "priceUsd": 25500 },
-    { "id": "starter_bx",      "name": "Ibishu 200BX",                "model": "bx",      "config": "vehicles/bx/200bx_base_M.pc",         "priceUsd": 29000 }
+    {
+      "id": "starter_covet",
+      "name": "Ibishu Covet 13S",
+      "model": "covet",
+      "config": "vehicles/covet/13s_M.pc",
+      "priceUsd": 18200
+    },
+    {
+      "id": "starter_miramar",
+      "name": "Ibishu Miramar",
+      "model": "miramar",
+      "config": "vehicles/miramar/base_facelift_M.pc",
+      "priceUsd": 25500
+    },
+    {
+      "id": "starter_bx",
+      "name": "Ibishu 200BX",
+      "model": "bx",
+      "config": "vehicles/bx/200bx_base_M.pc",
+      "priceUsd": 29000
+    }
   ],
-  "startMoneyYen": 300000
+  "startMoneyYen": 5000000,
+  "careerLevel": "c1"
 }

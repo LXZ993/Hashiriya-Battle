@@ -315,6 +315,14 @@ local function paintsFor(model)
   return paintCache[model]
 end
 
+M.factoryPaints = function(model) return paintsFor(model) end
+
+function M.paintSwatch(p)
+  local bc = p and p.baseColor or {}
+  local function ch(i) return math.floor(clamp(tonumber(bc[i]) or 0.5, 0, 1) * 255) end
+  return string.format('rgb(%d,%d,%d)', ch(1), ch(2), ch(3))
+end
+
 local function findPaint(model, paintId)
   for _, p in ipairs(paintsFor(model)) do
     if p.id == paintId then return p end
