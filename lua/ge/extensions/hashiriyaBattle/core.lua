@@ -131,6 +131,8 @@ local function spawnPlayerCar(car)
   local current = M.getPlayerVehicle()
   if current then
     core_vehicles.replaceVehicle(car.model, opts)
+    -- replaceVehicle übernimmt das alte Kennzeichen, daher das eigene danach setzen
+    if car.plate then pcall(core_vehicles.setPlateText, car.plate, current:getID()) end
   else
     opts.autoEnterVehicle = true
     core_vehicles.spawnNewVehicle(car.model, opts)
@@ -359,7 +361,7 @@ local function arrivedArea()
   return parking.isArrived() and parking.getCurrent() or nil
 end
 
--- Kennzeichen ummelden (Garage, gegen Gebühr). Bleibt bei jedem Respawn erhalten (licenseText).
+-- Kennzeichen ummelden (Garage, gegen Gebühr). replaceVehicle behält es bei Teilekäufen; beim Spawn setzt spawnPlayerCar es.
 function M.changePlate(text)
   local car = M.save and M.save.cars[M.save.activeCar or 1]
   local veh = M.getPlayerVehicle()

@@ -347,7 +347,7 @@ local function respawn(cfg)
   local car = activeCar()
   catalog = nil
   retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
-  core_vehicles.replaceVehicle(car.model, { config = cfg, licenseText = car.plate })
+  core_vehicles.replaceVehicle(car.model, { config = cfg })
   if focusSlot then refocusTimer = 1.2 end -- nach dem Respawn das Teil wieder hervorheben
 end
 

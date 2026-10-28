@@ -58,7 +58,7 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
               '<div class="hbm-section">{{ s.t[\'garage.plate\'] }}</div>' +
               '<div class="hbm-plate">' +
-                '<input type="text" maxlength="12" ng-model="plate.text" placeholder="{{ s.plate }}" ng-focus="cefFocus(true)" ng-blur="cefFocus(false)">' +
+                '<input type="text" maxlength="12" ng-model="plate.text" placeholder="{{ s.plate }}">' +
                 '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !plate.text || plate.text == s.plate}" ' +
                   'ng-click="plate.text && plate.text != s.plate && act(\'setPlate\', plate.text); plate.text = \'\'">{{ s.t[\'garage.plateChange\'] }} \u00b7 {{ s.platePrice }}</span>' +
               '</div>' +
@@ -286,8 +286,6 @@ angular.module('beamng.apps')
       scope.s = null
       scope.open = { slot: null }
       scope.plate = { text: '' }
-      // Beim Tippen ins Kennzeichenfeld dürfen die Tasten nicht das Auto steuern.
-      scope.cefFocus = function (on) { bngApi.engineLua('if setCEFFocus then setCEFFocus(' + (on ? 'true' : 'false') + ') end') }
       // Abschleppen kostet viel: erster Klick fragt nach, zweiter Klick (innerhalb 4 s) bestätigt.
       scope.towArmed = false
       var towTimer = null

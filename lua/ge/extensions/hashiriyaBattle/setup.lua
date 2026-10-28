@@ -112,7 +112,7 @@ function M.apply()
   for name, raw in pairs(pending) do cfg.vars[name] = raw end
   pending = {}
   car.config = cfg
-  core_vehicles.replaceVehicle(car.model, { config = cfg, licenseText = car.plate })
+  core_vehicles.replaceVehicle(car.model, { config = cfg })
   c.writeSave()
   c.msg(c.t('msg.setupApplied'))
   log('I', logTag, 'Setup übernommen')
