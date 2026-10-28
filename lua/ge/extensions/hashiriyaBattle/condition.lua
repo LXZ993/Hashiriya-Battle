@@ -20,7 +20,7 @@ local function activeCar()
 end
 
 -- Zustand ins Auto schreiben: parts = { [partId] = { o, i, v } } oder nur Grundwerte (frisch gekaufter Gebrauchtwagen)
-local function apply(veh, car)
+local function apply(veh, car, fresh)
   local wear = car.wear or {}
   local parts = car.parts
   local tbl = 'nil'
@@ -34,12 +34,35 @@ local function apply(veh, car)
   -- Ohne Teile-Liste: Grundwerte für alle Teile. Mit Liste: fehlende (neue) Teile frisch.
   local odo, integ, vis = 0, 1, 1
   if tbl == 'nil' then odo, integ, vis = (wear.odometerKm or 0) * 1000, wear.integrity or 1, wear.visual or 1 end
+  local cd = core().carsData or {}
+  -- BeamNG setzt bei Zustand < 1 auch den Tank auf denselben Anteil und lässt den Motor stark aussetzen.
+  -- Darum: Zündaussetzer abschwächen (conditionMisfireScale), Tank beim Kauf nie unter conditionMinFuel,
+  -- bei einem Respawn den Tankinhalt unverändert lassen. Danach den Reset-Stand neu speichern (R-Taste, Reparatur).
   veh:queueLuaCommand(string.format([[
     if partCondition then
+      local fresh, minFuel, misfire = %s, %f, %f
+      local before = {}
+      for name, st in pairs(energyStorage.getStorages()) do
+        if st.capacity and st.remainingVolume then before[name] = st.remainingVolume end
+      end
       pcall(partCondition.reset)
       partCondition.initConditions(%s, %f, %f, %f)
+      for _, e in ipairs(powertrain.getDevicesByCategory('engine') or {}) do
+        if e.fastIgnitionErrorChance then e.fastIgnitionErrorChance = e.fastIgnitionErrorChance * misfire end
+        if e.slowIgnitionErrorChance then e.slowIgnitionErrorChance = e.slowIgnitionErrorChance * misfire end
+      end
+      for name, st in pairs(energyStorage.getStorages()) do
+        if st.capacity and st.setRemainingVolume and st.remainingVolume then
+          if fresh then
+            if st.remainingVolume < st.capacity * minFuel then st:setRemainingVolume(st.capacity * minFuel) end
+          elseif before[name] then
+            st:setRemainingVolume(before[name])
+          end
+        end
+      end
+      pcall(partCondition.createConditionSnapshot, 'reset')
     end
-  ]], tbl, odo, integ, vis))
+  ]], tostring(fresh == true), cd.conditionMinFuel or 0.25, cd.conditionMisfireScale or 0.2, tbl, odo, integ, vis))
   pollTimer = 2
   log('I', logTag, string.format('Fahrzeugzustand gesetzt (%s)', tbl == 'nil' and 'Grundwerte' or 'je Teil'))
 end
@@ -88,7 +111,7 @@ function M.initUsedCar(car, condition, veh)
   condition = condition or {}
   car.wear = { odometerKm = condition.odometerKm or 0, integrity = condition.integrity or 1, visual = condition.visual or 1 }
   car.parts = nil
-  if veh then apply(veh, car) end
+  if veh then apply(veh, car, true) end
 end
 
 -- Vor einem Respawn des Spielerautos (über core.engineOffAfterSpawn)
