@@ -213,7 +213,10 @@ end
 -- Motor aus nach dem Spawnen (wie beim Autokauf in der BeamNG-Karriere).
 -- Gilt für das nächste Auto, das innerhalb kurzer Zeit spawnt (auch replaceVehicle).
 local engineOffTimer = 0
-function M.engineOffAfterSpawn() engineOffTimer = 3 end
+function M.engineOffAfterSpawn()
+  engineOffTimer = 3
+  extensions.hashiriyaBattle_fuel.keepAfterRespawn()
+end
 
 local function onVehicleSpawned(vehId)
   if engineOffTimer <= 0 then return end

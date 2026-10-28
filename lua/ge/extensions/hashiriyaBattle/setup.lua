@@ -31,7 +31,9 @@ local function variables()
     if type(v) == 'table' then
       local name = v.name or k
       local min, max = tonumber(v.min), tonumber(v.max)
-      if type(name) == 'string' and min and max and min ~= max and not v.hideInUI and (v.type == nil or v.type == 'range') then
+      -- Tankfüllung nicht einstellbar, dafür gibt es die Tankstelle
+      local fuelVar = type(name) == 'string' and (name:lower():find('fuel', 1, true) or tostring(v.title or ''):lower():find('fuel', 1, true) or tostring(v.category or ''):lower():find('fuel', 1, true))
+      if type(name) == 'string' and min and max and min ~= max and not v.hideInUI and not fuelVar and (v.type == nil or v.type == 'range') then
         table.insert(list, {
           name = name, title = v.title or name, unit = v.unit or '', category = v.category or 'Other', subCategory = v.subCategory,
           min = min, max = max, default = tonumber(v.default) or min,
@@ -112,6 +114,7 @@ function M.apply()
   for name, raw in pairs(pending) do cfg.vars[name] = raw end
   pending = {}
   car.config = cfg
+  extensions.hashiriyaBattle_fuel.keepAfterRespawn()
   core_vehicles.replaceVehicle(car.model, { config = cfg })
   c.writeSave()
   c.msg(c.t('msg.setupApplied'))

@@ -13,6 +13,8 @@ local info = nil      -- { capacity, remaining } in Litern
 local pollTimer = 0
 local holding = false
 local session = nil   -- laufender Tankvorgang { liters, cost }
+local restoreTimer = nil -- nach einem Respawn: Tankinhalt zurücksetzen statt voll
+local restoreWindow = 0
 
 local function core() return extensions.hashiriyaBattle_core end
 
@@ -44,9 +46,17 @@ local function request()
   ]])
 end
 
+local function activeCar()
+  local save = core().save
+  return save and save.cars and save.cars[save.activeCar or 1] or nil
+end
+
 function M.onFuelInfo(capacity, remaining)
   if session then return end -- während des Tankens zählen wir selbst
   info = { capacity = tonumber(capacity) or 0, remaining = tonumber(remaining) or 0 }
+  -- Tankinhalt am Auto im Spielstand merken (nicht, solange ein Respawn noch zurückgesetzt wird)
+  local car = activeCar()
+  if car and info.capacity > 0 and not restoreTimer and restoreWindow <= 0 then car.fuel = info.remaining end
 end
 
 -- Gesamtmenge im Auto setzen (Tanks der Reihe nach füllen)
@@ -61,6 +71,36 @@ local function setTotal(veh, liters)
       end
     end
   ]], liters))
+end
+
+-- Vor einem Respawn des Spielerautos aufrufen (Teile, Setup, Garage, Weiterspielen):
+-- BeamNG füllt beim Spawnen den Tank, wir setzen danach den gemerkten Inhalt wieder.
+function M.keepAfterRespawn() restoreWindow = 5 end
+
+function M.onVehicleSpawned(vehId)
+  if restoreWindow <= 0 then return end
+  local veh = be:getObjectByID(vehId)
+  if not veh or veh:getJBeamFilename() == 'unicycle' then return end
+  restoreTimer = 1
+end
+
+-- Zurücksetzen (Reparatur, Abschleppen, R-Taste) füllt in BeamNG ebenfalls den Tank
+function M.onVehicleResetted(vehId)
+  local veh = core().getPlayerVehicle()
+  if not veh or veh:getID() ~= vehId or session then return end
+  restoreTimer = 0.5
+end
+
+local function restore()
+  restoreTimer = nil
+  restoreWindow = 0
+  local car = activeCar()
+  local veh = core().getPlayerVehicle()
+  if not car or not veh or not car.fuel then return end
+  setTotal(veh, car.fuel)
+  info = nil
+  pollTimer = 0.5
+  log('I', logTag, string.format('Tankinhalt nach Respawn: %.1f l', car.fuel))
 end
 
 local function finish()
@@ -116,12 +156,15 @@ function M.getUiState()
 end
 
 local function onUpdate(dtReal)
-  if not atGas() then
-    if session then finish() end
-    info = nil
+  if restoreWindow > 0 then restoreWindow = restoreWindow - dtReal end
+  if restoreTimer then
+    restoreTimer = restoreTimer - dtReal
+    if restoreTimer <= 0 then restore() end
     return
   end
-  if holding and session and info then
+  local gas = atGas()
+  if not gas and session then finish() end
+  if gas and holding and session and info then
     local c = core()
     local veh = c.getPlayerVehicle()
     local price = pricePerLiter()
@@ -144,8 +187,8 @@ local function onUpdate(dtReal)
   end
   pollTimer = pollTimer - dtReal
   if pollTimer <= 0 then
-    pollTimer = pollInterval
-    request()
+    pollTimer = gas and pollInterval or 3
+    if core().save then request() end
   end
 end
 

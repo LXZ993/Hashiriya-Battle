@@ -366,6 +366,7 @@ local function respawn(cfg)
   local car = activeCar()
   catalog = nil
   retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
+  extensions.hashiriyaBattle_fuel.keepAfterRespawn()
   core_vehicles.replaceVehicle(car.model, { config = cfg })
   extensions.hashiriyaBattle_parking.refreshShopCamera(0.8)
   if focusSlot then refocusTimer = 1.2 end -- nach dem Respawn das Teil wieder hervorheben
