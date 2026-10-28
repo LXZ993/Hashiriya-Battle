@@ -347,7 +347,7 @@ local function respawn(cfg)
   local car = activeCar()
   catalog = nil
   retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
-  core_vehicles.replaceVehicle(car.model, { config = cfg })
+  core_vehicles.replaceVehicle(car.model, { config = cfg, licenseText = car.plate })
   if focusSlot then refocusTimer = 1.2 end -- nach dem Respawn das Teil wieder hervorheben
 end
 
@@ -486,6 +486,30 @@ function M.select(slot, part)
   respawn(cfg)
 end
 
+-- Lackschicht 1-3 (BeamNG: Haupt-, Zweit-, Drittfarbe; je nach Auto und Livery sichtbar)
+local paintSlot = 1
+function M.setPaintSlot(n) paintSlot = clamp(math.floor(tonumber(n) or 1), 1, 3) end
+
+local function paintIdOf(car, slot)
+  if car.paintIds and car.paintIds[slot] ~= nil then return car.paintIds[slot] end
+  if slot == 1 then return car.paintId end
+end
+
+-- Lack in die gewählte Schicht schreiben; fehlende Schichten davor mit Schicht 1 auffüllen.
+local function setPaint(cfg, paint)
+  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
+  for i = 1, paintSlot - 1 do
+    if cfg.paints[i] == nil then cfg.paints[i] = deepcopy and deepcopy(cfg.paints[1] or paint) or (cfg.paints[1] or paint) end
+  end
+  cfg.paints[paintSlot] = paint
+end
+
+local function storePaintId(car, slot, id)
+  car.paintIds = car.paintIds or {}
+  car.paintIds[slot] = id
+  if slot == 1 then car.paintId = id end
+end
+
 function M.selectPaint(paintId)
   local c = core()
   local car = activeCar()
@@ -497,18 +521,17 @@ function M.selectPaint(paintId)
     return
   end
   local original = preview and preview.original or copyConfig(cfg)
-  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
-  cfg.paints[1] = entry.paint
+  setPaint(cfg, entry.paint)
   if car.ownedPaints and car.ownedPaints[paintId] then
     preview = nil
-    car.paintId = paintId
+    storePaintId(car, paintSlot, paintId)
     car.config = cfg
     respawn(cfg)
     c.writeSave()
     c.msg(c.t('msg.partInstalled', entry.name, c.t('shop.free')))
     return
   end
-  preview = { kind = 'paint', id = paintId, name = entry.name, level = 0, price = rules.paintPriceYen or 29800, original = original, cfg = cfg }
+  preview = { kind = 'paint', id = paintId, paintSlot = paintSlot, name = entry.name, level = 0, price = rules.paintPriceYen or 29800, original = original, cfg = cfg }
   respawn(cfg)
 end
 
@@ -525,12 +548,11 @@ function M.selectCustomPaint(arg)
     return
   end
   local original = preview and preview.original or copyConfig(cfg)
-  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
-  cfg.paints[1] = {
+  setPaint(cfg, {
     baseColor = { v[1], v[2], v[3], 1.2 },
     metallic = v[4], roughness = v[5], clearcoat = v[6], clearcoatRoughness = v[7],
-  }
-  preview = { kind = 'paint', id = 'custom', name = c.t('shop.customName'), level = 0, price = rules.customPaintPriceYen or 98000, original = original, cfg = cfg }
+  })
+  preview = { kind = 'paint', id = 'custom', paintSlot = paintSlot, name = c.t('shop.customName'), level = 0, price = rules.customPaintPriceYen or 98000, original = original, cfg = cfg }
   respawn(cfg)
 end
 
@@ -552,7 +574,7 @@ function M.confirmPreview()
   if preview.kind == 'paint' then
     car.ownedPaints = car.ownedPaints or {}
     if preview.id ~= 'custom' then car.ownedPaints[preview.id] = true end
-    car.paintId = preview.id
+    storePaintId(car, preview.paintSlot or 1, preview.id)
   else
     car.owned = car.owned or {}
     car.owned[preview.id] = true
@@ -582,17 +604,29 @@ local function paintRow()
   local car = activeCar()
   local eco = c.economy()
   local r = { slot = '__paint', kind = 'paint', name = c.t('shop.item.paint'), current = c.t('shop.stock'), currentLevel = 0, options = {} }
-  if car.paintId == 'custom' then r.current = c.t('shop.customPaint') end
+  local curId = paintIdOf(car, paintSlot)
+  if curId == 'custom' then r.current = c.t('shop.customPaint') end
   r.custom = { price = eco.formatYen(rules.customPaintPriceYen or 98000) }
+  -- Auswahl der Lackschicht mit der aktuellen Farbe jeder Schicht
+  r.paintSlot = paintSlot
+  r.paintSlots = {}
+  local cur = currentConfig()
+  local paints = cur and type(cur.paints) == 'table' and cur.paints or {}
+  for i = 1, 3 do
+    local p = paints[i] or paints[1]
+    local bc = p and (p.baseColor or {}) or {}
+    local function ch(k, n) return math.floor(clamp(tonumber(bc[k] or bc[n]) or 0.5, 0, 1) * 255) end
+    table.insert(r.paintSlots, { id = i, name = c.t('shop.paintSlot', i), swatch = string.format('rgb(%d,%d,%d)', ch(1, 'r'), ch(2, 'g'), ch(3, 'b')) })
+  end
   for _, p in ipairs(paintsFor(car.model)) do
     local owned = car.ownedPaints and car.ownedPaints[p.id]
     local price = rules.paintPriceYen or 29800
     local bc = p.paint.baseColor
-    local installed = car.paintId == p.id
+    local installed = curId == p.id
     if installed then r.current = p.name end
     table.insert(r.options, {
       part = p.id, name = p.name, level = 0, installed = installed,
-      previewing = preview and preview.kind == 'paint' and preview.id == p.id or false,
+      previewing = preview and preview.kind == 'paint' and preview.id == p.id and preview.paintSlot == paintSlot or false,
       swatch = string.format('rgb(%d,%d,%d)', math.floor(clamp(bc[1], 0, 1) * 255), math.floor(clamp(bc[2], 0, 1) * 255), math.floor(clamp(bc[3], 0, 1) * 255)),
       price = owned and c.t('shop.owned') or eco.formatYen(price),
       affordable = owned or c.save.money >= price,

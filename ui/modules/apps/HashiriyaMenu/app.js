@@ -56,6 +56,12 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-class="{\'hbm-off\': !s.repairCost || !s.canAffordRepair}" ng-click="s.repairCost && s.canAffordRepair && act(\'repair\')">' +
                 '<span class="hbm-car-name">{{ s.t[\'menu.repair\'] }}</span><span class="hbm-price">{{ s.repairCost || s.t[\'menu.noDamage\'] }}</span></div>' +
               '<div class="hbm-item" ng-click="act(\'save\')">{{ s.t[\'menu.save\'] }}</div>' +
+              '<div class="hbm-section">{{ s.t[\'garage.plate\'] }}</div>' +
+              '<div class="hbm-plate">' +
+                '<input type="text" maxlength="12" ng-model="plate.text" placeholder="{{ s.plate }}" ng-focus="cefFocus(true)" ng-blur="cefFocus(false)">' +
+                '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !plate.text || plate.text == s.plate}" ' +
+                  'ng-click="plate.text && plate.text != s.plate && act(\'setPlate\', plate.text); plate.text = \'\'">{{ s.t[\'garage.plateChange\'] }} \u00b7 {{ s.platePrice }}</span>' +
+              '</div>' +
             '</div>' +
 
             '<div ng-if="s.screen == \'garage\' && s.garageTab == \'setup\' && s.setup">' +
@@ -111,6 +117,10 @@ angular.module('beamng.apps')
                     '<span class="hbm-part-cur hbm-mq"><span>{{ r.current }}</span></span>' +
                   '</div>' +
                   '<div class="hbm-opts" ng-if="open.slot == r.slot">' +
+                    '<div class="hbm-pslots" ng-if="r.paintSlots">' +
+                      '<span ng-repeat="ps in r.paintSlots" ng-class="{\'is-on\': ps.id == r.paintSlot}" ng-click="act(\'paintSlot\', ps.id)">' +
+                        '<i class="hbm-swatch" ng-style="{background: ps.swatch}"></i>{{ ps.name }}</span>' +
+                    '</div>' +
                     '<div class="hbm-opt" ng-repeat="o in r.options track by o.part" ' +
                       'ng-class="{\'is-on\': o.installed, \'is-preview\': o.previewing, \'is-locked\': o.locked, \'is-poor\': !o.locked && !o.affordable}" ' +
                       'ng-click="pick(r, o)">' +
@@ -256,6 +266,13 @@ angular.module('beamng.apps')
           '.hbm-opt-in{padding-left:42px;}' +
           '.hbm-plain{background:rgba(255,255,255,.18);}' +
           '.hbm-slider b{width:24px;text-align:right;font-size:10px;color:var(--w);font-variant-numeric:tabular-nums;}' +
+          '.hbm-pslots{display:flex;gap:4px;padding:6px 18px 6px 24px;}' +
+          '.hbm-pslots span{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:5px 2px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;background:rgba(255,255,255,.06);color:var(--dim);}' +
+          '.hbm-pslots span.is-on{background:var(--o2);color:#141414;}' +
+          '.hbm-pslots .hbm-swatch{margin:0;width:10px;height:10px;}' +
+          '.hbm-plate{display:flex;gap:6px;align-items:center;padding:4px 18px 8px;}' +
+          '.hbm-plate input{flex:1;min-width:0;height:26px;padding:0 8px;font:700 13px "Overpass",sans-serif;letter-spacing:1px;color:#141414;background:#f4f1e6;border:2px solid #2a2a2a;border-radius:3px;outline:none;}' +
+          '.hbm-plate .hbm-btn{flex:none;padding:6px 10px;}' +
           '.hbm-note{font-size:12px;line-height:1.45;color:rgba(244,244,244,.75);padding:4px 18px 8px;}' +
           '.hbm-hint{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:8px 18px 2px;}' +
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +
@@ -268,6 +285,9 @@ angular.module('beamng.apps')
       'use strict'
       scope.s = null
       scope.open = { slot: null }
+      scope.plate = { text: '' }
+      // Beim Tippen ins Kennzeichenfeld dürfen die Tasten nicht das Auto steuern.
+      scope.cefFocus = function (on) { bngApi.engineLua('if setCEFFocus then setCEFFocus(' + (on ? 'true' : 'false') + ') end') }
       // Abschleppen kostet viel: erster Klick fragt nach, zweiter Klick (innerhalb 4 s) bestätigt.
       scope.towArmed = false
       var towTimer = null

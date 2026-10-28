@@ -139,5 +139,9 @@
   "msg.tow.battle": "Während eines Battles nicht möglich.",
   "msg.tow.moving": "Zum Abschleppen erst anhalten.",
   "msg.tow.money": "Nicht genug Geld zum Abschleppen.",
-  "menu.towConfirm": "Wirklich abschleppen? Nochmal klicken"
+  "menu.towConfirm": "Wirklich abschleppen? Nochmal klicken",
+  "shop.paintSlot": "Farbe %d",
+  "garage.plate": "Kennzeichen",
+  "garage.plateChange": "Ummelden",
+  "msg.plateChanged": "Kennzeichen „%s“ angemeldet (%s)."
 }

@@ -139,5 +139,9 @@
   "msg.tow.battle": "Not possible during a battle.",
   "msg.tow.moving": "Stop the car first to get towed.",
   "msg.tow.money": "Not enough money for towing.",
-  "menu.towConfirm": "Really tow? Click again"
+  "menu.towConfirm": "Really tow? Click again",
+  "shop.paintSlot": "Colour %d",
+  "garage.plate": "Licence plate",
+  "garage.plateChange": "Re-register",
+  "msg.plateChanged": "Plate \"%s\" registered (%s)."
 }

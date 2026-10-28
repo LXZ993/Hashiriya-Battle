@@ -18,6 +18,7 @@ M.levelName = nil
 
 local showMenu = true
 local showCarSelect = false
+local platePriceYen = 15000 -- Kennzeichen ummelden
 local garageTab = 'service' -- Garage-Reiter: service, parts, setup
 local menuAutoOpened = false -- Menü wurde vom Parkplatz geöffnet und schließt sich beim Wegfahren
 
@@ -123,7 +124,7 @@ end
 -- Auto des Spielers ---------------------------------------------------------
 
 local function spawnPlayerCar(car)
-  local opts = { config = car.config ~= '' and car.config or nil }
+  local opts = { config = car.config ~= '' and car.config or nil, licenseText = car.plate }
   -- Start in der Garage, falls die Map eine hat
   local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
   if pos then opts.pos, opts.rot = pos, rot end
@@ -333,6 +334,8 @@ local function buildUiState()
       st.area = M.t('pa.' .. area.type)
       local car = M.save.cars[M.save.activeCar or 1]
       st.carName = car and car.name or ''
+      st.plate = car and car.plate or ''
+      st.platePrice = eco.formatYen(platePriceYen)
       local cost = parking.repairCost()
       st.repairCost = cost > 0 and eco.formatYen(cost) or nil
       st.canAffordRepair = cost <= M.save.money
@@ -354,6 +357,24 @@ end
 local function arrivedArea()
   local parking = extensions.hashiriyaBattle_parking
   return parking.isArrived() and parking.getCurrent() or nil
+end
+
+-- Kennzeichen ummelden (Garage, gegen Gebühr). Bleibt bei jedem Respawn erhalten (licenseText).
+function M.changePlate(text)
+  local car = M.save and M.save.cars[M.save.activeCar or 1]
+  local veh = M.getPlayerVehicle()
+  if not car or not veh then return end
+  text = text:gsub('[%c]', ''):gsub('^%s+', ''):gsub('%s+$', '')
+  if text == '' or #text > 24 or text == car.plate then return end
+  if M.save.money < platePriceYen then
+    msg(M.t('msg.noMoney'))
+    return
+  end
+  M.save.money = M.save.money - platePriceYen
+  car.plate = text
+  pcall(core_vehicles.setPlateText, text, veh:getID())
+  M.writeSave()
+  msg(M.t('msg.plateChanged', text, M.economy().formatYen(platePriceYen)))
 end
 
 -- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
@@ -379,6 +400,11 @@ function M.uiAction(action, arg)
   elseif action == 'save' then
     M.writeSave()
     msg(M.t('msg.saved'))
+  elseif action == 'paintSlot' then
+    extensions.hashiriyaBattle_shop.setPaintSlot(arg)
+  elseif action == 'setPlate' then
+    local area = arrivedArea()
+    if area and area.type == 'garage' then M.changePlate(tostring(arg or '')) end
   elseif action == 'tow' then
     extensions.hashiriyaBattle_parking.towToGarage()
   elseif action == 'repair' then
