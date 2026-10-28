@@ -6,7 +6,9 @@ local dataPath = '/lua/ge/extensions/hashiriyaBattle/data/rivals.json'
 
 -- Mehrere Rivalen fahren gleichzeitig im Verkehr (settings.maxOnRoad). Wer hinter einem Rivalen die Lichthupe gibt,
 -- fordert genau diesen heraus. Nach dem Battle fährt der Rivale weiter (geschlagen = Revanche möglich).
-local spawnMin, spawnMax = 250, 500 -- m vor oder hinter dem Spieler
+local spawnMin, spawnMax = 400, 650 -- m vor dem Spieler (außer Sichtweite)
+local behindMin, behindMax = 200, 400 -- m hinter dem Spieler
+local stuckSeconds = 8       -- so lange fast stehen = hängt fest
 local despawnDistance = 1100 -- m Abstand, ab dem ein Rivale verschwindet
 local spawnCooldown = 20     -- s zwischen automatischen Spawns
 local minSpawnSpeed = 40 / 3.6 -- Spieler muss mind. 40 km/h fahren
@@ -243,6 +245,9 @@ local function findRoadSpawn(pos, dir, distance)
   local target = pos + dir * distance
   local n1, n2 = map.findClosestRoad(target)
   if not n1 or not n2 then return nil end
+  -- nicht auf eine Auffahrt oder eine Straße darüber/darunter ausweichen
+  local np = map.getMap().nodes[n1].pos
+  if math.abs(np.z - target.z) > 8 or (vec3(np.x, np.y, 0) - vec3(target.x, target.y, 0)):length() > 25 then return nil end
   local nodes = map.getMap().nodes
   local p1, p2 = nodes[n1].pos, nodes[n2].pos
   local seg = p2 - p1
@@ -301,10 +306,14 @@ function M.spawnNext(force)
   end
 
   -- vor oder hinter dem Spieler, in Fahrtrichtung
-  local dist = spawnMin + math.random() * (spawnMax - spawnMin)
-  if not force and math.random() < 0.4 then dist = -dist end
-  if force then dist = 160 end
-  local pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), dist)
+  local behind = not force and math.random() < 0.4
+  local pos, dir, dist
+  for _ = 1, 4 do
+    dist = behind and -(behindMin + math.random() * (behindMax - behindMin)) or (spawnMin + math.random() * (spawnMax - spawnMin))
+    if force then dist = 160 end
+    pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), dist)
+    if pos then break end
+  end
   if not pos then
     if force then core().msg(core().t('msg.noRoad')) end
     return
@@ -423,12 +432,41 @@ local function onUpdate(dtReal, dtSim)
           setCruise(veh, e.data)
         end
       end
+      -- Gleich nach dem Spawn mit Reisetempo losrollen lassen, statt aus dem Stand zu starten
+      if not e.launched and e.age > 0.25 then
+        e.launched = true
+        local v = e.spawnDir * ((e.data.cruiseKmh or 100) / 3.6)
+        local ok = pcall(function() veh:applyClusterVelocityScaleAdd(veh:getRefNodeId(), 0, v.x, v.y, v.z) end)
+        if not ok then
+          veh:queueLuaCommand(string.format('obj:applyClusterVelocityScaleAdd(obj:getRefNodeId(), 0, %f, %f, %f)', v.x, v.y, v.z))
+        end
+      end
+      -- Licht: nachts an, außer der Rivale fährt als Markenzeichen ohne Licht (rivals.json: "lights": "off")
+      e.lightTimer = (e.lightTimer or 0.3) - dtSim
+      if e.lightTimer <= 0 then
+        e.lightTimer = 5
+        local want = (e.data.lights == 'off' or not home().isNight()) and 0 or 1
+        if e.data.lights == 'on' then want = 1 end
+        veh:queueLuaCommand(string.format('if (electrics.values.lights_state or 0) ~= %d then electrics.setLightsState(%d) end', want, want))
+      end
+      -- Hängt fest (steht oder fährt kaum, ohne Battle): erst neu anschieben, dann verschwinden lassen, wenn weit genug weg
+      if e ~= engaged and e.launched then
+        if veh:getVelocity():length() < 3 then e.stuck = (e.stuck or 0) + dtSim else e.stuck = 0 end
+        if e.stuck > stuckSeconds * 0.5 and not e.nudged then e.nudged = true; setCruise(veh, e.data) end
+        if e.stuck > stuckSeconds and player and (veh:getPosition() - player:getPosition()):length() > 120 then
+          log('I', logTag, 'Rivale hing fest und wird entfernt: ' .. tostring(e.data.id))
+          despawn(e)
+          goto continue
+        end
+        if e.stuck == 0 then e.nudged = nil end
+      end
       -- Zu weit weg (oder Tag geworden) und nicht im Battle: verschwinden lassen.
       if player and e ~= engaged then
         local far = (veh:getPosition() - player:getPosition()):length() > despawnDistance
         if far or (not night and not busy) then despawn(e) end
       end
     end
+    ::continue::
   end
 
   cooldown = cooldown - dtSim
