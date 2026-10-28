@@ -1,5 +1,6 @@
 {
-  "_hinweis": "Orte auf der C1-Map, mit 'Position merken' gesammelt (27./28.10.2026). type: garage | shop | home | gas. pos/dir/radius = Bucht für das Auto (Auslösebereich in m um die Buchtmitte). footPos/footRadius = Punkt zu Fuß. footOnly = nur zu Fuß (keine Bucht). Beim Shop (footEntry) parkt man das Auto in der Bucht und geht zu Fuß zum Eingang. Optional: markerPos/markerDir/markerSize für die exakte Bucht. showroom = Präsentationsplatz für Autokauf/Neues Spiel (noch neu aufnehmen).",
+  "_hinweis": "Orte auf der C1-Map, mit 'Position merken' gesammelt (27./28.10.2026). type: garage | shop | home | gas. pos/dir/radius = Bucht für das Auto (Auslösebereich in m um die Buchtmitte). footPos/footRadius = Punkt zu Fuß. footOnly = nur zu Fuß (keine Bucht). Beim Shop (footEntry) parkt man das Auto in der Bucht und geht zu Fuß zum Eingang. Optional: markerPos/markerDir/markerSize für die exakte Bucht. playerSpawn = Startpunkt zu Fuß nach Neues Spiel/Weiterspielen (Zuhause). showroom = Präsentationsplatz für Autokauf/Neues Spiel (noch neu aufnehmen).",
+  "playerSpawn": { "pos": [5848.501, 4637.323, 873.831], "dir": [0.93426, 0.35659, 0] },
   "parkingAreas": [
     { "id": "pa_garage", "type": "garage", "pos": [5897.693, 4643.223, 873.129], "dir": [-0.93625, -0.34953, -0.03555], "radius": 4 },
     { "id": "pa_shop", "type": "shop", "pos": [1099.163, 4758.111, 874.214], "dir": [0.99977, 0.01182, -0.01766], "radius": 4,

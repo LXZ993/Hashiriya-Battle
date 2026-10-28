@@ -234,7 +234,11 @@ local colors = {
   garage = { 1.0, 0.45, 0.1 },
   shop   = { 0.3, 0.72, 1.0 },
   gas    = { 0.35, 0.9, 0.45 },
+  home   = { 1.0, 0.82, 0.45 },
 }
+
+local footMarkerSize = { 1.6, 1.6 } -- m, kleine Markierung für Punkte zu Fuß
+local footMarkerAreas = {}           -- [areaId] = Markierungs-Eintrag am Fußpunkt
 
 local markers = {} -- [areaId] = { outlineId, decal, decalArr, alpha }
 
@@ -336,21 +340,38 @@ local function setOutline(m, alpha)
   obj:setScaleXYZ(m.w, m.l / 2.05, math.max(alpha * 0.2, 0.01)) -- 1 bis 20 cm hoch wie in der Karriere
 end
 
+-- Alles, was markiert wird: Buchten für das Auto und Punkte zu Fuß (Zuhause, Shop-Eingang)
+local function markerAreas()
+  local list = {}
+  for _, a in ipairs(areas()) do
+    if not a.footOnly then table.insert(list, a) end
+    if a.footPos then
+      local f = footMarkerAreas[a.id]
+      if not f then
+        f = { id = a.id .. '_foot', type = a.type, pos = a.footPos, dir = a.footDir or a.dir, markerSize = footMarkerSize, owner = a }
+        footMarkerAreas[a.id] = f
+      end
+      table.insert(list, f)
+    end
+  end
+  return list
+end
+
 local function drawMarkers(playerPos)
   local show = markersOn and not photoMode and not rawget(_G, 'photoModeOpen')
     and not (editor and editor.active)
-  for _, a in ipairs(areas()) do
-    local m = not a.footOnly and (markers[a.id] or (show and createMarker(a)))
+  for _, a in ipairs(markerAreas()) do
+    local m = markers[a.id] or (show and createMarker(a))
     if m then
       local dist = (playerPos - m.pos):length()
       if not show or dist > decalFadeEnd + 100 then
         setOutline(m, 0)
       else
         local near = clamp(1 - (dist - outlineNear) / (outlineFar - outlineNear), 0, 1)
-        if current == a and arrived then near = near * 0.35 end
+        if (current == a or current == a.owner) and arrived then near = near * 0.35 end
         setOutline(m, near * 0.9)
         if Engine and Engine.Render and Engine.Render.DynamicDecalMgr then
-          m.decal.color = ColorF(m.color[1], m.color[2], m.color[3], decalAlpha * ((current == a and arrived) and 0.5 or 1))
+          m.decal.color = ColorF(m.color[1], m.color[2], m.color[3], decalAlpha * (((current == a or current == a.owner) and arrived) and 0.5 or 1))
           pcall(Engine.Render.DynamicDecalMgr.addDecals, m.decalArr, 1)
         end
       end
@@ -490,6 +511,7 @@ end
 local function onClientEndMission()
   clearMarkers()
   groundZ = {}
+  footMarkerAreas = {}
 end
 
 local function onExtensionUnloaded()
