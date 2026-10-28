@@ -311,5 +311,13 @@
   "shop.stat.torque": "Torque",
   "shop.stat.weight": "Weight",
   "shop.stat.ratio": "Power-to-weight",
-  "shop.stat.brake": "Brake torque"
+  "shop.stat.brake": "Brake torque",
+  "wd.0": "Sun",
+  "wd.1": "Mon",
+  "wd.2": "Tue",
+  "wd.3": "Wed",
+  "wd.4": "Thu",
+  "wd.5": "Fri",
+  "wd.6": "Sat",
+  "hud.dayNo": "Day %d"
 }

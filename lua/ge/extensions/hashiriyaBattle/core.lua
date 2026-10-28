@@ -609,6 +609,7 @@ local function buildUiState()
       st.tow = { cost = eco.formatYen(tow.cost), can = tow.reason == nil, reason = tow.reason and M.t('msg.tow.' .. tow.reason) or nil }
     end
     st.day = extensions.hashiriyaBattle_home.dayText()
+    st.clock = extensions.hashiriyaBattle_home.clockInfo()
     st.progress = extensions.hashiriyaBattle_progress.getUiState()
     st.night = extensions.hashiriyaBattle_home.isNight()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()

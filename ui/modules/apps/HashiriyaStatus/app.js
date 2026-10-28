@@ -6,6 +6,8 @@ angular.module('beamng.apps')
     template:
       '<div class="bngApp hbt-root">' +
         '<div class="hbt" ng-if="s && s.active">' +
+          '<div class="hbt-clock" ng-if="s.clock"><span class="hbt-clock-time" ng-class="{\'is-night\': s.clock.night}">{{ s.clock.time }}</span>' +
+            '<span class="hbt-clock-date"><b>{{ s.clock.weekday }}</b> {{ s.clock.date }}</span></div>' +
           '<div class="hbt-money">{{ s.money }}</div>' +
           '<div class="hbt-streak" ng-if="s.style && s.style.streak >= 2">{{ s.t[\'hud.streak\'] }} <b>{{ s.style.streak }}</b></div>' +
           '<div class="hbt-combo" ng-if="s.style && s.style.combo">' +
@@ -72,6 +74,11 @@ angular.module('beamng.apps')
           '.hbt-radar-dot.is-edge{opacity:.6;}' +
           '.hbt-radar-dot.is-engaged svg{animation:hbtPing .4s ease-in-out infinite alternate;}' +
           '.hbt-radar-dist{position:absolute;left:0;right:0;bottom:-14px;text-align:center;font-size:9px;letter-spacing:1px;color:rgba(244,244,244,.6);}' +
+          '.hbt-clock{display:flex;align-items:baseline;justify-content:flex-end;gap:8px;margin-bottom:2px;}' +
+          '.hbt-clock-time{font-size:15px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;letter-spacing:.5px;color:#ffd23f;}' +
+          '.hbt-clock-time.is-night{color:#8fb8ff;}' +
+          '.hbt-clock-date{font-size:10px;letter-spacing:1px;color:rgba(244,244,244,.65);font-variant-numeric:tabular-nums;}' +
+          '.hbt-clock-date b{color:#f4f4f4;font-weight:800;text-transform:uppercase;margin-right:2px;}' +
           '.hbt-streak{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,244,244,.65);margin-top:1px;}' +
           '.hbt-streak b{color:#ffd23f;font-weight:900;font-style:italic;font-size:12px;}' +
           '.hbt-combo{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.12);}' +

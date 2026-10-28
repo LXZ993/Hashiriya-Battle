@@ -70,6 +70,26 @@ function M.getDay()
   return save and (save.day or 1) or 1
 end
 
+-- Uhrzeit, Datum und Wochentag fürs HUD (Tag 1 = startDate aus data/world.json)
+function M.clockInfo()
+  local c = core()
+  local t = timeOfDay()
+  if not t then return nil end
+  local h = hourOf(t)
+  local out = { time = string.format('%02d:%02d', math.floor(h), math.floor((h % 1) * 60)), day = M.getDay(), night = M.isNight() }
+  local y, m, d = tostring(M.world().startDate or '2026-04-03'):match('(%d+)-(%d+)-(%d+)')
+  if y and rawget(_G, 'os') and os.time and os.date then
+    local ok, stamp = pcall(os.time, { year = tonumber(y), month = tonumber(m), day = tonumber(d) + M.getDay() - 1, hour = 12 })
+    if ok and stamp then
+      local wd = tonumber(os.date('%w', stamp)) or 0
+      out.weekday = c.t('wd.' .. wd)
+      out.date = os.date('%d.%m.%Y', stamp)
+      if c.lang == 'en' then out.date = os.date('%Y-%m-%d', stamp) end
+    end
+  end
+  return out
+end
+
 function M.dayText()
   local t = timeOfDay()
   local clock = t and string.format('%02d:%02d', math.floor(hourOf(t)), math.floor((hourOf(t) % 1) * 60)) or ''

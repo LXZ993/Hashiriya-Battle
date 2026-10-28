@@ -311,5 +311,13 @@
   "shop.stat.torque": "Drehmoment",
   "shop.stat.weight": "Gewicht",
   "shop.stat.ratio": "Leistungsgewicht",
-  "shop.stat.brake": "Bremsmoment"
+  "shop.stat.brake": "Bremsmoment",
+  "wd.0": "So",
+  "wd.1": "Mo",
+  "wd.2": "Di",
+  "wd.3": "Mi",
+  "wd.4": "Do",
+  "wd.5": "Fr",
+  "wd.6": "Sa",
+  "hud.dayNo": "Tag %d"
 }
