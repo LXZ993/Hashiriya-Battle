@@ -4,13 +4,16 @@ local M = {}
 local logTag = 'hashiriya'
 local dataPath = '/lua/ge/extensions/hashiriyaBattle/data/rivals.json'
 
-local spawnDistance = 160   -- m vor dem Spieler
-local despawnDistance = 900 -- m Abstand, ab dem ein Rivale verschwindet
-local spawnCooldown = 45    -- s zwischen automatischen Spawns
-local minSpawnSpeed = 60 / 3.6 -- Spieler muss mind. 60 km/h fahren
+-- Mehrere Rivalen fahren gleichzeitig im Verkehr (settings.maxOnRoad). Wer hinter einem Rivalen die Lichthupe gibt,
+-- fordert genau diesen heraus. Nach dem Battle fährt der Rivale weiter (geschlagen = Revanche möglich).
+local spawnMin, spawnMax = 250, 500 -- m vor oder hinter dem Spieler
+local despawnDistance = 1100 -- m Abstand, ab dem ein Rivale verschwindet
+local spawnCooldown = 20     -- s zwischen automatischen Spawns
+local minSpawnSpeed = 40 / 3.6 -- Spieler muss mind. 40 km/h fahren
 
 local data = nil
-local active = nil -- { data = rivalData, vehId = id, spawnDir = vec3, spawnPos = vec3, age = s }
+local onRoad = {}   -- { data = rivalData, vehId = id, spawnDir = vec3, spawnPos = vec3, age = s }
+local engaged = nil -- Eintrag aus onRoad, gegen den gerade das Battle läuft
 local cooldown = 10
 
 local function core() return extensions.hashiriyaBattle_core end
@@ -34,12 +37,45 @@ function M.vehicleName(model)
   return model
 end
 
+local setCruise -- weiter unten
+local function entryVeh(e) return e and be:getObjectByID(e.vehId) or nil end
+
+-- Nächster Rivale zum Spieler (für die Anzeige), bzw. der aus dem laufenden Battle
+local function nearest()
+  local player = core().getPlayerVehicle()
+  if not player then return onRoad[1] end
+  local best, bestD = nil, math.huge
+  for _, e in ipairs(onRoad) do
+    local veh = entryVeh(e)
+    if veh then
+      local d = (veh:getPosition() - player:getPosition()):length()
+      if d < bestD then best, bestD = e, d end
+    end
+  end
+  return best
+end
+
 function M.getActiveRival()
-  return active
+  return engaged or nearest()
 end
 
 function M.getRivalVehicle()
-  return active and be:getObjectByID(active.vehId) or nil
+  return entryVeh(engaged or nearest())
+end
+
+function M.getOnRoad() return onRoad end
+
+-- Battle beginnt gegen diesen Rivalen / ist vorbei
+function M.engage(e) engaged = e end
+function M.disengage()
+  local e = engaged
+  engaged = nil
+  local veh = entryVeh(e)
+  if veh then
+    -- weiterfahren, aber erst nach einer Pause wieder herausforderbar
+    e.cooldown = (data and data.settings and data.settings.rechallengeSeconds) or 60
+    setCruise(veh, e.data)
+  end
 end
 
 -- Wer darf als Nächstes erscheinen? -----------------------------------------
@@ -126,8 +162,14 @@ local function conditionsMet(c, save)
   return true
 end
 
+local function isOnRoad(id)
+  for _, e in ipairs(onRoad) do if e.data.id == id then return true end end
+  return false
+end
+
 local function isEligible(rival, save)
   local set = settings()
+  if isOnRoad(rival.id) then return false end
   -- Geschlagene Rivalen kommen als Revanche wieder (stärker, weniger Belohnung)
   if save.defeated[rival.id] and not (set.rematch and set.rematch.enabled) then return false end
   local night = home().nightId()
@@ -175,6 +217,13 @@ local function rematchOf(r, save)
   return copy
 end
 
+-- Daten fürs Battle: ein schon geschlagener Rivale auf der Straße kämpft als Revanche
+function M.challengeData(e)
+  local save = core().save
+  if save and save.defeated[e.data.id] and not e.data.rematch then e.data = rematchOf(e.data, save) end
+  return e.data
+end
+
 local function pickRival(save)
   -- Gibt es neue Gegner, kommt meist einer davon (rematch.weight = Anteil der Revanchen); sonst eine Revanche
   local fresh, beaten = {}, {}
@@ -214,7 +263,7 @@ local function setRotation(veh, pos, dir)
   end
 end
 
-local function setCruise(veh, rival)
+function setCruise(veh, rival)
   local speed = (rival.cruiseKmh or 100) / 3.6
   veh:queueLuaCommand(string.format(
     "ai.setMode('traffic') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
@@ -224,14 +273,15 @@ M.setCruise = setCruise
 
 function M.spawnNext(force)
   local save = core().save
-  if not save or active then return end
+  if not save then return end
   if not data then M.loadData() end
   local player = core().getPlayerVehicle()
   if not player then return end
+  if #onRoad >= (settings().maxOnRoad or 4) and not force then return end
 
   -- Nicht in Parkplätzen spawnen (nur der Test-Knopf darf das)
   if not force and extensions.hashiriyaBattle_parking.getCurrent() then return end
-  -- Battles nur nachts und nur bis zum Limit pro Nacht
+  -- Battles nur nachts und (falls eingestellt) nur bis zum Limit pro Nacht
   if not force then
     if settings().nightOnly and not home().isNight() then return end
     local left = M.battlesLeftTonight()
@@ -250,7 +300,11 @@ function M.spawnNext(force)
     return
   end
 
-  local pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), spawnDistance)
+  -- vor oder hinter dem Spieler, in Fahrtrichtung
+  local dist = spawnMin + math.random() * (spawnMax - spawnMin)
+  if not force and math.random() < 0.4 then dist = -dist end
+  if force then dist = 160 end
+  local pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), dist)
   if not pos then
     if force then core().msg(core().t('msg.noRoad')) end
     return
@@ -267,13 +321,15 @@ function M.spawnNext(force)
     return
   end
 
-  active = { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false }
+  table.insert(onRoad, { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false })
   setCruise(veh, rival)
-  local nick = progress().loc(rival.nick)
-  core().msg(core().t('msg.rivalSpotted', rival.name .. (nick ~= '' and (' "' .. nick .. '"') or ''))
-    .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or '') .. (rival.boss and core().t('msg.boss') or '')
-    .. (rival.rematch and core().t('msg.rematch') or ''))
-  log('I', logTag, 'Rivale gespawnt: ' .. rival.id)
+  if force or dist > 0 then
+    local nick = progress().loc(rival.nick)
+    core().msg(core().t('msg.rivalSpotted', rival.name .. (nick ~= '' and (' "' .. nick .. '"') or ''))
+      .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or '') .. (rival.boss and core().t('msg.boss') or '')
+      .. (rival.rematch and core().t('msg.rematch') or ''))
+  end
+  log('I', logTag, 'Rivale gespawnt: ' .. rival.id .. string.format(' (%d m, %d unterwegs)', math.floor(dist), #onRoad))
 end
 
 -- Farbklasse für Markierungen (Radar, HUD): Boss, Wanderer, Leader, Revanche, verloren, normal
@@ -293,36 +349,51 @@ end
 function M.radarInfo(range)
   local c = core()
   local player = c.getPlayerVehicle()
-  if not player or not active then return nil end
-  local veh = be:getObjectByID(active.vehId)
-  if not veh then return nil end
+  if not player or #onRoad == 0 then return nil end
   local fwd = player:getDirectionVector(); fwd.z = 0
   if fwd:length() < 0.01 then return nil end
   fwd = fwd:normalized()
   local right = vec3(fwd.y, -fwd.x, 0)
-  local d = veh:getPosition() - player:getPosition()
-  local rdir = veh:getDirectionVector()
-  local x, y = d:dot(right), d:dot(fwd)
-  local heading = math.deg(math.atan2(rdir:dot(right), rdir:dot(fwd)))
-  local dist = math.sqrt(x * x + y * y)
-  local scale = math.min(1, range / math.max(dist, 1))
-  return { list = { {
-    kind = M.markerKind(active.data), name = active.data.name,
-    x = x / range * scale, y = y / range * scale, heading = heading, edge = dist > range,
-    dist = dist < 1000 and string.format('%d m', math.floor(dist)) or string.format('%.1f km', dist / 1000),
-  } } }
+  local list, near = {}, nil
+  for _, e in ipairs(onRoad) do
+    local veh = entryVeh(e)
+    if veh then
+      local d = veh:getPosition() - player:getPosition()
+      local rdir = veh:getDirectionVector()
+      local x, y = d:dot(right), d:dot(fwd)
+      local dist = math.sqrt(x * x + y * y)
+      local scale = math.min(1, range / math.max(dist, 1))
+      local item = {
+        kind = M.markerKind(e.data), name = e.data.name, engaged = e == engaged,
+        x = x / range * scale, y = y / range * scale, edge = dist > range,
+        heading = math.deg(math.atan2(rdir:dot(right), rdir:dot(fwd))),
+        dist = dist < 1000 and string.format('%d m', math.floor(dist)) or string.format('%.1f km', dist / 1000),
+        d = dist,
+      }
+      table.insert(list, item)
+      if not near or dist < near.d then near = item end
+    end
+  end
+  return { list = list, near = near }
 end
 
-function M.despawnActive()
-  if not active then return end
-  local veh = be:getObjectByID(active.vehId)
+local function despawn(e)
+  local veh = entryVeh(e)
   if veh then veh:delete() end
-  active = nil
+  for i, x in ipairs(onRoad) do if x == e then table.remove(onRoad, i); break end end
+  if engaged == e then engaged = nil end
+end
+
+-- Rivale aus dem Battle (oder der nächste) verschwindet, z. B. beim Abschleppen
+function M.despawnActive()
+  local e = engaged or nearest()
+  if e then despawn(e) end
   cooldown = spawnCooldown
 end
 
 function M.despawnAll()
-  M.despawnActive()
+  for i = #onRoad, 1, -1 do despawn(onRoad[i]) end
+  onRoad, engaged = {}, nil
 end
 
 -- Update -------------------------------------------------------------------------
@@ -330,36 +401,38 @@ end
 local function onUpdate(dtReal, dtSim)
   local c = core()
   if not c or not c.active then return end
+  local player = c.getPlayerVehicle()
+  local busy = extensions.hashiriyaBattle_battle.isBusy()
+  local night = not settings().nightOnly or home().isNight()
 
-  if active then
-    active.age = active.age + dtSim
-    local veh = be:getObjectByID(active.vehId)
-    if not veh then active = nil; return end
-
-    -- Falls das Auto falsch herum gespawnt ist, einmal umdrehen.
-    if not active.rotChecked and active.age > 0.5 then
-      active.rotChecked = true
-      if veh:getDirectionVector():dot(active.spawnDir) < 0 then
-        log('W', logTag, 'Rivale stand falsch herum, wird gedreht')
-        setRotation(veh, active.spawnPos, active.spawnDir * -1)
-        setCruise(veh, active.data)
+  for i = #onRoad, 1, -1 do
+    local e = onRoad[i]
+    e.age = e.age + dtSim
+    if e.cooldown then e.cooldown = e.cooldown - dtSim; if e.cooldown <= 0 then e.cooldown = nil end end
+    local veh = entryVeh(e)
+    if not veh then
+      table.remove(onRoad, i)
+      if engaged == e then engaged = nil end
+    else
+      -- Falls das Auto falsch herum gespawnt ist, einmal umdrehen.
+      if not e.rotChecked and e.age > 0.5 then
+        e.rotChecked = true
+        if veh:getDirectionVector():dot(e.spawnDir) < 0 then
+          log('W', logTag, 'Rivale stand falsch herum, wird gedreht')
+          setRotation(veh, e.spawnPos, e.spawnDir * -1)
+          setCruise(veh, e.data)
+        end
+      end
+      -- Zu weit weg (oder Tag geworden) und nicht im Battle: verschwinden lassen.
+      if player and e ~= engaged then
+        local far = (veh:getPosition() - player:getPosition()):length() > despawnDistance
+        if far or (not night and not busy) then despawn(e) end
       end
     end
-
-    -- Zu weit weg und nicht im Battle: verschwinden lassen.
-    local player = c.getPlayerVehicle()
-    local battle = extensions.hashiriyaBattle_battle
-    if player and not battle.isBusy() then
-      if (veh:getPosition() - player:getPosition()):length() > despawnDistance then
-        M.despawnActive()
-      end
-    end
-    return
   end
 
   cooldown = cooldown - dtSim
-  if cooldown > 0 then return end
-  local player = c.getPlayerVehicle()
+  if cooldown > 0 or busy then return end
   if player and player:getVelocity():length() > minSpawnSpeed then
     M.spawnNext(false)
     cooldown = spawnCooldown

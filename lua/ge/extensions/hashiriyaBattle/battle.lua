@@ -39,6 +39,7 @@ end
 function M.reset()
   state = 'idle'
   battle = nil
+  if rivals() and rivals().disengage then rivals().disengage() end
 end
 
 -- Lichthupe ---------------------------------------------------------------------
@@ -120,11 +121,14 @@ function M.onHighbeam(vehId, value)
 
   local player = core().getPlayerVehicle()
   if not player or player:getID() ~= vehId then return end
-  local active = rivals().getActiveRival()
-  local rivalVeh = rivals().getRivalVehicle()
-  if not active or not rivalVeh then return end
-  if playerBehindRival(player, rivalVeh) then
-    startCountdown(active.data, rivalVeh)
+  -- den Rivalen herausfordern, hinter dem man gerade fährt
+  for _, e in ipairs(rivals().getOnRoad()) do
+    local rivalVeh = be:getObjectByID(e.vehId)
+    if rivalVeh and not e.cooldown and playerBehindRival(player, rivalVeh) then
+      rivals().engage(e)
+      startCountdown(rivals().challengeData(e), rivalVeh)
+      return
+    end
   end
 end
 
@@ -277,7 +281,7 @@ local function onUpdate(dtReal, dtSim)
   elseif state == 'result' then
     timer = timer - dtSim
     if timer <= 0 then
-      rivals().despawnActive()
+      -- der Rivale fährt weiter (TXR-Stil); geschlagen = später Revanche möglich
       M.reset()
     end
   end

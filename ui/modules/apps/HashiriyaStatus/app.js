@@ -10,10 +10,10 @@ angular.module('beamng.apps')
           '<div class="hbt-rival" ng-if="s.rival" ng-class="\'k-\' + s.rivalKind"><i></i>VS <b>{{ s.rival }}</b></div>' +
           '<div class="hbt-radar" ng-if="s.radar">' +
             '<span class="hbt-radar-me"></span>' +
-            '<span class="hbt-radar-dot" ng-repeat="r in s.radar.list" ng-class="[\'k-\' + r.kind, {\'is-edge\': r.edge}]"' +
+            '<span class="hbt-radar-dot" ng-repeat="r in s.radar.list" ng-class="[\'k-\' + r.kind, {\'is-edge\': r.edge, \'is-engaged\': r.engaged}]"' +
               ' ng-style="{left: (50 + r.x * 46) + \'%\', top: (50 - r.y * 46) + \'%\', transform: \'translate(-50%,-50%) rotate(\' + r.heading + \'deg)\'}">' +
               '<svg viewBox="0 0 12 12"><path d="M6 0.5 L11 11 L6 8.4 L1 11 Z"/></svg></span>' +
-            '<span class="hbt-radar-dist" ng-if="s.radar.list[0]">{{ s.radar.list[0].dist }}</span>' +
+            '<span class="hbt-radar-dist" ng-if="s.radar.near">{{ s.radar.near.dist }}</span>' +
           '</div>' +
           '<div class="hbt-pa" ng-if="s.nav && !s.nav.arrived && !(s.battle && s.battle.state !== \'idle\')" ng-class="\'hbt-pa-\' + s.nav.type">' +
             '<span class="hbt-pa-tag">PA</span>' +
@@ -59,6 +59,7 @@ angular.module('beamng.apps')
           '.hbt-radar-dot.k-leader svg{fill:var(--k-leader);} .hbt-radar-dot.k-wanderer svg{fill:var(--k-wanderer);}' +
           '.hbt-radar-dot.k-boss svg{fill:var(--k-boss);} .hbt-radar-dot.k-beaten svg{fill:var(--k-beaten);} .hbt-radar-dot.k-lost svg{fill:var(--k-lost);}' +
           '.hbt-radar-dot.is-edge{opacity:.6;}' +
+          '.hbt-radar-dot.is-engaged svg{animation:hbtPing .4s ease-in-out infinite alternate;}' +
           '.hbt-radar-dist{position:absolute;left:0;right:0;bottom:-14px;text-align:center;font-size:9px;letter-spacing:1px;color:rgba(244,244,244,.6);}' +
           '@keyframes hbtPing{from{opacity:1;}to{opacity:.25;}}' +
         '</style>' +
