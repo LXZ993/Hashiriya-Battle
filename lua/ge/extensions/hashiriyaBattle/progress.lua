@@ -86,7 +86,13 @@ function M.onBattle(rival, won, result)
   if won then
     save.rep = (save.rep or 0) + (rival.rep or 30)
     save.defeatedNight = save.defeatedNight or {}
-    save.defeatedNight[rival.id] = night
+    if rival.rematch then
+      save.rematchWins = save.rematchWins or {}
+      save.rematchWins[rival.id] = (save.rematchWins[rival.id] or 0) + 1
+      bump(save, 'rematchWins')
+    else
+      save.defeatedNight[rival.id] = night
+    end
     if rival.final then save.finalBeaten = true end
     result = result or {}
     if (result.damageSp or 0) <= (set.cleanWinMaxDamageSp or 60) then bump(save, 'cleanWins') end

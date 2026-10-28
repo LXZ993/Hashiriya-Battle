@@ -122,8 +122,9 @@ local function conditionsMet(c, save)
 end
 
 local function isEligible(rival, save)
-  if save.defeated[rival.id] then return false end
   local set = settings()
+  -- Geschlagene Rivalen kommen als Revanche wieder (stärker, weniger Belohnung)
+  if save.defeated[rival.id] and not (set.rematch and set.rematch.enabled) then return false end
   local night = home().nightId()
   -- jeder Rivale nur einmal pro Nacht; nach einer Niederlage eine Nacht Pause
   local last = (save.lastBattle or {})[rival.id]
@@ -131,6 +132,7 @@ local function isEligible(rival, save)
     if set.rivalOncePerNight ~= false and last.night == night then return false end
     if not last.won and night - last.night <= (set.lostRivalCooldownNights or 0) and last.night ~= night then return false end
   end
+  if save.defeated[rival.id] then return true end
   if rival.team then
     local team = teamById(rival.team)
     if team and progress().rankIndex(save) < (team.minRank or 0) then return false end
@@ -153,13 +155,31 @@ function M.battlesLeftTonight()
   return math.max(0, max - used)
 end
 
+-- Revanche: Kopie des Rivalen mit mehr Biss; Belohnung und Ruf fallen kleiner aus
+local function rematchOf(r, save)
+  local rm = settings().rematch or {}
+  local n = ((save.rematchWins or {})[r.id] or 0)
+  local copy = {}
+  for k, v in pairs(r) do copy[k] = v end
+  copy.rematch = true
+  copy.aggression = math.min(1, (r.aggression or 0.5) + (rm.aggressionBonus or 0.08) * (1 + math.min(n, 3) * 0.5))
+  copy.maxSp = math.floor((r.maxSp or 1000) * (rm.spFactor or 1.1) * (1 + math.min(n, 3) * 0.05))
+  copy.cruiseKmh = (r.cruiseKmh or 100) + 5
+  copy.rewardUsd = math.floor((r.rewardUsd or 1000) * (rm.rewardFactor or 0.4))
+  copy.rep = math.floor((r.rep or 30) * (rm.repFactor or 0.25))
+  return copy
+end
+
 local function pickRival(save)
-  local candidates = {}
+  -- Gibt es neue Gegner, kommt meist einer davon (rematch.weight = Anteil der Revanchen); sonst eine Revanche
+  local fresh, beaten = {}, {}
   for _, r in ipairs(data.rivals) do
-    if isEligible(r, save) then table.insert(candidates, r) end
+    if isEligible(r, save) then table.insert(save.defeated[r.id] and beaten or fresh, r) end
   end
-  if #candidates == 0 then return nil end
-  return candidates[math.random(#candidates)]
+  local rw = (settings().rematch or {}).weight or 0.25
+  if #fresh > 0 and (#beaten == 0 or math.random() >= rw) then return fresh[math.random(#fresh)] end
+  if #beaten > 0 then return rematchOf(beaten[math.random(#beaten)], save) end
+  return nil
 end
 
 -- Spawnen -----------------------------------------------------------------------
@@ -246,8 +266,46 @@ function M.spawnNext(force)
   setCruise(veh, rival)
   local nick = progress().loc(rival.nick)
   core().msg(core().t('msg.rivalSpotted', rival.name .. (nick ~= '' and (' "' .. nick .. '"') or ''))
-    .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or '') .. (rival.boss and core().t('msg.boss') or ''))
+    .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or '') .. (rival.boss and core().t('msg.boss') or '')
+    .. (rival.rematch and core().t('msg.rematch') or ''))
   log('I', logTag, 'Rivale gespawnt: ' .. rival.id)
+end
+
+-- Farbklasse für Markierungen (Radar, HUD): Boss, Wanderer, Leader, Revanche, verloren, normal
+function M.markerKind(rival)
+  local save = core().save
+  if not rival then return 'rival' end
+  if rival.boss then return 'boss' end
+  if save and save.defeated and save.defeated[rival.id] then return 'beaten' end
+  local last = save and save.lastBattle and save.lastBattle[rival.id]
+  if last and not last.won then return 'lost' end
+  if rival.wanderer then return 'wanderer' end
+  if rival.leader then return 'leader' end
+  return 'rival'
+end
+
+-- Radar: Rivalen relativ zum Spieler (x rechts, y vorne, in Metern)
+function M.radarInfo(range)
+  local c = core()
+  local player = c.getPlayerVehicle()
+  if not player or not active then return nil end
+  local veh = be:getObjectByID(active.vehId)
+  if not veh then return nil end
+  local fwd = player:getDirectionVector(); fwd.z = 0
+  if fwd:length() < 0.01 then return nil end
+  fwd = fwd:normalized()
+  local right = vec3(fwd.y, -fwd.x, 0)
+  local d = veh:getPosition() - player:getPosition()
+  local rdir = veh:getDirectionVector()
+  local x, y = d:dot(right), d:dot(fwd)
+  local heading = math.deg(math.atan2(rdir:dot(right), rdir:dot(fwd)))
+  local dist = math.sqrt(x * x + y * y)
+  local scale = math.min(1, range / math.max(dist, 1))
+  return { list = { {
+    kind = M.markerKind(active.data), name = active.data.name,
+    x = x / range * scale, y = y / range * scale, heading = heading, edge = dist > range,
+    dist = dist < 1000 and string.format('%d m', math.floor(dist)) or string.format('%.1f km', dist / 1000),
+  } } }
 end
 
 function M.despawnActive()

@@ -116,10 +116,26 @@ function M.isWalking()
   return ok and res or false
 end
 
+-- Aktuelle Position der Spielfigur. getPosition() liefert beim Einrad die Spawn-Stelle; die Walk-Erweiterung
+-- selbst liest getPositionXYZ(). Liegt die Kamera (Ego-Sicht) weit weg, zählt die Kamera, auf den Boden gesetzt.
+local function walkerPosition(veh)
+  local pos
+  local ok, x, y, z = pcall(function() return veh:getPositionXYZ() end)
+  if ok and x then pos = vec3(x, y, z) else pos = veh:getPosition() end
+  local okC, cam = pcall(core_camera.getPosition)
+  if okC and cam and (vec3(cam) - pos):length() > 5 then
+    local ground = cam.z - 1.7
+    local okH, h = pcall(function() return be:getSurfaceHeightBelow(vec3(cam.x, cam.y, cam.z + 0.5)) end)
+    if okH and h and h > -1e6 and cam.z - h < 4 then ground = h end
+    pos = vec3(cam.x, cam.y, ground)
+  end
+  return pos
+end
+
 -- Position des Spielers zu Fuß (nil, wenn er im Auto sitzt)
 function M.getWalkerPos()
   local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
-  if veh and veh:getJBeamFilename() == 'unicycle' then return veh:getPosition() end
+  if veh and veh:getJBeamFilename() == 'unicycle' then return walkerPosition(veh) end
   return nil
 end
 
@@ -409,6 +425,7 @@ local function capturePosition()
   end
   if not veh then return end
   local p, d = veh:getPosition(), veh:getDirectionVector()
+  if onFoot then p = walkerPosition(veh) end
   if p:length() < 50 then
     -- Kartenursprung: keine echte Position (z. B. Figur gerade nicht gespawnt)
     msg(M.t('msg.posInvalid'))
@@ -429,7 +446,7 @@ local function capturePosition()
     onFoot = onFoot or nil,
   })
   jsonWriteFile(capturePath, list, true)
-  msg(M.t('msg.posSaved', #list))
+  msg(M.t('msg.posSaved', #list) .. string.format(' (%.0f / %.0f)', p.x, p.y))
 end
 
 -- Config-Export ------------------------------------------------------------------
@@ -524,6 +541,8 @@ local function buildUiState()
     st.losses = M.save.losses
     local rival = extensions.hashiriyaBattle_rivals.getActiveRival()
     st.rival = rival and rival.data.name or nil
+    st.rivalKind = rival and extensions.hashiriyaBattle_rivals.markerKind(rival.data) or nil
+    st.radar = extensions.hashiriyaBattle_rivals.radarInfo(600)
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
     local parking = extensions.hashiriyaBattle_parking
     local nav = parking.getNavInfo()

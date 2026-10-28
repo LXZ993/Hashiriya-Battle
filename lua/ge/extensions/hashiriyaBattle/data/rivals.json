@@ -1,5 +1,5 @@
 {
- "_hinweis": "Rivalen fuer C1 (50 Gegner). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). conditions: minRank, minWins, minDay, hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals.",
+ "_hinweis": "Rivalen fuer C1 (50 Gegner). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). conditions: minRank, minWins, minDay, hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals.",
  "settings": {
   "nightOnly": true,
   "teamMembersPerNight": 2,
@@ -10,7 +10,15 @@
   "lossRep": -10,
   "cleanWinMaxDamageSp": 60,
   "closeWinMaxSpPercent": 15,
-  "quickWinSeconds": 30
+  "quickWinSeconds": 30,
+  "rematch": {
+   "enabled": true,
+   "weight": 0.25,
+   "rewardFactor": 0.4,
+   "repFactor": 0.25,
+   "aggressionBonus": 0.08,
+   "spFactor": 1.1
+  }
  },
  "ranks": [
   {
@@ -159,6 +167,19 @@
    "desc": {
     "de": "15 Niederlagen und trotzdem weiter",
     "en": "15 losses and still going"
+   }
+  },
+  {
+   "id": "rematch",
+   "stat": "rematchWins",
+   "min": 10,
+   "name": {
+    "de": "Unersättlich",
+    "en": "Never Satisfied"
+   },
+   "desc": {
+    "de": "10 Revanchen gewonnen",
+    "en": "10 rematches won"
    }
   },
   {

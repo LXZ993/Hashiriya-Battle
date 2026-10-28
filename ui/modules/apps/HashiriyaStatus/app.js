@@ -7,7 +7,14 @@ angular.module('beamng.apps')
       '<div class="bngApp hbt-root">' +
         '<div class="hbt" ng-if="s && s.active">' +
           '<div class="hbt-money">{{ s.money }}</div>' +
-          '<div class="hbt-rival" ng-if="s.rival"><i></i>VS <b>{{ s.rival }}</b></div>' +
+          '<div class="hbt-rival" ng-if="s.rival" ng-class="\'k-\' + s.rivalKind"><i></i>VS <b>{{ s.rival }}</b></div>' +
+          '<div class="hbt-radar" ng-if="s.radar">' +
+            '<span class="hbt-radar-me"></span>' +
+            '<span class="hbt-radar-dot" ng-repeat="r in s.radar.list" ng-class="[\'k-\' + r.kind, {\'is-edge\': r.edge}]"' +
+              ' ng-style="{left: (50 + r.x * 46) + \'%\', top: (50 - r.y * 46) + \'%\', transform: \'translate(-50%,-50%) rotate(\' + r.heading + \'deg)\'}">' +
+              '<svg viewBox="0 0 12 12"><path d="M6 0.5 L11 11 L6 8.4 L1 11 Z"/></svg></span>' +
+            '<span class="hbt-radar-dist" ng-if="s.radar.list[0]">{{ s.radar.list[0].dist }}</span>' +
+          '</div>' +
           '<div class="hbt-pa" ng-if="s.nav && !s.nav.arrived && !(s.battle && s.battle.state !== \'idle\')" ng-class="\'hbt-pa-\' + s.nav.type">' +
             '<span class="hbt-pa-tag">PA</span>' +
             '<span class="hbt-pa-name">{{ s.nav.name }}</span>' +
@@ -37,6 +44,22 @@ angular.module('beamng.apps')
           '.hbt-pa-dir{display:inline-block;width:12px;height:12px;}' +
           '.hbt-pa-dir svg{width:12px;height:12px;fill:var(--c);transition:transform .1s linear;display:block;}' +
           '.hbt-pa-stop{font-weight:800;color:var(--c);animation:hbtPing .6s ease-in-out infinite alternate;}' +
+          '.hbt{--k-rival:#ff6600;--k-leader:#ffd23f;--k-wanderer:#b98cff;--k-boss:#ff3b30;--k-beaten:#9e9e9e;--k-lost:#3fa9ff;}' +
+          '.hbt-rival.k-leader i{background:var(--k-leader);} .hbt-rival.k-leader b{color:var(--k-leader);}' +
+          '.hbt-rival.k-wanderer i{background:var(--k-wanderer);} .hbt-rival.k-wanderer b{color:var(--k-wanderer);}' +
+          '.hbt-rival.k-boss i{background:var(--k-boss);} .hbt-rival.k-boss b{color:var(--k-boss);}' +
+          '.hbt-rival.k-beaten i{background:var(--k-beaten);} .hbt-rival.k-beaten b{color:var(--k-beaten);}' +
+          '.hbt-rival.k-lost i{background:var(--k-lost);} .hbt-rival.k-lost b{color:var(--k-lost);}' +
+          '.hbt-radar{position:relative;width:96px;height:96px;margin:6px 0 14px auto;border-radius:50%;' +
+            'background:radial-gradient(circle,rgba(255,255,255,.06) 0 33%,transparent 33.5% 66%,rgba(255,255,255,.04) 66.5%),rgba(14,14,16,.6);' +
+            'border:1px solid rgba(255,255,255,.14);}' +
+          '.hbt-radar-me{position:absolute;left:50%;top:50%;width:6px;height:6px;margin:-3px 0 0 -3px;background:#f4f4f4;border-radius:50%;}' +
+          '.hbt-radar-dot{position:absolute;width:11px;height:11px;}' +
+          '.hbt-radar-dot svg{width:11px;height:11px;display:block;fill:var(--k-rival);filter:drop-shadow(0 0 2px rgba(0,0,0,.9));}' +
+          '.hbt-radar-dot.k-leader svg{fill:var(--k-leader);} .hbt-radar-dot.k-wanderer svg{fill:var(--k-wanderer);}' +
+          '.hbt-radar-dot.k-boss svg{fill:var(--k-boss);} .hbt-radar-dot.k-beaten svg{fill:var(--k-beaten);} .hbt-radar-dot.k-lost svg{fill:var(--k-lost);}' +
+          '.hbt-radar-dot.is-edge{opacity:.6;}' +
+          '.hbt-radar-dist{position:absolute;left:0;right:0;bottom:-14px;text-align:center;font-size:9px;letter-spacing:1px;color:rgba(244,244,244,.6);}' +
           '@keyframes hbtPing{from{opacity:1;}to{opacity:.25;}}' +
         '</style>' +
       '</div>',

@@ -182,6 +182,7 @@
   "pa.home": "Home",
   "pa.gas": "Gas station",
   "hud.tag.boss": "BOSS",
+  "msg.rematch": " (rematch)",
   "msg.boss": " (Boss)",
   "msg.rankUp": "New rank: %s",
   "msg.nightDone": "That's enough for tonight. The other drivers have gone home.",

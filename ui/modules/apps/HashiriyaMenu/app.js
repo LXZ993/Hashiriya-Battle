@@ -14,6 +14,7 @@ angular.module('beamng.apps')
             '<div class="hbm-logo">HASHIRIYA<span>BATTLE</span></div>' +
             '<div class="hbm-jp">\u8d70\u308a\u5c4b\u30d0\u30c8\u30eb</div>' +
           '</div>' +
+          '<div class="hbm-topback" ng-click="goBack()"><i class="hbm-ico" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ backLabel() }}</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'start\'">' +
             '<div class="hbm-item" ng-click="act(\'career\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'menu.career\'] }}</div>' +
@@ -25,7 +26,6 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-car" ng-repeat="car in s.cars" ng-click="act(\'chooseCar\', car.id)"><i class="hbm-ico" ng-bind-html="ico(\'car\')"></i>' +
               '<span class="hbm-num">{{ ($index + 1) < 10 ? \'0\' + ($index + 1) : ($index + 1) }}</span>' +
               '<span class="hbm-car-name hbm-mq"><span>{{ car.name }}</span></span><span class="hbm-price">{{ car.price }}</span></div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'back\')"><i class="hbm-ico" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ s.t[\'menu.back\'] }}</div>' +
           '</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'status\'">' +
@@ -212,7 +212,6 @@ angular.module('beamng.apps')
                   '</div>' +
                 '</div>' +
               '</div>' +
-              '<div class="hbm-item hbm-sub" ng-click="act(\'homeTab\', \'main\')"><i class="hbm-ico" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ s.t[\'home.back\'] }}</div>' +
             '</div>' +
           '</div>' +
 
@@ -243,7 +242,7 @@ angular.module('beamng.apps')
             '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
             '<div class="hbm-note">{{ s.t[\'dealer.note\'] }}</div>' +
             '<div class="hbm-note" ng-if="!s.dealer.offers.length">{{ s.t[\'dealer.none\'] }}</div>' +
-            '<div class="hbm-scroll hbm-scroll-tall">' +
+            '<div class="hbm-lots">' +
               '<div class="hbm-lot" ng-repeat="o in s.dealer.offers track by o.index" ng-class="{\'is-sold\': o.sold}">' +
                 '<div class="hbm-lot-img" ng-style="{\'background-image\': \'url(\' + o.preview + \')\'}">' +
                   '<span class="hbm-lot-no">{{ s.t[\'dealer.lot\'] }} {{ o.lot }}</span>' +
@@ -261,14 +260,21 @@ angular.module('beamng.apps')
                 '</div>' +
               '</div>' +
             '</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'dealerBack\')"><i class="hbm-ico" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ s.t[\'menu.back\'] }}</div>' +
           '</div>' +
 
           '<div class="hbm-foot"><span ng-click="act(\'hide\')" class="hbm-close"><i class="hbm-ico" ng-bind-html="ico(\'xmark\')"></i>{{ s.t[\'menu.hide\'] }}</span><span>{{ s.t[\'menu.hint\'] }}</span></div>' +
         '</div>' +
 
         '<style>' +
-          '.hbm-root{width:100%;height:100%;background:transparent;box-shadow:none;}' +
+          '.hbm-root{width:100%;height:100%;background:transparent;box-shadow:none;overflow:hidden;}' +
+          '.hbm{max-height:100%;display:flex;flex-direction:column;}' +
+          '.hbm-head,.hbm-topback,.hbm-foot{flex:0 0 auto;}' +
+          '.hbm > .hbm-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;}' +
+          '.hbm > .hbm-body::-webkit-scrollbar{width:4px;} .hbm > .hbm-body::-webkit-scrollbar-thumb{background:var(--o);}' +
+          '.hbm-topback{display:flex;align-items:center;gap:8px;padding:7px 18px;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;' +
+            'color:var(--dim);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.06);}' +
+          '.hbm-topback:hover{color:var(--w);background:rgba(255,102,0,.12);}' +
+          '.hbm-topback .hbm-ico{width:14px;height:14px;}' +
           '.hbm{--o:#ff6600;--o2:#ff9a3c;--w:#f4f4f4;--dim:rgba(244,244,244,.55);' +
             'font-family:"Overpass","Noto Sans","Segoe UI",sans-serif;color:var(--w);width:100%;' +
             'background:linear-gradient(160deg,rgba(26,26,29,.94),rgba(14,14,16,.9));' +
@@ -559,6 +565,23 @@ angular.module('beamng.apps')
         scope.act('fuelHold', on ? '1' : '0')
       }
       window.addEventListener('mouseup', function () { if (fuelHolding) scope.$evalAsync(function () { scope.fuelHold(false) }) })
+
+      // Zurück-Knopf oben: geht eine Ebene zurück, auf der obersten Ebene schließt er das Menü
+      scope.goBack = function () {
+        var s = scope.s || {}
+        if (s.screen == 'carSelect') return scope.act('back')
+        if (s.screen == 'dealer') return scope.act('dealerBack')
+        if (s.screen == 'home' && s.home && s.home.tab != 'main') return scope.act('homeTab', 'main')
+        if (s.shop && s.shop.preview) return scope.act('previewCancel')
+        if (scope.open && scope.open.slot) { scope.open.slot = null; scope.act('focusSlot', ''); return }
+        scope.act('hide')
+      }
+      scope.backLabel = function () {
+        var s = scope.s || {}, t = s.t || {}
+        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
+          (s.shop && s.shop.preview) || (scope.open && scope.open.slot)
+        return sub ? t['menu.back'] : t['menu.hide']
+      }
 
       scope.act = function (action, arg) {
         // Lua-String: Steuerzeichen als \ddd, da Lua kein \uXXXX kennt
