@@ -340,11 +340,15 @@ local function baseConfig()
   return currentConfig()
 end
 
+local focusSlot = nil   -- Slot, dessen Teil gerade hervorgehoben ist
+local refocusTimer = 0
+
 local function respawn(cfg)
   local car = activeCar()
   catalog = nil
   retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
   core_vehicles.replaceVehicle(car.model, { config = cfg })
+  if focusSlot then refocusTimer = 1.2 end -- nach dem Respawn das Teil wieder hervorheben
 end
 
 local function withPart(cfg, slot, part)
@@ -366,6 +370,58 @@ local function findOption(slot, part)
 end
 
 function M.hasPreview() return preview ~= nil end
+
+-- Teile-Ansicht wie im BeamNG-Teilemenü: Auto durchsichtig, nur das Teil sichtbar, Kamera schwenkt drauf.
+local function findPartPath(slot)
+  local vd = select(2, currentConfig())
+  local tree = vd and vd.config and vd.config.partsTree
+  if type(tree) ~= 'table' then return nil end
+  local found, parentPath = nil, nil
+  local function walk(node, parent)
+    if found then return end
+    if node.id == slot or (type(node.path) == 'string' and lastSegment(node.path) == slot) then
+      if node.chosenPartName and node.chosenPartName ~= '' and node.partPath then found = node.partPath
+      else parentPath = parent and parent.partPath end
+      if found or parentPath then return end
+    end
+    for _, child in pairs(node.children or {}) do
+      if type(child) == 'table' then walk(child, node) end
+    end
+  end
+  walk(tree, nil)
+  return found or parentPath
+end
+
+local function applyFocus()
+  local veh = core().getPlayerVehicle()
+  local pm = rawget(_G, 'core_vehicle_partmgmt')
+  if not veh or not pm then return end
+  local path = focusSlot and findPartPath(focusSlot)
+  if path then
+    local set = { [path] = true }
+    pcall(pm.selectParts, set, veh:getID(), set, { focusOffsetUp = 0.1 })
+  else
+    pcall(pm.showHighlightedParts, veh:getID(), {})
+  end
+end
+
+function M.focusSlot(slot)
+  focusSlot = (slot and slot ~= '' and slot ~= '__paint') and slot or nil
+  refocusTimer = 0
+  applyFocus()
+end
+
+-- Beim Wegfahren / Menü schließen: alles sichtbar, Kamera zurück.
+function M.releaseFocus()
+  local wasFocused = focusSlot ~= nil
+  focusSlot = nil
+  refocusTimer = 0
+  local veh = core().getPlayerVehicle()
+  local pm = rawget(_G, 'core_vehicle_partmgmt')
+  if not pm or not veh then return end
+  if wasFocused then pcall(pm.showHighlightedParts, veh:getID(), {}) end
+  pcall(pm.releasePartFocusCamera)
+end
 
 function M.cancelPreview(silent)
   if not preview then return end
@@ -456,6 +512,29 @@ function M.selectPaint(paintId)
   respawn(cfg)
 end
 
+-- Eigene Farbe: arg = "r,g,b,lackart" (r/g/b 0..1). Wird immer neu bezahlt (neue Lackierung).
+function M.selectCustomPaint(arg)
+  local c = core()
+  local r, g, b, finish = tostring(arg or ''):match('^([%d%.]+),([%d%.]+),([%d%.]+),(%a+)$')
+  local spec = finish and rules.customPaint and rules.customPaint[finish]
+  if not spec then return end
+  local cfg = baseConfig()
+  if not cfg then
+    c.msg(c.t('msg.partFailed'))
+    return
+  end
+  local original = preview and preview.original or copyConfig(cfg)
+  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
+  cfg.paints[1] = {
+    baseColor = { clamp(tonumber(r), 0, 1), clamp(tonumber(g), 0, 1), clamp(tonumber(b), 0, 1), 1.2 },
+    metallic = spec.metallic or 0, roughness = spec.roughness or 0.5,
+    clearcoat = spec.clearcoat or 1, clearcoatRoughness = spec.clearcoatRoughness or 0.05,
+  }
+  local name = c.t('shop.customName', c.t('shop.finish.' .. finish))
+  preview = { kind = 'paint', id = 'custom', name = name, level = 0, price = spec.priceYen or 79800, original = original, cfg = cfg }
+  respawn(cfg)
+end
+
 function M.confirmPreview()
   local c = core()
   local car = activeCar()
@@ -473,7 +552,7 @@ function M.confirmPreview()
   c.save.money = c.save.money - preview.price
   if preview.kind == 'paint' then
     car.ownedPaints = car.ownedPaints or {}
-    car.ownedPaints[preview.id] = true
+    if preview.id ~= 'custom' then car.ownedPaints[preview.id] = true end
     car.paintId = preview.id
   else
     car.owned = car.owned or {}
@@ -504,6 +583,17 @@ local function paintRow()
   local car = activeCar()
   local eco = c.economy()
   local r = { slot = '__paint', kind = 'paint', name = c.t('shop.item.paint'), current = c.t('shop.stock'), currentLevel = 0, options = {} }
+  if car.paintId == 'custom' then r.current = c.t('shop.customPaint') end
+  if rules.customPaint then
+    r.custom = { prices = {}, finishes = {} }
+    for _, id in ipairs({ 'gloss', 'metallic', 'pearl', 'matte' }) do
+      local spec = rules.customPaint[id]
+      if spec then
+        r.custom.prices[id] = eco.formatYen(spec.priceYen or 0)
+        table.insert(r.custom.finishes, { id = id, name = c.t('shop.finish.' .. id) })
+      end
+    end
+  end
   for _, p in ipairs(paintsFor(car.model)) do
     local owned = car.ownedPaints and car.ownedPaints[p.id]
     local price = rules.paintPriceYen or 29800
@@ -541,6 +631,8 @@ function M.getUiState(mode)
       table.insert(st.tabs, { id = tab.id, name = c.t('shop.tab.' .. tab.id) })
     end
   end
+  -- Lack braucht keinen Teilekatalog, daher auch während des Ladens sichtbar
+  if tabId == 'paint' then table.insert(st.rows, paintRow()) end
   local cat = getCatalog()
   if not cat then
     st.loading = true
@@ -550,7 +642,6 @@ function M.getUiState(mode)
   local cfg = preview and preview.original or currentConfig()
   if cfg then for k, v in pairs(cfg.parts) do cfgParts[lastSegment(k)] = v end end
   local eco = c.economy()
-  if tabId == 'paint' then table.insert(st.rows, paintRow()) end
   for _, row in ipairs(cat.tabs[tabId] or {}) do
     local installed = cfgParts[row.slot]
     local r = { slot = row.slot, name = itemLabel(row), current = row.stockName, currentLevel = 0, options = {} }
@@ -579,6 +670,10 @@ end
 
 local function onUpdate(dtReal)
   if retryTimer > 0 then retryTimer = retryTimer - dtReal end
+  if refocusTimer > 0 then
+    refocusTimer = refocusTimer - dtReal
+    if refocusTimer <= 0 and focusSlot then applyFocus() end
+  end
 end
 
 local function onExtensionLoaded()

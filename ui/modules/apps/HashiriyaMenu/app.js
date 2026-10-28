@@ -21,7 +21,7 @@ angular.module('beamng.apps')
             '<div class="hbm-section">{{ s.t[\'menu.chooseCar\'] }}</div>' +
             '<div class="hbm-item hbm-car" ng-repeat="car in s.cars" ng-click="act(\'chooseCar\', car.id)">' +
               '<span class="hbm-num">{{ ($index + 1) < 10 ? \'0\' + ($index + 1) : ($index + 1) }}</span>' +
-              '<span class="hbm-car-name">{{ car.name }}</span><span class="hbm-price">{{ car.price }}</span></div>' +
+              '<span class="hbm-car-name hbm-mq"><span>{{ car.name }}</span></span><span class="hbm-price">{{ car.price }}</span></div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'back\')">{{ s.t[\'menu.back\'] }}</div>' +
           '</div>' +
 
@@ -66,7 +66,7 @@ angular.module('beamng.apps')
                   '</div>' +
                   '<div class="hbm-opts" ng-if="s.setup.open == c.id">' +
                     '<div class="hbm-var" ng-repeat="v in c.rows track by v.name" ng-class="{\'is-changed\': v.changed}">' +
-                      '<span class="hbm-opt-name">{{ v.title }}</span>' +
+                      '<span class="hbm-opt-name hbm-mq"><span>{{ v.title }}</span></span>' +
                       '<span class="hbm-step" ng-class="{\'hbm-dis\': v.atMin}" ng-click="!v.atMin && act(\'setupAdjust\', v.name + \'|-1\')">&#8722;</span>' +
                       '<span class="hbm-var-val">{{ v.value }}</span>' +
                       '<span class="hbm-step" ng-class="{\'hbm-dis\': v.atMax}" ng-click="!v.atMax && act(\'setupAdjust\', v.name + \'|1\')">+</span>' +
@@ -90,7 +90,7 @@ angular.module('beamng.apps')
               '<div class="hbm-preview" ng-if="s.shop.preview">' +
                 '<div class="hbm-preview-top"><span class="hbm-preview-tag">{{ s.t[\'shop.preview\'] }}</span>' +
                   '<span class="hbm-lv" ng-class="\'lv\' + s.shop.preview.level">{{ s.shop.preview.level > 0 ? (\'LV\' + s.shop.preview.level) : \'\' }}</span>' +
-                  '<span class="hbm-opt-name">{{ s.shop.preview.name }}</span>' +
+                  '<span class="hbm-opt-name hbm-mq"><span>{{ s.shop.preview.name }}</span></span>' +
                   '<span class="hbm-opt-price">{{ s.shop.preview.locked ? s.shop.preview.lockText : s.shop.preview.price }}</span></div>' +
                 '<div class="hbm-actions">' +
                   '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': s.shop.preview.locked || !s.shop.preview.affordable}" ' +
@@ -103,10 +103,10 @@ angular.module('beamng.apps')
               '<div class="hbm-note" ng-if="!s.shop.loading && !s.shop.rows.length">{{ s.t[\'shop.none\'] }}</div>' +
               '<div class="hbm-scroll">' +
                 '<div class="hbm-part" ng-repeat="r in s.shop.rows track by r.slot" ng-class="{\'is-open\': open.slot == r.slot}">' +
-                  '<div class="hbm-part-head" ng-click="open.slot = (open.slot == r.slot ? null : r.slot)">' +
+                  '<div class="hbm-part-head" ng-click="toggleRow(r)">' +
                     '<span class="hbm-part-name">{{ r.name }}</span>' +
                     '<span class="hbm-lv" ng-class="\'lv\' + r.currentLevel">{{ r.currentLevel > 0 ? (\'LV\' + r.currentLevel) : s.t[\'shop.stock\'] }}</span>' +
-                    '<span class="hbm-part-cur">{{ r.current }}</span>' +
+                    '<span class="hbm-part-cur hbm-mq"><span>{{ r.current }}</span></span>' +
                   '</div>' +
                   '<div class="hbm-opts" ng-if="open.slot == r.slot">' +
                     '<div class="hbm-opt" ng-repeat="o in r.options track by o.part" ' +
@@ -114,8 +114,20 @@ angular.module('beamng.apps')
                       'ng-click="pick(r, o)">' +
                       '<span class="hbm-swatch" ng-if="o.swatch" ng-style="{background: o.swatch}"></span>' +
                       '<span class="hbm-lv" ng-if="!o.swatch" ng-class="\'lv\' + o.level">{{ o.level > 0 ? (\'LV\' + o.level) : \'\u2014\' }}</span>' +
-                      '<span class="hbm-opt-name">{{ o.name }}</span>' +
+                      '<span class="hbm-opt-name hbm-mq"><span>{{ o.name }}</span></span>' +
                       '<span class="hbm-opt-price">{{ o.locked ? o.lockText : o.price }}</span>' +
+                    '</div>' +
+                    '<div class="hbm-custom" ng-if="r.kind == \'paint\' && r.custom">' +
+                      '<div class="hbm-custom-head"><span class="hbm-swatch hbm-swatch-big" ng-style="{background: customCss()}"></span>' +
+                        '<span class="hbm-opt-name">{{ s.t[\'shop.customPaint\'] }}</span>' +
+                        '<span class="hbm-opt-price">{{ r.custom.prices[custom.finish] }}</span></div>' +
+                      '<div class="hbm-slider"><span>{{ s.t[\'shop.hue\'] }}</span><input type="range" min="0" max="360" step="1" ng-model="custom.h" class="hbm-hue"></div>' +
+                      '<div class="hbm-slider"><span>{{ s.t[\'shop.saturation\'] }}</span><input type="range" min="0" max="100" step="1" ng-model="custom.s" ng-style="{background: satBg()}"></div>' +
+                      '<div class="hbm-slider"><span>{{ s.t[\'shop.brightness\'] }}</span><input type="range" min="0" max="100" step="1" ng-model="custom.v" ng-style="{background: valBg()}"></div>' +
+                      '<div class="hbm-finish">' +
+                        '<span ng-repeat="f in r.custom.finishes" ng-class="{\'is-on\': f.id == custom.finish}" ng-click="custom.finish = f.id">{{ f.name }}</span>' +
+                      '</div>' +
+                      '<div class="hbm-actions"><span class="hbm-btn hbm-btn-main" ng-click="previewCustom()">{{ s.t[\'shop.preview\'] }}</span></div>' +
                     '</div>' +
                   '</div>' +
                 '</div>' +
@@ -206,6 +218,20 @@ angular.module('beamng.apps')
           '.hbm-var-val{width:78px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;}' +
           '.hbm-step{width:20px;height:20px;line-height:20px;text-align:center;flex:none;cursor:pointer;font-weight:900;background:rgba(255,255,255,.08);}' +
           '.hbm-step:hover{background:var(--o);color:#141414;}' +
+          '.hbm-mq{display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}' +
+          '.hbm-mq.is-run{text-overflow:clip;} .hbm-mq.is-run > span{display:inline-block;}' +
+          '.hbm-custom{padding:8px 18px 8px 24px;border-top:1px solid rgba(255,255,255,.06);}' +
+          '.hbm-custom-head{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:6px;}' +
+          '.hbm-swatch-big{width:22px;height:22px;margin-right:2px;}' +
+          '.hbm-slider{display:flex;align-items:center;gap:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin:5px 0;}' +
+          '.hbm-slider span{width:70px;flex:none;}' +
+          '.hbm-slider input{flex:1;-webkit-appearance:none;height:8px;border-radius:4px;outline:none;margin:0;}' +
+          '.hbm-slider input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:16px;background:#f4f4f4;border:2px solid #141414;border-radius:2px;cursor:pointer;}' +
+          '.hbm-hue{background:linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00);}' +
+          '.hbm-finish{display:flex;gap:4px;margin:8px 0 2px;}' +
+          '.hbm-finish span{flex:1;text-align:center;padding:4px 2px;font-size:9.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;background:rgba(255,255,255,.06);color:var(--dim);}' +
+          '.hbm-finish span.is-on{background:var(--o2);color:#141414;}' +
+          '.hbm-custom .hbm-actions{padding:8px 0 0;}' +
           '.hbm-note{font-size:12px;line-height:1.45;color:rgba(244,244,244,.75);padding:4px 18px 8px;}' +
           '.hbm-hint{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);padding:8px 18px 2px;}' +
           '.hbm-foot{display:flex;justify-content:space-between;padding:8px 18px;font-size:11px;color:var(--dim);' +
@@ -214,10 +240,63 @@ angular.module('beamng.apps')
         '</style>' +
       '</div>',
     replace: true,
-    link: function (scope) {
+    link: function (scope, element) {
       'use strict'
       scope.s = null
       scope.open = { slot: null }
+      // Aufgeklappte Zeile: Teil am Auto hervorheben, Kamera schwenkt drauf (zu: Ansicht zurück).
+      scope.toggleRow = function (r) {
+        scope.open.slot = scope.open.slot == r.slot ? null : r.slot
+        scope.act('focusSlot', scope.open.slot || '')
+      }
+
+      // Eigene Lackfarbe: HSV-Regler, Vorschau erst auf Knopfdruck (Auto wird dafür neu gespawnt).
+      scope.custom = { h: 0, s: 80, v: 70, finish: 'gloss' }
+      var hsv = function (h, sat, val) {
+        h = (+h % 360) / 60; sat = +sat / 100; val = +val / 100
+        var c = val * sat, x = c * (1 - Math.abs(h % 2 - 1)), m = val - c, r = 0, g = 0, b = 0
+        if (h < 1) { r = c; g = x } else if (h < 2) { r = x; g = c } else if (h < 3) { g = c; b = x }
+        else if (h < 4) { g = x; b = c } else if (h < 5) { r = x; b = c } else { r = c; b = x }
+        return [r + m, g + m, b + m]
+      }
+      var css = function (c) { return 'rgb(' + c.map(function (v) { return Math.round(v * 255) }).join(',') + ')' }
+      scope.customCss = function () { return css(hsv(scope.custom.h, scope.custom.s, scope.custom.v)) }
+      scope.satBg = function () { return 'linear-gradient(90deg,' + css(hsv(scope.custom.h, 0, scope.custom.v)) + ',' + css(hsv(scope.custom.h, 100, scope.custom.v)) + ')' }
+      scope.valBg = function () { return 'linear-gradient(90deg,#000,' + css(hsv(scope.custom.h, scope.custom.s, 100)) + ')' }
+      scope.previewCustom = function () {
+        var c = hsv(scope.custom.h, scope.custom.s, scope.custom.v)
+        scope.act('customPaint', c.map(function (v) { return v.toFixed(3) }).join(',') + ',' + scope.custom.finish)
+      }
+
+      // Zu lange Texte laufen beim Drüberfahren durch (Laufschrift), danach wieder zurück.
+      var rowSel = '.hbm-opt, .hbm-part-head, .hbm-var, .hbm-item, .hbm-preview-top'
+      var marquee = function (row, on) {
+        var list = row.querySelectorAll('.hbm-mq')
+        for (var i = 0; i < list.length; i++) {
+          var box = list[i], inner = box.firstElementChild
+          if (!inner) continue
+          var over = inner.offsetWidth - box.clientWidth
+          clearTimeout(box.hbmTimer)
+          if (on && over > 2) {
+            box.classList.add('is-run')
+            inner.style.transition = 'transform ' + (over / 40 + 0.5).toFixed(2) + 's linear .35s'
+            inner.style.transform = 'translateX(-' + over + 'px)'
+          } else {
+            inner.style.transition = 'transform .25s ease-out'
+            inner.style.transform = ''
+            box.hbmTimer = setTimeout(function (b) { b.classList.remove('is-run') }.bind(null, box), 280)
+          }
+        }
+      }
+      var root = element[0]
+      root.addEventListener('mouseover', function (e) {
+        var row = e.target.closest && e.target.closest(rowSel)
+        if (row && !row.contains(e.relatedTarget)) marquee(row, true)
+      })
+      root.addEventListener('mouseout', function (e) {
+        var row = e.target.closest && e.target.closest(rowSel)
+        if (row && !row.contains(e.relatedTarget)) marquee(row, false)
+      })
       // Shop: Klick baut probeweise ein (Vorschau); Garage: nur Besitz/Serie umrüsten.
       scope.pick = function (r, o) {
         if (o.installed && !o.previewing) return

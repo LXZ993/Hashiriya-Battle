@@ -122,5 +122,14 @@
   "setup.none": "Für die verbauten Teile gibt es keine Einstellungen.",
   "setup.changed": "%d geändert",
   "msg.setupApplied": "Setup übernommen.",
-  "msg.partRemoved": "%s ausgebaut"
+  "msg.partRemoved": "%s ausgebaut",
+  "shop.customPaint": "Eigene Farbe",
+  "shop.hue": "Farbton",
+  "shop.saturation": "Sättigung",
+  "shop.brightness": "Helligkeit",
+  "shop.finish.gloss": "Uni",
+  "shop.finish.metallic": "Metallic",
+  "shop.finish.pearl": "Perlmutt",
+  "shop.finish.matte": "Matt",
+  "shop.customName": "Eigene Farbe (%s)"
 }

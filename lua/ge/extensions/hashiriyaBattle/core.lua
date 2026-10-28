@@ -178,7 +178,8 @@ function M.onParkingArrived(area)
 end
 
 function M.onParkingLeft(area)
-  -- Probeweise eingebaute Teile zurücknehmen, offene Setup-Änderungen verwerfen
+  -- Probeweise eingebaute Teile zurücknehmen, offene Setup-Änderungen verwerfen, Teile-Kamera lösen
+  extensions.hashiriyaBattle_shop.releaseFocus()
   extensions.hashiriyaBattle_shop.cancelPreview()
   extensions.hashiriyaBattle_setup.onParkingLeft()
   garageTab = 'service'
@@ -364,6 +365,7 @@ function M.uiAction(action, arg)
   elseif action == 'continue' then
     continueGame()
   elseif action == 'hide' then
+    extensions.hashiriyaBattle_shop.releaseFocus()
     showMenu = false
     menuAutoOpened = false
   elseif action == 'callRival' then
@@ -389,13 +391,20 @@ function M.uiAction(action, arg)
   elseif action == 'buyPaint' then
     local area = arrivedArea()
     if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.selectPaint(tostring(arg)) end
+  elseif action == 'customPaint' then
+    local area = arrivedArea()
+    if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.selectCustomPaint(tostring(arg)) end
+  elseif action == 'focusSlot' then
+    if arrivedArea() then extensions.hashiriyaBattle_shop.focusSlot(tostring(arg or '')) end
   elseif action == 'previewBuy' then
     extensions.hashiriyaBattle_shop.confirmPreview()
   elseif action == 'previewCancel' then
     extensions.hashiriyaBattle_shop.cancelPreview()
   elseif action == 'shopTab' then
+    extensions.hashiriyaBattle_shop.releaseFocus()
     extensions.hashiriyaBattle_shop.setTab(tostring(arg))
   elseif action == 'garageTab' then
+    extensions.hashiriyaBattle_shop.releaseFocus()
     garageTab = tostring(arg)
   elseif action == 'setupAdjust' then
     local name, dir = tostring(arg or ''):match('^(.+)|([%-%d]+)$')
@@ -436,6 +445,7 @@ end
 
 function M.toggleMenu()
   showMenu = not showMenu
+  if not showMenu then extensions.hashiriyaBattle_shop.releaseFocus() end
   M.sendUiState()
 end
 

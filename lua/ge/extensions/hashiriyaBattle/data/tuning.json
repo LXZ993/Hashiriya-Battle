@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn). Reiter 'paint' = Lackierer: Werkslacke des Modells (paintPriceYen) und Liveries (Slot paint_design, minPriceYen). Reiter 'misc' (all=true) sammelt alle übrigen Slots mit Auswahl; slotExclude = Lua-Muster für Slots, die dort nicht erscheinen.",
+  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn). Reiter 'paint' = Lackierer: Werkslacke des Modells (paintPriceYen) und Liveries (Slot paint_design, minPriceYen). Reiter 'misc' (all=true) sammelt alle übrigen Slots mit Auswahl; slotExclude = Lua-Muster für Slots, die dort nicht erscheinen. 'customPaint' = eigene Farbe je Lackart (Preis und Materialwerte). 'alt' ist bei BeamNG nur eine Größenvariante (z. B. tire_R_15x10_alt) und darf nicht in exclude stehen.",
   "tiers": [
     {
       "level": 1,
@@ -334,7 +334,6 @@
     "hillclimb",
     "carb",
     "itb",
-    "alt",
     "partition",
     "stock",
     "snow",
@@ -379,5 +378,35 @@
     "_strut_bar",
     "police",
     "radar"
-  ]
+  ],
+  "customPaint": {
+    "gloss": {
+      "priceYen": 79800,
+      "metallic": 0.0,
+      "roughness": 0.3,
+      "clearcoat": 1.0,
+      "clearcoatRoughness": 0.03
+    },
+    "metallic": {
+      "priceYen": 98000,
+      "metallic": 0.85,
+      "roughness": 0.35,
+      "clearcoat": 1.0,
+      "clearcoatRoughness": 0.03
+    },
+    "pearl": {
+      "priceYen": 128000,
+      "metallic": 0.5,
+      "roughness": 0.2,
+      "clearcoat": 1.0,
+      "clearcoatRoughness": 0.0
+    },
+    "matte": {
+      "priceYen": 98000,
+      "metallic": 0.1,
+      "roughness": 0.75,
+      "clearcoat": 0.0,
+      "clearcoatRoughness": 0.5
+    }
+  }
 }
