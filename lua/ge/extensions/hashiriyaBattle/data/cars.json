@@ -1,9 +1,9 @@
 {
-  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel'. config leer = Standard-Config des Modells. priceUsd wird in Yen umgerechnet und nur angezeigt.",
+  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel' (von Alex gewählt). config = Pfad zur .pc-Datei, leer = Standard-Config. priceUsd (BeamNG-Wert) wird in Yen umgerechnet und nur angezeigt.",
   "starterCars": [
-    { "id": "starter_covet",    "name": "Ibishu Covet",     "model": "covet",     "config": "", "priceUsd": 9000 },
-    { "id": "starter_pessima",  "name": "Ibishu Pessima",   "model": "pessima",   "config": "", "priceUsd": 12000 },
-    { "id": "starter_sunburst", "name": "Hirochi Sunburst", "model": "sunburst2", "config": "", "priceUsd": 15000 }
+    { "id": "starter_covet",   "name": "Ibishu Covet 13S",            "model": "covet",   "config": "vehicles/covet/13s_M.pc",             "priceUsd": 18200 },
+    { "id": "starter_miramar", "name": "Ibishu Miramar",              "model": "miramar", "config": "vehicles/miramar/base_facelift_M.pc", "priceUsd": 25500 },
+    { "id": "starter_bx",      "name": "Ibishu 200BX",                "model": "bx",      "config": "vehicles/bx/200bx_base_M.pc",         "priceUsd": 29000 }
   ],
   "startMoneyYen": 300000
 }
