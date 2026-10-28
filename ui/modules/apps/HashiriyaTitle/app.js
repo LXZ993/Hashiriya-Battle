@@ -181,7 +181,8 @@ angular.module('beamng.apps')
       scope.steps = ['driver', 'car', 'color', 'confirm']
       scope.t = function (k) { return scope.strings[k] || k }
       var send = function (action, arg) {
-        var a = arg === undefined ? 'nil' : JSON.stringify(String(arg))
+        // Lua-String: Steuerzeichen als \ddd, da Lua kein \uXXXX kennt
+        var a = arg === undefined ? 'nil' : '"' + String(arg).replace(/[\\"]/g, '\\$&').replace(/[\u0000-\u001f\u007f]/g, function (ch) { return '\\' + ('00' + ch.charCodeAt(0)).slice(-3) }) + '"'
         bngApi.engineLua('if extensions.hashiriyaBattle_core then extensions.hashiriyaBattle_core.uiAction("' + action + '", ' + a + ') end')
       }
       scope.cmd = function (c, arg) {
