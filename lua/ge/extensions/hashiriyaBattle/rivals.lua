@@ -271,6 +271,30 @@ local function findRoadSpawn(pos, dir, distance)
   return p1 + seg * t + vec3(0, 0, 0.5), roadDir
 end
 
+-- Kein anderes Fahrzeug (Verkehr) in der Nähe des Spawnpunkts?
+local function spawnFree(pos, radius)
+  for i = 0, be:getObjectCount() - 1 do
+    local o = be:getObject(i)
+    if o and (o:getPosition() - pos):length() < radius then return false end
+  end
+  return true
+end
+
+-- Abstand zum nächsten Fahrzeug vor einem Punkt in Fahrtrichtung (für das Losrollen)
+local function gapAhead(veh, dir, range)
+  local best = range
+  local p = veh:getPosition()
+  for i = 0, be:getObjectCount() - 1 do
+    local o = be:getObject(i)
+    if o and o:getID() ~= veh:getID() then
+      local d = o:getPosition() - p
+      local along = d:dot(dir)
+      if along > 0 and along < best and (d - dir * along):length() < 4 then best = along end
+    end
+  end
+  return best
+end
+
 local function setRotation(veh, pos, dir)
   local rot = quatFromDir(dir, vec3(0, 0, 1))
   if spawn and spawn.safeTeleport then
@@ -280,11 +304,15 @@ local function setRotation(veh, pos, dir)
   end
 end
 
+-- Reisetempo im Verkehr: vorsichtig (niedrige Aggression), Autos ausweichen, in der Spur bleiben.
+-- Die Battle-Aggression aus rivals.json gilt erst im Battle.
+local cruiseAggression = 0.3
+
 function setCruise(veh, rival)
   local speed = (rival.cruiseKmh or 100) / 3.6
   veh:queueLuaCommand(string.format(
-    "ai.setMode('traffic') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
-    speed, math.min(rival.aggression or 0.5, 0.5)))
+    "ai.setMode('traffic') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
+    speed, cruiseAggression))
 end
 M.setCruise = setCruise
 
@@ -325,7 +353,8 @@ function M.spawnNext(force)
     dist = behind and -(behindMin + math.random() * (behindMax - behindMin)) or (spawnMin + math.random() * (spawnMax - spawnMin))
     if force then dist = 160 end
     pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), dist)
-    if pos then break end
+    if pos and spawnFree(pos, 30) then break end
+    pos = nil
   end
   if not pos then
     if force then core().msg(core().t('msg.noRoad')) end
@@ -448,7 +477,10 @@ local function onUpdate(dtReal, dtSim)
       -- Gleich nach dem Spawn mit Reisetempo losrollen lassen, statt aus dem Stand zu starten
       if not e.launched and e.age > 0.25 then
         e.launched = true
-        local v = e.spawnDir * ((e.data.cruiseKmh or 100) / 3.6)
+        -- nur so schnell, wie Platz nach vorne ist (sonst fährt er direkt ins nächste Verkehrsauto)
+        local room = gapAhead(veh, e.spawnDir, 120)
+        local launch = math.min((e.data.cruiseKmh or 100) / 3.6 * 0.8, room * 0.5)
+        local v = e.spawnDir * launch
         local ok = pcall(function() veh:applyClusterVelocityScaleAdd(veh:getRefNodeId(), 0, v.x, v.y, v.z) end)
         if not ok then
           veh:queueLuaCommand(string.format('obj:applyClusterVelocityScaleAdd(obj:getRefNodeId(), 0, %f, %f, %f)', v.x, v.y, v.z))
