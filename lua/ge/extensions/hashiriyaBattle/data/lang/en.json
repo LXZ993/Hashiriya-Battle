@@ -396,5 +396,8 @@
   "menu.devClear": "Remove all rivals (test)",
   "msg.devNoRival": "No rival found: %s",
   "msg.devBeaten": "%s now counts as beaten.",
-  "msg.devOnRoad": "%s is already out on the road."
+  "msg.devOnRoad": "%s is already out on the road.",
+  "menu.report": "Create bug report",
+  "msg.reportSaved": "Bug report saved: %s. Please send this file to the developer.",
+  "msg.reportFailed": "Bug report could not be saved."
 }

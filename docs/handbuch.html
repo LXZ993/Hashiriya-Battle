@@ -80,6 +80,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#ordner">Ordner und Dateien</a>
     <a href="#sicher">Sicher ändern (JSON-Regeln)</a>
     <a href="#testen">Testen und Fehler finden</a>
+    <a href="#log">Log-System und Fehlerbericht</a>
     <div class="grp">Gegner</div>
     <a href="#rivalen">Rivalen (rivals.json)</a>
     <a class="l2" href="#rivale-felder">Alle Felder eines Rivalen</a>
@@ -160,6 +161,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <tr><td class="path">settings\inputmaps\keyboard_hashiriya.json</td><td>Tastenbelegung (Pos1 = Menü)</td><td>Ja, siehe <a href="#tasten">Tasten</a></td></tr>
 <tr><td class="path">art\</td><td>Bilder (z. B. <code>art\tutorial\page1.png</code>)</td><td>Ja, Bilder austauschen</td></tr>
 <tr><td class="path">docs\</td><td>Dieses Handbuch</td><td>-</td></tr>
+<tr><td class="path">tools\generator\</td><td>Mein Generator für <code>rivals.json</code> und <code>chat.json</code> (Python), nicht Teil des Spiels. <code>base\</code> = sein letzter Stand zum Erkennen deiner Handänderungen.</td><td>Nein</td></tr>
 <tr><td class="path">CHANGELOG.md, README.md</td><td>Änderungsliste und Kurzbeschreibung</td><td>-</td></tr>
 </table>
 <h3>Die Daten-Dateien</h3>
@@ -199,7 +201,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <tr><td>Anführungszeichen <b>im</b> Text mit Backslash</td><td><code>"Er sagt \"Los!\""</code></td><td><code>"Er sagt "Los!""</code></td></tr>
 </table>
 <div class="box warn"><b>Ordnerpfade in JSON</b>In JSON schreibt man Pfade mit <b>Schrägstrich</b> <code>/</code>, nicht mit Backslash: <code>"vehicles/covet/15se_M.pc"</code>.</div>
-<div class="box bad"><b>Wichtig bei rivals.json und chat.json</b>Diese beiden Dateien erzeuge ich mit einem Skript aus meinen Listen. Wenn du von Hand etwas änderst, <b>sag es mir beim nächsten Mal</b> (oder schick mir die Datei), damit ich deine Änderung übernehme. Sonst überschreibt meine nächste Version deine Änderung. Deine eigenen Änderungen an allen anderen Dateien bleiben einfach erhalten, solange du sie per Git commitest oder mir Bescheid gibst.</div>
+<div class="box tip"><b>Deine Änderungen gehen nicht verloren</b>Du musst mir nichts sagen. Vor jedem Update auf deinen PC prüfe ich mit <code>git status</code>, ob du Dateien geändert hast, und übernehme deine Änderungen zuerst ins Repo. Erst danach hole ich die neue Version.<br><code>rivals.json</code> und <code>chat.json</code> erzeuge ich mit einem Generator (<span class="path">tools\generator\</span>). Er merkt sich seinen letzten Stand und überträgt alles, was davon abweicht, auf jede neue Version: geänderte Felder, neue Rivalen und gelöschte Rivalen. Ändern wir beide dasselbe Feld, gewinnt deine Version und ich bekomme eine Konfliktmeldung.</div>
 <h3>Mit Git sichern</h3>
 <p>Weil der Ordner ein Git-Repo ist, kannst du jederzeit zurück:</p>
 <pre><code>git status                       # was habe ich geändert?
@@ -213,11 +215,61 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <section id="testen">
 <h2><span class="n">3</span> Testen und Fehler finden</h2>
 <ul>
-<li><b>Log-Datei:</b> <span class="path">F:\BeamNG\current\beamng.log</span>. Alle Meldungen der Mod haben den Tag <code>hashiriya</code>. Öffne die Datei und suche nach <code>hashiriya</code> oder <code>E </code> (Fehler).</li>
+<li><b>Mod-Log:</b> <span class="path">F:\BeamNG\current\settings\hashiriya_battle\logs\hashiriya.log</span>. Dort stehen nur die Meldungen der Mod, übersichtlich mit Uhrzeit. Siehe <a href="#log">Log-System</a>.</li>
+<li><b>BeamNG-Log:</b> <span class="path">F:\BeamNG\current\beamng.log</span>. Dort steht alles vom Spiel. Die Meldungen der Mod haben den Tag <code>hashiriya</code>. Fehler beginnen mit <code>E </code>.</li>
 <li><b>Konsole im Spiel:</b> Taste <code>^</code> (bzw. <code>~</code>). Rote Zeilen sind Fehler.</li>
 <li><b>Kaputte JSON:</b> Dann fehlen im Spiel z. B. alle Rivalen oder alle Texte zeigen nur Schlüssel wie <code>menu.newGame</code>. Im Log steht dann ein Fehler zur Datei. Prüfe die Datei in VS Code oder auf <a href="https://jsonlint.com">jsonlint.com</a>.</li>
 <li><b>Schnell testen:</b> Mit den <a href="#dev">Dev-Tools</a> im Menü kannst du jeden Rivalen sofort spawnen, die Uhr vorstellen, Geld/Ruf holen.</li>
 </ul>
+</section>
+
+<section id="log">
+<h2><span class="n">3b</span> Log-System und Fehlerbericht</h2>
+<p>Die Mod schreibt ihr eigenes Log. Wenn bei einem Tester oder Spieler etwas schiefgeht, schickt er dir eine Datei und ich kann sie auswerten.</p>
+<h3>Wo liegt was?</h3>
+<p>Alles liegt im BeamNG-Userordner unter <span class="path">settings\hashiriya_battle\logs\</span>. Bei dir ist das <span class="path">F:\BeamNG\current\settings\hashiriya_battle\logs\</span>. Bei anderen Spielern liegt der Userordner meist unter <span class="path">%LOCALAPPDATA%\BeamNG\BeamNG.drive\current\</span>. Falls nicht, öffnet der BeamNG-Launcher ihn über "Userordner öffnen". Den Pfad zum Bericht zeigt die Mod außerdem selbst an, sobald man ihn erstellt.</p>
+<table>
+<tr><th>Datei</th><th>Inhalt</th></tr>
+<tr><td><code>hashiriya.log</code></td><td>Das aktuelle Log</td></tr>
+<tr><td><code>hashiriya.1.log</code> bis <code>.3.log</code></td><td>Ältere Teile: Wird das Log zu groß, rückt es hierher. Die älteste Datei wird gelöscht.</td></tr>
+<tr><td><code>fehlerbericht.txt</code></td><td>Kommt vom Knopf <b>Fehlerbericht erstellen</b> im Hashiriya-Menü. Das ist <b>die eine Datei, die ein Spieler schicken soll</b>.</td></tr>
+</table>
+<h3>Was wird geloggt?</h3>
+<ul>
+<li><b>Sitzungskopf bei jedem Start:</b> Mod-Version, BeamNG-Version, Sprache und alle aktiven Mods. Daran sieht man sofort, ob z. B. das Plates Pack oder Agent Traffic fehlt.</li>
+<li><b>Datencheck beim Start:</b> kaputte JSON-Dateien, doppelte IDs, unbekannte Crews, falsche Kennzeichen und Rivalen, deren Auto oder Config fehlt.</li>
+<li><b>Jeder Klick im Menü</b> (z. B. <code>Aktion: dealerBuy 3</code>). Damit kann man nachvollziehen, was der Spieler zuletzt gemacht hat.</li>
+<li><b>Spielereignisse:</b> neuer Tag, Rivale gespawnt oder entfernt, Herausforderung, Frühstart, Battle-Ergebnis mit Werten, Käufe, Speichern.</li>
+<li><b>Fehler im Code</b> mit genauer Stelle (Traceback) und dem Spielzustand in diesem Moment: Uhrzeit, Geld, Auto, Battle-Status, Tempo. Das Spiel läuft danach weiter.</li>
+<li><b>Fehler in den UI-Apps</b> (JavaScript).</li>
+<li><b>Alle 5 Minuten eine Statuszeile.</b></li>
+</ul>
+<h3>Warum die Datei nicht riesig wird</h3>
+<ul>
+<li>Jede Datei hat höchstens 512 KB. Insgesamt gibt es höchstens 4 Dateien, also etwa 2 MB, egal wie lange man spielt.</li>
+<li>Gleiche Meldungen direkt hintereinander werden zu einer Zeile zusammengefasst, z. B. <code>... 37x wiederholt</code>.</li>
+<li>Kommt dieselbe Meldung öfter als 30-mal pro Minute, wird sie nur noch gezählt.</li>
+<li>Ein Code-Fehler bekommt nur beim ersten Mal den ganzen Traceback. Danach wird nur noch mitgezählt.</li>
+</ul>
+<h3>Einstellungen <span class="tag">data\build.json</span></h3>
+<pre><code>"modVersion": "Alpha 1",
+"log": {"level": "I", "maxKb": 512, "files": 4, "statusMinutes": 5, "perMinute": 30}</code></pre>
+<table>
+<tr><th>Feld</th><th>Bedeutung</th></tr>
+<tr><td><code>modVersion</code></td><td>Steht im Log-Kopf. Bei jeder Test- oder Release-Version hochzählen.</td></tr>
+<tr><td><code>level</code></td><td><code>"D"</code> = alles (Debug, nur zur Fehlersuche), <code>"I"</code> = normal, <code>"W"</code> = nur Warnungen und Fehler, <code>"E"</code> = nur Fehler</td></tr>
+<tr><td><code>maxKb</code> / <code>files</code></td><td>Größe einer Datei und Anzahl Dateien</td></tr>
+<tr><td><code>statusMinutes</code></td><td>Statuszeile alle x Minuten, <code>0</code> = aus</td></tr>
+<tr><td><code>perMinute</code></td><td>Ab so vielen gleichen Meldungen pro Minute wird gedrosselt</td></tr>
+</table>
+<h3>Ablauf, wenn ein Tester einen Fehler hat</h3>
+<ol class="steps">
+<li>Tester drückt im Spiel Pos1 und dann <b>Fehlerbericht erstellen</b>. Unten erscheint der Pfad zur Datei.</li>
+<li>Tester schickt dir <code>fehlerbericht.txt</code> und schreibt kurz dazu, was passiert ist.</li>
+<li>Du gibst mir die Datei (hochladen). Ich werte sie aus und baue den Fix.</li>
+</ol>
+<p>Der Bericht enthält den Log-Kopf, den Spielzustand, den Spielstand (<code>save.json</code>) und die letzten etwa 1800 Log-Zeilen. Passwörter oder persönliche Daten stehen nicht drin, höchstens der Fahrername aus dem Spielstand und die Liste der Mods.</p>
+<div class="box tip"><b>Für Entwickler</b>In eigenem Lua-Code einfach <code>log('I', logTag, 'Text')</code> benutzen, wie überall in der Mod. Jede Datei leitet <code>log</code> automatisch auch in <code>hashiriya.log</code> um (<code>logger.lua</code>). <code>log('D', ...)</code> erscheint nur mit <code>"level": "D"</code>.</div>
 </section>
 
 <section id="rivalen">
@@ -688,6 +740,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>lockTime</code></td><td>true</td><td>Uhrzeit nicht verstellbar</td></tr>
 <tr><td><code>blockBigMapTeleport</code></td><td>true</td><td>Keine Schnellreise über die große Karte</td></tr>
 <tr><td><code>nodeGrabberStrength</code></td><td>20</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
+<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 1"</td><td>Version und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
 </table>
 <div class="box warn"><b>Erst kurz vor dem ersten Release</b><code>release</code> bleibt bis kurz vor der ersten öffentlichen Version auf <code>false</code>. Mit <code>true</code> sind auch die Dev-Tools nicht mehr gedacht.</div>
 </section>
@@ -802,6 +855,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>+¥1.000.000 / +1 Sieg</td><td>Geld und Siege (Tuning-Stufen testen)</td></tr>
 <tr><td>Position merken</td><td>Speichert die aktuelle Position (siehe <a href="#map">Map</a>)</td></tr>
 <tr><td>Parkplatz-Markierung</td><td>Buchten sichtbar machen</td></tr>
+<tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\fehlerbericht.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
 <tr><td>Configs exportieren</td><td>Schreibt alle Configs nach <span class="path">settings\hashiriya_battle\config_dump.json</span> (Grundlage für die Config-Liste)</td></tr>
 </table>
 <div class="box tip"><b>Ablauf: neuen Wanderer testen</b>1. BeamNG starten, Karriere laden. 2. Pos1, ID ins Feld tippen, "Spawnen". 3. Vor ihm Lichthupe geben, Battle fahren. 4. Spruch im HUD prüfen. 5. Soll die Bedingung getestet werden: Uhr vorstellen oder Ruf holen und "Rivalen rufen" benutzen.</div>
@@ -815,6 +869,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>captured_positions.json</code></td><td>Mit "Position merken" gesammelte Orte</td></tr>
 <tr><td><code>title_camera.json</code></td><td>Titelbild-Kamera je Map</td></tr>
 <tr><td><code>config_dump.json</code></td><td>Export aller Configs</td></tr>
+<tr><td><code>logs\</code></td><td>Mod-Log und Fehlerbericht (siehe <a href="#log">Log-System</a>)</td></tr>
 </table>
 <ul>
 <li><b>Neu anfangen:</b> <code>save.json</code> umbenennen (z. B. <code>save_alt.json</code>), dann startet "Neues Spiel" frisch. Zurück: wieder umbenennen.</li>
@@ -834,6 +889,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>Rivale hat falsche Farbe</td><td>Config hat eine Livery (dann wird <code>paint</code> ignoriert), oder <code>color</code>-Werte über 1.</td></tr>
 <tr><td>Kein Verkehr</td><td><code>cars.json</code>: <code>careerTraffic</code>, <code>trafficMinAmount</code>; Agent Traffic installiert?</td></tr>
 <tr><td>Shop öffnet nicht</td><td>Öffnungszeiten (<code>shopHours</code>), Auto nicht ganz in der Bucht oder zu schnell (unter 8 km/h).</td></tr>
+<tr><td>Irgendetwas stimmt nicht, Ursache unklar</td><td><code>hashiriya.log</code> öffnen und nach <code>FEHLER</code> oder <code>Datencheck</code> suchen. Oder Fehlerbericht erstellen und mir geben.</td></tr>
 <tr><td>Nach <code>git pull</code> nichts neu</td><td>BeamNG komplett neu starten. Im Mod-Ordner <code>git log --oneline -1</code> zeigt den aktuellen Stand.</td></tr>
 <tr><td>Lua-Fehler nach eigener Änderung</td><td>Meist Komma oder Klammer vergessen. <code>git diff</code> zeigt deine Änderung, <code>git checkout -- datei.lua</code> macht sie rückgängig.</td></tr>
 </table>
@@ -858,6 +914,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>shop.lua</code></td><td>Tuning-Shop, Lackierer, Warenkorb</td></tr>
 <tr><td><code>setup.lua</code></td><td>Fahrwerks-Einstellungen (Tuning-Werte)</td></tr>
 <tr><td><code>style.lua</code></td><td>Siegesserie und Combo</td></tr>
+<tr><td><code>logger.lua</code></td><td>Mod-Log, Datencheck, Fehler abfangen, Fehlerbericht</td></tr>
 </table>
 <div class="box tip"><b>Wenn du doch Code anfasst</b>Lua-Kommentare beginnen mit <code>--</code>. Eine Zahl wie <code>40 / 3.6</code> ist km/h in m/s umgerechnet: nur die erste Zahl ändern. Nach dem Speichern BeamNG neu starten und das Log prüfen.</div>
 <p style="color:var(--muted);margin-top:40px">Dieses Handbuch wird bei jeder Änderung an Systemen oder Einstellungen automatisch mit aktualisiert (Datei <span class="path">docs\handbuch.html</span> im Mod-Ordner, kommt mit jedem <code>git pull</code>). Fehlt etwas oder ist etwas veraltet, sag mir Bescheid.</p>

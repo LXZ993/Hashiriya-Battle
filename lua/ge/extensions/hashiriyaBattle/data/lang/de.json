@@ -396,5 +396,8 @@
   "menu.devClear": "Alle Rivalen entfernen (Test)",
   "msg.devNoRival": "Kein Rivale gefunden: %s",
   "msg.devBeaten": "%s gilt jetzt als geschlagen.",
-  "msg.devOnRoad": "%s ist schon unterwegs."
+  "msg.devOnRoad": "%s ist schon unterwegs.",
+  "menu.report": "Fehlerbericht erstellen",
+  "msg.reportSaved": "Fehlerbericht gespeichert: %s. Diese Datei bitte an den Entwickler schicken.",
+  "msg.reportFailed": "Fehlerbericht konnte nicht gespeichert werden."
 }

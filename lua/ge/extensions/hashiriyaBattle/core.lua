@@ -2,13 +2,15 @@
 local M = {}
 
 local logTag = 'hashiriya'
+-- Meldungen gehen ins BeamNG-Log und zusätzlich in settings/hashiriya_battle/logs/hashiriya.log (logger.lua)
+local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logger') if L then L.log(level, tag, text) else _G.log(level, tag, text) end end
 
 local dataDir = '/lua/ge/extensions/hashiriyaBattle/data/'
 local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -483,6 +485,8 @@ function M.onBattleResult(rival, won, result)
   end
   result = result or {}
   result.repFactor = repF
+  log('I', logTag, string.format('Battle-Ergebnis: %s gegen %s (%s), Serie %d, Details %s', won and 'Sieg' or 'Niederlage',
+    tostring(rival and rival.id), tostring(rival and rival.config), streak, (pcall(jsonEncode, result) and jsonEncode(result)) or '?'))
   extensions.hashiriyaBattle_progress.onBattle(rival, won, result)
   if not won then style.resetStreak('loss') end
   if won then
@@ -777,7 +781,13 @@ local function actionSound(action, arg)
   else M.sound('click') end
 end
 
+-- Häufige Aktionen nicht ins Log (sonst wird es unlesbar)
+local quietActions = { sound = true, slider = true, focusSlot = true, fuelHold = true, setupAdjust = true, paintSlot = true }
+
 function M.uiAction(action, arg)
+  if not quietActions[action] then
+    log('I', logTag, 'Aktion: ' .. tostring(action) .. (arg ~= nil and (' ' .. tostring(type(arg) == 'table' and jsonEncode(arg) or arg)) or ''))
+  end
   actionSound(action, arg)
   if action == 'sound' then
     M.sound(arg)
@@ -959,6 +969,10 @@ function M.uiAction(action, arg)
     M.setLanguage(arg)
   elseif action == 'stop' then
     M.stopGame()
+  elseif action == 'report' then
+    -- Fehlerbericht für den Entwickler (alle Infos in einer Datei)
+    local path = extensions.hashiriyaBattle_logger.writeReport(arg)
+    msg(path and M.t('msg.reportSaved', 'BeamNG-Userordner/' .. path) or M.t('msg.reportFailed'), 10)
   end
   M.sendUiState()
 end
@@ -975,6 +989,13 @@ local function onExtensionLoaded()
   for _, name in ipairs(subExtensions) do
     extensions.load(name)
     setExtensionUnloadMode(name, 'manual')
+    if name == 'hashiriyaBattle_logger' then extensions.hashiriyaBattle_logger.start() end
+  end
+  -- Fehler in Hooks und UI-Aktionen landen mit Traceback und Spielzustand in hashiriya.log
+  local logger = extensions.hashiriyaBattle_logger
+  logger.protect('hashiriyaBattle_core')
+  for _, name in ipairs(subExtensions) do
+    if name ~= 'hashiriyaBattle_logger' then logger.protect(name) end
   end
   loadLanguage(detectLanguage())
   loadData()

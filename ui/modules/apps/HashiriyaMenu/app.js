@@ -52,6 +52,7 @@ angular.module('beamng.apps')
             '<div class="hbm-item" ng-if="s.nap" ng-class="{\'hbm-off\': !s.nap.can}" ng-click="s.nap.can && act(\'nap\')" title="{{ s.nap.reason }}"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>' +
               '<span class="hbm-car-name">{{ s.t[\'menu.nap\'] }}</span><span class="hbm-price" ng-if="!s.nap.can">{{ s.nap.reason }}</span></div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'report\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.report\'] }}</div>' +
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')"><i class="hbm-ico" ng-bind-html="ico(\'carsChase\')"></i>{{ s.t[\'menu.callRival\'] }}</div>' +
             '<div class="hbm-plate hbm-dev">' +
@@ -530,6 +531,17 @@ angular.module('beamng.apps')
       '</div>',
     replace: true,
     link: function (scope, element) {
+      // JS-Fehler der Hashiriya-Apps ins Mod-Log (hashiriya.log) schicken, einmal pro Fenster
+      if (!window.__hbErrorHook) {
+        window.__hbErrorHook = true
+        window.addEventListener('error', function (ev) {
+          var src = String((ev && ev.filename) || '')
+          if (src.indexOf('Hashiriya') < 0) return
+          var text = 'UI-Fehler: ' + (ev.message || '?') + ' (' + src.split('/').slice(-2).join('/') + ':' + (ev.lineno || 0) + ')'
+          text = text.replace(/[\\"]/g, "'").replace(/[\u0000-\u001f]/g, ' ')
+          bngApi.engineLua('if hashiriyaBattle_logger then hashiriyaBattle_logger.log("E", "hashiriya", "' + text + '") end')
+        })
+      }
       var $sce = $injector.get('$sce')
       var iconCache = {}
       scope.ico = function (name) {

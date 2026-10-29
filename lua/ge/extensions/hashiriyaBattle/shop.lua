@@ -5,6 +5,8 @@
 local M = {}
 
 local logTag = 'hashiriya'
+-- Meldungen gehen ins BeamNG-Log und zusätzlich in settings/hashiriya_battle/logs/hashiriya.log (logger.lua)
+local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logger') if L then L.log(level, tag, text) else _G.log(level, tag, text) end end
 local rulesPath = '/lua/ge/extensions/hashiriyaBattle/data/tuning.json'
 
 local rules = nil
