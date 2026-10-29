@@ -69,13 +69,13 @@ function M.getOnRoad() return onRoad end
 
 -- Battle beginnt gegen diesen Rivalen / ist vorbei
 function M.engage(e) engaged = e end
-function M.disengage()
+function M.disengage(cooldown)
   local e = engaged
   engaged = nil
   local veh = entryVeh(e)
   if veh then
     -- weiterfahren, aber erst nach einer Pause wieder herausforderbar
-    e.cooldown = (data and data.settings and data.settings.rechallengeSeconds) or 60
+    e.cooldown = cooldown or (data and data.settings and data.settings.rechallengeSeconds) or 60
     setCruise(veh, e.data)
   end
 end
@@ -88,6 +88,7 @@ local function progress() return extensions.hashiriyaBattle_progress end
 local function home() return extensions.hashiriyaBattle_home end
 
 local function settings() return data.settings or {} end
+function M.getSettings() return data and data.settings or {} end
 
 local function teamById(id)
   for _, t in ipairs(data.teams or {}) do if t.id == id then return t end end
@@ -252,14 +253,55 @@ end
 
 -- Spawnen -----------------------------------------------------------------------
 
--- Sucht einen Punkt auf der Straße des Spielers, `distance` m vor ihm (negativ = hinter ihm).
--- Statt einfach die nächste Straße am Zielpunkt zu nehmen (das war oft die Gegenfahrbahn), laufen wir
--- das KI-Straßennetz entlang: nur in erlaubter Fahrtrichtung (Einbahn-Kanten), an Abzweigungen geradeaus.
+-- Fahrtrichtung auf Einbahn-Kanten. Auf C1 passte inNode -> outNode nicht immer zur echten Fahrtrichtung,
+-- deshalb lernen wir sie vom Verkehr: Wie fahren die KI-Autos auf Einbahn-Kanten? (+1 = inNode -> outNode)
+local oneWaySign, oneWayVotes = nil, { plus = 0, minus = 0 }
+local calibTimer = 0
+
+local function isRivalVeh(id)
+  for _, e in ipairs(onRoad) do if e.vehId == id then return true end end
+  return false
+end
+
+local function calibrateOneWay(player)
+  local nodes = map.getMap().nodes
+  if not nodes then return end
+  local pid = player and player:getID()
+  for i = 0, be:getObjectCount() - 1 do
+    local o = be:getObject(i)
+    if o and o:getID() ~= pid and not isRivalVeh(o:getID()) then
+      local vel = o:getVelocity()
+      if vel and vel:length() > 8 then
+        local p = o:getPosition()
+        local n1, n2, dist = map.findClosestRoad(p)
+        local l = n1 and n2 and nodes[n1] and nodes[n1].links and nodes[n1].links[n2]
+        if l and dist and dist < 5 and l.oneWay and l.inNode and l.outNode and nodes[l.inNode] and nodes[l.outNode] then
+          local d = (nodes[l.outNode].pos - nodes[l.inNode].pos):normalized():dot(vel:normalized())
+          if d > 0.7 then oneWayVotes.plus = oneWayVotes.plus + 1 elseif d < -0.7 then oneWayVotes.minus = oneWayVotes.minus + 1 end
+        end
+      end
+    end
+  end
+  local total = oneWayVotes.plus + oneWayVotes.minus
+  if total >= 6 then
+    local sign = oneWayVotes.plus >= oneWayVotes.minus and 1 or -1
+    if sign ~= oneWaySign then
+      log('I', logTag, string.format('Einbahn-Richtung vom Verkehr gelernt: %s (%d / %d)', sign > 0 and 'inNode->outNode' or 'outNode->inNode', oneWayVotes.plus, oneWayVotes.minus))
+    end
+    oneWaySign = sign
+    -- weiter lernen, aber alte Stimmen langsam vergessen
+    if total > 60 then oneWayVotes.plus, oneWayVotes.minus = oneWayVotes.plus * 0.5, oneWayVotes.minus * 0.5 end
+  end
+end
+
+-- Darf man von `from` nach `to` fahren? nil = Richtung noch unbekannt (Einbahn, aber noch nichts gelernt)
 local function linkAllowed(nodes, from, to)
   local l = nodes[from] and nodes[from].links and nodes[from].links[to]
   if not l then return false, nil end
-  if l.oneWay and l.inNode and l.inNode ~= from then return false, l end
-  return true, l
+  if not (l.oneWay and l.inNode and l.outNode) then return true, l end
+  if not oneWaySign then return nil, l end
+  local forward = (l.inNode == from) == (oneWaySign > 0)
+  return forward, l
 end
 
 -- Suche über die nächste Straße am Zielpunkt (Rückfall, falls das Straßennetz unterwegs endet).
@@ -277,18 +319,17 @@ local function closestRoadSpawn(pos, dir, distance)
   local segLen2 = seg:squaredLength()
   if segLen2 < 0.01 then return nil, 'Kante zu kurz' end
   local t = clamp((target - p1):dot(seg) / segLen2, 0, 1)
-  local roadDir = seg:normalized()
-  if roadDir:dot(dir) < 0 then roadDir = roadDir * -1 end
-  local l = nodes[n1].links and nodes[n1].links[n2]
-  if l and l.oneWay and l.inNode and l.outNode and nodes[l.inNode] and nodes[l.outNode] then
-    local allowed = (nodes[l.outNode].pos - nodes[l.inNode].pos):normalized()
-    if allowed:dot(roadDir) < 0 then return nil, 'Gegenfahrbahn' end
-  end
-  return p1 + seg * t + vec3(0, 0, 0.5), roadDir
+  local a, b = n1, n2
+  if seg:dot(dir) < 0 then a, b = n2, n1 end
+  local ok = linkAllowed(nodes, a, b)
+  if ok == nil then return nil, 'Einbahn-Richtung noch unbekannt' end
+  if not ok then return nil, 'Gegenfahrbahn' end
+  return p1 + seg * t + vec3(0, 0, 0.5), (nodes[b].pos - nodes[a].pos):normalized()
 end
 
--- Läuft das Straßennetz entlang. strict = Einbahn-Richtung beachten.
-local function walkRoad(nodes, pos, dir, distance, strict)
+-- Läuft das Straßennetz entlang, in erlaubter Fahrtrichtung. Endet eine Straße (nicht verbundene Straßenstücke),
+-- wird ein paar Meter weiter geradeaus die nächste passende Kante gesucht.
+local function walkRoad(nodes, pos, dir, distance)
   local n1, n2 = map.findClosestRoad(pos)
   if not n1 or not n2 or not nodes[n1] or not nodes[n2] then return nil, 'Spieler nicht auf Straße' end
   local back = distance < 0
@@ -296,16 +337,15 @@ local function walkRoad(nodes, pos, dir, distance, strict)
   local prev, cur = n1, n2
   if (nodes[cur].pos - nodes[prev].pos):dot(travel) < 0 then prev, cur = cur, prev end
   local function allowed(from, to)
-    if not strict then
-      local l = nodes[from] and nodes[from].links and nodes[from].links[to]
-      return l ~= nil, l
-    end
     if back then return linkAllowed(nodes, to, from) end
     return linkAllowed(nodes, from, to)
   end
-  if strict and not allowed(prev, cur) then return nil, 'Startkante gegen Einbahn' end
+  local okStart = allowed(prev, cur)
+  if okStart == nil then return nil, 'Einbahn-Richtung noch unbekannt' end
+  if not okStart then return nil, 'Spieler auf Gegenfahrbahn' end
   local remaining = math.abs(distance) - (nodes[cur].pos - pos):length()
   local heading = (nodes[cur].pos - nodes[prev].pos):normalized()
+  local bridges, walked = 0, 0
   for _ = 1, 800 do
     local best, bestScore
     for nid in pairs(nodes[cur].links or {}) do
@@ -325,39 +365,55 @@ local function walkRoad(nodes, pos, dir, distance, strict)
         end
       end
     end
-    if not best then return nil, 'Straßennetz endet' end
-    local seg = nodes[best].pos - nodes[cur].pos
-    local len = seg:length()
-    if remaining <= len then
-      local t = math.max(remaining, 0) / len
-      local fwd = seg:normalized()
-      if back then fwd = fwd * -1 end
-      return nodes[cur].pos + seg * t + vec3(0, 0, 0.5), fwd
+    if not best then
+      -- Lücke überbrücken: nächste Kante kurz voraus, die in dieselbe Richtung läuft
+      local bridged = false
+      if bridges < 20 then
+        local probe = nodes[cur].pos + heading * 6
+        local a, b, dist = map.findClosestRoad(probe)
+        if a and b and dist and dist < 4 and nodes[a] and nodes[b] and a ~= cur and b ~= cur then
+          local e = nodes[b].pos - nodes[a].pos
+          if e:dot(heading) < 0 then a, b, e = b, a, e * -1 end
+          if e:length() > 0.1 and e:normalized():dot(heading) > 0.8 and allowed(a, b) then
+            bridges = bridges + 1
+            remaining = remaining - (nodes[a].pos - nodes[cur].pos):length()
+            prev, cur = cur, a
+            bridged = true
+          end
+        end
+      end
+      if not bridged then return nil, string.format('Straßennetz endet nach %d m', math.floor(walked)) end
+    else
+      local seg = nodes[best].pos - nodes[cur].pos
+      local len = seg:length()
+      if remaining <= len then
+        local t = math.max(remaining, 0) / len
+        local fwd = seg:normalized()
+        if back then fwd = fwd * -1 end
+        return nodes[cur].pos + seg * t + vec3(0, 0, 0.5), fwd
+      end
+      remaining = remaining - len
+      walked = walked + len
+      heading = seg:normalized()
+      prev, cur = cur, best
     end
-    remaining = remaining - len
-    heading = seg:normalized()
-    prev, cur = cur, best
   end
   return nil, 'zu viele Knoten'
 end
 
 -- Sucht einen Spawnpunkt `distance` m vor (negativ: hinter) dem Spieler auf seiner Fahrbahn.
--- Zuerst streng nach Einbahn-Richtung, dann ohne, zuletzt über die nächste Straße am Ziel.
+-- Zuerst das Straßennetz entlang, sonst die nächste Straße am Ziel (beides nur in erlaubter Fahrtrichtung).
 local function findRoadSpawn(pos, dir, distance)
   local nodes = map.getMap().nodes
-  local p, d, why1, why2, why3
+  local p, d, why1
   if nodes then
-    p, d = walkRoad(nodes, pos, dir, distance, true)
+    p, d = walkRoad(nodes, pos, dir, distance)
     if p then return p, d end
     why1 = d
-    p, d = walkRoad(nodes, pos, dir, distance, false)
-    if p then return p, d end
-    why2 = d
   end
   p, d = closestRoadSpawn(pos, dir, distance)
   if p then return p, d end
-  why3 = d
-  return nil, string.format('streng: %s / frei: %s / Ziel: %s', tostring(why1), tostring(why2), tostring(why3))
+  return nil, string.format('Netz: %s / Ziel: %s', tostring(why1), tostring(d))
 end
 
 -- Kein anderes Fahrzeug (Verkehr) in der Nähe des Spawnpunkts?
@@ -611,6 +667,12 @@ local function onUpdate(dtReal, dtSim)
       end
     end
     ::continue::
+  end
+
+  calibTimer = calibTimer - dtSim
+  if calibTimer <= 0 then
+    calibTimer = 2
+    pcall(calibrateOneWay, player)
   end
 
   cooldown = cooldown - dtSim

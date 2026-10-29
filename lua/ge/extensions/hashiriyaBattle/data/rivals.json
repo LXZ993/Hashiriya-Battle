@@ -1,11 +1,12 @@
 {
- "_hinweis": "Rivalen fuer C1 (50 Gegner). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). settings: maxOnRoad = Rivalen gleichzeitig im Verkehr, spawnBehindNew/spawnBehindRematch = Chance, dass ein neuer Gegner bzw. eine Revanche hinter dir statt vor dir spawnt, rechallengeSeconds = Pause bis zur naechsten Herausforderung desselben Rivalen, maxBattlesPerNight (optional) = Battles pro Nacht. conditions: minRank, minWins, minDay, speedTraps (all oder Anzahl), hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals.",
+ "_hinweis": "Rivalen fuer C1 (50 Gegner). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). settings: maxOnRoad = Rivalen gleichzeitig im Verkehr, spawnBehindNew/spawnBehindRematch = Chance, dass ein neuer Gegner bzw. eine Revanche hinter dir statt vor dir spawnt, rechallengeSeconds = Pause bis zur naechsten Herausforderung desselben Rivalen, falseStartRechallengeSeconds = dieselbe Pause nach einem Fruehstart, maxBattlesPerNight (optional) = Battles pro Nacht. conditions: minRank, minWins, minDay, speedTraps (all oder Anzahl), hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals.",
  "settings": {
   "nightOnly": true,
   "maxOnRoad": 4,
   "spawnBehindNew": 0.05,
   "spawnBehindRematch": 0.25,
   "rechallengeSeconds": 60,
+  "falseStartRechallengeSeconds": 30,
   "teamMembersPerNight": 2,
   "rivalOncePerNight": false,
   "lostRivalCooldownNights": 0,

@@ -75,12 +75,18 @@ local function releasePlayerSpeed()
   if veh then veh:queueLuaCommand('if extensions.cruiseControl then extensions.cruiseControl.setEnabled(false) end') end
 end
 
-function M.reset()
+-- cooldown (optional): Sekunden bis derselbe Rivale wieder herausgefordert werden kann
+local function falseStartCooldown()
+  local d = rivals() and rivals().getSettings and rivals().getSettings() or {}
+  return d.falseStartRechallengeSeconds or 30
+end
+
+function M.reset(cooldown)
   offer = nil
   if state == 'countdown' or state == 'sync' then releasePlayerSpeed() end
   state = 'idle'
   battle = nil
-  if rivals() and rivals().disengage then rivals().disengage() end
+  if rivals() and rivals().disengage then rivals().disengage(cooldown) end
 end
 
 -- Lichthupe ---------------------------------------------------------------------
@@ -432,7 +438,7 @@ local function onUpdate(dtReal, dtSim)
       if gap > -2 then
         setWarnSignal(rivalVeh, false)
         core().msg(core().t('msg.falseStart', battle.rival.name), 4)
-        M.reset()
+        M.reset(falseStartCooldown())
         return
       end
       local behind = -gap
@@ -456,7 +462,7 @@ local function onUpdate(dtReal, dtSim)
     if gap < 2 then -- in der Angleich-Phase überholt = Frühstart
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)
-      M.reset()
+      M.reset(falseStartCooldown())
       return
     end
     -- Zu weit weg: Tempomat etwas schneller als der Rivale, bis man auf syncTargetGap dran ist
@@ -497,7 +503,7 @@ local function onUpdate(dtReal, dtSim)
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)
       log('I', logTag, 'Frühstart gegen ' .. tostring(battle.rival.id))
-      M.reset()
+      M.reset(falseStartCooldown())
       return
     end
     if timer <= 0 then
