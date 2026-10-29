@@ -5,14 +5,18 @@ local logTag = 'hashiriya'
 
 -- Einstellungen (zum Feintuning) -------------------------------------------------
 local cfg = {
-  challengeMaxBehind = 45,  -- m: so weit darf man hinter dem Rivalen sein
+  challengeMaxBehind = 30,  -- m: so weit darf man hinter dem Rivalen sein
   challengeMinBehind = 4,
   challengeMaxLateral = 10, -- m seitlicher Versatz
   challengeMinSpeed = 40 / 3.6,
   countdown = 3,            -- s
   maxChallengeDiffKmh = 30, -- km/h: größerer Tempounterschied zum Rivalen = Herausfordern nicht möglich
   syncToleranceKmh = 5,     -- so nah am Battle-Tempo, dann startet der Countdown
-  syncTimeout = 10,         -- s: spätestens dann startet der Countdown trotzdem
+  syncTimeout = 25,         -- s: spätestens dann startet der Countdown trotzdem
+  syncMaxGap = 18,          -- m Mitte zu Mitte (ca. 4-5 m Autolänge enthalten): Countdown erst, wenn man so nah dran ist
+  syncTargetGap = 13,       -- m Mitte zu Mitte: bis hierhin holt der Tempomat beim Angleichen auf
+  syncCatchUpKmh = 25,      -- km/h: so viel schneller als der Rivale fährt man beim Aufholen höchstens
+  syncCatchUpPerMeter = 1.5,-- km/h mehr pro Meter über syncTargetGap
   falseStartGap = 3,        -- m: so viel näher am Rivalen als beim Herausfordern = Frühstart
   falseStartKmh = 10,       -- km/h über dem Tempomat-Tempo = Frühstart
   playerMaxSp = 1000,
@@ -135,6 +139,7 @@ local function startCountdown(rival, rivalVeh)
   if player then
     local speed = math.max(rivalVeh:getVelocity():length(), (rival.cruiseKmh or 100) / 3.6 * 0.9)
     battle.lockSpeed = speed
+    battle.rivalSpeed = speed
     lockPlayerSpeed(player, speed)
     rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", speed))
   end
@@ -307,12 +312,16 @@ local function onUpdate(dtReal, dtSim)
       M.reset()
       return
     end
-    local diff = math.abs(player:getVelocity():length() - battle.lockSpeed) * 3.6
-    if diff <= cfg.syncToleranceKmh or timer <= 0 then
+    -- Zu weit weg: Tempomat etwas schneller als der Rivale, bis man auf syncTargetGap dran ist
+    local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, gap - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
+    battle.lockSpeed = battle.rivalSpeed + catchUp
+    local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
+    if (gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0 then
       state = 'countdown'
       timer = cfg.countdown
       battle.startGap = gap
-      battle.lockSpeed = math.max(battle.lockSpeed, player:getVelocity():length())
+      battle.lockSpeed = math.max(battle.rivalSpeed, math.min(player:getVelocity():length(), battle.rivalSpeed + cfg.syncToleranceKmh / 3.6))
+      battle.relock = 0
     end
     return
   end
