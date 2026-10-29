@@ -3,6 +3,7 @@
 -- Gekaufte Autos stehen in der Garage; dort wechselt man das aktive Auto.
 -- Wie in den Originalspielen gibt es nur Autos, die zum Fortschritt passen: Leistungsgrenze (PS) aus den Rivalen,
 -- die man beim aktuellen Rang schon treffen kann (powerCap in dealer.json). Die Grenze gilt jeweils für den ganzen Tag.
+-- Jedes Angebot hat einen Mindestrang (minRank) und eine Seltenheit (rarity): Importe sind sehr selten, je älter und teurer, desto seltener.
 local M = {}
 
 local logTag = 'hashiriya'
@@ -70,8 +71,10 @@ local function computeCap(save)
   for _, t in ipairs(rd.teams or {}) do teams[t.id] = t end
   local best = 0
   for _, r in ipairs(rd.rivals or {}) do
+    -- Crew-Mitglieder zählen ab ihrem Rang; Leader, Wanderer und Bosse erst nach dem Sieg
+    -- (sonst würden einzelne starke Sonderautos die Grenze früh hochziehen)
     local counts
-    if r.boss then counts = save.defeated and save.defeated[r.id]
+    if r.boss or r.leader or r.wanderer then counts = save.defeated and save.defeated[r.id]
     else counts = rivalMinRank(r, teams) <= rank end
     if counts and r.model and r.config then
       local key = tostring(r.config):match('([^/]+)%.pc$') or tostring(r.config)
@@ -94,34 +97,49 @@ local function dayCap(save)
 end
 
 -- Alle möglichen Angebote: Einträge mit config = genau diese Config, ohne config = jede passende Config des Modells
-local function pool(cap)
+local function pool(cap, rank)
   local list = {}
   for _, entry in ipairs(loadData().cars or {}) do
-    local okM, m = pcall(core_vehicles.getModel, entry.model)
-    if okM and m and m.configs then
-      local brand = m.model and m.model.Brand or ''
-      local name = m.model and m.model.Name or entry.model
-      local function add(key, info)
-        local ps = tonumber(info.Power)
-        if cap and (not ps or ps > cap) then return end
-        if tonumber(info.Value) and tonumber(info.Value) > 0 then
-          table.insert(list, { model = entry.model, key = key, info = info, brand = brand, name = name })
+    if not (rank and entry.minRank and rank < entry.minRank) then
+      local okM, m = pcall(core_vehicles.getModel, entry.model)
+      if okM and m and m.configs then
+        local brand = m.model and m.model.Brand or ''
+        local name = m.model and m.model.Name or entry.model
+        local function add(key, info)
+          local ps = tonumber(info.Power)
+          if cap and (not ps or ps > cap) then return end
+          if tonumber(info.Value) and tonumber(info.Value) > 0 then
+            table.insert(list, { model = entry.model, key = key, info = info, brand = brand, name = name,
+              weight = tonumber(entry.rarity) or 1 })
+          end
         end
-      end
-      if entry.config and entry.config ~= '' then
-        local key = entry.config:match('([^/]+)%.pc$') or entry.config
-        if m.configs[key] then add(key, m.configs[key]) end
-      else
-        local keys = {}
-        for key in pairs(m.configs) do table.insert(keys, key) end
-        table.sort(keys)
-        for _, key in ipairs(keys) do
-          if not excluded(key, m.configs[key]) then add(key, m.configs[key]) end
+        if entry.config and entry.config ~= '' then
+          local key = entry.config:match('([^/]+)%.pc$') or entry.config
+          if m.configs[key] then add(key, m.configs[key]) end
+        else
+          local keys = {}
+          for key in pairs(m.configs) do table.insert(keys, key) end
+          table.sort(keys)
+          for _, key in ipairs(keys) do
+            if not excluded(key, m.configs[key]) then add(key, m.configs[key]) end
+          end
         end
       end
     end
   end
   return list
+end
+
+-- Gewichtete Auswahl: rarity in dealer.json (1 = normal, 0.01 = sehr selten)
+local function pickWeighted(all, rand)
+  local total = 0
+  for _, o in ipairs(all) do total = total + math.max(0.0001, o.weight or 1) end
+  local x = rand() * total
+  for i, o in ipairs(all) do
+    x = x - math.max(0.0001, o.weight or 1)
+    if x <= 0 then return table.remove(all, i) end
+  end
+  return table.remove(all, #all)
 end
 
 local conditions = {
@@ -137,11 +155,11 @@ local function makeOffers()
   local key = tostring(save.dealerSeed or 1) .. ':' .. tostring(save.day or 1)
   if offersCache and offersCache.key == key then return offersCache.list end
   local rand = rng((save.dealerSeed or 1) * 31 + (save.day or 1) * 7919)
-  local all = pool(dayCap(save))
+  local all = pool(dayCap(save), extensions.hashiriyaBattle_progress.rankIndex(save))
   local list = {}
   local count = math.min(loadData().offersPerDay or 5, #all)
   for i = 1, count do
-    local pick = table.remove(all, rand(1, #all))
+    local pick = pickWeighted(all, rand)
     local cond = conditions[rand(1, #conditions)]
     local km = rand(8, 190) * 1000
     local kmFactor = 1 - math.min(0.3, km / 190000 * 0.3)

@@ -10,13 +10,13 @@
     {
       "level": 2,
       "unlock": {
-        "minRank": 3
+        "minRank": 4
       }
     },
     {
       "level": 3,
       "unlock": {
-        "minRank": 6
+        "minRank": 8
       }
     }
   ],

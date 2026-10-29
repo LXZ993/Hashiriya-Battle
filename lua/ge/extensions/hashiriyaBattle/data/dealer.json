@@ -1,16 +1,1048 @@
 {
-  "_hinweis": "Autohändler: jeden Spieltag offersPerDay zufällige Angebote aus cars. Eintrag mit config = genau diese Config (.pc-Pfad oder Name), ohne config = jede Config des Modells außer denen mit einem Wort aus exclude. Vorläufig alle Configs der Modelle; später kommen hier die Configs, die in der Config-Liste mit H markiert sind. powerCap: Angebote nur bis zu einer PS-Grenze, damit man keine Autos bekommt, die für den aktuellen Fortschritt zu stark sind. Grenze = stärkster Rivale, den man beim aktuellen Rang treffen kann (Teams ab minRank, Wanderer ab conditions.minRank, Bosse erst nach dem Sieg), mal factor; nie unter minPs. byRank = feste Grenze je Rang (Liste ab Rang 1) statt der Rechnung. Die Grenze wird einmal pro Spieltag festgelegt; stärkere Autos gibt es ab dem nächsten Tag. enabled false schaltet sie ab.",
+  "_hinweis": "Autohändler: jeden Spieltag offersPerDay zufällige Angebote aus cars. Eintrag mit config = genau diese Config (.pc-Pfad oder Name), ohne config = jede Config des Modells außer denen mit einem Wort aus exclude. cars = die Configs, die in der Config-Liste mit H markiert sind. minRank = ab diesem Rang (Index in ranks) im Katalog. rarity = Gewicht bei der Auswahl (1 = normal): Japaner 0.5 bis 1 (älter und teurer etwas seltener), Importe 0.005 bis 0.06 (super selten, je älter und teurer desto seltener) und erst 2 Ränge später als ein gleich starker Japaner, Oldtimer vor 1975 und Importe über 150.000 $ jeweils noch einen Rang später. powerCap: Angebote nur bis zu einer PS-Grenze, damit man keine Autos bekommt, die für den aktuellen Fortschritt zu stark sind. Grenze = stärkster Rivale, den man beim aktuellen Rang treffen kann (Crew-Mitglieder ab dem Rang ihrer Crew; Leader, Wanderer und Bosse erst nach dem Sieg), mal factor; nie unter minPs. byRank = feste Grenze je Rang (Liste ab Rang 1) statt der Rechnung. Die Grenze wird einmal pro Spieltag festgelegt; stärkere Autos gibt es ab dem nächsten Tag. enabled false schaltet sie ab.",
   "offersPerDay": 5,
-  "powerCap": { "enabled": true, "factor": 1.1, "minPs": 120 },
-  "exclude": ["police", "polizei", "rally", "drag", "gambler", "stock car", "stockcar", "crawler", "derby", "taxi", "delivery", "lieferdienst", "tutorial", "race", "rennen", "drift", "track", "missile", "rocket", "sport-x", "gymkhana"],
+  "powerCap": {
+    "enabled": true,
+    "factor": 1.1,
+    "minPs": 120
+  },
+  "exclude": [
+    "police",
+    "polizei",
+    "rally",
+    "drag",
+    "gambler",
+    "stock car",
+    "stockcar",
+    "crawler",
+    "derby",
+    "taxi",
+    "delivery",
+    "lieferdienst",
+    "tutorial",
+    "race",
+    "rennen",
+    "drift",
+    "track",
+    "missile",
+    "rocket",
+    "sport-x",
+    "gymkhana"
+  ],
   "cars": [
-    { "model": "covet" },
-    { "model": "bx" },
-    { "model": "sbr" },
-    { "model": "sunburst2" },
-    { "model": "pessima" },
-    { "model": "midsize" },
-    { "model": "miramar" },
-    { "model": "hopper" }
+    {
+      "model": "bx",
+      "config": "200bx_base_A",
+      "minRank": 0,
+      "rarity": 0.815
+    },
+    {
+      "model": "bx",
+      "config": "200bx_base_M",
+      "minRank": 0,
+      "rarity": 0.817
+    },
+    {
+      "model": "bx",
+      "config": "200bx_type_l_A",
+      "minRank": 0,
+      "rarity": 0.804
+    },
+    {
+      "model": "bx",
+      "config": "200bx_type_l_M",
+      "minRank": 0,
+      "rarity": 0.805
+    },
+    {
+      "model": "bx",
+      "config": "200bx_type_ls_A",
+      "minRank": 0,
+      "rarity": 0.793
+    },
+    {
+      "model": "bx",
+      "config": "200bx_type_ls_M",
+      "minRank": 0,
+      "rarity": 0.794
+    },
+    {
+      "model": "bx",
+      "config": "diana_base_A",
+      "minRank": 0,
+      "rarity": 0.817
+    },
+    {
+      "model": "bx",
+      "config": "diana_base_M",
+      "minRank": 0,
+      "rarity": 0.818
+    },
+    {
+      "model": "bx",
+      "config": "diana_type_l_A",
+      "minRank": 0,
+      "rarity": 0.806
+    },
+    {
+      "model": "bx",
+      "config": "diana_type_l_M",
+      "minRank": 0,
+      "rarity": 0.807
+    },
+    {
+      "model": "bx",
+      "config": "diana_type_ls_A",
+      "minRank": 0,
+      "rarity": 0.795
+    },
+    {
+      "model": "bx",
+      "config": "diana_type_ls_M",
+      "minRank": 0,
+      "rarity": 0.796
+    },
+    {
+      "model": "bx",
+      "config": "200bx_gtz_M",
+      "minRank": 1,
+      "rarity": 0.775
+    },
+    {
+      "model": "bx",
+      "config": "diana_gtz_M",
+      "minRank": 1,
+      "rarity": 0.775
+    },
+    {
+      "model": "bx",
+      "config": "vspecial_M",
+      "minRank": 1,
+      "rarity": 0.74
+    },
+    {
+      "model": "covet",
+      "config": "13s_M",
+      "minRank": 0,
+      "rarity": 0.826
+    },
+    {
+      "model": "covet",
+      "config": "15ee_m",
+      "minRank": 0,
+      "rarity": 0.825
+    },
+    {
+      "model": "covet",
+      "config": "15gtz_turbo2_M",
+      "minRank": 0,
+      "rarity": 0.752
+    },
+    {
+      "model": "covet",
+      "config": "15gtz_turbo_M",
+      "minRank": 0,
+      "rarity": 0.759
+    },
+    {
+      "model": "covet",
+      "config": "15le_A",
+      "minRank": 0,
+      "rarity": 0.816
+    },
+    {
+      "model": "covet",
+      "config": "15le_M",
+      "minRank": 0,
+      "rarity": 0.819
+    },
+    {
+      "model": "covet",
+      "config": "15se_A",
+      "minRank": 0,
+      "rarity": 0.826
+    },
+    {
+      "model": "covet",
+      "config": "15se_M",
+      "minRank": 0,
+      "rarity": 0.826
+    },
+    {
+      "model": "covet",
+      "config": "15zxi_M",
+      "minRank": 0,
+      "rarity": 0.799
+    },
+    {
+      "model": "covet",
+      "config": "gtz",
+      "minRank": 0,
+      "rarity": 0.768
+    },
+    {
+      "model": "covet",
+      "config": "turbo",
+      "minRank": 0,
+      "rarity": 0.645
+    },
+    {
+      "model": "covet",
+      "config": "type_LS_A",
+      "minRank": 0,
+      "rarity": 0.785
+    },
+    {
+      "model": "covet",
+      "config": "type_LS_M",
+      "minRank": 0,
+      "rarity": 0.788
+    },
+    {
+      "model": "covet",
+      "config": "type_L_A",
+      "minRank": 0,
+      "rarity": 0.809
+    },
+    {
+      "model": "covet",
+      "config": "type_L_M",
+      "minRank": 0,
+      "rarity": 0.812
+    },
+    {
+      "model": "covet",
+      "config": "turbo_evolution",
+      "minRank": 1,
+      "rarity": 0.595
+    },
+    {
+      "model": "hopper",
+      "config": "lxt4_A",
+      "minRank": 0,
+      "rarity": 0.764
+    },
+    {
+      "model": "hopper",
+      "config": "lxt4_M",
+      "minRank": 0,
+      "rarity": 0.767
+    },
+    {
+      "model": "hopper",
+      "config": "lxt6_A",
+      "minRank": 0,
+      "rarity": 0.747
+    },
+    {
+      "model": "hopper",
+      "config": "lxt6_M",
+      "minRank": 0,
+      "rarity": 0.751
+    },
+    {
+      "model": "hopper",
+      "config": "sport_A",
+      "minRank": 0,
+      "rarity": 0.713
+    },
+    {
+      "model": "hopper",
+      "config": "sport_M",
+      "minRank": 0,
+      "rarity": 0.717
+    },
+    {
+      "model": "hopper",
+      "config": "zxt6_A",
+      "minRank": 0,
+      "rarity": 0.752
+    },
+    {
+      "model": "hopper",
+      "config": "zxt6_M",
+      "minRank": 0,
+      "rarity": 0.755
+    },
+    {
+      "model": "midsize",
+      "config": "DX_A",
+      "minRank": 0,
+      "rarity": 0.869
+    },
+    {
+      "model": "midsize",
+      "config": "DX_M",
+      "minRank": 0,
+      "rarity": 0.867
+    },
+    {
+      "model": "midsize",
+      "config": "LX_A",
+      "minRank": 0,
+      "rarity": 0.859
+    },
+    {
+      "model": "midsize",
+      "config": "LX_M",
+      "minRank": 0,
+      "rarity": 0.856
+    },
+    {
+      "model": "midsize",
+      "config": "LX_V6_A",
+      "minRank": 0,
+      "rarity": 0.839
+    },
+    {
+      "model": "midsize",
+      "config": "LX_V6_M",
+      "minRank": 0,
+      "rarity": 0.837
+    },
+    {
+      "model": "midsize",
+      "config": "LX_V6_sport_A",
+      "minRank": 0,
+      "rarity": 0.832
+    },
+    {
+      "model": "midsize",
+      "config": "LX_V6_sport_M",
+      "minRank": 0,
+      "rarity": 0.829
+    },
+    {
+      "model": "midsize",
+      "config": "LX_sport_A",
+      "minRank": 0,
+      "rarity": 0.854
+    },
+    {
+      "model": "midsize",
+      "config": "LX_sport_M",
+      "minRank": 0,
+      "rarity": 0.851
+    },
+    {
+      "model": "midsize",
+      "config": "special",
+      "minRank": 0,
+      "rarity": 0.812
+    },
+    {
+      "model": "miramar",
+      "config": "base_M",
+      "minRank": 0,
+      "rarity": 0.686
+    },
+    {
+      "model": "miramar",
+      "config": "base_facelift_M",
+      "minRank": 0,
+      "rarity": 0.695
+    },
+    {
+      "model": "miramar",
+      "config": "base_ute_M",
+      "minRank": 0,
+      "rarity": 0.682
+    },
+    {
+      "model": "miramar",
+      "config": "base_ute_facelift_M",
+      "minRank": 0,
+      "rarity": 0.69
+    },
+    {
+      "model": "miramar",
+      "config": "base_ute_plucky_M",
+      "minRank": 0,
+      "rarity": 0.687
+    },
+    {
+      "model": "miramar",
+      "config": "luxe_coupe_A",
+      "minRank": 0,
+      "rarity": 0.668
+    },
+    {
+      "model": "miramar",
+      "config": "luxe_coupe_export_early_A",
+      "minRank": 0,
+      "rarity": 0.668
+    },
+    {
+      "model": "miramar",
+      "config": "luxe_coupe_facelift_A",
+      "minRank": 0,
+      "rarity": 0.678
+    },
+    {
+      "model": "miramar",
+      "config": "luxe_facelift_A",
+      "minRank": 0,
+      "rarity": 0.682
+    },
+    {
+      "model": "miramar",
+      "config": "sport",
+      "minRank": 0,
+      "rarity": 0.642
+    },
+    {
+      "model": "miramar",
+      "config": "sport_coupe",
+      "minRank": 0,
+      "rarity": 0.639
+    },
+    {
+      "model": "miramar",
+      "config": "sport_coupe_facelift",
+      "minRank": 0,
+      "rarity": 0.643
+    },
+    {
+      "model": "miramar",
+      "config": "sport_facelift",
+      "minRank": 0,
+      "rarity": 0.647
+    },
+    {
+      "model": "pessima",
+      "config": "DX_A",
+      "minRank": 0,
+      "rarity": 0.822
+    },
+    {
+      "model": "pessima",
+      "config": "DX_M",
+      "minRank": 0,
+      "rarity": 0.82
+    },
+    {
+      "model": "pessima",
+      "config": "HX_M",
+      "minRank": 0,
+      "rarity": 0.805
+    },
+    {
+      "model": "pessima",
+      "config": "LX_A",
+      "minRank": 0,
+      "rarity": 0.812
+    },
+    {
+      "model": "pessima",
+      "config": "LX_M",
+      "minRank": 0,
+      "rarity": 0.81
+    },
+    {
+      "model": "pessima",
+      "config": "ZX_4ws_M",
+      "minRank": 0,
+      "rarity": 0.776
+    },
+    {
+      "model": "pessima",
+      "config": "ZX_M",
+      "minRank": 0,
+      "rarity": 0.79
+    },
+    {
+      "model": "pessima",
+      "config": "GTz",
+      "minRank": 1,
+      "rarity": 0.732
+    },
+    {
+      "model": "sbr",
+      "config": "base_RWD_DCT",
+      "minRank": 1,
+      "rarity": 0.858
+    },
+    {
+      "model": "sbr",
+      "config": "base_RWD_M",
+      "minRank": 1,
+      "rarity": 0.865
+    },
+    {
+      "model": "sbr",
+      "config": "S_AWD_DCT",
+      "minRank": 3,
+      "rarity": 0.811
+    },
+    {
+      "model": "sbr",
+      "config": "S_AWD_M",
+      "minRank": 3,
+      "rarity": 0.817
+    },
+    {
+      "model": "sbr",
+      "config": "S_RWD_DCT",
+      "minRank": 3,
+      "rarity": 0.832
+    },
+    {
+      "model": "sbr",
+      "config": "S_RWD_M",
+      "minRank": 3,
+      "rarity": 0.839
+    },
+    {
+      "model": "sbr",
+      "config": "TT_AWD_S_DCT",
+      "minRank": 3,
+      "rarity": 0.724
+    },
+    {
+      "model": "sbr",
+      "config": "TT_AWD_S_M",
+      "minRank": 3,
+      "rarity": 0.731
+    },
+    {
+      "model": "sbr",
+      "config": "TT_RWD_S_DCT",
+      "minRank": 3,
+      "rarity": 0.746
+    },
+    {
+      "model": "sbr",
+      "config": "TT_RWD_S_M",
+      "minRank": 3,
+      "rarity": 0.752
+    },
+    {
+      "model": "sunburst2",
+      "config": "base_CVT",
+      "minRank": 0,
+      "rarity": 0.93
+    },
+    {
+      "model": "sunburst2",
+      "config": "base_EU_CVT",
+      "minRank": 0,
+      "rarity": 0.939
+    },
+    {
+      "model": "sunburst2",
+      "config": "base_EU_M",
+      "minRank": 0,
+      "rarity": 0.941
+    },
+    {
+      "model": "sunburst2",
+      "config": "base_EU_wagon_CVT",
+      "minRank": 0,
+      "rarity": 0.932
+    },
+    {
+      "model": "sunburst2",
+      "config": "base_EU_wagon_M",
+      "minRank": 0,
+      "rarity": 0.934
+    },
+    {
+      "model": "sunburst2",
+      "config": "base_wagon_CVT",
+      "minRank": 0,
+      "rarity": 0.924
+    },
+    {
+      "model": "sunburst2",
+      "config": "comfort_CVT",
+      "minRank": 0,
+      "rarity": 0.907
+    },
+    {
+      "model": "sunburst2",
+      "config": "comfort_M",
+      "minRank": 0,
+      "rarity": 0.909
+    },
+    {
+      "model": "sunburst2",
+      "config": "comfort_wagon_CVT",
+      "minRank": 0,
+      "rarity": 0.901
+    },
+    {
+      "model": "sunburst2",
+      "config": "comfort_wagon_M",
+      "minRank": 0,
+      "rarity": 0.903
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_EU_DCT",
+      "minRank": 0,
+      "rarity": 0.918
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_EU_M",
+      "minRank": 0,
+      "rarity": 0.922
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_EU_wagon_DCT",
+      "minRank": 0,
+      "rarity": 0.912
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_EU_wagon_M",
+      "minRank": 0,
+      "rarity": 0.915
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_S_DCT",
+      "minRank": 1,
+      "rarity": 0.893
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_S_M",
+      "minRank": 1,
+      "rarity": 0.897
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_S_wagon_DCT",
+      "minRank": 1,
+      "rarity": 0.887
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_S_wagon_M",
+      "minRank": 1,
+      "rarity": 0.89
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_RS2_DCT",
+      "minRank": 3,
+      "rarity": 0.776
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_RS2_wagon_DCT",
+      "minRank": 3,
+      "rarity": 0.77
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_RS_DCT",
+      "minRank": 3,
+      "rarity": 0.8
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_RS_M",
+      "minRank": 3,
+      "rarity": 0.804
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_RS_wagon_DCT",
+      "minRank": 3,
+      "rarity": 0.794
+    },
+    {
+      "model": "sunburst2",
+      "config": "sport_RS_wagon_M",
+      "minRank": 3,
+      "rarity": 0.797
+    },
+    {
+      "model": "autobello",
+      "config": "150",
+      "minRank": 3,
+      "rarity": 0.02
+    },
+    {
+      "model": "barstow",
+      "config": "tracksport",
+      "minRank": 6,
+      "rarity": 0.02
+    },
+    {
+      "model": "bastion",
+      "config": "sport_A",
+      "minRank": 6,
+      "rarity": 0.059
+    },
+    {
+      "model": "bastion",
+      "config": "sport_M",
+      "minRank": 6,
+      "rarity": 0.059
+    },
+    {
+      "model": "bastion",
+      "config": "sport_gt_A",
+      "minRank": 8,
+      "rarity": 0.058
+    },
+    {
+      "model": "bastion",
+      "config": "sport_gt_M",
+      "minRank": 8,
+      "rarity": 0.058
+    },
+    {
+      "model": "bluebuck",
+      "config": "423a_2door_hardtop",
+      "minRank": 6,
+      "rarity": 0.017
+    },
+    {
+      "model": "bluebuck",
+      "config": "423m_roadsport",
+      "minRank": 6,
+      "rarity": 0.017
+    },
+    {
+      "model": "bolide",
+      "config": "350",
+      "minRank": 6,
+      "rarity": 0.024
+    },
+    {
+      "model": "bolide",
+      "config": "350_targa",
+      "minRank": 6,
+      "rarity": 0.022
+    },
+    {
+      "model": "bolide",
+      "config": "390gt",
+      "minRank": 6,
+      "rarity": 0.02
+    },
+    {
+      "model": "bolide",
+      "config": "390gt_strada",
+      "minRank": 6,
+      "rarity": 0.009
+    },
+    {
+      "model": "bolide",
+      "config": "390gt_targa",
+      "minRank": 6,
+      "rarity": 0.019
+    },
+    {
+      "model": "burnside",
+      "config": "2doorSport_late_3A",
+      "minRank": 3,
+      "rarity": 0.018
+    },
+    {
+      "model": "burnside",
+      "config": "2door_early_2A",
+      "minRank": 3,
+      "rarity": 0.018
+    },
+    {
+      "model": "burnside",
+      "config": "4door_late_v8_3A_luxe",
+      "minRank": 3,
+      "rarity": 0.018
+    },
+    {
+      "model": "etk800",
+      "config": "846_340_M",
+      "minRank": 5,
+      "rarity": 0.056
+    },
+    {
+      "model": "etk800",
+      "config": "856x_340_A",
+      "minRank": 5,
+      "rarity": 0.056
+    },
+    {
+      "model": "etk800",
+      "config": "846x_ttsport_plus_DCT",
+      "minRank": 8,
+      "rarity": 0.05
+    },
+    {
+      "model": "etk800",
+      "config": "856_ttsport_DCT",
+      "minRank": 8,
+      "rarity": 0.052
+    },
+    {
+      "model": "etkc",
+      "config": "kc8_ttsport_DCT",
+      "minRank": 8,
+      "rarity": 0.052
+    },
+    {
+      "model": "etkc",
+      "config": "kc8x_ttsport_plus_DCT",
+      "minRank": 12,
+      "rarity": 0.05
+    },
+    {
+      "model": "etki",
+      "config": "3000i_M",
+      "minRank": 2,
+      "rarity": 0.033
+    },
+    {
+      "model": "etki",
+      "config": "3000ix_A_alt",
+      "minRank": 2,
+      "rarity": 0.037
+    },
+    {
+      "model": "etki",
+      "config": "3000ix_M",
+      "minRank": 2,
+      "rarity": 0.035
+    },
+    {
+      "model": "etki",
+      "config": "3000ix_M_alt",
+      "minRank": 2,
+      "rarity": 0.037
+    },
+    {
+      "model": "etki",
+      "config": "2400ti_sport_M",
+      "minRank": 3,
+      "rarity": 0.032
+    },
+    {
+      "model": "etki",
+      "config": "2400ti_sport_M_alt",
+      "minRank": 3,
+      "rarity": 0.036
+    },
+    {
+      "model": "etki",
+      "config": "2400tix_sport_M",
+      "minRank": 3,
+      "rarity": 0.033
+    },
+    {
+      "model": "etki",
+      "config": "2400tix_sport_M_alt",
+      "minRank": 3,
+      "rarity": 0.035
+    },
+    {
+      "model": "fullsize",
+      "config": "roadsport",
+      "minRank": 5,
+      "rarity": 0.04
+    },
+    {
+      "model": "lansdale",
+      "config": "33_S_sport_A",
+      "minRank": 2,
+      "rarity": 0.042
+    },
+    {
+      "model": "lansdale",
+      "config": "33_S_sport_late_A",
+      "minRank": 3,
+      "rarity": 0.047
+    },
+    {
+      "model": "lansdale",
+      "config": "38_SE_sport_AWD_A",
+      "minRank": 3,
+      "rarity": 0.041
+    },
+    {
+      "model": "lansdale",
+      "config": "38_SE_sport_AWD_late_A",
+      "minRank": 3,
+      "rarity": 0.046
+    },
+    {
+      "model": "legran",
+      "config": "sport_se_v6_awd_facelift_A",
+      "minRank": 3,
+      "rarity": 0.036
+    },
+    {
+      "model": "moonhawk",
+      "config": "v8a_sport",
+      "minRank": 3,
+      "rarity": 0.027
+    },
+    {
+      "model": "moonhawk",
+      "config": "v8m_sport",
+      "minRank": 3,
+      "rarity": 0.027
+    },
+    {
+      "model": "moonhawk",
+      "config": "v8a_sport_alt",
+      "minRank": 4,
+      "rarity": 0.024
+    },
+    {
+      "model": "moonhawk",
+      "config": "v8m_sport_alt",
+      "minRank": 4,
+      "rarity": 0.024
+    },
+    {
+      "model": "moonhawk",
+      "config": "v8special",
+      "minRank": 6,
+      "rarity": 0.024
+    },
+    {
+      "model": "nine",
+      "config": "nine_coupe_luxe",
+      "minRank": 3,
+      "rarity": 0.018
+    },
+    {
+      "model": "nine",
+      "config": "nine_pickup",
+      "minRank": 3,
+      "rarity": 0.018
+    },
+    {
+      "model": "nine",
+      "config": "nine_pickup_short",
+      "minRank": 3,
+      "rarity": 0.018
+    },
+    {
+      "model": "nine",
+      "config": "nine_roadster_luxe",
+      "minRank": 3,
+      "rarity": 0.017
+    },
+    {
+      "model": "nine",
+      "config": "nine_sedan_luxe",
+      "minRank": 3,
+      "rarity": 0.017
+    },
+    {
+      "model": "pickup",
+      "config": "d10_423sport_A",
+      "minRank": 5,
+      "rarity": 0.033
+    },
+    {
+      "model": "pickup",
+      "config": "d15_423sport_A",
+      "minRank": 5,
+      "rarity": 0.033
+    },
+    {
+      "model": "roamer",
+      "config": "sport",
+      "minRank": 5,
+      "rarity": 0.038
+    },
+    {
+      "model": "scintilla",
+      "config": "gt",
+      "minRank": 12,
+      "rarity": 0.045
+    },
+    {
+      "model": "scintilla",
+      "config": "gt_spider",
+      "minRank": 12,
+      "rarity": 0.043
+    },
+    {
+      "model": "scintilla",
+      "config": "gts",
+      "minRank": 12,
+      "rarity": 0.042
+    },
+    {
+      "model": "scintilla",
+      "config": "gts_corse",
+      "minRank": 12,
+      "rarity": 0.031
+    },
+    {
+      "model": "scintilla",
+      "config": "gts_corse_spider",
+      "minRank": 12,
+      "rarity": 0.029
+    },
+    {
+      "model": "scintilla",
+      "config": "gts_spider",
+      "minRank": 12,
+      "rarity": 0.04
+    },
+    {
+      "model": "scintilla",
+      "config": "gtx",
+      "minRank": 12,
+      "rarity": 0.038
+    },
+    {
+      "model": "scintilla",
+      "config": "gtx_spider",
+      "minRank": 12,
+      "rarity": 0.036
+    },
+    {
+      "model": "vivace",
+      "config": "vivace_S_350q_DCT",
+      "minRank": 5,
+      "rarity": 0.058
+    },
+    {
+      "model": "vivace",
+      "config": "ardente_S_410Q_DCT",
+      "minRank": 8,
+      "rarity": 0.058
+    },
+    {
+      "model": "vivace",
+      "config": "vivace_S_410q_DCT",
+      "minRank": 8,
+      "rarity": 0.056
+    },
+    {
+      "model": "wendover",
+      "config": "se_v8_A",
+      "minRank": 2,
+      "rarity": 0.036
+    },
+    {
+      "model": "wendover",
+      "config": "se_v8_A_facelift",
+      "minRank": 2,
+      "rarity": 0.04
+    },
+    {
+      "model": "wendover",
+      "config": "sport_se_v6_A",
+      "minRank": 3,
+      "rarity": 0.036
+    },
+    {
+      "model": "wendover",
+      "config": "sport_se_v6_A_facelift",
+      "minRank": 3,
+      "rarity": 0.04
+    }
   ]
 }

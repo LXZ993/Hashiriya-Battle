@@ -94,6 +94,53 @@ local function teamById(id)
   for _, t in ipairs(data.teams or {}) do if t.id == id then return t end end
 end
 
+-- Kennzeichen (Agent's Japanese Plates Pack) und fester Lack ----------------------
+-- plate.design ist ein Teil im Slot licenseplate_design_2_1 und muss in die Config; der Text kommt per licenseText.
+-- paint gilt nur, wenn die Config keine Livery (paint_design) hat.
+local pcCache = {}
+local function readPc(path)
+  if pcCache[path] == nil then pcCache[path] = jsonReadFile('/' .. tostring(path):gsub('^/', '')) or false end
+  return pcCache[path] or nil
+end
+
+local function hasLivery(parts)
+  for slot, part in pairs(parts or {}) do
+    if type(slot) == 'string' and slot:match('paint_design$') and type(part) == 'string' and part ~= '' then return true end
+  end
+  return false
+end
+
+local function rivalPaint(p)
+  if type(p) ~= 'table' or type(p.color) ~= 'table' then return nil end
+  return {
+    baseColor = { p.color[1] or 0.5, p.color[2] or 0.5, p.color[3] or 0.5, 1.2 },
+    metallic = p.metallic or 0, roughness = p.roughness or 0.5, clearcoat = 1, clearcoatRoughness = 0.05,
+  }
+end
+
+-- Config fürs Spawnen: Pfad, oder Tabelle mit Kennzeichen-Design und Lack. Zweiter Wert = Lack (oder nil)
+local function spawnSetup(rival)
+  local path = rival.config ~= '' and rival.config or nil
+  local design = rival.plate and rival.plate.design
+  local paint = rivalPaint(rival.paint)
+  if not path or (not design and not paint) then return path, nil end
+  local pc = readPc(path)
+  if not pc or type(pc.parts) ~= 'table' then return path, nil end
+  if paint and hasLivery(pc.parts) then paint = nil end
+  local cfg = { parts = {}, vars = {}, paints = pc.paints }
+  for k, v in pairs(pc.parts) do cfg.parts[k] = v end
+  for k, v in pairs(pc.vars or {}) do cfg.vars[k] = v end
+  if design then
+    local set = false
+    for k in pairs(cfg.parts) do
+      if type(k) == 'string' and k:match('licenseplate_design_2_1$') then cfg.parts[k] = design; set = true end
+    end
+    if not set then cfg.parts.licenseplate_design_2_1 = design end
+  end
+  if paint then cfg.paints = { paint, paint, paint } end
+  return cfg, paint
+end
+
 local function leaderOf(teamId)
   for _, r in ipairs(data.rivals) do if r.team == teamId and r.leader then return r end end
 end
@@ -516,12 +563,19 @@ function M.spawnNext(force)
     return
   end
 
-  local veh = core_vehicles.spawnNewVehicle(rival.model, {
-    config = rival.config ~= '' and rival.config or nil,
-    pos = pos,
-    rot = quatFromDir(dir, vec3(0, 0, 1)),
-    autoEnterVehicle = false,
-  })
+  local cfg, paint = spawnSetup(rival)
+  local plateText = rival.plate and rival.plate.text
+  local opts = { config = cfg, pos = pos, rot = quatFromDir(dir, vec3(0, 0, 1)), autoEnterVehicle = false, licenseText = plateText }
+  if paint then opts.paint, opts.paint2, opts.paint3 = paint, paint, paint end
+  local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, rival.model, opts)
+  if (not okSpawn or not veh) and type(cfg) == 'table' then
+    -- Ersatz: Original-Config ohne Kennzeichen-Design und Lack
+    log('W', logTag, 'Rivale mit eigener Config nicht gespawnt, nehme Original: ' .. tostring(rival.id) .. ' ' .. tostring(veh))
+    opts.config, opts.paint, opts.paint2, opts.paint3 = rival.config, nil, nil, nil
+    okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, rival.model, opts)
+  end
+  if not okSpawn then veh = nil end
+  if veh and plateText then pcall(core_vehicles.setPlateText, plateText, veh:getID()) end
   if not veh then
     log('E', logTag, 'Konnte Rivalen-Auto nicht spawnen: ' .. tostring(rival.model))
     return
