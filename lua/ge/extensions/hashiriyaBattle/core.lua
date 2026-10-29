@@ -390,6 +390,7 @@ function M.continueCareer()
     return
   end
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
+  extensions.hashiriyaBattle_condition.syncStarterWear(M.save)
   local car = M.save.cars[M.save.activeCar or 1]
   if not car then return end
   local opts = { config = car.config ~= '' and car.config or nil, licenseText = car.plate, autoEnterVehicle = false }
@@ -503,8 +504,8 @@ local function capturePosition()
   if not veh then return end
   local p, d = veh:getPosition(), veh:getDirectionVector()
   if onFoot then p = walkerPosition(veh) end
-  if p:length() < 50 then
-    -- Kartenursprung: keine echte Position (z. B. Figur gerade nicht gespawnt)
+  if p:length() < 0.5 then
+    -- genau im Ursprung: keine echte Position (Figur gerade nicht gespawnt). Die C1-Garage liegt selbst nahe am Ursprung.
     msg(M.t('msg.posInvalid'))
     return
   end

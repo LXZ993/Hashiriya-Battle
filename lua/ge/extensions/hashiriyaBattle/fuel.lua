@@ -103,7 +103,20 @@ local function restore()
   log('I', logTag, string.format('Tankinhalt nach Respawn: %.1f l', car.fuel))
 end
 
+-- Tanksound: Schleife wie im BeamNG-Karrieremodus (createSource + play/stop), playOnce liefe endlos
+local fuelSoundId = nil
+local function fuelSound(on)
+  pcall(function()
+    if on and not fuelSoundId then fuelSoundId = Engine.Audio.createSource('AudioGui', 'event:>UI>Career>Fueling_Petrol') end
+    local snd = fuelSoundId and scenetree.findObjectById(fuelSoundId)
+    if not snd then return end
+    if on then snd:play(-1) else snd:stop(-1) end
+    snd:setTransform(getCameraTransform())
+  end)
+end
+
 local function finish()
+  fuelSound(false)
   holding = false
   local s = session
   session = nil
@@ -130,7 +143,7 @@ function M.setHolding(on)
     holding = true
     session = { liters = 0, cost = 0, paid = 0 }
     pcall(function() core_vehicleBridge.executeAction(veh, 'setIgnitionLevel', 0) end)
-    c.sound('fuel')
+    fuelSound(true)
   else
     finish()
   end
@@ -193,5 +206,6 @@ local function onUpdate(dtReal)
 end
 
 M.onUpdate = onUpdate
+M.onClientEndMission = function() fuelSoundId = nil end
 
 return M

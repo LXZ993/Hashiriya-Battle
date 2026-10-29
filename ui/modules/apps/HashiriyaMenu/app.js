@@ -245,7 +245,7 @@ angular.module('beamng.apps')
               '<div class="hbm-stat hbm-stat-live" ng-if="s.gas.session"><span class="hbm-label">{{ s.t[\'gas.session\'] }}</span><b>{{ s.gas.session.liters }} · {{ s.gas.session.cost }}</b></div>' +
               '<div class="hbm-actions">' +
                 '<span class="hbm-btn hbm-btn-main hbm-hold" ng-class="{\'hbm-dis\': s.gas.full || !s.gas.affordable, \'hbm-holding\': s.gas.holding}"' +
-                  ' ng-mousedown="fuelHold(true)" ng-mouseup="fuelHold(false)" ng-mouseleave="fuelHold(false)">' +
+                  ' ng-mousedown="fuelHold(true)">' +
                   '<i class="hbm-ico" ng-bind-html="ico(\'fuelPumpFilling\')"></i>{{ s.gas.full ? s.t[\'gas.full\'] : (s.gas.holding ? s.t[\'gas.holding\'] : s.t[\'gas.refuel\']) }}</span>' +
               '</div>' +
               '<div class="hbm-note">{{ s.t[\'gas.nightNote\'] }}</div>' +

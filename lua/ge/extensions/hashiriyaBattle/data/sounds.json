@@ -45,7 +45,7 @@
     "msg.wanderer": "info",
     "msg.leader": "info",
     "msg.welcomeDriver": "money",
-    "msg.refueled": "fuel",
+    "msg.refueled": "comboBank",
     "msg.slept": "sleep"
   }
 }

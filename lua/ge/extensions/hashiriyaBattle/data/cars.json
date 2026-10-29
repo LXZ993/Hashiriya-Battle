@@ -33,12 +33,12 @@
       "priceUsd": 29000,
       "condition": {
         "odometerKm": 236000,
-        "integrity": 0.72,
+        "integrity": 0.85,
         "visual": 0.6
       }
     }
   ],
-  "conditionMisfireScale": 0.2,
+  "conditionMisfireScale": 0.1,
   "conditionMinFuel": 0.25,
   "startMoneyYen": 4500000,
   "careerLevel": "c1",

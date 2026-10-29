@@ -114,6 +114,32 @@ function M.initUsedCar(car, condition, veh)
   if veh then apply(veh, car, true) end
 end
 
+-- Starterautos im Spielstand an geänderte Werte aus cars.json anpassen (Balancing beim Testen):
+-- Grundzustand und Zustand der Originalteile neu, Laufleistung bleibt.
+function M.syncStarterWear(save)
+  local cd = core().carsData or {}
+  for _, car in ipairs(save and save.cars or {}) do
+    if car.wear then
+      for _, st in ipairs(cd.starterCars or {}) do
+        local cond = st.condition
+        if cond and st.model == car.model and (car.wearFrom == nil or car.wearFrom == st.id) then
+          local oldI, oldV = car.wear.integrity, car.wear.visual
+          if oldI ~= cond.integrity or oldV ~= cond.visual then
+            car.wear.integrity, car.wear.visual = cond.integrity or 1, cond.visual or 1
+            for _, p in pairs(car.parts or {}) do
+              if p.i == oldI then p.i = car.wear.integrity end
+              if p.v == oldV then p.v = car.wear.visual end
+            end
+            log('I', logTag, 'Zustand des Starterautos an cars.json angepasst: ' .. tostring(car.model))
+          end
+          car.wearFrom = st.id
+          break
+        end
+      end
+    end
+  end
+end
+
 -- Vor einem Respawn des Spielerautos (über core.engineOffAfterSpawn)
 function M.keepAfterRespawn() restoreWindow = 5 end
 
