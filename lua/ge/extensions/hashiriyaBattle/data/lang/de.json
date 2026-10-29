@@ -383,5 +383,18 @@
   "msg.rivalChallenge": "%s fordert dich heraus! Warnblinker = annehmen, Blinker = ablehnen",
   "msg.rivalDeclined": "Abgelehnt. %s lässt dich vorerst in Ruhe.",
   "keys.bind": "Belegen",
-  "msg.titleCamSaved": "Titelbild-Kamera gespeichert. Sie gilt ab dem nächsten Titelbildschirm."
+  "msg.titleCamSaved": "Titelbild-Kamera gespeichert. Sie gilt ab dem nächsten Titelbildschirm.",
+  "menu.devRivalPh": "Rivale: ID oder Name",
+  "menu.devSpawn": "Spawnen",
+  "menu.devBeat": "Als geschlagen markieren",
+  "menu.cheatRep": "+500 Ruf (Test)",
+  "menu.cheatHour": "Uhr +1 Stunde (Test)",
+  "menu.cheatNight": "Uhr auf 22:00 (Test)",
+  "menu.cheatDay": "Tag +1 (Test)",
+  "menu.cheatRepair": "Gratis reparieren (Test)",
+  "menu.cheatFuel": "Gratis volltanken (Test)",
+  "menu.devClear": "Alle Rivalen entfernen (Test)",
+  "msg.devNoRival": "Kein Rivale gefunden: %s",
+  "msg.devBeaten": "%s gilt jetzt als geschlagen.",
+  "msg.devOnRoad": "%s ist schon unterwegs."
 }

@@ -54,6 +54,21 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')"><i class="hbm-ico" ng-bind-html="ico(\'carsChase\')"></i>{{ s.t[\'menu.callRival\'] }}</div>' +
+            '<div class="hbm-plate hbm-dev">' +
+              '<input type="text" list="hbm-dev-rivals" ng-model="dev.rival" placeholder="{{ s.t[\'menu.devRivalPh\'] }}">' +
+              '<datalist id="hbm-dev-rivals"><option ng-repeat="r in s.devRivals track by r.id" value="{{ r.id }}">{{ r.name }}</option></datalist>' +
+            '</div>' +
+            '<div class="hbm-plate hbm-dev">' +
+              '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !dev.rival}" ng-click="dev.rival && act(\'devSpawnRival\', dev.rival)">{{ s.t[\'menu.devSpawn\'] }}</span>' +
+              '<span class="hbm-btn" ng-class="{\'hbm-dis\': !dev.rival}" ng-click="dev.rival && act(\'devBeatRival\', dev.rival)">{{ s.t[\'menu.devBeat\'] }}</span>' +
+            '</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'devClearRivals\')"><i class="hbm-ico" ng-bind-html="ico(\'xmark\')"></i>{{ s.t[\'menu.devClear\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRep\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'menu.cheatRep\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatHour\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\', \'night\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatNight\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatDay\')"><i class="hbm-ico" ng-bind-html="ico(\'house\')"></i>{{ s.t[\'menu.cheatDay\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRepair\')"><i class="hbm-ico" ng-bind-html="ico(\'wrench\')"></i>{{ s.t[\'menu.cheatRepair\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatFuel\')"><i class="hbm-ico" ng-bind-html="ico(\'fuelPump\')"></i>{{ s.t[\'menu.cheatFuel\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'capture\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i>{{ s.t[\'menu.capture\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
               '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
@@ -436,6 +451,7 @@ angular.module('beamng.apps')
           '.hbm-pslots span.is-on{background:var(--o2);color:#141414;}' +
           '.hbm-pslots .hbm-swatch{margin:0;width:10px;height:10px;}' +
           '.hbm-plate{display:flex;gap:6px;align-items:center;padding:4px 18px 8px;}' +
+          '.hbm-dev{padding:2px 18px 4px;} .hbm-dev .hbm-btn{flex:1;text-align:center;}' +
           '.hbm-plate input{flex:1;min-width:0;height:26px;padding:0 8px;font:700 13px "Overpass",sans-serif;letter-spacing:1px;color:#141414;background:#f4f1e6;border:2px solid #2a2a2a;border-radius:3px;outline:none;}' +
           '.hbm-plate .hbm-btn{flex:none;padding:6px 10px;}' +
           '.hbm-badge{display:inline-block;margin-left:6px;padding:0 6px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.1);color:rgba(244,244,244,.8);transform:skewX(-12deg);}' +
@@ -536,6 +552,7 @@ angular.module('beamng.apps')
       scope.s = null
       scope.open = { slot: null }
       scope.plate = { text: '' }
+      scope.dev = { rival: '' }
       // Abschleppen kostet viel: erster Klick fragt nach, zweiter Klick (innerhalb 4 s) bestätigt.
       scope.towArmed = false
       var towTimer = null

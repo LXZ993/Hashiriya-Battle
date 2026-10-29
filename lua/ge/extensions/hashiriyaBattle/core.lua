@@ -633,6 +633,8 @@ local function setLayout(name)
   if gs and gs.setGameState then pcall(gs.setGameState, 'freeroam', name, 'freeroam') end
 end
 
+local devRivals = nil -- Dev-Tool: Liste aller Rivalen für die Eingabe im Menü
+
 local function buildUiState()
   local eco = M.economy()
   local st = {
@@ -718,6 +720,15 @@ local function buildUiState()
         if garageTab == 'setup' then st.setup = extensions.hashiriyaBattle_setup.getUiState() end
       end
     end
+  end
+  if st.menuVisible and M.active then
+    devRivals = devRivals or {}
+    if #devRivals == 0 then
+      for _, r in ipairs((extensions.hashiriyaBattle_rivals.getData() or {}).rivals or {}) do
+        table.insert(devRivals, { id = r.id, name = r.name })
+      end
+    end
+    st.devRivals = devRivals
   end
   return st
 end
@@ -900,6 +911,46 @@ function M.uiAction(action, arg)
       M.save.wins = (M.save.wins or 0) + 1
       M.writeSave()
     end
+  elseif action == 'devSpawnRival' then
+    -- Nur zum Testen: bestimmten Rivalen spawnen (ID oder Name), ohne Bedingungen
+    local r = extensions.hashiriyaBattle_rivals.findRival(arg)
+    if r then extensions.hashiriyaBattle_rivals.spawnNext(true, r)
+    else M.msg(M.t('msg.devNoRival', tostring(arg or '')), 3) end
+  elseif action == 'devBeatRival' then
+    -- Nur zum Testen: Rivalen als geschlagen markieren (für Leader, Wanderer-Bedingungen, Bosse)
+    local r = extensions.hashiriyaBattle_rivals.findRival(arg)
+    if r and M.save then
+      M.save.defeated = M.save.defeated or {}
+      M.save.defeated[r.id] = true
+      if r.final then M.save.finalBeaten = true end
+      M.writeSave()
+      M.msg(M.t('msg.devBeaten', r.name), 3)
+    else M.msg(M.t('msg.devNoRival', tostring(arg or '')), 3) end
+  elseif action == 'cheatRep' then
+    if M.save then
+      M.save.rep = (M.save.rep or 0) + 500
+      M.writeSave()
+    end
+  elseif action == 'cheatHour' then
+    local home = extensions.hashiriyaBattle_home
+    local h = home.hour() or 0
+    home.applyClock(arg == 'night' and 22 or ((math.floor(h) + 1) % 24))
+  elseif action == 'cheatDay' then
+    if M.save then
+      M.save.day = (M.save.day or 1) + 1
+      M.writeSave()
+      M.msg(M.t('home.day', M.save.day), 3)
+    end
+  elseif action == 'cheatRepair' then
+    local veh = M.getPlayerVehicle()
+    if veh then
+      extensions.hashiriyaBattle_fuel.keepAfterRespawn()
+      veh:queueLuaCommand('obj:requestReset(RESET_PHYSICS)')
+    end
+  elseif action == 'cheatFuel' then
+    extensions.hashiriyaBattle_fuel.devFill()
+  elseif action == 'devClearRivals' then
+    extensions.hashiriyaBattle_rivals.despawnAll()
   elseif action == 'toggleMarkers' then
     extensions.hashiriyaBattle_parking.setMarkersEnabled(not extensions.hashiriyaBattle_parking.markersEnabled())
   elseif action == 'photoMode' then

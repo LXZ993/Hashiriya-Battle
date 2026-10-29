@@ -512,7 +512,21 @@ function setCruise(veh, rival)
 end
 M.setCruise = setCruise
 
-function M.spawnNext(force)
+-- Dev-Tool: Rivale per ID oder (Teil vom) Namen finden
+function M.findRival(q)
+  if not data then M.loadData() end
+  q = tostring(q or ''):lower():gsub('^%s+', ''):gsub('%s+$', '')
+  if q == '' then return nil end
+  for _, r in ipairs(data.rivals or {}) do if r.id:lower() == q then return r end end
+  for _, r in ipairs(data.rivals or {}) do if r.name:lower() == q then return r end end
+  for _, r in ipairs(data.rivals or {}) do
+    if r.name:lower():find(q, 1, true) or r.id:lower():find(q, 1, true) then return r end
+  end
+  return nil
+end
+
+-- force = Test-Knopf (ohne Nacht/Limit/Parkplatz-Sperre); forced = bestimmter Rivale (Dev-Tool, ohne Bedingungen)
+function M.spawnNext(force, forced)
   local save = core().save
   if not save then return end
   if not data then M.loadData() end
@@ -535,7 +549,11 @@ function M.spawnNext(force)
     end
   end
 
-  local rival = pickRival(save)
+  local rival = forced or pickRival(save)
+  if forced and isOnRoad(forced.id) then
+    core().msg(core().t('msg.devOnRoad', forced.name), 3)
+    return
+  end
   if not rival then
     if force then core().msg(core().t('msg.noRivals')) end
     return

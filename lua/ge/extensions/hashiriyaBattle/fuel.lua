@@ -75,6 +75,15 @@ end
 
 -- Vor einem Respawn des Spielerautos aufrufen (Teile, Setup, Garage, Weiterspielen):
 -- BeamNG füllt beim Spawnen den Tank, wir setzen danach den gemerkten Inhalt wieder.
+-- Dev-Tool: Tank gratis voll
+function M.devFill()
+  local veh = core().getPlayerVehicle()
+  if not veh then return end
+  setTotal(veh, 9999)
+  local car = activeCar()
+  if car and info and info.capacity and info.capacity > 0 then car.fuel = info.capacity end
+end
+
 function M.keepAfterRespawn() restoreWindow = 5 end
 
 function M.onVehicleSpawned(vehId)
