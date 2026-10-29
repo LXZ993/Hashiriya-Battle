@@ -364,7 +364,7 @@
   "spec.fuel": "Tank",
   "new.step.keys": "Tasten prüfen",
   "new.tab.keys": "Tasten",
-  "keys.note": "Diese Tasten brauchst du unbedingt. Grün ist belegt, rot fehlt noch.",
+  "keys.note": "Diese Tasten brauchst du unbedingt. Grün ist belegt, rot fehlt noch. Mit „Belegen“ öffnet sich die BeamNG-Steuerung direkt für diese Taste.",
   "keys.highbeam": "Lichthupe",
   "keys.highbeam.d": "Rivalen herausfordern",
   "keys.hazard": "Warnblinker",
@@ -380,5 +380,6 @@
   "keys.allOk": "Alles belegt, es kann losgehen.",
   "keys.open": "Steuerung öffnen",
   "msg.rivalChallenge": "%s fordert dich heraus! Warnblinker = annehmen, Blinker = ablehnen",
-  "msg.rivalDeclined": "Abgelehnt. %s lässt dich vorerst in Ruhe."
+  "msg.rivalDeclined": "Abgelehnt. %s lässt dich vorerst in Ruhe.",
+  "keys.bind": "Belegen"
 }

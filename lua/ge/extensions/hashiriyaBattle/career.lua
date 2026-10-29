@@ -157,13 +157,16 @@ local function keyStatus()
   return list, missing
 end
 
--- BeamNG-Steuerungsmenü öffnen, um fehlende Tasten zu belegen
-local function openControls()
-  local ok = false
-  if rawget(_G, 'ui_router') and ui_router.navigate then
-    ok = pcall(ui_router.navigate, 'menu.options', { category = 'controls' })
+-- BeamNG-Steuerung öffnen (wie der Knopf im Spiel): mit Aktion direkt den Belegen-Dialog dafür
+local function openControls(id)
+  local router = extensions.ui_router or rawget(_G, 'ui_router')
+  if not router or not router.navigate then return end
+  local action
+  for _, k in ipairs(keyActions) do if k.id == id then action = k.action end end
+  if action then
+    if pcall(router.navigate, 'menu.options.controls.bindings.edit', { action = action }) then return end
   end
-  if not ok then pcall(guihooks.trigger, 'ChangeState', { state = 'menu.options.controls.bindings' }) end
+  pcall(router.navigate, 'menu.options.controls.bindings', nil, nil)
 end
 
 -- Tutorial ---------------------------------------------------------------------
@@ -389,7 +392,7 @@ function M.action(arg)
   end
   if step == 'keys' then
     if cmd == 'back' then flow.step = 'experience'
-    elseif cmd == 'openControls' then openControls()
+    elseif cmd == 'openControls' then openControls(val ~= '' and val or nil)
     elseif cmd == 'next' then
       if flow.experience == 'newbie' and #tutorialPages() > 0 then
         flow.step, flow.page = 'tutorial', 1

@@ -364,7 +364,7 @@
   "spec.fuel": "Fuel",
   "new.step.keys": "Check controls",
   "new.tab.keys": "Controls",
-  "keys.note": "You really need these keys. Green is bound, red is still missing.",
+  "keys.note": "You really need these keys. Green is bound, red is still missing. \"Bind\" opens the BeamNG controls straight for that key.",
   "keys.highbeam": "Headlight flash",
   "keys.highbeam.d": "Challenge rivals",
   "keys.hazard": "Hazard lights",
@@ -380,5 +380,6 @@
   "keys.allOk": "Everything is bound, you're good to go.",
   "keys.open": "Open controls",
   "msg.rivalChallenge": "%s challenges you! Hazard lights = accept, indicator = decline",
-  "msg.rivalDeclined": "Declined. %s leaves you alone for now."
+  "msg.rivalDeclined": "Declined. %s leaves you alone for now.",
+  "keys.bind": "Bind"
 }

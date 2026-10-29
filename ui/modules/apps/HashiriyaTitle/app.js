@@ -52,6 +52,7 @@ angular.module('beamng.apps')
               '<div class="hbt-key" ng-repeat="k in f.keys track by k.id" ng-class="{\'is-missing\': !k.keys}">' +
                 '<div><div class="hbt-key-t">{{ t(\'keys.\' + k.id) }}</div><div class="hbt-key-d">{{ t(\'keys.\' + k.id + \'.d\') }}</div></div>' +
                 '<b>{{ k.keys || t(\'keys.unbound\') }}</b>' +
+                '<span class="hbt-btn hbt-btn-s" ng-click="cmd(\'openControls\', k.id)">{{ t(\'keys.bind\') }}</span>' +
               '</div>' +
               '<div class="hbt-note hbt-warn" ng-if="f.keysMissing > 0">{{ t(\'keys.missing\') }}</div>' +
               '<div class="hbt-note" ng-if="f.keysMissing == 0">{{ t(\'keys.allOk\') }}</div>' +
@@ -196,6 +197,8 @@ angular.module('beamng.apps')
           '.hbt-key b{font-size:14px;font-weight:800;color:#3fbf6f;white-space:nowrap;}' +
           '.hbt-key.is-missing b{color:#ff6b6b;}' +
           '.hbt-warn{color:#ff9a3c;}' +
+          '.hbt-key > div{flex:1;}' +
+          '.hbt-btn-s{padding:4px 10px;font-size:11px;}' +
           '.hbt-car{display:flex;align-items:center;padding:12px 16px;margin-bottom:4px;cursor:pointer;background:rgba(255,255,255,.04);transition:background .12s,padding-left .12s;}' +
           '.hbt-car:hover{background:rgba(255,102,0,.22);padding-left:24px;}' +
           '.hbt-car.is-on{background:var(--o);color:#141414;cursor:default;padding-left:24px;}' +
