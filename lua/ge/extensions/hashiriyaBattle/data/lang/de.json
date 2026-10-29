@@ -272,6 +272,7 @@
   "dealer.sold": "Verkauft",
   "dealer.note": "Jeden Tag neue Angebote. Gekaufte Autos stehen in deiner Garage.",
   "dealer.none": "Heute keine Angebote.",
+  "dealer.cap": "Angebote bis %d PS. Stärkere Autos kommen mit deinem Rang und neuen Gegnern.",
   "garage.cars": "Meine Autos",
   "garage.active": "Aktiv",
   "msg.needCarInBay": "Stell dein Auto erst in die markierte Bucht vor dem Shop.",

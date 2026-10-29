@@ -275,6 +275,7 @@ angular.module('beamng.apps')
             '<div class="hbm-area"><span class="hbm-area-tag" ng-bind-html="ico(\'carDealer\')"></span>{{ s.t[\'dealer.title\'] }}<span class="hbm-day">{{ s.day }}</span></div>' +
             '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
             '<div class="hbm-note">{{ s.t[\'dealer.note\'] }}</div>' +
+            '<div class="hbm-note" ng-if="s.dealer.capText">{{ s.dealer.capText }}</div>' +
             '<div class="hbm-note" ng-if="!s.dealer.offers.length">{{ s.t[\'dealer.none\'] }}</div>' +
             '<div class="hbm-lots">' +
               '<div class="hbm-lot" ng-repeat="o in s.dealer.offers track by o.index" ng-class="{\'is-sold\': o.sold}">' +

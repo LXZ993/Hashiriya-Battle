@@ -272,6 +272,7 @@
   "dealer.sold": "Sold",
   "dealer.note": "New offers every day. Bought cars wait in your garage.",
   "dealer.none": "No offers today.",
+  "dealer.cap": "Offers up to %d hp. Stronger cars come with your rank and new rivals.",
   "garage.cars": "My cars",
   "garage.active": "Active",
   "msg.needCarInBay": "Park your car in the marked bay in front of the shop first.",

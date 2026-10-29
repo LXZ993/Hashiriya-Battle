@@ -1,6 +1,8 @@
 -- Hashiriya Battle: Autohändler (Auktionsseite) und eigene Autos
 -- Jeden Spieltag gibt es eine Auswahl aus data/dealer.json (offersPerDay Angebote, zufällig je Spielstand und Tag).
 -- Gekaufte Autos stehen in der Garage; dort wechselt man das aktive Auto.
+-- Wie in den Originalspielen gibt es nur Autos, die zum Fortschritt passen: Leistungsgrenze (PS) aus den Rivalen,
+-- die man beim aktuellen Rang schon treffen kann (powerCap in dealer.json). Die Grenze gilt jeweils für den ganzen Tag.
 local M = {}
 
 local logTag = 'hashiriya'
@@ -36,8 +38,63 @@ local function excluded(key, info)
   return false
 end
 
+-- Leistung einer Config in PS (nil, wenn BeamNG keinen Wert kennt)
+local powerCache = {}
+local function configPower(model, key)
+  local id = tostring(model) .. '/' .. tostring(key)
+  if powerCache[id] == nil then
+    local okM, m = pcall(core_vehicles.getModel, model)
+    local info = okM and m and m.configs and m.configs[key]
+    powerCache[id] = info and tonumber(info.Power) or false
+  end
+  return powerCache[id] or nil
+end
+
+-- Ab welchem Rang ein Rivale auftauchen kann (Team-Rang oder eigene Bedingung)
+local function rivalMinRank(r, teams)
+  local rank = r.conditions and r.conditions.minRank or 0
+  if r.team and teams[r.team] then rank = math.max(rank, teams[r.team].minRank or 0) end
+  return rank
+end
+
+-- PS-Grenze für die Angebote: stärkster Rivale, den man beim aktuellen Rang treffen kann, mal factor.
+-- Bosse zählen erst, wenn sie geschlagen sind. byRank (Liste je Rang) überschreibt die Rechnung.
+local function computeCap(save)
+  local set = loadData().powerCap
+  if not set or set.enabled == false then return nil end
+  local rank = extensions.hashiriyaBattle_progress.rankIndex(save)
+  local fixed = set.byRank and set.byRank[rank + 1]
+  if tonumber(fixed) then return tonumber(fixed) end
+  local rd = extensions.hashiriyaBattle_rivals.getData() or {}
+  local teams = {}
+  for _, t in ipairs(rd.teams or {}) do teams[t.id] = t end
+  local best = 0
+  for _, r in ipairs(rd.rivals or {}) do
+    local counts
+    if r.boss then counts = save.defeated and save.defeated[r.id]
+    else counts = rivalMinRank(r, teams) <= rank end
+    if counts and r.model and r.config then
+      local key = tostring(r.config):match('([^/]+)%.pc$') or tostring(r.config)
+      local ps = configPower(r.model, key)
+      if ps and ps > best then best = ps end
+    end
+  end
+  local cap = math.max(tonumber(set.minPs) or 0, best * (tonumber(set.factor) or 1.1))
+  return math.floor(cap / 10 + 0.5) * 10
+end
+
+-- Grenze einmal pro Tag festlegen (bessere Autos gibt es ab dem nächsten Tag, Angebote bleiben stabil)
+local function dayCap(save)
+  local day = save.day or 1
+  if not save.dealerCap or save.dealerCap.day ~= day then
+    save.dealerCap = { day = day, ps = computeCap(save) }
+    if save.dealerCap.ps then log('I', logTag, string.format('Autohändler: Angebote bis %d PS (Tag %d)', save.dealerCap.ps, day)) end
+  end
+  return save.dealerCap.ps
+end
+
 -- Alle möglichen Angebote: Einträge mit config = genau diese Config, ohne config = jede passende Config des Modells
-local function pool()
+local function pool(cap)
   local list = {}
   for _, entry in ipairs(loadData().cars or {}) do
     local okM, m = pcall(core_vehicles.getModel, entry.model)
@@ -45,6 +102,8 @@ local function pool()
       local brand = m.model and m.model.Brand or ''
       local name = m.model and m.model.Name or entry.model
       local function add(key, info)
+        local ps = tonumber(info.Power)
+        if cap and (not ps or ps > cap) then return end
         if tonumber(info.Value) and tonumber(info.Value) > 0 then
           table.insert(list, { model = entry.model, key = key, info = info, brand = brand, name = name })
         end
@@ -78,7 +137,7 @@ local function makeOffers()
   local key = tostring(save.dealerSeed or 1) .. ':' .. tostring(save.day or 1)
   if offersCache and offersCache.key == key then return offersCache.list end
   local rand = rng((save.dealerSeed or 1) * 31 + (save.day or 1) * 7919)
-  local all = pool()
+  local all = pool(dayCap(save))
   local list = {}
   local count = math.min(loadData().offersPerDay or 5, #all)
   for i = 1, count do
@@ -161,7 +220,10 @@ end
 function M.getUiState()
   local c = core()
   local save = c.save
+  if save then makeOffers() end
   local st = { day = save and save.day or 1, offers = {} }
+  local cap = save and save.dealerCap and save.dealerCap.ps
+  if cap then st.capText = c.t('dealer.cap', cap) end
   for i, o in ipairs(makeOffers()) do
     local sold = save and save.dealerSold and save.dealerSold[soldKey(i)] or false
     table.insert(st.offers, {
