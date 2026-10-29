@@ -317,8 +317,9 @@ function M.spawnNext(force)
     return
   end
 
-  -- vor oder hinter dem Spieler, in Fahrtrichtung
-  local behind = not force and math.random() < 0.4
+  -- vor oder hinter dem Spieler, in Fahrtrichtung: neue Gegner fast immer vorne, Revanchen öfter auch hinten
+  local behindChance = rival.rematch and (settings().spawnBehindRematch or 0.25) or (settings().spawnBehindNew or 0.05)
+  local behind = not force and math.random() < behindChance
   local pos, dir, dist
   for _ = 1, 4 do
     dist = behind and -(behindMin + math.random() * (behindMax - behindMin)) or (spawnMin + math.random() * (spawnMax - spawnMin))

@@ -126,12 +126,39 @@ local keyActions = {
   { id = 'menu', action = 'hashiriyaToggleMenu' },
 }
 
+-- Lesbare Tastennamen: "comma" -> ",", "modifier2 btn_lt" -> "Mod2 + LT"
+local keyNames = { comma = ',', period = '.', slash = '/', backslash = '\\', semicolon = ';', apostrophe = "'",
+  minus = '-', equals = '=', lbracket = '[', rbracket = ']', space = 'Space', home = 'Pos1', ['end'] = 'Ende',
+  pageup = 'Bild auf', pagedown = 'Bild ab', insert = 'Einfg', delete = 'Entf', backspace = 'Rücktaste',
+  ['return'] = 'Enter', enter = 'Enter', tab = 'Tab', escape = 'Esc', lshift = 'Shift', rshift = 'Shift',
+  lcontrol = 'Strg', rcontrol = 'Strg', lalt = 'Alt', ralt = 'Alt Gr', up = '↑', down = '↓', left = '←', right = '→',
+  button0 = 'Linke Maustaste', button1 = 'Rechte Maustaste', button2 = 'Mittlere Maustaste' }
+local keyNamesEn = { home = 'Home', ['end'] = 'End', pageup = 'Page Up', pagedown = 'Page Down', insert = 'Insert',
+  delete = 'Del', backspace = 'Backspace', lcontrol = 'Ctrl', rcontrol = 'Ctrl', ralt = 'Alt Gr',
+  button0 = 'Left mouse', button1 = 'Right mouse', button2 = 'Middle mouse' }
+
+local function prettyControl(control)
+  local en = core().lang == 'en'
+  local parts = {}
+  for token in tostring(control):lower():gmatch('%S+') do
+    local name = (en and keyNamesEn[token]) or keyNames[token]
+    if not name then
+      local mod = token:match('^modifier(%d+)$')
+      if mod then name = 'Mod' .. mod
+      else
+        name = token:gsub('^btn_', ''):gsub('^numpad', 'Num ')
+        name = string.upper(name)
+      end
+    end
+    table.insert(parts, name)
+  end
+  return table.concat(parts, ' + ')
+end
+
 local function deviceLabel(devname)
   local d = tostring(devname or '')
-  if d:find('^keyboard') then return '' end
-  if d:find('^mouse') then return 'Maus ' end
-  if d:find('^xinput') then return 'Pad ' end
-  return 'Controller '
+  if d:find('^keyboard') or d:find('^mouse') then return '' end
+  return 'Pad '
 end
 
 local function keyStatus()
@@ -143,7 +170,7 @@ local function keyStatus()
       if not binding.unused and binding.action and binding.control and binding.control ~= '' then
         bound[binding.action] = bound[binding.action] or {}
         if #bound[binding.action] < 2 then
-          table.insert(bound[binding.action], deviceLabel(device.devname) .. string.upper(binding.control))
+          table.insert(bound[binding.action], deviceLabel(device.devname) .. prettyControl(binding.control))
         end
       end
     end

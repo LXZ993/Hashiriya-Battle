@@ -51,7 +51,7 @@ angular.module('beamng.apps')
               '<div class="hbt-note">{{ t(\'keys.note\') }}</div>' +
               '<div class="hbt-key" ng-repeat="k in f.keys track by k.id" ng-class="{\'is-missing\': !k.keys}">' +
                 '<div><div class="hbt-key-t">{{ t(\'keys.\' + k.id) }}</div><div class="hbt-key-d">{{ t(\'keys.\' + k.id + \'.d\') }}</div></div>' +
-                '<b>{{ k.keys || t(\'keys.unbound\') }}</b>' +
+                '<b title="{{ k.keys }}">{{ k.keys || t(\'keys.unbound\') }}</b>' +
                 '<span class="hbt-btn hbt-btn-s" ng-click="cmd(\'openControls\', k.id)">{{ t(\'keys.bind\') }}</span>' +
               '</div>' +
               '<div class="hbt-note hbt-warn" ng-if="f.keysMissing > 0">{{ t(\'keys.missing\') }}</div>' +
@@ -166,9 +166,9 @@ angular.module('beamng.apps')
           '.hbt-kicker{font-size:12px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--o2);}' +
           '.hbt-h1{font-size:46px;font-weight:900;font-style:italic;letter-spacing:2px;text-transform:uppercase;line-height:1.05;margin:6px 0 18px;}' +
           '.hbt-steps{display:flex;gap:4px;margin-bottom:28px;}' +
-          '.hbt-steps span{flex:1;padding:6px 8px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--dim);' +
+          '.hbt-steps span{flex:1 1 0;min-width:0;padding:6px 6px;font-size:10px;font-weight:800;letter-spacing:.4px;text-overflow:ellipsis;text-transform:uppercase;color:var(--dim);' +
             'background:rgba(255,255,255,.06);transform:skewX(-14deg);white-space:nowrap;overflow:hidden;}' +
-          '.hbt-steps span b{color:var(--o);margin-right:6px;}' +
+          '.hbt-steps span b{color:var(--o);margin-right:4px;}' +
           '.hbt-steps span.is-done{color:var(--w);} .hbt-steps span.is-on{background:var(--o);color:#141414;} .hbt-steps span.is-on b{color:#141414;}' +
           '.hbt-wiz-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:6px;}' +
           '.hbt-wiz-body::-webkit-scrollbar{width:4px;} .hbt-wiz-body::-webkit-scrollbar-thumb{background:var(--o);}' +
@@ -190,15 +190,15 @@ angular.module('beamng.apps')
           '.hbt-tut-text{font-size:16px;line-height:1.6;color:rgba(244,244,244,.88);max-width:900px;}' +
           '.hbt-tut-dots{display:flex;gap:8px;margin:20px 0 4px;} .hbt-tut-dots i{width:26px;height:4px;background:rgba(255,255,255,.18);transform:skewX(-20deg);} .hbt-tut-dots i.is-on{background:var(--o);}' +
           '.hbt-note{font-size:12px;line-height:1.5;color:var(--dim);margin:8px 0 22px;}' +
-          '.hbt-key{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px 12px;margin-bottom:6px;background:rgba(255,255,255,.04);border-left:4px solid #3fbf6f;}' +
+          '.hbt-key{display:grid;grid-template-columns:1fr 118px 92px;align-items:center;gap:12px;padding:10px 12px 10px 14px;margin-bottom:6px;background:rgba(255,255,255,.04);border-left:4px solid #3fbf6f;}' +
           '.hbt-key.is-missing{border-left-color:#e23b3b;background:rgba(226,59,59,.10);}' +
           '.hbt-key-t{font-size:15px;font-weight:800;letter-spacing:.5px;}' +
-          '.hbt-key-d{font-size:11px;color:var(--dim);margin-top:2px;}' +
-          '.hbt-key b{font-size:14px;font-weight:800;color:#3fbf6f;white-space:nowrap;}' +
-          '.hbt-key.is-missing b{color:#ff6b6b;}' +
+          '.hbt-key-d{font-size:11px;color:var(--dim);margin-top:2px;line-height:1.35;}' +
+          '.hbt-key b{justify-self:center;max-width:118px;box-sizing:border-box;padding:5px 10px;font-size:13px;font-weight:800;color:#3fbf6f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' +
+            'border:1px solid rgba(63,191,111,.45);border-bottom-width:3px;border-radius:4px;background:rgba(0,0,0,.25);text-align:center;}' +
+          '.hbt-key.is-missing b{color:#ff6b6b;border-color:rgba(255,107,107,.45);font-size:11px;}' +
           '.hbt-warn{color:#ff9a3c;}' +
-          '.hbt-key > div{flex:1;}' +
-          '.hbt-btn-s{padding:4px 10px;font-size:11px;}' +
+          '.hbt-btn-s{flex:none;padding:7px 8px;font-size:11px;letter-spacing:1px;}' +
           '.hbt-car{display:flex;align-items:center;padding:12px 16px;margin-bottom:4px;cursor:pointer;background:rgba(255,255,255,.04);transition:background .12s,padding-left .12s;}' +
           '.hbt-car:hover{background:rgba(255,102,0,.22);padding-left:24px;}' +
           '.hbt-car.is-on{background:var(--o);color:#141414;cursor:default;padding-left:24px;}' +
