@@ -38,7 +38,7 @@ Alle Änderungen seit dem Testbuild von Henry (Stand 28.10.2026 vormittags, Comm
 - Der Showroom ist jetzt die Werkstatt der C1-Map. Nach dem Kauf steht das Auto in der Garagenbucht.
 
 ### Tag, Nacht und Zuhause
-- Ein Spieltag dauert jetzt 32 statt 24 Minuten, die Nacht (20 bis 6 Uhr) also gut 13 Minuten.
+- Ein Spieltag dauert jetzt 36 statt 24 Minuten, die Nacht (20 bis 6 Uhr) also 15 Minuten.
 - HUD zeigt immer Uhrzeit, Wochentag und Datum.
 - Die Spieluhr läuft immer weiter und bleibt nicht mehr stehen.
 - Verkehr richtet sich nach der Uhrzeit: tagsüber voll, nachts weniger. Er wird beim Start auch eingeschaltet, wenn er im BeamNG-Hauptmenü aus war.
