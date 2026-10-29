@@ -115,6 +115,57 @@ function M.close()
   if fromHome then core().setMenuVisible(true) end
 end
 
+-- Tasten-Check -------------------------------------------------------------------
+-- Ohne diese Tasten ist das Spiel nicht spielbar: Lichthupe (Herausfordern), Warnblinker (Annehmen),
+-- Blinker links/rechts (Ablehnen) und unser Menü (Pos1).
+local keyActions = {
+  { id = 'highbeam', action = 'highbeam' },
+  { id = 'hazard', action = 'toggle_hazard_signal' },
+  { id = 'left', action = 'toggle_left_signal' },
+  { id = 'right', action = 'toggle_right_signal' },
+  { id = 'menu', action = 'hashiriyaToggleMenu' },
+}
+
+local function deviceLabel(devname)
+  local d = tostring(devname or '')
+  if d:find('^keyboard') then return '' end
+  if d:find('^mouse') then return 'Maus ' end
+  if d:find('^xinput') then return 'Pad ' end
+  return 'Controller '
+end
+
+local function keyStatus()
+  local bound = {}
+  local b = rawget(_G, 'core_input_bindings')
+  for _, device in ipairs(b and b.bindings or {}) do
+    local contents = device.contents or {}
+    for _, binding in ipairs(contents.bindings or {}) do
+      if not binding.unused and binding.action and binding.control and binding.control ~= '' then
+        bound[binding.action] = bound[binding.action] or {}
+        if #bound[binding.action] < 2 then
+          table.insert(bound[binding.action], deviceLabel(device.devname) .. string.upper(binding.control))
+        end
+      end
+    end
+  end
+  local list, missing = {}, 0
+  for _, k in ipairs(keyActions) do
+    local keys = bound[k.action]
+    if not keys then missing = missing + 1 end
+    table.insert(list, { id = k.id, keys = keys and table.concat(keys, ' / ') or nil })
+  end
+  return list, missing
+end
+
+-- BeamNG-Steuerungsmenü öffnen, um fehlende Tasten zu belegen
+local function openControls()
+  local ok = false
+  if rawget(_G, 'ui_router') and ui_router.navigate then
+    ok = pcall(ui_router.navigate, 'menu.options', { category = 'controls' })
+  end
+  if not ok then pcall(guihooks.trigger, 'ChangeState', { state = 'menu.options.controls.bindings' }) end
+end
+
 -- Tutorial ---------------------------------------------------------------------
 
 local tutorialPath = '/lua/ge/extensions/hashiriyaBattle/data/tutorial.json'
@@ -332,13 +383,25 @@ function M.action(arg)
     elseif cmd == 'back' then
       if (flow.page or 1) > 1 then flow.page = flow.page - 1
       elseif flow.fromHome then M.close()
-      else flow.step = 'experience' end
+      else flow.step = 'keys' end
+    end
+    return
+  end
+  if step == 'keys' then
+    if cmd == 'back' then flow.step = 'experience'
+    elseif cmd == 'openControls' then openControls()
+    elseif cmd == 'next' then
+      if flow.experience == 'newbie' and #tutorialPages() > 0 then
+        flow.step, flow.page = 'tutorial', 1
+      else
+        flow.step = 'driver'
+      end
     end
     return
   end
   if cmd == 'back' then
     if step == 'experience' then flow = { step = 'title' }
-    elseif step == 'driver' then flow.step = 'experience'
+    elseif step == 'driver' then flow.step = (flow.experience == 'newbie' and #tutorialPages() > 0) and 'tutorial' or 'keys'
     elseif step == 'car' then flow.step = 'driver'
     elseif step == 'confirm' then flow.step = 'car' end
   elseif step == 'title' then
@@ -356,11 +419,7 @@ function M.action(arg)
   elseif step == 'experience' then
     if cmd == 'experience' and (val == 'newbie' or val == 'pro') then
       flow.experience = val
-      if val == 'newbie' and #tutorialPages() > 0 then
-        flow.step, flow.page = 'tutorial', 1
-      else
-        flow.step = 'driver'
-      end
+      flow.step = 'keys'
     end
   elseif step == 'driver' then
     if cmd == 'randomPlate' then
@@ -402,7 +461,8 @@ function M.getUiState()
   local eco = c.economy()
   local st = { step = flow.step, name = flow.name, plate = flow.plate, platePick = flow.platePick, busy = spawnTimer > 0,
     experience = flow.experience, fromHome = flow.fromHome }
-  st.steps = flow.experience == 'newbie' and { 'experience', 'tutorial', 'driver', 'car', 'confirm' } or { 'experience', 'driver', 'car', 'confirm' }
+  st.steps = flow.experience == 'newbie' and { 'experience', 'keys', 'tutorial', 'driver', 'car', 'confirm' } or { 'experience', 'keys', 'driver', 'car', 'confirm' }
+  if flow.step == 'keys' then st.keys, st.keysMissing = keyStatus() end
   if flow.step == 'tutorial' then
     local pages = tutorialPages()
     local i = math.min(math.max(flow.page or 1, 1), math.max(#pages, 1))

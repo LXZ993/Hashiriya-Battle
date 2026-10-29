@@ -47,6 +47,17 @@ angular.module('beamng.apps')
                 '<span class="hbt-exp-n">B</span><div><div class="hbt-exp-t">{{ t(\'new.expPro\') }}</div><div class="hbt-exp-d">{{ t(\'new.expProD\') }}</div></div></div>' +
             '</div>' +
 
+            '<div class="hbt-wiz-body" ng-if="f.step == \'keys\'">' +
+              '<div class="hbt-note">{{ t(\'keys.note\') }}</div>' +
+              '<div class="hbt-key" ng-repeat="k in f.keys track by k.id" ng-class="{\'is-missing\': !k.keys}">' +
+                '<div><div class="hbt-key-t">{{ t(\'keys.\' + k.id) }}</div><div class="hbt-key-d">{{ t(\'keys.\' + k.id + \'.d\') }}</div></div>' +
+                '<b>{{ k.keys || t(\'keys.unbound\') }}</b>' +
+              '</div>' +
+              '<div class="hbt-note hbt-warn" ng-if="f.keysMissing > 0">{{ t(\'keys.missing\') }}</div>' +
+              '<div class="hbt-note" ng-if="f.keysMissing == 0">{{ t(\'keys.allOk\') }}</div>' +
+              '<span class="hbt-btn" ng-click="cmd(\'openControls\')">{{ t(\'keys.open\') }}</span>' +
+            '</div>' +
+
             '<div class="hbt-wiz-body" ng-if="f.step == \'driver\'">' +
               '<label class="hbt-label">{{ t(\'new.name\') }}</label>' +
               '<input class="hbt-input" type="text" maxlength="16" ng-model="form.name" placeholder="{{ t(\'new.namePh\') }}">' +
@@ -178,6 +189,13 @@ angular.module('beamng.apps')
           '.hbt-tut-text{font-size:16px;line-height:1.6;color:rgba(244,244,244,.88);max-width:900px;}' +
           '.hbt-tut-dots{display:flex;gap:8px;margin:20px 0 4px;} .hbt-tut-dots i{width:26px;height:4px;background:rgba(255,255,255,.18);transform:skewX(-20deg);} .hbt-tut-dots i.is-on{background:var(--o);}' +
           '.hbt-note{font-size:12px;line-height:1.5;color:var(--dim);margin:8px 0 22px;}' +
+          '.hbt-key{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:10px 12px;margin-bottom:6px;background:rgba(255,255,255,.04);border-left:4px solid #3fbf6f;}' +
+          '.hbt-key.is-missing{border-left-color:#e23b3b;background:rgba(226,59,59,.10);}' +
+          '.hbt-key-t{font-size:15px;font-weight:800;letter-spacing:.5px;}' +
+          '.hbt-key-d{font-size:11px;color:var(--dim);margin-top:2px;}' +
+          '.hbt-key b{font-size:14px;font-weight:800;color:#3fbf6f;white-space:nowrap;}' +
+          '.hbt-key.is-missing b{color:#ff6b6b;}' +
+          '.hbt-warn{color:#ff9a3c;}' +
           '.hbt-car{display:flex;align-items:center;padding:12px 16px;margin-bottom:4px;cursor:pointer;background:rgba(255,255,255,.04);transition:background .12s,padding-left .12s;}' +
           '.hbt-car:hover{background:rgba(255,102,0,.22);padding-left:24px;}' +
           '.hbt-car.is-on{background:var(--o);color:#141414;cursor:default;padding-left:24px;}' +

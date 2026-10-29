@@ -28,6 +28,15 @@ local cfg = {
   winGap = 250,             -- m Vorsprung = Sofortsieg
   modeSwitchHysteresis = 10,-- m, bevor die Gegner-KI zwischen Flucht und Jagd wechselt
   resultTime = 6,           -- s bis der Rivale nach dem Battle verschwindet
+  -- Rivale fordert dich heraus (er fährt hinter dir und gibt Lichthupe)
+  rivalChallenge = true,
+  rivalChallengeMinBehind = 6,   -- m
+  rivalChallengeMaxBehind = 30,  -- m
+  rivalChallengeTail = 4,        -- s so lange muss er schon hinter dir fahren
+  rivalChallengeChance = 0.3,    -- Chance je Prüfung (alle 2 s), sobald er lange genug hinter dir ist
+  rivalChallengeOffer = 8,       -- s Zeit zum Annehmen (Warnblinker) oder Ablehnen (Blinker)
+  rivalChallengePause = 45,      -- s Pause nach einem Angebot, bevor wieder einer fragt
+  rivalChallengeDeclined = 180,  -- s fragt derselbe Rivale nach einem Nein nicht noch mal
 }
 M.cfg = cfg
 
@@ -36,6 +45,12 @@ local state = 'idle'
 local timer = 0
 local battle = nil
 local highbeam = {}       -- vehId -> letzter Fernlicht-Wert
+local signals = {}        -- vehId -> { hazard, left, right } letzter Stand
+local offer = nil         -- Herausforderung durch einen Rivalen: { entry, vehId, timer }
+local tail = {}           -- vehId -> s, die der Rivale schon hinter dem Spieler fährt
+local declined = {}       -- vehId -> s Sperre nach Ablehnen
+local offerPause = 0
+local offerCheck = 0
 local pollTimer = 0
 
 local function core() return extensions.hashiriyaBattle_core end
@@ -61,6 +76,7 @@ local function releasePlayerSpeed()
 end
 
 function M.reset()
+  offer = nil
   if state == 'countdown' or state == 'sync' then releasePlayerSpeed() end
   state = 'idle'
   battle = nil
@@ -71,9 +87,30 @@ end
 -- Das Fahrzeug-Lua meldet uns seinen Fernlicht-Zustand; wir reagieren auf "an".
 
 local function pollHighbeam(veh)
-  veh:queueLuaCommand(string.format(
-    "obj:queueGameEngineLua('hashiriyaBattle_battle.onHighbeam(%d,' .. tostring(electrics.values.highbeam or 0) .. ')')",
-    veh:getID()))
+  veh:queueLuaCommand(string.format([[
+    local v = electrics.values
+    local function b(x) return (x == true or (tonumber(x) or 0) > 0) and 1 or 0 end
+    obj:queueGameEngineLua('hashiriyaBattle_battle.onLights(%d,' .. tostring(v.highbeam or 0) .. ',' .. b(v.hazard_enabled)
+      .. ',' .. b(v.signal_left_input) .. ',' .. b(v.signal_right_input) .. ')')
+  ]], veh:getID()))
+end
+
+-- Rivale fährt hinter dem Spieler (für seine Herausforderung)
+local function rivalBehindPlayer(player, rivalVeh)
+  local pd = player:getDirectionVector()
+  local rel = rivalVeh:getPosition() - player:getPosition()
+  local along = rel:dot(pd)
+  local lateral = math.sqrt(math.max(rel:squaredLength() - along * along, 0))
+  return along <= -cfg.rivalChallengeMinBehind and along >= -cfg.rivalChallengeMaxBehind
+    and lateral <= cfg.challengeMaxLateral
+    and player:getVelocity():length() >= cfg.challengeMinSpeed
+    and rivalVeh:getDirectionVector():dot(pd) > 0.8
+end
+
+local function flashLights(veh)
+  -- zweimal kurz Lichthupe
+  veh:queueLuaCommand('electrics.light_flash_highbeams(true)')
+  offer.flash = { 0.25, 0.5, 0.75 }
 end
 
 local function playerBehindRival(player, rivalVeh)
@@ -116,7 +153,7 @@ local function vehicleDisplayName(model)
 end
 
 -- Erst Tempo angleichen (Tempomat auf das Tempo des Rivalen), dann Countdown
-local function startCountdown(rival, rivalVeh)
+local function startCountdown(rival, rivalVeh, playerAhead)
   state = 'sync'
   timer = cfg.syncTimeout
   battle = {
@@ -130,6 +167,7 @@ local function startCountdown(rival, rivalVeh)
     lastCount = nil,
     time = 0,
     rivalCar = vehicleDisplayName(rival.model),
+    playerAhead = playerAhead or nil,
   }
   local save = core().save
   local car = save and save.cars[save.activeCar or 1]
@@ -145,6 +183,86 @@ local function startCountdown(rival, rivalVeh)
   end
   core().msg(core().t('msg.challenge', rival.name), 3)
   log('I', logTag, 'Challenge gegen ' .. rival.id)
+end
+
+local function endOffer(answer)
+  if not offer then return end
+  local o = offer
+  offer = nil
+  offerPause = cfg.rivalChallengePause
+  local c = core()
+  local rivalVeh = be:getObjectByID(o.vehId)
+  if answer == 'accept' and rivalVeh and state == 'idle' then
+    rivals().engage(o.entry)
+    startCountdown(rivals().challengeData(o.entry), rivalVeh, true)
+    return
+  end
+  declined[o.vehId] = cfg.rivalChallengeDeclined
+  if answer == 'decline' then c.msg(c.t('msg.rivalDeclined', o.entry.data.name), 3) end
+end
+
+function M.getOffer()
+  if not offer then return nil end
+  return { name = offer.entry.data.name, timer = math.ceil(offer.timer) }
+end
+
+function M.onLights(vehId, hb, hazard, left, right)
+  M.onHighbeam(vehId, hb)
+  local prev = signals[vehId] or { hazard = hazard, left = left, right = right }
+  signals[vehId] = { hazard = hazard, left = left, right = right }
+  if not offer then return end
+  local player = core().getPlayerVehicle()
+  if not player or player:getID() ~= vehId then return end
+  if hazard == 1 and prev.hazard == 0 then endOffer('accept')
+  elseif hazard == 0 and ((left == 1 and prev.left == 0) or (right == 1 and prev.right == 0)) then endOffer('decline') end
+end
+
+-- Rivalen hinter dem Spieler beobachten; wer lange genug dranbleibt, fordert per Lichthupe heraus
+local function updateRivalChallenge(dt, player)
+  for id, t in pairs(declined) do
+    declined[id] = t - dt
+    if declined[id] <= 0 then declined[id] = nil end
+  end
+  if offer then
+    offer.timer = offer.timer - dt
+    local rivalVeh = be:getObjectByID(offer.vehId)
+    if offer.flash then
+      offer.flashT = (offer.flashT or 0) + dt
+      local nextT = offer.flash[1]
+      if nextT and offer.flashT >= nextT and rivalVeh then
+        table.remove(offer.flash, 1)
+        rivalVeh:queueLuaCommand('electrics.light_flash_highbeams(' .. tostring(#offer.flash % 2 == 1) .. ')')
+        if #offer.flash == 0 then offer.flash = nil end
+      end
+    end
+    if offer.timer <= 0 or not rivalVeh then endOffer('timeout') end
+    return
+  end
+  if not cfg.rivalChallenge or not extensions.hashiriyaBattle_home.isNight() then return end
+  offerPause = math.max(0, offerPause - dt)
+  offerCheck = offerCheck - dt
+  if offerCheck > 0 then return end
+  offerCheck = 0.5
+  for _, e in ipairs(rivals().getOnRoad()) do
+    local rivalVeh = be:getObjectByID(e.vehId)
+    if rivalVeh and not e.cooldown and not declined[e.vehId] and rivalBehindPlayer(player, rivalVeh) then
+      tail[e.vehId] = (tail[e.vehId] or 0) + 0.5
+      if offerPause <= 0 and tail[e.vehId] >= cfg.rivalChallengeTail then
+        tail[e.vehId] = cfg.rivalChallengeTail - 2 -- nächster Versuch frühestens in 2 s
+        if math.random() < cfg.rivalChallengeChance then
+          local c = core()
+          offer = { entry = e, vehId = e.vehId, timer = cfg.rivalChallengeOffer }
+          flashLights(rivalVeh)
+          c.sound('challenge')
+          c.msg(c.t('msg.rivalChallenge', e.data.name), cfg.rivalChallengeOffer)
+          log('I', logTag, 'Rivale fordert heraus: ' .. tostring(e.data.id))
+          return
+        end
+      end
+    else
+      tail[e.vehId] = nil
+    end
+  end
 end
 
 function M.onHighbeam(vehId, value)
@@ -288,7 +406,10 @@ local function onUpdate(dtReal, dtSim)
     pollHighbeam(player)
   end
 
-  if state == 'idle' then return end
+  if state == 'idle' then
+    updateRivalChallenge(dtSim, player)
+    return
+  end
 
   local rivalVeh = rivals().getRivalVehicle()
   if not rivalVeh then M.reset(); return end
@@ -306,6 +427,32 @@ local function onUpdate(dtReal, dtSim)
     -- Tempo angleichen: Tempomat gibt Gas bzw. lässt ausrollen (er bremst nicht), dann startet der Countdown
     timer = timer - dtSim
     local gap = getGap(player, rivalVeh)
+    if battle.playerAhead then
+      -- Der Rivale hat herausgefordert und fährt hinten: er holt auf, du hältst das Tempo
+      if gap > -2 then
+        setWarnSignal(rivalVeh, false)
+        core().msg(core().t('msg.falseStart', battle.rival.name), 4)
+        M.reset()
+        return
+      end
+      local behind = -gap
+      battle.rivalRelock = (battle.rivalRelock or 0) - dtSim
+      if battle.rivalRelock <= 0 then
+        battle.rivalRelock = 0.5
+        local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, behind - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", battle.rivalSpeed + catchUp))
+      end
+      battle.lockSpeed = battle.rivalSpeed
+      local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
+      if (behind <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0 then
+        state = 'countdown'
+        timer = cfg.countdown
+        battle.startGap = gap
+        battle.relock = 0
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", battle.rivalSpeed))
+      end
+      return
+    end
     if gap < 2 then -- in der Angleich-Phase überholt = Frühstart
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)
