@@ -252,15 +252,24 @@ end
 
 -- Spawnen -----------------------------------------------------------------------
 
--- Sucht einen Punkt auf einer KI-Straße ungefähr `distance` m vor `pos`.
-local function findRoadSpawn(pos, dir, distance)
+-- Sucht einen Punkt auf der Straße des Spielers, `distance` m vor ihm (negativ = hinter ihm).
+-- Statt einfach die nächste Straße am Zielpunkt zu nehmen (das war oft die Gegenfahrbahn), laufen wir
+-- das KI-Straßennetz entlang: nur in erlaubter Fahrtrichtung (Einbahn-Kanten), an Abzweigungen geradeaus.
+local function linkAllowed(nodes, from, to)
+  local l = nodes[from] and nodes[from].links and nodes[from].links[to]
+  if not l then return false, nil end
+  if l.oneWay and l.inNode and l.inNode ~= from then return false, l end
+  return true, l
+end
+
+-- alte Suche (nächste Straße am Zielpunkt), nur falls das Straßennetz keine Verbindungen liefert
+local function closestRoadSpawn(pos, dir, distance)
   local target = pos + dir * distance
   local n1, n2 = map.findClosestRoad(target)
   if not n1 or not n2 then return nil end
-  -- nicht auf eine Auffahrt oder eine Straße darüber/darunter ausweichen
-  local np = map.getMap().nodes[n1].pos
-  if math.abs(np.z - target.z) > 8 or (vec3(np.x, np.y, 0) - vec3(target.x, target.y, 0)):length() > 25 then return nil end
   local nodes = map.getMap().nodes
+  local np = nodes[n1].pos
+  if math.abs(np.z - target.z) > 8 or (vec3(np.x, np.y, 0) - vec3(target.x, target.y, 0)):length() > 25 then return nil end
   local p1, p2 = nodes[n1].pos, nodes[n2].pos
   local seg = p2 - p1
   local segLen2 = seg:squaredLength()
@@ -269,6 +278,62 @@ local function findRoadSpawn(pos, dir, distance)
   local roadDir = seg:normalized()
   if roadDir:dot(dir) < 0 then roadDir = roadDir * -1 end
   return p1 + seg * t + vec3(0, 0, 0.5), roadDir
+end
+
+local linksWarned = false
+
+local function findRoadSpawn(pos, dir, distance)
+  local n1, n2 = map.findClosestRoad(pos)
+  if not n1 or not n2 then return nil end
+  local nodes = map.getMap().nodes
+  if not nodes[n1] or not nodes[n2] then return nil end
+  if not nodes[n1].links then
+    if not linksWarned then linksWarned = true; log('W', logTag, 'Straßennetz ohne links: alte Spawn-Suche') end
+    return closestRoadSpawn(pos, dir, distance)
+  end
+  local back = distance < 0
+  local travel = back and dir * -1 or dir
+  local prev, cur = n1, n2
+  if (nodes[cur].pos - nodes[prev].pos):dot(travel) < 0 then prev, cur = cur, prev end
+  -- Spieler fährt auf einer Einbahn-Kante falsch herum (Gegenfahrbahn)? Dann lieber nicht spawnen.
+  local okStart = back and linkAllowed(nodes, cur, prev) or linkAllowed(nodes, prev, cur)
+  if not okStart then return nil end
+  local remaining = math.abs(distance) - (nodes[cur].pos - pos):length()
+  local heading = (nodes[cur].pos - nodes[prev].pos):normalized()
+  for _ = 1, 600 do
+    local best, bestScore
+    for nid in pairs(nodes[cur].links or {}) do
+      if nid ~= prev and nodes[nid] then
+        local ok, l
+        if back then ok, l = linkAllowed(nodes, nid, cur) else ok, l = linkAllowed(nodes, cur, nid) end
+        if ok then
+          local d = nodes[nid].pos - nodes[cur].pos
+          local len = d:length()
+          if len > 0.1 then
+            local align = (d / len):dot(heading)
+            if align > 0.3 then
+              -- geradeaus bevorzugen, breitere Hauptstraße vor Ausfahrt
+              local score = align + ((l and l.drivability) or 1) * 0.1 + math.min(nodes[nid].radius or 0, 10) * 0.02
+              if not bestScore or score > bestScore then best, bestScore = nid, score end
+            end
+          end
+        end
+      end
+    end
+    if not best then return nil end
+    local seg = nodes[best].pos - nodes[cur].pos
+    local len = seg:length()
+    if remaining <= len then
+      local t = math.max(remaining, 0) / len
+      local fwd = seg:normalized()
+      if back then fwd = fwd * -1 end
+      return nodes[cur].pos + seg * t + vec3(0, 0, 0.5), fwd
+    end
+    remaining = remaining - len
+    heading = seg:normalized()
+    prev, cur = cur, best
+  end
+  return nil
 end
 
 -- Kein anderes Fahrzeug (Verkehr) in der Nähe des Spawnpunkts?
