@@ -147,7 +147,7 @@
   "title.newGame": "New Game",
   "title.continue": "Continue",
   "title.quit": "Main menu",
-  "title.hint": "Hashiriya Battle · A career on the city expressway",
+  "title.hint": "When the city sleeps, the expressway belongs to the fast.",
   "new.step.experience": "Experience",
   "new.tab.experience": "Experience",
   "new.step.tutorial": "Tutorial",
@@ -381,5 +381,6 @@
   "keys.open": "Open controls",
   "msg.rivalChallenge": "%s challenges you! Hazard lights = accept, indicator = decline",
   "msg.rivalDeclined": "Declined. %s leaves you alone for now.",
-  "keys.bind": "Bind"
+  "keys.bind": "Bind",
+  "msg.titleCamSaved": "Title screen camera saved. It is used from the next title screen on."
 }

@@ -536,6 +536,37 @@ local function capturePosition()
   msg(M.t('msg.posSaved', #list) .. string.format(' (%.0f / %.0f)', p.x, p.y))
 end
 
+-- Titelbild-Kamera: aktuelle Kamera (z. B. Freecam) merken, Taste Shift+Pos1.
+-- Gespeichert in settings/hashiriya_battle/title_camera.json (je Level); der Titelbildschirm nutzt sie,
+-- sonst mapData.titleCamera, sonst die Ansicht auf die Garagenbucht.
+local titleCamPath = saveDir .. 'title_camera.json'
+
+function M.getTitleCamera()
+  local all = jsonReadFile(titleCamPath) or {}
+  local cam = M.levelName and all[M.levelName]
+  if cam and cam.pos and cam.rot then return cam end
+  local md = M.mapData
+  return md and md.titleCamera or nil
+end
+
+function M.captureTitleCamera()
+  local okP, p = pcall(core_camera.getPosition)
+  local okQ, q = pcall(core_camera.getQuat)
+  if not (okP and p and okQ and q) then
+    okP, p = pcall(getCameraPosition)
+    okQ, q = pcall(getCameraQuat)
+  end
+  if not (okP and p and okQ and q) or not M.levelName then
+    msg(M.t('msg.posInvalid'))
+    return
+  end
+  local all = jsonReadFile(titleCamPath) or {}
+  all[M.levelName] = { pos = { p.x, p.y, p.z }, rot = { q.x, q.y, q.z, q.w } }
+  jsonWriteFile(titleCamPath, all, true)
+  log('I', logTag, 'Titelbild-Kamera gespeichert: ' .. dumps(all[M.levelName]))
+  msg(M.t('msg.titleCamSaved'), 4)
+end
+
 -- Config-Export ------------------------------------------------------------------
 -- Schreibt alle Configs der Marken Hirochi und Ibishu (inkl. Mod-Configs) nach
 -- settings/hashiriya_battle/config_dump.json. Daraus entsteht die Auswahlliste für Rivalen und Startautos.

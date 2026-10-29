@@ -147,7 +147,7 @@
   "title.newGame": "Neues Spiel",
   "title.continue": "Weiterspielen",
   "title.quit": "Hauptmenü",
-  "title.hint": "Hashiriya Battle · Eine Karriere auf der Stadtautobahn",
+  "title.hint": "Wenn die Stadt schläft, gehört die Bahn den Schnellen.",
   "new.step.experience": "Erfahrung",
   "new.tab.experience": "Erfahrung",
   "new.step.tutorial": "Tutorial",
@@ -381,5 +381,6 @@
   "keys.open": "Steuerung öffnen",
   "msg.rivalChallenge": "%s fordert dich heraus! Warnblinker = annehmen, Blinker = ablehnen",
   "msg.rivalDeclined": "Abgelehnt. %s lässt dich vorerst in Ruhe.",
-  "keys.bind": "Belegen"
+  "keys.bind": "Belegen",
+  "msg.titleCamSaved": "Titelbild-Kamera gespeichert. Sie gilt ab dem nächsten Titelbildschirm."
 }

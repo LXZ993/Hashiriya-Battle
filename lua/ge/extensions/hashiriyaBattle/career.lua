@@ -232,6 +232,14 @@ end
 -- Feste Kameraansicht auf die Garagenbucht, solange noch kein Auto dasteht.
 -- (Ohne Auto schaltet Freeroam auf die freie Kamera; wir stellen sie nur passend hin.)
 local function garageCamera()
+  local cam = core().getTitleCamera and core().getTitleCamera()
+  if cam and cam.pos and cam.rot then
+    pcall(function()
+      if commands and commands.setFreeCamera then commands.setFreeCamera() end
+      core_camera.setPosRot(0, cam.pos[1], cam.pos[2], cam.pos[3], cam.rot[1], cam.rot[2], cam.rot[3], cam.rot[4])
+    end)
+    return
+  end
   local area = parking().find('garage')
   if not area or not area.pos then return end
   local target = vec3(area.pos[1], area.pos[2], area.pos[3]) + vec3(0, 0, 0.6)

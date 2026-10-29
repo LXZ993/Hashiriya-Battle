@@ -1,3 +1,4 @@
 {
-    "hashiriyaToggleMenu" :{"cat":"debug", "order": 130, "ctx": "tlua", "onDown" :"extensions.hashiriyaBattle_core.toggleMenu()", "actionMap": "Global", "title": "Hashiriya Battle: Menü ein/aus", "desc": "Blendet das Hashiriya-Battle-Fenster ein oder aus" }
+    "hashiriyaToggleMenu" :{"cat":"debug", "order": 130, "ctx": "tlua", "onDown" :"extensions.hashiriyaBattle_core.toggleMenu()", "actionMap": "Global", "title": "Hashiriya Battle: Menü ein/aus", "desc": "Blendet das Hashiriya-Battle-Fenster ein oder aus" },
+    "hashiriyaCaptureCamera" :{"cat":"debug", "order": 131, "ctx": "tlua", "onDown" :"extensions.hashiriyaBattle_core.captureTitleCamera()", "actionMap": "Global", "title": "Hashiriya Battle: Kamera für Titelbild merken", "desc": "Speichert Position und Blickrichtung der Kamera (z. B. Freecam) als Ansicht für den Titelbildschirm" }
 }
