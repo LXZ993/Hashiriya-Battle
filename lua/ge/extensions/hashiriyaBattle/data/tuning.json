@@ -1,0 +1,498 @@
+{
+  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn). Reiter 'paint' = Lackierer: Werkslacke des Modells (paintPriceYen) und Liveries (Slot paint_design, minPriceYen). Reiter 'misc' (all=true) sammelt alle übrigen Slots mit Auswahl; slotExclude = Lua-Muster für Slots, die dort nicht erscheinen. 'customPaintPriceYen' = Preis einer eigenen Lackierung (Farbe und Material frei einstellbar). 'groupBySize' gruppiert die Optionen nach Zoll (Felgen). 'alt' ist bei BeamNG nur eine Größenvariante (z. B. tire_R_15x10_alt) und darf nicht in exclude stehen. Ein 'slot'-Eintrag passt auf das Ende des Slot-Namens oder direkt nach dem Modellnamen mit Varianten dahinter (z. B. '_engine_ecu' auf bx_engine_ecu_i4, '_bumper_F' auf bx_bumper_F_fixed). Reiter 'misc' (Extras) hat jetzt eine feste Liste (Sitze, Lenkrad, Schaltknauf, Käfig, Leichtglas, Innenraum, Dach, Schmutzfänger, Unterbodenbeleuchtung).",
+  "tiers": [
+    {
+      "level": 1,
+      "unlock": {
+        "minWins": 0
+      }
+    },
+    {
+      "level": 2,
+      "unlock": {
+        "minRank": 3
+      }
+    },
+    {
+      "level": 3,
+      "unlock": {
+        "minRank": 6
+      }
+    }
+  ],
+  "tabs": [
+    {
+      "id": "engine",
+      "items": [
+        {
+          "id": "ecu",
+          "slot": [
+            "_engine_ecu",
+            "_ecu"
+          ]
+        },
+        {
+          "id": "internals",
+          "slot": [
+            "_engine_internals",
+            "_internals"
+          ]
+        },
+        {
+          "id": "intake",
+          "slot": [
+            "_intake"
+          ]
+        },
+        {
+          "id": "header",
+          "slot": [
+            "_header"
+          ]
+        },
+        {
+          "id": "exhaust",
+          "slot": [
+            "_exhaust",
+            "_exhaust_na",
+            "_exhaust_turbo_stock"
+          ]
+        },
+        {
+          "id": "radiator",
+          "slot": [
+            "_radiator"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "drivetrain",
+      "items": [
+        {
+          "id": "transmission",
+          "slot": [
+            "_transmission",
+            "_transaxle"
+          ]
+        },
+        {
+          "id": "flywheel",
+          "slot": [
+            "_flywheel"
+          ]
+        },
+        {
+          "id": "diffF",
+          "slot": [
+            "_differential_F"
+          ]
+        },
+        {
+          "id": "diffR",
+          "slot": [
+            "_differential_R"
+          ]
+        },
+        {
+          "id": "finaldriveF",
+          "slot": [
+            "_finaldrive_F"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "finaldriveR",
+          "slot": [
+            "_finaldrive_R"
+          ],
+          "defaultLevel": 1
+        }
+      ]
+    },
+    {
+      "id": "chassis",
+      "items": [
+        {
+          "id": "springF",
+          "slot": [
+            "_coilover_F",
+            "_strut_F"
+          ]
+        },
+        {
+          "id": "springR",
+          "slot": [
+            "_coilover_R",
+            "_strut_R"
+          ]
+        },
+        {
+          "id": "swayF",
+          "slot": [
+            "_swaybar_F"
+          ]
+        },
+        {
+          "id": "swayR",
+          "slot": [
+            "_swaybar_R"
+          ]
+        },
+        {
+          "id": "strutbar",
+          "slot": [
+            "_strut_bar",
+            "_strut_bar_F",
+            "_strut_bar_R"
+          ],
+          "defaultLevel": 2
+        },
+        {
+          "id": "stiffen",
+          "slot": [
+            "_stiffening"
+          ],
+          "defaultLevel": 3
+        },
+        {
+          "id": "brakeF",
+          "slot": [
+            "_brake_F"
+          ]
+        },
+        {
+          "id": "brakeR",
+          "slot": [
+            "_brake_R"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wheels",
+      "items": [
+        {
+          "id": "rimF",
+          "pattern": [
+            "^wheel_F"
+          ],
+          "defaultLevel": 1,
+          "groupBySize": true
+        },
+        {
+          "id": "rimR",
+          "pattern": [
+            "^wheel_R"
+          ],
+          "defaultLevel": 1,
+          "groupBySize": true
+        },
+        {
+          "id": "tireF",
+          "pattern": [
+            "^tire_F"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "tireR",
+          "pattern": [
+            "^tire_R"
+          ],
+          "defaultLevel": 1
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "items": [
+        {
+          "id": "bumperF",
+          "slot": [
+            "_bumper_F"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "bumperR",
+          "slot": [
+            "_bumper_R"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "lip",
+          "slot": [
+            "_lip_F",
+            "_lip_F_fl"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "skirts",
+          "slot": [
+            "_sideskirts",
+            "_sideskirt_L",
+            "_sideskirt_R"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "hood",
+          "slot": [
+            "_hood"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "spoiler",
+          "slot": [
+            "_spoiler",
+            "_spoiler_sedan",
+            "_spoiler_wagon"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "fender",
+          "slot": [
+            "_fender_L",
+            "_fender_R"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "quarter",
+          "slot": [
+            "_quarterpanels"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "grille",
+          "slot": [
+            "_grille_F"
+          ],
+          "defaultLevel": 1
+        }
+      ]
+    },
+    {
+      "id": "misc",
+      "items": [
+        {
+          "id": "seats",
+          "slot": [
+            "_seat_FL",
+            "_seat_FR"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "steer",
+          "slot": [
+            "_steer"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "shiftknob",
+          "slot": [
+            "_shiftknob"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "rollcage",
+          "slot": [
+            "_rollcage"
+          ],
+          "defaultLevel": 2
+        },
+        {
+          "id": "glass",
+          "slot": [
+            "_windshield",
+            "_doorglass_L",
+            "_doorglass_R",
+            "_quarterglass_L",
+            "_quarterglass_R",
+            "_backlight",
+            "_tailgateglass"
+          ]
+        },
+        {
+          "id": "interior",
+          "slot": [
+            "_interior",
+            "_interior_coupe",
+            "_interior_hatch",
+            "_interior_sedan",
+            "_interior_wagon"
+          ]
+        },
+        {
+          "id": "roof",
+          "slot": [
+            "_roof_accessory"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "mudflap",
+          "slot": [
+            "_mudflap_FL",
+            "_mudflap_FR",
+            "_mudflap_R"
+          ],
+          "defaultLevel": 1
+        },
+        {
+          "id": "underglow",
+          "slot": [
+            "_underglow"
+          ],
+          "defaultLevel": 1
+        }
+      ]
+    },
+    {
+      "id": "paint",
+      "items": [
+        {
+          "id": "livery",
+          "pattern": [
+            "^paint_design$"
+          ],
+          "defaultLevel": 1,
+          "minPriceYen": 19800
+        }
+      ]
+    }
+  ],
+  "levelWords": {
+    "3": [
+      "race",
+      "stage2",
+      "stage3",
+      "ultra",
+      "sequential",
+      "sq",
+      "cf",
+      "carbon",
+      "bigwing",
+      "bigsplitter",
+      "adjustable",
+      "stiffening",
+      "slick",
+      "semislick"
+    ],
+    "2": [
+      "stage1",
+      "gtz",
+      "rs",
+      "turbors",
+      "lsd",
+      "hlsd",
+      "vlsd",
+      "evolution",
+      "fiberglass",
+      "kit",
+      "bodykit",
+      "okudai",
+      "wide",
+      "widebody",
+      "gt",
+      "turbo",
+      "semi",
+      "performance",
+      "lightweight",
+      "stripped"
+    ],
+    "1": [
+      "sport",
+      "s",
+      "light",
+      "lightened",
+      "tubular",
+      "custom",
+      "ss",
+      "scooped",
+      "vented",
+      "heavy",
+      "zxi",
+      "stock_turbo"
+    ]
+  },
+  "exclude": [
+    "rally",
+    "derby",
+    "drift",
+    "driftgear",
+    "proD",
+    "offroad",
+    "lifted",
+    "police",
+    "midengine",
+    "3wheel",
+    "boxutility",
+    "unpainted",
+    "welded",
+    "tubularbumper",
+    "hillclimb",
+    "carb",
+    "itb",
+    "partition",
+    "stock",
+    "snow",
+    "winter",
+    "mud",
+    "allterrain",
+    "spare",
+    "steelie",
+    "hubcap",
+    "prodrift",
+    "cargo",
+    "flashers",
+    "fartcan",
+    "fuelcell",
+    "trim"
+  ],
+  "overrides": {
+    "covet_turbo_stock": 2,
+    "covet_turbo_1,3_stock": 2,
+    "pessima_turbo": 2,
+    "sunburst2_engine_1_6_intake_turbo": 1,
+    "sunburst2_engine_2_0_intake_turbo": 1,
+    "sunburst2_engine_2_5_intake_turbo": 1,
+    "sunburst2_engine_1_6_ecu_turbo": 1,
+    "sunburst2_engine_2_0_ecu_turbo": 1,
+    "sunburst2_engine_2_5_ecu_turbo": 1
+  },
+  "paintPriceYen": 29800,
+  "slotExclude": [
+    "licenseplate",
+    "_mod$",
+    "^paint_design$",
+    "enginemounts",
+    "oilpan",
+    "n2o_",
+    "_fueltank",
+    "_battery",
+    "skin",
+    "_body$",
+    "_engine$",
+    "_transfer",
+    "_converter",
+    "_driveshaft",
+    "_halfshaft",
+    "_hub",
+    "_axle",
+    "_spindle",
+    "_strut_bar",
+    "police",
+    "radar"
+  ],
+  "customPaintPriceYen": 98000
+}

@@ -1,0 +1,82 @@
+{
+  "_hinweis": "Tutorial-Seiten für Neulinge (beim neuen Spiel nach der Auswahl 'Neuling', später zu Hause erneut aufrufbar). Texte aus der Tutorial-Shotlist (von Alex abgesegnet 2026-10-29). image = Bild im Mod-Ordner (art/tutorial/page1.png bis page7.png, 1600x900 PNG); fehlt das Bild, steht nur der Text da. title/text je Sprache.",
+  "pages": [
+    {
+      "image": "/art/tutorial/page1.png",
+      "title": {
+        "de": "Willkommen auf dem Shuto",
+        "en": "Welcome to the Shuto"
+      },
+      "text": {
+        "de": "Nachts gehört die Stadtautobahn den Hashiriya. Fahre auf dem Ring, fordere Rivalen heraus und schlage sie. Mit jedem Sieg wächst dein Ruf, bis die ganze Stadt deinen Namen kennt.",
+        "en": "At night the city expressway belongs to the hashiriya. Drive the loop, challenge rivals and beat them. Every win grows your reputation until the whole city knows your name."
+      }
+    },
+    {
+      "image": "/art/tutorial/page2.png",
+      "title": {
+        "de": "Herausfordern",
+        "en": "Challenging"
+      },
+      "text": {
+        "de": "Rivalen fahren zwischen dem normalen Verkehr. Setz dich dicht hinter einen und gib Lichthupe. Nimmt er an, schaltet er die Warnblinker ein. Dein Tempomat holt auf und gleicht das Tempo an, dann zählt der Countdown 3-2-1. Wer vorher vorfährt, macht einen Frühstart. Gibt dir ein Rivale von hinten Lichthupe, nimmst du mit dem Warnblinker an oder lehnst mit dem Blinker ab.",
+        "en": "Rivals drive among the normal traffic. Get close behind one and flash your headlights. If they accept, they switch on their hazard lights. Your cruise control closes the gap and matches their speed, then the countdown runs 3-2-1. Pull ahead before that and it's a false start. If a rival flashes you from behind, accept with your hazard lights or decline with an indicator."
+      }
+    },
+    {
+      "image": "/art/tutorial/page3.png",
+      "title": {
+        "de": "Das SP-Battle",
+        "en": "The SP battle"
+      },
+      "text": {
+        "de": "Beide Fahrer haben einen SP-Balken. Wer hinten liegt, verliert SP, je größer der Abstand, desto schneller. Kontakt mit Wand oder Verkehr kostet zusätzlich SP. Leer = verloren. Mit 250 m Vorsprung gewinnst du sofort.",
+        "en": "Both drivers have an SP bar. Whoever is behind loses SP, faster the bigger the gap. Hitting walls or traffic costs extra SP. Empty means you lose. Get 250 m ahead and you win outright."
+      }
+    },
+    {
+      "image": "/art/tutorial/page4.png",
+      "title": {
+        "de": "Rivalen, Teams und Wanderer",
+        "en": "Rivals, teams and wanderers"
+      },
+      "text": {
+        "de": "Rivalen gehören zu Teams. Schlag die Mitglieder, dann zeigt sich der Leader. Wanderer fahren allein und tauchen nur unter bestimmten Bedingungen auf. Das Radar zeigt jeden Rivalen in seiner Farbe. Im Rivalen-Lexikon siehst du alle und kannst dir bis zu 5 auf die Merkliste setzen.",
+        "en": "Rivals belong to teams. Beat the members and the leader shows up. Wanderers drive alone and only appear under certain conditions. The radar shows every rival in their colour. The rival lexicon lists them all, and you can put up to 5 on your watch list."
+      }
+    },
+    {
+      "image": "/art/tutorial/page5.png",
+      "title": {
+        "de": "Tag und Nacht",
+        "en": "Day and night"
+      },
+      "text": {
+        "de": "Battles gibt es nur nachts, von 20 bis 6 Uhr. Tagsüber ist Zeit für Shop, Garage und Tankstelle. Zu Hause schläfst du tagsüber bis 20 Uhr oder nachts ab 22 Uhr bis zum Morgen. Auf Parkplätzen hilft ein kurzes Nickerchen im Auto. Behalte den Tank im Blick: nachts ist der Sprit teurer.",
+        "en": "Battles only happen at night, from 8 pm to 6 am. Daytime is for the shop, the garage and the gas station. At home you sleep until 8 pm during the day, or from 10 pm until morning at night. At parking areas a short nap in the car helps. Keep an eye on your tank: fuel costs more at night."
+      }
+    },
+    {
+      "image": "/art/tutorial/page6.png",
+      "title": {
+        "de": "Garage und Shop",
+        "en": "Garage and shop"
+      },
+      "text": {
+        "de": "Mit dem Preisgeld rüstest du auf. Im Shop legst du Teile und Lack in den Warenkorb und siehst sie sofort am Auto, dazu, wie sich Leistung und Gewicht ändern. Bessere Teile werden mit deinem Rang freigeschaltet. In der Garage reparierst du und wechselst Autos.",
+        "en": "Prize money buys upgrades. In the shop you put parts and paint in the cart and see them on the car right away, along with how power and weight change. Better parts unlock with your rank. At the garage you repair and switch cars."
+      }
+    },
+    {
+      "image": "/art/tutorial/page7.png",
+      "title": {
+        "de": "Ruf, Serie und Combo",
+        "en": "Reputation, streak and combo"
+      },
+      "text": {
+        "de": "Siege bringen Ruf und damit einen höheren Rang. Gewinnst du mehrere Battles hintereinander, steigt das Preisgeld, aber die Serie endet, sobald du verlierst oder in die Garage fährst. Knappe Manöver im Verkehr bringen Combo-Punkte. Ein Unfall löscht die Combo.",
+        "en": "Wins bring reputation and with it a higher rank. Win several battles in a row and the prize money rises, but the streak ends when you lose or drive into the garage. Close calls in traffic earn combo points. A crash wipes the combo."
+      }
+    }
+  ]
+}

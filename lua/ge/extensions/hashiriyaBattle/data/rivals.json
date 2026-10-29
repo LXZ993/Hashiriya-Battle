@@ -1,0 +1,1424 @@
+{
+ "_hinweis": "Rivalen fuer C1 (50 Gegner). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). settings: maxOnRoad = Rivalen gleichzeitig im Verkehr, spawnBehindNew/spawnBehindRematch = Chance, dass ein neuer Gegner bzw. eine Revanche hinter dir statt vor dir spawnt, rechallengeSeconds = Pause bis zur naechsten Herausforderung desselben Rivalen, falseStartRechallengeSeconds = dieselbe Pause nach einem Fruehstart, maxBattlesPerNight (optional) = Battles pro Nacht. conditions: minRank, minWins, minDay, speedTraps (all oder Anzahl), hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals.",
+ "settings": {
+  "nightOnly": true,
+  "maxOnRoad": 4,
+  "spawnBehindNew": 0.05,
+  "spawnBehindRematch": 0.25,
+  "rechallengeSeconds": 60,
+  "falseStartRechallengeSeconds": 30,
+  "teamMembersPerNight": 2,
+  "rivalOncePerNight": false,
+  "lostRivalCooldownNights": 0,
+  "leaderNotSameNight": true,
+  "leaderChance": 0.7,
+  "lossRep": -10,
+  "cleanWinMaxDamageSp": 60,
+  "closeWinMaxSpPercent": 15,
+  "quickWinSeconds": 30,
+  "rematch": {
+   "enabled": true,
+   "weight": 0.25,
+   "rewardFactor": 0.4,
+   "repFactor": 0.25,
+   "aggressionBonus": 0.08,
+   "spFactor": 1.1
+  }
+ },
+ "ranks": [
+  {
+   "rep": 0,
+   "name": {
+    "de": "Neuling",
+    "en": "Rookie"
+   },
+   "jp": "初心者"
+  },
+  {
+   "rep": 100,
+   "name": {
+    "de": "Nachtgast",
+    "en": "Night Guest"
+   },
+   "jp": "夜の客"
+  },
+  {
+   "rep": 250,
+   "name": {
+    "de": "Straßenläufer",
+    "en": "Street Runner"
+   },
+   "jp": "走り屋"
+  },
+  {
+   "rep": 450,
+   "name": {
+    "de": "Ringjäger",
+    "en": "Loop Hunter"
+   },
+   "jp": "環状ハンター"
+  },
+  {
+   "rep": 700,
+   "name": {
+    "de": "Kurvenkünstler",
+    "en": "Corner Artist"
+   },
+   "jp": "コーナー職人"
+  },
+  {
+   "rep": 1000,
+   "name": {
+    "de": "Schattenläufer",
+    "en": "Shadow Runner"
+   },
+   "jp": "影走り"
+  },
+  {
+   "rep": 1400,
+   "name": {
+    "de": "Nachtfalke",
+    "en": "Night Hawk"
+   },
+   "jp": "夜鷹"
+  },
+  {
+   "rep": 1900,
+   "name": {
+    "de": "Bahnbrecher",
+    "en": "Trailblazer"
+   },
+   "jp": "開拓者"
+  },
+  {
+   "rep": 2500,
+   "name": {
+    "de": "Legende des Rings",
+    "en": "Loop Legend"
+   },
+   "jp": "環状伝説"
+  },
+  {
+   "rep": 3200,
+   "name": {
+    "de": "Herr der Nacht",
+    "en": "Lord of the Night"
+   },
+   "jp": "夜の覇者",
+   "requiresFinal": true
+  }
+ ],
+ "nicknames": [
+  {
+   "id": "clean",
+   "stat": "cleanWins",
+   "min": 10,
+   "name": {
+    "de": "Der Unberührte",
+    "en": "The Untouched"
+   },
+   "desc": {
+    "de": "10 Siege ohne nennenswerten Schaden",
+    "en": "10 wins without real damage"
+   }
+  },
+  {
+   "id": "close",
+   "stat": "closeWins",
+   "min": 5,
+   "name": {
+    "de": "Letzte Sekunde",
+    "en": "Last Second"
+   },
+   "desc": {
+    "de": "5 Siege mit fast leeren SP",
+    "en": "5 wins with almost empty SP"
+   }
+  },
+  {
+   "id": "fast",
+   "stat": "quickWins",
+   "min": 8,
+   "name": {
+    "de": "Blitzstart",
+    "en": "Quick Draw"
+   },
+   "desc": {
+    "de": "8 Siege in unter 30 Sekunden",
+    "en": "8 wins in under 30 seconds"
+   }
+  },
+  {
+   "id": "leaders",
+   "stat": "leaderWins",
+   "min": 4,
+   "name": {
+    "de": "Teamschreck",
+    "en": "Team Breaker"
+   },
+   "desc": {
+    "de": "4 Teamleader besiegt",
+    "en": "4 team leaders beaten"
+   }
+  },
+  {
+   "id": "stubborn",
+   "stat": "losses",
+   "min": 15,
+   "name": {
+    "de": "Stehaufmännchen",
+    "en": "Comeback Kid"
+   },
+   "desc": {
+    "de": "15 Niederlagen und trotzdem weiter",
+    "en": "15 losses and still going"
+   }
+  },
+  {
+   "id": "rematch",
+   "stat": "rematchWins",
+   "min": 10,
+   "name": {
+    "de": "Unersättlich",
+    "en": "Never Satisfied"
+   },
+   "desc": {
+    "de": "10 Revanchen gewonnen",
+    "en": "10 rematches won"
+   }
+  },
+  {
+   "id": "nights",
+   "stat": "nights",
+   "min": 20,
+   "name": {
+    "de": "Nachteule",
+    "en": "Night Owl"
+   },
+   "desc": {
+    "de": "20 Nächte auf dem Ring",
+    "en": "20 nights on the loop"
+   }
+  }
+ ],
+ "teams": [
+  {
+   "id": "t_lantern",
+   "name": "Mayonaka Lanterns",
+   "jp": "真夜中ランタン",
+   "color": "#ffb347",
+   "minRank": 0,
+   "desc": {
+    "de": "Studenten aus Shibuya, die nachts mit ihren ersten Autos den Ring abfahren. Laut, frech, aber ohne viel Erfahrung.",
+    "en": "Students from Shibuya cruising the loop at night in their first cars. Loud and cocky, but short on experience."
+   }
+  },
+  {
+   "id": "t_neon",
+   "name": "Ginza Neon Club",
+   "jp": "銀座ネオン倶楽部",
+   "color": "#ff4fd8",
+   "minRank": 0,
+   "desc": {
+    "de": "Nachtschwärmer aus Ginza. Ihre Autos glänzen mehr, als sie fahren, aber unterschätzen sollte man sie nicht.",
+    "en": "Ginza night owls. Their cars shine more than they drive, but never underestimate them."
+   }
+  },
+  {
+   "id": "t_kasumi",
+   "name": "Kasumi Drift Union",
+   "jp": "霞ドリフト連合",
+   "color": "#7fd6ff",
+   "minRank": 1,
+   "desc": {
+    "de": "Drifter, die lieber quer als schnell sind. Auf dem Ring zeigen sie, dass beides geht.",
+    "en": "Drifters who would rather be sideways than fast. On the loop they prove you can be both."
+   }
+  },
+  {
+   "id": "t_yamagumi",
+   "name": "Takane Yama-Gumi",
+   "jp": "高嶺山組",
+   "color": "#9ccc65",
+   "minRank": 2,
+   "desc": {
+    "de": "Bergleute, die mit ihren hohen Kisten in die Stadt kommen. Niemand nimmt sie ernst, bis sie vorne liegen.",
+    "en": "Mountain folk who come to the city in tall boxy cars. Nobody takes them seriously until they are ahead."
+   }
+  },
+  {
+   "id": "t_kitsune",
+   "name": "Kōsoku Kitsune",
+   "jp": "高速狐",
+   "color": "#ff8a3d",
+   "minRank": 3,
+   "desc": {
+    "de": "Die Autobahnfüchse. Schlau, schnell und immer genau dort, wo man sie nicht erwartet.",
+    "en": "The highway foxes. Clever, quick and always where you least expect them."
+   }
+  },
+  {
+   "id": "t_akatsuki",
+   "name": "Akatsuki Racing",
+   "jp": "暁レーシング",
+   "color": "#ff5252",
+   "minRank": 4,
+   "desc": {
+    "de": "Ein ehemaliges Werksteam, das jetzt nur noch nachts fährt. Diszipliniert und gnadenlos sauber.",
+    "en": "A former works team that now only races at night. Disciplined and mercilessly clean."
+   }
+  },
+  {
+   "id": "t_raijin",
+   "name": "Raijin Garage",
+   "jp": "雷神ガレージ",
+   "color": "#ffe14d",
+   "minRank": 5,
+   "desc": {
+    "de": "Tuner aus einer Werkstatt unter den Gleisen. Ihre Turbos hört man, bevor man sie sieht.",
+    "en": "Tuners from a workshop under the railway tracks. You hear their turbos before you see them."
+   }
+  },
+  {
+   "id": "t_kurogane",
+   "name": "Kurogane-kai",
+   "jp": "黒鉄会",
+   "color": "#b0b0b0",
+   "minRank": 6,
+   "desc": {
+    "de": "Schwarze Autos, keine Aufkleber, kein Wort. Die Kurogane fahren seit zwanzig Jahren auf dem Ring.",
+    "en": "Black cars, no stickers, no words. The Kurogane have run the loop for twenty years."
+   }
+  }
+ ],
+ "rivals": [
+  {
+   "id": "t_lantern_1",
+   "name": "Kenta Mori",
+   "nick": {
+    "de": "Der Lehrling",
+    "en": "The Apprentice"
+   },
+   "team": "t_lantern",
+   "model": "covet",
+   "config": "vehicles/covet/15se_M.pc",
+   "aggression": 0.45,
+   "cruiseKmh": 95,
+   "maxSp": 850,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Hat den Führerschein seit drei Wochen.",
+    "en": "Got his licence three weeks ago."
+   }
+  },
+  {
+   "id": "t_lantern_2",
+   "name": "Yui Sakamoto",
+   "nick": {
+    "de": "Pinke Laterne",
+    "en": "Pink Lantern"
+   },
+   "team": "t_lantern",
+   "model": "covet",
+   "config": "vehicles/covet/LXi_M.pc",
+   "aggression": 0.48,
+   "cruiseKmh": 95,
+   "maxSp": 880,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Fährt mit Lichterkette im Innenraum.",
+    "en": "Drives with fairy lights inside."
+   }
+  },
+  {
+   "id": "t_lantern_3",
+   "name": "Daichi Ono",
+   "nick": {
+    "de": "Bremslicht",
+    "en": "Brake Light"
+   },
+   "team": "t_lantern",
+   "model": "midsize",
+   "config": "vehicles/midsize/LX_sport_M.pc",
+   "aggression": 0.51,
+   "cruiseKmh": 95,
+   "maxSp": 910,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Bremst immer einen Tick zu früh.",
+    "en": "Always brakes a little too early."
+   }
+  },
+  {
+   "id": "t_lantern_4",
+   "name": "Haruto Ishii",
+   "nick": {
+    "de": "Kassettenkind",
+    "en": "Tape Kid"
+   },
+   "team": "t_lantern",
+   "model": "bx",
+   "config": "vehicles/bx/200bx_base_M.pc",
+   "aggression": 0.54,
+   "cruiseKmh": 95,
+   "maxSp": 940,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Fährt nur mit Eurobeat vom Tape.",
+    "en": "Only drives with eurobeat on tape."
+   }
+  },
+  {
+   "id": "t_lantern_leader",
+   "appear": "sameNight",
+   "name": "Riku Tanabe",
+   "nick": {
+    "de": "Laternenträger",
+    "en": "Lantern Bearer"
+   },
+   "team": "t_lantern",
+   "leader": true,
+   "model": "covet",
+   "config": "vehicles/covet/gtz.pc",
+   "aggression": 0.57,
+   "cruiseKmh": 103,
+   "maxSp": 1050,
+   "rewardUsd": 3000,
+   "rep": 96,
+   "desc": {
+    "de": "Gründer der Lanterns. Nimmt jeden Neuling persönlich unter die Lupe.",
+    "en": "Founder of the Lanterns. Personally sizes up every newcomer."
+   }
+  },
+  {
+   "id": "t_neon_1",
+   "name": "Mika Fujita",
+   "nick": {
+    "de": "Spiegelglanz",
+    "en": "Mirror Shine"
+   },
+   "team": "t_neon",
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/sport_EU_M.pc",
+   "aggression": 0.45,
+   "cruiseKmh": 95,
+   "maxSp": 850,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Poliert ihr Auto nach jeder Fahrt.",
+    "en": "Polishes her car after every run."
+   }
+  },
+  {
+   "id": "t_neon_2",
+   "name": "Shun Arai",
+   "nick": {
+    "de": "Barkeeper",
+    "en": "Bartender"
+   },
+   "team": "t_neon",
+   "model": "midsize",
+   "config": "vehicles/midsize/LX_V6_sport_M.pc",
+   "aggression": 0.48,
+   "cruiseKmh": 95,
+   "maxSp": 880,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Kommt direkt von der Schicht.",
+    "en": "Comes straight from his shift."
+   }
+  },
+  {
+   "id": "t_neon_3",
+   "name": "Nana Kudo",
+   "nick": {
+    "de": "Leuchtreklame",
+    "en": "Neon Sign"
+   },
+   "team": "t_neon",
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/sport_S_M.pc",
+   "aggression": 0.51,
+   "cruiseKmh": 95,
+   "maxSp": 910,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Ihr Unterboden leuchtet lila.",
+    "en": "Her underbody glows purple."
+   }
+  },
+  {
+   "id": "t_neon_4",
+   "name": "Takeshi Mura",
+   "nick": {
+    "de": "Der Gastgeber",
+    "en": "The Host"
+   },
+   "team": "t_neon",
+   "model": "miramar",
+   "config": "vehicles/miramar/luxe_coupe_A.pc",
+   "aggression": 0.54,
+   "cruiseKmh": 95,
+   "maxSp": 940,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Fährt mit Automatik und Stil.",
+    "en": "Drives automatic, with style."
+   }
+  },
+  {
+   "id": "t_neon_leader",
+   "appear": "sameNight",
+   "name": "Reika Hoshino",
+   "nick": {
+    "de": "Königin der Lichter",
+    "en": "Queen of Lights"
+   },
+   "team": "t_neon",
+   "leader": true,
+   "model": "bx",
+   "config": "vehicles/bx/LXZ_Streeto.pc",
+   "aggression": 0.57,
+   "cruiseKmh": 103,
+   "maxSp": 1050,
+   "rewardUsd": 3000,
+   "rep": 96,
+   "desc": {
+    "de": "Kennt jede Ampel in Ginza beim Namen.",
+    "en": "Knows every traffic light in Ginza by name."
+   }
+  },
+  {
+   "id": "t_kasumi_1",
+   "name": "Sota Nishida",
+   "nick": {
+    "de": "Rauchzeichen",
+    "en": "Smoke Signal"
+   },
+   "team": "t_kasumi",
+   "model": "bx",
+   "config": "vehicles/bx/street_drift_M.pc",
+   "aggression": 0.45,
+   "cruiseKmh": 95,
+   "maxSp": 850,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Hinterlässt immer eine Wolke.",
+    "en": "Always leaves a cloud behind."
+   }
+  },
+  {
+   "id": "t_kasumi_2",
+   "name": "Aoi Kamiya",
+   "nick": {
+    "de": "Gegenlenker",
+    "en": "Countersteer"
+   },
+   "team": "t_kasumi",
+   "model": "miramar",
+   "config": "vehicles/miramar/drift.pc",
+   "aggression": 0.48,
+   "cruiseKmh": 95,
+   "maxSp": 880,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Lenkt schneller als sie denkt.",
+    "en": "Steers faster than she thinks."
+   }
+  },
+  {
+   "id": "t_kasumi_3",
+   "name": "Ren Hayashi",
+   "nick": {
+    "de": "Reifenfresser",
+    "en": "Tire Eater"
+   },
+   "team": "t_kasumi",
+   "model": "bx",
+   "config": "vehicles/bx/240bx_coupe_lx_M.pc",
+   "aggression": 0.51,
+   "cruiseKmh": 95,
+   "maxSp": 910,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Braucht jede Woche neue Reifen.",
+    "en": "Needs new tyres every week."
+   }
+  },
+  {
+   "id": "t_kasumi_4",
+   "name": "Yuto Kanda",
+   "nick": {
+    "de": "Handbremse",
+    "en": "Handbrake"
+   },
+   "team": "t_kasumi",
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/drift_street.pc",
+   "aggression": 0.54,
+   "cruiseKmh": 95,
+   "maxSp": 940,
+   "rewardUsd": 1200,
+   "rep": 40,
+   "desc": {
+    "de": "Zieht die Handbremse auch auf der Geraden.",
+    "en": "Pulls the handbrake even on straights."
+   }
+  },
+  {
+   "id": "t_kasumi_leader",
+   "appear": "nextNight",
+   "name": "Kaito Shirasagi",
+   "nick": {
+    "de": "Weißer Nebel",
+    "en": "White Mist"
+   },
+   "team": "t_kasumi",
+   "leader": true,
+   "model": "bx",
+   "config": "vehicles/bx/LXZ_Drift.pc",
+   "aggression": 0.57,
+   "cruiseKmh": 103,
+   "maxSp": 1050,
+   "rewardUsd": 3000,
+   "rep": 96,
+   "desc": {
+    "de": "Man sieht ihn nur im Rauch seiner eigenen Reifen.",
+    "en": "You only ever see him through his own tyre smoke."
+   }
+  },
+  {
+   "id": "t_yamagumi_1",
+   "name": "Goro Yamane",
+   "nick": {
+    "de": "Bergziege",
+    "en": "Mountain Goat"
+   },
+   "team": "t_yamagumi",
+   "model": "hopper",
+   "config": "vehicles/hopper/zxt6_M.pc",
+   "aggression": 0.6,
+   "cruiseKmh": 105,
+   "maxSp": 1000,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Fährt den Ring wie einen Pass.",
+    "en": "Drives the loop like a mountain pass."
+   }
+  },
+  {
+   "id": "t_yamagumi_2",
+   "name": "Tomoe Hirata",
+   "nick": {
+    "de": "Lawine",
+    "en": "Avalanche"
+   },
+   "team": "t_yamagumi",
+   "model": "hopper",
+   "config": "vehicles/hopper/sport_M.pc",
+   "aggression": 0.63,
+   "cruiseKmh": 105,
+   "maxSp": 1030,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Wenn sie rollt, hält sie nichts mehr auf.",
+    "en": "Once she rolls, nothing stops her."
+   }
+  },
+  {
+   "id": "t_yamagumi_3",
+   "name": "Isamu Kuroki",
+   "nick": {
+    "de": "Holzfäller",
+    "en": "Lumberjack"
+   },
+   "team": "t_yamagumi",
+   "model": "miramar",
+   "config": "vehicles/miramar/base_ute_M.pc",
+   "aggression": 0.66,
+   "cruiseKmh": 105,
+   "maxSp": 1060,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Hat noch Holz auf der Ladefläche.",
+    "en": "Still has firewood in the bed."
+   }
+  },
+  {
+   "id": "t_yamagumi_4",
+   "name": "Hana Oyama",
+   "nick": {
+    "de": "Gipfelstürmerin",
+    "en": "Peak Rusher"
+   },
+   "team": "t_yamagumi",
+   "model": "hopper",
+   "config": "vehicles/hopper/race.pc",
+   "aggression": 0.69,
+   "cruiseKmh": 105,
+   "maxSp": 1090,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Hat ihren Hopper auf die Strecke gebracht.",
+    "en": "Took her Hopper to the track."
+   }
+  },
+  {
+   "id": "t_yamagumi_leader",
+   "appear": "nextNight",
+   "name": "Jiro Takane",
+   "nick": {
+    "de": "Der Bergkönig",
+    "en": "Mountain King"
+   },
+   "team": "t_yamagumi",
+   "leader": true,
+   "model": "hopper",
+   "config": "vehicles/hopper/custom.pc",
+   "aggression": 0.72,
+   "cruiseKmh": 113,
+   "maxSp": 1200,
+   "rewardUsd": 5500,
+   "rep": 132,
+   "desc": {
+    "de": "Sagt, die Stadt sei nur ein flacher Berg.",
+    "en": "Says the city is just a flat mountain."
+   }
+  },
+  {
+   "id": "t_kitsune_1",
+   "name": "Akane Sugiyama",
+   "nick": {
+    "de": "Roter Schweif",
+    "en": "Red Tail"
+   },
+   "team": "t_kitsune",
+   "model": "pessima",
+   "config": "vehicles/pessima/GTz.pc",
+   "aggression": 0.6,
+   "cruiseKmh": 105,
+   "maxSp": 1000,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Lässt dich an ihrem Heck kleben, bis du müde wirst.",
+    "en": "Lets you hang on her tail until you tire."
+   }
+  },
+  {
+   "id": "t_kitsune_2",
+   "name": "Hiro Matsuda",
+   "nick": {
+    "de": "Der Täuscher",
+    "en": "The Trickster"
+   },
+   "team": "t_kitsune",
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/sport_RS_M.pc",
+   "aggression": 0.63,
+   "cruiseKmh": 105,
+   "maxSp": 1030,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Blinkt links und fährt rechts.",
+    "en": "Signals left, goes right."
+   }
+  },
+  {
+   "id": "t_kitsune_3",
+   "name": "Kiko Iwata",
+   "nick": {
+    "de": "Fuchsbau",
+    "en": "Fox Den"
+   },
+   "team": "t_kitsune",
+   "model": "pessima",
+   "config": "vehicles/pessima/custom.pc",
+   "aggression": 0.66,
+   "cruiseKmh": 105,
+   "maxSp": 1060,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Kennt jede Abkürzung, die es nicht gibt.",
+    "en": "Knows every shortcut that does not exist."
+   }
+  },
+  {
+   "id": "t_kitsune_4",
+   "name": "Masaru Endo",
+   "nick": {
+    "de": "Nachtjäger",
+    "en": "Night Hunter"
+   },
+   "team": "t_kitsune",
+   "model": "covet",
+   "config": "vehicles/covet/15gtz_turbo_M.pc",
+   "aggression": 0.69,
+   "cruiseKmh": 105,
+   "maxSp": 1090,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Jagt nur nach Mitternacht.",
+    "en": "Only hunts after midnight."
+   }
+  },
+  {
+   "id": "t_kitsune_leader",
+   "appear": "sameNight",
+   "name": "Shiori Kitsuneda",
+   "nick": {
+    "de": "Neunschwanz",
+    "en": "Nine Tails"
+   },
+   "team": "t_kitsune",
+   "leader": true,
+   "model": "pessima",
+   "config": "vehicles/pessima/drift.pc",
+   "aggression": 0.72,
+   "cruiseKmh": 113,
+   "maxSp": 1200,
+   "rewardUsd": 5500,
+   "rep": 132,
+   "desc": {
+    "de": "Niemand hat sie je zweimal hintereinander geschlagen.",
+    "en": "Nobody has ever beaten her twice in a row."
+   }
+  },
+  {
+   "id": "t_akatsuki_1",
+   "name": "Kazuki Okada",
+   "nick": {
+    "de": "Das Metronom",
+    "en": "The Metronome"
+   },
+   "team": "t_akatsuki",
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/sport_RS2_DCT.pc",
+   "aggression": 0.6,
+   "cruiseKmh": 105,
+   "maxSp": 1000,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Fährt jede Runde auf die Zehntel gleich.",
+    "en": "Laps within a tenth, every time."
+   }
+  },
+  {
+   "id": "t_akatsuki_2",
+   "name": "Emi Tsuchiya",
+   "nick": {
+    "de": "Ideallinie",
+    "en": "Racing Line"
+   },
+   "team": "t_akatsuki",
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/trackday_M.pc",
+   "aggression": 0.63,
+   "cruiseKmh": 105,
+   "maxSp": 1030,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Weicht nie einen Zentimeter von der Linie ab.",
+    "en": "Never leaves the line by an inch."
+   }
+  },
+  {
+   "id": "t_akatsuki_3",
+   "name": "Naoki Ueda",
+   "nick": {
+    "de": "Der Ingenieur",
+    "en": "The Engineer"
+   },
+   "team": "t_akatsuki",
+   "model": "covet",
+   "config": "vehicles/covet/race.pc",
+   "aggression": 0.66,
+   "cruiseKmh": 105,
+   "maxSp": 1060,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Hat seine Abstimmung selbst gerechnet.",
+    "en": "Did his own setup maths."
+   }
+  },
+  {
+   "id": "t_akatsuki_4",
+   "name": "Rina Kawaguchi",
+   "nick": {
+    "de": "Morgenrot",
+    "en": "Red Dawn"
+   },
+   "team": "t_akatsuki",
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/street_tuned.pc",
+   "aggression": 0.69,
+   "cruiseKmh": 105,
+   "maxSp": 1090,
+   "rewardUsd": 2200,
+   "rep": 55,
+   "desc": {
+    "de": "Fährt bis die Sonne aufgeht.",
+    "en": "Drives until sunrise."
+   }
+  },
+  {
+   "id": "t_akatsuki_leader",
+   "appear": "nextNight",
+   "name": "Ryo Akatsuki",
+   "nick": {
+    "de": "Der Teamchef",
+    "en": "The Team Boss"
+   },
+   "team": "t_akatsuki",
+   "leader": true,
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/track_attack.pc",
+   "aggression": 0.72,
+   "cruiseKmh": 113,
+   "maxSp": 1200,
+   "rewardUsd": 5500,
+   "rep": 132,
+   "desc": {
+    "de": "War einmal Werksfahrer. Redet nicht darüber.",
+    "en": "Used to be a works driver. Does not talk about it."
+   }
+  },
+  {
+   "id": "t_raijin_1",
+   "name": "Takumi Inoue",
+   "nick": {
+    "de": "Donnerschlag",
+    "en": "Thunderclap"
+   },
+   "team": "t_raijin",
+   "model": "sbr",
+   "config": "vehicles/sbr/TT_RWD_S_M.pc",
+   "aggression": 0.75,
+   "cruiseKmh": 115,
+   "maxSp": 1150,
+   "rewardUsd": 3500,
+   "rep": 70,
+   "desc": {
+    "de": "Sein Abblasventil ist lauter als der Motor.",
+    "en": "His blow-off valve is louder than his engine."
+   }
+  },
+  {
+   "id": "t_raijin_2",
+   "name": "Mai Kobayashi",
+   "nick": {
+    "de": "Blitzableiter",
+    "en": "Lightning Rod"
+   },
+   "team": "t_raijin",
+   "model": "sbr",
+   "config": "vehicles/sbr/TT_AWD_S_M.pc",
+   "aggression": 0.78,
+   "cruiseKmh": 115,
+   "maxSp": 1180,
+   "rewardUsd": 3500,
+   "rep": 70,
+   "desc": {
+    "de": "Nichts bringt sie aus der Ruhe.",
+    "en": "Nothing rattles her."
+   }
+  },
+  {
+   "id": "t_raijin_3",
+   "name": "Yusuke Ota",
+   "nick": {
+    "de": "Funkenflug",
+    "en": "Sparks"
+   },
+   "team": "t_raijin",
+   "model": "covet",
+   "config": "vehicles/covet/turbo.pc",
+   "aggression": 0.81,
+   "cruiseKmh": 115,
+   "maxSp": 1210,
+   "rewardUsd": 3500,
+   "rep": 70,
+   "desc": {
+    "de": "Seine Auspuffflammen sind legendär.",
+    "en": "His exhaust flames are legendary."
+   }
+  },
+  {
+   "id": "t_raijin_4",
+   "name": "Sayaka Nomura",
+   "nick": {
+    "de": "Gewitterfront",
+    "en": "Storm Front"
+   },
+   "team": "t_raijin",
+   "model": "sbr",
+   "config": "vehicles/sbr/TT_AWD_S2_M.pc",
+   "aggression": 0.84,
+   "cruiseKmh": 115,
+   "maxSp": 1240,
+   "rewardUsd": 3500,
+   "rep": 70,
+   "desc": {
+    "de": "Kommt mit jedem Kilometer näher.",
+    "en": "Gets closer with every kilometre."
+   }
+  },
+  {
+   "id": "t_raijin_leader",
+   "appear": "sameNight",
+   "name": "Genji Raijima",
+   "nick": {
+    "de": "Der Donnergott",
+    "en": "Thunder God"
+   },
+   "team": "t_raijin",
+   "leader": true,
+   "model": "sbr",
+   "config": "vehicles/sbr/custom.pc",
+   "aggression": 0.87,
+   "cruiseKmh": 123,
+   "maxSp": 1350,
+   "rewardUsd": 8750,
+   "rep": 168,
+   "desc": {
+    "de": "Hat jedes Auto der Garage selbst gebaut.",
+    "en": "Built every car in the garage himself."
+   }
+  },
+  {
+   "id": "t_kurogane_1",
+   "name": "Shinji Kuroda",
+   "nick": {
+    "de": "Schwarzer Stahl",
+    "en": "Black Steel"
+   },
+   "team": "t_kurogane",
+   "model": "pessima",
+   "config": "vehicles/pessima/race.pc",
+   "aggression": 0.75,
+   "cruiseKmh": 115,
+   "maxSp": 1150,
+   "rewardUsd": 3500,
+   "rep": 70,
+   "desc": {
+    "de": "Sein Auto hat keine einzige Delle.",
+    "en": "His car has not a single dent."
+   }
+  },
+  {
+   "id": "t_kurogane_2",
+   "name": "Asuka Mizuno",
+   "nick": {
+    "de": "Stille Klinge",
+    "en": "Silent Blade"
+   },
+   "team": "t_kurogane",
+   "model": "covet",
+   "config": "vehicles/covet/turbo_evolution.pc",
+   "aggression": 0.78,
+   "cruiseKmh": 115,
+   "maxSp": 1180,
+   "rewardUsd": 3500,
+   "rep": 70,
+   "desc": {
+    "de": "Sagt nie ein Wort, auch nicht nach dem Sieg.",
+    "en": "Never says a word, not even after winning."
+   }
+  },
+  {
+   "id": "t_kurogane_3",
+   "name": "Tetsuya Hara",
+   "nick": {
+    "de": "Eisenfaust",
+    "en": "Iron Fist"
+   },
+   "team": "t_kurogane",
+   "model": "midsize",
+   "config": "vehicles/midsize/race.pc",
+   "aggression": 0.81,
+   "cruiseKmh": 115,
+   "maxSp": 1210,
+   "rewardUsd": 3500,
+   "rep": 70,
+   "desc": {
+    "de": "Drängelt, bis du Platz machst.",
+    "en": "Pushes until you make room."
+   }
+  },
+  {
+   "id": "t_kurogane_4",
+   "name": "Kyoko Sato",
+   "nick": {
+    "de": "Schattenriss",
+    "en": "Silhouette"
+   },
+   "team": "t_kurogane",
+   "model": "miramar",
+   "config": "vehicles/miramar/race.pc",
+   "aggression": 0.84,
+   "cruiseKmh": 115,
+   "maxSp": 1240,
+   "rewardUsd": 3500,
+   "rep": 70,
+   "desc": {
+    "de": "Man erkennt nur ihre Rücklichter.",
+    "en": "All you ever see are her tail lights."
+   }
+  },
+  {
+   "id": "t_kurogane_leader",
+   "appear": "nextNight",
+   "name": "Masamune Kurogane",
+   "nick": {
+    "de": "Das Oberhaupt",
+    "en": "The Patriarch"
+   },
+   "team": "t_kurogane",
+   "leader": true,
+   "model": "bx",
+   "config": "vehicles/bx/LXZ_Streeto_VIP.pc",
+   "aggression": 0.87,
+   "cruiseKmh": 123,
+   "maxSp": 1350,
+   "rewardUsd": 8750,
+   "rep": 168,
+   "desc": {
+    "de": "Fuhr schon auf dem Ring, als er noch neu war.",
+    "en": "Drove the loop when it was still new."
+   }
+  },
+  {
+   "id": "w_tsukiyomi",
+   "name": "Tsukiyomi",
+   "nick": {
+    "de": "Mondläufer",
+    "en": "Moon Runner"
+   },
+   "wanderer": true,
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/sport_RS_DCT.pc",
+   "aggression": 0.8,
+   "cruiseKmh": 115,
+   "maxSp": 1250,
+   "rewardUsd": 9000,
+   "rep": 90,
+   "conditions": {
+    "minRank": 2,
+    "hours": [
+     0,
+     3
+    ]
+   },
+   "desc": {
+    "de": "Erscheint nur zwischen Mitternacht und drei Uhr. Niemand kennt sein Gesicht.",
+    "en": "Only appears between midnight and three. Nobody knows his face."
+   },
+   "hint": {
+    "de": "Fährt nur zwischen 0 und 3 Uhr.",
+    "en": "Only drives between 0 and 3 am."
+   }
+  },
+  {
+   "id": "w_ojisan",
+   "name": "Ōji-san",
+   "nick": {
+    "de": "Der Onkel",
+    "en": "The Old Man"
+   },
+   "wanderer": true,
+   "model": "miramar",
+   "config": "vehicles/miramar/LXZ_Touge.pc",
+   "aggression": 0.8,
+   "cruiseKmh": 115,
+   "maxSp": 1250,
+   "rewardUsd": 8000,
+   "rep": 80,
+   "conditions": {
+    "minRank": 3,
+    "playerModel": "miramar"
+   },
+   "desc": {
+    "de": "Ein älterer Herr im Miramar. Fährt nur gegen Leute, die dasselbe Auto lieben.",
+    "en": "An old gentleman in a Miramar. Only races people who love the same car."
+   },
+   "hint": {
+    "de": "Fährt nur gegen einen Miramar.",
+    "en": "Only races a Miramar."
+   }
+  },
+  {
+   "id": "w_kazekiri",
+   "name": "Kazekiri",
+   "nick": {
+    "de": "Windschneider",
+    "en": "Wind Cutter"
+   },
+   "wanderer": true,
+   "model": "covet",
+   "config": "vehicles/covet/turbo.pc",
+   "aggression": 0.8,
+   "cruiseKmh": 115,
+   "maxSp": 1250,
+   "rewardUsd": 10000,
+   "rep": 100,
+   "conditions": {
+    "minRank": 4,
+    "speedTraps": "all"
+   },
+   "desc": {
+    "de": "Schneidet durch den Verkehr wie ein Messer. Fährt nur gegen jemanden, der jede Radarfalle der Stadt kennt.",
+    "en": "Cuts through traffic like a knife. Only races someone who knows every speed trap in the city."
+   },
+   "hint": {
+    "de": "Löse alle Radarfallen der Map aus.",
+    "en": "Trigger every speed trap on the map."
+   }
+  },
+  {
+   "id": "w_hotaru",
+   "name": "Hotaru",
+   "nick": {
+    "de": "Glühwürmchen",
+    "en": "Firefly"
+   },
+   "wanderer": true,
+   "model": "sunburst2",
+   "config": "vehicles/sunburst2/itasha.pc",
+   "aggression": 0.8,
+   "cruiseKmh": 115,
+   "maxSp": 1250,
+   "rewardUsd": 9000,
+   "rep": 90,
+   "conditions": {
+    "minRank": 3,
+    "beatenTeam": "t_neon",
+    "hours": [
+     20,
+     23
+    ]
+   },
+   "desc": {
+    "de": "Ein Itasha-Fan, der früher beim Neon Club war. Taucht am frühen Abend auf.",
+    "en": "An itasha fan who used to be in the Neon Club. Appears in the early evening."
+   },
+   "hint": {
+    "de": "Früher Abend, nachdem der Neon Club geschlagen ist.",
+    "en": "Early evening, after the Neon Club is beaten."
+   }
+  },
+  {
+   "id": "w_tetsujin",
+   "name": "Tetsujin",
+   "nick": {
+    "de": "Eiserner Turbo",
+    "en": "Iron Turbo"
+   },
+   "wanderer": true,
+   "model": "bx",
+   "config": "vehicles/bx/runner_M.pc",
+   "aggression": 0.8,
+   "cruiseKmh": 115,
+   "maxSp": 1250,
+   "rewardUsd": 12000,
+   "rep": 120,
+   "conditions": {
+    "minRank": 5,
+    "playerPart": "turbo"
+   },
+   "desc": {
+    "de": "Fordert nur Fahrer heraus, die einen Turbo eingebaut haben.",
+    "en": "Only challenges drivers who run a turbo."
+   },
+   "hint": {
+    "de": "Fährt nur gegen Autos mit Turbo.",
+    "en": "Only races cars with a turbo."
+   }
+  },
+  {
+   "id": "w_shinkiro",
+   "name": "Shinkirō",
+   "nick": {
+    "de": "Luftspiegelung",
+    "en": "Heat Haze"
+   },
+   "wanderer": true,
+   "model": "bx",
+   "config": "vehicles/bx/LXZ_Street_Training.pc",
+   "aggression": 0.8,
+   "cruiseKmh": 115,
+   "maxSp": 1250,
+   "rewardUsd": 14000,
+   "rep": 130,
+   "conditions": {
+    "minRank": 6,
+    "hours": [
+     3,
+     5
+    ],
+    "minDay": 10
+   },
+   "desc": {
+    "de": "Manche sagen, es gibt ihn gar nicht. Nur kurz vor der Dämmerung, und erst nach vielen Nächten.",
+    "en": "Some say he does not exist. Only just before dawn, and only after many nights."
+   },
+   "hint": {
+    "de": "Kurz vor der Dämmerung, ab Tag 10.",
+    "en": "Just before dawn, from day 10."
+   }
+  },
+  {
+   "id": "w_benikaze",
+   "name": "Benikaze",
+   "nick": {
+    "de": "Roter Wind",
+    "en": "Crimson Wind"
+   },
+   "wanderer": true,
+   "model": "hopper",
+   "config": "vehicles/hopper/drag.pc",
+   "aggression": 0.8,
+   "cruiseKmh": 115,
+   "maxSp": 1250,
+   "rewardUsd": 11000,
+   "rep": 110,
+   "conditions": {
+    "minRank": 5,
+    "beatenTeam": "t_yamagumi"
+   },
+   "desc": {
+    "de": "Die verstoßene Schwester des Bergkönigs. Will beweisen, dass sie die Schnellere ist.",
+    "en": "The Mountain King's estranged sister. Wants to prove she is faster."
+   },
+   "hint": {
+    "de": "Nach dem Sieg über Takane Yama-Gumi.",
+    "en": "After beating Takane Yama-Gumi."
+   }
+  },
+  {
+   "id": "b_shirotora",
+   "name": "Shirotora",
+   "nick": {
+    "de": "Weißer Tiger",
+    "en": "White Tiger"
+   },
+   "boss": true,
+   "model": "miramar",
+   "config": "vehicles/miramar/miramighty.pc",
+   "aggression": 0.95,
+   "cruiseKmh": 125,
+   "maxSp": 1600,
+   "rewardUsd": 40000,
+   "rep": 250,
+   "conditions": {
+    "minRank": 5,
+    "minDay": 6,
+    "beatenTeams": [
+     "t_lantern",
+     "t_neon",
+     "t_kasumi",
+     "t_yamagumi"
+    ]
+   },
+   "desc": {
+    "de": "Wächter des Inneren Rings. Wer die ersten vier Teams geschlagen hat, bekommt seine Lichthupe zu sehen.",
+    "en": "Guardian of the inner loop. Beat the first four teams and he will flash you."
+   },
+   "hint": {
+    "de": "Nach den ersten vier Teams, ab Tag 6.",
+    "en": "After the first four teams, from day 6."
+   }
+  },
+  {
+   "id": "b_kokuryu",
+   "name": "Kokuryū",
+   "nick": {
+    "de": "Schwarzer Drache",
+    "en": "Black Dragon"
+   },
+   "boss": true,
+   "model": "sbr",
+   "config": "vehicles/sbr/track.pc",
+   "aggression": 0.95,
+   "cruiseKmh": 125,
+   "maxSp": 1600,
+   "rewardUsd": 60000,
+   "rep": 320,
+   "conditions": {
+    "minRank": 8,
+    "minDay": 12,
+    "beatenTeams": [
+     "t_kitsune",
+     "t_akatsuki",
+     "t_raijin",
+     "t_kurogane"
+    ]
+   },
+   "desc": {
+    "de": "Der Schnellste, den alle kennen. Fährt nur gegen Fahrer, die die vier oberen Teams besiegt haben.",
+    "en": "The fastest driver everyone knows of. Only races those who beat the four top teams."
+   },
+   "hint": {
+    "de": "Nach den vier oberen Teams, ab Tag 12.",
+    "en": "After the four top teams, from day 12."
+   }
+  },
+  {
+   "id": "b_mugen",
+   "name": "Mugen",
+   "nick": {
+    "de": "Der Unendliche",
+    "en": "The Endless"
+   },
+   "boss": true,
+   "model": "bx",
+   "config": "vehicles/bx/LXZ_Wangan.pc",
+   "aggression": 0.95,
+   "cruiseKmh": 125,
+   "maxSp": 1900,
+   "rewardUsd": 100000,
+   "rep": 500,
+   "conditions": {
+    "minRank": 8,
+    "minDay": 15,
+    "beatenRivals": [
+     "b_shirotora",
+     "b_kokuryu"
+    ],
+    "hours": [
+     2,
+     4
+    ]
+   },
+   "desc": {
+    "de": "Eine Legende aus der Zeit, als der Ring eröffnet wurde. Ob es ihn wirklich gibt?",
+    "en": "A legend from the days the loop first opened. Does he really exist?"
+   },
+   "hint": {
+    "de": "Nur ein Gerücht …",
+    "en": "Just a rumour …"
+   },
+   "final": true
+  }
+ ]
+}

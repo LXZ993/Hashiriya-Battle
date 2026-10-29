@@ -1,0 +1,6 @@
+{
+  "bindings":[
+    {"control":"home", "action":"hashiriyaToggleMenu"},
+    {"control":"shift home", "action":"hashiriyaCaptureCamera"}
+  ]
+}

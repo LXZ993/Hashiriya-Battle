@@ -1,0 +1,16 @@
+{
+  "_hinweis": "Autohändler: jeden Spieltag offersPerDay zufällige Angebote aus cars. Eintrag mit config = genau diese Config (.pc-Pfad oder Name), ohne config = jede Config des Modells außer denen mit einem Wort aus exclude. Vorläufig alle Configs der Modelle; später kommen hier die Configs, die in der Config-Liste mit H markiert sind. powerCap: Angebote nur bis zu einer PS-Grenze, damit man keine Autos bekommt, die für den aktuellen Fortschritt zu stark sind. Grenze = stärkster Rivale, den man beim aktuellen Rang treffen kann (Teams ab minRank, Wanderer ab conditions.minRank, Bosse erst nach dem Sieg), mal factor; nie unter minPs. byRank = feste Grenze je Rang (Liste ab Rang 1) statt der Rechnung. Die Grenze wird einmal pro Spieltag festgelegt; stärkere Autos gibt es ab dem nächsten Tag. enabled false schaltet sie ab.",
+  "offersPerDay": 5,
+  "powerCap": { "enabled": true, "factor": 1.1, "minPs": 120 },
+  "exclude": ["police", "polizei", "rally", "drag", "gambler", "stock car", "stockcar", "crawler", "derby", "taxi", "delivery", "lieferdienst", "tutorial", "race", "rennen", "drift", "track", "missile", "rocket", "sport-x", "gymkhana"],
+  "cars": [
+    { "model": "covet" },
+    { "model": "bx" },
+    { "model": "sbr" },
+    { "model": "sunburst2" },
+    { "model": "pessima" },
+    { "model": "midsize" },
+    { "model": "miramar" },
+    { "model": "hopper" }
+  ]
+}

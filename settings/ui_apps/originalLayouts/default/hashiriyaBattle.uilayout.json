@@ -1,0 +1,147 @@
+{
+ "apps": [
+  {
+   "appName": "forcedInduction",
+   "placement": {
+    "bottom": "285px",
+    "height": "150px",
+    "left": "",
+    "position": "absolute",
+    "right": "0px",
+    "top": "",
+    "width": "150px"
+   },
+   "settings": {
+    "noCockpit": true
+   }
+  },
+  {
+   "appName": "simplePowertrainControl",
+   "placement": {
+    "bottom": "0px",
+    "height": "170px",
+    "position": "absolute",
+    "right": "260px",
+    "width": "230px"
+   }
+  },
+  {
+   "appName": "damageApp",
+   "appVersion": 2,
+   "placement": {
+    "bottom": "0em",
+    "height": "13.18em",
+    "left": "75.06em",
+    "position": "absolute",
+    "right": "",
+    "top": "",
+    "width": "7.44em"
+   }
+  },
+  {
+   "appName": "navigation",
+   "appVersion": 5,
+   "placement": {
+    "bottom": "0.62em",
+    "height": "17.19em",
+    "left": "1.25em",
+    "position": "absolute",
+    "right": "",
+    "top": "",
+    "width": "16.31em"
+   }
+  },
+  {
+   "appName": "tacho2",
+   "appVersion": 1,
+   "placement": {
+    "bottom": "5px",
+    "height": "300px",
+    "right": "5px",
+    "width": "300px"
+   },
+   "settings": {
+    "noCockpit": true
+   }
+  },
+  {
+   "appName": "inputHints",
+   "appVersion": 8,
+   "placement": {
+    "bottom": "",
+    "height": "600px",
+    "left": "",
+    "position": "absolute",
+    "right": "0px",
+    "top": "0px",
+    "width": "450px"
+   }
+  },
+  {
+   "appName": "topLeftApps",
+   "appVersion": 2,
+   "placement": {
+    "bottom": "",
+    "height": "600px",
+    "left": "0px",
+    "position": "absolute",
+    "right": "",
+    "top": "0px",
+    "width": "380px"
+   }
+  },
+  {
+   "appName": "topCenterApps",
+   "appVersion": 1,
+   "placement": {
+    "bottom": "",
+    "height": "350px",
+    "left": 0,
+    "margin": "auto",
+    "position": "absolute",
+    "right": 0,
+    "top": "160px",
+    "width": "610px"
+   }
+  },
+  {
+   "appName": "hashiriyaSpHud",
+   "appVersion": 1,
+   "placement": {
+    "height": "150px",
+    "left": 0,
+    "margin": "auto",
+    "position": "absolute",
+    "right": 0,
+    "top": "0px",
+    "width": "1000px"
+   }
+  },
+  {
+   "appName": "hashiriyaStatus",
+   "appVersion": 1,
+   "placement": {
+    "height": "560px",
+    "position": "absolute",
+    "right": "10px",
+    "top": "64px",
+    "width": "280px"
+   }
+  },
+  {
+   "appName": "hashiriyaMenu",
+   "appVersion": 1,
+   "placement": {
+    "height": "640px",
+    "left": "20px",
+    "position": "absolute",
+    "top": "200px",
+    "width": "320px"
+   }
+  }
+ ],
+ "removedApps": {},
+ "title": "Hashiriya Battle",
+ "type": "hashiriyaBattle",
+ "version": 6
+}

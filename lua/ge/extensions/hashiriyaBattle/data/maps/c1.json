@@ -1,0 +1,20 @@
+{
+  "speedTrapsTotal": 45,
+  "_hinweisRadar": "speedTrapsTotal = Anzahl Radarfallen auf der Map (laut Alex 45 auf der C1; im Spiel noch prüfen).",
+  "_hinweis": "Orte auf der C1-Map, mit 'Position merken' gesammelt (27./28.10.2026). type: garage | shop | home | gas. pos/dir/radius = Bucht für das Auto (Auslösebereich in m um die Buchtmitte). footPos/footRadius = Punkt zu Fuß. footOnly = nur zu Fuß (keine Bucht). Beim Shop (footEntry) parkt man das Auto in der Bucht und geht zu Fuß zum Eingang; dort öffnet sich das Menü, die Kamera zeigt vom Eingang aufs Auto. Ohne footEntry öffnet Reinfahren und Anhalten den Shop. Optional: markerPos/markerDir/markerSize für die exakte Bucht. napSpots = Parkplätze für ein Nickerchen im Auto (Mitte und Radius in m; aus den Spawnpunkten der Map). playerSpawn = Startpunkt zu Fuß nach Neues Spiel/Weiterspielen (Zuhause). showroom = Präsentationsplatz für Autokauf/Neues Spiel (C1: Parkplatz garage1spot der Werkstatt 'Garage' am Kartenursprung, aus facilities.sites.json der Map; nach dem Kauf kommt das Auto in die Garagenbucht).",
+  "showroom": { "pos": [-0.269, 1.742, -0.015], "dir": [0, -1, 0] },
+  "napSpots": [
+    { "name": "Shibaura PA", "pos": [1102.37, 4709.02, 874.106], "radius": 80 },
+    { "name": "Tatsumi 1st PA", "pos": [5932.339, 4667.843, 874.491], "radius": 80 }
+  ],
+  "playerSpawn": { "pos": [5848.501, 4637.323, 873.831], "dir": [0.93426, 0.35659, 0] },
+  "parkingAreas": [
+    { "id": "pa_garage", "type": "garage", "pos": [5897.693, 4643.223, 873.129], "dir": [-0.93625, -0.34953, -0.03555], "radius": 4 },
+    { "id": "pa_shop", "type": "shop", "pos": [1099.163, 4758.111, 874.214], "dir": [0.99977, 0.01182, -0.01766], "radius": 4,
+      "footEntry": true, "footPos": [1093.108, 4770.120, 876.557], "footDir": [0.01247, 0.99992, 0], "footRadius": 2 },
+    { "id": "home", "type": "home", "footOnly": true, "pos": [5848.501, 4637.323, 873.831], "dir": [0.93426, 0.35659, 0],
+      "footPos": [5848.501, 4637.323, 873.831], "footRadius": 2 },
+    { "id": "gas_1", "type": "gas", "pos": [5945.668, 4678.466, 875.306], "dir": [0.36348, -0.93160, 0], "radius": 5 },
+    { "id": "gas_2", "type": "gas", "pos": [1109.094, 4753.936, 874.555], "dir": [-0.01590, 0.99987, 0], "radius": 5 }
+  ]
+}

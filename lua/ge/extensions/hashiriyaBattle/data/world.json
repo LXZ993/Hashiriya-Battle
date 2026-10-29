@@ -1,0 +1,14 @@
+{
+  "_hinweis": "Spielzeit. dayLengthMinutes = echte Minuten pro Spieltag (24 h Spielzeit). Nachts (nightFrom bis nightTo Uhr) laufen die Battles auf dem Ring, tagsüber nur Shops und Fahrten. startHour = Uhrzeit bei einem neuen Spiel. wakeHour = Uhrzeit nach dem Schlafen zu Hause tagsüber. sleepFrom = ab dann kann man nachts zu Hause schlafen (vorher, ab nightFrom, ist Battle-Zeit), nightWakeHour = Aufwachen nach dem Nachtschlaf. napHours = Nickerchen im Auto auf einem Parkplatz (von, bis Stunden, zufällig). startDate = Kalenderdatum von Tag 1 (Datum und Wochentag im HUD). shopHours = Öffnungszeiten der Shops (von, bis Uhr; pro Parkplatz überschreibbar mit hours). trafficByHour = Anteil des Verkehrs in % je Stunde (Index 0 = 0 Uhr bis 23 = 23 Uhr); 100 = volle Menge aus den BeamNG-Einstellungen.",
+  "dayLengthMinutes": 36,
+  "shopHours": [8, 20],
+  "nightFrom": 20,
+  "nightTo": 6,
+  "startDate": "2026-04-03",
+  "startHour": 20,
+  "wakeHour": 20,
+  "sleepFrom": 22,
+  "nightWakeHour": 6,
+  "napHours": [0.5, 2],
+  "trafficByHour": [ 55, 50, 40, 35, 35, 45, 65, 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 90, 80, 75, 65, 60 ]
+}
