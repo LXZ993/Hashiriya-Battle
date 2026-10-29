@@ -34,13 +34,18 @@ local function apply(veh, car, fresh)
   -- Ohne Teile-Liste: Grundwerte für alle Teile. Mit Liste: fehlende (neue) Teile frisch.
   local odo, integ, vis = 0, 1, 1
   if tbl == 'nil' then odo, integ, vis = (wear.odometerKm or 0) * 1000, wear.integrity or 1, wear.visual or 1 end
+  -- Kühler: Zustand des Kühlerteils, sonst Grundzustand
+  local radInteg = tbl == 'nil' and integ or (wear.integrity or 1)
+  for id, p in pairs(parts or {}) do
+    if tostring(id):find('radiator') then radInteg = p.i or 1 break end
+  end
   local cd = core().carsData or {}
   -- BeamNG setzt bei Zustand < 1 auch den Tank auf denselben Anteil und lässt den Motor stark aussetzen.
   -- Darum: Zündaussetzer abschwächen (conditionMisfireScale), Tank beim Kauf nie unter conditionMinFuel,
   -- bei einem Respawn den Tankinhalt unverändert lassen. Danach den Reset-Stand neu speichern (R-Taste, Reparatur).
   veh:queueLuaCommand(string.format([[
     if partCondition then
-      local fresh, minFuel, misfire = %s, %f, %f
+      local fresh, minFuel, misfire, cooling = %s, %f, %f, %f
       local before = {}
       for name, st in pairs(energyStorage.getStorages()) do
         if st.capacity and st.remainingVolume then before[name] = st.remainingVolume end
@@ -50,6 +55,12 @@ local function apply(veh, car, fresh)
       for _, e in ipairs(powertrain.getDevicesByCategory('engine') or {}) do
         if e.fastIgnitionErrorChance then e.fastIgnitionErrorChance = e.fastIgnitionErrorChance * misfire end
         if e.slowIgnitionErrorChance then e.slowIgnitionErrorChance = e.slowIgnitionErrorChance * misfire end
+        -- Überhitzen abschwächen: Reibung und Kühler (weniger Kühlmittel, Kühlerschaden) nur anteilig
+        if e.damageDynamicFrictionCoef then e.damageDynamicFrictionCoef = 1 + (e.damageDynamicFrictionCoef - 1) * cooling end
+        if e.damageFrictionCoef then e.damageFrictionCoef = 1 + (e.damageFrictionCoef - 1) * cooling end
+        if e.thermals and e.thermals.setPartConditionRadiator then
+          pcall(e.thermals.setPartConditionRadiator, %f, 1 - (1 - %f) * cooling, 1)
+        end
       end
       for name, st in pairs(energyStorage.getStorages()) do
         if st.capacity and st.setRemainingVolume and st.remainingVolume then
@@ -62,7 +73,8 @@ local function apply(veh, car, fresh)
       end
       pcall(partCondition.createConditionSnapshot, 'reset')
     end
-  ]], tostring(fresh == true), cd.conditionMinFuel or 0.25, cd.conditionMisfireScale or 0.2, tbl, odo, integ, vis))
+  ]], tostring(fresh == true), cd.conditionMinFuel or 0.25, cd.conditionMisfireScale or 0.1, cd.conditionCoolingScale or 0.4,
+      tbl, odo, integ, vis, odo, radInteg))
   pollTimer = 2
   log('I', logTag, string.format('Fahrzeugzustand gesetzt (%s)', tbl == 'nil' and 'Grundwerte' or 'je Teil'))
 end

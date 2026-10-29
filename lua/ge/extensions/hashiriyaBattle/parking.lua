@@ -134,6 +134,18 @@ function M.spawnTransform(area)
   return toVec(area.pos) + vec3(0, 0, 0.3), quatFromDir(toVec(area.dir), vec3(0, 0, 1))
 end
 
+-- Showroom (Neues Spiel, Autokauf): showroom der Kartendatei, sonst die Garagenbucht
+function M.showroomTransform()
+  local md = core().mapData
+  if md and md.showroom and md.showroom.pos then return M.spawnTransform(md.showroom) end
+  return M.spawnTransform(M.find('garage'))
+end
+
+function M.hasShowroom()
+  local md = core().mapData
+  return md and md.showroom and md.showroom.pos and true or false
+end
+
 -- Reparatur ---------------------------------------------------------------------
 
 local function playerDamage()

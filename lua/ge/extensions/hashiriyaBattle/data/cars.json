@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel' (von Alex gewählt). config = Pfad zur .pc-Datei, leer = Standard-Config. priceUsd (BeamNG-Wert) wird in Yen umgerechnet und beim Start vom Startkapital abgezogen. startMoneyYen = Startgeld der Karriere. careerLevel = Level, das der Hauptmenü-Eintrag lädt. careerTraffic = Verkehr beim Karrierestart einschalten, trafficAmount/parkedAmount = Anzahl fahrende/geparkte Autos (-1 = aus den BeamNG-Einstellungen). trafficMinAmount = so viele fahrende Autos mindestens, auch wenn der Verkehr in BeamNG ausgeschaltet ist. trafficGroup = Fahrzeuggruppe für den Verkehr (Agent Traffic JP; fehlt die Mod, kommt der normale BeamNG-Verkehr). condition = Zustand beim Kauf (gebraucht): odometerKm = Laufleistung, integrity 0-1 (unter 1 mehr Motorreibung und Zündaussetzer, also weniger Leistung), visual 0-1 (gealterter Lack). conditionMisfireScale = Anteil der BeamNG-Zündaussetzer bei Verschleiß (0.2 = ein Fünftel). conditionMinFuel = Tank beim Kauf mindestens so voll (0.25 = 25 %).",
+  "_hinweis": "Startautos zur Auswahl bei 'Neues Spiel' (von Alex gewählt). config = Pfad zur .pc-Datei, leer = Standard-Config. priceUsd (BeamNG-Wert) wird in Yen umgerechnet und beim Start vom Startkapital abgezogen. startMoneyYen = Startgeld der Karriere. careerLevel = Level, das der Hauptmenü-Eintrag lädt. careerTraffic = Verkehr beim Karrierestart einschalten, trafficAmount/parkedAmount = Anzahl fahrende/geparkte Autos (-1 = aus den BeamNG-Einstellungen). trafficMinAmount = so viele fahrende Autos mindestens, auch wenn der Verkehr in BeamNG ausgeschaltet ist. trafficGroup = Fahrzeuggruppe für den Verkehr (Agent Traffic JP; fehlt die Mod, kommt der normale BeamNG-Verkehr). condition = Zustand beim Kauf (gebraucht): odometerKm = Laufleistung, integrity 0-1 (unter 1 mehr Motorreibung und Zündaussetzer, also weniger Leistung), visual 0-1 (gealterter Lack). conditionMisfireScale = Anteil der BeamNG-Zündaussetzer bei Verschleiß (0.1 = ein Zehntel). conditionCoolingScale = Anteil von Mehrreibung und Kühlerverschleiß (weniger Kühlmittel) bei Verschleiß, also wie stark ein gebrauchter Motor eher heiß wird (0.4 = 40 %). conditionMinFuel = Tank beim Kauf mindestens so voll (0.25 = 25 %).",
   "starterCars": [
     {
       "id": "starter_covet",
@@ -39,6 +39,7 @@
     }
   ],
   "conditionMisfireScale": 0.1,
+  "conditionCoolingScale": 0.4,
   "conditionMinFuel": 0.25,
   "startMoneyYen": 4500000,
   "careerLevel": "c1",

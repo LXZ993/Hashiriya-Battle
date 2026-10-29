@@ -359,7 +359,7 @@ local function chooseStarterCar(car)
   msg(M.t('msg.welcome'), 6)
 end
 
--- Neues Spiel aus dem Karriere-Assistenten (career.lua): Auto steht schon in der Garagenbucht.
+-- Neues Spiel aus dem Karriere-Assistenten (career.lua): Auto steht im Showroom oder schon in der Garagenbucht.
 function M.newCareer(data)
   M.save = newSave()
   M.save.playerName = data.playerName
@@ -373,7 +373,16 @@ function M.newCareer(data)
   table.insert(M.save.cars, data.car)
   M.save.activeCar = 1
   -- Starterautos sind gebraucht (cars.json: condition)
-  extensions.hashiriyaBattle_condition.initUsedCar(data.car, data.condition, M.getPlayerVehicle())
+  local veh = M.getPlayerVehicle()
+  extensions.hashiriyaBattle_condition.initUsedCar(data.car, data.condition, veh)
+  -- Aus dem Showroom in die Garagenbucht
+  if veh and extensions.hashiriyaBattle_parking.hasShowroom() then
+    local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
+    if pos then
+      local ok = pcall(function() spawn.safeTeleport(veh, pos, rot) end)
+      if not ok then veh:setPositionRotation(pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w) end
+    end
+  end
   extensions.hashiriyaBattle_home.applyClock(extensions.hashiriyaBattle_home.world().startHour)
   M.writeSave()
   M.active = true

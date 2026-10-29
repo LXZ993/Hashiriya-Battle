@@ -127,10 +127,10 @@ function M.onLoadingScreenFadeout()
   showTitleAfterLoad()
 end
 
--- Showroom: Auto in der Garagenbucht -------------------------------------------
+-- Showroom: Auto am Präsentationsplatz der Karte (C1: Werkstatt), sonst in der Garagenbucht -------------------------------------------
 
 local function showroomTransform()
-  return parking().spawnTransform(parking().find('garage'))
+  return parking().showroomTransform()
 end
 
 local function spawnShowroomCar(starter, paint)
