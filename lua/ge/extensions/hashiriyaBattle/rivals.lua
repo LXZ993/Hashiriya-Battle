@@ -262,56 +262,61 @@ local function linkAllowed(nodes, from, to)
   return true, l
 end
 
--- alte Suche (nächste Straße am Zielpunkt), nur falls das Straßennetz keine Verbindungen liefert
+-- Suche über die nächste Straße am Zielpunkt (Rückfall, falls das Straßennetz unterwegs endet).
+-- Einbahn-Kanten in Gegenrichtung (= Gegenfahrbahn) werden abgelehnt.
 local function closestRoadSpawn(pos, dir, distance)
   local target = pos + dir * distance
   local n1, n2 = map.findClosestRoad(target)
-  if not n1 or not n2 then return nil end
+  if not n1 or not n2 then return nil, 'keine Straße am Ziel' end
   local nodes = map.getMap().nodes
+  if not nodes[n1] or not nodes[n2] then return nil, 'Knoten fehlt' end
   local np = nodes[n1].pos
-  if math.abs(np.z - target.z) > 8 or (vec3(np.x, np.y, 0) - vec3(target.x, target.y, 0)):length() > 25 then return nil end
+  if math.abs(np.z - target.z) > 8 or (vec3(np.x, np.y, 0) - vec3(target.x, target.y, 0)):length() > 25 then return nil, 'Ziel neben der Straße' end
   local p1, p2 = nodes[n1].pos, nodes[n2].pos
   local seg = p2 - p1
   local segLen2 = seg:squaredLength()
-  if segLen2 < 0.01 then return nil end
+  if segLen2 < 0.01 then return nil, 'Kante zu kurz' end
   local t = clamp((target - p1):dot(seg) / segLen2, 0, 1)
   local roadDir = seg:normalized()
   if roadDir:dot(dir) < 0 then roadDir = roadDir * -1 end
+  local l = nodes[n1].links and nodes[n1].links[n2]
+  if l and l.oneWay and l.inNode and l.outNode and nodes[l.inNode] and nodes[l.outNode] then
+    local allowed = (nodes[l.outNode].pos - nodes[l.inNode].pos):normalized()
+    if allowed:dot(roadDir) < 0 then return nil, 'Gegenfahrbahn' end
+  end
   return p1 + seg * t + vec3(0, 0, 0.5), roadDir
 end
 
-local linksWarned = false
-
-local function findRoadSpawn(pos, dir, distance)
+-- Läuft das Straßennetz entlang. strict = Einbahn-Richtung beachten.
+local function walkRoad(nodes, pos, dir, distance, strict)
   local n1, n2 = map.findClosestRoad(pos)
-  if not n1 or not n2 then return nil end
-  local nodes = map.getMap().nodes
-  if not nodes[n1] or not nodes[n2] then return nil end
-  if not nodes[n1].links then
-    if not linksWarned then linksWarned = true; log('W', logTag, 'Straßennetz ohne links: alte Spawn-Suche') end
-    return closestRoadSpawn(pos, dir, distance)
-  end
+  if not n1 or not n2 or not nodes[n1] or not nodes[n2] then return nil, 'Spieler nicht auf Straße' end
   local back = distance < 0
   local travel = back and dir * -1 or dir
   local prev, cur = n1, n2
   if (nodes[cur].pos - nodes[prev].pos):dot(travel) < 0 then prev, cur = cur, prev end
-  -- Spieler fährt auf einer Einbahn-Kante falsch herum (Gegenfahrbahn)? Dann lieber nicht spawnen.
-  local okStart = back and linkAllowed(nodes, cur, prev) or linkAllowed(nodes, prev, cur)
-  if not okStart then return nil end
+  local function allowed(from, to)
+    if not strict then
+      local l = nodes[from] and nodes[from].links and nodes[from].links[to]
+      return l ~= nil, l
+    end
+    if back then return linkAllowed(nodes, to, from) end
+    return linkAllowed(nodes, from, to)
+  end
+  if strict and not allowed(prev, cur) then return nil, 'Startkante gegen Einbahn' end
   local remaining = math.abs(distance) - (nodes[cur].pos - pos):length()
   local heading = (nodes[cur].pos - nodes[prev].pos):normalized()
-  for _ = 1, 600 do
+  for _ = 1, 800 do
     local best, bestScore
     for nid in pairs(nodes[cur].links or {}) do
       if nid ~= prev and nodes[nid] then
-        local ok, l
-        if back then ok, l = linkAllowed(nodes, nid, cur) else ok, l = linkAllowed(nodes, cur, nid) end
+        local ok, l = allowed(cur, nid)
         if ok then
           local d = nodes[nid].pos - nodes[cur].pos
           local len = d:length()
           if len > 0.1 then
             local align = (d / len):dot(heading)
-            if align > 0.3 then
+            if align > 0 then
               -- geradeaus bevorzugen, breitere Hauptstraße vor Ausfahrt
               local score = align + ((l and l.drivability) or 1) * 0.1 + math.min(nodes[nid].radius or 0, 10) * 0.02
               if not bestScore or score > bestScore then best, bestScore = nid, score end
@@ -320,7 +325,7 @@ local function findRoadSpawn(pos, dir, distance)
         end
       end
     end
-    if not best then return nil end
+    if not best then return nil, 'Straßennetz endet' end
     local seg = nodes[best].pos - nodes[cur].pos
     local len = seg:length()
     if remaining <= len then
@@ -333,16 +338,39 @@ local function findRoadSpawn(pos, dir, distance)
     heading = seg:normalized()
     prev, cur = cur, best
   end
-  return nil
+  return nil, 'zu viele Knoten'
+end
+
+-- Sucht einen Spawnpunkt `distance` m vor (negativ: hinter) dem Spieler auf seiner Fahrbahn.
+-- Zuerst streng nach Einbahn-Richtung, dann ohne, zuletzt über die nächste Straße am Ziel.
+local function findRoadSpawn(pos, dir, distance)
+  local nodes = map.getMap().nodes
+  local p, d, why1, why2, why3
+  if nodes then
+    p, d = walkRoad(nodes, pos, dir, distance, true)
+    if p then return p, d end
+    why1 = d
+    p, d = walkRoad(nodes, pos, dir, distance, false)
+    if p then return p, d end
+    why2 = d
+  end
+  p, d = closestRoadSpawn(pos, dir, distance)
+  if p then return p, d end
+  why3 = d
+  return nil, string.format('streng: %s / frei: %s / Ziel: %s', tostring(why1), tostring(why2), tostring(why3))
 end
 
 -- Kein anderes Fahrzeug (Verkehr) in der Nähe des Spawnpunkts?
 local function spawnFree(pos, radius)
-  for i = 0, be:getObjectCount() - 1 do
-    local o = be:getObject(i)
-    if o and (o:getPosition() - pos):length() < radius then return false end
-  end
-  return true
+  local ok, free = pcall(function()
+    for i = 0, be:getObjectCount() - 1 do
+      local o = be:getObject(i)
+      if o and (o:getPosition() - pos):length() < radius then return false end
+    end
+    return true
+  end)
+  if not ok then return true end
+  return free
 end
 
 -- Abstand zum nächsten Fahrzeug vor einem Punkt in Fahrtrichtung (für das Losrollen)
@@ -413,15 +441,21 @@ function M.spawnNext(force)
   -- vor oder hinter dem Spieler, in Fahrtrichtung: neue Gegner fast immer vorne, Revanchen öfter auch hinten
   local behindChance = rival.rematch and (settings().spawnBehindRematch or 0.25) or (settings().spawnBehindNew or 0.05)
   local behind = not force and math.random() < behindChance
-  local pos, dir, dist
+  local pos, dir, dist, failWhy
   for _ = 1, 4 do
     dist = behind and -(behindMin + math.random() * (behindMax - behindMin)) or (spawnMin + math.random() * (spawnMax - spawnMin))
     if force then dist = 160 end
     pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), dist)
-    if pos and spawnFree(pos, 30) then break end
+    if pos then
+      if spawnFree(pos, 20) then break end
+      failWhy = 'Verkehr am Spawnpunkt'
+    else
+      failWhy = dir
+    end
     pos = nil
   end
   if not pos then
+    log('I', logTag, 'Kein Rivalen-Spawnpunkt (' .. tostring(dist and math.floor(dist)) .. ' m): ' .. tostring(failWhy))
     if force then core().msg(core().t('msg.noRoad')) end
     return
   end
@@ -582,8 +616,9 @@ local function onUpdate(dtReal, dtSim)
   cooldown = cooldown - dtSim
   if cooldown > 0 or busy then return end
   if player and player:getVelocity():length() > minSpawnSpeed then
-    M.spawnNext(false)
     cooldown = spawnCooldown
+    local ok, err = pcall(M.spawnNext, false)
+    if not ok then log('E', logTag, 'Rivalen-Spawn fehlgeschlagen: ' .. tostring(err)) end
   end
 end
 
