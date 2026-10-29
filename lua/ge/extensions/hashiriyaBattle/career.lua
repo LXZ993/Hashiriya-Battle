@@ -22,9 +22,73 @@ local function setLayout(name)
   if gs and gs.setGameState then pcall(gs.setGameState, 'freeroam', name, 'freeroam') end
 end
 
-local function starters()
+-- Seed-System: aus Fahrername und Kennzeichen wird ein fester Zufallswert. Er wählt starterOffer Autos
+-- (verschiedene Modelle) aus dem Pool starterCars und würfelt ihren Gebrauchtzustand (conditionRange).
+-- Gleicher Name und gleiches Kennzeichen = gleiches Angebot.
+local function seedFrom(text)
+  local h = 7
+  for i = 1, #text do h = (h * 31 + text:byte(i)) % 2147483646 end
+  return h + 1
+end
+
+local function seededRandom(seed)
+  local x = seed
+  return function()
+    x = (x * 16807) % 2147483647 -- Park-Miller, bleibt in LuaJIT exakt
+    return (x - 1) / 2147483646
+  end
+end
+
+local function pool()
   local d = core().carsData
   return d and d.starterCars or {}
+end
+
+local function rollCondition(rand, entry)
+  local d = core().carsData or {}
+  local r = {}
+  for k, v in pairs(d.conditionRange or {}) do r[k] = v end
+  for k, v in pairs(entry.conditionRange or {}) do r[k] = v end
+  local function pick(key, default)
+    local range = r[key]
+    if not range then return default end
+    return range[1] + rand() * (range[2] - range[1])
+  end
+  return {
+    odometerKm = math.floor(pick('odometerKm', 150000) / 1000 + 0.5) * 1000,
+    integrity = math.floor(pick('integrity', 0.85) * 100 + 0.5) / 100,
+    visual = math.floor(pick('visual', 0.7) * 100 + 0.5) / 100,
+    fuel = math.floor(pick('fuel', 0.4) * 100 + 0.5) / 100,
+  }
+end
+
+local function buildOffer(name, plate)
+  local d = core().carsData or {}
+  local list = {}
+  for _, e in ipairs(pool()) do table.insert(list, e) end
+  local rand = seededRandom(seedFrom(string.lower(name or '') .. '|' .. string.upper(plate or '')))
+  for i = #list, 2, -1 do
+    local j = math.floor(rand() * i) + 1
+    list[i], list[j] = list[j], list[i]
+  end
+  local offer, models = {}, {}
+  for _, e in ipairs(list) do
+    if #offer >= (d.starterOffer or 3) then break end
+    if not models[e.model] then
+      models[e.model] = true
+      local car = {}
+      for k, v in pairs(e) do car[k] = v end
+      car.condition = rollCondition(rand, e)
+      table.insert(offer, car)
+    end
+  end
+  -- günstigstes zuerst
+  table.sort(offer, function(a, b) return (a.priceUsd or 30000) < (b.priceUsd or 30000) end)
+  return offer
+end
+
+local function starters()
+  return flow and flow.offer or pool()
 end
 
 local function starterById(id)
@@ -178,6 +242,12 @@ local function carSpecs(starter)
   add('spec.drivetrain', info.Drivetrain)
   add('spec.transmission', info.Transmission)
   add('spec.price', eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0)))
+  local cond = starter.condition
+  if cond then
+    add('spec.odometer', cond.odometerKm and (tostring(cond.odometerKm):reverse():gsub('(%d%d%d)', '%1.'):reverse():gsub('^%.', '')) .. ' km')
+    add('spec.condition', cond.integrity and string.format('%d %%', math.floor(cond.integrity * 100 + 0.5)))
+    add('spec.fuel', cond.fuel and string.format('%d %%', math.floor(math.max(cond.fuel, (core().carsData or {}).conditionMinFuel or 0.25) * 100 + 0.5)))
+  end
   local name = starter.name or ''
   local modelName = brand ~= '' and name:sub(1, #brand) == brand and name:sub(#brand + 2) or name
   return specs, info.Drivetrain, brand, modelName, eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0))
@@ -240,7 +310,7 @@ local function startCareer()
     experience = flow.experience,
     carPrice = starterPriceYen(starter),
     condition = starter.condition,
-    car = { model = starter.model, config = cfg, name = starter.name, plate = plate,
+    car = { model = starter.model, config = cfg, name = starter.name, plate = plate, seeded = true,
       paintId = flow.paintId, paintIds = { flow.paintId }, ownedPaints = flow.paintId and { [flow.paintId] = true } or nil },
   })
   M.close()
@@ -303,6 +373,18 @@ function M.action(arg)
       flow.plate = (plate or ''):gsub('[%c]', ''):sub(1, 12)
       flow.platePick = nil
       flow.step = 'car'
+      local seedPlate = flow.plate
+      if seedPlate == '' then
+        local veh = core().getPlayerVehicle()
+        local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)
+        seedPlate = okP and p or ''
+      end
+      local key = flow.name .. '|' .. tostring(seedPlate)
+      if flow.offerKey ~= key then
+        flow.offerKey = key
+        flow.offer = buildOffer(flow.name, seedPlate)
+        flow.carId, flow.paintId = nil, nil
+      end
       if not flow.carId and starters()[1] then selectCar(starters()[1].id) end
     end
   elseif step == 'car' then

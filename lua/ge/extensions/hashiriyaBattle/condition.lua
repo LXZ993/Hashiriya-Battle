@@ -1,5 +1,5 @@
 -- Hashiriya Battle: Zustand (Laufleistung und Verschleiß) des Spielerautos
--- Starterautos sind gebraucht (cars.json: starterCars[].condition). BeamNG rechnet daraus über partCondition
+-- Starterautos sind gebraucht (Seed-System in career.lua, cars.json: conditionRange). BeamNG rechnet daraus über partCondition
 -- Reibung und Zündaussetzer am Motor. Pro Teil merken wir Laufleistung und Grundzustand am Auto im Spielstand
 -- (car.parts) und setzen beides nach jedem Respawn wieder. Neu gekaufte Teile starten neu (0 km, Zustand 1).
 local M = {}
@@ -45,7 +45,7 @@ local function apply(veh, car, fresh)
   -- bei einem Respawn den Tankinhalt unverändert lassen. Danach den Reset-Stand neu speichern (R-Taste, Reparatur).
   veh:queueLuaCommand(string.format([[
     if partCondition then
-      local fresh, minFuel, misfire, cooling = %s, %f, %f, %f
+      local fresh, minFuel, misfire, cooling, fuelShare = %s, %f, %f, %f, %f
       local before = {}
       for name, st in pairs(energyStorage.getStorages()) do
         if st.capacity and st.remainingVolume then before[name] = st.remainingVolume end
@@ -65,7 +65,9 @@ local function apply(veh, car, fresh)
       for name, st in pairs(energyStorage.getStorages()) do
         if st.capacity and st.setRemainingVolume and st.remainingVolume then
           if fresh then
-            if st.remainingVolume < st.capacity * minFuel then st:setRemainingVolume(st.capacity * minFuel) end
+            -- Kaufzustand: Tank aus dem Seed (fuelShare), sonst BeamNG-Wert; nie unter minFuel
+            local want = fuelShare >= 0 and math.max(fuelShare, minFuel) or math.max(st.remainingVolume / st.capacity, minFuel)
+            st:setRemainingVolume(st.capacity * want)
           elseif before[name] then
             st:setRemainingVolume(before[name])
           end
@@ -74,6 +76,7 @@ local function apply(veh, car, fresh)
       pcall(partCondition.createConditionSnapshot, 'reset')
     end
   ]], tostring(fresh == true), cd.conditionMinFuel or 0.25, cd.conditionMisfireScale or 0.1, cd.conditionCoolingScale or 0.4,
+      wear.fuel or -1,
       tbl, odo, integ, vis, odo, radInteg))
   pollTimer = 2
   log('I', logTag, string.format('Fahrzeugzustand gesetzt (%s)', tbl == 'nil' and 'Grundwerte' or 'je Teil'))
@@ -121,7 +124,7 @@ end
 function M.initUsedCar(car, condition, veh)
   if not car then return end
   condition = condition or {}
-  car.wear = { odometerKm = condition.odometerKm or 0, integrity = condition.integrity or 1, visual = condition.visual or 1 }
+  car.wear = { odometerKm = condition.odometerKm or 0, integrity = condition.integrity or 1, visual = condition.visual or 1, fuel = condition.fuel }
   car.parts = nil
   if veh then apply(veh, car, true) end
 end
@@ -131,7 +134,7 @@ end
 function M.syncStarterWear(save)
   local cd = core().carsData or {}
   for _, car in ipairs(save and save.cars or {}) do
-    if car.wear then
+    if car.wear and not car.seeded then
       for _, st in ipairs(cd.starterCars or {}) do
         local cond = st.condition
         if cond and st.model == car.model and (car.wearFrom == nil or car.wearFrom == st.id) then

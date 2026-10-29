@@ -49,6 +49,8 @@ angular.module('beamng.apps')
             '<div class="hbm-item" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
             '<div class="hbm-item" ng-if="s.tow" ng-class="{\'hbm-off\': !s.tow.can}" ng-click="s.tow.can && towClick()" title="{{ s.tow.reason }}"><i class="hbm-ico" ng-bind-html="ico(\'tow\')"></i>' +
               '<span class="hbm-car-name">{{ towArmed ? s.t[\'menu.towConfirm\'] : s.t[\'menu.tow\'] }}</span><span class="hbm-price">{{ s.tow.can ? s.tow.cost : (s.tow.reason || s.tow.cost) }}</span></div>' +
+            '<div class="hbm-item" ng-if="s.nap" ng-class="{\'hbm-off\': !s.nap.can}" ng-click="s.nap.can && act(\'nap\')" title="{{ s.nap.reason }}"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>' +
+              '<span class="hbm-car-name">{{ s.t[\'menu.nap\'] }}</span><span class="hbm-price" ng-if="!s.nap.can">{{ s.nap.reason }}</span></div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')"><i class="hbm-ico" ng-bind-html="ico(\'carsChase\')"></i>{{ s.t[\'menu.callRival\'] }}</div>' +
@@ -199,8 +201,9 @@ angular.module('beamng.apps')
             '<div class="hbm-stat"><b>{{ s.day }}</b></div>' +
             '<div ng-if="s.home.tab == \'main\'">' +
               '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
-              '<div class="hbm-item" ng-click="act(\'sleep\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'home.sleep\'] }}</div>' +
-              '<div class="hbm-note">{{ s.t[\'home.sleepNote\'] }}</div>' +
+              '<div class="hbm-item" ng-class="{\'hbm-off\': s.home.sleep && !s.home.sleep.can}" ng-click="(!s.home.sleep || s.home.sleep.can) && act(\'sleep\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>' +
+                '<span class="hbm-car-name">{{ s.home.sleep.can ? s.t[\'home.sleepUntil\'] : s.t[\'home.sleepFrom\'] }} {{ s.home.sleep.wake }}</span></div>' +
+              '<div class="hbm-note">{{ s.home.sleep.can ? s.t[\'home.sleepNote\'] : s.t[\'home.sleepEarlyNote\'] }}</div>' +
               '<div class="hbm-item" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
               '<div class="hbm-item" ng-click="act(\'tutorial\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'home.tutorial\'] }}</div>' +
               '<div class="hbm-item hbm-off"><i class="hbm-ico" ng-bind-html="ico(\'fastTravel\')"></i>{{ s.t[\'home.travel\'] }}</div>' +

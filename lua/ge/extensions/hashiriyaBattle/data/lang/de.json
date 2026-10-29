@@ -244,7 +244,7 @@
   "msg.speedTrapsAll": "Alle Radarfallen ausgelöst! Jemand hat dich bemerkt …",
   "home.day": "Tag %d",
   "home.sleep": "Schlafen (bis 20:00)",
-  "home.sleepNote": "Ein neuer Tag beginnt, der Autohändler hat neue Angebote.",
+  "home.sleepNote": "Die Zeit springt vor. Nach Mitternacht beginnt ein neuer Tag, der Autohändler hat dann neue Angebote.",
   "home.travel": "Reisen",
   "home.travelSoon": "Andere Maps und Strecken kommen später.",
   "home.lexicon": "Rivalen-Lexikon",
@@ -349,5 +349,17 @@
   "shop.item.interior": "Innenraum",
   "shop.item.roof": "Dach",
   "shop.item.mudflap": "Schmutzfänger",
-  "shop.item.underglow": "Unterbodenbeleuchtung"
+  "shop.item.underglow": "Unterbodenbeleuchtung",
+  "home.sleepUntil": "Schlafen bis",
+  "home.sleepFrom": "Schlafen ab",
+  "home.sleepEarlyNote": "Jetzt ist Battle-Zeit. Schlafen geht erst ab 22:00.",
+  "msg.sleepEarly": "Zu früh zum Schlafen. Ab %s geht es.",
+  "menu.nap": "Nickerchen im Auto",
+  "msg.nap.notHere": "Ein Nickerchen geht nur auf einem Parkplatz.",
+  "msg.nap.battle": "Während eines Battles nicht möglich.",
+  "msg.nap.moving": "Erst anhalten.",
+  "msg.napped": "Kurz die Augen zugemacht: %s h geschlafen.",
+  "spec.odometer": "Laufleistung",
+  "spec.condition": "Zustand",
+  "spec.fuel": "Tank"
 }

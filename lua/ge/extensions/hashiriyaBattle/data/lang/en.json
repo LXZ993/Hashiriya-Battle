@@ -244,7 +244,7 @@
   "msg.speedTrapsAll": "Every speed trap triggered! Someone has noticed you …",
   "home.day": "Day %d",
   "home.sleep": "Sleep (until 8 pm)",
-  "home.sleepNote": "A new day begins, the car dealer has new offers.",
+  "home.sleepNote": "Time skips ahead. After midnight a new day starts and the car dealer has new offers.",
   "home.travel": "Travel",
   "home.travelSoon": "Other maps and tracks come later.",
   "home.lexicon": "Rival lexicon",
@@ -349,5 +349,17 @@
   "shop.item.interior": "Interior",
   "shop.item.roof": "Roof",
   "shop.item.mudflap": "Mud flaps",
-  "shop.item.underglow": "Underglow"
+  "shop.item.underglow": "Underglow",
+  "home.sleepUntil": "Sleep until",
+  "home.sleepFrom": "Sleep from",
+  "home.sleepEarlyNote": "It's battle time. You can only sleep from 22:00.",
+  "msg.sleepEarly": "Too early to sleep. Possible from %s.",
+  "menu.nap": "Nap in the car",
+  "msg.nap.notHere": "You can only nap at a parking area.",
+  "msg.nap.battle": "Not possible during a battle.",
+  "msg.nap.moving": "Stop first.",
+  "msg.napped": "Closed your eyes for a bit: slept %s h.",
+  "spec.odometer": "Mileage",
+  "spec.condition": "Condition",
+  "spec.fuel": "Fuel"
 }

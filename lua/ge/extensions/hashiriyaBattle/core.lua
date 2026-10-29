@@ -644,6 +644,10 @@ local function buildUiState()
     if tow and tow.reason ~= 'atGarage' then
       st.tow = { cost = eco.formatYen(tow.cost), can = tow.reason == nil, reason = tow.reason and M.t('msg.tow.' .. tow.reason) or nil }
     end
+    local nap = extensions.hashiriyaBattle_home.napInfo()
+    if nap and nap.reason ~= 'notHere' then
+      st.nap = { can = nap.can, reason = nap.reason and M.t('msg.nap.' .. nap.reason) or nil }
+    end
     st.day = extensions.hashiriyaBattle_home.dayText()
     st.clock = extensions.hashiriyaBattle_home.clockInfo()
     st.watch = extensions.hashiriyaBattle_home.watchHud()
@@ -785,6 +789,8 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_dealer.buy(tonumber(arg))
   elseif action == 'switchCar' then
     extensions.hashiriyaBattle_dealer.switchCar(tonumber(arg))
+  elseif action == 'nap' then
+    extensions.hashiriyaBattle_home.nap()
   elseif action == 'sleep' then
     extensions.hashiriyaBattle_home.sleep()
   elseif action == 'homeTab' then

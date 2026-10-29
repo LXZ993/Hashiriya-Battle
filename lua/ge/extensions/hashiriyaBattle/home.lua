@@ -117,16 +117,77 @@ local function newDay()
   log('I', logTag, 'Neuer Tag: ' .. save.day)
 end
 
+-- Schlafen zu Hause: tagsüber bis zum Abend (wakeHour), nachts ab sleepFrom bis zum Morgen (nightWakeHour).
+-- Zwischen nightFrom und sleepFrom (20 bis 22 Uhr) geht es nicht, dann ist Battle-Zeit.
+function M.sleepInfo()
+  local w = M.world()
+  local h = M.hour() or 0
+  local from, nightFrom = w.sleepFrom or 22, w.nightFrom or 20
+  local morning = w.nightWakeHour or 6
+  if h >= nightFrom and h < from then return { can = false, wake = from, reason = 'early' } end
+  if h >= from or h < morning then return { can = true, wake = morning, newDay = h >= from } end
+  return { can = true, wake = w.wakeHour or 20, newDay = false }
+end
+
 function M.sleep()
   local c = core()
   if not c.save then return end
-  -- Schlafen geht nur bis zum nächsten Abend: wer abends schläft, überspringt die Nacht
-  local h = M.hour() or 0
-  M.applyClock(M.world().wakeHour)
-  -- nur wenn der nächste Abend auf einem neuen Datum liegt (nach Mitternacht oder tagsüber bleibt es derselbe Tag)
-  if h >= M.world().wakeHour then newDay() end
+  local info = M.sleepInfo()
+  if not info.can then
+    c.msg(c.t('msg.sleepEarly', string.format('%02d:00', info.wake)), 4)
+    return
+  end
+  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
+  M.applyClock(info.wake)
+  if info.newDay then newDay() end
   c.writeSave()
   c.msg(c.t('msg.slept', M.getDay()), 5)
+end
+
+-- Nickerchen im Auto auf einem Parkplatz (napSpots der Kartendatei, sonst an jedem Parkplatz): 0,5 bis 2 h
+local napMaxSpeed = 1
+
+local function napSpotNear(pos)
+  local md = core().mapData or {}
+  for _, sp in ipairs(md.napSpots or {}) do
+    if (pos - vec3(sp.pos[1], sp.pos[2], sp.pos[3])):length() <= (sp.radius or 60) then return sp end
+  end
+  for _, a in ipairs(md.parkingAreas or {}) do
+    if not a.footOnly and (pos - vec3(a.pos[1], a.pos[2], a.pos[3])):length() <= 40 then return a end
+  end
+  return nil
+end
+
+function M.napInfo()
+  local c = core()
+  local veh = c.getPlayerVehicle()
+  if not veh or not c.save then return nil end
+  local reason = nil
+  if not napSpotNear(veh:getPosition()) then reason = 'notHere'
+  elseif extensions.hashiriyaBattle_battle.isBusy() then reason = 'battle'
+  elseif veh:getVelocity():length() > napMaxSpeed then reason = 'moving' end
+  return { can = reason == nil, reason = reason }
+end
+
+function M.nap()
+  local c = core()
+  local info = M.napInfo()
+  if not info then return end
+  if info.reason then
+    c.msg(c.t('msg.nap.' .. info.reason), 3)
+    return
+  end
+  local range = M.world().napHours or { 0.5, 2 }
+  local dur = range[1] + math.random() * (range[2] - range[1])
+  dur = math.floor(dur * 4 + 0.5) / 4 -- auf Viertelstunden
+  local h = M.hour() or 0
+  local wake = h + dur
+  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
+  M.applyClock(wake % 24)
+  if wake >= 24 then newDay() end
+  c.writeSave()
+  local hh, mm = math.floor(dur), math.floor((dur % 1) * 60 + 0.5)
+  c.msg(c.t('msg.napped', mm > 0 and string.format('%d:%02d', hh, mm) or tostring(hh)), 5)
 end
 
 -- Merkliste: bis zu 5 Rivalen aus dem Lexikon, die man suchen oder schlagen will (HUD zeigt sie an)
@@ -236,6 +297,8 @@ end
 
 function M.getUiState(tab)
   local st = { tab = tab or 'main', day = M.getDay() }
+  local si = M.sleepInfo()
+  st.sleep = { can = si.can, wake = string.format('%02d:00', si.wake) }
   if st.tab == 'lexicon' then
     st.lexicon = lexicon()
     st.watchCount = #M.watchList()
