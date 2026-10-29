@@ -375,9 +375,22 @@ end
 
 -- HUD-Daten für die UI-App ------------------------------------------------------------
 
+-- Spruch des Rivalen (lines.challenge / lines.win / lines.lose aus rivals.json, aus Sicht des Rivalen):
+-- challenge beim Angleichen und Countdown, nach dem Battle win (Rivale gewinnt) oder lose (Rivale verliert)
+local function rivalQuote()
+  local lines = battle.rival.lines
+  if type(lines) ~= 'table' then return nil end
+  local key
+  if state == 'sync' or state == 'countdown' then key = 'challenge'
+  elseif state == 'result' then key = battle.won and 'lose' or 'win' end
+  local text = key and extensions.hashiriyaBattle_progress.loc(lines[key]) or ''
+  return text ~= '' and text or nil
+end
+
 function M.getHudState()
   if not battle then return nil end
   return {
+    quote = rivalQuote(),
     state = state,
     rivalName = battle.rival.name,
     playerSp = math.max(math.floor(battle.playerSp), 0),

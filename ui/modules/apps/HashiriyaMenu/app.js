@@ -229,6 +229,7 @@ angular.module('beamng.apps')
                       '<div class="hbm-lex-sub">{{ r.car }}</div>' +
                       '<div class="hbm-lex-status" ng-if="r.status">{{ r.status }}</div>' +
                       '<div class="hbm-lex-text" ng-if="r.desc">{{ r.desc }}</div>' +
+                      '<div class="hbm-lex-quote" ng-if="r.quote">„{{ r.quote }}“</div>' +
                     '</div>' +
                   '</div>' +
                 '</div>' +
@@ -487,6 +488,7 @@ angular.module('beamng.apps')
           '.hbm-lex-name em{font-weight:400;font-size:11px;color:var(--o2);}' +
           '.hbm-lex-boss{background:#ff5a36;}' +
           '.hbm-lex-text{font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);margin-top:2px;}' +
+          '.hbm-lex-quote{margin-top:3px;font-size:11px;font-style:italic;opacity:.75;border-left:2px solid var(--tc,#ff6600);padding-left:6px;}' +
           '.hbm-lex{padding:6px 18px;border-bottom:1px solid rgba(255,255,255,.05);}' +
           '.hbm-lex-top{display:flex;align-items:baseline;gap:8px;}' +
           '.hbm-lex-name{flex:1;font-size:13px;font-weight:800;}' +

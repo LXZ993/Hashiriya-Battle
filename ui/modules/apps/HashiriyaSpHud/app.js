@@ -2,7 +2,7 @@
 // Aufbau: Autonamen links/rechts, Zeit in der Mitte, zwei schräge SP-Balken mit "SP" dazwischen,
 // darunter Titel/Rivalenname und Abstand. Die Balken leeren sich von außen zur Mitte; ein heller
 // Nachlauf-Balken zeigt kurz, wie viel SP gerade verloren ging.
-// Daten: Hook 'HashiriyaState' (battle = battle.lua getHudState()).
+// Daten: Hook 'HashiriyaState' (battle = battle.lua getHudState()). Darunter der Spruch des Rivalen (quote).
 angular.module('beamng.apps')
 .directive('hashiriyaSpHud', [function () {
   return {
@@ -52,6 +52,7 @@ angular.module('beamng.apps')
           '<div class="hbh-result" ng-if="b.state == \'result\'" ng-class="b.won ? \'hbh-win\' : \'hbh-lose\'">' +
             '<div class="hbh-result-band"><span>{{ b.won ? t[\'hud.win\'] : t[\'hud.lose\'] }}</span></div>' +
           '</div>' +
+          '<div class="hbh-quote" ng-if="b.quote"><span class="hbh-quote-who">{{ b.rivalName }}</span>{{ b.quote }}</div>' +
         '</div>' +
 
         '<style>' +
@@ -119,6 +120,10 @@ angular.module('beamng.apps')
             'background:linear-gradient(to right,rgba(255,102,0,0),rgba(255,102,0,.92) 18%,rgba(255,102,0,.92) 82%,rgba(255,102,0,0));}' +
           '.hbh-lose .hbh-result-band{background:linear-gradient(to right,rgba(40,40,44,0),rgba(40,40,44,.92) 18%,rgba(40,40,44,.92) 82%,rgba(40,40,44,0));}' +
           '.hbh-result-band span{display:inline-block;transform:skewX(20deg);font-size:30px;font-weight:900;font-style:italic;letter-spacing:4px;}' +
+          '.hbh-quote{margin:6px auto 0;max-width:560px;text-align:center;font-size:13px;font-style:italic;line-height:17px;' +
+            'color:var(--w);padding:4px 14px;background:rgba(12,12,14,.6);border-left:3px solid var(--o);animation:hbhFade .4s ease-out;}' +
+          '.hbh-quote-who{display:block;font-size:9px;font-style:normal;font-weight:800;letter-spacing:2px;color:var(--o2);text-transform:uppercase;}' +
+          '@keyframes hbhFade{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:none;}}' +
           '@keyframes hbhSlide{from{transform:skewX(-20deg) translateX(-40px);opacity:0;}to{transform:skewX(-20deg);opacity:1;}}' +
         '</style>' +
       '</div>',

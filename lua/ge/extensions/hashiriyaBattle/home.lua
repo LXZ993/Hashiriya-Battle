@@ -274,6 +274,7 @@ local function lexicon()
       nick = hidden and '' or pr.loc(r.nick),
       car = hidden and '???' or (rv.vehicleName and rv.vehicleName(r.model) or r.model),
       desc = hidden and pr.loc(r.hint) or pr.loc(r.desc),
+      quote = (not hidden and r.lines) and pr.loc(r.lines.challenge) or nil,
       leader = r.leader or false, boss = r.boss or false,
       beaten = beaten,
       id = r.id, watched = M.isWatched(r.id),
