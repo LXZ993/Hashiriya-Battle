@@ -32,12 +32,14 @@ local cfg = {
   modeSwitchHysteresis = 10,-- m, bevor die Gegner-KI zwischen Flucht und Jagd wechselt
   resultTime = 9,           -- s Ergebnis und Spruch nach dem Battle, dann fährt der Rivale weiter
   -- KI des Rivalen im Battle:
+  --  'own'     = eigener Fahrer (hashiriyaDriver, Standard): Ideallinie, weicht knapp aus, bremst erst zuletzt;
+  --              Werte in data/driver.json und pro Rivale in rivals.json "driver". Gibt er auf, übernimmt 'fleeGuard'
   --  'fleeGuard' = vorne BeamNG-Flucht-KI (zügig, weicht seitlich aus) plus eigener Bremsschutz (siehe guard*),
   --                hinten 'span' mit eigenem Gummiband (Standard)
   --  'span'    = freie Fahrt ohne Tempolimit und Spurzwang: weicht aus, bremst nur wenn nötig, überholt zügig
   --  'traffic' = Verkehrsmodus ohne Tempolimit: sehr vorsichtig, bremst oft mitten im Überholen
   --  'pursuit' = BeamNG flee (vorne) / chase (hinten): flee bremst nicht für Verkehr, chase rammt dich von hinten
-  rivalAiMode = 'fleeGuard',
+  rivalAiMode = 'own',
   -- Bremsschutz für die Flucht-KI (BeamNG lässt sie wegen anderer Autos nie bremsen, nur seitlich ausweichen):
   -- steht ein langsameres Auto in seiner Spur voraus und würde er in weniger als guardTtc Sekunden auffahren,
   -- wird sein Tempo kurz auf das des Vordermanns begrenzt
@@ -105,6 +107,14 @@ end
 
 function M.reset(cooldown)
   offer = nil
+  -- Battle abgebrochen: eigenen Fahrer stoppen, BeamNG-KI fährt im Verkehr weiter
+  if battle and battle.ownAi then
+    local veh = rivals() and rivals().getRivalVehicle()
+    if veh then
+      extensions.hashiriyaBattle_driver.stop(veh)
+      rivals().setCruise(veh, battle.rival)
+    end
+  end
   if state == 'countdown' or state == 'sync' then releasePlayerSpeed() end
   state = 'idle'
   battle = nil
@@ -337,11 +347,38 @@ local function spanCommand(playerId)
     playerId, battle.rubberAggr or battle.rival.aggression or 0.6)
 end
 
+local function driver() return extensions.hashiriyaBattle_driver end
+
+-- welche KI gerade gilt: eigener Fahrer, solange er nicht aufgegeben hat
+local function aiMode(rivalVeh)
+  if cfg.rivalAiMode == 'own' then
+    local d = driver()
+    if d and d.enabled() and not d.hasFailed(rivalVeh:getID()) then return 'own' end
+    return 'fleeGuard'
+  end
+  return cfg.rivalAiMode
+end
+
 local function setRivalAi(rivalVeh, mode)
+  local ai = aiMode(rivalVeh)
+  local player = core().getPlayerVehicle()
+  if ai == 'own' then
+    -- eigener Fahrer: entscheidet vorne und hinten selbst, nur einmal starten
+    if not battle.ownAi then
+      battle.ownAi = true
+      battle.rivalMode = 'own'
+      driver().start(rivalVeh, battle.rival, player:getID())
+    end
+    return
+  end
+  if battle.ownAi then
+    -- Fahrer hat aufgegeben: BeamNG-KI übernimmt
+    battle.ownAi = false
+    battle.rivalMode = nil
+  end
   if battle.rivalMode == mode then return end
   battle.rivalMode = mode
-  local player = core().getPlayerVehicle()
-  if cfg.rivalAiMode == 'fleeGuard' then
+  if ai == 'fleeGuard' then
     battle.guardSpeed, battle.guardHold = nil, 0
     if mode == 'flee' then
       -- vorne: Flucht-KI mit BeamNG-Gummiband, Bremsschutz läuft in updateGuard
@@ -357,14 +394,14 @@ local function setRivalAi(rivalVeh, mode)
     end
     return
   end
-  if cfg.rivalAiMode == 'span' then
+  if ai == 'span' then
     -- gilt vorne und hinten gleich: nur einmal setzen (ein neues setMode würde die Route neu planen)
     if battle.spanAi then return end
     battle.spanAi = true
     rivalVeh:queueLuaCommand(spanCommand(player:getID()))
     return
   end
-  if cfg.rivalAiMode == 'traffic' then
+  if ai == 'traffic' then
     -- Verkehrsmodus ohne Tempolimit und ohne Spurzwang, Gummiband wie bei flee/chase (wartet vorne, holt hinten auf)
     -- gilt vorne und hinten gleich: nur einmal setzen (ein neues setMode würde die Route neu planen)
     if battle.trafficAi then return end
@@ -386,6 +423,7 @@ local function finishBattle(won)
   local rivalVeh = rivals().getRivalVehicle()
   if rivalVeh then
     setWarnSignal(rivalVeh, false)
+    if battle.ownAi then driver().stop(rivalVeh); battle.ownAi = false end
     rivals().setCruise(rivalVeh, battle.rival)
   end
   core().onBattleResult(battle.rival, won, {
@@ -461,7 +499,11 @@ local function updateBattle(dt, player, rivalVeh)
     setRivalAi(rivalVeh, gap >= 0 and 'flee' or 'chase')
   end
 
-  if cfg.rivalAiMode == 'fleeGuard' and battle.rivalMode == 'flee' then
+  if battle.ownAi then
+    driver().update(dt, rivalVeh, gap, battle.rivalSp / math.max(battle.rivalMaxSp, 1), battle.playerSp / math.max(cfg.playerMaxSp, 1))
+  end
+
+  if not battle.ownAi and aiMode(rivalVeh) == 'fleeGuard' and battle.rivalMode == 'flee' then
     local ok, err = pcall(updateGuard, dt, rivalVeh)
     if not ok and not battle.guardWarned then
       battle.guardWarned = true
