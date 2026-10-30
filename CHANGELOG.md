@@ -1,6 +1,44 @@
 # Changelog Hashiriya Battle
 
-## Alpha 1 (Stand 29.10.2026)
+## Alpha 0.3 (Stand 30.10.2026)
+
+Alle Änderungen seit Alpha 0.2 (29.10.2026, intern noch „Alpha 1“ genannt).
+
+### Rivalen und Crews
+- Großer Kader: 26 Crews mit Leader und 42 Wanderer, zusammen fast 300 Rivalen. Jeder Rivale hat ein eigenes japanisches Kennzeichen, manche eine feste Lackierung.
+- Keine Markennamen mehr bei Rivalen. Alle haben stimmige japanische oder ausländische Namen und eine kurze Hintergrundgeschichte.
+- Jeder Rivale hat eigene Sprüche beim Herausfordern, bei Sieg und bei Niederlage. Sie erscheinen in einer neuen Sprechblase mit Silhouetten-Porträt und im Rivalen-Lexikon.
+- Neues Ranglisten-System mit 15 Rängen. Tuning-Stufen hängen jetzt am Rang.
+- Hinweise auf Wanderer bleiben verborgen, bis man von ihnen gehört hat.
+- Rang und Spitzname stehen im Status-HUD.
+
+### Battles
+- Eigene Rivalen-KI: Vorne fährt der Rivale wie ein echter Hashiriya durch den Verkehr, weicht aus und bremst trotzdem rechtzeitig. Hinten hängt er sich mit Gummiband an dich und bleibt dran.
+- Beim Herausfordern steht der Spruch des Rivalen 6 Sekunden da, danach zählt der Countdown von 5 herunter. Das Ergebnis bleibt 9 Sekunden stehen.
+- Nach einem Frühstart kann man denselben Rivalen nach 30 Sekunden erneut herausfordern.
+- Rivalen spawnen zuverlässiger: richtige Fahrtrichtung auf Einbahnstraßen, keine Spawns an Straßenrändern oder in Lücken, bei Problemen neuer Versuch.
+
+### Neues Spiel, Startauto und Händler
+- Neuer Titelbildschirm mit eigener Kameraansicht, Uhrzeit und Verkehr schon im Hintergrund. Credits im Titelbildschirm.
+- Japanische Kennzeichen (Region, Typ und Sonderkennzeichen) beim neuen Spiel, beim Händler und in der Garage wählbar.
+- Startauto-Auswahl mit Kacheln für Leistung, Drehmoment und Gewicht sowie Balken für Zustand und Tank. Schwächere Startautos sind besser erhalten.
+- Startautos kosten höchstens so viel wie das Startkapital.
+- Farbwechsel im Showroom zeigt das Auto direkt in der neuen Farbe.
+- Der Autohändler bietet nur Autos an, die zum Fortschritt passen (Leistungsgrenze nach den erreichbaren Rivalen). Händlerautos sind gebraucht, Importe sehr selten.
+
+### Tag und Freizeit
+- Tagesjobs: BeamNG-Missionen „Garage zu Garage“ bringen Yen. Time Trials sind ausgeblendet.
+- Schlafen und Nickerchen mit schwarzem Bildschirm, die Uhr läuft im Zeitraffer bis zur Aufwachzeit.
+
+### Fehlersuche
+- Mod-Log in settings/hashiriya_battle/logs im BeamNG-Userordner (begrenzte Größe).
+- Menü > Fehlerbericht erstellen schreibt alles Wichtige in eine Datei, die man dem Entwickler schicken kann.
+
+### Release-Build
+- Im Release-Build sind alle Dev- und Cheat-Werkzeuge aus (Geld, Siege, Ruf, Uhr, Rivalen rufen, Reparieren/Tanken gratis, Position merken, Config-Export).
+- Während der Karriere sind Zurücksetzen, Konsole, Editor, Zeitlupe, Schnellreise über die Karte und Uhrzeit-Änderungen gesperrt. Der Node Grabber bleibt mit fester Stärke erlaubt.
+
+## Alpha 0.2 (Stand 29.10.2026, intern „Alpha 1“)
 
 Alle Änderungen seit dem Testbuild von Henry (Stand 28.10.2026 vormittags, Commit 23d4ccd).
 
@@ -57,7 +95,7 @@ Alle Änderungen seit dem Testbuild von Henry (Stand 28.10.2026 vormittags, Comm
 - Tanken mit gedrückter Taste funktioniert durchgehend. Der Tanksound stoppt sauber.
 
 ### HUD und Menü
-- HUD-Layout von Alex übernommen (Schaden unten, Navigation).
+- HUD-Layout von JDMArsch übernommen (Schaden unten, Navigation).
 - Status-App größer und unter den Hinweisen, nichts wird mehr oben abgeschnitten.
 - „Position merken“ funktioniert auch an der Garage am Kartenursprung.
 

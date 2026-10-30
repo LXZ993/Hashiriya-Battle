@@ -607,6 +607,7 @@ function M.getTitleCamera()
 end
 
 function M.captureTitleCamera()
+  if M.isRelease() then return end
   local okP, p = pcall(core_camera.getPosition)
   local okQ, q = pcall(core_camera.getQuat)
   if not (okP and p and okQ and q) then
@@ -789,7 +790,8 @@ local function buildUiState()
     end
   end
   st.terminal = M.active and M.save and extensions.hashiriyaBattle_shop.terminalState() or nil
-  if st.menuVisible and M.active then
+  st.release = M.isRelease()
+  if st.menuVisible and M.active and not st.release then
     devRivals = devRivals or {}
     if #devRivals == 0 then
       local data = extensions.hashiriyaBattle_rivals.getData() or {}
@@ -872,9 +874,25 @@ end
 -- Häufige Aktionen nicht ins Log (sonst wird es unlesbar)
 local quietActions = { sound = true, slider = true, focusSlot = true, fuelHold = true, setupAdjust = true, paintSlot = true, setLanguage = true, photoMode = true }
 
+
+-- Release-Build (data/build.json release = true): Dev- und Cheat-Werkzeuge sind aus.
+function M.isRelease()
+  return M.buildData and M.buildData.release == true or false
+end
+
+local devActions = {
+  callRival = true, capture = true, dumpParts = true, dumpConfigs = true,
+  cheatMoney = true, cheatWins = true, cheatRep = true, cheatHour = true, cheatDay = true,
+  cheatRepair = true, cheatFuel = true, devSpawnRival = true, devBeatRival = true, devClearRivals = true,
+}
+
 function M.uiAction(action, arg)
   if not quietActions[action] then
     log('I', logTag, 'Aktion: ' .. tostring(action) .. (arg ~= nil and (' ' .. tostring(type(arg) == 'table' and jsonEncode(arg) or arg)) or ''))
+  end
+  if devActions[action] and M.isRelease() then
+    log('W', logTag, 'Dev-Aktion im Release ignoriert: ' .. tostring(action))
+    return
   end
   -- Während Schlafen/Nickerchen (schwarzer Bildschirm) nichts auslösen
   if extensions.hashiriyaBattle_home.isResting() and not quietActions[action] and action ~= 'report' then return end
