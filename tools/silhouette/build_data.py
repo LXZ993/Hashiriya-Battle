@@ -29,6 +29,39 @@ def figur(r):
     mal = len(re.findall(r"(?:^|[.!?]\s+)Er\b|\b(?:sein|seine|seinen|seinem|seiner)\b", t))
     return "f" if fem > mal else "m"
 
+# Teile, die zur Beschreibung passen (deutscher Text + Spitzname). Erste passende Regel je Slot gilt.
+HINTS = [
+    (r"sonnenbrille", "brille", "sonne"),
+    (r"lehrer|nachhilfe|mathe|buchhalt|clubkasse", "brille", "rund"),
+    (r"overall|mechaniker|schraubt|werkstatt|schweißt", "jacke", "overall"),
+    (r"pelz", "jacke", "pelz"),
+    (r"lederjacke|rocker", "jacke", "leder"),
+    (r"soldat|stützpunkt|army|marine|dient seit", "jacke", "militaer"),
+    (r"surf|hawaii|kalifornien", "jacke", "hawaii"),
+    (r"büro|aktentasche|bank|firmenwagen|unternehmer", "jacke", "anzug"),
+    (r"student|studier", "jacke", "hoodie"),
+    (r"haarspray", "haare", "wellen"),
+    (r"\btolle\b", "haare", "tolle"),
+    (r"ramen|koch|bude", "haare", "stirnband"),
+    (r"raucht|zigarette", "extra", "zigarette"),
+    (r"zahnstocher", "extra", "zahnstocher"),
+    (r"zahnarzt|\barzt|krankenschwester", "extra", "maske"),
+    (r"\bfunk", "extra", "headset"),
+    (r"kopfhörer|eurobeat|kassette|tape|walkman", "hals", "kopfhoerer"),
+    (r"onsen|handtuch", "hals", "handtuch"),
+    (r"\bopa\b|\boma\b|großvater|großmutter|rentner|enkel|älterer herr", "haarfarbe", "silber"),
+]
+
+def hints(r, fig):
+    t = ((r.get("desc") or {}).get("de", "") + " " + (r.get("nick") or {}).get("de", "")).lower()
+    out = {}
+    for pat, slot, val in HINTS:
+        if slot not in out and re.search(pat, t):
+            if slot == "jacke" and val == "anzug" and fig == "f":
+                val = "kostuem"
+            out[slot] = val
+    return out
+
 data = json.load(open(SRC, encoding="utf-8"))
 out = {
     "teams": [{k: t.get(k) for k in ("id", "name", "jp", "color")} for t in data["teams"]],
@@ -37,6 +70,9 @@ out = {
 for r in data["rivals"]:
     e = {k: r[k] for k in ("id", "name", "nick", "team", "lines", "silhouette") if k in r}
     e["figur"] = figur(r)
+    h = hints(r, e["figur"])
+    if h:
+        e["hints"] = h
     for flag in ("leader", "wanderer", "boss", "final"):
         if r.get(flag):
             e[flag] = True
