@@ -111,6 +111,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#release">Release-Sperren</a>
     <div class="grp">Im Code</div>
     <a href="#battle">Battle und SP-Balken</a>
+    <a href="#fahrer">Gegner-Fahrer (eigene KI)</a>
     <a href="#spawn">Rivalen-Spawn (Abstände)</a>
     <a href="#geld">Geld, Sprit, Reparatur</a>
     <a href="#ui">UI-Apps und Layout</a>
@@ -299,6 +300,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>name</code></td><td>Anzeigename</td><td><code>"Kenta Mori"</code></td></tr>
 <tr><td><code>nick</code></td><td>Beiname je Sprache</td><td><code>{"de": "Der Lehrling", "en": "The Apprentice"}</code></td></tr>
 <tr><td><code>team</code></td><td>ID der Crew (fehlt bei Wanderern/Bossen)</td><td><code>"t_lantern"</code></td></tr>
+<tr><td><code>driver</code></td><td>Optional: Fahrer-Werte im Battle (0 bis 1), überschreibt die automatischen, siehe <a href="#fahrer-werte">Gegner-Fahrer</a></td><td><code>{"fairness": 0.2, "courage": 0.95}</code></td></tr>
 <tr><td><code>leader</code></td><td><code>true</code> = Leader der Crew</td><td><code>true</code></td></tr>
 <tr><td><code>appear</code></td><td>Nur Leader: <code>"sameNight"</code> = kommt noch in derselben Nacht, <code>"nextNight"</code> = erst in der nächsten. Ohne Angabe gilt <code>settings.leaderNotSameNight</code>.</td><td><code>"nextNight"</code></td></tr>
 <tr><td><code>wanderer</code> / <code>boss</code> / <code>final</code></td><td>Art des Fahrers; <code>final</code> = Endboss (danach letzter Rang möglich)</td><td><code>true</code></td></tr>
@@ -823,9 +825,9 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>syncToleranceKmh</code> / <code>syncTimeout</code></td><td>5 / 25</td><td>Angleichen: so nah am Tempo, spätestens nach 25 s startet der Countdown</td></tr>
 <tr><td><code>falseStartGap</code> / <code>falseStartKmh</code></td><td>3 / 10</td><td>Ab wann es ein Frühstart ist</td></tr>
 <tr><td><code>resultTime</code></td><td>9</td><td>Sekunden Ergebnisanzeige mit Spruch</td></tr>
-<tr><td><code>rivalAiMode</code></td><td>'fleeGuard'</td><td>KI des Rivalen im Battle. <code>'fleeGuard'</code> = vorne die BeamNG-Flucht-KI (zügig, weicht seitlich aus) plus unser Bremsschutz, hinten <code>'span'</code>. <code>'span'</code> = freie Fahrt ohne Tempolimit und Spurzwang: weicht Verkehr aus, bremst nur wenn nötig. <code>'traffic'</code> = Verkehrsmodus, sehr vorsichtig. <code>'pursuit'</code> = BeamNG flee/chase: flee bremst nicht für Verkehr, chase rammt dich.</td></tr>
-<tr><td><code>guardTtc</code> / <code>guardLateral</code> / <code>guardLookAhead</code> / <code>guardHold</code> / <code>guardSpeedMargin</code></td><td>1.6 / 2.2 / 90 / 0.8 / 1.5</td><td>Bremsschutz für die Flucht-KI (BeamNG lässt sie wegen anderer Autos nie bremsen). Steht ein langsameres Auto bis 90 m voraus und höchstens 2,2 m seitlich versetzt, und würde der Rivale in weniger als 1,6 s auffahren, fährt er kurz höchstens 1,5 m/s langsamer als der Vordermann, mindestens 0,8 s lang. Fährt er noch auf: <code>guardTtc</code> höher (z. B. 2.2). Bremst er zu oft: <code>guardTtc</code> kleiner oder <code>guardLateral</code> kleiner.</td></tr>
-<tr><td><code>rubberAhead</code> / <code>rubberBehind</code> / <code>rubberDist</code></td><td>0.25 / 0.3 / 200</td><td>Gummiband im span-Modus (bei fleeGuard nur, wenn er hinten liegt; vorne nutzt die Flucht-KI das Gummiband von BeamNG): bei 200 m Vorsprung 0,25 weniger Aggression, bei 200 m Rückstand 0,3 mehr (Grundwert = <code>aggression</code> des Rivalen)</td></tr>
+<tr><td><code>rivalAiMode</code></td><td>'own'</td><td>KI des Rivalen im Battle. <code>'own'</code> = unser eigener Fahrer (siehe <a href="#fahrer">Gegner-Fahrer</a>); gibt er auf, übernimmt automatisch <code>'fleeGuard'</code>. <code>'fleeGuard'</code> = vorne die BeamNG-Flucht-KI (zügig, weicht seitlich aus) plus unser Bremsschutz, hinten <code>'span'</code>. <code>'span'</code> = freie Fahrt ohne Tempolimit und Spurzwang: weicht Verkehr aus, bremst nur wenn nötig. <code>'traffic'</code> = Verkehrsmodus, sehr vorsichtig. <code>'pursuit'</code> = BeamNG flee/chase: flee bremst nicht für Verkehr, chase rammt dich.</td></tr>
+<tr><td><code>guardTtc</code> / <code>guardLateral</code> / <code>guardLookAhead</code> / <code>guardHold</code> / <code>guardSpeedMargin</code></td><td>1.6 / 2.2 / 90 / 0.8 / 1.5</td><td>Nur bei <code>'fleeGuard'</code>: Bremsschutz für die Flucht-KI (BeamNG lässt sie wegen anderer Autos nie bremsen). Steht ein langsameres Auto bis 90 m voraus und höchstens 2,2 m seitlich versetzt, und würde der Rivale in weniger als 1,6 s auffahren, fährt er kurz höchstens 1,5 m/s langsamer als der Vordermann, mindestens 0,8 s lang. Fährt er noch auf: <code>guardTtc</code> höher (z. B. 2.2). Bremst er zu oft: <code>guardTtc</code> kleiner oder <code>guardLateral</code> kleiner.</td></tr>
+<tr><td><code>rubberAhead</code> / <code>rubberBehind</code> / <code>rubberDist</code></td><td>0.25 / 0.3 / 200</td><td>Nur bei <code>'fleeGuard'</code>/<code>'span'</code>: Gummiband im span-Modus (bei fleeGuard nur, wenn er hinten liegt; vorne nutzt die Flucht-KI das Gummiband von BeamNG): bei 200 m Vorsprung 0,25 weniger Aggression, bei 200 m Rückstand 0,3 mehr (Grundwert = <code>aggression</code> des Rivalen)</td></tr>
 <tr><td><code>rivalChallenge</code></td><td>true</td><td>Rivalen fordern dich auch selbst heraus (von hinten)</td></tr>
 <tr><td><code>rivalChallengeChance</code></td><td>0.3</td><td>Chance je Prüfung (alle 2 s)</td></tr>
 <tr><td><code>rivalChallengeOffer</code></td><td>8</td><td>Sekunden zum Annehmen (Warnblinker) oder Ablehnen (Blinker)</td></tr>
@@ -835,6 +837,46 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
   drainBase = 12,           -- vorher 8
   winGap = 200,             -- vorher 250</code></pre>
 <p>Wie stark ein einzelner Rivale ist, stellst du in <code>rivals.json</code> ein (<code>maxSp</code>, <code>aggression</code>), nicht hier.</p>
+</section>
+
+<section id="fahrer">
+<h2><span class="n">17b</span> Gegner-Fahrer (eigene KI) <span class="tag">data\driver.json</span> <span class="tag">rivals.json "driver"</span></h2>
+<p>Im Battle fährt der Rivale mit unserem eigenen Fahrer statt mit der BeamNG-KI. Er bedient Lenkung, Gas und Bremse selbst, plant 10x pro Sekunde neu und funktioniert auf jeder Karte mit Straßennetz (auch Touge mit Gegenverkehr). Vor und nach dem Battle (im Verkehr) fährt weiter die BeamNG-KI.</p>
+<ul>
+<li><b>Ideallinie</b> über alle Spuren der eigenen Richtung (am Touge über die ganze Straße), Kurventempo aus Kurvenradius und Grip.</li>
+<li><b>Verkehr:</b> Er sieht jedes Auto, sagt voraus, wo es beim Vorbeifahren ist, und sucht eine Lücke (links, rechts oder zwischen zwei Autos). Erst wenn keine Lücke passt: Gas weg, dann bremsen, hinter dem Auto einreihen und auf die nächste Lücke warten. Notbremse nur kurz vor dem Aufprall.</li>
+<li><b>Gegenverkehr:</b> Überholt nicht, wenn der Gegenverkehr vor dem Ende des Überholens da ist.</li>
+<li><b>Abzweige:</b> Fährt die natürliche Fortsetzung der Straße. Liegt der Spieler vorne, folgt er dessen Weg.</li>
+<li><b>Gummiband:</b> Vorne mit großem Vorsprung bis zu 6 % langsamer in Kurven, hinten mehr Mut (knappere Lücken). Bosse ohne Gummiband.</li>
+<li><b>SP-Lage:</b> Wenig eigene SP = mehr Mut, schwächere Nerven. Spieler fast leer und er vorne = sicherer.</li>
+<li><b>Festgefahren:</b> setzt kurz zurück und fährt weiter.</li>
+</ul>
+<h3 id="fahrer-werte">Fahrer-Werte pro Rivale</h3>
+<p>Jeder Rivale hat fünf Werte von 0 bis 1. Sie werden automatisch berechnet, du kannst jeden in <code>rivals.json</code> überschreiben.</p>
+<table>
+<tr><th>Wert</th><th>Automatisch</th><th>Wirkung</th></tr>
+<tr><td><code>skill</code> (Können)</td><td>Crew-Rang 0 = 0,3 bis höchster Rang = 0,75; Leader +0,15; Wanderer ca. 0,8; Boss 0,95; Revanche +0,05</td><td>Kurventempo (82 bis 93 % des Grips), Bremskraft, Sichtweite für Verkehr (80 bis 170 m), Reaktionszeit (0,8 bis 0,2 s), wie stark er die ganze Straßenbreite nutzt</td></tr>
+<tr><td><code>courage</code> (Mut)</td><td>= <code>aggression</code> aus rivals.json</td><td>Seitenabstand zu Verkehr (1,0 bis 0,3 m pro Seite), Abstand zum Rand, Abstand hinter Verkehr (0,9 bis 0,35 s), wie spät er notbremst (1,0 bis 0,6 s vor dem Aufprall), wie hart er für eine Lücke querzieht</td></tr>
+<tr><td><code>aggression</code></td><td>= <code>aggression</code></td><td>für Stufe 3 (blocken, dicht auffahren), wirkt noch nicht</td></tr>
+<tr><td><code>nerves</code> (Nerven)</td><td>ca. Können × 0,8</td><td>Unter Druck (du dicht dran) reagiert er mit schwachen Nerven langsamer</td></tr>
+<tr><td><code>fairness</code></td><td>0,8</td><td>Seitenabstand zu dir: fair = mind. 0,5 m, Fiesling (z. B. 0,2) drängt bis 0,15 m ran. Bremstests kommen mit Stufe 3.</td></tr>
+</table>
+<pre><code>// rivals.json, einzelner Rivale: Fiesling mit viel Mut
+"driver": { "fairness": 0.2, "courage": 0.95 },</code></pre>
+<h3 id="fahrer-json">Einstellungen für alle <span class="path">data\driver.json</span></h3>
+<table>
+<tr><th>Feld</th><th>Jetzt</th><th>Bedeutung</th></tr>
+<tr><td><code>enabled</code></td><td>true</td><td><code>false</code> = alte BeamNG-KI (fleeGuard)</td></tr>
+<tr><td><code>debug</code></td><td>false</td><td><code>true</code> = Fahrlinie als Kugeln im Spiel (grün schnell, rot langsam) und über jedem Verkehrsauto seine Entscheidung (blau links vorbei, gelb rechts vorbei, rot dahinter bleiben)</td></tr>
+<tr><td><code>tiers</code></td><td>{}</td><td>Zuschlag je Stufe (<code>rival</code>, <code>leader</code>, <code>wanderer</code>, <code>boss</code>)</td></tr>
+<tr><td><code>params</code></td><td>{}</td><td>Feineinstellung des Fahrers für alle Gegner (Namen wie in <code>defaults</code> ganz oben in <span class="path">lua\vehicle\extensions\hashiriyaDriver.lua</span>)</td></tr>
+</table>
+<pre><code>// Bosse noch mutiger, alle Gegner schneller in Kurven, Fahrlinie anzeigen
+"debug": true,
+"tiers": { "boss": { "courage": 0.05 } },
+"params": { "cornerUseMax": 0.97, "cornerUseMin": 0.86 }</code></pre>
+<p>Wichtige <code>params</code>: <code>cornerUseMin</code>/<code>Max</code> 0.82/0.93 (Kurventempo bei Können 0/1), <code>brakeUseMin</code>/<code>Max</code> 0.72/0.95 (Bremskraft), <code>sideGapMin</code>/<code>Max</code> 0.3/1.0 (Seitenabstand bei Mut 1/0), <code>emergencyTtcMin</code>/<code>Max</code> 0.6/1.0 (Notbremse), <code>steerLookTime</code> 0.5 (Lenk-Vorschau: schlingert er, höher, z. B. 0.6; schneidet er Kurven, niedriger), <code>steerGain</code> 1.0 (Lenkstärke).</p>
+<p><b>Läuft er nicht?</b> Im Log steht „Eigener Fahrer für …“ beim Battle-Start. „Eigener Fahrer aufgegeben“ heißt: keine Straßendaten gefunden, dann fährt die alte KI. <b>Testen ohne Spiel:</b> <code>python3 tools/driver-sim/run.py highway 0.6 0.7</code> (Strecke, Können, Mut) simuliert eine Autobahn oder einen Touge mit Verkehr.</p>
 </section>
 
 <section id="spawn">
@@ -976,6 +1018,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>core.lua</code></td><td>Herzstück: Spielstand, Texte, Menü-Aktionen, Dev-Tools, Verkehr</td></tr>
 <tr><td><code>career.lua</code></td><td>Karriere starten, Titelbildschirm, Credits, Showroom, Startauto</td></tr>
 <tr><td><code>battle.lua</code></td><td>Herausfordern, Countdown, SP-Balken, Sieg/Niederlage</td></tr>
+<tr><td><code>driver.lua</code></td><td>Fahrer-Werte der Rivalen, startet/stoppt den eigenen Gegner-Fahrer</td></tr>
+<tr><td><span class="path">lua\vehicle\extensions\hashiriyaDriver.lua</span></td><td>Der Gegner-Fahrer selbst (läuft im Gegnerauto): Route, Ideallinie, Verkehr, Tempo, Lenkung. Kartenunabhängig, später auch als eigene Mod denkbar.</td></tr>
 <tr><td><code>rivals.lua</code></td><td>Welcher Rivale kommt, Spawn mit Kennzeichen und Lack, KI-Fahrt</td></tr>
 <tr><td><code>progress.lua</code></td><td>Ruf, Ränge, Spitznamen, geschlagene Rivalen</td></tr>
 <tr><td><code>condition.lua</code></td><td>Gebrauchtzustand (Verschleiß, Kilometer)</td></tr>
