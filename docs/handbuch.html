@@ -109,7 +109,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#community">Community-Wanderer und Credits</a>
     <a href="#sounds">Sounds</a>
     <a href="#texte">Texte und Sprachen</a>
-    <a href="#release">Release-Sperren</a>
+    <a href="#release">Release-Sperren und Release-Build</a>
     <div class="grp">Im Code</div>
     <a href="#battle">Battle und SP-Balken</a>
     <a href="#fahrer">Gegner-Fahrer (eigene KI)</a>
@@ -257,7 +257,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Ein Code-Fehler bekommt nur beim ersten Mal den ganzen Traceback. Danach wird nur noch mitgezählt.</li>
 </ul>
 <h3>Einstellungen <span class="tag">data\build.json</span></h3>
-<pre><code>"modVersion": "Alpha 1",
+<pre><code>"modVersion": "Alpha 0.3",
 "log": {"level": "I", "maxKb": 512, "files": 4, "statusMinutes": 5, "perMinute": 30}</code></pre>
 <table>
 <tr><th>Feld</th><th>Bedeutung</th></tr>
@@ -864,17 +864,26 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </section>
 
 <section id="release">
-<h2><span class="n">16</span> Release-Sperren <span class="tag">data\build.json</span></h2>
+<h2><span class="n">16</span> Release-Sperren und Release-Build <span class="tag">data\build.json</span></h2>
 <table>
 <tr><th>Feld</th><th>Jetzt</th><th>Bedeutung</th></tr>
 <tr><td><code>release</code></td><td>true (von dir gesetzt)</td><td>true = Release-Build: die Sperren unten gelten in der Karriere</td></tr>
 <tr><td><code>blockedActions</code></td><td>["reset_physics"]</td><td>Gesperrte BeamNG-Aktionen (Auto zurücksetzen)</td></tr>
 <tr><td><code>lockTime</code></td><td>true</td><td>Uhrzeit nicht verstellbar</td></tr>
 <tr><td><code>blockBigMapTeleport</code></td><td>true</td><td>Keine Schnellreise über die große Karte</td></tr>
-<tr><td><code>nodeGrabberStrength</code></td><td>30</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
-<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 1"</td><td>Version und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
+<tr><td><code>nodeGrabberStrength</code></td><td>20</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
+<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 0.3"</td><td>Version und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
 </table>
-<div class="box warn"><b>Erst kurz vor dem ersten Release</b><code>release</code> bleibt bis kurz vor der ersten öffentlichen Version auf <code>false</code>. Mit <code>true</code> sind auch die Dev-Tools nicht mehr gedacht.</div>
+<div class="box warn"><b>Im Mod-Ordner bleibt release auf false</b>Dein Entwicklungsordner behält <code>release: false</code>, damit du alle Dev-Tools hast. Nur die verschickte ZIP bekommt <code>true</code> (siehe unten).</div>
+
+<h3>Was im Release aus ist</h3>
+<p>Mit <code>release: true</code> fehlen im Menü unter „Werkzeuge“ alle Test-Knöpfe: Rivale rufen, Rivalen-Eingabe (spawnen, als geschlagen markieren, zufällig), Rivalen entfernen, +Ruf, Uhr +1 Stunde, Uhr auf 22:00, Tag +1, gratis reparieren und tanken, Position merken, +¥1.000.000, +1 Sieg und Configs exportieren. Auch Shift+Pos1 (Titelbild-Kamera merken) tut nichts. Übrig bleiben die Parkplatz-Marker und der Fehlerbericht. Die Liste der gesperrten Menü-Aktionen steht in <span class="path">core.lua</span> bei <code>devActions</code>.</p>
+
+<h3>Release-Build zum Verschicken bauen</h3>
+<p>Im Mod-Ordner (z. B. <span class="path">F:\BeamNG\current\mods\unpacked\Hashiriya-Battle</span>) eine Eingabeaufforderung öffnen und eingeben:</p>
+<pre>python tools/build_release.py "Alpha 0.3"</pre>
+<p>Danach liegt die Datei in <span class="path">dist\hashiriya_battle_alpha_0.3.zip</span>. Das Skript setzt in der ZIP <code>release: true</code> und die Version, nimmt Shift+Pos1 aus der Tastenbelegung und legt <code>CHANGELOG_DE.md</code> (aus <code>CHANGELOG.md</code>) und <code>CHANGELOG_EN.md</code> dazu. <code>tools</code>, <code>docs</code> und die README kommen nicht mit. Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
+<div class="box"><b>Vor jedem Build</b>Beide Changelogs um einen neuen Abschnitt oben ergänzen (deutsch in <code>CHANGELOG.md</code>, englisch in <code>CHANGELOG_EN.md</code>) und dieselbe Versionsnummer beim Aufruf angeben.</div>
 </section>
 
 <section id="battle">

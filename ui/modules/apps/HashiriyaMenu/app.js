@@ -54,6 +54,7 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'report\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.report\'] }}</div>' +
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
+            '<div ng-if="!s.release">' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')"><i class="hbm-ico" ng-bind-html="ico(\'carsChase\')"></i>{{ s.t[\'menu.callRival\'] }}</div>' +
             '<div class="hbm-plate hbm-dev">' +
               '<input type="text" ng-model="dev.rival" ng-focus="dev.open = true" placeholder="{{ s.t[\'menu.devRivalPh\'] }}">' +
@@ -78,12 +79,15 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRepair\')"><i class="hbm-ico" ng-bind-html="ico(\'wrench\')"></i>{{ s.t[\'menu.cheatRepair\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatFuel\')"><i class="hbm-ico" ng-bind-html="ico(\'fuelPump\')"></i>{{ s.t[\'menu.cheatFuel\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'capture\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i>{{ s.t[\'menu.capture\'] }}</div>' +
+            '</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
               '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
+            '<div ng-if="!s.release">' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatMoney\')"><i class="hbm-ico" ng-bind-html="ico(\'banknotes\')"></i>{{ s.t[\'menu.cheatMoney\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatWins\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i>{{ s.t[\'menu.cheatWins\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'dumpConfigs\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.dumpConfigs\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-if="!s.release" ng-click="act(\'builder\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'menu.builder\'] }}</div>' +
+            '</div>' +
           '</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'garage\' || s.screen == \'shop\'">' +
