@@ -289,6 +289,9 @@ local function showTitleAfterLoad()
   if router and router.navigate then pcall(router.navigate, 'play') end
   garageCamera()
   M.openTitle()
+  -- Verkehr schon im Titelbildschirm, damit die Ansicht lebt (läuft danach im Spiel einfach weiter)
+  local ok, err = pcall(core().startTraffic)
+  if not ok then log('W', logTag, 'Verkehr im Titelbildschirm: ' .. tostring(err)) end
   log('I', logTag, 'Karriere: Titelbildschirm geöffnet')
 end
 
