@@ -441,6 +441,10 @@ function M.action(arg)
     end
     return
   end
+  if step == 'credits' then
+    if cmd == 'back' then flow = { step = 'title' } end
+    return
+  end
   if cmd == 'back' then
     if step == 'experience' then flow = { step = 'title' }
     elseif step == 'driver' then flow.step = (flow.experience == 'newbie' and #tutorialPages() > 0) and 'tutorial' or 'keys'
@@ -452,6 +456,8 @@ function M.action(arg)
     elseif cmd == 'continue' then
       M.close()
       core().continueCareer()
+    elseif cmd == 'credits' then
+      flow = { step = 'credits' }
     elseif cmd == 'quit' then
       -- zurück ins BeamNG-Hauptmenü
       M.close()
@@ -508,6 +514,32 @@ function M.action(arg)
   end
 end
 
+-- Credits für den Titelbildschirm aus data/credits.json: Abschnitte mit Name und Aufgabe
+local creditsPath = '/lua/ge/extensions/hashiriyaBattle/data/credits.json'
+local function creditsList()
+  local d = jsonReadFile(creditsPath) or {}
+  local pr = extensions.hashiriyaBattle_progress
+  local c = core()
+  local out = {}
+  for _, sec in ipairs(d.sections or {}) do
+    local entries = {}
+    for _, e in ipairs(sec.entries or {}) do
+      if e.name and e.name ~= '' then table.insert(entries, { name = e.name, what = pr.loc(e.what) or '' }) end
+    end
+    if #entries > 0 then table.insert(out, { title = pr.loc(sec.title), entries = entries }) end
+  end
+  -- Community: jeder angenommene Wanderer (vom Formular), mit Wanderer-Name
+  local community = {}
+  for _, e in ipairs(d.community or {}) do
+    if e.name and e.name ~= '' then
+      local role = c.t('credits.role.' .. tostring(e.role or 'Other'))
+      table.insert(community, { name = e.name, what = role .. (e.wanderer and (' · ' .. c.t('credits.wanderer', e.wanderer)) or '') })
+    end
+  end
+  if #community > 0 then table.insert(out, { title = c.t('credits.community'), entries = community }) end
+  return out, pr.loc(d.thanks)
+end
+
 function M.getUiState()
   if not flow then return nil end
   local c = core()
@@ -525,6 +557,7 @@ function M.getUiState()
     if img and not (FS and FS:fileExists(img)) then img = nil end
     st.tutorial = { page = i, count = #pages, title = pr.loc(p.title), text = pr.loc(p.text), image = img, last = i >= #pages }
   end
+  if flow.step == 'credits' then st.credits, st.creditsThanks = creditsList() end
   flow.platePick = nil
   if flow.step == 'title' then
     local save = c.peekSave()

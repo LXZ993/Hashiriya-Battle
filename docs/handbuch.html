@@ -105,6 +105,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#stil">Siegesserie und Combo</a>
     <a href="#chat">PA-Gespräche</a>
     <a href="#tutorial">Tutorial-Seiten</a>
+    <a href="#community">Community-Wanderer und Credits</a>
     <a href="#sounds">Sounds</a>
     <a href="#texte">Texte und Sprachen</a>
     <a href="#release">Release-Sperren</a>
@@ -175,6 +176,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <tr><td><code>maps\c1.json</code></td><td>Parkplätze, Zuhause, Tankstellen, Showroom auf der C1</td><td><a href="#map">Map</a></td></tr>
 <tr><td><code>style.json</code></td><td>Siegesserie und Fahrstil-Combo</td><td><a href="#stil">Combo</a></td></tr>
 <tr><td><code>chat.json</code></td><td>Texte der PA-Gespräche (System kommt noch)</td><td><a href="#chat">PA-Gespräche</a></td></tr>
+<tr><td><code>credits.json</code></td><td>Credits im Titelbildschirm (feste Abschnitte + Community-Wanderer)</td><td><a href="#community">Community und Credits</a></td></tr>
 <tr><td><code>tutorial.json</code></td><td>Tutorial-Seiten für Neulinge</td><td><a href="#tutorial">Tutorial</a></td></tr>
 <tr><td><code>sounds.json</code></td><td>Welcher Sound bei welcher Aktion</td><td><a href="#sounds">Sounds</a></td></tr>
 <tr><td><code>build.json</code></td><td>Release-Schalter und Sperren</td><td><a href="#release">Release</a></td></tr>
@@ -717,6 +719,40 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <p>Neuer Wanderer? Dann am besten auch einen <code>wanderer</code>-Eintrag mit <code>about</code> auf seine ID anlegen.</p>
 </section>
 
+<section id="community">
+<h2><span class="n">13b</span> Community-Wanderer und Credits <span class="tag">tools\community\</span> <span class="tag">data\credits.json</span></h2>
+<p>Jeder, der hilft (Tests, Mods), bekommt einen eigenen Wanderer. Das läuft über ein Google-Formular, das ein Google-Script für dich anlegt. Das Script liegt in <span class="path">tools\community\wanderer-formular.gs</span>.</p>
+<h3>Einmal einrichten</h3>
+<ol class="steps">
+<li><a href="https://script.google.com">script.google.com</a> öffnen, <b>Neues Projekt</b>, den ganzen Inhalt von <code>wanderer-formular.gs</code> hineinkopieren, speichern.</li>
+<li>Oben <code>formularAnlegen</code> wählen, <b>Ausführen</b>, Berechtigungen bestätigen (Formulare, Tabellen, Drive).</li>
+<li>Im Ausführungsprotokoll stehen drei Links: zum Teilen (für die Community), zum Bearbeiten und zur Prüf-Tabelle (beide nur für dich).</li>
+</ol>
+<h3>Was im Formular abgefragt wird</h3>
+<ul>
+<li>Credit-Name, Kontakt, Rolle (Tests, Mod-Autor, Sonstiges).</li>
+<li>Name, japanischer Name, Spitzname, Hintergrund des Wanderers.</li>
+<li><b>Avatar im Bob-Stil:</b> Figur (Mann/Frau) und die Teile aus dem Silhouetten-Tool (Kopfform, Gesicht, Haare/Hut, Haarfarbe, Brille, Jacke, Stofffarbe, Extras an Kopf und Hals, Aufnäher). Alles auf "Surprise me" wählt das Tool automatisch. Crew-Teile gibt es nicht, weil Wanderer zu keiner Crew gehören.</li>
+<li>Auto: Model-ID, Config-Name <code>hashiriya_wanderer_XXX</code> und der <b>Inhalt der .pc-Datei</b> (einfach hineinkopiert, so musst du keine Dateien sammeln).</li>
+<li>Kennzeichen (Region, Art, Nummer), Fahrstil, Stärke, Bedingungen (Uhrzeit, Spielerauto, Tuningteil, geschlagene Crew, Leader oder Mitglied per Name, Wanderer, Boss, ab Nacht X), drei Sprüche.</li>
+</ul>
+<h3>Einsendungen prüfen und übernehmen</h3>
+<ol class="steps">
+<li>Im Script <code>rivalsExportieren</code> ausführen. Neue Einsendungen stehen dann in der Tabelle <b>Hashiriya Battle – Wanderer prüfen</b> mit Status "Neu". In der Spalte "Notiz" stehen Probleme (z. B. kaputte Config, Teil passt nicht zur Figur).</li>
+<li>Status auf <b>Angenommen</b> oder <b>Abgelehnt</b> setzen.</li>
+<li><code>rivalsExportieren</code> nochmal ausführen. Im Drive-Ordner <b>Hashiriya Battle – Community Import</b> liegen dann <code>community_wanderer.json</code>, <code>credits.json</code> und <code>vehicles\&lt;model&gt;\*.pc</code>.</li>
+<li>Den Ordner herunterladen (ZIP) und mir geben. Ich übernehme ihn mit <code>python3 tools/community/import_wanderer.py &lt;zip&gt;</code>: Wanderer kommen in <code>rivals.json</code> (vor die Bosse), Configs nach <span class="path">vehicles\&lt;model&gt;\</span> im Mod-Ordner, Namen in <code>credits.json</code>. Kontaktdaten kommen nicht in die Mod. Danach erzeuge ich die Porträts neu.</li>
+</ol>
+<div class="box tip"><b>Neue Crews oder Rivalen?</b>Die Auswahllisten im Formular (Crews, Leader, Wanderer, Bosse, Avatar-Teile) erzeugt <code>python3 tools/community/build_form_lists.py</code> aus <code>rivals.json</code>. Danach das Script in Google ersetzen und <code>formularAnlegen</code> neu ausführen (gibt ein neues Formular, das alte in Drive löschen).</div>
+<h3>Credits im Spiel <span class="tag">data\credits.json</span></h3>
+<p>Im Titelbildschirm gibt es den Menüpunkt <b>Credits</b>. Er zeigt die Abschnitte aus <code>sections</code>, darunter alle Community-Wanderer und zum Schluss <code>thanks</code>.</p>
+<pre><code>{ "title": { "de": "Benötigte Mods", "en": "Required mods" },
+  "entries": [
+    { "name": "AgentMooshroom5", "what": "Agent's Japanese Plates Pack" }
+  ] }</code></pre>
+<p>Einträge mit leerem <code>name</code> werden nicht angezeigt. Bei der C1-Map und der Verkehrs-Mod fehlt noch der Autorenname (<code>_todo</code>).</p>
+</section>
+
 <section id="tutorial">
 <h2><span class="n">13</span> Tutorial-Seiten <span class="tag">data\tutorial.json</span></h2>
 <pre><code>"pages": [
@@ -932,7 +968,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <table>
 <tr><th>Datei</th><th>Aufgabe</th></tr>
 <tr><td><code>core.lua</code></td><td>Herzstück: Spielstand, Texte, Menü-Aktionen, Dev-Tools, Verkehr</td></tr>
-<tr><td><code>career.lua</code></td><td>Karriere starten, Titelbildschirm, Showroom, Startauto</td></tr>
+<tr><td><code>career.lua</code></td><td>Karriere starten, Titelbildschirm, Credits, Showroom, Startauto</td></tr>
 <tr><td><code>battle.lua</code></td><td>Herausfordern, Countdown, SP-Balken, Sieg/Niederlage</td></tr>
 <tr><td><code>rivals.lua</code></td><td>Welcher Rivale kommt, Spawn mit Kennzeichen und Lack, KI-Fahrt</td></tr>
 <tr><td><code>progress.lua</code></td><td>Ruf, Ränge, Spitznamen, geschlagene Rivalen</td></tr>

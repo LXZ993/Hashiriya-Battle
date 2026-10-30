@@ -1,0 +1,50 @@
+{
+  "_hinweis": "Credits im Titelbildschirm (Menüpunkt Credits). sections = feste Abschnitte (title und what zweisprachig {de, en} oder einfacher Text). community = angenommene Wanderer aus dem Google-Formular; trägt tools/community/import_wanderer.py ein (name = Credit-Name, role = Testing | Mod author | Other, wanderer = Name des Wanderers). Einträge mit leerem name werden nicht angezeigt.",
+  "sections": [
+    {
+      "title": {
+        "de": "Idee und Entwicklung",
+        "en": "Idea and development"
+      },
+      "entries": [
+        {
+          "name": "Alex",
+          "what": {
+            "de": "Idee, Design, Rivalen, Tests",
+            "en": "Idea, design, rivals, testing"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Benötigte Mods",
+        "en": "Required mods"
+      },
+      "entries": [
+        {
+          "name": "",
+          "what": {
+            "de": "Shuto Expressway C1 (Map)",
+            "en": "Shuto Expressway C1 (map)"
+          },
+          "_todo": "Autor der C1-Map eintragen"
+        },
+        {
+          "name": "AgentMooshroom5",
+          "what": "Agent's Japanese Plates Pack"
+        },
+        {
+          "name": "",
+          "what": "Agents simplified realistic traffic",
+          "_todo": "Autor eintragen"
+        }
+      ]
+    }
+  ],
+  "community": [],
+  "thanks": {
+    "de": "Danke an alle, die getestet und geholfen haben. Wir sehen uns auf der Schnellstraße.",
+    "en": "Thanks to everyone who tested and helped. See you on the expressway."
+  }
+}
