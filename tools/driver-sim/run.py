@@ -1,5 +1,6 @@
 # Startet den Offline-Test des Gegner-Fahrers mit LuaJIT (pip install lupa)
 # python3 tools/driver-sim/run.py [highway|touge] [skill] [courage]
+# Umgebung: MAXANGLE (Lenkwinkel), EXTRA (Fahrer-Werte), TRACE=von-bis, SEED (Zufall der Fehler)
 import os, sys
 import lupa.luajit21 as lupa
 
@@ -14,6 +15,7 @@ if os.environ.get('TRACE'):
 extra = os.environ.get('EXTRA')
 if extra:
     g.EXTRA = L.eval('{' + extra + '}')
+if os.environ.get('SEED'): g.SEED = int(os.environ['SEED'])
 if os.environ.get('MAXANGLE'): g.MAXANGLE = float(os.environ['MAXANGLE'])
 g.DRIVER_PATH = os.path.join(root, 'lua', 'vehicle', 'extensions', 'hashiriyaDriver.lua')
 L.execute(open(os.path.join(root, 'tools', 'driver-sim', 'sim.lua'), encoding='utf-8').read())

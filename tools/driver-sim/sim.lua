@@ -1,3 +1,4 @@
+if SEED then math.randomseed(SEED) end
 -- Offline-Test für lua/vehicle/extensions/hashiriyaDriver.lua (ohne BeamNG)
 -- Start: python3 tools/driver-sim/run.py [szenario]
 -- Baut eine Teststrecke (Straßennetz wie mapmgr), simuliert ein einfaches Fahrzeugmodell und Verkehr

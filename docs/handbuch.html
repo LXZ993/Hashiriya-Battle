@@ -850,16 +850,34 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li><b>Gummiband:</b> Vorne mit großem Vorsprung bis zu 6 % langsamer in Kurven, hinten mehr Mut (knappere Lücken). Bosse ohne Gummiband.</li>
 <li><b>SP-Lage:</b> Wenig eigene SP = mehr Mut, schwächere Nerven. Spieler fast leer und er vorne = sicherer.</li>
 <li><b>Festgefahren:</b> setzt kurz zurück und fährt weiter.</li>
+<li><b>Hängt er hinter einem Auto fest</b>, lässt er sich nach 2 s etwas zurückfallen (bis 0,7 s mehr Abstand) und nimmt Anlauf für die nächste Lücke.</li>
 </ul>
+<h3 id="fahrer-duell">Duell mit dir (Stufe 3)</h3>
+<ul>
+<li><b>Windschatten:</b> Liegt er hinten und ist bis 45 m hinter dir, hängt er sich direkt hinter dich. Überholt wird, sobald die Lückensuche eine Lücke findet.</li>
+<li><b>Blocken:</b> Rivalen mit <code>aggression</code> ab 0,55 machen vorne auf der Geraden deine Linie zu (1,5 bis 3 s, je aggressiver desto länger). Ziehst du rüber, zieht er <b>einmal</b> nach, dann bist du dran. Danach 8 s Pause.</li>
+<li><b>Bremstest:</b> Nur Fieslinge mit <code>fairness</code> unter 0,35: Fährst du direkt hinter ihm (bis ca. 18 m), tritt er manchmal 0,7 s auf die Bremse. Höchstens alle 25 s. Je niedriger die Fairness, desto öfter.</li>
+<li><b>Start:</b> Er reagiert beim Rennstart verzögert (Können 0 = 0,8 s, Können 1 = 0,2 s).</li>
+</ul>
+<h3 id="fahrer-fehler">Fehler (Stufe 4)</h3>
+<p>Wie oft: bei Können 0 etwa 1 Fehler pro Minute, bei Können 1 etwa alle 30 Minuten. Bist du dicht dran (unter 40 m) und hat er schwache Nerven, bis zu 2,5x so oft. Nach einem Fehler 12 s Ruhe.</p>
+<table>
+<tr><th>Fehler</th><th>Wer eher</th><th>Was passiert</th></tr>
+<tr><td>Zu spät gebremst</td><td>mutige</td><td>4 s lang 8 % zu schnell in Kurven: er rutscht weit raus, eventuell in die Wand</td></tr>
+<tr><td>Zu vorsichtig</td><td>wenig Mut</td><td>3 s lang 15 % langsamer: du kommst ran</td></tr>
+<tr><td>Lücke verschätzt</td><td>mutig und wenig Können</td><td>3 s lang plant er Lücken ohne Seitenabstand: Kratzer am Verkehr möglich (kostet ihn SP)</td></tr>
+<tr><td>Überkorrektur</td><td>schwache Nerven</td><td>1,5 s Schlingern am Lenkrad</td></tr>
+<tr><td>Schreckreaktion</td><td>schwache Nerven, wenig Können</td><td>Ein Auto zieht bis 40 m vor ihm plötzlich rüber: er tritt kurz auf die Bremse und zuckt am Lenkrad</td></tr>
+</table>
 <h3 id="fahrer-werte">Fahrer-Werte pro Rivale</h3>
 <p>Jeder Rivale hat fünf Werte von 0 bis 1. Sie werden automatisch berechnet, du kannst jeden in <code>rivals.json</code> überschreiben.</p>
 <table>
 <tr><th>Wert</th><th>Automatisch</th><th>Wirkung</th></tr>
 <tr><td><code>skill</code> (Können)</td><td>Crew-Rang 0 = 0,3 bis höchster Rang = 0,75; Leader +0,15; Wanderer ca. 0,8; Boss 0,95; Revanche +0,05</td><td>Kurventempo (82 bis 93 % des Grips), Bremskraft, Sichtweite für Verkehr (80 bis 170 m), Reaktionszeit (0,8 bis 0,2 s), wie stark er die ganze Straßenbreite nutzt</td></tr>
 <tr><td><code>courage</code> (Mut)</td><td>= <code>aggression</code> aus rivals.json</td><td>Seitenabstand zu Verkehr (1,0 bis 0,3 m pro Seite), Abstand zum Rand, Abstand hinter Verkehr (0,9 bis 0,35 s), wie spät er notbremst (1,0 bis 0,6 s vor dem Aufprall), wie hart er für eine Lücke querzieht</td></tr>
-<tr><td><code>aggression</code></td><td>= <code>aggression</code></td><td>für Stufe 3 (blocken, dicht auffahren), wirkt noch nicht</td></tr>
-<tr><td><code>nerves</code> (Nerven)</td><td>ca. Können × 0,8</td><td>Unter Druck (du dicht dran) reagiert er mit schwachen Nerven langsamer</td></tr>
-<tr><td><code>fairness</code></td><td>0,8</td><td>Seitenabstand zu dir: fair = mind. 0,5 m, Fiesling (z. B. 0,2) drängt bis 0,15 m ran. Bremstests kommen mit Stufe 3.</td></tr>
+<tr><td><code>aggression</code></td><td>= <code>aggression</code></td><td>ab 0,55 blockt er dich vorne auf der Geraden (siehe <a href="#fahrer-duell">Duell</a>)</td></tr>
+<tr><td><code>nerves</code> (Nerven)</td><td>ca. Können × 0,8</td><td>Unter Druck (du dicht dran) reagiert er mit schwachen Nerven langsamer und macht mehr Fehler; Schreckreaktion und Schlingern</td></tr>
+<tr><td><code>fairness</code></td><td>0,8</td><td>Seitenabstand zu dir: fair = mind. 0,5 m, Fiesling (z. B. 0,2) drängt bis 0,15 m ran. Unter 0,35 macht er Bremstests.</td></tr>
 </table>
 <pre><code>// rivals.json, einzelner Rivale: Fiesling mit viel Mut
 "driver": { "fairness": 0.2, "courage": 0.95 },</code></pre>
@@ -875,8 +893,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 "debug": true,
 "tiers": { "boss": { "courage": 0.05 } },
 "params": { "cornerUseMax": 0.97, "cornerUseMin": 0.86 }</code></pre>
-<p>Wichtige <code>params</code>: <code>cornerUseMin</code>/<code>Max</code> 0.82/0.93 (Kurventempo bei Können 0/1), <code>brakeUseMin</code>/<code>Max</code> 0.72/0.95 (Bremskraft), <code>sideGapMin</code>/<code>Max</code> 0.3/1.0 (Seitenabstand bei Mut 1/0), <code>emergencyTtcMin</code>/<code>Max</code> 0.6/1.0 (Notbremse), <code>steerLookTime</code> 0.5 (Lenk-Vorschau: schlingert er, höher, z. B. 0.6; schneidet er Kurven, niedriger), <code>steerGain</code> 1.0 (Lenkstärke).</p>
-<p><b>Läuft er nicht?</b> Im Log steht „Eigener Fahrer für …“ beim Battle-Start. „Eigener Fahrer aufgegeben“ heißt: keine Straßendaten gefunden, dann fährt die alte KI. <b>Testen ohne Spiel:</b> <code>python3 tools/driver-sim/run.py highway 0.6 0.7</code> (Strecke, Können, Mut) simuliert eine Autobahn oder einen Touge mit Verkehr.</p>
+<p>Wichtige <code>params</code>: <code>cornerUseMin</code>/<code>Max</code> 0.82/0.93 (Kurventempo bei Können 0/1), <code>brakeUseMin</code>/<code>Max</code> 0.72/0.95 (Bremskraft), <code>sideGapMin</code>/<code>Max</code> 0.3/1.0 (Seitenabstand bei Mut 1/0), <code>emergencyTtcMin</code>/<code>Max</code> 0.6/1.0 (Notbremse), <code>steerLookTime</code> 0.5 (Lenk-Vorschau: schlingert er, höher, z. B. 0.6; schneidet er Kurven, niedriger), <code>steerGain</code> 1.0 (Lenkstärke), <code>blockMinAggression</code> 0.55, <code>blockCooldown</code> 8, <code>draftDist</code> 45, <code>brakeCheckFairness</code> 0.35, <code>brakeCheckCooldown</code> 25, <code>errorRateMax</code>/<code>Min</code> 1.0/0.03 (Fehler pro Minute bei Können 0/1, <code>0</code> = keine Fehler), <code>errorCooldown</code> 12.</p>
+<p><b>Läuft er nicht?</b> Im Log steht „Eigener Fahrer für …“ beim Battle-Start. „Eigener Fahrer aufgegeben“ heißt: keine Straßendaten gefunden, dann fährt die alte KI. <b>Testen ohne Spiel:</b> <code>python3 tools/driver-sim/run.py highway 0.6 0.7</code> (Strecke, Können, Mut) simuliert eine Autobahn oder einen Touge mit Verkehr. Mit <code>debug: true</code> steht im Log auch „blockt“, „Bremstest“ und „Fehler: …“.</p>
 </section>
 
 <section id="spawn">

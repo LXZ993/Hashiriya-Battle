@@ -76,6 +76,16 @@ local defaults = {
   steerLookBase = 5,     -- m Vorschau der Lenkung im Stand
   steerLookTime = 0.5,   -- s Vorschau pro m/s (BeamNG-KI: 0.6)
   steerRate = 6,         -- Lenkeinschlag pro Sekunde höchstens (Anteil voller Einschlag)
+  -- Duell (Stufe 3)
+  blockMinAggression = 0.55, -- ab dieser Aggression macht er dir vorne die Linie zu
+  blockCooldown = 8,     -- s zwischen zwei Blockversuchen (eine Reaktion pro Gerade)
+  draftDist = 45,        -- m: so nah hinter dir hängt er sich in den Windschatten
+  brakeCheckFairness = 0.35, -- unter dieser Fairness: Bremstests möglich
+  brakeCheckCooldown = 25,   -- s zwischen zwei Bremstests
+  -- Fehler (Stufe 4), pro Minute bei Können 0 / 1, unter Druck mit schwachen Nerven bis 2,5x so oft
+  errorRateMax = 1.0,
+  errorRateMin = 0.03,
+  errorCooldown = 12,    -- s nach einem Fehler kein neuer
   debug = false,         -- Linie und Verkehr im Spiel einzeichnen
 }
 
@@ -91,6 +101,7 @@ local plan = nil         -- letzte Planung
 local planTimer = 0
 local waitMap = 0
 local seen = {}          -- id -> Zeit seit erster Wahrnehmung
+local followTime = {}    -- id -> s, so lange hängt er schon hinter diesem Auto
 local sideChoice = {}    -- id -> -1 (links vorbei) | 1 (rechts vorbei)
 local trail = {}         -- Knoten, über die das Ziel gefahren ist -> Zeitstempel
 local trailTimer = 0
@@ -106,6 +117,11 @@ local offRouteTime = 0
 local savedGearbox
 local status = 'idle'
 local failedReported = false
+-- Duell und Fehler
+local duel = { blockTime = 0, blockCool = 0, blockLat = nil, blockMoves = 0, brakeCheck = 0, brakeCool = 10 }
+local mistake = { kind = nil, time = 0, cool = 0, scared = {} }
+local startDelay = 0
+local function dlog(text) if p.debug then log('I', 'hashiriyaDriver', text) end end
 
 -- Hilfen -------------------------------------------------------------------------------
 
@@ -145,6 +161,9 @@ local function effective()
     courage = courage - 0.15
     pace = pace * 0.97
   end
+  -- Fehler: zu spät gebremst / zu vorsichtig
+  if mistake.kind == 'late' then pace = pace * 1.08 end
+  if mistake.kind == 'timid' then pace = pace * 0.85 end
   return clamp(courage, 0, 1), clamp(nerves, 0, 1), pace
 end
 
@@ -450,6 +469,8 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
   local v0 = max(ego.speed, 1)
   local mu = obj:getStaticFrictionCoef()
   local sideGap = lerp(p.sideGapMax, p.sideGapMin, courage)
+  local reserve = 0.15 -- Reserve für Lenkfehler
+  if mistake.kind == 'gap' then sideGap, reserve = 0, -0.1 end -- Lücke verschätzt: es wird ganz eng
   local headway = lerp(p.headwayMax, p.headwayMin, courage)
   local passDelta = lerp(4, 9, courage) -- m/s schneller als der Vordermann beim Überholen
   local followCaps = {}
@@ -459,7 +480,9 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
     if ob.capped then return end
     ob.capped = true
     local vO = max(ob.vAlong, 0)
-    local want = vO * headway + 2
+    -- hängt er länger dahinter, lässt er sich etwas zurückfallen: Anlauf für die nächste Lücke
+    local back = clamp(((followTime[ob.id] or 0) - 2) * 0.25, 0, 0.7)
+    local want = vO * (headway + back) + 2
     local v = max(vO - max(want - gapLong, 0) * 0.6, 0)
     followCaps[#followCaps + 1] = { s = max(gapLong - want, 0), v = v, d = ob.d, gap = gapLong, ob = ob }
   end
@@ -486,7 +509,7 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
     -- Seitlicher Abstand: Spieler fair (playerSideGap), Fieslinge (Fairness niedrig) drängen dichter
     local gap = sideGap
     if ob.target then gap = lerp(min(sideGap, 0.15), max(sideGap, p.playerSideGap), p.fairness) end
-    local half = ob.wid * 0.5 + ego.width * 0.5 + gap + 0.15 -- 0.15 m Reserve für Lenkfehler
+    local half = ob.wid * 0.5 + ego.width * 0.5 + gap + reserve
     ob.half = half
 
     if tMeet and tMeet < p.lookTime + 2 then
@@ -650,11 +673,16 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
     end
   end
   pl.followCaps = followCaps
+  local nowFollow = {}
+  for _, c in ipairs(followCaps) do
+    if c.ob and c.gap < math.huge then nowFollow[c.ob.id] = (followTime[c.ob.id] or 0) + dt end
+  end
+  followTime = nowFollow
   pl.ttc = nearestTtc
 end
 
 -- Glatteste Linie in der erlaubten Spanne (minimale Krümmung) --------------------------
-local function smoothLine(pl, egoLat)
+local function smoothLine(pl, egoLat, prefOverride, pullOverride, prefUntil)
   local n = pl.n
   local off, px, py = pl.off, pl.px, pl.py
   local cx, cy, nx, ny, lo, hi = pl.cx, pl.cy, pl.nx, pl.ny, pl.lo, pl.hi
@@ -663,7 +691,8 @@ local function smoothLine(pl, egoLat)
   for k = 1, n do px[k] = cx[k] + off[k] * nx[k]; py[k] = cy[k] + off[k] * ny[k] end
   -- Anfänger nutzen die Straße weniger aus: Zug zur eigenen Querlage
   local pull = (1 - p.skill) * 0.35
-  local pref = clamp(egoLat, -1e9, 1e9)
+  local pref = egoLat
+  local kPref = prefUntil and indexAt(pl, prefUntil) or n
   for it = 1, p.smoothIter do
     -- abwechselnd vorwärts und rückwärts, damit Einschränkungen weiter vorne schnell bis zum Auto wirken
     local k0, k1, ks = 2, n - 2, 1
@@ -673,7 +702,11 @@ local function smoothLine(pl, egoLat)
       local tx = (-px[km2] + 4 * px[k - 1] + 4 * px[k + 1] - px[k + 2]) / 6
       local ty = (-py[km2] + 4 * py[k - 1] + 4 * py[k + 1] - py[k + 2]) / 6
       local o = (tx - cx[k]) * nx[k] + (ty - cy[k]) * ny[k]
-      o = (o + pull * clamp(pref, lo[k], hi[k])) / (1 + pull)
+      if prefOverride and k <= kPref then
+        o = (o + pullOverride * clamp(prefOverride, lo[k], hi[k])) / (1 + pullOverride)
+      else
+        o = (o + pull * clamp(pref, lo[k], hi[k])) / (1 + pull)
+      end
       o = clamp(o, lo[k], hi[k])
       off[k] = o
       px[k] = cx[k] + o * nx[k]
@@ -752,6 +785,117 @@ local function speedProfile(pl, courage, pace)
   pl.aBrake = aBrake
 end
 
+-- Wo ist das Ziel (Spieler) relativ zur Planung? s < 0 = hinter dem Fahrer
+local function targetOnPlan(pl)
+  local o = mapmgr.objects[p.targetId]
+  if not o or not o.pos then return nil end
+  local c = obj:getObjectCenterPosition(p.targetId)
+  local bestK, bestD = 1, math.huge
+  for k = 1, min(pl.n, 40) do
+    local dx, dy = c.x - pl.cx[k], c.y - pl.cy[k]
+    local d = dx * dx + dy * dy
+    if d < bestD then bestK, bestD = k, d end
+  end
+  if bestD > 60 * 60 or abs(c.z - pl.cz[bestK]) > 4 then return nil end
+  local sT = pl.s[bestK] + (c.x - pl.cx[bestK]) * pl.tx[bestK] + (c.y - pl.cy[bestK]) * pl.ty[bestK]
+  return {
+    s = sT, d = lateralAt(pl, bestK, c.x, c.y),
+    vAlong = o.vel.x * pl.tx[bestK] + o.vel.y * pl.ty[bestK],
+    len = obj:getObjectInitialLength(p.targetId),
+  }
+end
+
+-- Stufe 3: Windschatten (hinten), Blocken und Bremstest (vorne). Gibt bevorzugte Querlage zurück.
+local function planDuel(pl, egoLat, dt)
+  duel.blockCool = max(duel.blockCool - dt, 0)
+  duel.blockTime = max(duel.blockTime - dt, 0)
+  duel.brakeCool = max(duel.brakeCool - dt, 0)
+  if p.targetId == nil or p.targetId < 0 then return nil end
+  local t = targetOnPlan(pl)
+  if not t then return nil end
+  local v0 = ego.speed
+  -- gerade Strecke voraus? (alte Planung: Krümmung der nächsten 60 m)
+  local straight = true
+  if plan and plan.kappa then
+    for k = 1, min(plan.n, indexAt(plan, 60)) do if (plan.kappa[k] or 0) > 0.004 then straight = false break end end
+  end
+  local tailLen = (t.len + ego.length) * 0.5
+  if (race.gap or 0) < 0 and t.s > tailLen + 3 and t.s < p.draftDist and abs(t.vAlong - v0) < 8 then
+    -- hinter dem Spieler: in den Windschatten, das Überholen regelt die Lückensuche
+    return t.d, 0.6, t.s
+  end
+  if (race.gap or 0) > 0 and t.s < -tailLen and t.s > -(tailLen + 30) then
+    local behindLat = t.d
+    -- Blocken: Aggressive machen die Linie zu, auf der Geraden, eine Reaktion pro Versuch
+    if p.aggression >= p.blockMinAggression and straight then
+      if duel.blockTime <= 0 and duel.blockCool <= 0 and t.vAlong > v0 - 1 then
+        duel.blockTime = lerp(1.5, 3, p.aggression)
+        duel.blockCool = p.blockCooldown
+        duel.blockLat = behindLat
+        duel.blockMoves = 0
+        dlog('blockt')
+      elseif duel.blockTime > 0 and duel.blockLat and abs(behindLat - duel.blockLat) > 2 and duel.blockMoves < 1 then
+        duel.blockLat = behindLat -- er zieht einmal nach
+        duel.blockMoves = duel.blockMoves + 1
+      end
+    end
+    -- Bremstest: nur Fieslinge, du direkt hinter ihm
+    if p.fairness < p.brakeCheckFairness and duel.brakeCool <= 0 and duel.brakeCheck <= 0
+        and t.s > -(tailLen + 18) and abs(behindLat - egoLat) < 1.2 and v0 > 20 then
+      local chance = 0.25 * (1 - p.fairness / p.brakeCheckFairness) * dt
+      if math.random() < chance then
+        duel.brakeCheck = 0.7
+        duel.brakeCool = p.brakeCheckCooldown
+        dlog('Bremstest')
+      end
+    end
+    if duel.blockTime > 0 and duel.blockLat then return duel.blockLat, 0.8, 60 end
+  end
+  return nil
+end
+
+-- Stufe 4: Fehler auslösen (Können, Druck, Nerven)
+local function planMistakes(pl, courage, nerves, dt)
+  if mistake.time > 0 then
+    mistake.time = mistake.time - dt
+    if mistake.time <= 0 then mistake.kind = nil end
+  end
+  mistake.cool = max(mistake.cool - dt, 0)
+  if mistake.kind or mistake.cool > 0 then return end
+  local pressure = clamp(1 - abs(race.gap or 0) / 40, 0, 1)
+  -- Schreckreaktion: ein Auto zieht dicht vor ihm plötzlich rüber
+  for _, ob in ipairs(pl.obstacles) do
+    if abs(ob.vLat) > 0.8 and ob.s > 0 and ob.s < 40 and not mistake.scared[ob.id] then
+      mistake.scared[ob.id] = true
+      if math.random() < (1 - nerves) * 0.4 * (1 - p.skill * 0.5) then
+        mistake.kind, mistake.time, mistake.cool = 'scare', 0.45, p.errorCooldown
+        mistake.dir = ob.d > 0 and -1 or 1
+        dlog('Fehler: Schreckreaktion')
+        return
+      end
+    end
+  end
+  local perMin = lerp(p.errorRateMax, p.errorRateMin, p.skill) * (1 + pressure * (1 - nerves) * 1.5)
+  if math.random() >= perMin / 60 * dt then return end
+  local w = {
+    late = courage,
+    timid = 1 - courage,
+    gap = courage * (1 - p.skill),
+    wobble = (1 - nerves) * 0.7,
+  }
+  local total = 0
+  for _, x in pairs(w) do total = total + x end
+  local r = math.random() * total
+  local kind = 'late'
+  for _, k in ipairs({ 'late', 'timid', 'gap', 'wobble' }) do
+    r = r - w[k]
+    if r <= 0 then kind = k break end
+  end
+  local dur = { late = 4, timid = 3, gap = 3, wobble = 1.5 }
+  mistake.kind, mistake.time, mistake.cool = kind, dur[kind], p.errorCooldown
+  dlog('Fehler: ' .. kind)
+end
+
 local function makePlan(dt)
   local courage, nerves, pace = effective()
   local look = clamp(ego.speed * p.lookTime, p.minLook, p.maxLook)
@@ -762,7 +906,9 @@ local function makePlan(dt)
   local egoLat = lateralAt(pl, 1, ego.pos.x, ego.pos.y)
   initOffsets(pl, egoLat)
   planTraffic(pl, courage, nerves, dt, egoLat)
-  smoothLine(pl, egoLat)
+  planMistakes(pl, courage, nerves, dt)
+  local prefLat, prefPull, prefUntil = planDuel(pl, egoLat, dt)
+  smoothLine(pl, egoLat, prefLat, prefPull, prefUntil)
   checkPasses(pl, courage)
   speedProfile(pl, courage, pace)
   pl.egoLat = egoLat
@@ -836,6 +982,24 @@ local function control(dt)
     throttle, brake = 0, 0 -- nur Gas weg
   else
     brake = clamp(0.15 + (-err - p.liftBand) * 0.22, 0, 1)
+  end
+
+  -- Rennstart: Reaktionszeit, erst dann Vollgas
+  if startDelay > 0 then
+    startDelay = startDelay - dt
+    throttle = min(throttle, 0.3)
+  end
+  -- Bremstest (Fieslinge)
+  if duel.brakeCheck > 0 then
+    duel.brakeCheck = duel.brakeCheck - dt
+    throttle, brake = 0, max(brake, 0.45)
+  end
+  -- Fehler: Schreckreaktion (Bremse rein, Lenkrad zuckt) und Überkorrektur (Schlingern)
+  if mistake.kind == 'scare' then
+    throttle, brake = 0, max(brake, 0.6)
+    steer = clamp(steer + (mistake.dir or 1) * 0.05, -1, 1)
+  elseif mistake.kind == 'wobble' then
+    steer = clamp(steer + math.sin(simTime * 7) * 0.06, -1, 1)
   end
 
   -- Notbremse
@@ -998,12 +1162,17 @@ function M.start(params)
   table.clear(route)
   table.clear(seen)
   table.clear(sideChoice)
+  followTime = {}
   table.clear(trail)
   plan = nil
   planTimer, waitMap, stuckTime, reverseTime, offRouteTime, simTime = 0, 0, 0, 0, 0, 0
   lastSteer, lastThrottle, lastBrake = 0, 0, 0
   failedReported = false
   race.gap, race.ownSp, race.otherSp = 0, 1, 1
+  duel.blockTime, duel.blockCool, duel.blockLat, duel.blockMoves, duel.brakeCheck, duel.brakeCool = 0, 3, nil, 0, 0, 10
+  mistake.kind, mistake.time, mistake.cool = nil, 0, 5
+  table.clear(mistake.scared)
+  startDelay = lerp(p.reactionMax, p.reactionMin, p.skill)
   ego.width = obj:getInitialWidth()
   wheelBase = computeWheelBase()
   prevDir:set(obj:getDirectionVectorXYZ())
