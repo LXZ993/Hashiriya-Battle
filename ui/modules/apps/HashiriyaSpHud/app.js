@@ -2,7 +2,7 @@
 // Aufbau: Autonamen links/rechts, Zeit in der Mitte, zwei schräge SP-Balken mit "SP" dazwischen,
 // darunter Titel/Rivalenname und Abstand. Die Balken leeren sich von außen zur Mitte; ein heller
 // Nachlauf-Balken zeigt kurz, wie viel SP gerade verloren ging.
-// Daten: Hook 'HashiriyaState' (battle = battle.lua getHudState()). Darunter der Spruch des Rivalen (quote).
+// Daten: Hook 'HashiriyaState' (battle = battle.lua getHudState()). Der Spruch des Rivalen steht in der Sprechblase unten (App HashiriyaTalk).
 angular.module('beamng.apps')
 .directive('hashiriyaSpHud', [function () {
   return {
@@ -52,7 +52,6 @@ angular.module('beamng.apps')
           '<div class="hbh-result" ng-if="b.state == \'result\'" ng-class="b.won ? \'hbh-win\' : \'hbh-lose\'">' +
             '<div class="hbh-result-band"><span>{{ b.won ? t[\'hud.win\'] : t[\'hud.lose\'] }}</span></div>' +
           '</div>' +
-          '<div class="hbh-quote" ng-if="b.quote"><span class="hbh-quote-who">{{ b.rivalName }}</span>{{ b.quote }}</div>' +
         '</div>' +
 
         '<style>' +

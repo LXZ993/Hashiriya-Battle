@@ -827,6 +827,8 @@ function M.uiAction(action, arg)
   if not quietActions[action] then
     log('I', logTag, 'Aktion: ' .. tostring(action) .. (arg ~= nil and (' ' .. tostring(type(arg) == 'table' and jsonEncode(arg) or arg)) or ''))
   end
+  -- Während Schlafen/Nickerchen (schwarzer Bildschirm) nichts auslösen
+  if extensions.hashiriyaBattle_home.isResting() and not quietActions[action] and action ~= 'report' then return end
   actionSound(action, arg)
   if action == 'sound' then
     M.sound(arg)
@@ -1051,8 +1053,77 @@ local function onExtensionLoaded()
   log('I', logTag, 'Hashiriya Battle geladen')
 end
 
+-- Missionen der Map ausblenden (Map-Datei bleibt unverändert): maps/<level>.json "disabledMissionTypes".
+-- Nutzt dieselben Overrides wie die BeamNG-Karriere (gameplay_missions_unlocks), danach werden die POIs neu aufgebaut.
+local hiddenMissions = {}
+local function applyMissionFilter()
+  local types = {}
+  for _, t in ipairs(M.mapData and M.mapData.disabledMissionTypes or {}) do types[t] = true end
+  local mm = rawget(_G, 'gameplay_missions_missions') or extensions.gameplay_missions_missions
+  local un = rawget(_G, 'gameplay_missions_unlocks') or extensions.gameplay_missions_unlocks
+  if not next(types) or not mm or not un or not un.overrideVisible then return end
+  local ok, err = pcall(function()
+    local found, hidden = {}, {}
+    for _, m in ipairs(mm.getMissionsOfLevel(M.levelName) or {}) do
+      local mt = tostring(m.missionType)
+      found[mt] = (found[mt] or 0) + 1
+      if types[mt] then
+        un.overrideVisible(m, false)
+        un.overrideStartable(m, false)
+        hiddenMissions[m.id] = m
+        hidden[mt] = (hidden[mt] or 0) + 1
+      end
+    end
+    local list = {}
+    for mt, n in pairs(found) do table.insert(list, mt .. '=' .. n .. (hidden[mt] and ' (aus)' or '')) end
+    table.sort(list)
+    log('I', logTag, 'Missionen auf ' .. tostring(M.levelName) .. ': ' .. (#list > 0 and table.concat(list, ', ') or 'keine'))
+  end)
+  if not ok then log('W', logTag, 'Missionen ausblenden fehlgeschlagen: ' .. tostring(err)) end
+  local rp = rawget(_G, 'gameplay_rawPois') or extensions.gameplay_rawPois
+  if rp and rp.clear then pcall(rp.clear) end
+end
+
+local function clearMissionFilter()
+  local un = rawget(_G, 'gameplay_missions_unlocks') or extensions.gameplay_missions_unlocks
+  if un and un.overrideVisible then
+    for _, m in pairs(hiddenMissions) do
+      pcall(un.overrideVisible, m, nil)
+      pcall(un.overrideStartable, m, nil)
+    end
+  end
+  hiddenMissions = {}
+end
+
+-- Lohn für Tagesjobs (BeamNG-Missionen wie Garage2Garage): world.json "jobRewards" je Missionstyp, in Yen.
+-- passed = Mission geschafft, completed = alle Sterne. Dieselbe Mission am selben Spieltag nochmal: mal repeatFactor.
+local function onMissionAttemptAggregated(attempt, mission)
+  if not M.active or not M.save or not attempt or not mission then return end
+  local w = jsonReadFile(dataDir .. 'world.json') or {}
+  local cfg = (w.jobRewards or {})[tostring(mission.missionType)]
+  if type(cfg) ~= 'table' then return end
+  local base = attempt.type == 'completed' and cfg.completed or (attempt.type == 'passed' and cfg.passed or nil)
+  if not base then
+    log('I', logTag, 'Job nicht geschafft: ' .. tostring(mission.id) .. ' (' .. tostring(attempt.type) .. ')')
+    return
+  end
+  M.save.jobsToday = M.save.jobsToday or {}
+  local day = M.save.day or 1
+  if M.save.jobsToday.day ~= day then M.save.jobsToday = { day = day, done = {} } end
+  local runs = M.save.jobsToday.done[mission.id] or 0
+  local reward = math.floor(base * ((cfg.repeatFactor or 0.5) ^ runs) / 100 + 0.5) * 100
+  M.save.jobsToday.done[mission.id] = runs + 1
+  M.save.money = (M.save.money or 0) + reward
+  M.save.jobs = (M.save.jobs or 0) + 1
+  log('I', logTag, string.format('Job-Lohn: %s %s, %d. Mal heute, +%d Yen', tostring(mission.id), attempt.type, runs + 1, reward))
+  msg(M.t('msg.jobPaid', M.economy().formatYen(reward)), 6)
+  M.writeSave()
+end
+M.onMissionAttemptAggregated = onMissionAttemptAggregated
+
 local function onClientPostStartMission()
   loadData()
+  applyMissionFilter()
   trafficStarted = false
   M.active = false
   showMenu = true
@@ -1068,6 +1139,7 @@ end
 
 local function onClientEndMission()
   M.stopGame()
+  clearMissionFilter()
 end
 
 -- Release-Build (data/build.json): Zurücksetzen, Konsole, Editor, Zeitlupe usw. während der Karriere sperren.

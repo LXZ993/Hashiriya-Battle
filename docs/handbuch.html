@@ -613,12 +613,19 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>nightWakeHour</code></td><td>6</td><td>Aufwachen nach dem Nachtschlaf</td></tr>
 <tr><td><code>wakeHour</code></td><td>20</td><td>Aufwachen nach einem Schlaf tagsüber</td></tr>
 <tr><td><code>napHours</code></td><td>[0.5, 2]</td><td>Nickerchen im Auto auf einem Parkplatz: zufällig 0,5 bis 2 Stunden</td></tr>
+<tr><td><code>restSeconds</code></td><td>{ "nap": 10, "home": 20 }</td><td>So viele echte Sekunden bleibt der Bildschirm beim Schlafen schwarz, während die Uhr bis zur Aufwachzeit vorspult. <code>nap</code> = Nickerchen im Auto, <code>home</code> = zu Hause. Dazu kommt je 1 s Ab- und Aufblenden.</td></tr>
+<tr><td><code>jobRewards</code></td><td>garageToGarage</td><td>Lohn in Yen für Tagesjobs (BeamNG-Missionen) je Missionstyp: <code>passed</code> = geschafft, <code>completed</code> = alle Sterne, <code>repeatFactor</code> = dieselbe Mission am selben Spieltag nochmal (0.5 = halber Lohn, beim dritten Mal ein Viertel)</td></tr>
 <tr><td><code>shopHours</code></td><td>[8, 20]</td><td>Öffnungszeiten der Shops (pro Parkplatz mit <code>hours</code> überschreibbar)</td></tr>
 <tr><td><code>trafficByHour</code></td><td>24 Zahlen</td><td>Verkehr in % je Stunde, erster Wert = 0 Uhr, letzter = 23 Uhr. 100 = volle Menge</td></tr>
 </table>
 <pre><code>// Beispiel: weniger Verkehr ab Mitternacht bis 5 Uhr
 "trafficByHour": [30, 25, 20, 20, 20, 30, 65, 90, 100, 100, 100, 100,
                   100, 100, 100, 100, 100, 100, 100, 90, 80, 75, 65, 50]</code></pre>
+<pre><code>// Beispiel: Garage2Garage besser bezahlen, Wiederholungen nur 30 %
+"jobRewards": {
+  "garageToGarage": { "passed": 12000, "completed": 20000, "repeatFactor": 0.3 }
+}</code></pre>
+<div class="box"><b>Schlafen und Nickerchen</b>Der Bildschirm wird schwarz, die Uhr läuft im Zeitraffer bis zur Aufwachzeit, dann wird es wieder hell. Rivalen verschwinden vorher, beim Nickerchen ist das Auto festgehalten, und das Menü reagiert in der Zeit nicht. Wird Mitternacht überschritten, beginnt ein neuer Spieltag.</div>
 <div class="box tip"><b>Uhr bleibt nie stehen</b>Die Mod startet die Spieluhr immer wieder, auch wenn BeamNG sie pausiert. Das ist Absicht.</div>
 </section>
 
@@ -653,6 +660,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li><code>playerSpawn</code>: Startpunkt zu Fuß (Zuhause).</li>
 <li><code>napSpots</code>: Parkplätze für ein Nickerchen (Mitte + Radius).</li>
 <li><code>speedTrapsTotal</code>: Anzahl Radarfallen auf der Map (45).</li>
+<li><code>disabledMissionTypes</code>: BeamNG-Missionen dieser Typen werden auf der Map ausgeblendet und lassen sich nicht starten, ohne dass die Map-Dateien geändert werden. Jetzt: <code>["timeTrial", "generatedTimeTrial"]</code> (tagsüber nichts Illegales). Welche Typen es auf der Map gibt, steht beim Laden im <code>hashiriya.log</code> in der Zeile <code>Missionen auf c1: ...</code> (ausgeblendete mit "(aus)"). Garage2Garage bleibt als Tagesjob, Lohn siehe <a href="#zeit">world.json</a> <code>jobRewards</code>.</li>
 </ul>
 <h3>Position im Spiel sammeln</h3>
 <ol class="steps">
@@ -822,7 +830,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <table>
 <tr><th>App (Ordner in <span class="path">ui\modules\apps\</span>)</th><th>Was sie zeigt</th></tr>
 <tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Shops, Händler, Lexikon, Statistik, Werkzeuge/Dev-Tools</td></tr>
-<tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Sprüche, Ergebnis</td></tr>
+<tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
+<tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Später auch für die PA-Gespräche.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
 <tr><td><code>HashiriyaTitle</code></td><td>Titelbildschirm (Neues Spiel / Weiter)</td></tr>
 </table>
@@ -830,6 +839,13 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li><b>Apps verschieben:</b> im Spiel im Esc-Menü die UI-Apps-Bearbeitung öffnen, App ziehen, speichern. Das Standard-Layout der Mod liegt in <span class="path">settings\ui_apps\originalLayouts\default\hashiriyaBattle.uilayout.json</span> (Titelbildschirm: <code>hashiriyaTitle.uilayout.json</code>).</li>
 <li><b>Farben:</b> In jeder <code>app.js</code> steht der Stil (CSS) als Text. Such nach Farbcodes mit <code>#</code> (z. B. <code>#ff7a1a</code>) und tausch nur den Code.</li>
 <li>Nach Änderungen an <code>app.js</code>: BeamNG neu starten.</li>
+<li><b>Neue App fehlt im Spiel?</b> BeamNG nimmt deine eigene Layout-Kopie in <span class="path">F:\BeamNG\current\settings\ui_apps\layouts\default\hashiriyaBattle.uilayout.json</span> vor dem Mod-Layout. Neue Apps trage ich dort mit ein. Fehlt eine trotzdem: Datei löschen, dann gilt wieder das Mod-Layout.</li>
+</ul>
+<h3>Porträts (Silhouetten)</h3>
+<p>Die Bilder liegen in <span class="path">art\portraits\&lt;rivalen-id&gt;.svg</span>, eins pro Rivale (297). Sie kommen aus deinem Silhouetten-Tool (<span class="path">F:\BeamNG\current\hashiriya_tools\silhouette\silhouetten.html</span>). Fehlt für einen Rivalen das Bild, zeigt die Blase ein Fragezeichen.</p>
+<ul>
+<li><b>Neu erzeugen</b> (mache ich, wenn du das Tool oder Rivalen änderst): <code>node tools/portraits/export_portraits.js silhouetten.html rivals_data.js [silhouetten.json]</code>. Die optionale <code>silhouetten.json</code> ist der Export deiner Handanpassungen aus dem Tool.</li>
+<li><b>Ein Bild von Hand ersetzen:</b> eine eigene SVG mit derselben ID als Namen in den Ordner legen. Achtung: Beim nächsten Neuerzeugen wird sie überschrieben, sag mir also Bescheid.</li>
 </ul>
 </section>
 
@@ -903,6 +919,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>Kein Verkehr</td><td><code>cars.json</code>: <code>careerTraffic</code>, <code>trafficMinAmount</code>; Agent Traffic installiert?</td></tr>
 <tr><td>Shop öffnet nicht</td><td>Öffnungszeiten (<code>shopHours</code>), Auto nicht ganz in der Bucht oder zu schnell (unter 8 km/h).</td></tr>
 <tr><td>Irgendetwas stimmt nicht, Ursache unklar</td><td><code>hashiriya.log</code> öffnen und nach <code>FEHLER</code> oder <code>Datencheck</code> suchen. Oder Fehlerbericht erstellen und mir geben.</td></tr>
+<tr><td>Bildschirm bleibt nach dem Schlafen schwarz</td><td>Sollte nicht passieren (nach 10 bzw. 20 s wird es hell). Im Log nach <code>Ruhephase</code> suchen und Fehlerbericht schicken. Notlösung: Konsole (<code>^</code>) und <code>ui_fadeScreen.stop(1)</code> eingeben.</td></tr>
+<tr><td>Kein Geld für Garage2Garage</td><td>Nur bei geschaffter Mission und nur für Typen in <code>jobRewards</code> (world.json). Im Log steht <code>Job-Lohn</code> oder <code>Job nicht geschafft</code>.</td></tr>
 <tr><td>Nach <code>git pull</code> nichts neu</td><td>BeamNG komplett neu starten. Im Mod-Ordner <code>git log --oneline -1</code> zeigt den aktuellen Stand.</td></tr>
 <tr><td>Lua-Fehler nach eigener Änderung</td><td>Meist Komma oder Klammer vergessen. <code>git diff</code> zeigt deine Änderung, <code>git checkout -- datei.lua</code> macht sie rückgängig.</td></tr>
 </table>
@@ -922,7 +940,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>dealer.lua</code></td><td>Händlerangebote und Leistungsgrenze</td></tr>
 <tr><td><code>economy.lua</code></td><td>Dollar-Yen-Umrechnung, Rundung</td></tr>
 <tr><td><code>fuel.lua</code></td><td>Tanken, Spritpreis</td></tr>
-<tr><td><code>home.lua</code></td><td>Zuhause, Schlafen, Nickerchen, Uhr, Lexikon</td></tr>
+<tr><td><code>home.lua</code></td><td>Zuhause, Schlafen und Nickerchen (schwarzer Bildschirm mit Zeitraffer), Uhr, Lexikon</td></tr>
 <tr><td><code>parking.lua</code></td><td>Parkplätze erkennen, Reparatur, Abschleppen, Markierungen</td></tr>
 <tr><td><code>shop.lua</code></td><td>Tuning-Shop, Lackierer, Warenkorb</td></tr>
 <tr><td><code>setup.lua</code></td><td>Fahrwerks-Einstellungen (Tuning-Werte)</td></tr>

@@ -29,6 +29,7 @@
   "msg.noSave": "Kein Spielstand gefunden.",
   "msg.saved": "Gespeichert.",
   "msg.posSaved": "Position gemerkt (%d insgesamt).",
+  "msg.jobPaid": "Auftrag erledigt. Lohn: +%s",
   "msg.win": "Sieg gegen %s! +%s",
   "msg.lose": "Niederlage gegen %s.",
   "msg.rivalSpotted": "Rivale gesichtet: %s",

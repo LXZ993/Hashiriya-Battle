@@ -105,6 +105,19 @@
    }
   },
   {
+   "appName": "hashiriyaTalk",
+   "appVersion": 1,
+   "placement": {
+    "bottom": "215px",
+    "height": "170px",
+    "left": 0,
+    "margin": "auto",
+    "position": "absolute",
+    "right": 0,
+    "width": "760px"
+   }
+  },
+  {
    "appName": "hashiriyaSpHud",
    "appVersion": 1,
    "placement": {

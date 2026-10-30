@@ -719,7 +719,7 @@ end
 
 local function onUpdate(dtReal, dtSim)
   local c = core()
-  if not c or not c.active then return end
+  if not c or not c.active or home().isResting() then return end
   local player = c.getPlayerVehicle()
   local busy = extensions.hashiriyaBattle_battle.isBusy()
   local night = not settings().nightOnly or home().isNight()

@@ -131,19 +131,65 @@ function M.sleepInfo()
   return { can = true, wake = w.wakeHour or 20, newDay = false }
 end
 
+-- Ruhephase (Schlafen/Nickerchen): Bildschirm wird schwarz, die Uhr läuft im Zeitraffer bis zur Aufwachzeit,
+-- dann wird es wieder hell. Dauer: world.json restSeconds { nap, home }. Währenddessen sind Menü-Aktionen gesperrt.
+local rest = nil
+local restFade = 1 -- Sekunden für Ab- und Aufblenden
+
+function M.isResting() return rest ~= nil end
+
+local function fadeScreen() return rawget(_G, 'ui_fadeScreen') or extensions.ui_fadeScreen end
+
+local function freezePlayer(on)
+  local veh = core().getPlayerVehicle()
+  if veh then veh:queueLuaCommand('controller.setFreeze(' .. (on and 1 or 0) .. ')') end
+end
+
+local function startRest(kind, fromHour, toHour, isNewDay, doneMsg)
+  local secs = M.world().restSeconds or {}
+  rest = { kind = kind, from = fromHour, to = toHour, newDay = isNewDay, msg = doneMsg,
+           black = math.max(1, tonumber(secs[kind]) or (kind == 'home' and 20 or 10)), t = 0 }
+  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
+  if kind == 'nap' then freezePlayer(true) end
+  local fs = fadeScreen()
+  if fs and fs.start then pcall(fs.start, restFade) end
+  log('I', logTag, string.format('Ruhephase %s: %.2f -> %.2f Uhr (%d s schwarz)', kind, fromHour, toHour % 24, rest.black))
+end
+
+local function finishRest()
+  local r = rest
+  rest = nil
+  M.applyClock(r.to % 24)
+  if r.newDay then newDay() end
+  local c = core()
+  c.writeSave()
+  if r.kind == 'nap' then freezePlayer(false) end
+  local fs = fadeScreen()
+  if fs and fs.stop then pcall(fs.stop, restFade) end
+  if r.msg then c.msg(r.msg(), 5) end
+end
+
+-- Zeitraffer: erst abblenden, dann die Uhr bis zur Aufwachzeit drehen (weich ein- und auslaufend)
+local function updateRest(dtReal)
+  rest.t = rest.t + (dtReal or 0)
+  local p = math.min(1, math.max(0, (rest.t - restFade) / rest.black))
+  local e = p * p * (3 - 2 * p)
+  if p > 0 then M.applyClock((rest.from + (rest.to - rest.from) * e) % 24) end
+  if p >= 1 then finishRest() end
+end
+
 function M.sleep()
   local c = core()
-  if not c.save then return end
+  if not c.save or rest then return end
   local info = M.sleepInfo()
   if not info.can then
     c.msg(c.t('msg.sleepEarly', string.format('%02d:00', info.wake)), 4)
     return
   end
-  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
-  M.applyClock(info.wake)
-  if info.newDay then newDay() end
-  c.writeSave()
-  c.msg(c.t('msg.slept', M.getDay()), 5)
+  local h = M.hour() or 0
+  local to = info.wake
+  if to <= h then to = to + 24 end
+  startRest('home', h, to, info.newDay, function() return c.t('msg.slept', M.getDay()) end)
 end
 
 -- Nickerchen im Auto auf einem Parkplatz (napSpots der Kartendatei, sonst an jedem Parkplatz): 0,5 bis 2 h
@@ -173,6 +219,7 @@ end
 
 function M.nap()
   local c = core()
+  if rest then return end
   local info = M.napInfo()
   if not info then return end
   if info.reason then
@@ -183,13 +230,10 @@ function M.nap()
   local dur = range[1] + math.random() * (range[2] - range[1])
   dur = math.floor(dur * 4 + 0.5) / 4 -- auf Viertelstunden
   local h = M.hour() or 0
-  local wake = h + dur
-  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
-  M.applyClock(wake % 24)
-  if wake >= 24 then newDay() end
-  c.writeSave()
   local hh, mm = math.floor(dur), math.floor((dur % 1) * 60 + 0.5)
-  c.msg(c.t('msg.napped', mm > 0 and string.format('%d:%02d', hh, mm) or tostring(hh)), 5)
+  startRest('nap', h, h + dur, h + dur >= 24, function()
+    return c.t('msg.napped', mm > 0 and string.format('%d:%02d', hh, mm) or tostring(hh))
+  end)
 end
 
 -- Merkliste: bis zu 5 Rivalen aus dem Lexikon, die man suchen oder schlagen will (HUD zeigt sie an)
@@ -333,6 +377,17 @@ end
 local stallTime, stallSim = nil, 0 -- erkennt eine stehende Uhr
 
 local function onUpdate(dtReal, dtSim)
+  if rest then
+    local ok, err = pcall(updateRest, dtReal)
+    if not ok then
+      log('E', logTag, 'Ruhephase abgebrochen: ' .. tostring(err))
+      rest = nil
+      freezePlayer(false)
+      local fs = fadeScreen()
+      if fs and fs.stop then pcall(fs.stop, restFade) end
+    end
+    return
+  end
   local t = timeOfDay()
   if not t then return end
   local c = core()

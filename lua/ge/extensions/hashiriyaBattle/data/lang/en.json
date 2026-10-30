@@ -29,6 +29,7 @@
   "msg.noSave": "No save game found.",
   "msg.saved": "Saved.",
   "msg.posSaved": "Position saved (%d total).",
+  "msg.jobPaid": "Job done. Pay: +%s",
   "msg.win": "You beat %s! +%s",
   "msg.lose": "You lost to %s.",
   "msg.rivalSpotted": "Rival spotted: %s",

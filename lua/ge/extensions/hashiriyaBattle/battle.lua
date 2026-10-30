@@ -378,7 +378,8 @@ end
 -- HUD-Daten für die UI-App ------------------------------------------------------------
 
 -- Spruch des Rivalen (lines.challenge / lines.win / lines.lose aus rivals.json, aus Sicht des Rivalen):
--- challenge beim Angleichen und Countdown, nach dem Battle win (Rivale gewinnt) oder lose (Rivale verliert)
+-- challenge beim Angleichen und Countdown, nach dem Battle win (Rivale gewinnt) oder lose (Rivale verliert).
+-- Zweiter Rückgabewert = Art (challenge/win/lose) für die Farbe der Sprechblase
 local function rivalQuote()
   local lines = battle.rival.lines
   if type(lines) ~= 'table' then return nil end
@@ -386,13 +387,29 @@ local function rivalQuote()
   if state == 'sync' or state == 'countdown' then key = 'challenge'
   elseif state == 'result' then key = battle.won and 'lose' or 'win' end
   local text = key and extensions.hashiriyaBattle_progress.loc(lines[key]) or ''
-  return text ~= '' and text or nil
+  if text == '' then return nil end
+  return text, key
+end
+
+-- Porträt des Rivalen (art/portraits/<id>.svg aus dem Silhouetten-Tool), nil wenn keins da ist
+local portraitCache = {}
+local function portraitOf(rival)
+  local id = rival and rival.id
+  if not id then return nil end
+  if portraitCache[id] == nil then
+    local path = '/art/portraits/' .. id .. '.svg'
+    portraitCache[id] = FS:fileExists(path) and path or false
+  end
+  return portraitCache[id] or nil
 end
 
 function M.getHudState()
   if not battle then return nil end
+  local quote, quoteKind = rivalQuote()
   return {
-    quote = rivalQuote(),
+    quote = quote,
+    quoteKind = quoteKind,
+    portrait = quote and portraitOf(battle.rival) or nil,
     state = state,
     rivalName = battle.rival.name,
     playerSp = math.max(math.floor(battle.playerSp), 0),
@@ -417,6 +434,7 @@ end
 local function onUpdate(dtReal, dtSim)
   local c = core()
   if not c or not c.active then return end
+  if extensions.hashiriyaBattle_home.isResting() then return end
   local player = c.getPlayerVehicle()
   if not player then return end
 
