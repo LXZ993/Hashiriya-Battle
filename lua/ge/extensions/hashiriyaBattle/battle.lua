@@ -32,10 +32,20 @@ local cfg = {
   modeSwitchHysteresis = 10,-- m, bevor die Gegner-KI zwischen Flucht und Jagd wechselt
   resultTime = 9,           -- s Ergebnis und Spruch nach dem Battle, dann fährt der Rivale weiter
   -- KI des Rivalen im Battle:
-  --  'span'    = freie Fahrt ohne Tempolimit und Spurzwang: weicht aus, bremst nur wenn nötig, überholt zügig (Standard)
+  --  'fleeGuard' = vorne BeamNG-Flucht-KI (zügig, weicht seitlich aus) plus eigener Bremsschutz (siehe guard*),
+  --                hinten 'span' mit eigenem Gummiband (Standard)
+  --  'span'    = freie Fahrt ohne Tempolimit und Spurzwang: weicht aus, bremst nur wenn nötig, überholt zügig
   --  'traffic' = Verkehrsmodus ohne Tempolimit: sehr vorsichtig, bremst oft mitten im Überholen
   --  'pursuit' = BeamNG flee (vorne) / chase (hinten): flee bremst nicht für Verkehr, chase rammt dich von hinten
-  rivalAiMode = 'span',
+  rivalAiMode = 'fleeGuard',
+  -- Bremsschutz für die Flucht-KI (BeamNG lässt sie wegen anderer Autos nie bremsen, nur seitlich ausweichen):
+  -- steht ein langsameres Auto in seiner Spur voraus und würde er in weniger als guardTtc Sekunden auffahren,
+  -- wird sein Tempo kurz auf das des Vordermanns begrenzt
+  guardTtc = 1.6,           -- s bis zum Aufprall, ab dann bremsen
+  guardLateral = 2.2,       -- m seitlicher Abstand Mitte zu Mitte, ab dem ein Auto "in der Spur" ist
+  guardLookAhead = 90,      -- m so weit schaut er nach vorne
+  guardHold = 0.8,          -- s Begrenzung bleibt mindestens so lange
+  guardSpeedMargin = 1.5,   -- m/s langsamer als der Vordermann, damit die Lücke wieder aufgeht
   -- Gummiband für 'span': Aggression = Grundwert des Rivalen, vorne bis rubberAhead weniger, hinten bis rubberBehind mehr
   rubberAhead = 0.25,       -- weniger Aggression bei rubberDist m Vorsprung
   rubberBehind = 0.3,       -- mehr Aggression bei rubberDist m Rückstand
@@ -321,17 +331,37 @@ local function getGap(player, rivalVeh)
   return (rivalVeh:getPosition() - player:getPosition()):dot(dir)
 end
 
+local function spanCommand(playerId)
+  return string.format(
+    "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('span') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggressionMode('off') ai.setAggression(%f)",
+    playerId, battle.rubberAggr or battle.rival.aggression or 0.6)
+end
+
 local function setRivalAi(rivalVeh, mode)
   if battle.rivalMode == mode then return end
   battle.rivalMode = mode
   local player = core().getPlayerVehicle()
+  if cfg.rivalAiMode == 'fleeGuard' then
+    battle.guardSpeed, battle.guardHold = nil, 0
+    if mode == 'flee' then
+      -- vorne: Flucht-KI mit BeamNG-Gummiband, Bremsschutz läuft in updateGuard
+      battle.spanAi = false
+      rivalVeh:queueLuaCommand(string.format(
+        "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('flee') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggressionMode('rubberBand') ai.setAggression(%f)",
+        player:getID(), battle.rival.aggression or 0.6))
+    else
+      -- hinten: span (bremst selbst für Verkehr, rammt nicht) mit eigenem Gummiband
+      battle.spanAi = true
+      battle.rubberTimer = 0
+      rivalVeh:queueLuaCommand(spanCommand(player:getID()))
+    end
+    return
+  end
   if cfg.rivalAiMode == 'span' then
     -- gilt vorne und hinten gleich: nur einmal setzen (ein neues setMode würde die Route neu planen)
     if battle.spanAi then return end
     battle.spanAi = true
-    rivalVeh:queueLuaCommand(string.format(
-      "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('span') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggressionMode('off') ai.setAggression(%f)",
-      player:getID(), battle.rival.aggression or 0.6))
+    rivalVeh:queueLuaCommand(spanCommand(player:getID()))
     return
   end
   if cfg.rivalAiMode == 'traffic' then
@@ -369,6 +399,55 @@ local function damageSp(vehId, lastKey)
   return math.min(math.max(dmg - last, 0) * cfg.spPerDamage, cfg.maxDamageSpPerTick)
 end
 
+-- Bremsschutz der Flucht-KI: langsameres Auto direkt voraus in der Spur -> Tempo kurz begrenzen
+local function updateGuard(dt, rivalVeh)
+  battle.guardTimer = (battle.guardTimer or 0) - dt
+  battle.guardHold = math.max((battle.guardHold or 0) - dt, 0)
+  if battle.guardTimer > 0 then return end
+  battle.guardTimer = 0.1
+  local objs = map and map.objects
+  if not objs and not battle.guardWarned then
+    battle.guardWarned = true
+    log('W', logTag, 'Bremsschutz: map.objects fehlt, Flucht-KI fährt ohne Bremsschutz')
+  end
+  local rid = rivalVeh:getID()
+  local me = objs and objs[rid]
+  if not me then return end
+  local dir = rivalVeh:getDirectionVector()
+  dir.z = 0
+  if dir:length() < 0.1 then return end
+  dir = dir:normalized()
+  local right = dir:cross(vec3(0, 0, 1))
+  local myV = me.vel:dot(dir)
+  local want = nil
+  for id, o in pairs(objs) do
+    if id ~= rid and o.pos then
+      local rel = o.pos - me.pos
+      local along = rel:dot(dir)
+      if along > 1 and along < cfg.guardLookAhead and math.abs(rel:dot(right)) < cfg.guardLateral and math.abs(rel.z) < 4 then
+        local otherV = o.vel and o.vel:dot(dir) or 0
+        local closing = myV - otherV
+        -- Abstand Front zu Heck grob: Mitte zu Mitte minus eine Autolänge
+        local gap = along - 4.5
+        if closing > 0.5 and gap / closing < cfg.guardTtc then
+          local v = math.max(otherV - cfg.guardSpeedMargin, 0)
+          if not want or v < want then want = v end
+        end
+      end
+    end
+  end
+  if want then
+    battle.guardHold = cfg.guardHold
+    if not battle.guardSpeed or math.abs(battle.guardSpeed - want) > 1 then
+      battle.guardSpeed = want
+      rivalVeh:queueLuaCommand(string.format("ai.setSpeed(%f) ai.setSpeedMode('limit')", want))
+    end
+  elseif battle.guardSpeed and battle.guardHold <= 0 then
+    battle.guardSpeed = nil
+    rivalVeh:queueLuaCommand("ai.setSpeedMode('off')")
+  end
+end
+
 local function updateBattle(dt, player, rivalVeh)
   local gap = getGap(player, rivalVeh)
   battle.gap = gap
@@ -380,6 +459,14 @@ local function updateBattle(dt, player, rivalVeh)
     setRivalAi(rivalVeh, 'chase')
   elseif not battle.rivalMode then
     setRivalAi(rivalVeh, gap >= 0 and 'flee' or 'chase')
+  end
+
+  if cfg.rivalAiMode == 'fleeGuard' and battle.rivalMode == 'flee' then
+    local ok, err = pcall(updateGuard, dt, rivalVeh)
+    if not ok and not battle.guardWarned then
+      battle.guardWarned = true
+      log('W', logTag, 'Bremsschutz: ' .. tostring(err))
+    end
   end
 
   -- Eigenes Gummiband im span-Modus (BeamNG hat dort keins): vorne etwas ruhiger, hinten mehr Druck
