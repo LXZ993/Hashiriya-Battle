@@ -52,8 +52,16 @@ function M.nightId()
 end
 
 -- Uhr stellen und laufen lassen (ein Spieltag = dayLengthMinutes echte Minuten)
+local pendingClock = nil -- Uhr ließ sich noch nicht stellen (Level lädt noch): { hour } für den nächsten Frame
+
 function M.applyClock(hour)
   local w = M.world()
+  local okT, tod0 = pcall(core_environment.getTimeOfDay)
+  if not okT or not tod0 then
+    pendingClock = { hour = hour }
+    return
+  end
+  pendingClock = nil
   local ok, err = pcall(function()
     local tod = core_environment.getTimeOfDay()
     if hour then tod.time = ((hour - 12) / 24) % 1 end
@@ -377,6 +385,7 @@ end
 local stallTime, stallSim = nil, 0 -- erkennt eine stehende Uhr
 
 local function onUpdate(dtReal, dtSim)
+  if pendingClock then M.applyClock(pendingClock.hour) end
   if rest then
     local ok, err = pcall(updateRest, dtReal)
     if not ok then

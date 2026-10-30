@@ -8,9 +8,25 @@ local logTag = 'hashiriya'
 local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logger') if L then L.log(level, tag, text) else _G.log(level, tag, text) end end
 
 M.slot = 'licenseplate_design_2_1'
-M.regions = { 'shinagawa', 'sapporo', 'toyota', 'shizuoka', 'himeji', 'kochi', 'kumamoto', 'kagoshima' }
+M.regions = { 'shinagawa', 'sapporo', 'toyota', 'shizuoka', 'himeji', 'kochi', 'kumamoto', 'kagoshima', 'okinawa' }
 M.types = { 'standard', 'kei', 'commercial', 'keicommercial' }
+-- Sonderkennzeichen der Mod gibt es nur in einer Region; Okinawa hat nur das US-Air-Force-Kennzeichen
+M.specialTypes = {
+  shinagawa = { 'temporary', 'glow', 'olympic', 'olympiccommercial' },
+  okinawa = { 'airforce' },
+}
+M.onlySpecial = { okinawa = true }
 M.defaultDesign = 'am5jp_shinagawa_standard'
+
+-- Erlaubte Arten einer Region (Reihenfolge wie in der Auswahl)
+function M.typesFor(region)
+  local out = {}
+  if not M.onlySpecial[region] then
+    for _, k in ipairs(M.types) do table.insert(out, k) end
+  end
+  for _, k in ipairs(M.specialTypes[region] or {}) do table.insert(out, k) end
+  return out
+end
 
 function M.design(region, kind)
   return 'am5jp_' .. (region or 'shinagawa') .. '_' .. (kind or 'standard')
@@ -24,10 +40,19 @@ end
 function M.validDesign(design)
   local region, kind = tostring(design or ''):match('^am5jp_([a-z]+)_([a-z]+)$')
   if not region then return false end
-  local okR, okK = false, false
+  local okR = false
   for _, r in ipairs(M.regions) do if r == region then okR = true end end
-  for _, k in ipairs(M.types) do if k == kind then okK = true end end
-  return okR and okK
+  if not okR then return false end
+  for _, k in ipairs(M.typesFor(region)) do if k == kind then return true end end
+  return false
+end
+
+-- Region oder Art geändert: passt die Art nicht zur Region, nimmt sie die erste erlaubte (Okinawa -> Air Force,
+-- zurück von einem Sonderkennzeichen -> Privat)
+function M.fitDesign(region, kind)
+  local allowed = M.typesFor(region)
+  for _, k in ipairs(allowed) do if k == kind then return M.design(region, kind) end end
+  return M.design(region, allowed[1] or 'standard')
 end
 
 -- Untere Zeile aus einer Zahl 1-9999: "12-34", kleine Nummern mit Punkten ("・・・7" = ".. .7", "・123" = ".1 23")
@@ -99,12 +124,23 @@ function M.applyToConfig(config, design)
   return cfg
 end
 
--- Für die UI: Regionen und Arten mit Anzeigenamen
-function M.uiOptions(t)
-  local regions, kinds = {}, {}
-  for _, r in ipairs(M.regions) do table.insert(regions, { id = r, name = t('plate.region.' .. r) }) end
-  for _, k in ipairs(M.types) do table.insert(kinds, { id = k, name = t('plate.type.' .. k) }) end
-  return { regions = regions, types = kinds }
+-- Für die UI: Regionen und Arten mit Anzeigenamen. types = Arten der Region `region` (ohne: alle);
+-- byRegion = erlaubte Art-IDs je Region (Garage blättert damit im Browser)
+function M.uiOptions(t, region)
+  local regions, kinds, byRegion, names = {}, {}, {}, {}
+  for _, r in ipairs(M.regions) do
+    table.insert(regions, { id = r, name = t('plate.region.' .. r) })
+    byRegion[r] = M.typesFor(r)
+  end
+  local list = region and M.typesFor(region) or nil
+  if not list then
+    list = {}
+    for _, k in ipairs(M.types) do table.insert(list, k) end
+    for _, r in ipairs(M.regions) do for _, k in ipairs(M.specialTypes[r] or {}) do table.insert(list, k) end end
+  end
+  for _, k in ipairs(list) do table.insert(kinds, { id = k, name = t('plate.type.' .. k) }) end
+  for _, r in ipairs(M.regions) do for _, k in ipairs(byRegion[r]) do names[k] = t('plate.type.' .. k) end end
+  return { regions = regions, types = kinds, byRegion = byRegion, typeNames = names }
 end
 
 return M

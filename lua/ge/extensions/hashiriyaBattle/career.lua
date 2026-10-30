@@ -72,6 +72,33 @@ local function rollCondition(rand, entry)
   }
 end
 
+-- Leistung (PS) aus den Config-Infos von BeamNG
+local function starterPower(starter)
+  local key = tostring(starter.config or ''):match('([^/]+)%.pc$')
+  local okM, m = pcall(core_vehicles.getModel, starter.model)
+  local info = okM and m and m.configs and key and m.configs[key] or {}
+  return tonumber(info.Power)
+end
+
+-- Schwächere Starter sind besser erhalten (cars.json: conditionPowerBias). Zuschlag linear zwischen
+-- powerPs[1] (schwach: erster Wert) und powerPs[2] (stark: zweiter Wert).
+local function powerBias(cond, ps)
+  local b = (core().carsData or {}).conditionPowerBias
+  if not b or not ps or type(b.powerPs) ~= 'table' then return end
+  local lo, hi = b.powerPs[1] or 80, b.powerPs[2] or 150
+  local t = hi > lo and math.min(math.max((ps - lo) / (hi - lo), 0), 1) or 0.5
+  local function add(key, minV, maxV, step)
+    local r = b[key]
+    if type(r) ~= 'table' or cond[key] == nil then return end
+    local v = cond[key] + (r[1] + (r[2] - r[1]) * t)
+    v = math.min(math.max(v, minV), maxV)
+    cond[key] = math.floor(v / step + 0.5) * step
+  end
+  add('integrity', 0.6, 0.99, 0.01)
+  add('visual', 0.3, 0.99, 0.01)
+  add('odometerKm', 20000, 400000, 1000)
+end
+
 local function buildOffer(name, plate)
   local d = core().carsData or {}
   local list = {}
@@ -89,8 +116,20 @@ local function buildOffer(name, plate)
       local car = {}
       for k, v in pairs(e) do car[k] = v end
       car.condition = rollCondition(rand, e)
+      car.powerPs = starterPower(e)
+      powerBias(car.condition, car.powerPs)
       table.insert(offer, car)
     end
+  end
+  -- Reihenfolge sicherstellen: das schwächste Auto hat den besten Zustand und die wenigsten Kilometer
+  local byPower = {}
+  for _, c in ipairs(offer) do table.insert(byPower, c) end
+  table.sort(byPower, function(a, b) return (a.powerPs or 0) < (b.powerPs or 0) end)
+  for _, key in ipairs({ 'integrity', 'visual', 'odometerKm' }) do
+    local vals = {}
+    for _, c in ipairs(byPower) do table.insert(vals, c.condition[key]) end
+    if key == 'odometerKm' then table.sort(vals) else table.sort(vals, function(a, b) return a > b end) end
+    for i, c in ipairs(byPower) do c.condition[key] = vals[i] end
   end
   -- günstigstes zuerst
   table.sort(offer, function(a, b) return (a.priceUsd or 30000) < (b.priceUsd or 30000) end)
@@ -316,9 +355,12 @@ end
 
 local function spawnShowroomCar(starter, paint)
   core().engineOffAfterSpawn()
+  extensions.hashiriyaBattle_condition.previewAfterSpawn(starter.condition)
   local pos, rot = showroomTransform()
   -- Kennzeichen-Design (Plates Pack) gleich in die Config, damit Showroom-Auto und Startauto es haben
   local cfg = extensions.hashiriyaBattle_plates.applyToConfig(starter.config, flow and flow.plateDesign)
+  -- Lack gehört in 0.40 in die Config: die Werkslacke aus der .pc gewinnen sonst gegen die Spawn-Option
+  if paint and type(cfg) == 'table' then cfg.paints = { paint, paint, paint } end
   local opts = { config = cfg, pos = pos, rot = rot, paint = paint, paint2 = paint, paint3 = paint }
   if flow and flow.plate and flow.plate ~= '' then opts.licenseText = flow.plate end
   local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
@@ -346,30 +388,43 @@ end
 local function carSpecs(starter)
   local c = core()
   local eco = c.economy()
-  local specs, info = {}, {}
+  local info = {}
   local key = tostring(starter.config or ''):match('([^/]+)%.pc$')
   local okM, m = pcall(core_vehicles.getModel, starter.model)
   if okM and m and m.configs and key then info = m.configs[key] or {} end
   local brand = okM and m and m.model and m.model.Brand or ''
-  local function add(label, value) if value then table.insert(specs, { label = c.t(label), value = value }) end end
-  local power = tonumber(info.Power)
-  local torque = tonumber(info.Torque)
-  local weight = tonumber(info.Weight)
-  add('spec.power', power and string.format('%d PS', math.floor(power + 0.5)))
-  add('spec.torque', torque and string.format('%d Nm', math.floor(torque + 0.5)))
-  add('spec.weight', weight and string.format('%d kg', math.floor(weight + 0.5)))
-  add('spec.drivetrain', info.Drivetrain)
-  add('spec.transmission', info.Transmission)
-  add('spec.price', eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0)))
+  local function num(v) return tonumber(v) and math.floor(tonumber(v) + 0.5) or nil end
+  -- Kennzahlen als Kacheln (Symbol, Wert, Einheit), Zustand als Balken
+  local sheet = { stats = {}, tags = {}, bars = {} }
+  local function stat(icon, label, value, unit)
+    if value then table.insert(sheet.stats, { icon = icon, label = c.t(label), value = value, unit = unit }) end
+  end
+  stat('power', 'spec.power', num(info.Power), 'PS')
+  stat('torque', 'spec.torque', num(info.Torque), 'Nm')
+  stat('weight', 'spec.weight', num(info.Weight), 'kg')
+  if info.Drivetrain then table.insert(sheet.tags, info.Drivetrain) end
+  if info.Transmission then table.insert(sheet.tags, info.Transmission) end
   local cond = starter.condition
   if cond then
-    add('spec.odometer', cond.odometerKm and (tostring(cond.odometerKm):reverse():gsub('(%d%d%d)', '%1.'):reverse():gsub('^%.', '')) .. ' km')
-    add('spec.condition', cond.integrity and string.format('%d %%', math.floor(cond.integrity * 100 + 0.5)))
-    add('spec.fuel', cond.fuel and string.format('%d %%', math.floor(math.max(cond.fuel, (core().carsData or {}).conditionMinFuel or 0.25) * 100 + 0.5)))
+    local function bar(icon, label, share)
+      if not share then return end
+      local pct = math.floor(math.min(math.max(share, 0), 1) * 100 + 0.5)
+      -- Farbe: gut ab 85 %, mittel ab 60 %, sonst schlecht (Tank: ab 50 / 30 %)
+      local good, mid = 85, 60
+      if icon == 'fuel' then good, mid = 50, 30 end
+      table.insert(sheet.bars, { icon = icon, label = c.t(label), pct = pct, tone = pct >= good and 'good' or (pct >= mid and 'mid' or 'bad') })
+    end
+    bar('wrench', 'spec.condition', cond.integrity)
+    bar('paint', 'spec.visual', cond.visual)
+    bar('fuel', 'spec.fuel', cond.fuel and math.max(cond.fuel, (c.carsData or {}).conditionMinFuel or 0.25))
+    if cond.odometerKm then
+      sheet.mileage = (tostring(cond.odometerKm):reverse():gsub('(%d%d%d)', '%1.'):reverse():gsub('^%.', '')) .. ' km'
+    end
   end
+  sheet.newPrice = eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0))
   local name = starter.name or ''
   local modelName = brand ~= '' and name:sub(1, #brand) == brand and name:sub(#brand + 2) or name
-  return specs, info.Drivetrain, brand, modelName, eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0))
+  return sheet, info.Drivetrain, brand, modelName, eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0))
 end
 
 local function selectCar(id)
@@ -386,10 +441,8 @@ local function selectPaint(id)
   for _, p in ipairs(shop().factoryPaints(starter.model)) do
     if p.id == id then
       flow.paintId = id
-      -- gleiches Auto steht schon da: nur umlackieren, nicht neu laden
-      local veh = core().getPlayerVehicle()
-      local same = veh and veh:getJBeamFilename() == starter.model
-      if not (same and shop().applyPaintsLive({ p.paint, p.paint, p.paint })) then spawnShowroomCar(starter, p.paint) end
+      -- Neu laden statt live umfärben: live blieb der Lack im Showroom teils unverändert
+      spawnShowroomCar(starter, p.paint)
       return
     end
   end
@@ -494,7 +547,7 @@ function M.action(arg)
     elseif cmd == 'plateRegion' or cmd == 'plateType' then
       local region, kind = plates.splitDesign(flow.plateDesign)
       if cmd == 'plateRegion' then region = val else kind = val end
-      local d = plates.design(region, kind)
+      local d = plates.fitDesign(region, kind)
       if plates.validDesign(d) then flow.plateDesign = d end
     elseif cmd == 'driver' then
       local name, plate = val:match('^(.-)\031(.*)$')
@@ -587,14 +640,14 @@ function M.getUiState()
   if flow.step == 'driver' then
     local plates = extensions.hashiriyaBattle_plates
     st.plateHint = '330 1234'
-    st.plateOptions = plates.uiOptions(c.t)
     st.plateRegion, st.plateType = plates.splitDesign(flow.plateDesign)
+    st.plateOptions = plates.uiOptions(c.t, st.plateRegion)
   end
   if flow.step == 'car' then
     st.cars = {}
     for _, s in ipairs(starters()) do
-      local specs, drivetrain, brand, modelName, price = carSpecs(s)
-      table.insert(st.cars, { id = s.id, name = s.name, specs = specs, drivetrain = drivetrain, brand = brand, model = modelName,
+      local sheet, drivetrain, brand, modelName, price = carSpecs(s)
+      table.insert(st.cars, { id = s.id, name = s.name, sheet = sheet, drivetrain = drivetrain, brand = brand, model = modelName,
         price = price, selected = s.id == flow.carId })
     end
   end

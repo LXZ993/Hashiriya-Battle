@@ -433,10 +433,11 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h4>Design (Region und Art)</h4>
 <p>Schema: <code>am5jp_&lt;region&gt;_&lt;art&gt;</code></p>
 <table>
-<tr><th>Regionen</th><td><code>shinagawa</code>, <code>sapporo</code>, <code>toyota</code>, <code>shizuoka</code>, <code>himeji</code>, <code>kochi</code>, <code>kumamoto</code>, <code>kagoshima</code></td></tr>
+<tr><th>Regionen</th><td><code>shinagawa</code>, <code>sapporo</code>, <code>toyota</code>, <code>shizuoka</code>, <code>himeji</code>, <code>kochi</code>, <code>kumamoto</code>, <code>kagoshima</code>, <code>okinawa</code> (nur Air Force)</td></tr>
 <tr><th>Arten</th><td><code>standard</code> (weiß, privat), <code>kei</code> (gelb, Kleinwagen), <code>commercial</code> (grün, gewerblich), <code>keicommercial</code> (schwarz)</td></tr>
 <tr><th>Sonder-Designs</th><td><code>am5jp_shinagawa_olympic</code>, <code>am5jp_shinagawa_olympiccommercial</code>, <code>am5jp_shinagawa_temporary</code>, <code>am5jp_shinagawa_glow</code>, <code>am5jp_okinawa_airforce</code></td></tr>
 </table>
+<p>Die Sonder-Designs kann auch der Spieler wählen (Neues Spiel und Garage): bei Region Shinagawa erscheinen zusätzlich Kurzzeit, Beleuchtet, Olympia und Olympia gewerblich; Region Okinawa hat nur US Air Force. Welche Art es in welcher Region gibt, steht in <span class="path">plates.lua</span> (<code>specialTypes</code>, <code>onlySpecial</code>). Im Google-Formular stehen sie als "Special: …" bei der Art.</p>
 <p>Die Mod setzt das Design in den Slot <code>licenseplate_design_2_1</code> und den Text beim Spawnen. Fehlt das Design, zeigt BeamNG das Standard-Kennzeichen der Map (auf der C1 "川崎").</p>
 <h4>Kennzeichen des Spielers</h4>
 <ul>
@@ -537,6 +538,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>starterOffer</code></td><td>3</td><td>So viele Startautos werden zur Auswahl angeboten</td></tr>
 <tr><td><code>starterCars</code></td><td>Liste</td><td>Pool der möglichen Startautos</td></tr>
 <tr><td><code>conditionRange</code></td><td></td><td>Gebrauchtzustand [von, bis]: <code>odometerKm</code> (Kilometerstand), <code>integrity</code> 0-1 (Motorverschleiß, unter 1 = weniger Leistung, Zündaussetzer), <code>visual</code> 0-1 (Lackalter), <code>fuel</code> (Tankfüllung)</td></tr>
+<tr><td><code>conditionPowerBias</code></td><td>siehe Datei</td><td>Schwächere Startautos sind besser erhalten. <code>powerPs [80, 150]</code> = ab wann ein Auto als schwach bzw. stark zählt; bei <code>integrity</code>, <code>visual</code>, <code>odometerKm</code> steht [Zuschlag schwach, Zuschlag stark], dazwischen linear. Beispiel: <code>"integrity": [0.05, -0.03]</code> = ein 80-PS-Auto bekommt +5 % Zustand, ein 150-PS-Auto −3 %. Zusätzlich bekommt im Angebot immer das schwächste Auto den besten Zustand und die wenigsten Kilometer.</td></tr>
 <tr><td><code>conditionMinFuel</code></td><td>0.25</td><td>Tank mindestens 25 % voll</td></tr>
 <tr><td><code>conditionMisfireScale</code></td><td>0.1</td><td>Wie stark Zündaussetzer bei Verschleiß sind (0.1 = ein Zehntel von BeamNG)</td></tr>
 <tr><td><code>conditionCoolingScale</code></td><td>0.4</td><td>Wie schnell ein gebrauchter Motor heiß wird</td></tr>
@@ -872,7 +874,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
 <tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Später auch für die PA-Gespräche.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
-<tr><td><code>HashiriyaTitle</code></td><td>Titelbildschirm (Neues Spiel / Weiter / Credits). Kamera und Uhrzeit: Umschalt+Pos1. Der Verkehr läuft schon im Titelbildschirm.</td></tr>
+<tr><td><code>HashiriyaTitle</code></td><td>Titelbildschirm (Neues Spiel / Weiter / Credits). Kamera und Uhrzeit: Umschalt+Pos1. Der Verkehr läuft schon im Titelbildschirm. Beim Startauto zeigt er Leistung, Drehmoment und Gewicht als Kacheln und Zustand, Lack und Tank als Balken (grün/gelb/rot). Ein Farbwechsel lädt das Showroom-Auto kurz neu; es hat dabei den angezeigten Gebrauchtzustand.</td></tr>
 </table>
 <ul>
 <li><b>Apps verschieben:</b> im Spiel im Esc-Menü die UI-Apps-Bearbeitung öffnen, App ziehen, speichern. Das Standard-Layout der Mod liegt in <span class="path">settings\ui_apps\originalLayouts\default\hashiriyaBattle.uilayout.json</span> (Titelbildschirm: <code>hashiriyaTitle.uilayout.json</code>).</li>
@@ -955,7 +957,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>Ein bestimmter Rivale kommt nie</td><td>Bedingungen prüfen. Mit "Spawnen" testen, ob er überhaupt spawnt. Kommt er dann als falsches Auto oder gar nicht: <code>model</code>/<code>config</code> falsch geschrieben oder Mod fehlt.</td></tr>
 <tr><td>Rivale hat Standard-Kennzeichen</td><td>Agent's Japanese Plates Pack fehlt oder <code>design</code> falsch geschrieben.</td></tr>
 <tr><td>Rivale hat falsche Farbe</td><td>Config hat eine Livery (dann wird <code>paint</code> ignoriert), oder <code>color</code>-Werte über 1.</td></tr>
-<tr><td>Kein Verkehr</td><td><code>cars.json</code>: <code>careerTraffic</code>, <code>trafficMinAmount</code>; Agent Traffic installiert?</td></tr>
+<tr><td>Kein Verkehr</td><td><code>cars.json</code>: <code>careerTraffic</code>, <code>trafficMinAmount</code>; Agent Traffic installiert? Im Log "Verkehr starten fehlgeschlagen": die Mod versucht es bis zu 5-mal alle 2 Sekunden neu (beim allerersten Start nach dem Spielstart fehlte BeamNG die Lack-Bibliothek, die wird jetzt vorher geladen).</td></tr>
 <tr><td>Shop öffnet nicht</td><td>Öffnungszeiten (<code>shopHours</code>), Auto nicht ganz in der Bucht oder zu schnell (unter 8 km/h).</td></tr>
 <tr><td>Irgendetwas stimmt nicht, Ursache unklar</td><td><code>hashiriya.log</code> öffnen und nach <code>FEHLER</code> oder <code>Datencheck</code> suchen. Oder Fehlerbericht erstellen und mir geben.</td></tr>
 <tr><td>Bildschirm bleibt nach dem Schlafen schwarz</td><td>Sollte nicht passieren (nach 10 bzw. 20 s wird es hell). Im Log nach <code>Ruhephase</code> suchen und Fehlerbericht schicken. Notlösung: Konsole (<code>^</code>) und <code>ui_fadeScreen.stop(1)</code> eingeben.</td></tr>

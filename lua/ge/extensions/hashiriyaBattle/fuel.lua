@@ -90,6 +90,9 @@ function M.keepAfterRespawn() restoreWindow = 5 end
 
 function M.onVehicleSpawned(vehId)
   if restoreWindow <= 0 then return end
+  -- Showroom im Starterkauf: Tank kommt aus dem angezeigten Zustand (condition.previewAfterSpawn)
+  local career = extensions.hashiriyaBattle_career
+  if career and career.isOpen and career.isOpen() then restoreWindow = 0 return end
   local veh = be:getObjectByID(vehId)
   if not veh or veh:getJBeamFilename() == 'unicycle' then return end
   restoreTimer = 1

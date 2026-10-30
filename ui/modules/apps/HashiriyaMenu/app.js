@@ -598,16 +598,29 @@ angular.module('beamng.apps')
         return { region: scope.plate.region || s.plateRegion, type: scope.plate.type || s.plateType }
       }
       scope.plateName = function (list, id) {
-        var o = (scope.s && scope.s.plateOptions && scope.s.plateOptions[list]) || []
+        var po = (scope.s && scope.s.plateOptions) || {}
+        if (list === 'types' && po.typeNames && po.typeNames[id]) return po.typeNames[id]
+        var o = po[list] || []
         for (var i = 0; i < o.length; i++) if (o[i].id === id) return o[i].name
         return id || ''
       }
+      // Arten, die es in der Region gibt (Sonderkennzeichen nur in Shinagawa, Okinawa nur Air Force)
+      scope.plateTypes = function (region) {
+        var po = (scope.s && scope.s.plateOptions) || {}
+        if (po.byRegion && po.byRegion[region]) return po.byRegion[region]
+        return (po.types || []).map(function (k) { return k.id })
+      }
       scope.plateCycle = function (what, step) {
-        var o = (scope.s && scope.s.plateOptions && scope.s.plateOptions[what === 'region' ? 'regions' : 'types']) || []
+        var po = (scope.s && scope.s.plateOptions) || {}
+        var sel = scope.plateSel()
+        var o = what === 'region' ? (po.regions || []).map(function (r) { return r.id }) : scope.plateTypes(sel.region)
         if (!o.length) return
-        var cur = scope.plateSel()[what], i = 0
-        for (var k = 0; k < o.length; k++) if (o[k].id === cur) i = k
-        scope.plate[what] = o[(i + step + o.length) % o.length].id
+        var i = Math.max(0, o.indexOf(sel[what]))
+        scope.plate[what] = o[(i + step + o.length) % o.length]
+        if (what === 'region') {
+          var kinds = scope.plateTypes(scope.plate.region)
+          if (kinds.indexOf(sel.type) < 0) scope.plate.type = kinds[0]
+        }
       }
       scope.plateChanged = function () {
         var s = scope.s || {}, sel = scope.plateSel()

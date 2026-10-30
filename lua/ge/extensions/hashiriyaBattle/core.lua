@@ -255,10 +255,21 @@ local function trafficGroup()
   return list
 end
 
+-- Lack-Bibliothek von BeamNG laden: sie entsteht erst beim ersten Fahrzeug-Spawn. Im Titelbildschirm direkt nach
+-- dem Spielstart gibt es noch keins, dann bricht der Verkehr mit "paintsByIdCache (a nil value)" ab.
+local function warmPaintLibrary()
+  local vp = rawget(_G, 'core_vehiclePaints') or extensions.core_vehiclePaints
+  if vp and vp.validatePcPaints then pcall(vp.validatePcPaints, { paints = {} }, 'pessima') end
+end
+
+local trafficRetry = nil -- Sekunden bis zum nächsten Versuch, falls der Start fehlschlug
+local trafficTries = 0
+
 function M.startTraffic()
   if trafficStarted or (M.carsData and M.carsData.careerTraffic == false) then return end
-  local tr = rawget(_G, 'gameplay_traffic')
+  local tr = rawget(_G, 'gameplay_traffic') or extensions.gameplay_traffic
   if not tr or not tr.setupTrafficHelper then return end
+  warmPaintLibrary()
   local okL, list = pcall(function() return tr.getTrafficList and tr.getTrafficList() end)
   trafficStarted = true
   if okL and type(list) == 'table' and next(list) then -- läuft schon
@@ -291,8 +302,28 @@ function M.startTraffic()
     pOpts.vehGroup = group
   end
   local ok, err = pcall(tr.setupTrafficHelper, n, tOpts, parked, pOpts)
-  if ok then log('I', logTag, 'Verkehr gestartet' .. (group and ' (Agent Traffic JP)' or ''))
-  else log('W', logTag, 'Verkehr starten fehlgeschlagen: ' .. tostring(err)) end
+  if ok then
+    trafficRetry, trafficTries = nil, 0
+    log('I', logTag, 'Verkehr gestartet' .. (group and ' (Agent Traffic JP)' or ''))
+  else
+    log('W', logTag, 'Verkehr starten fehlgeschlagen: ' .. tostring(err))
+    -- gleich noch mal versuchen (höchstens 5-mal), sonst bleibt der Titelbildschirm leer
+    trafficTries = trafficTries + 1
+    if trafficTries <= 5 then
+      trafficStarted = false
+      trafficRetry = 2
+    end
+  end
+end
+
+-- Wartenden Neuversuch abarbeiten (aus onUpdate)
+local function updateTrafficRetry(dtReal)
+  if not trafficRetry then return end
+  trafficRetry = trafficRetry - dtReal
+  if trafficRetry > 0 then return end
+  trafficRetry = nil
+  local ok, err = pcall(M.startTraffic)
+  if not ok then log('W', logTag, 'Verkehr Neuversuch: ' .. tostring(err)) end
 end
 
 -- Verkehr nach Uhrzeit: aktive Menge = volle Menge × trafficByHour[Stunde] %
@@ -1125,6 +1156,7 @@ local function onClientPostStartMission()
   loadData()
   applyMissionFilter()
   trafficStarted = false
+  trafficRetry, trafficTries = nil, 0
   M.active = false
   showMenu = true
   showCarSelect = false
@@ -1181,6 +1213,7 @@ local function onUpdate(dtReal)
   updateRestrictions()
   if engineOffTimer > 0 then engineOffTimer = engineOffTimer - dtReal end
   if not M.levelName then return end
+  updateTrafficRetry(dtReal)
   if M.active and trafficStarted then updateTrafficDensity(dtReal) end
   uiTimer = uiTimer - dtReal
   if uiTimer <= 0 then

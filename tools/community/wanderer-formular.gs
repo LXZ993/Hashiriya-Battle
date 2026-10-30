@@ -58,10 +58,15 @@ var STUFEN = [
 // Kennzeichen: Agent's Japanese Plates Pack (Pflicht-Mod)
 var REGIONEN = ['Shinagawa (Tokyo)', 'Sapporo (Hokkaido)', 'Toyota (Aichi)', 'Shizuoka', 'Himeji (Hyogo)',
   'Kōchi', 'Kumamoto', 'Kagoshima'];
-var KZ_TYPEN = ['Private', 'Kei (light vehicle)', 'Commercial', 'Commercial kei'];
+var KZ_TYPEN = ['Private', 'Kei (light vehicle)', 'Commercial', 'Commercial kei',
+  'Special: Shinagawa temporary plate', 'Special: Shinagawa illuminated plate', 'Special: Shinagawa Olympic',
+  'Special: Shinagawa Olympic commercial', 'Special: Okinawa US Air Force'];
 // Teilname im Slot licenseplate_design_2_1: am5jp_<region>_<typ> (aus license-plate-japan.jbeam der Mod)
 var REGION_IDS = ['shinagawa', 'sapporo', 'toyota', 'shizuoka', 'himeji', 'kochi', 'kumamoto', 'kagoshima'];
-var TYP_IDS = ['standard', 'kei', 'commercial', 'keicommercial'];
+// Sonderkennzeichen gibt es nur in einer Region: dort steht das ganze Design, die Region-Frage zählt dann nicht
+var TYP_IDS = ['standard', 'kei', 'commercial', 'keicommercial',
+  'am5jp_shinagawa_temporary', 'am5jp_shinagawa_glow', 'am5jp_shinagawa_olympic',
+  'am5jp_shinagawa_olympiccommercial', 'am5jp_okinawa_airforce'];
 
 // Battle-Zeit im Spiel: 20:00 bis 06:00 (world.json nightFrom/nightTo)
 var NACHT = [20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6];
@@ -201,7 +206,8 @@ function formularAnlegen() {
     .setHelpText('Uses "Agent\'s Japanese Plates Pack". The hiragana character is set automatically in the game.\n' +
       'Example: top number 330, main number 12-34. Low numbers with dots: .. .1 or .. 12 (space instead of -).');
   form.addListItem().setTitle(F.region).setRequired(true).setChoiceValues(REGIONEN);
-  form.addListItem().setTitle(F.plateType).setRequired(true).setChoiceValues(KZ_TYPEN);
+  form.addListItem().setTitle(F.plateType).setRequired(true).setChoiceValues(KZ_TYPEN)
+    .setHelpText('Special plates exist in one region only (Shinagawa or Okinawa); they ignore the region above.');
   text(form, F.plateTop, true, '2 or 3 digits, e.g. 330', /^[0-9]{2,3}$/, '2 or 3 digits');
   text(form, F.plateBottom, true, 'Format 12-34, or with dots: .. .1',
     /^([0-9]{2}-[0-9]{2}|[0-9.]{2} [0-9.]{2})$/, 'Format 12-34 (or with dots, e.g. .. .1)');
@@ -417,7 +423,10 @@ function toRival(a, when) {
   // Text: 4 Zeichen obere Zeile (inkl. /) + 5 Zeichen untere Zeile, so teilt BeamNG (limit 4 / limit2 5)
   var ri = REGIONEN.indexOf(g('region')), ti = KZ_TYPEN.indexOf(g('plateType'));
   r.plate = { text: (top.length === 2 ? top + '//' : top + '/') + bottom,
-    design: 'am5jp_' + REGION_IDS[ri < 0 ? 0 : ri] + '_' + TYP_IDS[ti < 0 ? 0 : ti] };
+    design: (function () {
+      var typ = TYP_IDS[ti < 0 ? 0 : ti];
+      return typ.indexOf('am5jp_') === 0 ? typ : 'am5jp_' + REGION_IDS[ri < 0 ? 0 : ri] + '_' + typ;
+    })() };
 
   // Avatar fürs Silhouetten-Tool: figur + gewählte Teile (der Rest kommt automatisch)
   r.figur = findId(FIGUREN, g('figur')) || 'm';

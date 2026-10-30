@@ -370,6 +370,7 @@
   "spec.odometer": "Laufleistung",
   "spec.condition": "Zustand",
   "spec.fuel": "Tank",
+  "spec.visual": "Lack",
   "new.step.keys": "Tasten prüfen",
   "new.tab.keys": "Tasten",
   "keys.note": "Diese Tasten brauchst du unbedingt. Grün ist belegt, rot fehlt noch. Mit „Belegen“ öffnet sich die BeamNG-Steuerung direkt für diese Taste.",
@@ -422,6 +423,12 @@
   "plate.type.kei": "Kei (gelb)",
   "plate.type.commercial": "Gewerblich (grün)",
   "plate.type.keicommercial": "Kei gewerblich (schwarz)",
+  "plate.region.okinawa": "Okinawa",
+  "plate.type.airforce": "US Air Force",
+  "plate.type.temporary": "Kurzzeitkennzeichen",
+  "plate.type.glow": "Beleuchtet",
+  "plate.type.olympic": "Olympia",
+  "plate.type.olympiccommercial": "Olympia gewerblich",
   "menu.devNoMatch": "Kein Treffer",
   "menu.devRandom": "Zufall"
 }

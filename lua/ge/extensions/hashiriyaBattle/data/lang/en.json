@@ -370,6 +370,7 @@
   "spec.odometer": "Mileage",
   "spec.condition": "Condition",
   "spec.fuel": "Fuel",
+  "spec.visual": "Paint",
   "new.step.keys": "Check controls",
   "new.tab.keys": "Controls",
   "keys.note": "You really need these keys. Green is bound, red is still missing. \"Bind\" opens the BeamNG controls straight for that key.",
@@ -422,6 +423,12 @@
   "plate.type.kei": "Kei (yellow)",
   "plate.type.commercial": "Commercial (green)",
   "plate.type.keicommercial": "Kei commercial (black)",
+  "plate.region.okinawa": "Okinawa",
+  "plate.type.airforce": "US Air Force",
+  "plate.type.temporary": "Temporary",
+  "plate.type.glow": "Illuminated",
+  "plate.type.olympic": "Olympic",
+  "plate.type.olympiccommercial": "Olympic commercial",
   "menu.devNoMatch": "No match",
   "menu.devRandom": "Random"
 }
