@@ -31,9 +31,10 @@ local cfg = {
   winGap = 250,             -- m Vorsprung = Sofortsieg
   modeSwitchHysteresis = 10,-- m, bevor die Gegner-KI zwischen Flucht und Jagd wechselt
   resultTime = 9,           -- s Ergebnis und Spruch nach dem Battle, dann fährt der Rivale weiter
-  -- KI des Rivalen, wenn er vorne liegt: 'traffic' = Rennen im Verkehrsmodus (bremst und weicht Verkehr aus),
-  -- 'flee' = BeamNG-Fluchtmodus (schneller, aber bremst nicht für Verkehrsautos und fährt oft auf)
-  leadAiMode = 'traffic',
+  -- KI des Rivalen im Battle: 'traffic' = Rennen im Verkehrsmodus ohne Tempolimit (bremst für Verkehr und dich,
+  -- überholt), 'pursuit' = BeamNG-Modi flee (vorne) und chase (hinten): flee bremst nicht für Verkehr,
+  -- chase ist der Polizei-Verfolgungsmodus und rammt dich von hinten
+  rivalAiMode = 'traffic',
   -- Rivale fordert dich heraus (er fährt hinter dir und gibt Lichthupe)
   rivalChallenge = true,
   rivalChallengeMinBehind = 6,   -- m
@@ -319,8 +320,11 @@ local function setRivalAi(rivalVeh, mode)
   if battle.rivalMode == mode then return end
   battle.rivalMode = mode
   local player = core().getPlayerVehicle()
-  if mode == 'flee' and cfg.leadAiMode == 'traffic' then
-    -- Vorne: Verkehrsmodus ohne Tempolimit und ohne Spurzwang, Gummiband wie bei flee (wartet, wenn er zu weit weg ist)
+  if cfg.rivalAiMode == 'traffic' then
+    -- Verkehrsmodus ohne Tempolimit und ohne Spurzwang, Gummiband wie bei flee/chase (wartet vorne, holt hinten auf)
+    -- gilt vorne und hinten gleich: nur einmal setzen (ein neues setMode würde die Route neu planen)
+    if battle.trafficAi then return end
+    battle.trafficAi = true
     rivalVeh:queueLuaCommand(string.format(
       "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('traffic') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggression(%f) ai.setAggressionMode('rubberBand')",
       player:getID(), battle.rival.aggression or 0.6))
