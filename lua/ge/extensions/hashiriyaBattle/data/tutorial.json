@@ -41,8 +41,8 @@
         "en": "Rivals, teams and wanderers"
       },
       "text": {
-        "de": "Rivalen gehören zu Teams. Schlag die Mitglieder, dann zeigt sich der Leader. Wanderer fahren allein und tauchen nur unter bestimmten Bedingungen auf. Das Radar zeigt jeden Rivalen in seiner Farbe. Im Rivalen-Lexikon siehst du alle und kannst dir bis zu 5 auf die Merkliste setzen.",
-        "en": "Rivals belong to teams. Beat the members and the leader shows up. Wanderers drive alone and only appear under certain conditions. The radar shows every rival in their colour. The rival lexicon lists them all, and you can put up to 5 on your watch list."
+        "de": "Rivalen gehören zu Teams. Schlag die Mitglieder, dann zeigt sich der Leader. Wanderer fahren allein und tauchen nur unter bestimmten Bedingungen auf. Das Radar zeigt jeden Rivalen in seiner Farbe. Im Rivalen-Lexikon siehst du alle und kannst dir bis zu 5 auf die Merkliste setzen. Was ein Wanderer verlangt, verrät das Lexikon erst, wenn du davon gehört hast.",
+        "en": "Rivals belong to teams. Beat the members and the leader shows up. Wanderers drive alone and only appear under certain conditions. The radar shows every rival in their colour. The rival lexicon lists them all, and you can put up to 5 on your watch list. The lexicon only reveals what a wanderer wants once you have heard about it."
       }
     },
     {
@@ -63,8 +63,8 @@
         "en": "Garage and shop"
       },
       "text": {
-        "de": "Mit dem Preisgeld rüstest du auf. Im Shop legst du Teile und Lack in den Warenkorb und siehst sie sofort am Auto, dazu, wie sich Leistung und Gewicht ändern. Bessere Teile werden mit deinem Rang freigeschaltet. In der Garage reparierst du und wechselst Autos.",
-        "en": "Prize money buys upgrades. In the shop you put parts and paint in the cart and see them on the car right away, along with how power and weight change. Better parts unlock with your rank. At the garage you repair and switch cars."
+        "de": "Mit dem Preisgeld rüstest du auf. Im Shop legst du Teile und Lack in den Warenkorb und siehst sie sofort am Auto, dazu, wie sich Leistung und Gewicht ändern. Bessere Teile werden mit deinem Rang freigeschaltet. In der Garage reparierst du und wechselst Autos. Beim Autohändler gibt es jeden Tag andere Gebrauchtwagen, jeder mit eigenem Zustand. In der Garage meldest du dein Kennzeichen um, mit Region und Art.",
+        "en": "Prize money buys upgrades. In the shop you put parts and paint in the cart and see them on the car right away, along with how power and weight change. Better parts unlock with your rank. At the garage you repair and switch cars. The car dealer has different used cars every day, each in its own condition. At the garage you can re-register your plate, including region and type."
       }
     },
     {
@@ -74,8 +74,8 @@
         "en": "Reputation, streak and combo"
       },
       "text": {
-        "de": "Siege bringen Ruf und damit einen höheren Rang. Gewinnst du mehrere Battles hintereinander, steigt das Preisgeld, aber die Serie endet, sobald du verlierst oder in die Garage fährst. Knappe Manöver im Verkehr bringen Combo-Punkte. Ein Unfall löscht die Combo.",
-        "en": "Wins bring reputation and with it a higher rank. Win several battles in a row and the prize money rises, but the streak ends when you lose or drive into the garage. Close calls in traffic earn combo points. A crash wipes the combo."
+        "de": "Siege bringen Ruf und damit einen höheren Rang. Gewinnst du mehrere Battles hintereinander, steigt das Preisgeld, aber die Serie endet, sobald du verlierst oder in die Garage fährst. Knappe Manöver im Verkehr bringen Combo-Punkte. Ein Unfall löscht die Combo. Rang und Spitzname stehen oben rechts unter Uhr und Datum.",
+        "en": "Wins bring reputation and with it a higher rank. Win several battles in a row and the prize money rises, but the streak ends when you lose or drive into the garage. Close calls in traffic earn combo points. A crash wipes the combo. Your rank and nickname are shown top right under the clock and date."
       }
     }
   ]

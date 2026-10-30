@@ -56,12 +56,19 @@ angular.module('beamng.apps')
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')"><i class="hbm-ico" ng-bind-html="ico(\'carsChase\')"></i>{{ s.t[\'menu.callRival\'] }}</div>' +
             '<div class="hbm-plate hbm-dev">' +
-              '<input type="text" list="hbm-dev-rivals" ng-model="dev.rival" placeholder="{{ s.t[\'menu.devRivalPh\'] }}">' +
-              '<datalist id="hbm-dev-rivals"><option ng-repeat="r in s.devRivals track by r.id" value="{{ r.id }}">{{ r.name }}</option></datalist>' +
+              '<input type="text" ng-model="dev.rival" ng-focus="dev.open = true" placeholder="{{ s.t[\'menu.devRivalPh\'] }}">' +
+              '<span class="hbm-btn" ng-click="dev.open = !dev.open">{{ dev.open ? \'\u25b2\' : \'\u25bc\' }}</span>' +
+            '</div>' +
+            // eigene Vorschlagsliste (das HTML-datalist öffnet sich im BeamNG-UI nicht)
+            '<div class="hbm-dev-list" ng-if="dev.open">' +
+              '<div class="hbm-dev-opt" ng-repeat="r in devMatches() track by r.id" ng-click="dev.rival = r.id; dev.open = false">' +
+                '<b>{{ r.name }}</b><span>{{ r.id }}{{ r.tag ? \' \u00b7 \' + r.tag : \'\' }}</span></div>' +
+              '<div class="hbm-dev-opt hbm-dev-none" ng-if="!devMatches().length">{{ s.t[\'menu.devNoMatch\'] }}</div>' +
             '</div>' +
             '<div class="hbm-plate hbm-dev">' +
               '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !dev.rival}" ng-click="dev.rival && act(\'devSpawnRival\', dev.rival)">{{ s.t[\'menu.devSpawn\'] }}</span>' +
               '<span class="hbm-btn" ng-class="{\'hbm-dis\': !dev.rival}" ng-click="dev.rival && act(\'devBeatRival\', dev.rival)">{{ s.t[\'menu.devBeat\'] }}</span>' +
+              '<span class="hbm-btn" ng-click="act(\'devSpawnRival\', \'__random\')">{{ s.t[\'menu.devRandom\'] }}</span>' +
             '</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'devClearRivals\')"><i class="hbm-ico" ng-bind-html="ico(\'xmark\')"></i>{{ s.t[\'menu.devClear\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRep\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'menu.cheatRep\'] }}</div>' +
@@ -98,8 +105,20 @@ angular.module('beamng.apps')
               '<div class="hbm-section"><i class="hbm-ico hbm-ico-s" ng-bind-html="ico(\'rename\')"></i>{{ s.t[\'garage.plate\'] }}</div>' +
               '<div class="hbm-plate">' +
                 '<input type="text" maxlength="12" ng-model="plate.text" placeholder="{{ s.plate }}">' +
-                '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !plate.text || plate.text == s.plate}" ' +
-                  'ng-click="plate.text && plate.text != s.plate && act(\'setPlate\', plate.text); plate.text = \'\'">{{ s.t[\'garage.plateChange\'] }} \u00b7 {{ s.platePrice }}</span>' +
+              '</div>' +
+              '<div class="hbm-cycle" ng-if="s.plateOptions">' +
+                '<span class="hbm-cycle-btn" ng-click="plateCycle(\'region\', -1)">\u2039</span>' +
+                '<span class="hbm-cycle-val">{{ plateName(\'regions\', plateSel().region) }}</span>' +
+                '<span class="hbm-cycle-btn" ng-click="plateCycle(\'region\', 1)">\u203a</span>' +
+              '</div>' +
+              '<div class="hbm-cycle" ng-if="s.plateOptions">' +
+                '<span class="hbm-cycle-btn" ng-click="plateCycle(\'type\', -1)">\u2039</span>' +
+                '<span class="hbm-cycle-val">{{ plateName(\'types\', plateSel().type) }}</span>' +
+                '<span class="hbm-cycle-btn" ng-click="plateCycle(\'type\', 1)">\u203a</span>' +
+              '</div>' +
+              '<div class="hbm-plate">' +
+                '<span class="hbm-btn hbm-btn-main" style="flex:1;text-align:center" ng-class="{\'hbm-dis\': !plateChanged()}" ' +
+                  'ng-click="plateChanged() && plateSubmit()">{{ s.t[\'garage.plateChange\'] }} \u00b7 {{ s.platePrice }}</span>' +
               '</div>' +
             '</div>' +
 
@@ -455,6 +474,15 @@ angular.module('beamng.apps')
           '.hbm-dev{padding:2px 18px 4px;} .hbm-dev .hbm-btn{flex:1;text-align:center;}' +
           '.hbm-plate input{flex:1;min-width:0;height:26px;padding:0 8px;font:700 13px "Overpass",sans-serif;letter-spacing:1px;color:#141414;background:#f4f1e6;border:2px solid #2a2a2a;border-radius:3px;outline:none;}' +
           '.hbm-plate .hbm-btn{flex:none;padding:6px 10px;}' +
+          '.hbm-dev-list{max-height:220px;overflow-y:auto;margin:0 18px 6px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);}' +
+          '.hbm-dev-opt{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;font-size:12px;cursor:pointer;}' +
+          '.hbm-dev-opt span{opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+          '.hbm-dev-opt:hover{background:rgba(255,102,0,.25);}' +
+          '.hbm-dev-none{opacity:.6;cursor:default;}' +
+          '.hbm-cycle{display:grid;grid-template-columns:28px 1fr 28px;align-items:center;margin:0 18px 6px;background:rgba(255,255,255,.05);}' +
+          '.hbm-cycle-btn{text-align:center;font-size:18px;line-height:26px;cursor:pointer;color:#ff6600;}' +
+          '.hbm-cycle-btn:hover{background:rgba(255,255,255,.08);}' +
+          '.hbm-cycle-val{text-align:center;font-size:12px;font-weight:700;letter-spacing:.5px;}' +
           '.hbm-badge{display:inline-block;margin-left:6px;padding:0 6px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.1);color:rgba(244,244,244,.8);transform:skewX(-12deg);}' +
           '.hbm-badge-night{background:rgba(120,140,255,.25);color:#b8c4ff;}' +
           '.hbm-stat-live b{color:var(--o);}' +
@@ -563,8 +591,45 @@ angular.module('beamng.apps')
       'use strict'
       scope.s = null
       scope.open = { slot: null }
-      scope.plate = { text: '' }
-      scope.dev = { rival: '' }
+      scope.plate = { text: '', region: null, type: null }
+      // Kennzeichen-Design (Region, Art) in der Garage: Auswahl per Pfeilen, Standard = aktuelles Design des Autos
+      scope.plateSel = function () {
+        var s = scope.s || {}
+        return { region: scope.plate.region || s.plateRegion, type: scope.plate.type || s.plateType }
+      }
+      scope.plateName = function (list, id) {
+        var o = (scope.s && scope.s.plateOptions && scope.s.plateOptions[list]) || []
+        for (var i = 0; i < o.length; i++) if (o[i].id === id) return o[i].name
+        return id || ''
+      }
+      scope.plateCycle = function (what, step) {
+        var o = (scope.s && scope.s.plateOptions && scope.s.plateOptions[what === 'region' ? 'regions' : 'types']) || []
+        if (!o.length) return
+        var cur = scope.plateSel()[what], i = 0
+        for (var k = 0; k < o.length; k++) if (o[k].id === cur) i = k
+        scope.plate[what] = o[(i + step + o.length) % o.length].id
+      }
+      scope.plateChanged = function () {
+        var s = scope.s || {}, sel = scope.plateSel()
+        return !!(scope.plate.text && scope.plate.text !== s.plate) || sel.region !== s.plateRegion || sel.type !== s.plateType
+      }
+      scope.plateSubmit = function () {
+        var sel = scope.plateSel()
+        scope.act('setPlate', (scope.plate.text || '') + '|am5jp_' + sel.region + '_' + sel.type)
+        scope.plate.text = ''
+        scope.plate.region = null
+        scope.plate.type = null
+      }
+      scope.dev = { rival: '', open: false }
+      // Dev-Tool: Rivalen nach ID, Name oder Crew filtern (höchstens 40 Treffer)
+      scope.devMatches = function () {
+        var list = (scope.s && scope.s.devRivals) || [], q = (scope.dev.rival || '').toLowerCase(), out = []
+        for (var i = 0; i < list.length && out.length < 40; i++) {
+          var r = list[i]
+          if (!q || r.id.toLowerCase().indexOf(q) >= 0 || r.name.toLowerCase().indexOf(q) >= 0 || (r.tag || '').toLowerCase().indexOf(q) >= 0) out.push(r)
+        }
+        return out
+      }
       // Abschleppen kostet viel: erster Klick fragt nach, zweiter Klick (innerhalb 4 s) bestätigt.
       scope.towArmed = false
       var towTimer = null

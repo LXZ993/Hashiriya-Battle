@@ -41,9 +41,17 @@ local function seededRandom(seed)
   end
 end
 
+local starterPriceYen -- weiter unten
+
+-- Startautos, die man sich vom Startgeld leisten kann (sonst würde man mit 0 Yen oder im Minus starten)
 local function pool()
   local d = core().carsData
-  return d and d.starterCars or {}
+  local out = {}
+  local money = core().startMoney()
+  for _, e in ipairs(d and d.starterCars or {}) do
+    if starterPriceYen(e) <= money then table.insert(out, e) end
+  end
+  return out
 end
 
 local function rollCondition(rand, entry)
@@ -291,7 +299,9 @@ end
 local function spawnShowroomCar(starter, paint)
   core().engineOffAfterSpawn()
   local pos, rot = showroomTransform()
-  local opts = { config = starter.config, pos = pos, rot = rot, paint = paint, paint2 = paint, paint3 = paint }
+  -- Kennzeichen-Design (Plates Pack) gleich in die Config, damit Showroom-Auto und Startauto es haben
+  local cfg = extensions.hashiriyaBattle_plates.applyToConfig(starter.config, flow and flow.plateDesign)
+  local opts = { config = cfg, pos = pos, rot = rot, paint = paint, paint2 = paint, paint3 = paint }
   if flow and flow.plate and flow.plate ~= '' then opts.licenseText = flow.plate end
   local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
   spawnTimer = 1.2
@@ -306,7 +316,7 @@ local function spawnShowroomCar(starter, paint)
 end
 
 -- Kaufpreis des Starterautos in Yen (wird vom Startkapital abgezogen)
-local function starterPriceYen(starter)
+function starterPriceYen(starter)
   local info = {}
   local key = tostring(starter.config or ''):match('([^/]+)%.pc$')
   local okM, m = pcall(core_vehicles.getModel, starter.model)
@@ -367,15 +377,9 @@ local function selectPaint(id)
   end
 end
 
--- Kennzeichen: Vorschlag von BeamNG (zufällig) übernehmen
+-- Kennzeichen: zufällig im Format des Plates Packs (z. B. 330/12-34)
 local function randomPlate()
-  local text = nil
-  local okGen, gen = pcall(function()
-    local skia = extensions.core_skiaTemplate or (extensions.load('core_skiaTemplate') and extensions.core_skiaTemplate)
-    return skia and skia.generateText(nil, nil)
-  end)
-  if okGen and type(gen) == 'string' and gen ~= '' then text = gen end
-  if not text then text = string.format('%d%d-%02d', math.random(1, 9), math.random(0, 9), math.random(0, 99)) end
+  local text = extensions.hashiriyaBattle_plates.random()
   flow.plate = text
   flow.platePick = text
 end
@@ -391,17 +395,15 @@ local function startCareer()
     c.msg(c.t('msg.partFailed'))
     return
   end
-  local plate = flow.plate
-  if not plate or plate == '' then
-    local okP, p = pcall(core_vehicles.getVehicleLicenseText, veh)
-    plate = okP and p or nil
-  end
+  local plates = extensions.hashiriyaBattle_plates
+  local plate = plates.normalize(flow.plate) or plates.random()
+  cfg = plates.applyToConfig(cfg, flow.plateDesign)
   c.newCareer({
     playerName = flow.name,
     experience = flow.experience,
     carPrice = starterPriceYen(starter),
     condition = starter.condition,
-    car = { model = starter.model, config = cfg, name = starter.name, plate = plate, seeded = true,
+    car = { model = starter.model, config = cfg, name = starter.name, plate = plate, plateDesign = flow.plateDesign or plates.defaultDesign, seeded = true,
       paintId = flow.paintId, paintIds = { flow.paintId }, ownedPaints = flow.paintId and { [flow.paintId] = true } or nil },
   })
   M.close()
@@ -446,7 +448,7 @@ function M.action(arg)
     elseif step == 'confirm' then flow.step = 'car' end
   elseif step == 'title' then
     if cmd == 'newGame' then
-      flow = { step = 'experience', name = '', plate = '' }
+      flow = { step = 'experience', name = '', plate = '', plateDesign = extensions.hashiriyaBattle_plates.defaultDesign }
     elseif cmd == 'continue' then
       M.close()
       core().continueCareer()
@@ -462,22 +464,33 @@ function M.action(arg)
       flow.step = 'keys'
     end
   elseif step == 'driver' then
+    local plates = extensions.hashiriyaBattle_plates
     if cmd == 'randomPlate' then
       randomPlate()
+    elseif cmd == 'plateRegion' or cmd == 'plateType' then
+      local region, kind = plates.splitDesign(flow.plateDesign)
+      if cmd == 'plateRegion' then region = val else kind = val end
+      local d = plates.design(region, kind)
+      if plates.validDesign(d) then flow.plateDesign = d end
     elseif cmd == 'driver' then
       local name, plate = val:match('^(.-)\031(.*)$')
       name = (name or val):gsub('[%c]', ''):sub(1, 16)
       if name == '' then return end
       flow.name = name
-      flow.plate = (plate or ''):gsub('[%c]', ''):sub(1, 12)
-      flow.platePick = nil
+      local typed = (plate or ''):gsub('[%c]', '')
+      if typed == '' then
+        flow.plate = plates.random()
+      else
+        local norm = plates.normalize(typed)
+        if not norm then
+          core().msg(core().t('msg.plateInvalid'), 6)
+          return
+        end
+        flow.plate = norm
+      end
+      flow.platePick = flow.plate
       flow.step = 'car'
       local seedPlate = flow.plate
-      if seedPlate == '' then
-        local veh = core().getPlayerVehicle()
-        local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)
-        seedPlate = okP and p or ''
-      end
       local key = flow.name .. '|' .. tostring(seedPlate)
       if flow.offerKey ~= key then
         flow.offerKey = key
@@ -521,9 +534,10 @@ function M.getUiState()
     end
   end
   if flow.step == 'driver' then
-    local veh = c.getPlayerVehicle()
-    local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)
-    st.plateHint = okP and p or ''
+    local plates = extensions.hashiriyaBattle_plates
+    st.plateHint = '330 1234'
+    st.plateOptions = plates.uiOptions(c.t)
+    st.plateRegion, st.plateType = plates.splitDesign(flow.plateDesign)
   end
   if flow.step == 'car' then
     st.cars = {}
@@ -547,7 +561,10 @@ function M.getUiState()
       if p.id == flow.paintId then paintName, swatch = p.name, shop().paintSwatch(p.paint) end
     end
     st.summary = {
-      name = flow.name, plate = (flow.plate ~= '' and flow.plate) or st.plateHint or '—',
+      name = flow.name, plate = ((flow.plate ~= '' and flow.plate) or '—') .. (function()
+        local region, kind = extensions.hashiriyaBattle_plates.splitDesign(flow.plateDesign)
+        return ' · ' .. c.t('plate.region.' .. region) .. ', ' .. c.t('plate.type.' .. kind)
+      end)(),
       car = starter and starter.name or '', paint = paintName, swatch = swatch,
       money = eco.formatYen(c.startMoney()),
       carPrice = starter and eco.formatYen(starterPriceYen(starter)) or nil,

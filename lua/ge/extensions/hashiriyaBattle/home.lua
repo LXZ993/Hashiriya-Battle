@@ -226,6 +226,21 @@ function M.unwatch(id)
   return false
 end
 
+-- Hinweis zu einem Wanderer/Boss: erst sichtbar, wenn man davon gehört hat (save.knownHints, später durch PA-Gespräche)
+local function hintText(r, save)
+  local pr = extensions.hashiriyaBattle_progress
+  if save and save.knownHints and save.knownHints[r.id] then return pr.loc(r.hint) end
+  return core().t('home.hintUnknown')
+end
+M.hintText = hintText
+
+function M.learnHint(id)
+  local save = core().save
+  if not save or not id then return end
+  save.knownHints = save.knownHints or {}
+  save.knownHints[id] = true
+end
+
 -- Für das HUD: Name (oder Hinweis, solange unbekannt), Farbe nach Art
 function M.watchHud()
   local list = M.watchList()
@@ -244,7 +259,7 @@ function M.watchHud()
       local beaten = save.defeated and save.defeated[id]
       local hidden = (r.wanderer or r.boss) and not beaten
       table.insert(out, { id = id, name = hidden and '???' or r.name, kind = rv.markerKind(r), near = onRoad[id] or false,
-        hint = hidden and pr.loc(r.hint) or nil })
+        hint = hidden and hintText(r, save) or nil })
     end
   end
   return out
@@ -275,7 +290,7 @@ local function lexicon()
       name = hidden and '???' or r.name,
       nick = hidden and '' or pr.loc(r.nick),
       car = hidden and '???' or (rv.vehicleName and rv.vehicleName(r.model) or r.model),
-      desc = hidden and pr.loc(r.hint) or pr.loc(r.desc),
+      desc = hidden and hintText(r, save) or pr.loc(r.desc),
       quote = (not hidden and r.lines) and pr.loc(r.lines.challenge) or nil,
       leader = r.leader or false, boss = r.boss or false,
       beaten = beaten,

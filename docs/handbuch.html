@@ -72,7 +72,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 29.10.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 30.10.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -384,7 +384,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
   "desc": {"de": "Ein älterer Herr in einem Bluebuck von 1962 ...", "en": "..."},
   "hint": {"de": "Fährt nur gegen Miramar-Fahrer.", "en": "Only races Miramar drivers."}
 }</code></pre>
-<p>Im Lexikon bleiben Name, Spruch und Beschreibung von Wanderern und Bossen verborgen, bis du sie geschlagen hast; vorher sieht man nur den <code>hint</code>.</p>
+<p>Im Lexikon bleiben Name, Spruch und Beschreibung von Wanderern und Bossen verborgen, bis du sie geschlagen hast. Auch der <code>hint</code> ist erst sichtbar, wenn man davon gehört hat (Spielstand <code>knownHints</code>, später durch die PA-Gespräche). Vorher steht dort "Noch unbekannt" (Text <code>home.hintUnknown</code>).</p>
 <p>Für Wanderer aus der Community gibt es das <a href="https://claude.ai/artifact/X81uryXxM3PfamZggfK9C9">Wanderer-Formular</a>; sein Export ist schon im richtigen Format.</p>
 
 <h3 id="boss">Bosse und Endboss</h3>
@@ -435,7 +435,15 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><th>Arten</th><td><code>standard</code> (weiß, privat), <code>kei</code> (gelb, Kleinwagen), <code>commercial</code> (grün, gewerblich), <code>keicommercial</code> (schwarz)</td></tr>
 <tr><th>Sonder-Designs</th><td><code>am5jp_shinagawa_olympic</code>, <code>am5jp_shinagawa_olympiccommercial</code>, <code>am5jp_shinagawa_temporary</code>, <code>am5jp_shinagawa_glow</code>, <code>am5jp_okinawa_airforce</code></td></tr>
 </table>
-<p>Die Mod setzt das Design in den Slot <code>licenseplate_design_2_1</code> und den Text beim Spawnen.</p>
+<p>Die Mod setzt das Design in den Slot <code>licenseplate_design_2_1</code> und den Text beim Spawnen. Fehlt das Design, zeigt BeamNG das Standard-Kennzeichen der Map (auf der C1 "川崎").</p>
+<h4>Kennzeichen des Spielers</h4>
+<ul>
+<li><b>Neues Spiel:</b> Kennzeichen eintippen oder würfeln, darunter Region und Art wählen. Eingabe wie in Japan: <code>330 1234</code> wird <code>330/12-34</code>, <code>330 7</code> wird <code>330/.. .7</code> (・・・7), <code>330 123</code> wird <code>330/.1 23</code>. Leer = zufällig. Falsches Format = Meldung, nichts passiert.</li>
+<li><b>Händlerauto:</b> bekommt ein zufälliges Kennzeichen, Design Shinagawa privat.</li>
+<li><b>Garage:</b> Text ändern und mit den Pfeilen Region und Art wählen, dann "Ummelden" (15.000 Yen, <code>platePriceYen</code> in <span class="path">core.lua</span>). Ein neues Design lädt das Auto kurz neu; Zustand und Tank bleiben.</li>
+<li>Im Spielstand: <code>plate</code> (Text) und <code>plateDesign</code> pro Auto. Alte Spielstände bekommen beim Laden das Standard-Design, BeamNG-Kennzeichen werden durch ein gültiges ersetzt.</li>
+<li>Logik: <span class="path">lua\ge\extensions\hashiriyaBattle\plates.lua</span> (Format prüfen, würfeln, Design in die Config). Regionen und Arten stehen dort oben, ihre Namen in den Sprachdateien unter <code>plate.region.*</code> und <code>plate.type.*</code>.</li>
+</ul>
 
 <h3 id="lack">Lackierung (paint)</h3>
 <p>Optional. Fehlt <code>paint</code>, fährt der Rivale die Farbe aus der Config. Hat die Config eine Livery (Slot <code>paint_design</code>), wird <code>paint</code> ignoriert, damit die Livery nicht übermalt wird.</p>
@@ -539,7 +547,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3>Ein Startauto hinzufügen</h3>
 <pre><code>{"id": "starter_bx_coupe", "name": "Ibishu 200BX Coupé", "model": "bx",
  "config": "vehicles/bx/200bx_base_M.pc", "priceUsd": 14000},</code></pre>
-<p><code>priceUsd</code> weglassen = BeamNG-Wert der Config. Pro Auto kannst du auch eigene Zustandsbereiche setzen, z. B. <code>"integrity": [0.9, 0.97]</code> für ein Auto, das sonst zu kaputt wäre. Welche Autos man bekommt, hängt vom Fahrernamen und Kennzeichen ab (gleicher Name + Kennzeichen = gleiches Angebot).</p>
+<p><code>priceUsd</code> weglassen = BeamNG-Wert der Config. Ein Startauto, das mehr als <code>startMoneyYen</code> kostet, wird nicht angeboten (man kann also nie mit Minus starten). Pro Auto kannst du auch eigene Zustandsbereiche setzen, z. B. <code>"integrity": [0.9, 0.97]</code> für ein Auto, das sonst zu kaputt wäre. Welche Autos man bekommt, hängt vom Fahrernamen und Kennzeichen ab (gleicher Name + Kennzeichen = gleiches Angebot).</p>
 </section>
 
 <section id="haendler">
@@ -556,6 +564,9 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3>Leistungsgrenze (powerCap)</h3>
 <pre><code>"powerCap": {"enabled": true, "factor": 1.1, "minPs": 120}</code></pre>
 <p>Der Händler bietet nur Autos bis zur Leistung des stärksten Rivalen an, den du gerade treffen kannst, mal <code>factor</code> (1.1 = 10 % mehr), nie unter <code>minPs</code>. Gezählt werden Crew-Mitglieder ab dem Rang ihrer Crew; Leader, Wanderer und Bosse erst, wenn du sie geschlagen hast. Die Grenze wird einmal pro Spieltag festgelegt. Statt der Rechnung geht auch eine feste Liste: <code>"byRank": [150, 180, 220, ...]</code> (ab Rang 1). <code>"enabled": false</code> schaltet die Grenze ab.</p>
+<h3>Gebrauchtzustand der Händlerautos</h3>
+<p>Jedes Angebot hat eine Zustandsklasse A, B oder C. Sie bestimmt den Preis und den Verschleiß (wie beim Startauto: Motor = <code>integrity</code>, Lack = <code>visual</code>). Viele Kilometer kosten bis zu 4 Prozentpunkte Motorzustand extra, der Tank ist 25 bis 60 % voll. Auf der Karte stehen "Zustand" und "Tank". Die Werte stehen oben in <span class="path">dealer.lua</span> (<code>local conditions</code>):</p>
+<pre><code>{ id = 'B', factor = 0.88, integrity = { 0.87, 0.93 }, visual = { 0.65, 0.85 } },</code></pre>
 <div class="box tip"><b>Beispiel: Ein Import soll öfter kommen</b>Suche den Eintrag und erhöhe <code>rarity</code> z. B. von <code>0.02</code> auf <code>0.2</code>. Soll er früher kommen, senke <code>minRank</code>.</div>
 </section>
 
@@ -812,7 +823,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><th>App (Ordner in <span class="path">ui\modules\apps\</span>)</th><th>Was sie zeigt</th></tr>
 <tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Shops, Händler, Lexikon, Statistik, Werkzeuge/Dev-Tools</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Sprüche, Ergebnis</td></tr>
-<tr><td><code>HashiriyaStatus</code></td><td>Status oben: Geld, Ruf, Rang, Uhrzeit, Datum</td></tr>
+<tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
 <tr><td><code>HashiriyaTitle</code></td><td>Titelbildschirm (Neues Spiel / Weiter)</td></tr>
 </table>
 <ul>
@@ -844,7 +855,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <table>
 <tr><th>Knopf</th><th>Was er macht</th></tr>
 <tr><td>Rivalen rufen</td><td>Spawnt sofort den nächsten passenden Rivalen</td></tr>
-<tr><td>Eingabefeld "Rivale: ID oder Name"</td><td>Tippe eine ID (<code>w_ojisan</code>) oder einen Namen (auch nur ein Teil, z. B. <code>ojisan</code>). Die Liste schlägt beim Tippen vor.</td></tr>
+<tr><td>Eingabefeld "Rivale: ID oder Name"</td><td>Tippe eine ID (<code>w_ojisan</code>), einen Namen oder eine Crew (auch nur einen Teil, z. B. <code>lantern</code>). Mit dem Pfeil daneben öffnet sich die Liste mit Treffern; ein Klick übernimmt den Rivalen.</td></tr>
+<tr><td>Zufall</td><td>Spawnt einen zufälligen Rivalen, der gerade nicht unterwegs ist</td></tr>
 <tr><td>Spawnen</td><td>Spawnt genau diesen Rivalen, egal welche Bedingungen</td></tr>
 <tr><td>Als geschlagen markieren</td><td>Zählt ihn als besiegt (z. B. um eine Crew zu überspringen und den Leader zu testen)</td></tr>
 <tr><td>Alle Rivalen entfernen</td><td>Löscht alle Rivalen von der Straße</td></tr>
@@ -884,6 +896,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><th>Problem</th><th>Ursache und Lösung</th></tr>
 <tr><td>Menü zeigt nur Schlüssel wie <code>menu.newGame</code></td><td><code>lang\de.json</code> oder <code>en.json</code> kaputt (Komma, Anführungszeichen). In VS Code prüfen.</td></tr>
 <tr><td>Keine Rivalen mehr</td><td><code>rivals.json</code> kaputt, oder es ist Tag (nur nachts), oder du fährst unter 40 km/h. Log prüfen.</td></tr>
+<tr><td>Meldung "Keine KI-Straße gefunden"</td><td>Kein Spawnpunkt auf dem Straßennetz gefunden. Im <code>hashiriya.log</code> steht bei "Kein Rivalen-Spawnpunkt" der Grund. Beim Rufen und beim Dev-Spawn probiert die Mod mehrere Abstände und zur Not ohne Einbahn-Prüfung.</td></tr>
 <tr><td>Ein bestimmter Rivale kommt nie</td><td>Bedingungen prüfen. Mit "Spawnen" testen, ob er überhaupt spawnt. Kommt er dann als falsches Auto oder gar nicht: <code>model</code>/<code>config</code> falsch geschrieben oder Mod fehlt.</td></tr>
 <tr><td>Rivale hat Standard-Kennzeichen</td><td>Agent's Japanese Plates Pack fehlt oder <code>design</code> falsch geschrieben.</td></tr>
 <tr><td>Rivale hat falsche Farbe</td><td>Config hat eine Livery (dann wird <code>paint</code> ignoriert), oder <code>color</code>-Werte über 1.</td></tr>
@@ -914,6 +927,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>shop.lua</code></td><td>Tuning-Shop, Lackierer, Warenkorb</td></tr>
 <tr><td><code>setup.lua</code></td><td>Fahrwerks-Einstellungen (Tuning-Werte)</td></tr>
 <tr><td><code>style.lua</code></td><td>Siegesserie und Combo</td></tr>
+<tr><td><code>plates.lua</code></td><td>Japanische Kennzeichen: Format, Zufall, Design</td></tr>
 <tr><td><code>logger.lua</code></td><td>Mod-Log, Datencheck, Fehler abfangen, Fehlerbericht</td></tr>
 </table>
 <div class="box tip"><b>Wenn du doch Code anfasst</b>Lua-Kommentare beginnen mit <code>--</code>. Eine Zahl wie <code>40 / 3.6</code> ist km/h in m/s umgerechnet: nur die erste Zahl ändern. Nach dem Speichern BeamNG neu starten und das Log prüfen.</div>

@@ -23,6 +23,8 @@ end
 
 -- Zustand ins Auto schreiben: parts = { [partId] = { o, i, v } } oder nur Grundwerte (frisch gekaufter Gebrauchtwagen)
 local function apply(veh, car, fresh)
+  -- gekauft, aber noch nie gespawnt (Händlerauto): beim ersten Spawn Kaufzustand inkl. Tank setzen
+  if car.freshWear then fresh = true; car.freshWear = nil end
   local wear = car.wear or {}
   local parts = car.parts
   local tbl = 'nil'

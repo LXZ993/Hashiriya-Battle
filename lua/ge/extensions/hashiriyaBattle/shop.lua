@@ -648,6 +648,16 @@ local function install(slot, part, label)
   log('I', logTag, string.format('Shop: %s -> %s (Besitz)', slot, part))
 end
 
+-- Kennzeichen-Design (Plates Pack) ins Auto setzen; der Rest der Config bleibt
+function M.setPlateDesign(design)
+  local car = activeCar()
+  local cfg = baseConfig()
+  if not car or not cfg then return end
+  cfg = extensions.hashiriyaBattle_plates.applyToConfig(cfg, design)
+  car.config = cfg
+  if cart then cart.original = copyConfig(cfg); applyCart(true) else respawn(cfg) end
+end
+
 -- Garage: nur Serie und gekaufte Teile, ohne Warenkorb.
 function M.buy(slot, part, garageOnly)
   local car = activeCar()

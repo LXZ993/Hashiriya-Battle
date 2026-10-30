@@ -69,6 +69,13 @@ angular.module('beamng.apps')
                 '<span class="hbt-btn" ng-click="cmd(\'randomPlate\')"><i class="hbt-ico hbt-ico-s" ng-bind-html="ico(\'diceD6\')"></i>{{ t(\'new.random\') }}</span>' +
               '</div>' +
               '<div class="hbt-note">{{ t(\'new.plateNote\') }}</div>' +
+              '<label class="hbt-label">{{ t(\'new.plateRegion\') }}</label>' +
+              '<div class="hbt-chips">' +
+                '<span class="hbt-chip" ng-repeat="r in f.plateOptions.regions track by r.id" ng-class="{\'is-on\': f.plateRegion == r.id}" ng-click="cmd(\'plateRegion\', r.id)">{{ r.name }}</span>' +
+              '</div>' +
+              '<div class="hbt-chips">' +
+                '<span class="hbt-chip" ng-repeat="k in f.plateOptions.types track by k.id" ng-class="{\'is-on\': f.plateType == k.id}" ng-click="cmd(\'plateType\', k.id)">{{ k.name }}</span>' +
+              '</div>' +
             '</div>' +
 
             '<div class="hbt-wiz-body" ng-if="f.step == \'car\'">' +
@@ -177,6 +184,10 @@ angular.module('beamng.apps')
             'background:rgba(255,255,255,.06);border:none;border-bottom:3px solid var(--o);outline:none;}' +
           '.hbt-input:focus{background:rgba(255,102,0,.14);}' +
           '.hbt-plate-row{display:flex;gap:8px;align-items:center;}' +
+          '.hbt-chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;}' +
+          '.hbt-chip{padding:6px 10px;font-size:12px;font-weight:700;letter-spacing:.5px;color:#cfd3da;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);cursor:pointer;}' +
+          '.hbt-chip:hover{border-color:#ff6c00;}' +
+          '.hbt-chip.is-on{color:#fff;background:#ff6c00;border-color:#ff6c00;}' +
           '.hbt-plate{flex:1;color:#141414;background:#f4f1e6;border:3px solid #2a2a2a;border-radius:4px;font-style:normal;text-align:center;}' +
           '.hbt-plate:focus{background:#fffbe9;}' +
           '.hbt-exp{display:flex;gap:16px;align-items:flex-start;padding:16px 18px;margin-bottom:12px;cursor:pointer;background:rgba(255,255,255,.04);border-left:4px solid transparent;transition:background .12s;}' +

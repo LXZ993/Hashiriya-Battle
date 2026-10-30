@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -323,9 +323,21 @@ local function updateTrafficDensity(dt)
   end
 end
 
+-- Config des Spielerautos mit Kennzeichen-Design (Plates Pack); alte Spielstände bekommen das Standard-Design
+local function plateConfig(car)
+  local plates = extensions.hashiriyaBattle_plates
+  if not car.config or car.config == '' then return nil end
+  car.plateDesign = plates.validDesign(car.plateDesign) and car.plateDesign or plates.defaultDesign
+  if not plates.normalize(car.plate) then car.plate = plates.random() end -- alte Spielstände: BeamNG-Kennzeichen ersetzen
+  local cfg = plates.applyToConfig(car.config, car.plateDesign)
+  if type(cfg) == 'table' then car.config = cfg end
+  return cfg
+end
+M.plateConfig = plateConfig
+
 local function spawnPlayerCar(car)
   M.engineOffAfterSpawn()
-  local opts = { config = car.config ~= '' and car.config or nil, licenseText = car.plate }
+  local opts = { config = plateConfig(car), licenseText = car.plate }
   -- Start in der Garage, falls die Map eine hat
   local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
   if pos then opts.pos, opts.rot = pos, rot end
@@ -404,7 +416,7 @@ function M.continueCareer()
   extensions.hashiriyaBattle_condition.syncStarterWear(M.save)
   local car = M.save.cars[M.save.activeCar or 1]
   if not car then return end
-  local opts = { config = car.config ~= '' and car.config or nil, licenseText = car.plate, autoEnterVehicle = false }
+  local opts = { config = plateConfig(car), licenseText = car.plate, autoEnterVehicle = false }
   local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
   if pos then opts.pos, opts.rot = pos, rot end
   local current = M.getPlayerVehicle()
@@ -708,6 +720,9 @@ local function buildUiState()
       local car = M.save.cars[M.save.activeCar or 1]
       st.carName = car and car.name or ''
       st.plate = car and car.plate or ''
+      local plates = extensions.hashiriyaBattle_plates
+      st.plateOptions = plates.uiOptions(M.t)
+      st.plateRegion, st.plateType = plates.splitDesign(car and car.plateDesign)
       st.platePrice = eco.formatYen(platePriceYen)
       local cost = parking.repairCost()
       st.repairCost = cost > 0 and eco.formatYen(cost) or nil
@@ -728,8 +743,13 @@ local function buildUiState()
   if st.menuVisible and M.active then
     devRivals = devRivals or {}
     if #devRivals == 0 then
-      for _, r in ipairs((extensions.hashiriyaBattle_rivals.getData() or {}).rivals or {}) do
-        table.insert(devRivals, { id = r.id, name = r.name })
+      local data = extensions.hashiriyaBattle_rivals.getData() or {}
+      local teamName = {}
+      for _, t in ipairs(data.teams or {}) do teamName[t.id] = t.name end
+      for _, r in ipairs(data.rivals or {}) do
+        local tag = r.boss and M.t('home.bosses') or r.wanderer and M.t('home.wanderer') or teamName[r.team] or ''
+        if r.leader then tag = tag .. ' (Leader)' end
+        table.insert(devRivals, { id = r.id, name = r.name, tag = tag })
       end
     end
     st.devRivals = devRivals
@@ -747,21 +767,40 @@ local function arrivedArea()
 end
 
 -- Kennzeichen ummelden (Garage, gegen Gebühr). replaceVehicle behält es bei Teilekäufen; beim Spawn setzt spawnPlayerCar es.
-function M.changePlate(text)
+-- Ummelden in der Garage: neuer Text und/oder neues Design (Region, Art). arg = "text|design"
+function M.changePlate(arg)
+  local plates = extensions.hashiriyaBattle_plates
   local car = M.save and M.save.cars[M.save.activeCar or 1]
   local veh = M.getPlayerVehicle()
   if not car or not veh then return end
-  text = text:gsub('[%c]', ''):gsub('^%s+', ''):gsub('%s+$', '')
-  if text == '' or #text > 24 or text == car.plate then return end
+  local text, design = tostring(arg or ''):match('^(.-)|(.*)$')
+  text, design = text or tostring(arg or ''), design ~= '' and design or nil
+  local newText = car.plate
+  if text:gsub('%s', '') ~= '' then
+    newText = plates.normalize(text)
+    if not newText then
+      msg(M.t('msg.plateInvalid'), 6)
+      return
+    end
+  end
+  if design and not plates.validDesign(design) then design = nil end
+  local newDesign = design or car.plateDesign or plates.defaultDesign
+  if newText == car.plate and newDesign == car.plateDesign then return end
   if M.save.money < platePriceYen then
     msg(M.t('msg.noMoney'))
     return
   end
   M.save.money = M.save.money - platePriceYen
-  car.plate = text
-  pcall(core_vehicles.setPlateText, text, veh:getID())
+  car.plate = newText
+  pcall(core_vehicles.setPlateText, newText, veh:getID())
+  if newDesign ~= car.plateDesign then
+    car.plateDesign = newDesign
+    -- Design ist ein Fahrzeugteil: Config ändern und Auto neu laden (Zustand und Tank bleiben)
+    extensions.hashiriyaBattle_shop.setPlateDesign(newDesign)
+  end
   M.writeSave()
-  msg(M.t('msg.plateChanged', text, M.economy().formatYen(platePriceYen)))
+  log('I', logTag, 'Kennzeichen umgemeldet: ' .. tostring(newText) .. ' ' .. tostring(newDesign))
+  msg(M.t('msg.plateChanged', newText, M.economy().formatYen(platePriceYen)))
 end
 
 -- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
@@ -782,7 +821,7 @@ local function actionSound(action, arg)
 end
 
 -- Häufige Aktionen nicht ins Log (sonst wird es unlesbar)
-local quietActions = { sound = true, slider = true, focusSlot = true, fuelHold = true, setupAdjust = true, paintSlot = true }
+local quietActions = { sound = true, slider = true, focusSlot = true, fuelHold = true, setupAdjust = true, paintSlot = true, setLanguage = true, photoMode = true }
 
 function M.uiAction(action, arg)
   if not quietActions[action] then
@@ -923,7 +962,17 @@ function M.uiAction(action, arg)
     end
   elseif action == 'devSpawnRival' then
     -- Nur zum Testen: bestimmten Rivalen spawnen (ID oder Name), ohne Bedingungen
-    local r = extensions.hashiriyaBattle_rivals.findRival(arg)
+    local r
+    if arg == '__random' then
+      -- Zufälliger Rivale, der gerade nicht unterwegs ist
+      local rv = extensions.hashiriyaBattle_rivals
+      local onRoad, list = {}, {}
+      for _, e in ipairs(rv.getOnRoad()) do onRoad[e.data.id] = true end
+      for _, x in ipairs((rv.getData() or {}).rivals or {}) do if not onRoad[x.id] then table.insert(list, x) end end
+      r = list[math.random(1, math.max(#list, 1))]
+    else
+      r = extensions.hashiriyaBattle_rivals.findRival(arg)
+    end
     if r then extensions.hashiriyaBattle_rivals.spawnNext(true, r)
     else M.msg(M.t('msg.devNoRival', tostring(arg or '')), 3) end
   elseif action == 'devBeatRival' then
