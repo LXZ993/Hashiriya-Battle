@@ -115,7 +115,7 @@ angular.module('beamng.apps')
           '.hbh-count span{display:inline-block;font-size:58px;line-height:62px;font-weight:900;font-style:italic;color:var(--o);' +
             'text-shadow:0 0 18px rgba(255,102,0,.55),0 2px 4px rgba(0,0,0,.9);animation:hbhPop .9s ease-out;}' +
           '@keyframes hbhPop{0%{transform:scale(1.8);opacity:0;}25%{transform:scale(1);opacity:1;}100%{transform:scale(.92);opacity:.85;}}' +
-          '.hbh-result{margin-top:8px;text-align:center;}' +
+          '.hbh-result{margin-top:4px;text-align:center;}' +
           '.hbh-result-band{display:inline-block;padding:4px 60px;transform:skewX(-20deg);animation:hbhSlide .35s ease-out;' +
             'background:linear-gradient(to right,rgba(255,102,0,0),rgba(255,102,0,.92) 18%,rgba(255,102,0,.92) 82%,rgba(255,102,0,0));}' +
           '.hbh-lose .hbh-result-band{background:linear-gradient(to right,rgba(40,40,44,0),rgba(40,40,44,.92) 18%,rgba(40,40,44,.92) 82%,rgba(40,40,44,0));}' +

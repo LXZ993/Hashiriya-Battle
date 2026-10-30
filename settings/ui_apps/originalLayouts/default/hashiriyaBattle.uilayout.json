@@ -108,7 +108,7 @@
    "appName": "hashiriyaSpHud",
    "appVersion": 1,
    "placement": {
-    "height": "150px",
+    "height": "200px",
     "left": 0,
     "margin": "auto",
     "position": "absolute",
