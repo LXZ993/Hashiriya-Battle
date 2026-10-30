@@ -96,6 +96,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a class="l2" href="#spitznamen">Spitznamen</a>
     <a class="l2" href="#rival-settings">Spawn-Regeln (settings)</a>
     <a href="#configdoc">Config-Liste mit Buchstaben</a>
+    <a href="#silhouetten">Silhouetten-Tool (Prototyp)</a>
     <div class="grp">Karriere</div>
     <a href="#autos">Startautos und Startgeld</a>
     <a href="#haendler">Autohändler</a>
@@ -530,6 +531,40 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><b>S</b></td><td>Startauto</td><td><code>cars.json</code></td></tr>
 </table>
 <p>Die Buchstaben werden nicht automatisch übernommen: Sag mir, wenn du etwas geändert hast, dann erzeuge ich die Dateien neu. Einzelne Autos kannst du auch direkt in der jeweiligen JSON-Datei ergänzen (siehe die Kapitel).</p>
+</section>
+
+<section id="silhouetten">
+<h2><span class="n">5b</span> Silhouetten-Tool <span class="tag">tools\silhouette\silhouetten.html</span></h2>
+<p>Jeder Gegner bekommt ein eigenes Porträt im Look von <b>Bob</b>, der NPC-Puppe aus BeamNG 0.40: heller Eierkopf, großes ovales Visier mit Pixel-Augen, Bohnen-Körper ohne Arme. Darauf kommen Frisur, Kleidung und Extras. Später erscheint es an der Sprechblase (Herausforderung, Sieg, Niederlage) und in den PA-Gesprächen. <b>Im Moment ist es nur ein Werkzeug zum Ausprobieren, im Spiel ist noch nichts eingebaut.</b></p>
+<h3>Öffnen</h3>
+<p>Doppelklick auf <span class="path">F:\BeamNG\current\hashiriya_tools\silhouette\silhouetten.html</span> (Testkopie) bzw. nach dem Übernehmen in den Mod-Ordner <span class="path">F:\BeamNG\current\mods\unpacked\Hashiriya-Battle\tools\silhouette\silhouetten.html</span>. Es öffnet sich im Browser, ohne Internet und ohne Installation. Daneben liegt <code>rivals_data.js</code>: darin stehen alle Gegner (Kopie aus <code>rivals.json</code>).</p>
+<h3>So funktioniert es</h3>
+<ul>
+<li><b>11 Teile pro Figur:</b> Figur (Mann/Frau), Kopf (6 Formen), Gesicht (Pixel-Augen im Visier: normal, grimmig, gelangweilt, fokussiert, Grinsen, traurig, zwinkern, ein Auge, aus), Haare/Hut (18), Haarfarbe, Brille (7), Jacke (23, z. B. Sukajan, Hawaiihemd, Jeansjacke, Hemd mit Weste, Warnweste, Militärjacke, Windbreaker, Bluse, Blazer, Tokkō-Mantel), Stoff-Farbton (auch "Crewfarbe dunkel"), Extra Kopf (z. B. Zigarette, Mundschutz, Ohrringe, Pflaster), Extra Hals (z. B. Kette, Schal, Halstuch, Hundemarke, Kopfhörer) und Aufnäher (Crew-Zeichen, Startnummer, Sponsor, Schriftzeichen).</li>
+<li><b>Crew-Stil:</b> Jede Crew hat eine eigene Auswahl, aus der ihre Mitglieder meistens wählen (z. B. Zangyō Express: Anzug, Blazer, Weste; Night Patrol 16: Militärjacke, Hundemarke; Kōenji Greasers: Lederjacke, Tolle). Die Liste steht im Tool unter <code>CREW_STYLE</code>. Leader tragen immer das Crew-Zeichen auf der Brust, Mitglieder oft.</li>
+<li><b>Passend zur Beschreibung:</b> <code>build_data.py</code> sucht in der Beschreibung nach Stichworten (z. B. Sonnenbrille, Overall, Pelz, Opa, Funk, Ramen) und gibt das passende Teil vor. Die Regeln stehen in <code>HINTS</code> in <code>build_data.py</code>.</li>
+<li><b>Frauen und Männer:</b> Frauen haben schmalere Schultern, einen etwas kleineren Kopf, Wimpern im Pixel-Display und bekommen automatisch passende Frisuren und Kleidung (z. B. nie Krawatte, nie Glatze). Wer Frau ist, steht im Feld <code>figur</code> (siehe unten); sonst rät das Tool aus Vorname und Beschreibung (91 von 297). Stimmt es nicht, stell einfach "Figur" um, Frisur und Kleidung passen sich dann an.</li>
+<li><b>Look:</b> Unter der Vorschau kannst du zwischen "Bob (hell)" und "Silhouette (dunkel)" wechseln. Gilt für alle Figuren.</li>
+<li><b>Automatisch aus der ID:</b> Aus der Gegner-ID (z. B. <code>t_lantern_1</code>) wird immer dieselbe Kombination berechnet. Das Tool sorgt dafür, dass keine zwei Gegner gleich aussehen (oben rechts steht "alle einzigartig").</li>
+<li><b>Crewfarbe:</b> Leuchtkanten, Visier und Akzente haben die Farbe der Crew (<code>color</code> in <code>teams</code>). Wanderer bekommen eine eigene ruhige Farbe, Bosse eine feste Sonderfarbe.</li>
+<li><b>Crew-Look:</b> Etwa zwei Drittel einer Crew tragen dieselbe Jacke, der Leader immer. Leader und Bosse haben zusätzlich ein Rang-Abzeichen auf der Brust.</li>
+<li><b>Hintergrund:</b> Dunkel mit Crewfarbe und dem japanischen Crewnamen (Wanderer: 放浪者, Bosse: 首領). Abschaltbar für ein Bild ohne Hintergrund.</li>
+</ul>
+<h3>Bedienen</h3>
+<ol class="steps">
+<li>Links einen Gegner anklicken (Suche, Crew-Filter, "nur geänderte", "nur doppelte") oder unten in der Galerie.</li>
+<li>Oben siehst du die Vorschau als Sprechblase. Darunter wählst du Spruch (Herausforderung / gewinnt / verliert) und Sprache.</li>
+<li>Rechts kannst du jedes Teil selbst wählen. "Auto (...)" zeigt, was berechnet wurde. Selbst gewählte Teile werden orange. ↻ springt zur nächsten Variante, "Zufällig" würfelt alles neu, "Alles auf Auto" nimmt deine Änderungen zurück. Pfeiltasten ← → blättern durch die Gegner.</li>
+<li><b>PNG speichern</b> speichert das Bild (256, 512 oder 1024 Pixel). <b>Alle als ZIP</b> packt alle gerade angezeigten Gegner in eine ZIP-Datei (braucht dafür einmal Internet).</li>
+</ol>
+<div class="box warn"><b>Deine Änderungen sichern</b>Änderungen merkt sich nur dein Browser. Mit <b>Änderungen exportieren</b> bekommst du eine Datei <code>silhouetten.json</code>. Schick sie mir oder leg sie in den Mod-Ordner, dann kann ich sie fest übernehmen. Mit <b>Importieren</b> liest du sie wieder ein.</div>
+<h3>Beispiele</h3>
+<ul>
+<li><b>Ein Gegner soll eine Glatze haben:</b> Gegner wählen, bei "Haare / Hut" <code>Glatze</code> einstellen. Fertig, wird gemerkt.</li>
+<li><b>Alle Figuren neu mischen:</b> oben bei "Seed" einen anderen Text eingeben (z. B. <code>hashiriya-v2</code>) und Enter drücken. Deine eigenen Änderungen bleiben erhalten.</li>
+<li><b>Neue Gegner in rivals.json eingetragen:</b> "rivals.json laden" klicken und die Datei aus <span class="path">lua\ge\extensions\hashiriyaBattle\data\</span> wählen. Oder einmal <code>python tools\silhouette\build_data.py</code> ausführen, dann ist sie fest im Tool.</li>
+</ul>
+<div class="box tip"><b>Später im Spiel</b>Geplant ist: Jeder Gegner bekommt in <code>rivals.json</code> optional ein Feld <code>"silhouette": {"haare": "tolle", "brille": "sonne"}</code>. Was fehlt, wird wie im Tool automatisch aus der ID berechnet. Das Tool liest dieses Feld schon heute mit. Genauso <code>"figur": "f"</code> oder <code>"m"</code>, um Frau/Mann fest vorzugeben (danach <code>build_data.py</code> ausführen oder "rivals.json laden").</div>
 </section>
 
 <section id="autos">
