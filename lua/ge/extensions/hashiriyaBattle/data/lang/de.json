@@ -390,7 +390,7 @@
   "msg.rivalChallenge": "%s fordert dich heraus! Warnblinker = annehmen, Blinker = ablehnen",
   "msg.rivalDeclined": "Abgelehnt. %s lässt dich vorerst in Ruhe.",
   "keys.bind": "Belegen",
-  "msg.titleCamSaved": "Titelbild-Kamera gespeichert. Sie gilt ab dem nächsten Titelbildschirm.",
+  "msg.titleCamSaved": "Titelbild-Kamera und Uhrzeit gespeichert. Sie gelten ab dem nächsten Titelbildschirm.",
   "menu.devRivalPh": "Rivale: ID oder Name",
   "menu.devSpawn": "Spawnen",
   "menu.devBeat": "Als geschlagen markieren",

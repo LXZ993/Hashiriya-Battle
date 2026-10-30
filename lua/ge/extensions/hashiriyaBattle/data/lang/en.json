@@ -390,7 +390,7 @@
   "msg.rivalChallenge": "%s challenges you! Hazard lights = accept, indicator = decline",
   "msg.rivalDeclined": "Declined. %s leaves you alone for now.",
   "keys.bind": "Bind",
-  "msg.titleCamSaved": "Title screen camera saved. It is used from the next title screen on.",
+  "msg.titleCamSaved": "Title screen camera and time of day saved. They are used from the next title screen on.",
   "menu.devRivalPh": "Rival: ID or name",
   "menu.devSpawn": "Spawn",
   "menu.devBeat": "Mark as beaten",

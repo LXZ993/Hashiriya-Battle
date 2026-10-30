@@ -552,7 +552,7 @@ local function capturePosition()
   msg(M.t('msg.posSaved', #list) .. string.format(' (%.0f / %.0f)', p.x, p.y))
 end
 
--- Titelbild-Kamera: aktuelle Kamera (z. B. Freecam) merken, Taste Shift+Pos1.
+-- Titelbild-Kamera: aktuelle Kamera (z. B. Freecam) und Uhrzeit merken, Taste Shift+Pos1.
 -- Gespeichert in settings/hashiriya_battle/title_camera.json (je Level); der Titelbildschirm nutzt sie,
 -- sonst mapData.titleCamera, sonst die Ansicht auf die Garagenbucht.
 local titleCamPath = saveDir .. 'title_camera.json'
@@ -577,7 +577,7 @@ function M.captureTitleCamera()
     return
   end
   local all = jsonReadFile(titleCamPath) or {}
-  all[M.levelName] = { pos = { p.x, p.y, p.z }, rot = { q.x, q.y, q.z, q.w } }
+  all[M.levelName] = { pos = { p.x, p.y, p.z }, rot = { q.x, q.y, q.z, q.w }, hour = extensions.hashiriyaBattle_home.hour() }
   jsonWriteFile(titleCamPath, all, true)
   log('I', logTag, 'Titelbild-Kamera gespeichert: ' .. dumps(all[M.levelName]))
   msg(M.t('msg.titleCamSaved'), 4)

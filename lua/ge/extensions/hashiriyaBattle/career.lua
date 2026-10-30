@@ -241,13 +241,31 @@ end
 
 -- Feste Kameraansicht auf die Garagenbucht, solange noch kein Auto dasteht.
 -- (Ohne Auto schaltet Freeroam auf die freie Kamera; wir stellen sie nur passend hin.)
+-- Die freie Kamera ist erst ein paar Frames nach setFreeCamera aktiv (vorher ignoriert setPosRot den Aufruf),
+-- darum wird die Ansicht kurz in jedem Frame neu gesetzt.
+local camHold = nil
+local function holdCamera(pos, rot)
+  camHold = { pos = pos, rot = rot, t = 2 }
+  pcall(function() if commands and commands.setFreeCamera then commands.setFreeCamera() end end)
+end
+
+local function applyHeldCamera(dtReal)
+  if not camHold then return end
+  camHold.t = camHold.t - (dtReal or 0)
+  local p, r = camHold.pos, camHold.rot
+  pcall(function()
+    if commands and commands.isFreeCamera and not commands.isFreeCamera(0) and commands.setFreeCamera then commands.setFreeCamera() end
+    core_camera.setPosRot(0, p[1], p[2], p[3], r[1], r[2], r[3], r[4])
+  end)
+  if camHold.t <= 0 then camHold = nil end
+end
+
 local function garageCamera()
   local cam = core().getTitleCamera and core().getTitleCamera()
   if cam and cam.pos and cam.rot then
-    pcall(function()
-      if commands and commands.setFreeCamera then commands.setFreeCamera() end
-      core_camera.setPosRot(0, cam.pos[1], cam.pos[2], cam.pos[3], cam.rot[1], cam.rot[2], cam.rot[3], cam.rot[4])
-    end)
+    holdCamera(cam.pos, cam.rot)
+    -- Uhrzeit, die beim Speichern der Titelkamera war (nur für den Titelbildschirm; ein Spielstand stellt seine eigene Zeit)
+    if cam.hour then pcall(extensions.hashiriyaBattle_home.applyClock, cam.hour) end
     return
   end
   local area = parking().find('garage')
@@ -259,10 +277,7 @@ local function garageCamera()
   local side = dir:cross(vec3(0, 0, 1))
   local camPos = target + dir * 5.5 + side * 3 + vec3(0, 0, 1.2)
   local rot = quatFromDir((target - camPos):normalized(), vec3(0, 0, 1))
-  pcall(function()
-    if commands and commands.setFreeCamera then commands.setFreeCamera() end
-    core_camera.setPosRot(0, camPos.x, camPos.y, camPos.z, rot.x, rot.y, rot.z, rot.w)
-  end)
+  holdCamera({ camPos.x, camPos.y, camPos.z }, { rot.x, rot.y, rot.z, rot.w })
 end
 
 -- Ladebildschirm ist weg: BeamNG-Hauptmenü verlassen und Titel zeigen.
@@ -614,6 +629,7 @@ end
 
 local function onUpdate(dtReal)
   if spawnTimer > 0 then spawnTimer = spawnTimer - dtReal end
+  applyHeldCamera(dtReal)
   if fallbackTimer > 0 then
     fallbackTimer = fallbackTimer - dtReal
     if fallbackTimer <= 0 then showTitleAfterLoad() end
