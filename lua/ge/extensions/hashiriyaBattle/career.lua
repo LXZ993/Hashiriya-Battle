@@ -415,7 +415,6 @@ local function carSpecs(starter)
       table.insert(sheet.bars, { icon = icon, label = c.t(label), pct = pct, tone = pct >= good and 'good' or (pct >= mid and 'mid' or 'bad') })
     end
     bar('wrench', 'spec.condition', cond.integrity)
-    bar('paint', 'spec.visual', cond.visual)
     bar('fuel', 'spec.fuel', cond.fuel and math.max(cond.fuel, (c.carsData or {}).conditionMinFuel or 0.25))
     if cond.odometerKm then
       sheet.mileage = (tostring(cond.odometerKm):reverse():gsub('(%d%d%d)', '%1.'):reverse():gsub('^%.', '')) .. ' km'
