@@ -1,9 +1,33 @@
 """Schreibt rivals_data.js aus der rivals.json der Mod, damit silhouetten.html
 ohne Webserver (file://) alle Gegner kennt. Aufruf: python build_data.py"""
-import json, os
+import json, os, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "..", "..", "lua", "ge", "extensions", "hashiriyaBattle", "data", "rivals.json")
+
+# Figur (Frau/Mann) fuer das Portraet. Steht in rivals.json ein Feld "figur" ("f"/"m"),
+# gilt das. Sonst: Vorname aus der Liste unten, danach Pronomen in der deutschen Beschreibung.
+FEMALE_NAMES = set("""Ai Aiko Akane Akari Aoi Asami Asuka Atsuko Ayame Ayano Ayumi Brenda Camille Chiharu
+Chiyo Emi Erika Erina Fumiko Giulia Greta Hana Hanae Haruko Hinata Ingrid Junko Kaede Kana Kanna Kazue
+Kiko Kimiko Kumiko Kyoko Linda Mai Maki Mamiko Mariko Mathilde Mayu Mayumi Mei Michiko Midori Mika Mio
+Mirai Momo Nana Nanami Natsumi Noa Noriko Rei Reika Reiko Rie Rin Rina Rumi Ruriko Ryōko Sachi Sachiko
+Sakura Saya Sayaka Sayuri Setsuko Shiho Shiori Shizuka Sumire Tamaki Tomoe Ume Valentina Yoko Yoshie
+Yui Yuka Yumi Yuri Élodie Signora""".split())
+FIGUR_FIX = {"t_vivace_6": "m", "b_mugen": "m"}
+
+def figur(r):
+    if r.get("figur") in ("f", "m"):
+        return r["figur"]
+    if r["id"] in FIGUR_FIX:
+        return FIGUR_FIX[r["id"]]
+    if r["name"].split()[0] in FEMALE_NAMES:
+        return "f"
+    t = (r.get("desc") or {}).get("de", "")
+    if re.match(r"\s*(Eine|Die)\b", t):
+        return "f"
+    fem = len(re.findall(r"(?:^|[.!?]\s+)Sie\b|\b(?:ihr|ihre|ihren|ihrem|ihrer)\b", t))
+    mal = len(re.findall(r"(?:^|[.!?]\s+)Er\b|\b(?:sein|seine|seinen|seinem|seiner)\b", t))
+    return "f" if fem > mal else "m"
 
 data = json.load(open(SRC, encoding="utf-8"))
 out = {
@@ -12,6 +36,7 @@ out = {
 }
 for r in data["rivals"]:
     e = {k: r[k] for k in ("id", "name", "nick", "team", "lines", "silhouette") if k in r}
+    e["figur"] = figur(r)
     for flag in ("leader", "wanderer", "boss", "final"):
         if r.get(flag):
             e[flag] = True
