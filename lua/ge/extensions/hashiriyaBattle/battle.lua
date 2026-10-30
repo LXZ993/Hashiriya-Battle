@@ -31,10 +31,15 @@ local cfg = {
   winGap = 250,             -- m Vorsprung = Sofortsieg
   modeSwitchHysteresis = 10,-- m, bevor die Gegner-KI zwischen Flucht und Jagd wechselt
   resultTime = 9,           -- s Ergebnis und Spruch nach dem Battle, dann fährt der Rivale weiter
-  -- KI des Rivalen im Battle: 'traffic' = Rennen im Verkehrsmodus ohne Tempolimit (bremst für Verkehr und dich,
-  -- überholt), 'pursuit' = BeamNG-Modi flee (vorne) und chase (hinten): flee bremst nicht für Verkehr,
-  -- chase ist der Polizei-Verfolgungsmodus und rammt dich von hinten
-  rivalAiMode = 'traffic',
+  -- KI des Rivalen im Battle:
+  --  'span'    = freie Fahrt ohne Tempolimit und Spurzwang: weicht aus, bremst nur wenn nötig, überholt zügig (Standard)
+  --  'traffic' = Verkehrsmodus ohne Tempolimit: sehr vorsichtig, bremst oft mitten im Überholen
+  --  'pursuit' = BeamNG flee (vorne) / chase (hinten): flee bremst nicht für Verkehr, chase rammt dich von hinten
+  rivalAiMode = 'span',
+  -- Gummiband für 'span': Aggression = Grundwert des Rivalen, vorne bis rubberAhead weniger, hinten bis rubberBehind mehr
+  rubberAhead = 0.25,       -- weniger Aggression bei rubberDist m Vorsprung
+  rubberBehind = 0.3,       -- mehr Aggression bei rubberDist m Rückstand
+  rubberDist = 200,
   -- Rivale fordert dich heraus (er fährt hinter dir und gibt Lichthupe)
   rivalChallenge = true,
   rivalChallengeMinBehind = 6,   -- m
@@ -320,6 +325,15 @@ local function setRivalAi(rivalVeh, mode)
   if battle.rivalMode == mode then return end
   battle.rivalMode = mode
   local player = core().getPlayerVehicle()
+  if cfg.rivalAiMode == 'span' then
+    -- gilt vorne und hinten gleich: nur einmal setzen (ein neues setMode würde die Route neu planen)
+    if battle.spanAi then return end
+    battle.spanAi = true
+    rivalVeh:queueLuaCommand(string.format(
+      "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('span') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggressionMode('off') ai.setAggression(%f)",
+      player:getID(), battle.rival.aggression or 0.6))
+    return
+  end
   if cfg.rivalAiMode == 'traffic' then
     -- Verkehrsmodus ohne Tempolimit und ohne Spurzwang, Gummiband wie bei flee/chase (wartet vorne, holt hinten auf)
     -- gilt vorne und hinten gleich: nur einmal setzen (ein neues setMode würde die Route neu planen)
@@ -366,6 +380,22 @@ local function updateBattle(dt, player, rivalVeh)
     setRivalAi(rivalVeh, 'chase')
   elseif not battle.rivalMode then
     setRivalAi(rivalVeh, gap >= 0 and 'flee' or 'chase')
+  end
+
+  -- Eigenes Gummiband im span-Modus (BeamNG hat dort keins): vorne etwas ruhiger, hinten mehr Druck
+  if battle.spanAi then
+    battle.rubberTimer = (battle.rubberTimer or 0) - dt
+    if battle.rubberTimer <= 0 then
+      battle.rubberTimer = 1
+      local base = battle.rival.aggression or 0.6
+      local f = math.min(math.abs(gap) / cfg.rubberDist, 1)
+      local a = gap > 0 and (base - cfg.rubberAhead * f) or (base + cfg.rubberBehind * f)
+      a = math.floor(math.max(0.3, math.min(1, a)) * 100 + 0.5) / 100
+      if a ~= battle.rubberAggr then
+        battle.rubberAggr = a
+        rivalVeh:queueLuaCommand(string.format('ai.setAggression(%f)', a))
+      end
+    end
   end
 
   -- Wer hinten liegt, verliert SP
