@@ -12,6 +12,7 @@ local titleLayout = 'hashiriyaTitle'
 
 local flow = nil          -- nil = kein Titel/Assistent offen
 local spawnTimer = 0      -- kurze Sperre, solange das Showroom-Auto spawnt
+local designFix = nil     -- Showroom-Auto ohne lesbare .pc: nach dem Spawn mit Kennzeichen-Design neu laden
 local pendingTitle = false -- Level wird gerade für den Titelbildschirm geladen
 local fallbackTimer = 0   -- falls onLoadingScreenFadeout nicht kommt: Titel trotzdem öffnen
 
@@ -361,6 +362,8 @@ local function spawnShowroomCar(starter, paint)
   local cfg = extensions.hashiriyaBattle_plates.applyToConfig(starter.config, flow and flow.plateDesign)
   -- Lack gehört in 0.40 in die Config: die Werkslacke aus der .pc gewinnen sonst gegen die Spawn-Option
   if paint and type(cfg) == 'table' then cfg.paints = { paint, paint, paint } end
+  -- Config nicht lesbar: erst so spawnen, dann mit Kennzeichen-Design aus der geladenen Teileliste neu laden
+  designFix = type(cfg) ~= 'table' and { model = starter.model, paint = paint } or nil
   local opts = { config = cfg, pos = pos, rot = rot, paint = paint, paint2 = paint, paint3 = paint }
   if flow and flow.plate and flow.plate ~= '' then opts.licenseText = flow.plate end
   local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
@@ -682,8 +685,34 @@ function M.getUiState()
   return st
 end
 
+-- Showroom-Auto ohne lesbare .pc: Teileliste vom gespawnten Auto nehmen, Design und Lack einsetzen, neu laden
+local function applyDesignFix()
+  local fix = designFix
+  designFix = nil
+  if not flow then return end
+  local veh = core().getPlayerVehicle()
+  local cfg = shop().currentConfig()
+  if not veh or not cfg or veh:getJBeamFilename() ~= fix.model then return end
+  cfg = extensions.hashiriyaBattle_plates.applyToConfig(cfg, flow.plateDesign)
+  if fix.paint then cfg.paints = { fix.paint, fix.paint, fix.paint } end
+  local starter = starterById(flow.carId)
+  core().engineOffAfterSpawn()
+  if starter then extensions.hashiriyaBattle_condition.previewAfterSpawn(starter.condition) end
+  local opts = { config = cfg }
+  if flow.plate and flow.plate ~= '' then opts.licenseText = flow.plate end
+  spawnTimer = 1.2
+  core_vehicles.replaceVehicle(fix.model, opts)
+  log('I', logTag, 'Showroom: Kennzeichen-Design nachträglich gesetzt (' .. tostring(fix.model) .. ')')
+end
+
 local function onUpdate(dtReal)
-  if spawnTimer > 0 then spawnTimer = spawnTimer - dtReal end
+  if spawnTimer > 0 then
+    spawnTimer = spawnTimer - dtReal
+    if spawnTimer <= 0 and designFix then
+      local ok, err = pcall(applyDesignFix)
+      if not ok then log('W', logTag, 'Showroom-Kennzeichen: ' .. tostring(err)) end
+    end
+  end
   applyHeldCamera(dtReal)
   if fallbackTimer > 0 then
     fallbackTimer = fallbackTimer - dtReal

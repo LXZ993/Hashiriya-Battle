@@ -105,7 +105,16 @@ function M.applyToConfig(config, design)
   design = M.validDesign(design) and design or M.defaultDesign
   local cfg = config
   if type(config) == 'string' and config ~= '' then
-    local pc = jsonReadFile(config:sub(1, 1) == '/' and config or ('/' .. config))
+    local path = config:sub(1, 1) == '/' and config or ('/' .. config)
+    local pc = jsonReadFile(path)
+    -- manche Werks-Configs (z. B. midsize) liest jsonReadFile nicht: Text selbst lesen und locker dekodieren
+    if not pc or type(pc.parts) ~= 'table' then
+      local okR, text = pcall(readFile, path)
+      if okR and type(text) == 'string' then
+        local okD, dec = pcall(jsonDecode, text, path)
+        if okD and type(dec) == 'table' then pc = dec end
+      end
+    end
     if not pc or type(pc.parts) ~= 'table' then
       log('W', logTag, 'Kennzeichen: Config nicht lesbar: ' .. config)
       return config
