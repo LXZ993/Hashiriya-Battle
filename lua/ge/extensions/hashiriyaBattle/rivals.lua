@@ -539,7 +539,7 @@ local cruiseAggression = 0.3
 function setCruise(veh, rival)
   local speed = (rival.cruiseKmh or 100) / 3.6
   veh:queueLuaCommand(string.format(
-    "ai.setMode('traffic') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
+    "ai.setMode('traffic') ai.setAggressionMode('off') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
     speed, cruiseAggression))
 end
 M.setCruise = setCruise

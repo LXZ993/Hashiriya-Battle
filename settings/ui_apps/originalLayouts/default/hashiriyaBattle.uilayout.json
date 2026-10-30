@@ -108,13 +108,13 @@
    "appName": "hashiriyaTalk",
    "appVersion": 1,
    "placement": {
-    "bottom": "215px",
-    "height": "170px",
-    "left": 0,
-    "margin": "auto",
+    "bottom": "0.99em",
+    "height": "11.57em",
+    "left": "50%",
     "position": "absolute",
-    "right": 0,
-    "width": "760px"
+    "right": "",
+    "top": "",
+    "width": "47.5em"
    }
   },
   {

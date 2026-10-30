@@ -816,10 +816,12 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>challengeMaxLateral</code></td><td>10</td><td>Höchstens so weit seitlich versetzt</td></tr>
 <tr><td><code>challengeMinSpeed</code></td><td>40 / 3.6</td><td>Mind. 40 km/h (die Zahl vor <code>/ 3.6</code> ist km/h)</td></tr>
 <tr><td><code>maxChallengeDiffKmh</code></td><td>30</td><td>Größerer Tempounterschied = kein Herausfordern</td></tr>
-<tr><td><code>countdown</code></td><td>3</td><td>Sekunden Countdown</td></tr>
+<tr><td><code>challengeQuoteTime</code></td><td>6</td><td>So lange steht der Spruch des Rivalen in der Sprechblase, wenn ihr euch angleicht. Erst danach startet der Countdown (ohne Spruch hat der Rivale keine Wartezeit).</td></tr>
+<tr><td><code>countdown</code></td><td>5</td><td>Sekunden Countdown</td></tr>
 <tr><td><code>syncToleranceKmh</code> / <code>syncTimeout</code></td><td>5 / 25</td><td>Angleichen: so nah am Tempo, spätestens nach 25 s startet der Countdown</td></tr>
 <tr><td><code>falseStartGap</code> / <code>falseStartKmh</code></td><td>3 / 10</td><td>Ab wann es ein Frühstart ist</td></tr>
-<tr><td><code>resultTime</code></td><td>6</td><td>Sekunden Ergebnisanzeige</td></tr>
+<tr><td><code>resultTime</code></td><td>9</td><td>Sekunden Ergebnisanzeige mit Spruch</td></tr>
+<tr><td><code>leadAiMode</code></td><td>'traffic'</td><td>KI des Rivalen, wenn er vorne liegt. <code>'traffic'</code> = Rennen im Verkehrsmodus ohne Tempolimit: bremst für Verkehrsautos und überholt sie. <code>'flee'</code> = BeamNG-Fluchtmodus: etwas schneller, bremst aber nicht für Verkehr und fährt oft auf.</td></tr>
 <tr><td><code>rivalChallenge</code></td><td>true</td><td>Rivalen fordern dich auch selbst heraus (von hinten)</td></tr>
 <tr><td><code>rivalChallengeChance</code></td><td>0.3</td><td>Chance je Prüfung (alle 2 s)</td></tr>
 <tr><td><code>rivalChallengeOffer</code></td><td>8</td><td>Sekunden zum Annehmen (Warnblinker) oder Ablehnen (Blinker)</td></tr>

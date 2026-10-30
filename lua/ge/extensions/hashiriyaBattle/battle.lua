@@ -11,7 +11,8 @@ local cfg = {
   challengeMinBehind = 4,
   challengeMaxLateral = 10, -- m seitlicher Versatz
   challengeMinSpeed = 40 / 3.6,
-  countdown = 3,            -- s
+  countdown = 5,            -- s, startet erst, wenn der Spruch des Rivalen ausgeblendet ist
+  challengeQuoteTime = 6,   -- s: so lange steht der Spruch beim Herausfordern, erst danach kommt der Countdown
   maxChallengeDiffKmh = 30, -- km/h: größerer Tempounterschied zum Rivalen = Herausfordern nicht möglich
   syncToleranceKmh = 5,     -- so nah am Battle-Tempo, dann startet der Countdown
   syncTimeout = 25,         -- s: spätestens dann startet der Countdown trotzdem
@@ -29,7 +30,10 @@ local cfg = {
   maxDamageSpPerTick = 150,
   winGap = 250,             -- m Vorsprung = Sofortsieg
   modeSwitchHysteresis = 10,-- m, bevor die Gegner-KI zwischen Flucht und Jagd wechselt
-  resultTime = 6,           -- s bis der Rivale nach dem Battle verschwindet
+  resultTime = 9,           -- s Ergebnis und Spruch nach dem Battle, dann fährt der Rivale weiter
+  -- KI des Rivalen, wenn er vorne liegt: 'traffic' = Rennen im Verkehrsmodus (bremst und weicht Verkehr aus),
+  -- 'flee' = BeamNG-Fluchtmodus (schneller, aber bremst nicht für Verkehrsautos und fährt oft auf)
+  leadAiMode = 'traffic',
   -- Rivale fordert dich heraus (er fährt hinter dir und gibt Lichthupe)
   rivalChallenge = true,
   rivalChallengeMinBehind = 6,   -- m
@@ -173,6 +177,7 @@ local function startCountdown(rival, rivalVeh, playerAhead)
     lastRivalDamage = nil,
     rivalMode = nil,
     lastCount = nil,
+    quoteLeft = (type(rival.lines) == 'table' and extensions.hashiriyaBattle_progress.loc(rival.lines.challenge) ~= '') and cfg.challengeQuoteTime or 0,
     time = 0,
     rivalCar = vehicleDisplayName(rival.model),
     playerAhead = playerAhead or nil,
@@ -314,6 +319,13 @@ local function setRivalAi(rivalVeh, mode)
   if battle.rivalMode == mode then return end
   battle.rivalMode = mode
   local player = core().getPlayerVehicle()
+  if mode == 'flee' and cfg.leadAiMode == 'traffic' then
+    -- Vorne: Verkehrsmodus ohne Tempolimit und ohne Spurzwang, Gummiband wie bei flee (wartet, wenn er zu weit weg ist)
+    rivalVeh:queueLuaCommand(string.format(
+      "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('traffic') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggression(%f) ai.setAggressionMode('rubberBand')",
+      player:getID(), battle.rival.aggression or 0.6))
+    return
+  end
   rivalVeh:queueLuaCommand(string.format(
     "ai.setSpeedMode('off') ai.setAggression(%f) ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('%s')",
     battle.rival.aggression or 0.6, player:getID(), mode))
@@ -378,13 +390,13 @@ end
 -- HUD-Daten für die UI-App ------------------------------------------------------------
 
 -- Spruch des Rivalen (lines.challenge / lines.win / lines.lose aus rivals.json, aus Sicht des Rivalen):
--- challenge beim Angleichen und Countdown, nach dem Battle win (Rivale gewinnt) oder lose (Rivale verliert).
+-- challenge beim Angleichen (challengeQuoteTime lang, danach Countdown ohne Spruch), nach dem Battle win (Rivale gewinnt) oder lose (Rivale verliert).
 -- Zweiter Rückgabewert = Art (challenge/win/lose) für die Farbe der Sprechblase
 local function rivalQuote()
   local lines = battle.rival.lines
   if type(lines) ~= 'table' then return nil end
   local key
-  if state == 'sync' or state == 'countdown' then key = 'challenge'
+  if state == 'sync' and (battle.quoteLeft or 0) > 0 then key = 'challenge'
   elseif state == 'result' then key = battle.won and 'lose' or 'win' end
   local text = key and extensions.hashiriyaBattle_progress.loc(lines[key]) or ''
   if text == '' then return nil end
@@ -463,6 +475,7 @@ local function onUpdate(dtReal, dtSim)
   end
 
   if state == 'sync' then
+    battle.quoteLeft = math.max(0, (battle.quoteLeft or 0) - dtSim)
     -- Tempo angleichen: Tempomat gibt Gas bzw. lässt ausrollen (er bremst nicht), dann startet der Countdown
     timer = timer - dtSim
     local gap = getGap(player, rivalVeh)
@@ -483,7 +496,7 @@ local function onUpdate(dtReal, dtSim)
       end
       battle.lockSpeed = battle.rivalSpeed
       local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
-      if (behind <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0 then
+      if ((behind <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 then
         state = 'countdown'
         timer = cfg.countdown
         battle.startGap = gap
@@ -502,7 +515,7 @@ local function onUpdate(dtReal, dtSim)
     local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, gap - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
     battle.lockSpeed = battle.rivalSpeed + catchUp
     local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
-    if (gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0 then
+    if ((gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 then
       state = 'countdown'
       timer = cfg.countdown
       battle.startGap = gap
