@@ -52,8 +52,8 @@ local defaults = {
   sideGapMax = 1.0,      -- ... bei null Mut
   playerSideGap = 0.5,   -- seitlicher Abstand zum Spieler (faire Fahrer)
   -- Tempo
-  cornerUseMin = 0.8,   -- Anteil des Grips in Kurven bei Können 0
-  cornerUseMax = 0.9,   -- ... bei Können 1
+  cornerUseMin = 0.78,   -- Anteil des Grips in Kurven bei Können 0
+  cornerUseMax = 0.87,   -- ... bei Können 1
   brakeUseMin = 0.68,    -- Anteil des Grips beim Bremsen bei Können 0
   brakeUseMax = 0.9,
   followDecel = 4.0,     -- m/s² geplante Verzögerung hinter Verkehr ohne Lücke (mutige Fahrer: mehr)
@@ -77,7 +77,7 @@ local defaults = {
   steerLookTime = 0.5,   -- s Vorschau pro m/s (BeamNG-KI: 0.6)
   steerRate = 6,         -- Lenkeinschlag pro Sekunde höchstens (Anteil voller Einschlag)
   highSpeedBrakeReserve = 0.2, -- bei hohem Tempo bis zu 20 % weniger Bremsweg-Verzögerung eingeplant (ab 90 km/h, voll bei 270 km/h)
-  highSpeedReserve = 0.15, -- schnelle Kurven: bis zu 15 % weniger Querbeschleunigung (ab 90 km/h zunehmend, voll bei 234 km/h)
+  highSpeedReserve = 0.2, -- schnelle Kurven: bis zu 20 % weniger Querbeschleunigung (ab 90 km/h zunehmend, voll bei 234 km/h)
   driftTol = 0.3,        -- m: so weit darf es ihn in der Kurve nach außen tragen, darüber nimmt er Tempo raus und merkt es sich
   edgeMarginSpeed = 0.012, -- m mehr Abstand zum Rand pro m/s über 20 m/s (230 km/h: +0,5 m)
   -- Duell (Stufe 3)
@@ -1156,13 +1156,15 @@ local function control(dt)
   -- Trägt es ihn in der Kurve nach außen (mehr Tempo als Grip)? Dann sofort etwas Tempo raus
   -- und für alle weiteren Kurven merken (wie beim Untersteuern)
   local outSlow = 0
-  if v > 15 and bestK > 2 and bestK < pl.n - 2 then
-    local ax, ay = pl.px[bestK] - pl.px[bestK - 2], pl.py[bestK] - pl.py[bestK - 2]
-    local bx, by = pl.px[bestK + 2] - pl.px[bestK], pl.py[bestK + 2] - pl.py[bestK]
+  -- (die Planung ist bis 0.1 s alt, das Auto steht meist am 1. oder 2. Punkt: Krümmung ab Punkt 3)
+  local kc = clamp(bestK, 3, pl.n - 2)
+  if v > 15 and pl.n > 5 then
+    local ax, ay = pl.px[kc] - pl.px[kc - 2], pl.py[kc] - pl.py[kc - 2]
+    local bx, by = pl.px[kc + 2] - pl.px[kc], pl.py[kc + 2] - pl.py[kc]
     local cx, cy = bx - ax, by - ay -- zeigt zur Kurven-Innenseite
     local cl = sqrt(cx * cx + cy * cy)
     local mu = obj:getStaticFrictionCoef()
-    if cl > 1e-4 and (pl.kappa[bestK] or 0) * v * v > 0.35 * mu * g then
+    if cl > 1e-4 and (pl.kappa[kc] or 0) * v * v > 0.35 * mu * g then
       local outErr = -((ego.pos.x - pl.px[bestK]) * cx + (ego.pos.y - pl.py[bestK]) * cy) / cl
       if outErr > p.driftTol then
         gripEst = max(gripEst - dt * 0.25 * (outErr - p.driftTol), 0.6)
@@ -1333,9 +1335,10 @@ local function learnSteering(dt)
   if prevSpeed and lastBrake >= 0.85 and v > 12 then
     brakeTime = brakeTime + dt
     local dec = (prevSpeed - v) / dt
-    if brakeTime > 0.3 and dec > 1 then
+    -- Ausreißer (Einschlag, Rutschen) nicht mitlernen; nie mehr als der Reifen-Grip
+    if brakeTime > 0.3 and dec > 1 and dec < mu * g * 1.5 then
       local k = dec < brakeCap and min(1, dt * 1.5) or min(1, dt * 0.2)
-      brakeCap = clamp(brakeCap + (dec - brakeCap) * k, 4, mu * g * 1.3)
+      brakeCap = clamp(brakeCap + (dec - brakeCap) * k, 4, mu * g)
     end
   else
     brakeTime = 0
