@@ -105,6 +105,17 @@
    }
   },
   {
+   "appName": "hashiriyaUnlock",
+   "appVersion": 1,
+   "placement": {
+    "height": "380px",
+    "left": "0px",
+    "position": "absolute",
+    "top": "30%",
+    "width": "440px"
+   }
+  },
+  {
    "appName": "hashiriyaTalk",
    "appVersion": 1,
    "placement": {
@@ -156,5 +167,5 @@
  "removedApps": {},
  "title": "Hashiriya Battle",
  "type": "hashiriyaBattle",
- "version": 6
+ "version": 8
 }

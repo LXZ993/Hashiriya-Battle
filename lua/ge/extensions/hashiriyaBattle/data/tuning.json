@@ -345,5 +345,6 @@
     "focusOffsetUp": 0.1
   },
   "tireWithRim": false,
+  "unlockNotice": { "_hinweis": "Meldung, wenn eine Stufe frei wird (UI-App HashiriyaUnlock). enabled = an/aus, seconds = wie lange sie steht, delay = Sekunden Ruhe nach dem Battle, bevor sie kommt, maxCategories = so viele Kategorien werden einzeln gezeigt.", "enabled": true, "seconds": 9, "delay": 3, "maxCategories": 5 },
   "liveryMinPriceYen": 19800
 }
