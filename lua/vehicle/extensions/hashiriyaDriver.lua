@@ -87,6 +87,7 @@ local defaults = {
   errorRateMin = 0.03,
   errorCooldown = 12,    -- s nach einem Fehler kein neuer
   debug = false,         -- Linie und Verkehr im Spiel einzeichnen
+  logBrakes = true,      -- jeden Bremsgrund (max. 1x pro s) ins beamng.log schreiben
 }
 
 local p = {}             -- aktive Werte
@@ -122,6 +123,7 @@ local duel = { blockTime = 0, blockCool = 0, blockLat = nil, blockMoves = 0, bra
 local mistake = { kind = nil, time = 0, cool = 0, scared = {} }
 local startDelay = 0
 local function dlog(text) if p.debug then log('I', 'hashiriyaDriver', text) end end
+local brakeLogTime = 0 -- Bremsgrund höchstens 1x pro Sekunde ins Log
 
 -- Hilfen -------------------------------------------------------------------------------
 
@@ -404,6 +406,16 @@ local function initOffsets(pl, egoLat)
   end
 end
 
+-- Tempo hinter einem Auto, das er nicht überholen kann: zu dicht = etwas langsamer als der Vordermann.
+-- Ist der Vordermann schneller (z. B. du hast ihn gerade überholt), wird der Abstand von allein größer:
+-- dann nur kein Gas mehr, nicht bremsen.
+local function followSpeed(vO, want, gapLong, v0)
+  vO = max(vO, 0)
+  local v = max(vO - max(want - gapLong, 0) * 0.6, vO - 3, 0)
+  if vO >= v0 - 0.5 then v = max(v, min(v0, vO)) end
+  return v
+end
+
 -- Verkehr einlesen und vorbeifahren planen ---------------------------------------------
 local function planTraffic(pl, courage, nerves, dt, egoLat)
   local objs = mapmgr.getObjects()
@@ -483,7 +495,7 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
     -- hängt er länger dahinter, lässt er sich etwas zurückfallen: Anlauf für die nächste Lücke
     local back = clamp(((followTime[ob.id] or 0) - 2) * 0.25, 0, 0.7)
     local want = vO * (headway + back) + 2
-    local v = max(vO - max(want - gapLong, 0) * 0.6, 0)
+    local v = followSpeed(vO, want, gapLong, v0)
     followCaps[#followCaps + 1] = { s = max(gapLong - want, 0), v = v, d = ob.d, gap = gapLong, ob = ob }
   end
 
@@ -735,7 +747,7 @@ local function checkPasses(pl, courage)
     if bad then
       local vO = max(bad.vAlong, 0)
       local want = vO * headway + 2
-      local v = max(vO - max(want - bad.gapLong, 0) * 0.6, 0)
+      local v = followSpeed(vO, want, bad.gapLong, max(ego.speed, 1))
       pl.followCaps[#pl.followCaps + 1] = { s = max(bad.gapLong - want, 0), v = v, d = bad.d, gap = bad.gapLong, ob = bad }
       bad.side = nil
     end
@@ -865,7 +877,8 @@ local function planMistakes(pl, courage, nerves, dt)
   local pressure = clamp(1 - abs(race.gap or 0) / 40, 0, 1)
   -- Schreckreaktion: ein Auto zieht dicht vor ihm plötzlich rüber
   for _, ob in ipairs(pl.obstacles) do
-    if abs(ob.vLat) > 0.8 and ob.s > 0 and ob.s < 40 and not mistake.scared[ob.id] then
+    local cutting = abs(ob.vLat) > 0.8 and (ob.d - (pl.egoLat or 0)) * ob.vLat < 0
+    if cutting and not ob.target and ob.s > 0 and ob.s < 40 and not mistake.scared[ob.id] then
       mistake.scared[ob.id] = true
       if math.random() < (1 - nerves) * 0.4 * (1 - p.skill * 0.5) then
         mistake.kind, mistake.time, mistake.cool = 'scare', 0.45, p.errorCooldown
@@ -906,6 +919,7 @@ local function makePlan(dt)
   local egoLat = lateralAt(pl, 1, ego.pos.x, ego.pos.y)
   initOffsets(pl, egoLat)
   planTraffic(pl, courage, nerves, dt, egoLat)
+  pl.egoLat = egoLat
   planMistakes(pl, courage, nerves, dt)
   local prefLat, prefPull, prefUntil = planDuel(pl, egoLat, dt)
   smoothLine(pl, egoLat, prefLat, prefPull, prefUntil)
@@ -1006,6 +1020,26 @@ local function control(dt)
   local emergency = lerp(p.emergencyTtcMax, p.emergencyTtcMin, pl.courage or p.courage)
   if (pl.ttc or math.huge) < emergency then
     throttle, brake = 0, 1
+  end
+
+  -- Warum bremst er? (für die Abstimmung im Spiel, steht im beamng.log)
+  if p.logBrakes and brake > 0.25 and simTime - brakeLogTime > 1 then
+    brakeLogTime = simTime
+    local why = 'Linie'
+    if (pl.ttc or math.huge) < emergency then why = 'Notbremse'
+    elseif mistake.kind == 'scare' then why = 'Schreck'
+    elseif duel.brakeCheck > 0 then why = 'Bremstest' end
+    local c = pl.followCaps and pl.followCaps[1]
+    local capTxt = 'kein Verkehr'
+    if c then
+      local ob = c.ob or {}
+      capTxt = string.format('Auto %s%s in %.0f m, quer %.1f, %.0f km/h, Limit %.0f km/h ab %.0f m',
+        tostring(ob.id), ob.target and ' (Spieler)' or '', c.gap < math.huge and c.gap or (ob.gapLong or -1), ob.d or 0,
+        (ob.vAlong or 0) * 3.6, c.v * 3.6, c.s)
+    end
+    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f, %d Autos, %d Lücken | %s',
+      brake, why, v * 3.6, vT * 3.6, pl.ttc or -1, pl.egoLat or 0, pl.baseLo[1] or 0, pl.baseHi[1] or 0,
+      #pl.obstacles, #(pl.groups or {}), capTxt))
   end
 
   local tcs, absC = wheelCoefs()
