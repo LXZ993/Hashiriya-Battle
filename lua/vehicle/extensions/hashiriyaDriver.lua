@@ -78,7 +78,12 @@ local defaults = {
   steerRate = 6,         -- Lenkeinschlag pro Sekunde höchstens (Anteil voller Einschlag)
   highSpeedBrakeReserve = 0.2, -- bei hohem Tempo bis zu 20 % weniger Bremsweg-Verzögerung eingeplant (ab 90 km/h, voll bei 270 km/h)
   highSpeedReserve = 0.2, -- schnelle Kurven: bis zu 20 % weniger Querbeschleunigung (ab 90 km/h zunehmend, voll bei 234 km/h)
+  muMax = 1.05,          -- höchstens so viel Reibwert einplanen (BeamNG meldet bei guten Reifen bis 1.7)
   driftTol = 0.3,        -- m: so weit darf es ihn in der Kurve nach außen tragen, darüber nimmt er Tempo raus und merkt es sich
+  driftMemory = 4,       -- s: so lange bleibt er nach dem Abfangen vorsichtiger (lässt sich nicht gleich wieder raustragen)
+  shoulderSideGap = 0.3, -- m mehr Abstand zu Autos, solange er auf dem Standstreifen ist
+  shoulderWallGap = 0.2, -- m mehr Abstand zur Leitplanke am Standstreifen
+  brakePassCost = 4,     -- Strafe pro m/s² Bremsen bei der Wegwahl (lieber vorbei als bremsen)
   edgeMarginSpeed = 0.012, -- m mehr Abstand zum Rand pro m/s über 20 m/s (230 km/h: +0,5 m)
   -- Duell (Stufe 3)
   blockMinAggression = 0.55, -- ab dieser Aggression macht er dir vorne die Linie zu
@@ -122,6 +127,7 @@ local planAge, errLogTime = 0, -10
 local brakeCap = 9.8     -- m/s²: gelernte Verzögerung bei Vollbremsung (wird beim Start auf mu*g gesetzt)
 local brakeTime, prevSpeed = 0, nil
 local primeSeen = false
+local outMem = 0         -- Nachwirkung nach dem Rausgetragen-Werden (0..0.12)
 local gripEst = 1        -- gelernter Anteil des Grips, den das Auto wirklich schafft (Untersteuern)
 local stuckTime, reverseTime = 0, 0
 local offRouteTime = 0
@@ -132,6 +138,9 @@ local failedReported = false
 local duel = { blockTime = 0, blockCool = 0, blockLat = nil, blockMoves = 0, brakeCheck = 0, brakeCool = 10 }
 local mistake = { kind = nil, time = 0, cool = 0, scared = {} }
 local startDelay = 0
+-- Reibwert für die Planung: BeamNG meldet bei Sport-/Rennreifen bis ~1.7 (Reifen-Spitzenwert),
+-- ein Auto schafft auf der Straße aber kaum mehr als ~1 g. Gedeckelt (wie die BeamNG-KI mit aggression)
+local function muEff() return min(obj:getStaticFrictionCoef(), p.muMax or 1.05) end
 local function dlog(text) if p.debug then log('I', 'hashiriyaDriver', text) end end
 local brakeLogTime = 0 -- Bremsgrund höchstens 1x pro Sekunde ins Log
 
@@ -447,7 +456,7 @@ end
 
 local function measureWidth(pl, courage)
   local n = pl.n
-  local margin = lerp(0.6, 0.3, courage) + ego.width * 0.5
+  local margin = lerp(0.6, 0.3, courage) + ego.width * 0.5 + p.shoulderWallGap
   local every = 3
   local lastL, lastR = 0, 0
   for k = 1, n do
@@ -489,7 +498,7 @@ end
 
 planLattice = function(pl, courage, list, egoLat)
   local v0 = max(ego.speed, 0.5)
-  local mu = obj:getStaticFrictionCoef()
+  local mu = muEff()
   local latLimit = mu * g * lerp(0.35, 0.6, courage) * gripEst
   local sideGap = lerp(p.sideGapMax, p.sideGapMin, courage)
   local reserve = 0.15
@@ -555,6 +564,7 @@ planLattice = function(pl, courage, list, egoLat)
     local cost = 0
     local tColl = nil
     local bad = false
+    local shoulderX = 0
     local minClear = math.huge
     for i = 0, nSteps do
       local t = i * dtc
@@ -583,6 +593,7 @@ planLattice = function(pl, courage, list, egoLat)
         end
         local blo, bhi = valueAt(pl, pl.baseLo, s), valueAt(pl, pl.baseHi, s)
         if d < blo then cost = cost + (blo - d) * 1.5 * dtc elseif d > bhi then cost = cost + (d - bhi) * 1.5 * dtc end
+        shoulderX = (d < blo - 0.3 or d > bhi + 0.3) and p.shoulderSideGap or 0
         if twoWay then
           -- Gegenfahrbahn: kostet, und am Ende der Vorausschau muss er wieder drüben sein
           local olo, ohi = valueAt(pl, pl.ownLo, s), valueAt(pl, pl.ownHi, s)
@@ -611,6 +622,7 @@ planLattice = function(pl, courage, list, egoLat)
           local need = ob.latNeed + abs(dShift) * 0.5 + 0.06 * t -- Unsicherheit wächst mit der Zeit
           -- Ideallinie nur, wenn der Verkehr gar nicht im Weg ist (Ausweichen machen die Spurwechsel)
           if kind == 'free' then need = need + 0.8 end
+          need = need + shoulderX -- auf dem Standstreifen: Leitplanke daneben, also mehr Luft zum Auto
           -- schon zu dicht dran: nur noch echte Berührung zählt (lieber knapp vorbei als hart bremsen)
           if tight then need = (ob.wid + ego.width) * 0.5 + 0.12 + abs(dShift) * 0.3 end
           -- schon jetzt zu eng: in Ordnung, solange es weiter auseinander geht
@@ -642,6 +654,7 @@ planLattice = function(pl, courage, list, egoLat)
       if lastChoice.kind == 'free' then cost = cost - 6 end
     end
     if acc == lastChoice.acc then cost = cost - 1 end
+    if acc < 0 then cost = cost - acc * p.brakePassCost end -- Bremsen nur, wenn ohne wirklich nichts geht
     if minClear < math.huge then cost = cost + 1.5 / (minClear + 0.25) end
     return cost
   end
@@ -898,7 +911,7 @@ end
 local function speedProfile(pl, courage, pace)
   local n = pl.n
   local px, py, kappa, v = pl.px, pl.py, pl.kappa, pl.v
-  local mu = obj:getStaticFrictionCoef()
+  local mu = muEff()
   local cornerUse = lerp(p.cornerUseMin, p.cornerUseMax, p.skill) * pace * gripEst
   local brakeUse = (lerp(p.brakeUseMin, p.brakeUseMax, p.skill) + courage * 0.04) * (0.5 + 0.5 * gripEst)
   -- gelernte echte Bremsleistung des Autos (Vollbremsungen gemessen)
@@ -1155,7 +1168,7 @@ local function control(dt)
 
   -- Trägt es ihn in der Kurve nach außen (mehr Tempo als Grip)? Dann sofort etwas Tempo raus
   -- und für alle weiteren Kurven merken (wie beim Untersteuern)
-  local outSlow = 0
+  local outSlow, inCorner = 0, false
   -- (die Planung ist bis 0.1 s alt, das Auto steht meist am 1. oder 2. Punkt: Krümmung ab Punkt 3)
   local kc = clamp(bestK, 3, pl.n - 2)
   if v > 15 and pl.n > 5 then
@@ -1163,12 +1176,14 @@ local function control(dt)
     local bx, by = pl.px[kc + 2] - pl.px[kc], pl.py[kc + 2] - pl.py[kc]
     local cx, cy = bx - ax, by - ay -- zeigt zur Kurven-Innenseite
     local cl = sqrt(cx * cx + cy * cy)
-    local mu = obj:getStaticFrictionCoef()
+    local mu = muEff()
+    if (pl.kappa[kc] or 0) * v * v > 0.25 * mu * g then inCorner = true end
     if cl > 1e-4 and (pl.kappa[kc] or 0) * v * v > 0.35 * mu * g then
       local outErr = -((ego.pos.x - pl.px[bestK]) * cx + (ego.pos.y - pl.py[bestK]) * cy) / cl
       if outErr > p.driftTol then
-        gripEst = max(gripEst - dt * 0.25 * (outErr - p.driftTol), 0.6)
+        gripEst = max(gripEst - dt * 0.5 * (outErr - p.driftTol), 0.6)
         outSlow = clamp((outErr - p.driftTol) * 0.08, 0, 0.12)
+        outMem = max(outMem, outSlow)
       end
       pl.outErr = outErr
     end
@@ -1192,6 +1207,9 @@ local function control(dt)
 
   -- Tempo: was die Planung kurz voraus erlaubt (Reaktion/Trägheit)
   local sV = sNow + v * 0.25 + 1.5
+  -- nach dem Abfangen nicht gleich wieder voll rein: wirkt einige Sekunden nach
+  outMem = max(outMem - dt * 0.12 / max(p.driftMemory, 0.5), 0)
+  if inCorner then outSlow = max(outSlow, outMem) end
   local vT = valueAt(pl, pl.v, min(sV, pl.s[pl.n])) * (1 - outSlow)
   local err = vT - v
   local throttle, brake = 0, 0
@@ -1322,7 +1340,7 @@ local function learnSteering(dt)
   local v = ego.speed
   -- Untersteuern erkennen: viel Lenkung, aber die Drehung bleibt deutlich unter dem Soll
   -- -> er schafft weniger Grip als gedacht, Kurventempo runter (langsam wieder rauf)
-  local mu = obj:getStaticFrictionCoef()
+  local mu = muEff()
   if v > 12 and abs(lastSteer) > 0.08 then
     local want = v * math.tan(lastSteer * steerAngleEst) / wheelBase
     local aLat = abs(yawRate * v)
@@ -1344,7 +1362,7 @@ local function learnSteering(dt)
     brakeTime = 0
   end
   prevSpeed = v
-  if v > 8 and abs(lastSteer) > 0.04 and abs(lastSteer) < 0.6 and abs(yawRate * v) < 0.45 * g * obj:getStaticFrictionCoef() then
+  if v > 8 and abs(lastSteer) > 0.04 and abs(lastSteer) < 0.6 and abs(yawRate * v) < 0.45 * g * muEff() then
     local meas = math.atan(yawRate * wheelBase / v) / lastSteer
     if meas > 0.12 and meas < 1.3 then
       steerAngleEst = steerAngleEst + (meas - steerAngleEst) * min(1, dt * 0.6)
@@ -1439,7 +1457,8 @@ function M.start(params)
   table.clear(latTrack)
   lastChoice.kind, lastChoice.dT, lastChoice.acc, lastChoice.t0, lastChoice.T = 'free', 0, 0, 0, 1
   planAge, errLogTime = 0, -10
-  brakeCap, brakeTime, prevSpeed = obj:getStaticFrictionCoef() * g, 0, nil
+  brakeCap, brakeTime, prevSpeed = muEff() * g, 0, nil
+  outMem = 0
   primeSeen = true -- bis zum Start fuhr er schon selbst im Verkehr: die Autos um ihn kennt er
   followTime = {}
   table.clear(trail)
