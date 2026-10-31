@@ -671,6 +671,12 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
         end
         if committed then lim = lim * 1.3 elseif wasFollowing then lim = lim * 0.85 end
         if alongside then ok = sameSide(a, b) else ok = 4.93 * need / max(tReach - 0.3, 0.05) ^ 2 <= lim end
+        -- langsam (Stau, stehendes Auto): es zählt nur, ob er mit vollem Einschlag noch rumkommt
+        if not ok and not alongside and v0 < 12 then
+          local room = math.huge
+          for _, ob in ipairs(group) do room = min(room, ob.gapLong - 0.5) end
+          ok = room > 0.5 and 2 * need / (room * room) <= 0.12
+        end
         if not ok then return end
         -- Gegenverkehr: kommt er, bevor das Überholen vorbei ist, in diese Lücke? Dann nicht.
         local tEnd = gs1 / max(v0 + passDelta * 0.5, 1) + 1
