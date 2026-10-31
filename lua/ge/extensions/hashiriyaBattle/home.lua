@@ -127,13 +127,59 @@ local function newDay()
   log('I', logTag, 'Neuer Tag: ' .. save.day)
 end
 
+-- Ruhesperre: nach dem Schlafen oder einem Nickerchen geht beides erst nach restLockHours Spielstunden wieder
+-- (world.json, Standard 6). Gespeichert als Spielstunde seit Tag 1 in save.restLockUntil.
+local function absHour()
+  local h = M.hour()
+  if not h then return nil end
+  return (M.getDay() - 1) * 24 + h
+end
+
+local function fmtHour(h)
+  h = h % 24
+  local hh, mm = math.floor(h), math.floor((h % 1) * 60 + 0.5)
+  if mm >= 60 then hh, mm = (hh + 1) % 24, 0 end
+  return string.format('%02d:%02d', hh, mm)
+end
+
+-- Gibt nil zurück, wenn man wieder schlafen darf, sonst { untilHour = Uhrzeit 0-24, text = "HH:MM", left = Stunden }
+function M.restLock()
+  local save = core().save
+  if not save or not save.restLockUntil then return nil end
+  local now = absHour()
+  if not now then return nil end
+  local left = save.restLockUntil - now
+  local maxH = tonumber(M.world().restLockHours) or 6
+  -- abgelaufen, oder Uhr zurückgestellt (z. B. Spielstand aus alter Version): Sperre aufheben
+  if left <= 0 or left > maxH + 0.25 then
+    save.restLockUntil = nil
+    return nil
+  end
+  return { untilHour = save.restLockUntil % 24, text = fmtHour(save.restLockUntil), left = left }
+end
+
+local function setRestLock()
+  local save = core().save
+  local now = absHour()
+  local hours = tonumber(M.world().restLockHours) or 6
+  if save and now and hours > 0 then save.restLockUntil = now + hours end
+end
+
 -- Schlafen zu Hause: tagsüber bis zum Abend (wakeHour), nachts ab sleepFrom bis zum Morgen (nightWakeHour).
 -- Zwischen nightFrom und sleepFrom (20 bis 22 Uhr) geht es nicht, dann ist Battle-Zeit.
+-- Nach dem Schlafen/Nickerchen gilt die Ruhesperre (reason 'rested').
 function M.sleepInfo()
   local w = M.world()
   local h = M.hour() or 0
   local from, nightFrom = w.sleepFrom or 22, w.nightFrom or 20
   local morning = w.nightWakeHour or 6
+  local lock = M.restLock()
+  if lock then
+    -- Sperre endet in der Battle-Zeit vor sleepFrom: dann erst ab sleepFrom
+    local u = lock.untilHour
+    local text = (u >= nightFrom and u < from) and string.format('%02d:00', from) or lock.text
+    return { can = false, wake = text, reason = 'rested' }
+  end
   if h >= nightFrom and h < from then return { can = false, wake = from, reason = 'early' } end
   if h >= from or h < morning then return { can = true, wake = morning, newDay = h >= from } end
   return { can = true, wake = w.wakeHour or 20, newDay = false }
@@ -169,6 +215,7 @@ local function finishRest()
   rest = nil
   M.applyClock(r.to % 24)
   if r.newDay then newDay() end
+  setRestLock()
   local c = core()
   c.writeSave()
   if r.kind == 'nap' then freezePlayer(false) end
@@ -191,7 +238,8 @@ function M.sleep()
   if not c.save or rest then return end
   local info = M.sleepInfo()
   if not info.can then
-    c.msg(c.t('msg.sleepEarly', string.format('%02d:00', info.wake)), 4)
+    if info.reason == 'rested' then c.msg(c.t('msg.sleepRested', info.wake), 4)
+    else c.msg(c.t('msg.sleepEarly', string.format('%02d:00', info.wake)), 4) end
     return
   end
   local h = M.hour() or 0
@@ -218,11 +266,15 @@ function M.napInfo()
   local c = core()
   local veh = c.getPlayerVehicle()
   if not veh or not c.save then return nil end
-  local reason = nil
+  local reason, lock = nil, nil
   if not napSpotNear(veh:getPosition()) then reason = 'notHere'
   elseif extensions.hashiriyaBattle_battle.isBusy() then reason = 'battle'
-  elseif veh:getVelocity():length() > napMaxSpeed then reason = 'moving' end
-  return { can = reason == nil, reason = reason }
+  else
+    lock = M.restLock()
+    if lock then reason = 'rested'
+    elseif veh:getVelocity():length() > napMaxSpeed then reason = 'moving' end
+  end
+  return { can = reason == nil, reason = reason, untilText = lock and lock.text or nil }
 end
 
 function M.nap()
@@ -231,7 +283,8 @@ function M.nap()
   local info = M.napInfo()
   if not info then return end
   if info.reason then
-    c.msg(c.t('msg.nap.' .. info.reason), 3)
+    if info.untilText then c.msg(c.t('msg.nap.' .. info.reason, info.untilText), 3)
+    else c.msg(c.t('msg.nap.' .. info.reason), 3) end
     return
   end
   local range = M.world().napHours or { 0.5, 2 }
@@ -368,7 +421,8 @@ end
 function M.getUiState(tab)
   local st = { tab = tab or 'main', day = M.getDay() }
   local si = M.sleepInfo()
-  st.sleep = { can = si.can, wake = string.format('%02d:00', si.wake) }
+  st.sleep = { can = si.can, wake = type(si.wake) == 'string' and si.wake or string.format('%02d:00', si.wake) }
+  if si.reason == 'rested' then st.sleep.note = core().t('home.sleepRestedNote', si.wake) end
   if st.tab == 'lexicon' then
     st.lexicon = lexicon()
     st.watchCount = #M.watchList()
