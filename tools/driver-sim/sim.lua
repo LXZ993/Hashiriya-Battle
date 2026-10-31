@@ -145,6 +145,7 @@ mapmgr.findBestRoad = function(pos, dir) return closest(pos) end
 -- Fahrzeug (Ego) --------------------------------------------------------------------------
 local car = { pos = vec3(0, 5, 0), h = math.pi / 2, v = 22, steer = 0, len = 4.5, wid = 1.9, wb = 2.6 }
 if SCEN == 'touge' then car.pos = vec3(1.8, 5, 0) car.v = 15 end
+if STARTLAT then car.pos.x = STARTLAT end -- Start neben der Fahrbahn (z. B. Standstreifen)
 local inputs = { steering = 0, throttle = 0, brake = 0, parkingbrake = 0 }
 input = { event = function(name, val) inputs[name] = val end }
 wheels = { wheels = {} }
@@ -203,6 +204,9 @@ elseif SCEN == 'touge' then
   addTraffic(4, 0.55, 1.8, 10)
   addTraffic(5, 0.65, -1.8, -12)
 end
+
+-- Test: stehendes Auto (z. B. nach Unfall), STOPCAR = { Anteil der Strecke, Querlage }
+if STOPCAR then addTraffic(20, STOPCAR[1], STOPCAR[2], 0) end
 
 local function trafficPos(t)
   local i = math.min(math.max(math.floor(t.idx), 1), #center - 1)
@@ -307,8 +311,10 @@ while t < 120 do
     local pl = D._internal.getPlan()
     if pl then
       local parts = {}
+      local c = pl.choice
+      if c then parts[#parts + 1] = string.format('WAHL %s dT=%.1f T=%.1f a=%.1f ok=%d', c.kind, c.dT, c.T, c.acc, #(pl.groups or {})) end
       for _, ob in ipairs(pl.obstacles) do
-        parts[#parts + 1] = string.format('#%d s=%.0f d=%.1f side=%s tM=%s', ob.id, ob.s, ob.d, tostring(ob.side), ob.tMeet and string.format('%.1f', ob.tMeet) or '-')
+        parts[#parts + 1] = string.format('#%d s=%.0f d=%.1f v=%.0f side=%s', ob.id, ob.s, ob.d, ob.vAlong * 3.6, tostring(ob.side))
       end
       local caps = {}
       for _, c in ipairs(pl.followCaps or {}) do caps[#caps + 1] = string.format('%.0fm:%.0f', c.s, c.v * 3.6) end
