@@ -508,5 +508,13 @@
   "shop.slot.wheel_R": "Rear wheels",
   "shop.slot.tire_F": "Front tires",
   "shop.slot.tire_R": "Rear tires",
-  "shop.slot.paint_design": "Livery"
+  "shop.slot.paint_design": "Livery",
+  "hud.scoreboard": "Standings",
+  "hud.tasks": "Objectives",
+  "hud.navi": "Navi",
+  "hud.policeSeen": "Police on you",
+  "hud.policeLost": "Out of sight",
+  "hud.target": "Target",
+  "hud.powertrain": "Powertrain",
+  "hud.ignitionTip": "Hold: start / stop engine"
 }

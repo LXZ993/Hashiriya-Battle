@@ -1,0 +1,14 @@
+{
+  "domElement": "<hashiriya-powertrain></hashiriya-powertrain>",
+  "name": "Hashiriya Battle: Antrieb",
+  "types": ["ui.apps.categories.vehicle_info"],
+  "description": "Antriebs-Steuerung im HashiNet-Design (abgeleitet von BeamNG Simple Powertrain Control): Start/Stop, Sperren, 4WD, ESC, N2O usw.",
+  "css": { "right": "315px", "bottom": "5px", "width": "330px", "height": "130px" },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaPowertrain",
+  "appName": "hashiriyaPowertrain",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "yes"
+}

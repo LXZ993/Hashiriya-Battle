@@ -564,5 +564,13 @@
   "shop.slot.door_L": "Tür links",
   "shop.slot.door_R": "Tür rechts",
   "shop.slot.windshield": "Frontscheibe",
-  "shop.slot.steering": "Lenkung"
+  "shop.slot.steering": "Lenkung",
+  "hud.scoreboard": "Rangliste",
+  "hud.tasks": "Aufgaben",
+  "hud.navi": "Navi",
+  "hud.policeSeen": "Polizei sieht dich",
+  "hud.policeLost": "Außer Sicht",
+  "hud.target": "Ziel",
+  "hud.powertrain": "Antrieb",
+  "hud.ignitionTip": "Halten: Motor starten / abstellen"
 }

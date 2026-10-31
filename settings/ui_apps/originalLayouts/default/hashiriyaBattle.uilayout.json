@@ -1,28 +1,25 @@
 {
  "apps": [
   {
-   "appName": "forcedInduction",
+   "appName": "hashiriyaBoost",
+   "appVersion": 1,
    "placement": {
-    "bottom": "285px",
-    "height": "150px",
-    "left": "",
+    "bottom": "310px",
+    "height": "90px",
     "position": "absolute",
-    "right": "0px",
-    "top": "",
-    "width": "150px"
-   },
-   "settings": {
-    "noCockpit": true
+    "right": "5px",
+    "width": "220px"
    }
   },
   {
-   "appName": "simplePowertrainControl",
+   "appName": "hashiriyaPowertrain",
+   "appVersion": 1,
    "placement": {
-    "bottom": "0px",
-    "height": "170px",
+    "bottom": "5px",
+    "height": "130px",
     "position": "absolute",
-    "right": "260px",
-    "width": "230px"
+    "right": "315px",
+    "width": "330px"
    }
   },
   {
@@ -39,29 +36,25 @@
    }
   },
   {
-   "appName": "navigation",
-   "appVersion": 5,
+   "appName": "hashiriyaMinimap",
+   "appVersion": 1,
    "placement": {
-    "bottom": "0.62em",
-    "height": "17.19em",
-    "left": "1.25em",
+    "bottom": "10px",
+    "height": "320px",
+    "left": "20px",
     "position": "absolute",
-    "right": "",
-    "top": "",
-    "width": "16.31em"
+    "width": "270px"
    }
   },
   {
-   "appName": "tacho2",
+   "appName": "hashiriyaTacho",
    "appVersion": 1,
    "placement": {
     "bottom": "5px",
     "height": "300px",
+    "position": "absolute",
     "right": "5px",
     "width": "300px"
-   },
-   "settings": {
-    "noCockpit": true
    }
   },
   {
@@ -78,14 +71,12 @@
    }
   },
   {
-   "appName": "topLeftApps",
-   "appVersion": 2,
+   "appName": "hashiriyaUtility",
+   "appVersion": 1,
    "placement": {
-    "bottom": "",
     "height": "600px",
     "left": "0px",
     "position": "absolute",
-    "right": "",
     "top": "0px",
     "width": "380px"
    }
@@ -180,5 +171,5 @@
  "removedApps": {},
  "title": "Hashiriya Battle",
  "type": "hashiriyaBattle",
- "version": 8
+ "version": 9
 }
