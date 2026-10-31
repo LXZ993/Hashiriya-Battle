@@ -51,7 +51,7 @@
   "_bigMap": "blockBigMapTeleport: Schnellreise über die große Karte ist im Release während der Karriere gesperrt (Karte selbst bleibt nutzbar).",
   "nodeGrabberStrength": 30,
   "modVersion": "Alpha 1",
-  "_log": "Mod-Log für Fehlersuche: settings/hashiriya_battle/logs/hashiriya.log im BeamNG-Userordner. level: D = alles (Debug), I = normal, W = nur Warnungen/Fehler, E = nur Fehler. maxKb = Größe einer Datei, files = Anzahl Dateien insgesamt (hashiriya.log + ältere hashiriya.1.log ...), also höchstens maxKb x files. statusMinutes = Statuszeile alle x Minuten (0 = aus). perMinute = gleiche Meldung höchstens so oft pro Minute. Menü > Fehlerbericht erstellen schreibt logs/fehlerbericht.txt.",
+  "_log": "Mod-Log für Fehlersuche: settings/hashiriya_battle/logs/hashiriya.log im BeamNG-Userordner. level: D = alles (Debug), I = normal, W = nur Warnungen/Fehler, E = nur Fehler. maxKb = Größe einer Datei, files = Anzahl Dateien insgesamt (hashiriya.log + ältere hashiriya.1.log ...), also höchstens maxKb x files. statusMinutes = Statuszeile alle x Minuten (0 = aus). perMinute = gleiche Meldung höchstens so oft pro Minute. Menü > Fehlerbericht erstellen schreibt logs/bugreport.txt.",
   "log": {
     "level": "I",
     "maxKb": 512,

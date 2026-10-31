@@ -1,7 +1,10 @@
--- Hashiriya Battle: Tuning-Shop (Einzelteile je Slot, nach Stufen freigeschaltet)
--- Welche Teile es gibt, kommt zur Laufzeit aus BeamNG: alle Teile, die in die Slots des
--- Spielerautos passen. data/tuning.json legt fest, welche Slots im Shop auftauchen und
--- welche Stufe (LV1-3) ein Teil bekommt. Gekaufte Teile bleiben im Besitz.
+-- Hashiriya Battle: Tuning-Shop und Garagen-PC (HashiNet Teile-Terminal)
+-- Welche Teile es gibt, kommt zur Laufzeit aus BeamNG: jeder Slot des Spielerautos mit Auswahl wird eine
+-- Zeile im Katalog. data/tuning.json ordnet die Slots Kategorien zu (Lua-Muster auf den Slot-Namen) und legt
+-- fest, welche Stufe (LV1-3) ein Teil bekommt und ab welchem Rang eine Stufe gekauft werden darf.
+-- Gekaufte Teile bleiben im Besitz (car.owned); Serienteile (car.stock) sind ebenfalls Besitz.
+-- Felgen werden ohne Reifen verkauft: passende eigene Reifen werden aufgezogen, sonst bleibt der Reifen-Slot leer.
+-- Die Oberfläche ist die UI-App HashiriyaTerminal im eigenen Layout "hashiriyaShop".
 local M = {}
 
 local logTag = 'hashiriya'
@@ -10,16 +13,26 @@ local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logge
 local rulesPath = '/lua/ge/extensions/hashiriyaBattle/data/tuning.json'
 
 local rules = nil
-local catalog = nil        -- { vehId = id, slots = { [slot] = { key = configKey, options = {...} } } }
+local catalog = nil        -- { vehId, rows = { ... }, bySlot = { [slot] = row } }
+local catVersion = 0       -- steigt bei jeder Änderung; die UI holt den Katalog dann neu
 local retryTimer = 0
-local activeTab = 'engine'
 local warnedNoConfig = false
 
+-- Terminal-Zustand
+local terminal = nil       -- nil | 'shop' | 'garage'
+local termCat = 'engine'
+local view = 'part'        -- 'part' = Kamera folgt dem Teil unter der Maus, 'car' = ganzes Auto
+local xray = false         -- Rest des Autos durchsichtig
+local camYaw = nil         -- Drehung der Vorschau-Kamera (Grad), nil = BeamNG-Standard
+local camTimer = 0
+
 local function core() return extensions.hashiriyaBattle_core end
+local function bump() catVersion = catVersion + 1 end
 
 function M.loadData()
-  rules = jsonReadFile(rulesPath) or { tiers = {}, tabs = {}, levelWords = {}, exclude = {}, overrides = {} }
+  rules = jsonReadFile(rulesPath) or { tiers = {}, categories = {}, levelWords = {}, exclude = {}, overrides = {} }
   catalog = nil
+  bump()
 end
 
 local function activeCar()
@@ -39,20 +52,6 @@ local function lastSegment(key)
   return (key:gsub('/+$', ''):match('([^/]+)$')) or key
 end
 
--- Passt der Slot zu einem Eintrag wie "_engine_ecu"? Erlaubt Varianten wie "_engine_ecu_2.0".
-local function slotMatches(slot, item)
-  for _, pat in ipairs(item.pattern or {}) do
-    if slot:find(pat) then return true end
-  end
-  for _, suf in ipairs(item.slot or {}) do
-    if slot:sub(-#suf) == suf or slot:find(suf .. '_[%d%.]+$') then return true end
-    -- Varianten hinter dem Slot direkt nach dem Modellnamen, z. B. bx_engine_ecu_i4, bx_bumper_F_fixed
-    local esc = suf:gsub('%p', '%%%0')
-    if slot:find('^[^_]+' .. esc .. '_') then return true end
-  end
-  return false
-end
-
 -- Anzeigename aus den jbeam-Infos (Markenteile haben {txt=..., ctx={brand1=...}}).
 local function niceName(desc, partName)
   if type(desc) == 'string' and desc ~= '' then return desc end
@@ -66,14 +65,33 @@ local function niceName(desc, partName)
   return partName
 end
 
-local function slotExcluded(slot)
-  for _, pat in ipairs(rules.slotExclude or {}) do
-    if slot:find(pat) then return true end
+local function anyMatch(str, list)
+  for _, pat in ipairs(list or {}) do
+    if str:find(pat) then return true end
   end
   return false
 end
 
-local function partLevel(partName, display, item)
+local function slotExcluded(slot) return anyMatch(slot, rules.slotExclude) end
+
+-- Slots, die nie im Katalog auftauchen (auch nicht unter "Alle Teile")
+local function slotHidden(slot)
+  return slot:find('licenseplate') ~= nil or slot:find('skin') ~= nil
+end
+
+-- Kategorie eines Slots: erste Kategorie, deren Muster passt; Rest = 'other'.
+local function categoryOf(slot)
+  if slot == 'paint_design' then return 'paint', nil end
+  local s = slot:lower()
+  local fallback = nil
+  for _, c in ipairs(rules.categories or {}) do
+    if c.id == 'other' then fallback = c
+    elseif c.match and anyMatch(s, c.match) then return c.id, c end
+  end
+  return 'other', fallback
+end
+
+local function partLevel(partName, display, defaultLevel)
   local o = rules.overrides and rules.overrides[partName]
   if o ~= nil then return o end
   local tk = tokens(partName) -- Teilename in Wörter zerlegen (Trenner: _ . Leerzeichen)
@@ -86,7 +104,7 @@ local function partLevel(partName, display, item)
       if tk[w:lower()] then return lv end
     end
   end
-  return item.defaultLevel or 0
+  return defaultLevel or 1
 end
 
 local function tierInfo(level)
@@ -96,6 +114,12 @@ local function tierInfo(level)
   return { level = level, unlock = {} }
 end
 
+local function rankName(index)
+  local pr = extensions.hashiriyaBattle_progress
+  local r = (extensions.hashiriyaBattle_rivals.getData().ranks or {})[index + 1]
+  return r and pr.loc(r.name) or tostring(index + 1)
+end
+
 -- Stufe freigeschaltet? Zweiter Wert = Text, was fehlt (Rang oder Siege)
 local function isUnlocked(level)
   local c = core()
@@ -103,8 +127,7 @@ local function isUnlocked(level)
   if unlock.minRank then
     local pr = extensions.hashiriyaBattle_progress
     if pr.rankIndex(c.save) < unlock.minRank then
-      local r = (extensions.hashiriyaBattle_rivals.getData().ranks or {})[unlock.minRank + 1]
-      return false, c.t('shop.needRank', r and pr.loc(r.name) or tostring(unlock.minRank + 1))
+      return false, c.t('shop.needRank', rankName(unlock.minRank))
     end
   end
   local need = unlock.minWins or 0
@@ -112,7 +135,25 @@ local function isUnlocked(level)
   return true, nil
 end
 
+-- "LV1 ab Nachtgast · LV2 ab ... " für die Statuszeile
+local function unlockText()
+  local c = core()
+  local parts = {}
+  for _, t in ipairs(rules.tiers or {}) do
+    local u = t.unlock or {}
+    if u.minRank and u.minRank > 0 then table.insert(parts, c.t('term.unlockRank', t.level, rankName(u.minRank)))
+    elseif u.minWins and u.minWins > 0 then table.insert(parts, c.t('term.unlockWins', t.level, u.minWins)) end
+  end
+  return table.concat(parts, ' · ')
+end
+
 local function yen(usd) return core().economy().usdToPrice(usd or 0) end
+
+-- Zollgröße aus dem Teilenamen ("steelwheel_11a_13x7_F" -> 13")
+local function sizeOf(part, name)
+  local z = tostring(part):match('_(%d%d)x[%d%.]+') or tostring(name or ''):match('(%d%d)x[%d%.]+') or tostring(name or ''):match('(%d%d)"')
+  return z and (z .. '"') or nil
+end
 
 -- Katalog aus den Teilen des aktuellen Autos aufbauen ----------------------------
 
@@ -143,8 +184,52 @@ M.currentConfig = function() return currentConfig() end
 
 local function jbeamIO() return rawget(_G, 'jbeamIO') or require('jbeam/io') end
 
+-- Kind-Slots eines Teils (slots2: name, allowTypes, default, description)
+local function childSlots(ioCtx, partName)
+  if not ioCtx or not partName or partName == '' then return {} end
+  local ok, part = pcall(jbeamIO().getPart, ioCtx, partName)
+  if not ok or type(part) ~= 'table' then return {} end
+  return part.slots2 or part.slots or {}
+end
+
+-- Reifen-Slot(s) einer Felge, z. B. { "tire_F_15x7" }
+local function tireSlotsOf(ioCtx, rimPart)
+  local out = {}
+  for _, s in ipairs(childSlots(ioCtx, rimPart)) do
+    local t = type(s.allowTypes) == 'table' and s.allowTypes[1] or s.name or s.type
+    if type(t) == 'string' and t:find('^tire_') then table.insert(out, { slot = s.name or t, type = t }) end
+  end
+  return out
+end
+
+-- Teil im Besitz? Gekauft oder Serie (auch ausgebaute Serienteile, z. B. die alten Reifen)
+local function ownsPart(car, part)
+  if not part or part == '' then return true end
+  if car.owned and car.owned[part] then return true end
+  for _, v in pairs(car.stock or {}) do
+    if v == part then return true end
+  end
+  return false
+end
+
+-- Slot -> Anzeigename: eigene Übersetzung (shop.slot.<slot ohne Modell>), sonst jbeam-Beschreibung
+local function slotLabel(car, slot, desc)
+  local c = core()
+  local s = slot
+  if car and s:sub(1, #car.model + 1) == car.model .. '_' then s = s:sub(#car.model + 2) end
+  local keys = { s, (s:gsub('_%d+x[%d%.]+$', '')), (s:gsub('_[%d%.]+$', '')), (s:gsub('_[%w%.]+$', '')) }
+  for _, k in ipairs(keys) do
+    local str = c.strings and c.strings['shop.slot.' .. k]
+    if str then return str end
+  end
+  if type(desc) == 'string' and desc ~= '' then return desc end
+  s = s:gsub('_', ' ')
+  return (s:gsub('^%l', string.upper))
+end
+
 local function buildCatalog()
-  local veh = core().getPlayerVehicle()
+  local c = core()
+  local veh = c.getPlayerVehicle()
   local car = activeCar()
   if not veh or not car then return nil end
   local cfg, vd = currentConfig()
@@ -180,75 +265,93 @@ local function buildCatalog()
     return partCache[name]
   end
 
-  local bySlot = {}
-  for slotType, names in pairs(slotMap) do
-    bySlot[slotType] = {}
-    for _, n in ipairs(names) do table.insert(bySlot[slotType], { name = n }) end
+  -- Slot-Beschreibungen und Eltern-Teil aus den verbauten Teilen (slots2)
+  local slotDesc, slotParent = {}, {}
+  local installed = {}
+  for _, p in pairs(cfg.parts) do if p ~= '' then installed[p] = true end end
+  local okMain, mainPart = pcall(io.getMainPartName, vd.ioCtx)
+  if okMain and mainPart then installed[mainPart] = true end
+  for p in pairs(installed) do
+    for _, s in ipairs(childSlots(vd.ioCtx, p)) do
+      local name = s.name or s.type
+      if name then
+        slotDesc[name] = slotDesc[name] or s.description
+        slotParent[name] = slotParent[name] or p
+      end
+    end
   end
 
+  -- Serienteile einmalig merken (neue Slots, z. B. Reifen einer neuen Felge, bekommen kein "Serie")
   car.stock = car.stock or {}
-  local cat = { vehId = veh:getID(), slots = {}, tabs = {} }
-  -- Slots der festen Reiter zuerst vormerken, damit 'Extras' nur den Rest bekommt
-  local usedSlots = {}
-  for _, tab in ipairs(rules.tabs or {}) do
-    for _, item in ipairs(tab.items) do
-      if not item.all then
-        for key in pairs(cfg.parts) do
-          local slot = lastSegment(key)
-          if slotMatches(slot, item) then usedSlots[slot] = true end
-        end
-      end
+  car.owned = car.owned or {}
+  if not car.stockInit then
+    for key, part in pairs(cfg.parts) do
+      local slot = lastSegment(key)
+      if car.stock[slot] == nil and not car.owned[part] then car.stock[slot] = part end
     end
+    car.stockInit = true
   end
-  for _, tab in ipairs(rules.tabs or {}) do
-    local tabRows = {}
-    for _, item in ipairs(tab.items) do
-      local found = {}
-      for key, part in pairs(cfg.parts) do
-        local slot = lastSegment(key)
-        local ok
-        if item.all then
-          -- Auswahl gibt es, wenn der Slot mehrere Teile hat oder ab Werk leer ist (Zubehör wie
-          -- Unterbodenbeleuchtung, Käfig, Shiftlight: dann ist 'Nicht verbaut' die Serien-Option).
-          local emptyStock = part == '' or car.stock[slot] == ''
-          ok = not usedSlots[slot] and bySlot[slot] and (#bySlot[slot] > 1 or (emptyStock and #bySlot[slot] > 0)) and not slotExcluded(slot)
-        else
-          ok = slotMatches(slot, item) and bySlot[slot]
-        end
-        if ok then table.insert(found, { slot = slot, key = key, part = part }); usedSlots[slot] = true end
-      end
-      table.sort(found, function(a, b) return a.slot < b.slot end)
-      for _, f in ipairs(found) do
-        if car.stock[f.slot] == nil then car.stock[f.slot] = f.part end
-        local options = {}
-        for _, p in ipairs(bySlot[f.slot]) do
-          if p.name ~= car.stock[f.slot] then
-            local info = partInfo(p.name)
-            local lv = partLevel(p.name, tostring(info.name or '') .. ' ' .. info.display, item)
-            if lv > 0 then
-              table.insert(options, { part = p.name, name = info.display, level = lv, price = math.max(yen(info.value), item.minPriceYen or 0) })
-            end
+
+  local catDefs = {}
+  for _, cd in ipairs(rules.categories or {}) do catDefs[cd.id] = cd end
+  local cat = { vehId = veh:getID(), rows = {}, bySlot = {} }
+  for key, part in pairs(cfg.parts) do
+    local slot = lastSegment(key)
+    local names = slotMap[slot]
+    if names and not slotHidden(slot) then
+      local catId, cd = categoryOf(slot)
+      local excluded = slotExcluded(slot) and catId ~= 'paint'
+      local defaultLevel = (cd and cd.defaultLevel) or 1
+      local stockPart = car.stock[slot]
+      local options = {}
+      for _, n in ipairs(names) do
+        if n ~= stockPart then
+          local info = partInfo(n)
+          local lv = partLevel(n, tostring(info.name or '') .. ' ' .. info.display, defaultLevel)
+          if lv > 0 or n == part or car.owned[n] then
+            local minPrice = catId == 'paint' and (rules.liveryMinPriceYen or 0) or 0
+            table.insert(options, { part = n, name = info.display, level = math.max(lv, 1), price = math.max(yen(info.value), minPrice),
+              size = (catId == 'wheels') and sizeOf(n, info.display) or nil })
           end
         end
-        if #options > 0 then
-          table.sort(options, function(a, b)
-            if a.level ~= b.level then return a.level < b.level end
-            return a.price < b.price
-          end)
-          local stockName = car.stock[f.slot] ~= '' and partInfo(car.stock[f.slot]).display or core().t('shop.notInstalled')
-          local row = { slot = f.slot, key = f.key, item = item.id, multi = #found > 1, stockName = stockName, options = options, groupBySize = item.groupBySize }
-          cat.slots[f.slot] = row
-          table.insert(tabRows, row)
-        end
+      end
+      local emptyOk = part == '' or stockPart == ''
+      if #options > 0 or (stockPart ~= nil and stockPart ~= part) then
+        table.sort(options, function(a, b)
+          if a.level ~= b.level then return a.level < b.level end
+          return a.price < b.price
+        end)
+        local parentInfo = slotParent[slot] and partInfo(slotParent[slot])
+        local row = {
+          id = key, slot = slot, cat = excluded and nil or catId, inAll = true,
+          name = slotLabel(car, slot, slotDesc[slot]),
+          path = parentInfo and parentInfo.display or '',
+          stockPart = stockPart, stockName = (stockPart and stockPart ~= '') and partInfo(stockPart).display or nil,
+          emptyOk = emptyOk, options = options,
+          hint = (catId == 'engineSwap' and 'term.hint.swap') or (slot:find('^wheel_') and 'term.hint.rim') or nil,
+        }
+        cat.bySlot[slot] = row
+        table.insert(cat.rows, row)
       end
     end
-    cat.tabs[tab.id] = tabRows
   end
-  local n = 0
-  for _ in pairs(cat.slots) do n = n + 1 end
-  log('I', logTag, string.format('Shop: %d Slots mit Teilen für %s', n, tostring(car.model)))
+  -- feste Reihenfolge: Kategorie (wie in tuning.json), dann Name
+  local order = {}
+  for i, cd in ipairs(rules.categories or {}) do order[cd.id] = i end
+  table.sort(cat.rows, function(a, b)
+    local oa, ob = order[a.cat or 'all'] or 99, order[b.cat or 'all'] or 99
+    if oa ~= ob then return oa < ob end
+    if a.name ~= b.name then return a.name < b.name end
+    return a.slot < b.slot
+  end)
+  cat.partInfo = partInfo
+  cat.ioCtx = vd.ioCtx
+  cat.slotMap = slotMap
+  log('I', logTag, string.format('Shop: %d Slots mit Teilen für %s', #cat.rows, tostring(car.model)))
   return cat
 end
+
+local pruneCart -- weiter unten
 
 local function getCatalog()
   local veh = core().getPlayerVehicle()
@@ -259,30 +362,12 @@ local function getCatalog()
   local ok, res = pcall(buildCatalog)
   if not ok then log('E', logTag, 'Shop: ' .. tostring(res)) end
   catalog = ok and res or nil
+  if catalog then
+    pcall(pruneCart)
+    bump()
+  end
   return catalog
 end
-
--- Anzeigenamen ---------------------------------------------------------------
-
-local function prettySlot(slot)
-  local car = activeCar()
-  local s = slot
-  if car and s:sub(1, #car.model + 1) == car.model .. '_' then s = s:sub(#car.model + 2) end
-  s = s:gsub('_', ' ')
-  return (s:gsub('^%l', string.upper))
-end
-
-local function itemLabel(row)
-  local c = core()
-  if row.item == 'other' then return prettySlot(row.slot) end
-  local label = c.t('shop.item.' .. row.item)
-  if row.multi then
-    local side = row.slot:match('_([LR])$') or row.slot:match('_F([LR])$') or row.slot:match('_([LR])_')
-    label = side and (label .. ' ' .. side) or (label .. ' · ' .. prettySlot(row.slot))
-  end
-  return label
-end
-
 -- Lackierer: Werkslacke des Modells ---------------------------------------------
 
 local function cleanPaint(p)
@@ -344,13 +429,39 @@ local function findPaint(model, paintId)
     if p.id == paintId then return p end
   end
 end
+-- Lackschicht 1-3 (BeamNG: Haupt-, Zweit-, Drittfarbe; je nach Auto und Livery sichtbar)
+local paintSlot = 1
+function M.setPaintSlot(n) paintSlot = clamp(math.floor(tonumber(n) or 1), 1, 3) end
+
+local function paintIdOf(car, slot)
+  if car.paintIds and car.paintIds[slot] ~= nil then return car.paintIds[slot] end
+  if slot == 1 then return car.paintId end
+end
+
+-- Lack in eine Schicht schreiben; fehlende Schichten davor mit Schicht 1 auffüllen.
+local function setPaintAt(cfg, slot, paint)
+  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
+  for i = 1, slot - 1 do
+    if cfg.paints[i] == nil then cfg.paints[i] = deepcopy and deepcopy(cfg.paints[1] or paint) or (cfg.paints[1] or paint) end
+  end
+  cfg.paints[slot] = paint
+end
+
+local function storePaintId(car, slot, id)
+  car.paintIds = car.paintIds or {}
+  car.paintIds[slot] = id
+  if slot == 1 then car.paintId = id end
+end
 
 -- Einbauen, Warenkorb, Kaufen ------------------------------------------------------
 -- Ein Klick auf ein fremdes Teil (oder einen Lack) legt es in den Warenkorb und baut es probeweise ein.
 -- Alles im Warenkorb ist gleichzeitig verbaut; an der Kasse wird der Gesamtbetrag bezahlt.
--- Einzelne Teile lassen sich wieder herausnehmen; Abbrechen oder Wegfahren stellt das Auto wieder her.
+-- Eigene Teile (gekauft oder Serie) kommen kostenlos in den Warenkorb, solange er nicht leer ist (sie können
+-- von Teilen im Warenkorb abhängen, z. B. eigene Reifen auf einer neuen Felge). Bei leerem Warenkorb wird ein
+-- eigenes Teil sofort eingebaut. "Teile direkt montieren" aus: Gekauftes kommt ins Lager, das Auto bleibt wie vorher.
 
-local cart = nil -- { original = cfg vor dem Warenkorb, items = { { key, kind, slot, id, name, level, price, paintSlot, paint } } }
+local cart = nil -- { original = cfg vor dem Warenkorb, items = { { key, kind, slot, id, name, level, price, free, extra, paintSlot, paint } } }
+local mountParts = true
 
 local function copyConfig(cfg)
   local out = { parts = {}, vars = {}, paints = deepcopy and deepcopy(cfg.paints) or cfg.paints }
@@ -365,17 +476,62 @@ local function baseConfig()
   return currentConfig()
 end
 
-local focusSlot = nil   -- Slot, dessen Teil gerade hervorgehoben ist
+local focusSlotName = nil   -- Slot, dessen Teil gerade in der Vorschau gezeigt wird
 local refocusTimer = 0
 
 local function respawn(cfg)
   local car = activeCar()
   catalog = nil
   retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
+  bump()
   extensions.hashiriyaBattle_fuel.keepAfterRespawn()
   core_vehicles.replaceVehicle(car.model, { config = cfg })
   extensions.hashiriyaBattle_parking.refreshShopCamera(0.8)
-  if focusSlot then refocusTimer = 1.2 end -- nach dem Respawn das Teil wieder hervorheben
+  camTimer = 0.9
+  if focusSlotName then refocusTimer = 1.4 end -- nach dem Respawn das Teil wieder zeigen
+end
+
+-- Teil in einen Slot setzen; gibt es den Slot in der flachen Liste noch nicht (z. B. Reifen einer neuen
+-- Felge), wird er angelegt. Zweiter Rückgabewert: Slot war schon vorhanden.
+local function setPart(cfg, slot, part)
+  local found = false
+  for key in pairs(cfg.parts) do
+    if lastSegment(key) == slot then cfg.parts[key] = part; found = true end
+  end
+  if not found then cfg.parts[slot] = part end
+  return true, found
+end
+
+local function slotValue(cfg, slot)
+  for key, v in pairs(cfg and cfg.parts or {}) do
+    if lastSegment(key) == slot then return v end
+  end
+  return nil
+end
+
+-- Felge ohne Reifen: Reifen-Slot(s) der neuen Felge mit einem eigenen passenden Reifen belegen, sonst leer.
+local function rimExtras(rimPart)
+  if rules.tireWithRim then return nil end
+  local car = activeCar()
+  local cat = getCatalog()
+  if not cat or not rimPart or rimPart == '' then return nil end
+  local extra = nil
+  for _, ts in ipairs(tireSlotsOf(cat.ioCtx, rimPart)) do
+    local choice = ''
+    for _, n in ipairs(cat.slotMap[ts.type] or {}) do
+      if ownsPart(car, n) then choice = n; break end
+    end
+    extra = extra or {}
+    extra[ts.slot] = choice
+  end
+  return extra
+end
+
+local function applyItem(cfg, it)
+  if it.kind == 'part' then
+    setPart(cfg, it.slot, it.id)
+    for s, p in pairs(it.extra or {}) do setPart(cfg, s, p) end
+  end
 end
 
 -- Lack ohne Neuladen des Autos (wie das BeamNG-Lackmenü): Farben live setzen und in die
@@ -401,103 +557,6 @@ local function applyPaintCfg(cfg, wasPartPreview)
   if wasPartPreview or not M.applyPaintsLive(cfg.paints) then respawn(cfg) end
 end
 
-local function withPart(cfg, slot, part)
-  local changed = false
-  for key in pairs(cfg.parts) do
-    if lastSegment(key) == slot then cfg.parts[key] = part; changed = true end
-  end
-  return changed
-end
-
-local function findOption(slot, part)
-  local cat = getCatalog()
-  local row = cat and cat.slots[slot]
-  if not row then return nil end
-  for _, o in ipairs(row.options) do
-    if o.part == part then return o, row end
-  end
-  return nil, row
-end
-
-
--- Teile-Ansicht wie im BeamNG-Teilemenü: Auto durchsichtig, nur das Teil sichtbar, Kamera schwenkt drauf.
-local function findPartPath(slot)
-  local vd = select(2, currentConfig())
-  local tree = vd and vd.config and vd.config.partsTree
-  if type(tree) ~= 'table' then return nil end
-  local found, parentPath = nil, nil
-  local function walk(node, parent)
-    if found then return end
-    if node.id == slot or (type(node.path) == 'string' and lastSegment(node.path) == slot) then
-      if node.chosenPartName and node.chosenPartName ~= '' and node.partPath then found = node.partPath
-      else parentPath = parent and parent.partPath end
-      if found or parentPath then return end
-    end
-    for _, child in pairs(node.children or {}) do
-      if type(child) == 'table' then walk(child, node) end
-    end
-  end
-  walk(tree, nil)
-  return found or parentPath
-end
-
-local function applyFocus()
-  local veh = core().getPlayerVehicle()
-  local pm = rawget(_G, 'core_vehicle_partmgmt')
-  if not veh or not pm then return end
-  local path = focusSlot and findPartPath(focusSlot)
-  if path then
-    local set = { [path] = true }
-    pcall(pm.selectParts, set, veh:getID(), set, { focusOffsetUp = 0.1 })
-  else
-    pcall(pm.showHighlightedParts, veh:getID(), {})
-  end
-end
-
-function M.focusSlot(slot)
-  focusSlot = (slot and slot ~= '' and slot ~= '__paint') and slot or nil
-  refocusTimer = 0
-  applyFocus()
-end
-
--- Beim Wegfahren / Menü schließen: alles sichtbar, Kamera zurück.
-function M.releaseFocus()
-  local wasFocused = focusSlot ~= nil
-  focusSlot = nil
-  refocusTimer = 0
-  local veh = core().getPlayerVehicle()
-  local pm = rawget(_G, 'core_vehicle_partmgmt')
-  if not pm or not veh then return end
-  if wasFocused then pcall(pm.showHighlightedParts, veh:getID(), {}) end
-  pcall(pm.releasePartFocusCamera)
-  -- Shop zu Fuß: wieder die Eingangskamera
-  extensions.hashiriyaBattle_parking.refreshShopCamera()
-end
-
--- Lackschicht 1-3 (BeamNG: Haupt-, Zweit-, Drittfarbe; je nach Auto und Livery sichtbar)
-local paintSlot = 1
-function M.setPaintSlot(n) paintSlot = clamp(math.floor(tonumber(n) or 1), 1, 3) end
-
-local function paintIdOf(car, slot)
-  if car.paintIds and car.paintIds[slot] ~= nil then return car.paintIds[slot] end
-  if slot == 1 then return car.paintId end
-end
-
--- Lack in eine Schicht schreiben; fehlende Schichten davor mit Schicht 1 auffüllen.
-local function setPaintAt(cfg, slot, paint)
-  cfg.paints = type(cfg.paints) == 'table' and cfg.paints or {}
-  for i = 1, slot - 1 do
-    if cfg.paints[i] == nil then cfg.paints[i] = deepcopy and deepcopy(cfg.paints[1] or paint) or (cfg.paints[1] or paint) end
-  end
-  cfg.paints[slot] = paint
-end
-
-local function storePaintId(car, slot, id)
-  car.paintIds = car.paintIds or {}
-  car.paintIds[slot] = id
-  if slot == 1 then car.paintId = id end
-end
-
 function M.hasPreview() return cart ~= nil end
 
 local function cartIndex(key)
@@ -513,7 +572,7 @@ end
 local function buildCart()
   local cfg = copyConfig(cart.original)
   for _, it in ipairs(cart.items) do
-    if it.kind == 'part' then withPart(cfg, it.slot, it.id) else setPaintAt(cfg, it.paintSlot, it.paint) end
+    if it.kind == 'part' then applyItem(cfg, it) else setPaintAt(cfg, it.paintSlot, it.paint) end
   end
   return cfg
 end
@@ -528,9 +587,33 @@ local function applyCart(partsChanged)
   else
     cfg = buildCart()
   end
+  bump()
   if partsChanged then respawn(cfg) else applyPaintCfg(cfg, false) end
 end
 
+-- Teile im Warenkorb, deren Slot es am neu gespawnten Auto nicht mehr gibt (z. B. nach Motor-Swap
+-- zurück), fliegen raus. Wird nach jedem Katalog-Neuaufbau aufgerufen.
+pruneCart = function()
+  if not cart then return end
+  local cur = currentConfig()
+  if not cur then return end
+  local have = {}
+  for key in pairs(cur.parts) do have[lastSegment(key)] = true end
+  local removed = false
+  for i = #cart.items, 1, -1 do
+    local it = cart.items[i]
+    if it.kind == 'part' and not have[it.slot] then
+      table.remove(cart.items, i)
+      removed = true
+    end
+  end
+  if removed then
+    log('I', logTag, 'Shop: Warenkorb bereinigt (Slots gibt es nicht mehr)')
+    if #cart.items == 0 then cart = nil end
+  end
+end
+
+-- Fahrzeugwerte -------------------------------------------------------------------
 -- Fahrzeugwerte (Leistung, Drehmoment, Gewicht, Bremsen) vom Auto abfragen; Antwort über onStats
 local carStats = nil      -- aktuelle Werte des Autos (mit Warenkorb-Teilen)
 local baseStats = nil     -- Werte vor dem Warenkorb
@@ -617,11 +700,12 @@ function M.cancelPreview(silent)
   for _, it in ipairs(cart.items) do if it.kind == 'part' then hadParts = true end end
   local original = cart.original
   cart = nil
+  bump()
   if hadParts then respawn(original) else applyPaintCfg(original, false) end
   if not silent then core().msg(core().t('msg.previewReverted')) end
 end
 
--- Teil fest einbauen (Serie oder bereits gekauft, also kostenlos). Ein Warenkorb bleibt dabei erhalten.
+-- Eigenes Teil fest einbauen (Serie oder gekauft, also kostenlos). Felgen bekommen passende eigene Reifen.
 local function install(slot, part, label)
   local c = core()
   local car = activeCar()
@@ -630,22 +714,32 @@ local function install(slot, part, label)
     c.msg(c.t('msg.partFailed'))
     return
   end
-  if not withPart(cfg, slot, part) then
-    c.msg(c.t('msg.partIncompatible'))
-    return
+  setPart(cfg, slot, part)
+  if slot:find('^wheel_') then
+    for s, p in pairs(rimExtras(part) or {}) do setPart(cfg, s, p) end
   end
   car.config = cfg
-  if cart then
-    cart.original = copyConfig(cfg)
-    local i = cartIndex('part:' .. slot)
-    if i then table.remove(cart.items, i) end
-    applyCart(true)
-  else
-    respawn(cfg)
-  end
+  respawn(cfg)
   c.writeSave()
   if part == '' then c.msg(c.t('msg.partRemoved', label)) else c.msg(c.t('msg.partInstalled', label, c.t('shop.free'))) end
   log('I', logTag, string.format('Shop: %s -> %s (Besitz)', slot, part))
+end
+
+-- Option eines Slots suchen; Serie und "Nicht verbaut" sind eigene Optionen
+local function findOption(slot, part)
+  local cat = getCatalog()
+  local row = cat and cat.bySlot[slot]
+  if not row then return nil end
+  if part == row.stockPart then
+    return { part = part, name = part == '' and core().t('shop.notInstalled') or (row.stockName or part), level = 0, price = 0, stock = true }, row
+  end
+  if part == '' and row.emptyOk then
+    return { part = '', name = core().t('shop.notInstalled'), level = 0, price = 0 }, row
+  end
+  for _, o in ipairs(row.options) do
+    if o.part == part then return o, row end
+  end
+  return nil, row
 end
 
 -- Kennzeichen-Design (Plates Pack) ins Auto setzen; der Rest der Config bleibt
@@ -658,14 +752,12 @@ function M.setPlateDesign(design)
   if cart then cart.original = copyConfig(cfg); applyCart(true) else respawn(cfg) end
 end
 
--- Garage: nur Serie und gekaufte Teile, ohne Warenkorb.
+-- Garagen-PC: nur eigene Teile, kostenlos umbauen
 function M.buy(slot, part, garageOnly)
   local car = activeCar()
   local option, row = findOption(slot, part)
-  if not row then return end
-  if part == car.stock[slot] then return install(slot, part, part == '' and itemLabel(row) or row.stockName) end
   if not option then return end
-  if car.owned and car.owned[part] then return install(slot, part, option.name) end
+  if option.stock or part == '' or ownsPart(car, part) then return install(slot, part, option.name or row.name) end
   if not garageOnly then return M.select(slot, part) end
 end
 
@@ -674,20 +766,20 @@ function M.select(slot, part)
   local c = core()
   local car = activeCar()
   local option, row = findOption(slot, part)
-  if not row then return end
-  if part == car.stock[slot] then return install(slot, part, part == '' and itemLabel(row) or row.stockName) end
   if not option then return end
-  if car.owned and car.owned[part] then return install(slot, part, option.name) end
+  -- Klick auf das Teil, das vor dem Warenkorb verbaut war: Warenkorb-Eintrag zurücknehmen
+  if cart and cartIndex('part:' .. slot) and slotValue(cart.original, slot) == part then
+    return M.removeFromCart('part:' .. slot)
+  end
+  local free = option.stock or part == '' or ownsPart(car, part)
+  if free and not cart then return install(slot, part, option.name) end
   if not ensureCart() then
     c.msg(c.t('msg.partFailed'))
     return
   end
-  if not withPart(copyConfig(cart.original), slot, part) then
-    c.msg(c.t('msg.partIncompatible'))
-    if #cart.items == 0 then cart = nil end
-    return
-  end
-  putInCart({ key = 'part:' .. slot, kind = 'part', slot = slot, id = part, name = option.name, level = option.level, price = option.price })
+  local extra = slot:find('^wheel_') and rimExtras(part) or nil
+  putInCart({ key = 'part:' .. slot, kind = 'part', slot = slot, slotName = row.name, id = part, name = option.name,
+    level = free and 0 or option.level, price = free and 0 or option.price, free = free, extra = extra })
   applyCart(true)
 end
 
@@ -722,7 +814,7 @@ function M.selectPaint(paintId)
     return
   end
   putInCart({ key = 'paint:' .. paintSlot, kind = 'paint', id = paintId, paintSlot = paintSlot, paint = entry.paint,
-    name = entry.name, level = 0, price = rules.paintPriceYen or 29800 })
+    name = entry.name, slotName = c.t('shop.paintSlot', paintSlot), level = 0, price = rules.paintPriceYen or 29800 })
   applyCart(false)
 end
 
@@ -739,7 +831,7 @@ function M.selectCustomPaint(arg)
   end
   putInCart({ key = 'paint:' .. paintSlot, kind = 'paint', id = 'custom', paintSlot = paintSlot,
     paint = { baseColor = { v[1], v[2], v[3], 1.2 }, metallic = v[4], roughness = v[5], clearcoat = v[6], clearcoatRoughness = v[7] },
-    name = c.t('shop.customName') .. ' (' .. c.t('shop.paintSlot', paintSlot) .. ')', level = 0, price = rules.customPaintPriceYen or 98000 })
+    name = c.t('shop.customName'), slotName = c.t('shop.paintSlot', paintSlot), level = 0, price = rules.customPaintPriceYen or 98000 })
   applyCart(false)
 end
 
@@ -749,13 +841,14 @@ local function cartTotal()
   return total
 end
 
--- Kasse: alles im Warenkorb auf einmal bezahlen
+-- Kasse: alles im Warenkorb auf einmal bezahlen. Mit "Teile direkt montieren" bleibt alles verbaut,
+-- sonst wandern die gekauften Teile ins Lager und das Auto wird wie vorher (nur neuer Lack bleibt drauf).
 function M.confirmPreview()
   local c = core()
   local car = activeCar()
   if not cart or #cart.items == 0 then return end
   for _, it in ipairs(cart.items) do
-    if it.level > 0 and not isUnlocked(it.level) then
+    if not it.free and it.level > 0 and not isUnlocked(it.level) then
       c.msg(c.t('msg.partLocked'))
       return
     end
@@ -765,26 +858,49 @@ function M.confirmPreview()
     c.msg(c.t('msg.noMoney'))
     return
   end
-  -- Nach dem Respawn steht im Auto die echte Konfiguration (z. B. passende Reifen zur neuen Felge).
-  local cfg = currentConfig() or buildCart()
+  local live = currentConfig() or buildCart()
+  local origVals = {}
+  for _, v in pairs(cart.original.parts) do origVals[v] = true end
   c.save.money = c.save.money - total
+  car.owned = car.owned or {}
+  local bought = 0
   for _, it in ipairs(cart.items) do
-    extensions.hashiriyaBattle_progress.bump(c.save, it.kind == 'paint' and 'paintsBought' or 'partsBought')
+    if not it.free then
+      bought = bought + 1
+      extensions.hashiriyaBattle_progress.bump(c.save, it.kind == 'paint' and 'paintsBought' or 'partsBought')
+    end
     if it.kind == 'paint' then
       car.ownedPaints = car.ownedPaints or {}
       if it.id ~= 'custom' then car.ownedPaints[it.id] = true end
       storePaintId(car, it.paintSlot or 1, it.id)
-    else
-      car.owned = car.owned or {}
+    elseif it.id ~= '' then
       car.owned[it.id] = true
     end
   end
   local n = #cart.items
-  car.config = cfg
-  cart = nil
+  if mountParts then
+    -- Teile, die mit einem gekauften Teil kamen (z. B. Anbauteile eines neuen Motors), gehören dir auch
+    for _, v in pairs(live.parts) do
+      if v ~= '' and not origVals[v] then car.owned[v] = true end
+    end
+    car.config = live
+    cart = nil
+    bump()
+    c.msg(c.t('msg.cartBought', n, c.economy().formatYen(total)))
+  else
+    local cfg = copyConfig(cart.original)
+    local hadParts = false
+    for _, it in ipairs(cart.items) do
+      if it.kind == 'paint' then setPaintAt(cfg, it.paintSlot, it.paint) else hadParts = true end
+    end
+    cart = nil
+    car.config = cfg
+    bump()
+    if hadParts then respawn(cfg) else applyPaintCfg(cfg, false) end
+    c.msg(c.t('msg.cartStored', n, c.economy().formatYen(total)))
+  end
   c.writeSave()
-  c.msg(c.t('msg.cartBought', n, c.economy().formatYen(total)))
-  log('I', logTag, string.format('Shop: %d Teile gekauft (%d Yen)', n, total))
+  log('I', logTag, string.format('Shop: %d Teile gekauft (%d Yen), montiert: %s', bought, total, tostring(mountParts)))
 end
 
 local function previewState()
@@ -794,10 +910,10 @@ local function previewState()
   local st = { items = {}, locked = false }
   for _, it in ipairs(cart.items) do
     local unlocked, need = true, nil
-    if it.level > 0 then unlocked, need = isUnlocked(it.level) end
+    if it.level > 0 and not it.free then unlocked, need = isUnlocked(it.level) end
     if not unlocked then st.locked = true end
-    table.insert(st.items, { key = it.key, name = it.name, level = it.level, kind = it.kind,
-      price = eco.formatYen(it.price), locked = not unlocked, lockText = not unlocked and need or nil })
+    table.insert(st.items, { key = it.key, slot = it.slot, slotName = it.slotName, name = it.name, level = it.level, kind = it.kind,
+      free = it.free, price = it.free and c.t('shop.free') or eco.formatYen(it.price), locked = not unlocked, lockText = not unlocked and need or nil })
   end
   local total = cartTotal()
   st.total = eco.formatYen(total)
@@ -806,7 +922,6 @@ local function previewState()
   st.after = eco.formatYen(c.save.money - total)
   return st
 end
-
 local function paintRow()
   local c = core()
   local car = activeCar()
@@ -843,91 +958,250 @@ local function paintRow()
   return r
 end
 
-function M.setTab(tab)
-  activeTab = tab
-end
+-- Live-Vorschau: Kamera und Teile-Ansicht ---------------------------------------------
+-- Die 3D-Szene ist in der Mitte des Terminals zu sehen (die UI-App lässt dort ein Fenster frei).
+-- 'car' = Orbit-Kamera aufs ganze Auto, 'part' = BeamNG-Teilekamera (partFocusCamera) auf das Teil unter der
+-- Maus. Röntgen = Rest des Autos durchsichtig (wie im BeamNG-Teilemenü).
 
--- UI ---------------------------------------------------------------------------
-
--- Felgen nach Zoll gruppieren ("15x7" im Teilenamen -> 15"); Serie bleibt oben.
-local function groupBySize(r)
-  local groups, byId = {}, {}
-  local keep = {}
-  for i, o in ipairs(r.options) do
-    if i == 1 then
-      table.insert(keep, o)
-    else
-      local size = tostring(o.part):match('_(%d%d)x[%d%.]+') or tostring(o.name):match('(%d%d)x[%d%.]+') or tostring(o.name):match('(%d%d)"')
-      local id = size or 'other'
-      if not byId[id] then
-        byId[id] = { id = id, name = size and (size .. '"') or core().t('shop.sizeOther'), options = {} }
-        table.insert(groups, byId[id])
-      end
-      table.insert(byId[id].options, o)
-      if o.installed or o.previewing then byId[id].active = true end
+local function findPartPath(slot)
+  local vd = select(2, currentConfig())
+  local tree = vd and vd.config and vd.config.partsTree
+  if type(tree) ~= 'table' then return nil end
+  local found, parentPath = nil, nil
+  local function walk(node, parent)
+    if found then return end
+    if node.id == slot or (type(node.path) == 'string' and lastSegment(node.path) == slot) then
+      if node.chosenPartName and node.chosenPartName ~= '' and node.partPath then found = node.partPath
+      else parentPath = parent and parent.partPath end
+      if found or parentPath then return end
+    end
+    for _, child in pairs(node.children or {}) do
+      if type(child) == 'table' then walk(child, node) end
     end
   end
-  table.sort(groups, function(a, b)
-    if a.id == 'other' or b.id == 'other' then return b.id == 'other' and a.id ~= 'other' end
-    return tonumber(a.id) < tonumber(b.id)
-  end)
-  for _, g in ipairs(groups) do g.count = #g.options end
-  r.options = keep
-  r.groups = groups
+  walk(tree, nil)
+  return found or parentPath
 end
 
--- mode 'shop': alles kaufen; mode 'garage': nur Serie und gekaufte Teile, kostenlos umrüsten.
-function M.getUiState(mode)
+-- Alle verbauten Teile (für "alles sichtbar, Kamera trotzdem aufs Teil")
+local function allPartPaths()
+  local vd = select(2, currentConfig())
+  local tree = vd and vd.config and vd.config.partsTree
+  local set = {}
+  local function walk(node)
+    if node.partPath and node.chosenPartName and node.chosenPartName ~= '' then set[node.partPath] = true end
+    for _, child in pairs(node.children or {}) do
+      if type(child) == 'table' then walk(child) end
+    end
+  end
+  if type(tree) == 'table' then walk(tree) end
+  return set
+end
+
+function M.applyPreviewCamera()
+  if not terminal then return end
+  local veh = core().getPlayerVehicle()
+  if not veh then return end
+  local vid = veh:getID()
+  local pv = rules.preview or {}
+  pcall(function() core_camera.setByName(0, 'orbit') end)
+  if pv.distance then pcall(core_camera.setDistance, vid, pv.distance) end
+  if camYaw then pcall(core_camera.setRotation, vid, vec3(camYaw, pv.pitch or -10, 0)) end
+end
+
+local function clearPartView()
+  local veh = core().getPlayerVehicle()
+  local pm = rawget(_G, 'core_vehicle_partmgmt')
+  if not pm or not veh then return end
+  pcall(pm.showHighlightedParts, veh:getID(), {})
+  pcall(pm.releasePartFocusCamera)
+end
+
+local function applyFocus()
+  local veh = core().getPlayerVehicle()
+  local pm = rawget(_G, 'core_vehicle_partmgmt')
+  if not veh or not pm then return end
+  local path = view == 'part' and focusSlotName and findPartPath(focusSlotName)
+  if not path then
+    clearPartView()
+    M.applyPreviewCamera()
+    return
+  end
+  local camSet = { [path] = true }
+  local sel = xray and camSet or allPartPaths()
+  pcall(pm.selectParts, sel, veh:getID(), camSet, { focusOffsetUp = (rules.preview or {}).focusOffsetUp or 0.1 })
+end
+
+function M.focusSlot(slot)
+  focusSlotName = (slot and slot ~= '' and slot ~= '__paint') and slot or nil
+  refocusTimer = 0
+  applyFocus()
+end
+
+-- Beim Wegfahren / Menü schließen: alles sichtbar, Kamera zurück.
+function M.releaseFocus()
+  focusSlotName = nil
+  refocusTimer = 0
+  clearPartView()
+  -- Shop zu Fuß: wieder die Eingangskamera
+  extensions.hashiriyaBattle_parking.refreshShopCamera()
+end
+
+function M.setView(v)
+  view = (v == 'car') and 'car' or 'part'
+  applyFocus()
+end
+
+function M.toggleXray()
+  xray = not xray
+  if view ~= 'part' then view = 'part' end
+  applyFocus()
+end
+
+function M.rotate(dir)
+  local pv = rules.preview or {}
+  camYaw = ((camYaw or 0) + (pv.yawStep or 45) * ((tonumber(dir) or 1) < 0 and -1 or 1)) % 360
+  view = 'car'
+  clearPartView()
+  M.applyPreviewCamera()
+end
+
+function M.toggleMount()
+  mountParts = not mountParts
+  local c = core()
+  if c.save then
+    c.save.settings = c.save.settings or {}
+    c.save.settings.mountParts = mountParts
+    c.writeSave()
+  end
+end
+
+function M.loadSettings(save)
+  mountParts = not (save and save.settings and save.settings.mountParts == false)
+end
+
+-- Terminal öffnen/schließen (Shop zu Fuß am Eingang oder Garagen-PC)
+function M.openTerminal(mode)
+  if terminal == mode then return end
+  terminal = mode
+  view, xray, camYaw = 'part', false, nil
+  focusSlotName = nil
+  camTimer = 0.6
+  bump()
+  core().setTerminalLayout(true)
+  log('I', logTag, 'Teile-Terminal geöffnet: ' .. tostring(mode))
+end
+
+function M.closeTerminal()
+  if not terminal then return end
+  terminal = nil
+  M.releaseFocus()
+  core().setTerminalLayout(false)
+end
+
+function M.isTerminalOpen() return terminal ~= nil end
+function M.terminalMode() return terminal end
+
+function M.setCategory(id)
+  termCat = tostring(id or 'engine')
+end
+
+function M.setTab(tab) M.setCategory(tab) end
+
+-- Katalog für die UI (per Hook 'HashiriyaCatalog', nur auf Anfrage) ----------------------
+
+local function catalogPayload(cat)
   local c = core()
   local car = activeCar()
-  local garage = mode == 'garage'
-  local tabId = activeTab
-  if garage and tabId == 'paint' then tabId = 'engine' end
-  local st = { tabs = {}, tab = tabId, rows = {}, loading = false }
-  st.preview = not garage and previewState() or nil
-  st.stats = statsUi()
-  for _, tab in ipairs(rules.tabs or {}) do
-    if not (garage and tab.id == 'paint') then
-      table.insert(st.tabs, { id = tab.id, name = c.t('shop.tab.' .. tab.id) })
-    end
-  end
-  -- Lack braucht keinen Teilekatalog, daher auch während des Ladens sichtbar
-  if tabId == 'paint' then table.insert(st.rows, paintRow()) end
-  local cat = getCatalog()
-  if not cat then
-    st.loading = true
-    return st
-  end
-  local cfgParts = {}
-  local cfg = cart and cart.original or currentConfig()
-  if cfg then for k, v in pairs(cfg.parts) do cfgParts[lastSegment(k)] = v end end
   local eco = c.economy()
-  for _, row in ipairs(cat.tabs[tabId] or {}) do
-    local installed = cfgParts[row.slot]
-    local r = { slot = row.slot, name = itemLabel(row), current = row.stockName, currentLevel = 0, options = {} }
-    table.insert(r.options, { part = car.stock[row.slot], name = c.t('shop.stock') .. ' · ' .. tostring(row.stockName),
-      level = 0, price = c.t('shop.free'), installed = installed == car.stock[row.slot], affordable = true })
-    for _, o in ipairs(row.options) do
-      local unlocked, need = isUnlocked(o.level)
-      local owned = car.owned and car.owned[o.part]
-      if installed == o.part then r.current, r.currentLevel = o.name, o.level end
-      if not garage or owned then
-        table.insert(r.options, {
-          part = o.part, name = o.name, level = o.level,
-          price = owned and (garage and c.t('shop.free') or c.t('shop.owned')) or eco.formatYen(o.price),
-          installed = installed == o.part,
-          previewing = cartHas('part:' .. row.slot, o.part),
-          locked = not unlocked,
-          lockText = not unlocked and need or nil,
-          affordable = owned or c.save.money >= o.price,
-        })
-      end
-    end
-    if row.groupBySize then groupBySize(r) end
-    if not garage or #r.options > 1 or r.groups then table.insert(st.rows, r) end
+  local live = currentConfig()
+  local inCart = {}
+  for _, it in ipairs(cart and cart.items or {}) do
+    if it.kind == 'part' then inCart[it.slot] = it.id end
   end
+  local rows = {}
+  for _, row in ipairs(cat.rows) do
+    local cur = slotValue(live, row.slot)
+    local before = cart and slotValue(cart.original, row.slot)
+    if before == nil then before = cur end
+    local r = { id = row.id, slot = row.slot, cat = row.cat, inAll = row.inAll, name = row.name, path = row.path,
+      hint = row.hint and c.t(row.hint) or nil, current = c.t('shop.notInstalled'), currentLevel = 0, options = {} }
+    local function add(o)
+      o.installed = (before == o.part) and inCart[row.slot] == nil
+      o.previewing = inCart[row.slot] ~= nil and inCart[row.slot] == o.part
+      if cur == o.part then r.current, r.currentLevel, r.curSize = o.name, o.level, o.size end
+      table.insert(r.options, o)
+    end
+    if row.stockPart ~= nil then
+      add({ part = row.stockPart, name = c.t('shop.stock') .. ' · ' .. (row.stockName or c.t('shop.notInstalled')), level = 0,
+        price = c.t('shop.free'), priceRaw = 0, owned = true, stock = true, free = true })
+    end
+    if row.emptyOk and row.stockPart ~= '' then
+      add({ part = '', name = c.t('shop.notInstalled'), level = -1, price = c.t('shop.free'), priceRaw = 0, owned = true, free = true })
+    end
+    local sizes, seen = {}, {}
+    for _, o in ipairs(row.options) do
+      local owned = ownsPart(car, o.part)
+      local unlocked, need = true, nil
+      if not owned then unlocked, need = isUnlocked(o.level) end
+      add({ part = o.part, name = o.name, level = o.level, size = o.size,
+        price = owned and c.t('shop.owned') or eco.formatYen(o.price), priceRaw = owned and 0 or o.price,
+        owned = owned, free = owned, locked = not unlocked, lockText = need })
+      if o.size and not seen[o.size] then seen[o.size] = true; table.insert(sizes, o.size) end
+    end
+    table.sort(sizes, function(a, b) return (tonumber(a:match('%d+')) or 0) < (tonumber(b:match('%d+')) or 0) end)
+    if #sizes > 1 then r.sizes = sizes end
+    table.insert(rows, r)
+  end
+  local cats = {}
+  for _, cd in ipairs(rules.categories or {}) do
+    table.insert(cats, { id = cd.id, group = cd.group or 'more', name = c.t('term.cat.' .. cd.id) })
+  end
+  return { version = catVersion, rows = rows, categories = cats }
+end
+
+function M.sendCatalog()
+  local cat = getCatalog()
+  if not cat then return end
+  local ok, payload = pcall(catalogPayload, cat)
+  if not ok then
+    log('E', logTag, 'Shop: Katalog für die UI: ' .. tostring(payload))
+    return
+  end
+  guihooks.trigger('HashiriyaCatalog', payload)
+end
+
+-- Kleiner Zustand fürs Terminal (kommt mit jedem HashiriyaState)
+function M.terminalState()
+  if not terminal then return nil end
+  local c = core()
+  local car = activeCar()
+  local eco = c.economy()
+  local cat = getCatalog()
+  local home = extensions.hashiriyaBattle_home
+  local st = {
+    mode = terminal,
+    title = c.t(terminal == 'garage' and 'term.titleGarage' or 'term.titleShop'),
+    carName = car and car.name or '',
+    money = eco.formatYen(c.save.money),
+    moneyRaw = c.save.money,
+    clock = home.dayText(),
+    stats = statsUi(),
+    cart = terminal == 'shop' and previewState() or nil,
+    mount = mountParts,
+    view = view,
+    xray = xray,
+    cat = termCat,
+    catVersion = cat and catVersion or -1,
+    loading = cat == nil,
+    unlockText = unlockText(),
+  }
+  if terminal == 'shop' and termCat == 'paint' then st.paint = paintRow() end
   return st
 end
+
+-- Alte Menü-Schnittstelle (Garagen-Reiter "Teile" öffnet jetzt den Garagen-PC)
+function M.getUiState() return nil end
 
 local function onUpdate(dtReal)
   if retryTimer > 0 then retryTimer = retryTimer - dtReal end
@@ -939,10 +1213,15 @@ local function onUpdate(dtReal)
     if statsTimer <= 0 then statsTimer = 1.5; requestStats() end
   else
     carStats, baseStats = nil, nil
+    if terminal then M.closeTerminal() end
+  end
+  if camTimer > 0 then
+    camTimer = camTimer - dtReal
+    if camTimer <= 0 and not (focusSlotName and view == 'part') then M.applyPreviewCamera() end
   end
   if refocusTimer > 0 then
     refocusTimer = refocusTimer - dtReal
-    if refocusTimer <= 0 and focusSlot then applyFocus() end
+    if refocusTimer <= 0 and focusSlotName then applyFocus() end
   end
 end
 
