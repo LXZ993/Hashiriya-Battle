@@ -82,7 +82,7 @@ end
 
 local tracks = {
   -- Stadtautobahn: 3 Spuren eine Richtung, Kurven 150 m / 90 m, S-Kurve
-  highway = { pieces = { { 300 }, { 235, 150 }, { 200 }, { 140, -90 }, { 120, 90 }, { 400 }, { 300, 200 }, { 600 } }, half = 5.6, oneWay = true, lanes = '+++' },
+  highway = { pieces = { { 300 }, { 235, 150 }, { 200 }, { 140, -90 }, { 120, 90 }, { 400 }, { 300, 200 }, { 600 } }, half = 5.6, shoulder = 2.5, oneWay = true, lanes = '+++' },
   -- Touge: eine Spur je Richtung, enge Kehren
   touge = { pieces = { { 150 }, { 90, 40 }, { 60 }, { 110, -35 }, { 80 }, { 70, 30 }, { 50, -45 }, { 200 } }, half = 3.6, oneWay = false, lanes = '-+' },
 }
@@ -160,6 +160,14 @@ obj = {
   getDirectionVectorUpXYZ = function(_) return 0, 0, 1 end,
   getSmoothRefVelocityXYZ = function(_) local d = dirV() return d.x * car.v, d.y * car.v, 0 end,
   getStaticFrictionCoef = function(_) return 1.05 end,
+  -- Wand am Ende des Standstreifens (Autobahn), am Touge kein Standstreifen und dahinter kein Boden
+  castRayStatic = function(_, from, dir, dist)
+    local lat, _, t = nearestCenter(from)
+    local edge = T.half + (T.shoulder or 0)
+    if dir.z < -0.5 then return math.abs(lat) <= edge + 0.05 and 1.5 or dist end
+    local side = (dir.x * t.y - dir.y * t.x) >= 0 and 1 or -1
+    return math.max(math.min(edge - lat * side, dist), 0)
+  end,
   getInitialWidth = function(_) return car.wid end,
   getInitialLength = function(_) return car.len end,
   getObjectCenterPosition = function(_, id) return vec3(objects[id].pos) end,
@@ -276,7 +284,7 @@ while t < 120 do
       trackMax = math.max(trackMax or 0, math.sqrt(bd))
     end
   end
-  local edge = T.half - car.wid * 0.5
+  local edge = T.half + (T.shoulder or 0) - car.wid * 0.5
   if math.abs(lat) > edge and math.abs(lat) - edge > maxLat then maxLat = math.abs(lat) - edge; maxLatT = t end
   -- Kontakt mit Verkehr (Rechtecke grob als Längs/Quer-Abstand)
   for _, tr in ipairs(traffic) do
