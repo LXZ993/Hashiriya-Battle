@@ -153,7 +153,7 @@ angular.module('beamng.apps')
           role: roleOf(r), team: r.team || '', appear: r.appear || 'sameNight', final: !!r.final,
           model: r.model || '', config: r.config || '',
           aggression: num(r.aggression, 0.5), cruiseKmh: num(r.cruiseKmh, 100), maxSp: num(r.maxSp, 1000),
-          rewardUsd: num(r.rewardUsd, 2000), rep: num(r.rep, 50), lights: r.lights || '',
+          rewardUsd: num(r.rewardUsd, 2000), rewardYen: r.rewardYen != null ? r.rewardYen : null, rep: num(r.rep, 50), lights: r.lights || '',
           driverOn: !!r.driver, driver: {},
           cond: {
             minRank: c.minRank != null ? String(c.minRank) : '', minWins: c.minWins != null ? c.minWins : null,
@@ -175,7 +175,7 @@ angular.module('beamng.apps')
 
       // Formular -> Eintrag. Unbekannte Felder (z. B. _platzhalter, community, credit) bleiben erhalten.
       var managed = ['id', 'name', 'nick', 'team', 'leader', 'appear', 'wanderer', 'boss', 'final', 'model', 'config',
-        'aggression', 'cruiseKmh', 'maxSp', 'rewardUsd', 'rep', 'lights', 'driver', 'conditions', 'plate', 'paint',
+        'aggression', 'cruiseKmh', 'maxSp', 'rewardUsd', 'rewardYen', 'rep', 'lights', 'driver', 'conditions', 'plate', 'paint',
         'portrait', 'lines', 'desc', 'hint']
       function formToRival(f) {
         var r = {}
@@ -202,7 +202,7 @@ angular.module('beamng.apps')
           final: f.role === 'boss' && f.final ? true : undefined,
           model: f.model, config: f.config,
           aggression: Math.round(num(f.aggression, 0.5) * 100) / 100, cruiseKmh: num(f.cruiseKmh, 100),
-          maxSp: num(f.maxSp, 1000), rewardUsd: num(f.rewardUsd, 0), rep: num(f.rep, 0),
+          maxSp: num(f.maxSp, 1000), rewardUsd: num(f.rewardUsd, 0), rewardYen: num(f.rewardYen, 0) > 0 ? Math.floor(num(f.rewardYen, 0)) : undefined, rep: num(f.rep, 0),
           lights: f.lights || undefined,
           driver: f.driverOn ? clone(f.driver) : undefined,
           conditions: Object.keys(c).length ? c : undefined,

@@ -293,6 +293,7 @@ local function rematchOf(r, save)
   copy.maxSp = math.floor((r.maxSp or 1000) * (rm.spFactor or 1.1) * (1 + math.min(n, 3) * 0.05))
   copy.cruiseKmh = (r.cruiseKmh or 100) + 5
   copy.rewardUsd = math.floor((r.rewardUsd or 1000) * (rm.rewardFactor or 0.4))
+  if tonumber(r.rewardYen) then copy.rewardYen = math.floor(tonumber(r.rewardYen) * (rm.rewardFactor or 0.4)) end
   copy.rep = math.floor((r.rep or 30) * (rm.repFactor or 0.25))
   return copy
 end

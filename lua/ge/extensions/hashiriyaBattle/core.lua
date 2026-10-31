@@ -543,7 +543,14 @@ function M.onBattleResult(rival, won, result)
     -- rivals.json settings.rewardScale: Preisgeld aller Rivalen auf einmal anpassen (1 = volle rewardUsd)
     local rs = extensions.hashiriyaBattle_rivals.getData()
     local scale = tonumber(rs and rs.settings and rs.settings.rewardScale) or 1
-    local reward = math.floor(M.economy().usdToPrice(rival.rewardUsd or 1000) * scale * moneyF / 100 + 0.5) * 100
+    local reward
+    local exact = tonumber(rival.rewardYen)
+    if exact and exact > 0 then
+      -- rewardYen: genauer Yen-Betrag (z. B. 777777), ohne Umrechnung, Rundung, rewardScale und Serien-Bonus
+      reward = math.floor(exact)
+    else
+      reward = math.floor(M.economy().usdToPrice(rival.rewardUsd or 1000) * scale * moneyF / 100 + 0.5) * 100
+    end
     M.save.money = M.save.money + reward
     M.save.defeated[rival.id] = true
     M.save.wins = M.save.wins + 1
