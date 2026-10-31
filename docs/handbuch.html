@@ -850,6 +850,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li><b>Gummiband:</b> Vorne mit großem Vorsprung bis zu 6 % langsamer in Kurven, hinten mehr Mut (knappere Lücken). Bosse ohne Gummiband.</li>
 <li><b>SP-Lage:</b> Wenig eigene SP = mehr Mut, schwächere Nerven. Spieler fast leer und er vorne = sicherer.</li>
 <li><b>Festgefahren:</b> setzt kurz zurück und fährt weiter.</li>
+<li><b>Überholst du ihn</b> oder fährt der Vordermann schneller, bremst er nicht, sondern geht nur vom Gas. Ist er zu dicht hinter einem langsameren Auto, fällt er höchstens 10 km/h unter dessen Tempo.</li>
 <li><b>Hängt er hinter einem Auto fest</b>, lässt er sich nach 2 s etwas zurückfallen (bis 0,7 s mehr Abstand) und nimmt Anlauf für die nächste Lücke.</li>
 </ul>
 <h3 id="fahrer-duell">Duell mit dir (Stufe 3)</h3>
@@ -867,7 +868,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>Zu vorsichtig</td><td>wenig Mut</td><td>3 s lang 15 % langsamer: du kommst ran</td></tr>
 <tr><td>Lücke verschätzt</td><td>mutig und wenig Können</td><td>3 s lang plant er Lücken ohne Seitenabstand: Kratzer am Verkehr möglich (kostet ihn SP)</td></tr>
 <tr><td>Überkorrektur</td><td>schwache Nerven</td><td>1,5 s Schlingern am Lenkrad</td></tr>
-<tr><td>Schreckreaktion</td><td>schwache Nerven, wenig Können</td><td>Ein Auto zieht bis 40 m vor ihm plötzlich rüber: er tritt kurz auf die Bremse und zuckt am Lenkrad</td></tr>
+<tr><td>Schreckreaktion</td><td>schwache Nerven, wenig Können</td><td>Ein Verkehrsauto zieht bis 40 m vor ihm plötzlich in seine Richtung rüber: er tritt kurz auf die Bremse und zuckt am Lenkrad (bei dir nicht)</td></tr>
 </table>
 <h3 id="fahrer-werte">Fahrer-Werte pro Rivale</h3>
 <p>Jeder Rivale hat fünf Werte von 0 bis 1. Sie werden automatisch berechnet, du kannst jeden in <code>rivals.json</code> überschreiben.</p>
@@ -893,7 +894,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 "debug": true,
 "tiers": { "boss": { "courage": 0.05 } },
 "params": { "cornerUseMax": 0.97, "cornerUseMin": 0.86 }</code></pre>
-<p>Wichtige <code>params</code>: <code>cornerUseMin</code>/<code>Max</code> 0.82/0.93 (Kurventempo bei Können 0/1), <code>brakeUseMin</code>/<code>Max</code> 0.72/0.95 (Bremskraft), <code>sideGapMin</code>/<code>Max</code> 0.3/1.0 (Seitenabstand bei Mut 1/0), <code>emergencyTtcMin</code>/<code>Max</code> 0.6/1.0 (Notbremse), <code>steerLookTime</code> 0.5 (Lenk-Vorschau: schlingert er, höher, z. B. 0.6; schneidet er Kurven, niedriger), <code>steerGain</code> 1.0 (Lenkstärke), <code>blockMinAggression</code> 0.55, <code>blockCooldown</code> 8, <code>draftDist</code> 45, <code>brakeCheckFairness</code> 0.35, <code>brakeCheckCooldown</code> 25, <code>errorRateMax</code>/<code>Min</code> 1.0/0.03 (Fehler pro Minute bei Können 0/1, <code>0</code> = keine Fehler), <code>errorCooldown</code> 12.</p>
+<p>Wichtige <code>params</code>: <code>cornerUseMin</code>/<code>Max</code> 0.82/0.93 (Kurventempo bei Können 0/1), <code>brakeUseMin</code>/<code>Max</code> 0.72/0.95 (Bremskraft), <code>sideGapMin</code>/<code>Max</code> 0.3/1.0 (Seitenabstand bei Mut 1/0), <code>emergencyTtcMin</code>/<code>Max</code> 0.6/1.0 (Notbremse), <code>steerLookTime</code> 0.5 (Lenk-Vorschau: schlingert er, höher, z. B. 0.6; schneidet er Kurven, niedriger), <code>steerGain</code> 1.0 (Lenkstärke), <code>blockMinAggression</code> 0.55, <code>blockCooldown</code> 8, <code>draftDist</code> 45, <code>brakeCheckFairness</code> 0.35, <code>brakeCheckCooldown</code> 25, <code>errorRateMax</code>/<code>Min</code> 1.0/0.03 (Fehler pro Minute bei Können 0/1, <code>0</code> = keine Fehler), <code>errorCooldown</code> 12, <code>logBrakes</code> true.</p>
+<p><b>Warum bremst er?</b> Mit <code>logBrakes</code> (Standard: an) steht jeder Bremsvorgang höchstens 1x pro Sekunde im <span class="path">beamng.log</span>, z. B.:<br><code>Bremse 0.62 (Linie) bei 63 km/h, Ziel 49 km/h, TTC 4.4, quer 1.5, Spur -4.4..4.4, 3 Autos, 0 Lücken | Auto 2 in 9 m, quer -0.0, 58 km/h, Limit 55 km/h ab 0 m</code><br>Grund: <i>Linie</i> (Kurve oder Verkehr ohne Lücke), <i>Notbremse</i>, <i>Schreck</i>, <i>Bremstest</i>. „Spur“ ist die Breite, die er nutzen darf (Meter links/rechts der Straßenmitte), „0 Lücken“ heißt: er hat keinen Weg vorbei gefunden. Schick mir einfach das Log nach einem Battle.</p>
 <p><b>Läuft er nicht?</b> Im Log steht „Eigener Fahrer für …“ beim Battle-Start. „Eigener Fahrer aufgegeben“ heißt: keine Straßendaten gefunden, dann fährt die alte KI. <b>Testen ohne Spiel:</b> <code>python3 tools/driver-sim/run.py highway 0.6 0.7</code> (Strecke, Können, Mut) simuliert eine Autobahn oder einen Touge mit Verkehr. Mit <code>debug: true</code> steht im Log auch „blockt“, „Bremstest“ und „Fehler: …“.</p>
 </section>
 
