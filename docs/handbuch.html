@@ -72,7 +72,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 30.10.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 31.10.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -99,7 +99,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <div class="grp">Karriere</div>
     <a href="#autos">Startautos und Startgeld</a>
     <a href="#haendler">Autohändler</a>
-    <a href="#tuning">Tuning-Shop</a>
+    <a href="#tuning">Teile-Terminal (Shop)</a>
     <a href="#zeit">Uhrzeit, Schlaf, Verkehr</a>
     <a href="#map">Map: Parkplätze und Orte</a>
     <a href="#stil">Siegesserie und Combo</a>
@@ -172,7 +172,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <tr><td><code>rivals.json</code></td><td>Alle Rivalen, Crews, Wanderer, Bosse, Ränge, Spitznamen, Spawn-Regeln</td><td><a href="#rivalen">Rivalen</a></td></tr>
 <tr><td><code>cars.json</code></td><td>Startautos, Gebrauchtzustand, Startgeld, Verkehr</td><td><a href="#autos">Startautos</a></td></tr>
 <tr><td><code>dealer.json</code></td><td>Autohändler: welche Autos, ab welchem Rang, wie selten</td><td><a href="#haendler">Händler</a></td></tr>
-<tr><td><code>tuning.json</code></td><td>Tuning-Shop: Reiter, Stufen, Preise</td><td><a href="#tuning">Tuning</a></td></tr>
+<tr><td><code>tuning.json</code></td><td>Teile-Terminal: Kategorien, Stufen, Felgen/Reifen, Vorschau, Preise</td><td><a href="#tuning">Tuning</a></td></tr>
 <tr><td><code>world.json</code></td><td>Tageslänge, Nacht, Schlaf, Öffnungszeiten, Verkehr je Stunde</td><td><a href="#zeit">Zeit</a></td></tr>
 <tr><td><code>maps\c1.json</code></td><td>Parkplätze, Zuhause, Tankstellen, Showroom auf der C1</td><td><a href="#map">Map</a></td></tr>
 <tr><td><code>style.json</code></td><td>Siegesserie und Fahrstil-Combo</td><td><a href="#stil">Combo</a></td></tr>
@@ -235,7 +235,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><th>Datei</th><th>Inhalt</th></tr>
 <tr><td><code>hashiriya.log</code></td><td>Das aktuelle Log</td></tr>
 <tr><td><code>hashiriya.1.log</code> bis <code>.3.log</code></td><td>Ältere Teile: Wird das Log zu groß, rückt es hierher. Die älteste Datei wird gelöscht.</td></tr>
-<tr><td><code>fehlerbericht.txt</code></td><td>Kommt vom Knopf <b>Fehlerbericht erstellen</b> im Hashiriya-Menü. Das ist <b>die eine Datei, die ein Spieler schicken soll</b>.</td></tr>
+<tr><td><code>bugreport.txt</code></td><td>Kommt vom Knopf <b>Fehlerbericht erstellen</b> im Hashiriya-Menü. Das ist <b>die eine Datei, die ein Spieler schicken soll</b>.</td></tr>
 </table>
 <h3>Was wird geloggt?</h3>
 <ul>
@@ -268,7 +268,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3>Ablauf, wenn ein Tester einen Fehler hat</h3>
 <ol class="steps">
 <li>Tester drückt im Spiel Pos1 und dann <b>Fehlerbericht erstellen</b>. Unten erscheint der Pfad zur Datei.</li>
-<li>Tester schickt dir <code>fehlerbericht.txt</code> und schreibt kurz dazu, was passiert ist.</li>
+<li>Tester schickt dir <code>bugreport.txt</code> und schreibt kurz dazu, was passiert ist.</li>
 <li>Du gibst mir die Datei (hochladen). Ich werte sie aus und baue den Fix.</li>
 </ol>
 <p>Der Bericht enthält den Log-Kopf, den Spielzustand, den Spielstand (<code>save.json</code>) und die letzten etwa 1800 Log-Zeilen. Passwörter oder persönliche Daten stehen nicht drin, höchstens der Fahrername aus dem Spielstand und die Liste der Mods.</p>
@@ -309,7 +309,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>aggression</code></td><td>Wie hart die KI fährt, 0 bis 1 (0.4 = brav, 0.9 = sehr aggressiv)</td><td><code>0.45</code></td></tr>
 <tr><td><code>cruiseKmh</code></td><td>Reisetempo vor dem Battle (auch das Battle-Starttempo)</td><td><code>95</code></td></tr>
 <tr><td><code>maxSp</code></td><td>SP-Balken des Rivalen (du hast 1000)</td><td><code>850</code></td></tr>
-<tr><td><code>rewardUsd</code></td><td>Preisgeld in BeamNG-Dollar, wird mal 150 in Yen umgerechnet</td><td><code>1200</code> = ¥180.000</td></tr>
+<tr><td><code>rewardUsd</code></td><td>Preisgeld in BeamNG-Dollar, wird mal 150 in Yen umgerechnet und dann mit <code>settings.rewardScale</code> (aktuell 0.5) multipliziert</td><td><code>1200</code> = ¥90.000 (bei 0.5)</td></tr>
 <tr><td><code>rep</code></td><td>Ruf, den du für den Sieg bekommst</td><td><code>40</code></td></tr>
 <tr><td><code>conditions</code></td><td>Wann er auftaucht (siehe <a href="#bedingungen">Bedingungen</a>)</td><td><code>{"minRank": 2}</code></td></tr>
 <tr><td><code>plate</code></td><td>Kennzeichen (siehe <a href="#kennzeichen">Kennzeichen</a>)</td><td><code>{"text": "500/22-91", "design": "am5jp_shinagawa_standard"}</code></td></tr>
@@ -484,7 +484,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3 id="raenge">Ränge (ranks)</h3>
 <pre><code>{"rep": 500, "name": {"de": "Nachtgast", "en": "Night Guest"}, "jp": "夜の客"}</code></pre>
 <p><code>rep</code> = ab so viel Ruf hat man den Rang. Reihenfolge = Index (erster Eintrag = Rang 0). Der letzte hat <code>"requiresFinal": true</code> (nur nach dem Endboss). Aktuell 15 Ränge: 0, 500, 1000, 1650, 2500, 3150, 4000, 4850, 5700, 6600, 7750, 8750, 9850, 11000, 12150 Ruf.</p>
-<div class="box warn"><b>Ränge hängen zusammen</b>Wenn du Ränge einfügst oder löschst, verschieben sich die Nummern. Dann stimmen <code>minRank</code> der Crews, der Wanderer, im Händler (<code>dealer.json</code>) und die Tuning-Stufen (<code>tuning.json</code>, Rang 4 und 8) nicht mehr. Lieber nur Namen und <code>rep</code>-Werte ändern.</div>
+<div class="box warn"><b>Ränge hängen zusammen</b>Wenn du Ränge einfügst oder löschst, verschieben sich die Nummern. Dann stimmen <code>minRank</code> der Crews, der Wanderer, im Händler (<code>dealer.json</code>) und die Tuning-Stufen (<code>tuning.json</code>, Rang 1, 4 und 8) nicht mehr. Lieber nur Namen und <code>rep</code>-Werte ändern.</div>
 
 <h3 id="spitznamen">Spitznamen (nicknames)</h3>
 <p>Titel, die man für Statistiken bekommt (wie bei B.A.D.):</p>
@@ -511,6 +511,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>cleanWinMaxDamageSp</code></td><td>60</td><td>Höchstens so viel SP durch Schaden verloren = "sauberer Sieg"</td></tr>
 <tr><td><code>closeWinMaxSpPercent</code></td><td>15</td><td>Unter so viel % SP übrig = "knapper Sieg"</td></tr>
 <tr><td><code>quickWinSeconds</code></td><td>30</td><td>Unter so vielen Sekunden = "schneller Sieg"</td></tr>
+<tr><td><code>rewardScale</code></td><td>0.5</td><td>Faktor für <b>alle</b> Preisgelder (1 = volle <code>rewardUsd</code>, 0.5 = halb so viel). Am einfachsten, um die Wirtschaft knapper oder großzügiger zu machen.</td></tr>
 <tr><td><code>rematch.enabled</code></td><td>true</td><td>Geschlagene Rivalen kommen als Revanche wieder</td></tr>
 <tr><td><code>rematch.weight</code></td><td>0.25</td><td>Wie oft eine Revanche statt eines neuen Gegners gewählt wird</td></tr>
 <tr><td><code>rematch.rewardFactor</code> / <code>repFactor</code></td><td>0.4 / 0.25</td><td>Anteil von Preisgeld und Ruf bei einer Revanche</td></tr>
@@ -577,32 +578,46 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </section>
 
 <section id="tuning">
-<h2><span class="n">8</span> Tuning-Shop <span class="tag">data\tuning.json</span></h2>
-<p>Die Teile selbst kommen aus BeamNG (alles, was in die Slots des Autos passt). <code>tuning.json</code> regelt nur, <b>welche Slots</b> in welchem Reiter erscheinen, <b>welche Stufe</b> ein Teil hat und <b>wann</b> eine Stufe freigeschaltet ist.</p>
+<h2><span class="n">8</span> Teile-Terminal: Tuning-Shop und Garagen-PC <span class="tag">data\tuning.json</span></h2>
+<p>Der Shop ist ein PC-Terminal im Vista-Stil (UI-App <code>HashiriyaTerminal</code>, eigenes Layout <code>hashiriyaShop</code>). Es öffnet sich, wenn du zu Fuß am Shop-Eingang stehst und dein Auto in der Shop-Bucht steht. In der Garage öffnet der Reiter <b>Garagen-PC</b> dasselbe Terminal, nur mit deinen eigenen Teilen.</p>
+<h3>Aufbau</h3>
+<ul>
+<li><b>Links</b>: Kategorien (Mechaniker, Bodyshop, Weiteres), Suchfeld oben (sucht in allen Kategorien nach Teil- und Slot-Namen, z. B. <code>turbo</code> oder <code>15x7</code>).</li>
+<li><b>Mitte</b>: Live-Vorschau. Dort ist kein Bild, sondern ein Loch im Terminal, durch das du die echte 3D-Szene siehst. Fährst du mit der Maus über ein Teil, schwenkt die BeamNG-Teilekamera darauf. Knöpfe: <b>Ganzes Auto</b>, <b>Teil zeigen</b>, <b>Röntgen</b> (Rest des Autos durchsichtig) und Drehen. Mit der Maus kannst du in der Mitte auch selbst drehen.</li>
+<li><b>Rechts</b>: Fahrzeugwerte (grün/rot = besser/schlechter als vor dem Warenkorb) und das Warenkorb-Fenster mit dem Schalter <b>Teile direkt montieren</b>. Aus = Gekauftes wandert ins Teilelager der Garage, das Auto bleibt wie vorher (nur neuer Lack bleibt drauf).</li>
+<li><b>Garagen-PC</b>: Reiter <b>Umbauen</b> (nur eigene Teile, kostenlos) und <b>Teilelager</b> (Liste aller eigenen Teile mit montiert/im Lager, Knopf Montieren).</li>
+</ul>
+<h3>Felgen und Reifen</h3>
+<p>Felgen werden <b>ohne Reifen</b> verkauft. Hast du Reifen in der passenden Größe (gekauft oder die Serienreifen), werden sie kostenlos aufgezogen und stehen im Warenkorb als "kostenlos". Sonst bleibt der Reifen-Slot leer und du kaufst Reifen dazu (Kategorie Felgen &amp; Reifen, die Reifen-Zeile erscheint nach dem Felgenwechsel). Früher kamen hier automatisch die Standardreifen der Felge drauf, oft Slicks. Wer das alte Verhalten will: <code>"tireWithRim": true</code>.</p>
+<h3>Motor-Swap</h3>
+<p>Die Kategorie <b>Motor-Swap</b> zeigt alle Motoren, die BeamNG für dein Modell kennt (auch aus Mods). Der neue Motor kommt mit seinen Serien-Anbauteilen; die gehören dir nach dem Kauf. Motoren ohne Stufenwort sind Stufe 2 (<code>defaultLevel</code>).</p>
 <h3>Stufen freischalten (tiers)</h3>
 <pre><code>"tiers": [
-  {"level": 1, "unlock": {"minWins": 0}},
+  {"level": 1, "unlock": {"minRank": 1}},
   {"level": 2, "unlock": {"minRank": 4}},
   {"level": 3, "unlock": {"minRank": 8}}
 ]</code></pre>
-<p>Stufe 2 ab Rang 4, Stufe 3 ab Rang 8. Ändere die Zahlen, wenn Tuning früher oder später kommen soll.</p>
+<p><code>minRank</code> ist der Index in der Rangliste (0 = Neuling). Stufe 1 gibt es ab dem zweiten Rang (Index 1, Nachtgast), Stufe 2 ab Index 4, Stufe 3 ab Index 8. Als Neuling fährst du also nur mit Serienteilen und eigenen Teilen. Ändere die Zahlen, wenn Tuning früher oder später kommen soll (z. B. <code>"minRank": 2</code> für Stufe 1 erst ab dem dritten Rang). Statt <code>minRank</code> geht auch <code>minWins</code> (Anzahl Siege). Gesperrte Teile kannst du in den Warenkorb legen und ansehen, aber nicht kaufen.</p>
+<h3>Kategorien (categories)</h3>
+<pre><code>{"id": "induction", "group": "mech", "defaultLevel": 1,
+ "match": ["intake", "turbo", "supercharger", "intercooler"]}</code></pre>
+<p>Jeder Slot des Autos mit Auswahl wird eine Zeile. <code>match</code> sind Lua-Muster auf den Slot-Namen (klein geschrieben): <code>"turbo"</code> trifft <code>covet_turbo</code>, <code>"^tire_"</code> trifft <code>tire_F_15x7</code>. Die <b>erste</b> passende Kategorie gewinnt, die Reihenfolge in der Datei ist auch die Reihenfolge im Terminal. Was nirgends passt, landet in <b>Sonstiges</b> (<code>other</code>). <code>group</code>: <code>mech</code> = Mechaniker, <code>body</code> = Bodyshop, <code>more</code> = Weiteres. <code>paint</code> = Lackierer, <code>all</code> = Alle Teile (jeder Slot, auch die in <code>slotExclude</code>). Den Namen einer Kategorie stellst du in <span class="path">lang\de.json</span> unter <code>term.cat.&lt;id&gt;</code> ein.</p>
+<p><b>Beispiel: Nitro soll im Motor-Reiter erscheinen</b>: In <code>slotExclude</code> den Eintrag <code>"n2o_"</code> löschen. Die Kategorie <code>engine</code> hat <code>"n2o"</code> schon in <code>match</code>.</p>
+<p>Zeilennamen: eigene Übersetzung <code>shop.slot.&lt;Slot ohne Modellname&gt;</code> in <span class="path">lang\*.json</span> (z. B. <code>shop.slot.engine_ecu</code>), sonst der englische Name aus BeamNG.</p>
 <h3>Stufe eines Teils (levelWords)</h3>
-<p>Die Stufe wird aus Wörtern im Teilenamen erkannt (höchste Stufe zuerst). Steht im Namen z. B. "race" oder "stage3", ist es Stufe 3; "sport" ist Stufe 1.</p>
+<p>Die Stufe wird aus Wörtern im Teilenamen erkannt (höchste Stufe zuerst). Steht im Namen z. B. "race" oder "stage3", ist es Stufe 3; "sport" ist Stufe 1. Ohne Stufenwort gilt <code>defaultLevel</code> der Kategorie.</p>
 <pre><code>"levelWords": {"3": ["race", "stage3", "ultra", ...], "2": ["stage1", "turbo", ...], "1": ["sport", ...]}</code></pre>
 <h3>Einzelne Teile festlegen</h3>
 <pre><code>"exclude":   ["ruined", "broken"],          // Teile mit diesen Wörtern ausblenden
 "overrides": {"covet_engine_ecu_race": 2,   // dieses Teil auf Stufe 2 setzen
               "bx_intake_debug": 0}          // 0 = ausblenden</code></pre>
-<h3>Reiter und Slots (tabs)</h3>
-<pre><code>{"id": "engine", "items": [
-  {"id": "ecu", "slot": ["_engine_ecu", "_ecu"]},
-  {"id": "intake", "slot": ["_intake"]}
-]}</code></pre>
-<p><code>slot</code> ist das Ende des Slot-Namens (<code>"_engine_ecu"</code> passt auf <code>covet_engine_ecu</code>). Statt <code>slot</code> geht auch <code>"pattern": "^wheel_F"</code> (Lua-Muster). Der Anzeigename kommt aus <code>lang\*.json</code> (Schlüssel mit der <code>id</code>).</p>
+<h3>Live-Vorschau (preview)</h3>
+<pre><code>"preview": {"distance": 7.0, "pitch": -10, "yawStep": 45, "focusOffsetUp": 0.1}</code></pre>
+<p><code>distance</code> = Abstand der Kamera zum Auto in m (größer = Auto kleiner im Vorschaufenster), <code>pitch</code> = Blick von oben in Grad, <code>yawStep</code> = Grad pro Klick auf Drehen, <code>focusOffsetUp</code> = Teilekamera etwas höher.</p>
 <h3>Preise</h3>
 <ul>
 <li>Teilepreise kommen aus BeamNG (Dollar mal 150 in Yen).</li>
-<li><code>paintPriceYen</code> = Preis eines Werkslacks, <code>customPaintPriceYen</code> = eigene Lackierung.</li>
+<li><code>paintPriceYen</code> = Preis eines Werkslacks, <code>customPaintPriceYen</code> = eigene Lackierung, <code>liveryMinPriceYen</code> = Mindestpreis einer Livery.</li>
 <li>Kennzeichen ummelden: <code>platePriceYen = 15000</code> in <span class="path">core.lua</span>.</li>
 </ul>
 </section>
@@ -924,7 +939,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td class="path">fuel.lua</td><td><code>nightFactor</code></td><td>1.45</td><td>Nachtzuschlag an der Tankstelle</td></tr>
 <tr><td class="path">fuel.lua</td><td><code>litersPerSecond</code></td><td>1.2</td><td>Tankgeschwindigkeit</td></tr>
 <tr><td class="path">parking.lua</td><td><code>repairYenPerDamage</code></td><td>2</td><td>Reparaturpreis je Schadenspunkt</td></tr>
-<tr><td class="path">parking.lua</td><td><code>towBaseYen</code> / <code>towYenPerKm</code></td><td>30000 / 2500</td><td>Abschleppen: Grundgebühr plus je km zur Garage</td></tr>
+<tr><td class="path">parking.lua</td><td><code>towBaseYen</code> / <code>towYenPerKm</code></td><td>30000 / 2500</td><td>Abschleppen: Grundgebühr plus je km zur Garage. Abschleppen repariert nicht, der Schaden bleibt (Reparatur in der Garage kostet extra).</td></tr>
 <tr><td class="path">parking.lua</td><td><code>triggerRadius</code> / <code>footRadius</code></td><td>4 / 2.5</td><td>Standard-Auslösebereiche (wenn die Map-Datei keinen <code>radius</code> hat)</td></tr>
 <tr><td class="path">core.lua</td><td><code>platePriceYen</code></td><td>15000</td><td>Kennzeichen ummelden</td></tr>
 </table>
@@ -935,7 +950,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h2><span class="n">20</span> UI-Apps und Layout</h2>
 <table>
 <tr><th>App (Ordner in <span class="path">ui\modules\apps\</span>)</th><th>Was sie zeigt</th></tr>
-<tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Shops, Händler, Lexikon, Statistik, Werkzeuge/Dev-Tools</td></tr>
+<tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Tankstelle, Zuhause, Händler, Lexikon, Statistik, Werkzeuge/Dev-Tools</td></tr>
+<tr><td><code>HashiriyaTerminal</code></td><td>Teile-Terminal im Shop und Garagen-PC (eigenes Layout <code>hashiriyaShop.uilayout.json</code>, ganzer Bildschirm, Mitte frei für die Live-Vorschau). Siehe <a href="#tuning">Teile-Terminal</a>.</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
 <tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Später auch für die PA-Gespräche.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
@@ -989,7 +1005,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>+¥1.000.000 / +1 Sieg</td><td>Geld und Siege (Tuning-Stufen testen)</td></tr>
 <tr><td>Position merken</td><td>Speichert die aktuelle Position (siehe <a href="#map">Map</a>)</td></tr>
 <tr><td>Parkplatz-Markierung</td><td>Buchten sichtbar machen</td></tr>
-<tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\fehlerbericht.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
+<tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\bugreport.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
 <tr><td>Configs exportieren</td><td>Schreibt alle Configs nach <span class="path">settings\hashiriya_battle\config_dump.json</span> (Grundlage für die Config-Liste)</td></tr>
 </table>
 <div class="box tip"><b>Ablauf: neuen Wanderer testen</b>1. BeamNG starten, Karriere laden. 2. Pos1, ID ins Feld tippen, "Spawnen". 3. Vor ihm Lichthupe geben, Battle fahren. 4. Spruch im HUD prüfen. 5. Soll die Bedingung getestet werden: Uhr vorstellen oder Ruf holen und "Rivalen rufen" benutzen.</div>
@@ -1050,7 +1066,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>fuel.lua</code></td><td>Tanken, Spritpreis</td></tr>
 <tr><td><code>home.lua</code></td><td>Zuhause, Schlafen und Nickerchen (schwarzer Bildschirm mit Zeitraffer), Uhr, Lexikon</td></tr>
 <tr><td><code>parking.lua</code></td><td>Parkplätze erkennen, Reparatur, Abschleppen, Markierungen</td></tr>
-<tr><td><code>shop.lua</code></td><td>Tuning-Shop, Lackierer, Warenkorb</td></tr>
+<tr><td><code>shop.lua</code></td><td>Teile-Terminal: Katalog, Lackierer, Warenkorb, Teilelager, Live-Vorschau-Kamera</td></tr>
 <tr><td><code>setup.lua</code></td><td>Fahrwerks-Einstellungen (Tuning-Werte)</td></tr>
 <tr><td><code>style.lua</code></td><td>Siegesserie und Combo</td></tr>
 <tr><td><code>plates.lua</code></td><td>Japanische Kennzeichen: Format, Zufall, Design</td></tr>
