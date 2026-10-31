@@ -21,6 +21,7 @@ local function reply(ok, text) send({ status = { ok = ok, text = text, time = os
 
 function M.isAllowed()
   local c = core()
+  if c and c.isRelease then return not c.isRelease() end
   return not (c and c.buildData and c.buildData.release == true)
 end
 
