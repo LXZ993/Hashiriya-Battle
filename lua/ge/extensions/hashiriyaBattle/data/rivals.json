@@ -13362,8 +13362,8 @@
       "config": "vehicles/bx/hashiriya_wanderer_lxz.pc",
       "aggression": 0.85,
       "cruiseKmh": 130,
-      "maxSp": 1200,
-      "rewardUsd": 77777,
+      "maxSp": 1477,
+      "rewardUsd": 7777,
       "rep": 80,
       "conditions": {
         "minRank": 7,
@@ -13373,15 +13373,14 @@
         "text": "330/.. .7",
         "design": "am5jp_shinagawa_glow"
       },
-      "_platzhalter": "Config kommt später von Alex",
       "lines": {
         "challenge": {
-          "de": "Friss die letzten Stücke aus meinem ausgeglühten Endschalldämpfer",
-          "en": "Eat the last bits out of my burnt out rear silencer."
+          "de": "Friss den Ruß aus meinem glühenden Endtopf!",
+          "en": "Eat the soot from my glowing tailpipe!"
         },
         "win": {
           "de": "7x Glück für mich, 7x Pech für dich!",
-          "en": "7 times luck for me, 7 times bad luck for you!."
+          "en": "7 times luck for me, 7 times bad luck for you!"
         },
         "lose": {
           "de": "Näääh niemals ist das passiert!",
@@ -13389,12 +13388,12 @@
         }
       },
       "desc": {
-        "de": "Er weiß nicht wie er heißt aber denkt er wäre der schnellste!",
-        "en": "He doesn’t know what his own name is, but he thinks he’s the fastest!."
+        "de": "Er weiß nicht, wie er heißt, aber denkt, er wäre der Schnellste!",
+        "en": "He doesn’t know what his own name is, but he thinks he’s the fastest!"
       },	  
       "hint": {
-        "de": "Sieben ist die Zahl",
-        "en": "Seven is the number"
+        "de": "Sieben ist die Zahl.",
+        "en": "Seven is the number."
       }
     },
     {
