@@ -52,10 +52,10 @@ local defaults = {
   sideGapMax = 1.0,      -- ... bei null Mut
   playerSideGap = 0.5,   -- seitlicher Abstand zum Spieler (faire Fahrer)
   -- Tempo
-  cornerUseMin = 0.82,   -- Anteil des Grips in Kurven bei Können 0
-  cornerUseMax = 0.93,   -- ... bei Können 1
-  brakeUseMin = 0.72,    -- Anteil des Grips beim Bremsen bei Können 0
-  brakeUseMax = 0.95,
+  cornerUseMin = 0.8,   -- Anteil des Grips in Kurven bei Können 0
+  cornerUseMax = 0.9,   -- ... bei Können 1
+  brakeUseMin = 0.68,    -- Anteil des Grips beim Bremsen bei Können 0
+  brakeUseMax = 0.9,
   followDecel = 4.0,     -- m/s² geplante Verzögerung hinter Verkehr ohne Lücke (mutige Fahrer: mehr)
   headwayMin = 0.35,     -- s Abstand hinter Verkehr ohne Lücke bei vollem Mut
   headwayMax = 0.9,
@@ -76,6 +76,7 @@ local defaults = {
   steerLookBase = 5,     -- m Vorschau der Lenkung im Stand
   steerLookTime = 0.5,   -- s Vorschau pro m/s (BeamNG-KI: 0.6)
   steerRate = 6,         -- Lenkeinschlag pro Sekunde höchstens (Anteil voller Einschlag)
+  highSpeedBrakeReserve = 0.2, -- bei hohem Tempo bis zu 20 % weniger Bremsweg-Verzögerung eingeplant (ab 90 km/h, voll bei 270 km/h)
   highSpeedReserve = 0.15, -- schnelle Kurven: bis zu 15 % weniger Querbeschleunigung (ab 90 km/h zunehmend, voll bei 234 km/h)
   driftTol = 0.3,        -- m: so weit darf es ihn in der Kurve nach außen tragen, darüber nimmt er Tempo raus und merkt es sich
   edgeMarginSpeed = 0.012, -- m mehr Abstand zum Rand pro m/s über 20 m/s (230 km/h: +0,5 m)
@@ -118,6 +119,8 @@ local wheelBase = 2.6
 local prevDir = vec3()
 local yawRate = 0
 local planAge, errLogTime = 0, -10
+local brakeCap = 9.8     -- m/s²: gelernte Verzögerung bei Vollbremsung (wird beim Start auf mu*g gesetzt)
+local brakeTime, prevSpeed = 0, nil
 local primeSeen = false
 local gripEst = 1        -- gelernter Anteil des Grips, den das Auto wirklich schafft (Untersteuern)
 local stuckTime, reverseTime = 0, 0
@@ -898,7 +901,9 @@ local function speedProfile(pl, courage, pace)
   local mu = obj:getStaticFrictionCoef()
   local cornerUse = lerp(p.cornerUseMin, p.cornerUseMax, p.skill) * pace * gripEst
   local brakeUse = (lerp(p.brakeUseMin, p.brakeUseMax, p.skill) + courage * 0.04) * (0.5 + 0.5 * gripEst)
-  local aBrake = mu * g * brakeUse
+  -- gelernte echte Bremsleistung des Autos (Vollbremsungen gemessen)
+  local aBrake = min(mu * g * brakeUse, brakeCap * brakeUse / 0.95)
+  local aLatMax = mu * g * cornerUse
   -- Krümmung über drei Punkte (Abstand 2 Stützpunkte, glatter)
   for k = 1, n do
     local a, b = max(1, k - 2), min(n, k + 2)
@@ -951,7 +956,13 @@ local function speedProfile(pl, courage, pace)
   for k = n - 1, 1, -1 do
     local ds = pl.s[k + 1] - pl.s[k]
     local a = (k < firstCap and hasCap) and aFollow or aBrake
-    v[k] = min(v[k], sqrt(v[k + 1] * v[k + 1] + 2 * a * ds))
+    local vn = v[k + 1]
+    -- in der Kurve braucht der Reifen Grip zum Lenken: weniger bleibt zum Bremsen (Kamm'scher Kreis)
+    local latUse = clamp(vn * vn * kappa[k + 1] / aLatMax, 0, 1)
+    a = a * sqrt(max(1 - latUse * latUse, 0.2))
+    -- bei hohem Tempo bremst ein Auto schwächer (Bremsen werden heiß, weniger Abtrieb als gedacht)
+    a = a * (1 - clamp((vn - 25) / 50, 0, 1) * p.highSpeedBrakeReserve)
+    v[k] = min(v[k], sqrt(vn * vn + 2 * a * ds))
   end
   pl.aBrake = aBrake
 end
@@ -1235,9 +1246,9 @@ local function control(dt)
       chTxt = ch.kind == 'free' and 'Ideallinie' or string.format('nach quer %.1f in %.1f s', ch.dT, ch.T)
       chTxt = chTxt .. (ch.acc > 0.01 and ', Gas' or (ch.acc > -0.01 and ', Tempo halten' or string.format(', verzögern %.1f', -ch.acc)))
     end
-    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Wege frei, Wahl: %s, Grip %.2f, außen %.1f m | %s',
+    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Wege frei, Wahl: %s, Grip %.2f, Bremskraft %.1f, außen %.1f m | %s',
       brake, why, v * 3.6, vT * 3.6, pl.ttc or -1, pl.egoLat or 0, pl.baseLo[1] or 0, pl.baseHi[1] or 0, pl.wideLo[5] or 0, pl.wideHi[5] or 0,
-      #pl.obstacles, #(pl.groups or {}), chTxt, gripEst, pl.outErr or 0, capTxt))
+      #pl.obstacles, #(pl.groups or {}), chTxt, gripEst, brakeCap, pl.outErr or 0, capTxt))
   end
 
   local tcs, absC = wheelCoefs()
@@ -1318,6 +1329,18 @@ local function learnSteering(dt)
     end
   end
   gripEst = min(gripEst + dt * 0.004, 1)
+  -- Bremsleistung messen: bei (fast) voller Bremse die echte Verzögerung
+  if prevSpeed and lastBrake >= 0.85 and v > 12 then
+    brakeTime = brakeTime + dt
+    local dec = (prevSpeed - v) / dt
+    if brakeTime > 0.3 and dec > 1 then
+      local k = dec < brakeCap and min(1, dt * 1.5) or min(1, dt * 0.2)
+      brakeCap = clamp(brakeCap + (dec - brakeCap) * k, 4, mu * g * 1.3)
+    end
+  else
+    brakeTime = 0
+  end
+  prevSpeed = v
   if v > 8 and abs(lastSteer) > 0.04 and abs(lastSteer) < 0.6 and abs(yawRate * v) < 0.45 * g * obj:getStaticFrictionCoef() then
     local meas = math.atan(yawRate * wheelBase / v) / lastSteer
     if meas > 0.12 and meas < 1.3 then
@@ -1413,6 +1436,7 @@ function M.start(params)
   table.clear(latTrack)
   lastChoice.kind, lastChoice.dT, lastChoice.acc, lastChoice.t0, lastChoice.T = 'free', 0, 0, 0, 1
   planAge, errLogTime = 0, -10
+  brakeCap, brakeTime, prevSpeed = obj:getStaticFrictionCoef() * g, 0, nil
   primeSeen = true -- bis zum Start fuhr er schon selbst im Verkehr: die Autos um ihn kennt er
   followTime = {}
   table.clear(trail)
