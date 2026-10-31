@@ -109,7 +109,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#community">Community-Wanderer und Credits</a>
     <a href="#sounds">Sounds</a>
     <a href="#texte">Texte und Sprachen</a>
-    <a href="#release">Release-Sperren und Release-Build</a>
+    <a href="#release">Release-Test und Release-ZIP</a>
     <div class="grp">Im Code</div>
     <a href="#battle">Battle und SP-Balken</a>
     <a href="#fahrer">Gegner-Fahrer (eigene KI)</a>
@@ -864,26 +864,42 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </section>
 
 <section id="release">
-<h2><span class="n">16</span> Release-Sperren und Release-Build <span class="tag">data\build.json</span></h2>
+<h2><span class="n">16</span> Release-Sperren und Release-Build <span class="tag">data\build.json · release.lua</span></h2>
+
+<h3>Release-Test an/aus und ZIP bauen: Release-Werkzeug</h3>
+<p>Doppelklick auf <span class="path">tools\Release-Werkzeug.bat</span> im Mod-Ordner. Es öffnet sich ein kleines Fenster mit drei Punkten:</p>
+<table>
+<tr><th>Taste</th><th>Was passiert</th></tr>
+<tr><td>1</td><td><b>Release-Test AN</b>: setzt in <code>build.json</code> <code>release</code> auf <code>true</code>. Danach BeamNG <b>komplett neu starten</b> und die Karriere laden. Du spielst dann genau so, wie es die Tester bekommen.</td></tr>
+<tr><td>2</td><td><b>Release-Test AUS</b>: zurück zur Entwicklung (<code>false</code>), alle Dev-Tools und der Builder sind wieder da. Auch hier BeamNG neu starten.</td></tr>
+<tr><td>3</td><td><b>Release-ZIP bauen</b>: fragt nach der Versionsnummer (Enter = <code>modVersion</code> aus <code>build.json</code>) und legt <span class="path">dist\hashiriya_battle_&lt;version&gt;.zip</span> an. Der Explorer zeigt die Datei danach an.</td></tr>
+</table>
+<p>In der ZIP ist <code>release</code> immer an und die Version gesetzt, egal wie dein Mod-Ordner gerade steht. Dazu kommen <code>CHANGELOG_DE.md</code> (aus <code>CHANGELOG.md</code>) und <code>CHANGELOG_EN.md</code>. Nicht in die ZIP kommen: <code>tools</code>, <code>docs</code>, die README, der Builder (<code>builder.lua</code>, App <code>HashiriyaBuilder</code>) und die Taste Shift+Pos1 (Titelbild-Kamera merken). Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
+<div class="box"><b>Vor jedem Build</b>Beide Changelogs oben um einen Abschnitt für die neue Version ergänzen (deutsch in <code>CHANGELOG.md</code>, englisch in <code>CHANGELOG_EN.md</code>). Das Werkzeug warnt, wenn die Version dort noch fehlt.</div>
+<div class="box warn"><b>Falls Windows das Fenster blockiert</b>Beim ersten Start fragt Windows evtl. nach („Trotzdem ausführen“). Die .bat startet nur das PowerShell-Skript <span class="path">tools\release-werkzeug.ps1</span> daneben.</div>
+
+<h3>Was im Release gesperrt ist</h3>
+<p>Wie in der offiziellen BeamNG-Karriere (<span class="path">lua\ge\extensions\career\career.lua</span> im Spiel) und noch etwas strenger. Gilt nur, solange deine Karriere läuft. Nur der Node Grabber bleibt.</p>
+<ul>
+<li><b>Tasten</b>: Fahrzeugauswahl, Fahrzeug-Config, Fahrzeug neu laden/reparieren, Recover, auf die Straße zurück, Flip, Home laden/speichern, Wechsel zu anderen Autos (auch KI), Verkehr an/aus, Zeitlupe, Fun-Stuff, Editor, Konsole (^), UI-/Lua-Reload, Track Builder, Uhrzeit weiterschalten, Debug-Ansichten. Das radiale Menü blendet diese Punkte dadurch auch aus.</li>
+<li><b>ESC-Menü</b>: Die Tabs „Fahrzeug“ und „Umgebung“ sind weg, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Knöpfe für Reparieren, Fahrzeugauswahl, Replay und Map wechseln mehr. Karte, Fotomodus, Speichern und Beenden bleiben.</li>
+<li><b>Große Karte</b>: keine Schnellreise zu Orten.</li>
+<li><b>Hashiriya-Menü</b>: alle Test-Knöpfe unter „Werkzeuge“ (Rivale rufen, Rivalen-Eingabe, +Ruf, Uhr, Tag +1, gratis reparieren/tanken, Position merken, Geld, Siege, Configs exportieren) und der Builder. Übrig bleiben Parkplatz-Marker und Fehlerbericht.</li>
+<li><b>Uhrzeit</b>: nicht über Time &amp; Weather verstellbar (<code>lockTime</code>).</li>
+</ul>
+<p>Die Time Trials sind auf C1 immer ausgeblendet, auch in der Liste der Points of Interest (<code>disabledMissionTypes</code> in <span class="path">data\maps\c1.json</span>).</p>
+
+<h3>Felder in build.json</h3>
 <table>
 <tr><th>Feld</th><th>Jetzt</th><th>Bedeutung</th></tr>
-<tr><td><code>release</code></td><td>true (von dir gesetzt)</td><td>true = Release-Build: die Sperren unten gelten in der Karriere</td></tr>
-<tr><td><code>blockedActions</code></td><td>["reset_physics"]</td><td>Gesperrte BeamNG-Aktionen (Auto zurücksetzen)</td></tr>
+<tr><td><code>release</code></td><td>true</td><td>true = Release-Test (Sperren an), false = Entwicklung. Am besten mit dem Release-Werkzeug umschalten.</td></tr>
+<tr><td><code>blockedActions</code></td><td>Liste</td><td>Zusätzliche gesperrte Tastenaktionen (Konsole, Debug usw.). Die Karriere-Vorlagen sperrt <span class="path">release.lua</span> selbst. Steht <code>nodegrabberStrength</code> drin, lässt sich die Stärke nicht verstellen.</td></tr>
 <tr><td><code>lockTime</code></td><td>true</td><td>Uhrzeit nicht verstellbar</td></tr>
 <tr><td><code>blockBigMapTeleport</code></td><td>true</td><td>Keine Schnellreise über die große Karte</td></tr>
-<tr><td><code>nodeGrabberStrength</code></td><td>20</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
-<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 0.3"</td><td>Version und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
+<tr><td><code>nodeGrabberStrength</code></td><td>30</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
+<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 0.3"</td><td>Version (Vorschlag beim ZIP-Bauen) und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
 </table>
-<div class="box warn"><b>Im Mod-Ordner bleibt release auf false</b>Dein Entwicklungsordner behält <code>release: false</code>, damit du alle Dev-Tools hast. Nur die verschickte ZIP bekommt <code>true</code> (siehe unten).</div>
-
-<h3>Was im Release aus ist</h3>
-<p>Mit <code>release: true</code> fehlen im Menü unter „Werkzeuge“ alle Test-Knöpfe: Rivale rufen, Rivalen-Eingabe (spawnen, als geschlagen markieren, zufällig), Rivalen entfernen, +Ruf, Uhr +1 Stunde, Uhr auf 22:00, Tag +1, gratis reparieren und tanken, Position merken, +¥1.000.000, +1 Sieg und Configs exportieren. Auch Shift+Pos1 (Titelbild-Kamera merken) tut nichts. Übrig bleiben die Parkplatz-Marker und der Fehlerbericht. Die Liste der gesperrten Menü-Aktionen steht in <span class="path">core.lua</span> bei <code>devActions</code>.</p>
-
-<h3>Release-Build zum Verschicken bauen</h3>
-<p>Im Mod-Ordner (z. B. <span class="path">F:\BeamNG\current\mods\unpacked\Hashiriya-Battle</span>) eine Eingabeaufforderung öffnen und eingeben:</p>
-<pre>python tools/build_release.py "Alpha 0.3"</pre>
-<p>Danach liegt die Datei in <span class="path">dist\hashiriya_battle_alpha_0.3.zip</span>. Das Skript setzt in der ZIP <code>release: true</code> und die Version, nimmt Shift+Pos1 aus der Tastenbelegung und legt <code>CHANGELOG_DE.md</code> (aus <code>CHANGELOG.md</code>) und <code>CHANGELOG_EN.md</code> dazu. <code>tools</code>, <code>docs</code> und die README kommen nicht mit. Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
-<div class="box"><b>Vor jedem Build</b>Beide Changelogs um einen neuen Abschnitt oben ergänzen (deutsch in <code>CHANGELOG.md</code>, englisch in <code>CHANGELOG_EN.md</code>) und dieselbe Versionsnummer beim Aufruf angeben.</div>
+<p>Welche Tabs und Knöpfe im ESC-Menü verschwinden, steht oben in <span class="path">lua\ge\extensions\hashiriyaBattle\release.lua</span> (<code>hiddenTabs</code>, <code>hiddenRailActions</code>). Im Mod-Log steht beim Start „Release-Sperren an (… Tastenaktionen)“.</p>
 </section>
 
 <section id="battle">
@@ -1059,7 +1075,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 
 <section id="dev">
 <h2><span class="n">22</span> Dev-Tools zum Testen</h2>
-<p>Im Hashiriya-Menü (Pos1) unten im Abschnitt <b>Werkzeuge</b>:</p>
+<p>Im Hashiriya-Menü (Pos1) unten im Abschnitt <b>Werkzeuge</b>. Nur sichtbar, solange der Release-Test aus ist (siehe <a href="#release">Release-Test</a>):</p>
 <table>
 <tr><th>Knopf</th><th>Was er macht</th></tr>
 <tr><td>Rivalen rufen</td><td>Spawnt sofort den nächsten passenden Rivalen</td></tr>
