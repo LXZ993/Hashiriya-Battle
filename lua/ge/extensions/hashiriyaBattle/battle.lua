@@ -629,6 +629,9 @@ local function onUpdate(dtReal, dtSim)
   if not rivalVeh then M.reset(); return end
 
   if state == 'sync' or state == 'countdown' then
+    -- echtes Tempo des Rivalen (geglättet): die KI bremst für Verkehr und Kurven, dein Tempomat folgt ihr
+    local rvNow = rivalVeh:getVelocity():length()
+    battle.rivalV = battle.rivalV and (battle.rivalV + (rvNow - battle.rivalV) * math.min(1, dtSim * 2)) or rvNow
     -- Der BeamNG-Tempomat schaltet sich beim Bremsen ab: regelmäßig wieder einschalten
     battle.relock = (battle.relock or 0.5) - dtSim
     if battle.relock <= 0 then
@@ -668,7 +671,10 @@ local function onUpdate(dtReal, dtSim)
       end
       return
     end
-    if gap < 2 then -- in der Angleich-Phase überholt = Frühstart
+    -- in der Angleich-Phase überholt = Frühstart, aber nur wenn du schneller warst
+    -- (bremst der Rivale für Verkehr und du rollst ran, ist das nicht deine Schuld)
+    local playerFaster = player:getVelocity():length() > battle.rivalV + 3 / 3.6
+    if gap < 2 and (playerFaster or gap < -4) then
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)
       M.reset(falseStartCooldown())
@@ -676,13 +682,13 @@ local function onUpdate(dtReal, dtSim)
     end
     -- Zu weit weg: Tempomat etwas schneller als der Rivale, bis man auf syncTargetGap dran ist
     local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, gap - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
-    battle.lockSpeed = battle.rivalSpeed + catchUp
-    local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
+    battle.lockSpeed = battle.rivalV + catchUp
+    local diff = math.abs(player:getVelocity():length() - battle.rivalV) * 3.6
     if ((gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 then
       state = 'countdown'
       timer = cfg.countdown
       battle.startGap = gap
-      battle.lockSpeed = math.max(battle.rivalSpeed, math.min(player:getVelocity():length(), battle.rivalSpeed + cfg.syncToleranceKmh / 3.6))
+      battle.lockSpeed = math.max(battle.rivalV, math.min(player:getVelocity():length(), battle.rivalV + cfg.syncToleranceKmh / 3.6))
       battle.relock = 0
     end
     return
@@ -707,7 +713,12 @@ local function onUpdate(dtReal, dtSim)
     end
     -- Frühstart: vorgefahren oder schneller als der Tempomat
     local gap = getGap(player, rivalVeh)
-    if battle.startGap and (gap < battle.startGap - cfg.falseStartGap
+    -- Tempomat folgt dem Rivalen und hält den Abstand vom Countdown-Start
+    if battle.startGap then
+      battle.lockSpeed = math.max(battle.rivalV + math.max(-2, math.min(2, (gap - battle.startGap) * 0.4)), 5)
+    end
+    local playerFaster = player:getVelocity():length() > battle.rivalV + 3 / 3.6
+    if battle.startGap and ((gap < battle.startGap - cfg.falseStartGap and playerFaster)
         or player:getVelocity():length() > battle.lockSpeed + cfg.falseStartKmh / 3.6) then
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)
