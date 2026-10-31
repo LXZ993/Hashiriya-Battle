@@ -591,7 +591,7 @@
       "paint": {
         "name": "pink",
         "color": [
-          1.0,
+          1,
           0.35,
           0.65
         ],
@@ -879,7 +879,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -1217,7 +1217,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -1477,7 +1477,7 @@
           0.9,
           0.75
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.45
       },
       "lines": {
@@ -1742,8 +1742,8 @@
         "name": "italred",
         "color": [
           0.75,
-          0.0,
-          0.0
+          0,
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -1867,7 +1867,7 @@
       "paint": {
         "name": "peach",
         "color": [
-          1.0,
+          1,
           0.7,
           0.55
         ],
@@ -1963,7 +1963,7 @@
       "paint": {
         "name": "yellow",
         "color": [
-          1.0,
+          1,
           0.82,
           0.05
         ],
@@ -2011,7 +2011,7 @@
       "paint": {
         "name": "pink",
         "color": [
-          1.0,
+          1,
           0.35,
           0.65
         ],
@@ -2107,7 +2107,7 @@
       "paint": {
         "name": "coral",
         "color": [
-          1.0,
+          1,
           0.45,
           0.4
         ],
@@ -2637,7 +2637,7 @@
           0.9,
           0.75
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.45
       },
       "lines": {
@@ -2763,7 +2763,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -2983,7 +2983,7 @@
         "color": [
           0.8,
           0.9,
-          1.0
+          1
         ],
         "metallic": 0.7,
         "roughness": 0.25
@@ -4571,7 +4571,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -4897,7 +4897,7 @@
       "paint": {
         "name": "yellow",
         "color": [
-          1.0,
+          1,
           0.82,
           0.05
         ],
@@ -5917,7 +5917,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -6147,7 +6147,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -6483,7 +6483,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -6739,7 +6739,7 @@
         "color": [
           0.1,
           0.6,
-          1.0
+          1
         ],
         "metallic": 0.7,
         "roughness": 0.2
@@ -6827,7 +6827,7 @@
         "color": [
           0.1,
           0.6,
-          1.0
+          1
         ],
         "metallic": 0.7,
         "roughness": 0.2
@@ -7615,7 +7615,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -8057,7 +8057,7 @@
       "paint": {
         "name": "yellow",
         "color": [
-          1.0,
+          1,
           0.82,
           0.05
         ],
@@ -8697,7 +8697,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -8948,8 +8948,8 @@
         "name": "italred",
         "color": [
           0.75,
-          0.0,
-          0.0
+          0,
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -8999,7 +8999,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -9119,9 +9119,9 @@
       "paint": {
         "name": "italyellow",
         "color": [
-          1.0,
+          1,
           0.78,
-          0.0
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -9295,7 +9295,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -9342,8 +9342,8 @@
         "name": "italred",
         "color": [
           0.75,
-          0.0,
-          0.0
+          0,
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -9503,7 +9503,7 @@
       "paint": {
         "name": "frenchblue",
         "color": [
-          0.0,
+          0,
           0.2,
           0.6
         ],
@@ -9555,7 +9555,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -9639,7 +9639,7 @@
       "paint": {
         "name": "frenchblue",
         "color": [
-          0.0,
+          0,
           0.2,
           0.6
         ],
@@ -10045,7 +10045,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -10583,7 +10583,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -10839,9 +10839,9 @@
       "paint": {
         "name": "italyellow",
         "color": [
-          1.0,
+          1,
           0.78,
-          0.0
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -10891,7 +10891,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -11081,7 +11081,7 @@
         "color": [
           0.4,
           0.7,
-          1.0
+          1
         ],
         "metallic": 0.6,
         "roughness": 0.25
@@ -11128,8 +11128,8 @@
         "name": "italred",
         "color": [
           0.75,
-          0.0,
-          0.0
+          0,
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -11175,7 +11175,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -13310,7 +13310,7 @@
       "wanderer": true,
       "model": "etki",
       "config": "vehicles/etki/hashiriya_wanderer_henry.pc",
-      "aggression": 0.80,
+      "aggression": 0.8,
       "cruiseKmh": 115,
       "maxSp": 1500,
       "rewardUsd": 15000,
@@ -13348,6 +13348,34 @@
       "hint": {
         "de": "Erst nach dem Sieg über den Ginza Neon Club, zwischen 23 und 4 Uhr.",
         "en": "Only after beating the Ginza Neon Club, between 11 pm and 4 am."
+      }
+    },
+    {
+      "id": "w_alex_zockt",
+      "name": "Alex Zockt",
+      "nick": {
+        "de": "LXZ",
+        "en": "LXZ"
+      },
+      "wanderer": true,
+      "model": "bx",
+      "config": "vehicles/bx/hashiriya_wanderer_lxz.pc",
+      "aggression": 0.85,
+      "cruiseKmh": 130,
+      "maxSp": 1200,
+      "rewardUsd": 5000,
+      "rep": 80,
+      "conditions": {
+        "minRank": 7,
+        "speedTraps": 7
+      },
+      "plate": {
+        "text": "330/.. .7",
+        "design": "am5jp_shinagawa_glow"
+      },
+      "hint": {
+        "de": "Sieben ist die Zahl",
+        "en": "Seven is the number"
       }
     },
     {
