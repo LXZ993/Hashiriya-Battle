@@ -850,7 +850,7 @@ end
 
 -- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
 -- Klick-Sounds der Menüs (Meldungen bringen ihren eigenen Sound mit)
-local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true, fuelHold = true, termHello = true, termCatalog = true }
+local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true, fuelHold = true, termHello = true, termCatalog = true, paintLive = true }
 local tabActions = { shopTab = true, garageTab = true, setupCat = true, paintSlot = true, termCat = true }
 local backActions = { back = true, hide = true, previewCancel = true, setupDiscard = true }
 
@@ -866,7 +866,7 @@ local function actionSound(action, arg)
 end
 
 -- Häufige Aktionen nicht ins Log (sonst wird es unlesbar)
-local quietActions = { sound = true, slider = true, focusSlot = true, fuelHold = true, setupAdjust = true, paintSlot = true, setLanguage = true, photoMode = true }
+local quietActions = { sound = true, slider = true, focusSlot = true, fuelHold = true, setupAdjust = true, paintSlot = true, setLanguage = true, photoMode = true, paintLive = true }
 
 function M.uiAction(action, arg)
   if not quietActions[action] then
@@ -965,6 +965,9 @@ function M.uiAction(action, arg)
   elseif action == 'buyPaint' then
     local area = arrivedArea()
     if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.selectPaint(tostring(arg)) end
+  elseif action == 'paintLive' then
+    local area = arrivedArea()
+    if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.previewPaintLive(tostring(arg)) end
   elseif action == 'customPaint' then
     local area = arrivedArea()
     if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.selectCustomPaint(tostring(arg)) end
