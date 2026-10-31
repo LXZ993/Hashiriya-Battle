@@ -157,8 +157,12 @@ end
 
 -- Katalog aus den Teilen des aktuellen Autos aufbauen ----------------------------
 
-local function currentConfig()
-  local ok, vd = pcall(function() return core_vehicle_manager.getPlayerVehicleData() end)
+local function currentConfig(vehId)
+  -- vehId: anderes Auto als das Spielerauto (z. B. das geparkte Auto, während man zu Fuß ist)
+  local ok, vd = pcall(function()
+    if vehId then return core_vehicle_manager.getVehicleData(vehId) end
+    return core_vehicle_manager.getPlayerVehicleData()
+  end)
   if not ok or not vd then return nil end
   local cfg = vd.config or {}
   -- Ab 0.40 gibt es nur noch den Teilebaum (partsTree); BeamNG macht daraus selbst eine flache
@@ -227,12 +231,12 @@ local function slotLabel(car, slot, desc)
   return (s:gsub('^%l', string.upper))
 end
 
-local function buildCatalog()
+local function buildCatalog(vehOverride)
   local c = core()
-  local veh = c.getPlayerVehicle()
+  local veh = vehOverride or c.getPlayerVehicle()
   local car = activeCar()
   if not veh or not car then return nil end
-  local cfg, vd = currentConfig()
+  local cfg, vd = currentConfig(vehOverride and veh:getID() or nil)
   if not cfg then return nil end
   if not vd.ioCtx then
     log('W', logTag, 'Shop: kein ioCtx in den Fahrzeugdaten')
@@ -1218,6 +1222,16 @@ end
 -- Neue Teile der Stufe fürs aktive Auto, nach Kategorie gezählt (nil, wenn kein Katalog da ist)
 local function newPartsOf(level)
   local ok, cat = pcall(getCatalog)
+  if not (ok and cat) then
+    -- zu Fuß (oder Katalog gerade gesperrt): direkt vom aktiven Auto bauen, nicht als Shop-Katalog merken.
+    -- Zu Fuß ist das Spielerfahrzeug der Fußgänger; das geparkte Auto merkt sich core.carVehId.
+    local veh = core().getPlayerVehicle()
+    if not veh then
+      local id = core().carVehId
+      veh = id and be:getObjectByID(id) or nil
+    end
+    if veh then ok, cat = pcall(buildCatalog, veh) end
+  end
   if not ok or not cat then return nil end
   local c = core()
   local counts, total = {}, 0
