@@ -1,0 +1,14 @@
+{
+  "domElement": "<hashiriya-messages></hashiriya-messages>",
+  "name": "Hashiriya Battle: Meldungen",
+  "types": ["ui.apps.categories.gameplay"],
+  "description": "Eigene Version der BeamNG-App Messages im HashiNet-Design: Meldungen der Mod und des Spiels als Karten oben links.",
+  "css": { "top": "0px", "left": "0px", "width": "380px", "height": "420px" },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaMessages",
+  "appName": "hashiriyaMessages",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}
