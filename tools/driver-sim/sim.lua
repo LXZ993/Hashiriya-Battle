@@ -307,8 +307,10 @@ while t < 120 do
     local pl = D._internal.getPlan()
     if pl then
       local parts = {}
+      local c = pl.choice
+      if c then parts[#parts + 1] = string.format('WAHL %s dT=%.1f T=%.1f a=%.1f ok=%d', c.kind, c.dT, c.T, c.acc, #(pl.groups or {})) end
       for _, ob in ipairs(pl.obstacles) do
-        parts[#parts + 1] = string.format('#%d s=%.0f d=%.1f side=%s tM=%s', ob.id, ob.s, ob.d, tostring(ob.side), ob.tMeet and string.format('%.1f', ob.tMeet) or '-')
+        parts[#parts + 1] = string.format('#%d s=%.0f d=%.1f v=%.0f side=%s', ob.id, ob.s, ob.d, ob.vAlong * 3.6, tostring(ob.side))
       end
       local caps = {}
       for _, c in ipairs(pl.followCaps or {}) do caps[#caps + 1] = string.format('%.0fm:%.0f', c.s, c.v * 3.6) end
