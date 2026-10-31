@@ -120,7 +120,25 @@ local function rivalPaint(p)
   }
 end
 
--- Config fürs Spawnen: Pfad, oder Tabelle mit Kennzeichen-Design und Lack. Zweiter Wert = Lack (oder nil)
+-- Lack aus der info_<config>.json neben der .pc (defaultMultiPaintSetup paint1..3), so wie BeamNG ihn beim
+-- Speichern einer eigenen Config ablegt. Wird gebraucht, weil wir mit einer Config-Tabelle spawnen.
+local function infoPaints(path)
+  local dir, name = tostring(path):match('^(.*)/([^/]+)%.pc$')
+  if not dir then return nil end
+  local info = readPc(dir .. '/info_' .. name .. '.json')
+  local setup = type(info) == 'table' and info.defaultMultiPaintSetup
+  if type(setup) ~= 'table' or type(setup.paint1) ~= 'table' then return nil end
+  local function one(p)
+    if type(p) ~= 'table' or type(p.baseColor) ~= 'table' then return nil end
+    return { baseColor = p.baseColor, metallic = p.metallic or 0, roughness = p.roughness or 0.5,
+      clearcoat = p.clearcoat or 0, clearcoatRoughness = p.clearcoatRoughness or 0 }
+  end
+  local p1 = one(setup.paint1)
+  if not p1 then return nil end
+  return { p1, one(setup.paint2) or p1, one(setup.paint3) or p1 }
+end
+
+-- Config fürs Spawnen: Pfad, oder Tabelle mit Kennzeichen-Design und Lack. Zweiter Wert = Lacke {1,2,3} (oder nil)
 local function spawnSetup(rival)
   local path = rival.config ~= '' and rival.config or nil
   local design = rival.plate and rival.plate.design
@@ -130,6 +148,9 @@ local function spawnSetup(rival)
   if not pc or type(pc.parts) ~= 'table' then return path, nil end
   if paint and hasLivery(pc.parts) then paint = nil end
   local cfg = { parts = {}, vars = {}, paints = pc.paints }
+  local paints = nil
+  if paint then paints = { paint, paint, paint }
+  elseif not pc.paints then paints = infoPaints(path); cfg.paints = paints end
   for k, v in pairs(pc.parts) do cfg.parts[k] = v end
   for k, v in pairs(pc.vars or {}) do cfg.vars[k] = v end
   if design then
@@ -139,8 +160,8 @@ local function spawnSetup(rival)
     end
     if not set then cfg.parts.licenseplate_design_2_1 = design end
   end
-  if paint then cfg.paints = { paint, paint, paint } end
-  return cfg, paint
+  if paint then cfg.paints = paints end
+  return cfg, paints
 end
 
 local function leaderOf(teamId)
@@ -622,10 +643,10 @@ function M.spawnNext(force, forced)
     return
   end
 
-  local cfg, paint = spawnSetup(rival)
+  local cfg, paints = spawnSetup(rival)
   local plateText = rival.plate and rival.plate.text
   local opts = { config = cfg, pos = pos, rot = quatFromDir(dir, vec3(0, 0, 1)), autoEnterVehicle = false, licenseText = plateText }
-  if paint then opts.paint, opts.paint2, opts.paint3 = paint, paint, paint end
+  if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
   local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, rival.model, opts)
   if (not okSpawn or not veh) and type(cfg) == 'table' then
     -- Ersatz: Original-Config ohne Kennzeichen-Design und Lack

@@ -72,7 +72,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 30.10.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 31.10.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -82,6 +82,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#testen">Testen und Fehler finden</a>
     <a href="#log">Log-System und Fehlerbericht</a>
     <div class="grp">Gegner</div>
+    <a href="#builder">Builder (im Spiel)</a>
     <a href="#rivalen">Rivalen (rivals.json)</a>
     <a class="l2" href="#rivale-felder">Alle Felder eines Rivalen</a>
     <a class="l2" href="#rivale-neu">Neuen Rivalen anlegen</a>
@@ -99,7 +100,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <div class="grp">Karriere</div>
     <a href="#autos">Startautos und Startgeld</a>
     <a href="#haendler">Autohändler</a>
-    <a href="#tuning">Tuning-Shop</a>
+    <a href="#tuning">Teile-Terminal (Shop)</a>
     <a href="#zeit">Uhrzeit, Schlaf, Verkehr</a>
     <a href="#map">Map: Parkplätze und Orte</a>
     <a href="#stil">Siegesserie und Combo</a>
@@ -108,7 +109,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#community">Community-Wanderer und Credits</a>
     <a href="#sounds">Sounds</a>
     <a href="#texte">Texte und Sprachen</a>
-    <a href="#release">Release-Sperren</a>
+    <a href="#release">Release-Test und Release-ZIP</a>
     <div class="grp">Im Code</div>
     <a href="#battle">Battle und SP-Balken</a>
     <a href="#fahrer">Gegner-Fahrer (eigene KI)</a>
@@ -139,6 +140,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <p>Oben links kannst du suchen: Tipp ein Wort wie <i>Kennzeichen</i> oder <i>Uhrzeit</i>, dann bleiben nur die passenden Kapitel sichtbar.</p>
 <h3>Häufige Aufgaben</h3>
 <div class="cards">
+  <a class="card" href="#builder"><b>Crew, Wanderer, Boss anlegen</b><small>Builder im Spiel, ohne JSON</small></a>
   <a class="card" href="#rivale-neu"><b>Neuen Gegner einbauen</b><small>rivals.json, Beispiel zum Kopieren</small></a>
   <a class="card" href="#bedingungen"><b>Wanderer nur um 3 Uhr</b><small>Bedingungen wie Uhrzeit, Auto, Teil</small></a>
   <a class="card" href="#kennzeichen"><b>Kennzeichen ändern</b><small>Text und Region</small></a>
@@ -172,7 +174,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <tr><td><code>rivals.json</code></td><td>Alle Rivalen, Crews, Wanderer, Bosse, Ränge, Spitznamen, Spawn-Regeln</td><td><a href="#rivalen">Rivalen</a></td></tr>
 <tr><td><code>cars.json</code></td><td>Startautos, Gebrauchtzustand, Startgeld, Verkehr</td><td><a href="#autos">Startautos</a></td></tr>
 <tr><td><code>dealer.json</code></td><td>Autohändler: welche Autos, ab welchem Rang, wie selten</td><td><a href="#haendler">Händler</a></td></tr>
-<tr><td><code>tuning.json</code></td><td>Tuning-Shop: Reiter, Stufen, Preise</td><td><a href="#tuning">Tuning</a></td></tr>
+<tr><td><code>tuning.json</code></td><td>Teile-Terminal: Kategorien, Stufen, Felgen/Reifen, Vorschau, Preise</td><td><a href="#tuning">Tuning</a></td></tr>
 <tr><td><code>world.json</code></td><td>Tageslänge, Nacht, Schlaf, Öffnungszeiten, Verkehr je Stunde</td><td><a href="#zeit">Zeit</a></td></tr>
 <tr><td><code>maps\c1.json</code></td><td>Parkplätze, Zuhause, Tankstellen, Showroom auf der C1</td><td><a href="#map">Map</a></td></tr>
 <tr><td><code>style.json</code></td><td>Siegesserie und Fahrstil-Combo</td><td><a href="#stil">Combo</a></td></tr>
@@ -235,7 +237,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><th>Datei</th><th>Inhalt</th></tr>
 <tr><td><code>hashiriya.log</code></td><td>Das aktuelle Log</td></tr>
 <tr><td><code>hashiriya.1.log</code> bis <code>.3.log</code></td><td>Ältere Teile: Wird das Log zu groß, rückt es hierher. Die älteste Datei wird gelöscht.</td></tr>
-<tr><td><code>fehlerbericht.txt</code></td><td>Kommt vom Knopf <b>Fehlerbericht erstellen</b> im Hashiriya-Menü. Das ist <b>die eine Datei, die ein Spieler schicken soll</b>.</td></tr>
+<tr><td><code>bugreport.txt</code></td><td>Kommt vom Knopf <b>Fehlerbericht erstellen</b> im Hashiriya-Menü. Das ist <b>die eine Datei, die ein Spieler schicken soll</b>.</td></tr>
 </table>
 <h3>Was wird geloggt?</h3>
 <ul>
@@ -255,7 +257,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Ein Code-Fehler bekommt nur beim ersten Mal den ganzen Traceback. Danach wird nur noch mitgezählt.</li>
 </ul>
 <h3>Einstellungen <span class="tag">data\build.json</span></h3>
-<pre><code>"modVersion": "Alpha 1",
+<pre><code>"modVersion": "Alpha 0.3",
 "log": {"level": "I", "maxKb": 512, "files": 4, "statusMinutes": 5, "perMinute": 30}</code></pre>
 <table>
 <tr><th>Feld</th><th>Bedeutung</th></tr>
@@ -268,11 +270,63 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3>Ablauf, wenn ein Tester einen Fehler hat</h3>
 <ol class="steps">
 <li>Tester drückt im Spiel Pos1 und dann <b>Fehlerbericht erstellen</b>. Unten erscheint der Pfad zur Datei.</li>
-<li>Tester schickt dir <code>fehlerbericht.txt</code> und schreibt kurz dazu, was passiert ist.</li>
+<li>Tester schickt dir <code>bugreport.txt</code> und schreibt kurz dazu, was passiert ist.</li>
 <li>Du gibst mir die Datei (hochladen). Ich werte sie aus und baue den Fix.</li>
 </ol>
 <p>Der Bericht enthält den Log-Kopf, den Spielzustand, den Spielstand (<code>save.json</code>) und die letzten etwa 1800 Log-Zeilen. Passwörter oder persönliche Daten stehen nicht drin, höchstens der Fahrername aus dem Spielstand und die Liste der Mods.</p>
 <div class="box tip"><b>Für Entwickler</b>In eigenem Lua-Code einfach <code>log('I', logTag, 'Text')</code> benutzen, wie überall in der Mod. Jede Datei leitet <code>log</code> automatisch auch in <code>hashiriya.log</code> um (<code>logger.lua</code>). <code>log('D', ...)</code> erscheint nur mit <code>"level": "D"</code>.</div>
+</section>
+
+<section id="builder">
+<h2><span class="n">4a</span> Builder: Crews, Wanderer und Bosse im Spiel bearbeiten <span class="tag">builder.lua</span> <span class="tag">UI-App HashiriyaBuilder</span></h2>
+<p>Mit dem Builder legst du Crews, Mitglieder, Leader, Wanderer und Bosse an oder änderst sie, ohne <code>rivals.json</code> von Hand anzufassen. Er prüft alles vor dem Speichern und schreibt direkt in den Mod-Ordner.</p>
+<h3>Öffnen</h3>
+<ol class="steps">
+<li>BeamNG starten, Karriere laden (für den Test-Spawn) oder einfach auf der C1 sein.</li>
+<li>Pos1 (Hashiriya-Menü), ganz unten bei <b>Werkzeuge</b>: <b>Builder (Crews, Wanderer, Bosse)</b>.</li>
+<li>Schließen mit ✕ oben rechts. Hast du etwas nicht gespeichert, fragt der Knopf erst nach.</li>
+</ol>
+<div class="box warn"><b>Nur in der Entwickler-Version</b>Steht in <span class="path">data\build.json</span> <code>"release": true</code>, startet der Builder nicht (Meldung im Spiel). Zum Bearbeiten also <code>"release": false</code> setzen. Im Release-Zip fehlt der Builder ganz.</div>
+<h3>Aufbau</h3>
+<table>
+<tr><th>Bereich</th><th>Was du dort machst</th></tr>
+<tr><td>Reiter <b>Crews</b></td><td>Alle Crews mit Farbe, Rang und Mitgliederzahl. Klick auf eine Crew zeigt ihre Daten und klappt die Mitglieder auf (★ = Leader). <b>+ Neue Crew</b>, <b>+ Mitglied</b>, <b>+ Leader</b> (nur solange die Crew keinen hat).</td></tr>
+<tr><td>Reiter <b>Wanderer</b> / <b>Bosse</b></td><td>Liste mit <b>+ Neuer Wanderer</b> / <b>+ Neuer Boss</b>. ♛ = finaler Boss.</td></tr>
+<tr><td>Reiter <b>Einstellungen</b></td><td>Die Spawn-Regeln (<a href="#rival-settings">settings</a>) als Zahlen und Haken.</td></tr>
+<tr><td>Suchfeld</td><td>Name, ID, Auto oder Spitzname. Bei Crews bleiben auch Crews sichtbar, in denen ein Treffer fährt.</td></tr>
+</table>
+<h3>Das Formular eines Rivalen</h3>
+<table>
+<tr><th>Abschnitt</th><th>Inhalt</th></tr>
+<tr><td>Grunddaten</td><td>Name, ID (wird bei neuen Einträgen aus dem Namen gebildet, z. B. <code>w_slim_henry</code>; danach nicht mehr änderbar, weil sie im Spielstand steht), Spitzname DE/EN, Rolle (Crew-Mitglied, Leader, Wanderer, Boss), Crew, beim Leader „erscheint in derselben/nächsten Nacht“, beim Boss „Finaler Boss“.</td></tr>
+<tr><td>Auto</td><td>Modell und Config aus allen installierten Autos (auch Mod-Autos und eigene Configs). Hinter der Config steht die Quelle, wenn sie nicht von BeamNG ist. Der Pfad lässt sich auch direkt eintippen. <b>Aktuelles Auto als Config speichern</b>: speichert dein gerade gefahrenes Auto mit allen Teilen, Einstellungen und dem Lack als <span class="path">vehicles\&lt;modell&gt;\hashiriya_&lt;name&gt;.pc</span> im Mod-Ordner und trägt es gleich ein.</td></tr>
+<tr><td>Werte</td><td>Aggression (Schieber), Tempo vor dem Battle, Spirit Points, Licht nachts (normal / aus als Markenzeichen / immer an), Belohnung in $ (wird zu Yen), Ruf-Punkte. Optional <b>eigene Fahrer-Werte</b> (Können, Mut, Aggression, Nerven, Fairness, siehe <a href="#fahrer-werte">Fahrer-Werte</a>).</td></tr>
+<tr><td>Kennzeichen</td><td>Text (Knopf „Zufall“ nimmt eine freie Nummer), Region und Art. Nur erlaubte Arten der Region sind wählbar.</td></tr>
+<tr><td>Lack</td><td>Optional fester Lack mit Farbwähler, Metallic und Rauheit. Ohne Haken fährt er den Lack aus der Config.</td></tr>
+<tr><td>Bedingungen</td><td>Ab Rang (mit Rangname), ab Siegen, ab Tag, Uhrzeit von/bis (über Mitternacht geht, z. B. 23 bis 4), Radarfallen (<code>all</code> oder Anzahl), Teil am Spieler-Auto, nur gegen ein bestimmtes Spieler-Auto, Crew geschlagen, weitere Crews, Rivalen geschlagen (Suchfeld, Treffer anklicken). Siehe <a href="#bedingungen">Bedingungen</a>.</td></tr>
+<tr><td>Texte</td><td>Sprüche (Herausforderung, Rivale gewinnt, Rivale verliert), Beschreibung und bei Wanderern/Bossen der Hinweis fürs Lexikon, jeweils DE und EN.</td></tr>
+<tr><td>Porträt</td><td>Vorschau des Bilds aus <span class="path">art\portraits\</span>. Optional eigener Pfad (siehe <a href="#portraets">Porträts</a>).</td></tr>
+</table>
+<h3>Prüfung</h3>
+<p>Unten links steht laufend, was nicht passt. <b style="color:#ff6b5f">✕ Fehler</b> verhindern das Speichern, <b style="color:#c9a400">! Hinweise</b> nicht. Geprüft wird unter anderem:</p>
+<ul>
+<li>ID doppelt oder mit falschen Zeichen, Name/Auto/Config fehlt, Crew fehlt, zweiter Leader in einer Crew.</li>
+<li>Kennzeichen-Format (<a href="#kennzeichen">Kennzeichen</a>) und ob ein anderer Rivale dieselbe Nummer hat.</li>
+<li>Bedingungen, die auf eine Crew oder einen Rivalen zeigen, den es nicht gibt.</li>
+<li><b>Effektiver Rang:</b> Verlangt ein Wanderer z. B. einen Rivalen, der selbst erst ab Rang 9 kommt, meldet der Builder „kommt effektiv erst ab Rang 9“, auch wenn bei ihm Rang 3 steht.</li>
+<li>Config-Datei oder Modell nicht installiert, fehlende DE/EN-Texte, fehlendes Porträt.</li>
+</ul>
+<h3>Knöpfe</h3>
+<table>
+<tr><th>Knopf</th><th>Was er macht</th></tr>
+<tr><td>Speichern / Anlegen und speichern</td><td>Übernimmt den Eintrag und schreibt <span class="path">mods\unpacked\Hashiriya-Battle\lua\ge\extensions\hashiriyaBattle\data\rivals.json</span>. Vorher kommt eine Sicherung nach <span class="path">F:\BeamNG\current\settings\hashiriya_battle\builder_backups\rivals_&lt;Datum_Zeit&gt;.json</span> (die letzten 20 bleiben). Das Spiel liest die Rivalen sofort neu, kein Neustart nötig.</td></tr>
+<tr><td>Test-Spawn</td><td>Spawnt den Rivalen mit den Werten aus dem Formular vor dir, auch ungespeichert (nur in einer laufenden Karriere).</td></tr>
+<tr><td>Verwerfen</td><td>Holt den gespeicherten Stand zurück.</td></tr>
+<tr><td>Löschen</td><td>Zweimal klicken. Geht nicht, solange ein anderer Rivale ihn (oder die Crew) als Bedingung hat oder eine Crew noch Mitglieder hat.</td></tr>
+<tr><td>Neu laden</td><td>Liest <code>rivals.json</code> neu ein (z. B. nachdem du sie von Hand geändert hast).</td></tr>
+</table>
+<div class="box tip"><b>Was mit deinen Builder-Änderungen passiert</b>Der Builder schreibt dieselbe Datei, die du sonst von Hand änderst. Felder, die er nicht kennt (z. B. <code>_platzhalter</code>, <code>community</code>), bleiben erhalten. Vor jedem Update auf deinen PC übernehme ich deine Änderungen zuerst ins Repo, und der Generator behält sie (<a href="#sicher">Sicher ändern</a>). Beim ersten Speichern schreibt der Builder Zahlen wie <code>1.0</code> als <code>1</code>; das ist gleichwertig.</div>
+<div class="box"><b>Beispiel: neuer Wanderer mit eigenem Auto</b>1. Auto in BeamNG bauen und fahren. 2. Builder öffnen, Reiter Wanderer, <b>+ Neuer Wanderer</b>. 3. Name eintippen (ID entsteht von selbst). 4. Bei Auto einen Namen eingeben und <b>Speichern</b> (Config landet im Mod-Ordner). 5. Bedingungen setzen, z. B. Crew geschlagen = Ginza Neon Club, Uhrzeit 23 bis 4. 6. Kennzeichen „Zufall“, Texte schreiben. 7. Speichern, dann Test-Spawn. 8. Porträt mit dem Silhouetten-Tool als <span class="path">art\portraits\&lt;id&gt;.png</span> ablegen.</div>
 </section>
 
 <section id="rivalen">
@@ -309,7 +363,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>aggression</code></td><td>Wie hart die KI fährt, 0 bis 1 (0.4 = brav, 0.9 = sehr aggressiv)</td><td><code>0.45</code></td></tr>
 <tr><td><code>cruiseKmh</code></td><td>Reisetempo vor dem Battle (auch das Battle-Starttempo)</td><td><code>95</code></td></tr>
 <tr><td><code>maxSp</code></td><td>SP-Balken des Rivalen (du hast 1000)</td><td><code>850</code></td></tr>
-<tr><td><code>rewardUsd</code></td><td>Preisgeld in BeamNG-Dollar, wird mal 150 in Yen umgerechnet</td><td><code>1200</code> = ¥180.000</td></tr>
+<tr><td><code>rewardUsd</code></td><td>Preisgeld in BeamNG-Dollar, wird mal 150 in Yen umgerechnet und dann mit <code>settings.rewardScale</code> (aktuell 0.5) multipliziert</td><td><code>1200</code> = ¥90.000 (bei 0.5)</td></tr>
 <tr><td><code>rep</code></td><td>Ruf, den du für den Sieg bekommst</td><td><code>40</code></td></tr>
 <tr><td><code>conditions</code></td><td>Wann er auftaucht (siehe <a href="#bedingungen">Bedingungen</a>)</td><td><code>{"minRank": 2}</code></td></tr>
 <tr><td><code>plate</code></td><td>Kennzeichen (siehe <a href="#kennzeichen">Kennzeichen</a>)</td><td><code>{"text": "500/22-91", "design": "am5jp_shinagawa_standard"}</code></td></tr>
@@ -323,6 +377,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 
 <h3 id="rivale-neu">Neuen Rivalen anlegen (Schritt für Schritt)</h3>
 <ol class="steps">
+<li><b>Einfacher:</b> mit dem <a href="#builder">Builder</a> im Spiel. Von Hand geht es so:</li>
 <li>Öffne <code>rivals.json</code> und suche (Strg+F) die Crew, z. B. <code>"team": "t_lantern"</code>.</li>
 <li>Kopiere einen kompletten Eintrag von <code>{</code> bis zur passenden <code>}</code> und füge ihn direkt danach ein (mit Komma dazwischen).</li>
 <li>Ändere mindestens <code>id</code> (neu und eindeutig!), <code>name</code>, <code>model</code>, <code>config</code>, <code>plate.text</code>.</li>
@@ -451,7 +506,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </ul>
 
 <h3 id="lack">Lackierung (paint)</h3>
-<p>Optional. Fehlt <code>paint</code>, fährt der Rivale die Farbe aus der Config. Hat die Config eine Livery (Slot <code>paint_design</code>), wird <code>paint</code> ignoriert, damit die Livery nicht übermalt wird.</p>
+<p>Optional. Fehlt <code>paint</code>, fährt der Rivale die Farbe aus der Config. Bei einer eigenen Config, die BeamNG gespeichert hat, steht der Lack oft nicht in der <code>.pc</code>, sondern in <span class="path">info_&lt;config&gt;.json</span> daneben (<code>defaultMultiPaintSetup</code>, Lack 1 bis 3). Den nimmt die Mod dann automatisch. Hat die Config eine Livery (Slot <code>paint_design</code>), wird <code>paint</code> ignoriert, damit die Livery nicht übermalt wird.</p>
 <pre><code>"paint": {
   "name": "Mitternachtsblau",
   "color": [0.05, 0.08, 0.25],
@@ -484,7 +539,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3 id="raenge">Ränge (ranks)</h3>
 <pre><code>{"rep": 500, "name": {"de": "Nachtgast", "en": "Night Guest"}, "jp": "夜の客"}</code></pre>
 <p><code>rep</code> = ab so viel Ruf hat man den Rang. Reihenfolge = Index (erster Eintrag = Rang 0). Der letzte hat <code>"requiresFinal": true</code> (nur nach dem Endboss). Aktuell 15 Ränge: 0, 500, 1000, 1650, 2500, 3150, 4000, 4850, 5700, 6600, 7750, 8750, 9850, 11000, 12150 Ruf.</p>
-<div class="box warn"><b>Ränge hängen zusammen</b>Wenn du Ränge einfügst oder löschst, verschieben sich die Nummern. Dann stimmen <code>minRank</code> der Crews, der Wanderer, im Händler (<code>dealer.json</code>) und die Tuning-Stufen (<code>tuning.json</code>, Rang 4 und 8) nicht mehr. Lieber nur Namen und <code>rep</code>-Werte ändern.</div>
+<div class="box warn"><b>Ränge hängen zusammen</b>Wenn du Ränge einfügst oder löschst, verschieben sich die Nummern. Dann stimmen <code>minRank</code> der Crews, der Wanderer, im Händler (<code>dealer.json</code>) und die Tuning-Stufen (<code>tuning.json</code>, Rang 1, 4 und 8) nicht mehr. Lieber nur Namen und <code>rep</code>-Werte ändern.</div>
 
 <h3 id="spitznamen">Spitznamen (nicknames)</h3>
 <p>Titel, die man für Statistiken bekommt (wie bei B.A.D.):</p>
@@ -511,6 +566,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>cleanWinMaxDamageSp</code></td><td>60</td><td>Höchstens so viel SP durch Schaden verloren = "sauberer Sieg"</td></tr>
 <tr><td><code>closeWinMaxSpPercent</code></td><td>15</td><td>Unter so viel % SP übrig = "knapper Sieg"</td></tr>
 <tr><td><code>quickWinSeconds</code></td><td>30</td><td>Unter so vielen Sekunden = "schneller Sieg"</td></tr>
+<tr><td><code>rewardScale</code></td><td>0.5</td><td>Faktor für <b>alle</b> Preisgelder (1 = volle <code>rewardUsd</code>, 0.5 = halb so viel). Am einfachsten, um die Wirtschaft knapper oder großzügiger zu machen.</td></tr>
 <tr><td><code>rematch.enabled</code></td><td>true</td><td>Geschlagene Rivalen kommen als Revanche wieder</td></tr>
 <tr><td><code>rematch.weight</code></td><td>0.25</td><td>Wie oft eine Revanche statt eines neuen Gegners gewählt wird</td></tr>
 <tr><td><code>rematch.rewardFactor</code> / <code>repFactor</code></td><td>0.4 / 0.25</td><td>Anteil von Preisgeld und Ruf bei einer Revanche</td></tr>
@@ -577,32 +633,46 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </section>
 
 <section id="tuning">
-<h2><span class="n">8</span> Tuning-Shop <span class="tag">data\tuning.json</span></h2>
-<p>Die Teile selbst kommen aus BeamNG (alles, was in die Slots des Autos passt). <code>tuning.json</code> regelt nur, <b>welche Slots</b> in welchem Reiter erscheinen, <b>welche Stufe</b> ein Teil hat und <b>wann</b> eine Stufe freigeschaltet ist.</p>
+<h2><span class="n">8</span> Teile-Terminal: Tuning-Shop und Garagen-PC <span class="tag">data\tuning.json</span></h2>
+<p>Der Shop ist ein PC-Terminal im Vista-Stil (UI-App <code>HashiriyaTerminal</code>, eigenes Layout <code>hashiriyaShop</code>). Es öffnet sich, wenn du zu Fuß am Shop-Eingang stehst und dein Auto in der Shop-Bucht steht. In der Garage öffnet der Reiter <b>Garagen-PC</b> dasselbe Terminal, nur mit deinen eigenen Teilen.</p>
+<h3>Aufbau</h3>
+<ul>
+<li><b>Links</b>: Kategorien (Mechaniker, Bodyshop, Weiteres), Suchfeld oben (sucht in allen Kategorien nach Teil- und Slot-Namen, z. B. <code>turbo</code> oder <code>15x7</code>).</li>
+<li><b>Mitte</b>: Live-Vorschau. Dort ist kein Bild, sondern ein Loch im Terminal, durch das du die echte 3D-Szene siehst. Fährst du mit der Maus über ein Teil, schwenkt die BeamNG-Teilekamera darauf. Knöpfe: <b>Ganzes Auto</b>, <b>Teil zeigen</b>, <b>Röntgen</b> (Rest des Autos durchsichtig) und Drehen. Mit der Maus kannst du in der Mitte auch selbst drehen.</li>
+<li><b>Rechts</b>: Fahrzeugwerte (grün/rot = besser/schlechter als vor dem Warenkorb) und das Warenkorb-Fenster mit dem Schalter <b>Teile direkt montieren</b>. Aus = Gekauftes wandert ins Teilelager der Garage, das Auto bleibt wie vorher (nur neuer Lack bleibt drauf).</li>
+<li><b>Garagen-PC</b>: Reiter <b>Umbauen</b> (nur eigene Teile, kostenlos) und <b>Teilelager</b> (Liste aller eigenen Teile mit montiert/im Lager, Knopf Montieren).</li>
+</ul>
+<h3>Felgen und Reifen</h3>
+<p>Felgen werden <b>ohne Reifen</b> verkauft. Hast du Reifen in der passenden Größe (gekauft oder die Serienreifen), werden sie kostenlos aufgezogen und stehen im Warenkorb als "kostenlos". Sonst bleibt der Reifen-Slot leer und du kaufst Reifen dazu (Kategorie Felgen &amp; Reifen, die Reifen-Zeile erscheint nach dem Felgenwechsel). Früher kamen hier automatisch die Standardreifen der Felge drauf, oft Slicks. Wer das alte Verhalten will: <code>"tireWithRim": true</code>.</p>
+<h3>Motor-Swap</h3>
+<p>Die Kategorie <b>Motor-Swap</b> zeigt alle Motoren, die BeamNG für dein Modell kennt (auch aus Mods). Der neue Motor kommt mit seinen Serien-Anbauteilen; die gehören dir nach dem Kauf. Motoren ohne Stufenwort sind Stufe 2 (<code>defaultLevel</code>).</p>
 <h3>Stufen freischalten (tiers)</h3>
 <pre><code>"tiers": [
-  {"level": 1, "unlock": {"minWins": 0}},
+  {"level": 1, "unlock": {"minRank": 1}},
   {"level": 2, "unlock": {"minRank": 4}},
   {"level": 3, "unlock": {"minRank": 8}}
 ]</code></pre>
-<p>Stufe 2 ab Rang 4, Stufe 3 ab Rang 8. Ändere die Zahlen, wenn Tuning früher oder später kommen soll.</p>
+<p><code>minRank</code> ist der Index in der Rangliste (0 = Neuling). Stufe 1 gibt es ab dem zweiten Rang (Index 1, Nachtgast), Stufe 2 ab Index 4, Stufe 3 ab Index 8. Als Neuling fährst du also nur mit Serienteilen und eigenen Teilen. Ändere die Zahlen, wenn Tuning früher oder später kommen soll (z. B. <code>"minRank": 2</code> für Stufe 1 erst ab dem dritten Rang). Statt <code>minRank</code> geht auch <code>minWins</code> (Anzahl Siege). Gesperrte Teile kannst du in den Warenkorb legen und ansehen, aber nicht kaufen.</p>
+<h3>Kategorien (categories)</h3>
+<pre><code>{"id": "induction", "group": "mech", "defaultLevel": 1,
+ "match": ["intake", "turbo", "supercharger", "intercooler"]}</code></pre>
+<p>Jeder Slot des Autos mit Auswahl wird eine Zeile. <code>match</code> sind Lua-Muster auf den Slot-Namen (klein geschrieben): <code>"turbo"</code> trifft <code>covet_turbo</code>, <code>"^tire_"</code> trifft <code>tire_F_15x7</code>. Die <b>erste</b> passende Kategorie gewinnt, die Reihenfolge in der Datei ist auch die Reihenfolge im Terminal. Was nirgends passt, landet in <b>Sonstiges</b> (<code>other</code>). <code>group</code>: <code>mech</code> = Mechaniker, <code>body</code> = Bodyshop, <code>more</code> = Weiteres. <code>paint</code> = Lackierer, <code>all</code> = Alle Teile (jeder Slot, auch die in <code>slotExclude</code>). Den Namen einer Kategorie stellst du in <span class="path">lang\de.json</span> unter <code>term.cat.&lt;id&gt;</code> ein.</p>
+<p><b>Beispiel: Nitro soll im Motor-Reiter erscheinen</b>: In <code>slotExclude</code> den Eintrag <code>"n2o_"</code> löschen. Die Kategorie <code>engine</code> hat <code>"n2o"</code> schon in <code>match</code>.</p>
+<p>Zeilennamen: eigene Übersetzung <code>shop.slot.&lt;Slot ohne Modellname&gt;</code> in <span class="path">lang\*.json</span> (z. B. <code>shop.slot.engine_ecu</code>), sonst der englische Name aus BeamNG.</p>
 <h3>Stufe eines Teils (levelWords)</h3>
-<p>Die Stufe wird aus Wörtern im Teilenamen erkannt (höchste Stufe zuerst). Steht im Namen z. B. "race" oder "stage3", ist es Stufe 3; "sport" ist Stufe 1.</p>
+<p>Die Stufe wird aus Wörtern im Teilenamen erkannt (höchste Stufe zuerst). Steht im Namen z. B. "race" oder "stage3", ist es Stufe 3; "sport" ist Stufe 1. Ohne Stufenwort gilt <code>defaultLevel</code> der Kategorie.</p>
 <pre><code>"levelWords": {"3": ["race", "stage3", "ultra", ...], "2": ["stage1", "turbo", ...], "1": ["sport", ...]}</code></pre>
 <h3>Einzelne Teile festlegen</h3>
 <pre><code>"exclude":   ["ruined", "broken"],          // Teile mit diesen Wörtern ausblenden
 "overrides": {"covet_engine_ecu_race": 2,   // dieses Teil auf Stufe 2 setzen
               "bx_intake_debug": 0}          // 0 = ausblenden</code></pre>
-<h3>Reiter und Slots (tabs)</h3>
-<pre><code>{"id": "engine", "items": [
-  {"id": "ecu", "slot": ["_engine_ecu", "_ecu"]},
-  {"id": "intake", "slot": ["_intake"]}
-]}</code></pre>
-<p><code>slot</code> ist das Ende des Slot-Namens (<code>"_engine_ecu"</code> passt auf <code>covet_engine_ecu</code>). Statt <code>slot</code> geht auch <code>"pattern": "^wheel_F"</code> (Lua-Muster). Der Anzeigename kommt aus <code>lang\*.json</code> (Schlüssel mit der <code>id</code>).</p>
+<h3>Live-Vorschau (preview)</h3>
+<pre><code>"preview": {"distance": 7.0, "pitch": -10, "yawStep": 45, "focusOffsetUp": 0.1}</code></pre>
+<p><code>distance</code> = Abstand der Kamera zum Auto in m (größer = Auto kleiner im Vorschaufenster), <code>pitch</code> = Blick von oben in Grad, <code>yawStep</code> = Grad pro Klick auf Drehen, <code>focusOffsetUp</code> = Teilekamera etwas höher.</p>
 <h3>Preise</h3>
 <ul>
 <li>Teilepreise kommen aus BeamNG (Dollar mal 150 in Yen).</li>
-<li><code>paintPriceYen</code> = Preis eines Werkslacks, <code>customPaintPriceYen</code> = eigene Lackierung.</li>
+<li><code>paintPriceYen</code> = Preis eines Werkslacks, <code>customPaintPriceYen</code> = eigene Lackierung, <code>liveryMinPriceYen</code> = Mindestpreis einer Livery.</li>
 <li>Kennzeichen ummelden: <code>platePriceYen = 15000</code> in <span class="path">core.lua</span>.</li>
 </ul>
 </section>
@@ -791,17 +861,42 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </section>
 
 <section id="release">
-<h2><span class="n">16</span> Release-Sperren <span class="tag">data\build.json</span></h2>
+<h2><span class="n">16</span> Release-Sperren und Release-Build <span class="tag">data\build.json · release.lua</span></h2>
+
+<h3>Release-Test an/aus und ZIP bauen: Release-Werkzeug</h3>
+<p>Doppelklick auf <span class="path">tools\Release-Werkzeug.bat</span> im Mod-Ordner. Es öffnet sich ein kleines Fenster mit drei Punkten:</p>
+<table>
+<tr><th>Taste</th><th>Was passiert</th></tr>
+<tr><td>1</td><td><b>Release-Test AN</b>: setzt in <code>build.json</code> <code>release</code> auf <code>true</code>. Danach BeamNG <b>komplett neu starten</b> und die Karriere laden. Du spielst dann genau so, wie es die Tester bekommen.</td></tr>
+<tr><td>2</td><td><b>Release-Test AUS</b>: zurück zur Entwicklung (<code>false</code>), alle Dev-Tools und der Builder sind wieder da. Auch hier BeamNG neu starten.</td></tr>
+<tr><td>3</td><td><b>Release-ZIP bauen</b>: fragt nach der Versionsnummer (Enter = <code>modVersion</code> aus <code>build.json</code>) und legt <span class="path">dist\hashiriya_battle_&lt;version&gt;.zip</span> an. Der Explorer zeigt die Datei danach an.</td></tr>
+</table>
+<p>In der ZIP ist <code>release</code> immer an und die Version gesetzt, egal wie dein Mod-Ordner gerade steht. Dazu kommen <code>CHANGELOG_DE.md</code> (aus <code>CHANGELOG.md</code>) und <code>CHANGELOG_EN.md</code>. Nicht in die ZIP kommen: <code>tools</code>, <code>docs</code>, die README, der Builder (<code>builder.lua</code>, App <code>HashiriyaBuilder</code>) und die Taste Shift+Pos1 (Titelbild-Kamera merken). Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
+<div class="box"><b>Vor jedem Build</b>Beide Changelogs oben um einen Abschnitt für die neue Version ergänzen (deutsch in <code>CHANGELOG.md</code>, englisch in <code>CHANGELOG_EN.md</code>). Das Werkzeug warnt, wenn die Version dort noch fehlt.</div>
+<div class="box warn"><b>Falls Windows das Fenster blockiert</b>Beim ersten Start fragt Windows evtl. nach („Trotzdem ausführen“). Die .bat startet nur das PowerShell-Skript <span class="path">tools\release-werkzeug.ps1</span> daneben.</div>
+
+<h3>Was im Release gesperrt ist</h3>
+<p>Wie in der offiziellen BeamNG-Karriere (<span class="path">lua\ge\extensions\career\career.lua</span> im Spiel) und noch etwas strenger. Gilt nur, solange deine Karriere läuft. Nur der Node Grabber bleibt.</p>
+<ul>
+<li><b>Tasten</b>: Fahrzeugauswahl, Fahrzeug-Config, Fahrzeug neu laden/reparieren, Recover, auf die Straße zurück, Flip, Home laden/speichern, Wechsel zu anderen Autos (auch KI), Verkehr an/aus, Zeitlupe, Fun-Stuff, Editor, Konsole (^), UI-/Lua-Reload, Track Builder, Uhrzeit weiterschalten, Debug-Ansichten. Das radiale Menü blendet diese Punkte dadurch auch aus.</li>
+<li><b>ESC-Menü</b>: Die Tabs „Fahrzeug“ und „Umgebung“ sind weg, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Knöpfe für Reparieren, Fahrzeugauswahl, Replay und Map wechseln mehr. Karte, Fotomodus, Speichern und Beenden bleiben.</li>
+<li><b>Große Karte</b>: keine Schnellreise zu Orten.</li>
+<li><b>Hashiriya-Menü</b>: alle Test-Knöpfe unter „Werkzeuge“ (Rivale rufen, Rivalen-Eingabe, +Ruf, Uhr, Tag +1, gratis reparieren/tanken, Position merken, Geld, Siege, Configs exportieren) und der Builder. Übrig bleiben Parkplatz-Marker und Fehlerbericht.</li>
+<li><b>Uhrzeit</b>: nicht über Time &amp; Weather verstellbar (<code>lockTime</code>).</li>
+</ul>
+<p>Die Time Trials sind auf C1 immer ausgeblendet, auch in der Liste der Points of Interest (<code>disabledMissionTypes</code> in <span class="path">data\maps\c1.json</span>).</p>
+
+<h3>Felder in build.json</h3>
 <table>
 <tr><th>Feld</th><th>Jetzt</th><th>Bedeutung</th></tr>
-<tr><td><code>release</code></td><td>false</td><td>true = Release-Build: die Sperren unten gelten in der Karriere</td></tr>
-<tr><td><code>blockedActions</code></td><td>["reset_physics"]</td><td>Gesperrte BeamNG-Aktionen (Auto zurücksetzen)</td></tr>
+<tr><td><code>release</code></td><td>true</td><td>true = Release-Test (Sperren an), false = Entwicklung. Am besten mit dem Release-Werkzeug umschalten.</td></tr>
+<tr><td><code>blockedActions</code></td><td>Liste</td><td>Zusätzliche gesperrte Tastenaktionen (Konsole, Debug usw.). Die Karriere-Vorlagen sperrt <span class="path">release.lua</span> selbst. Steht <code>nodegrabberStrength</code> drin, lässt sich die Stärke nicht verstellen.</td></tr>
 <tr><td><code>lockTime</code></td><td>true</td><td>Uhrzeit nicht verstellbar</td></tr>
 <tr><td><code>blockBigMapTeleport</code></td><td>true</td><td>Keine Schnellreise über die große Karte</td></tr>
-<tr><td><code>nodeGrabberStrength</code></td><td>20</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
-<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 1"</td><td>Version und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
+<tr><td><code>nodeGrabberStrength</code></td><td>30</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
+<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 0.3"</td><td>Version (Vorschlag beim ZIP-Bauen) und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
 </table>
-<div class="box warn"><b>Erst kurz vor dem ersten Release</b><code>release</code> bleibt bis kurz vor der ersten öffentlichen Version auf <code>false</code>. Mit <code>true</code> sind auch die Dev-Tools nicht mehr gedacht.</div>
+<p>Welche Tabs und Knöpfe im ESC-Menü verschwinden, steht oben in <span class="path">lua\ge\extensions\hashiriyaBattle\release.lua</span> (<code>hiddenTabs</code>, <code>hiddenRailActions</code>). Im Mod-Log steht beim Start „Release-Sperren an (… Tastenaktionen)“.</p>
 </section>
 
 <section id="battle">
@@ -924,7 +1019,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td class="path">fuel.lua</td><td><code>nightFactor</code></td><td>1.45</td><td>Nachtzuschlag an der Tankstelle</td></tr>
 <tr><td class="path">fuel.lua</td><td><code>litersPerSecond</code></td><td>1.2</td><td>Tankgeschwindigkeit</td></tr>
 <tr><td class="path">parking.lua</td><td><code>repairYenPerDamage</code></td><td>2</td><td>Reparaturpreis je Schadenspunkt</td></tr>
-<tr><td class="path">parking.lua</td><td><code>towBaseYen</code> / <code>towYenPerKm</code></td><td>30000 / 2500</td><td>Abschleppen: Grundgebühr plus je km zur Garage</td></tr>
+<tr><td class="path">parking.lua</td><td><code>towBaseYen</code> / <code>towYenPerKm</code></td><td>30000 / 2500</td><td>Abschleppen: Grundgebühr plus je km zur Garage. Abschleppen repariert nicht, der Schaden bleibt (Reparatur in der Garage kostet extra).</td></tr>
 <tr><td class="path">parking.lua</td><td><code>triggerRadius</code> / <code>footRadius</code></td><td>4 / 2.5</td><td>Standard-Auslösebereiche (wenn die Map-Datei keinen <code>radius</code> hat)</td></tr>
 <tr><td class="path">core.lua</td><td><code>platePriceYen</code></td><td>15000</td><td>Kennzeichen ummelden</td></tr>
 </table>
@@ -935,7 +1030,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h2><span class="n">20</span> UI-Apps und Layout</h2>
 <table>
 <tr><th>App (Ordner in <span class="path">ui\modules\apps\</span>)</th><th>Was sie zeigt</th></tr>
-<tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Shops, Händler, Lexikon, Statistik, Werkzeuge/Dev-Tools</td></tr>
+<tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Tankstelle, Zuhause, Händler, Lexikon, Statistik, Werkzeuge/Dev-Tools</td></tr>
+<tr><td><code>HashiriyaTerminal</code></td><td>Teile-Terminal im Shop und Garagen-PC (eigenes Layout <code>hashiriyaShop.uilayout.json</code>, ganzer Bildschirm, Mitte frei für die Live-Vorschau). Siehe <a href="#tuning">Teile-Terminal</a>.</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
 <tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Später auch für die PA-Gespräche.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
@@ -947,8 +1043,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Nach Änderungen an <code>app.js</code>: BeamNG neu starten.</li>
 <li><b>Neue App fehlt im Spiel?</b> BeamNG nimmt deine eigene Layout-Kopie in <span class="path">F:\BeamNG\current\settings\ui_apps\layouts\default\hashiriyaBattle.uilayout.json</span> vor dem Mod-Layout. Neue Apps trage ich dort mit ein. Fehlt eine trotzdem: Datei löschen, dann gilt wieder das Mod-Layout.</li>
 </ul>
-<h3>Porträts (Silhouetten)</h3>
-<p>Die Bilder liegen in <span class="path">art\portraits\&lt;rivalen-id&gt;.svg</span>, eins pro Rivale (297). Sie kommen aus deinem Silhouetten-Tool (<span class="path">F:\BeamNG\current\hashiriya_tools\silhouette\silhouetten.html</span>). Fehlt für einen Rivalen das Bild, zeigt die Blase ein Fragezeichen.</p>
+<h3 id="portraets">Porträts (Silhouetten)</h3>
+<p>Die Bilder liegen in <span class="path">art\portraits\</span>, eins pro Rivale. Das Spiel sucht in dieser Reihenfolge: 1. eigener Pfad aus <code>rivals.json</code> (<code>"portrait": "art/portraits/xyz.png"</code>), 2. <span class="path">&lt;rivalen-id&gt;.png</span>, 3. <span class="path">&lt;rivalen-id&gt;.jpg</span>, 4. <span class="path">&lt;rivalen-id&gt;.svg</span>. Ein PNG aus dem Silhouetten-Tool (z. B. <span class="path">w_henry.png</span>) geht also direkt, quadratisch ist am besten (z. B. 512 x 512). Sie kommen aus deinem Silhouetten-Tool (<span class="path">F:\BeamNG\current\hashiriya_tools\silhouette\silhouetten.html</span>). Fehlt für einen Rivalen das Bild, zeigt die Blase ein Fragezeichen.</p>
 <ul>
 <li><b>Neu erzeugen</b> (mache ich, wenn du das Tool oder Rivalen änderst): <code>node tools/portraits/export_portraits.js silhouetten.html rivals_data.js [silhouetten.json]</code>. Die optionale <code>silhouetten.json</code> ist der Export deiner Handanpassungen aus dem Tool.</li>
 <li><b>Ein Bild von Hand ersetzen:</b> eine eigene SVG mit derselben ID als Namen in den Ordner legen. Achtung: Beim nächsten Neuerzeugen wird sie überschrieben, sag mir also Bescheid.</li>
@@ -973,7 +1069,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 
 <section id="dev">
 <h2><span class="n">22</span> Dev-Tools zum Testen</h2>
-<p>Im Hashiriya-Menü (Pos1) unten im Abschnitt <b>Werkzeuge</b>:</p>
+<p>Im Hashiriya-Menü (Pos1) unten im Abschnitt <b>Werkzeuge</b>. Nur sichtbar, solange der Release-Test aus ist (siehe <a href="#release">Release-Test</a>):</p>
 <table>
 <tr><th>Knopf</th><th>Was er macht</th></tr>
 <tr><td>Rivalen rufen</td><td>Spawnt sofort den nächsten passenden Rivalen</td></tr>
@@ -989,7 +1085,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>+¥1.000.000 / +1 Sieg</td><td>Geld und Siege (Tuning-Stufen testen)</td></tr>
 <tr><td>Position merken</td><td>Speichert die aktuelle Position (siehe <a href="#map">Map</a>)</td></tr>
 <tr><td>Parkplatz-Markierung</td><td>Buchten sichtbar machen</td></tr>
-<tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\fehlerbericht.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
+<tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\bugreport.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
+<tr><td>Builder (Crews, Wanderer, Bosse)</td><td>Öffnet den <a href="#builder">Builder</a></td></tr>
 <tr><td>Configs exportieren</td><td>Schreibt alle Configs nach <span class="path">settings\hashiriya_battle\config_dump.json</span> (Grundlage für die Config-Liste)</td></tr>
 </table>
 <div class="box tip"><b>Ablauf: neuen Wanderer testen</b>1. BeamNG starten, Karriere laden. 2. Pos1, ID ins Feld tippen, "Spawnen". 3. Vor ihm Lichthupe geben, Battle fahren. 4. Spruch im HUD prüfen. 5. Soll die Bedingung getestet werden: Uhr vorstellen oder Ruf holen und "Rivalen rufen" benutzen.</div>
@@ -1050,7 +1147,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>fuel.lua</code></td><td>Tanken, Spritpreis</td></tr>
 <tr><td><code>home.lua</code></td><td>Zuhause, Schlafen und Nickerchen (schwarzer Bildschirm mit Zeitraffer), Uhr, Lexikon</td></tr>
 <tr><td><code>parking.lua</code></td><td>Parkplätze erkennen, Reparatur, Abschleppen, Markierungen</td></tr>
-<tr><td><code>shop.lua</code></td><td>Tuning-Shop, Lackierer, Warenkorb</td></tr>
+<tr><td><code>shop.lua</code></td><td>Teile-Terminal: Katalog, Lackierer, Warenkorb, Teilelager, Live-Vorschau-Kamera</td></tr>
 <tr><td><code>setup.lua</code></td><td>Fahrwerks-Einstellungen (Tuning-Werte)</td></tr>
 <tr><td><code>style.lua</code></td><td>Siegesserie und Combo</td></tr>
 <tr><td><code>plates.lua</code></td><td>Japanische Kennzeichen: Format, Zufall, Design</td></tr>

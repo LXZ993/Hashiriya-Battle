@@ -11,7 +11,8 @@ local beamLog = log
 
 local logDir = 'settings/hashiriya_battle/logs/'
 local logPath = logDir .. 'hashiriya.log'
-local reportPath = logDir .. 'fehlerbericht.txt'
+-- Dateiname immer englisch (Tester aus aller Welt schicken diese Datei)
+local reportPath = logDir .. 'bugreport.txt'
 local dataDir = '/lua/ge/extensions/hashiriyaBattle/data/'
 
 -- Standardwerte, überschreibbar in data/build.json unter "log"
