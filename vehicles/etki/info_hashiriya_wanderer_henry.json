@@ -1,0 +1,66 @@
+{
+  "Body Style":"Sedan",
+  "Config Type":"Custom",
+  "Configuration":"hashiriya_wanderer_henry",
+  "Country":"Germany",
+  "Derby Class":"Full-Size Car",
+  "InsuranceClass":"dailyDriver",
+  "Population":2500,
+  "Region":[
+    "asiaPacific",
+    "europe",
+    "northAmerica"
+  ],
+  "Type":"Car",
+  "Value":128000,
+  "Years":{
+    "max":1989,
+    "min":1985
+  },
+  "defaultMultiPaintSetup":{
+    "name":"hashiriya_wanderer_henry Multi Paint Setup",
+    "paint1":{
+      "baseColor":[
+        0.58799999952316,
+        0.7039999961853,
+        0.97699999809265,
+        0.85000002384186
+      ],
+      "class":"hidden",
+      "clearcoat":0,
+      "clearcoatRoughness":0,
+      "metallic":0.684000015,
+      "name":"hashiriya_wanderer_henry Paint 1",
+      "roughness":0.0729999989
+    },
+    "paint2":{
+      "baseColor":[
+        0.0040000001899898,
+        0.023000000044703,
+        0.010999999940395,
+        0.85000002384186
+      ],
+      "class":"hidden",
+      "clearcoat":0,
+      "clearcoatRoughness":0,
+      "metallic":0,
+      "name":"hashiriya_wanderer_henry Paint 2",
+      "roughness":0
+    },
+    "paint3":{
+      "baseColor":[
+        0,
+        0,
+        0,
+        0.85000002384186
+      ],
+      "class":"hidden",
+      "clearcoat":0,
+      "clearcoatRoughness":0,
+      "metallic":1,
+      "name":"hashiriya_wanderer_henry Paint 3",
+      "roughness":0
+    }
+  },
+  "vehicleSelectorSubGroup":"vehiclesData.etki.2400_A.vehicleSelectorSubGroup"
+}

@@ -83,6 +83,7 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatMoney\')"><i class="hbm-ico" ng-bind-html="ico(\'banknotes\')"></i>{{ s.t[\'menu.cheatMoney\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatWins\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i>{{ s.t[\'menu.cheatWins\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'dumpConfigs\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.dumpConfigs\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-if="!s.release" ng-click="act(\'builder\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'menu.builder\'] }}</div>' +
           '</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'garage\' || s.screen == \'shop\'">' +

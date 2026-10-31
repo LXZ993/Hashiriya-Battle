@@ -191,8 +191,10 @@ for i, (de, en, jp) in enumerate(RANKNAMES):
     ranks.append(e)
     rep += 0.55 * tierRep.get(i, tierRep[12])
 
-out = {'_hinweis': old['_hinweis'].replace('Rivalen fuer C1 (50 Gegner).', f'Rivalen fuer C1 ({len(rivals)} Gegner: {len(teams)} Crews, Wanderer, Bosse).')
-       + ' plate = Kennzeichen aus Agent\'s Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. lines = Sprüche des Rivalen im SP-HUD: challenge beim Start, win wenn der Rivale gewinnt, lose wenn er verliert.',
+EXTRA_HINT = (' plate = Kennzeichen aus Agent\'s Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. lines = Sprüche des Rivalen im SP-HUD: challenge beim Start, win wenn der Rivale gewinnt, lose wenn er verliert.')
+hint = old['_hinweis'].replace('Rivalen fuer C1 (50 Gegner).', f'Rivalen fuer C1 ({len(rivals)} Gegner: {len(teams)} Crews, Wanderer, Bosse).')
+if ' plate = Kennzeichen' in hint: hint = hint[:hint.index(' plate = Kennzeichen')]  # nicht bei jedem Lauf erneut anhaengen
+out = {'_hinweis': hint + EXTRA_HINT,
        'settings': old['settings'], 'ranks': ranks, 'nicknames': old['nicknames'], 'teams': teams, 'rivals': rivals}
 write_protected('rivals.json', out)  # Handänderungen in rivals.json bleiben erhalten
 print(len(teams), 'crews', len(rivals), 'rivals', sum(1 for r in rivals if r.get('wanderer')), 'wanderer',

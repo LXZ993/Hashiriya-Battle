@@ -392,6 +392,7 @@ end
 local function chooseStarterCar(car)
   M.save = newSave()
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
+  extensions.hashiriyaBattle_shop.loadSettings(M.save)
   local entry = { model = car.model, config = car.config, name = car.name }
   table.insert(M.save.cars, entry)
   M.save.activeCar = 1
@@ -415,6 +416,7 @@ function M.newCareer(data)
     extensions.hashiriyaBattle_progress.bump(M.save, 'carsBought')
   end
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
+  extensions.hashiriyaBattle_shop.loadSettings(M.save)
   table.insert(M.save.cars, data.car)
   M.save.activeCar = 1
   -- Starterautos sind gebraucht (cars.json: condition)
@@ -444,6 +446,7 @@ function M.continueCareer()
     return
   end
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
+  extensions.hashiriyaBattle_shop.loadSettings(M.save)
   extensions.hashiriyaBattle_condition.syncStarterWear(M.save)
   local car = M.save.cars[M.save.activeCar or 1]
   if not car then return end
@@ -481,6 +484,7 @@ local function continueGame()
     return
   end
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
+  extensions.hashiriyaBattle_shop.loadSettings(M.save)
   local car = M.save.cars[M.save.activeCar or 1]
   if car then spawnPlayerCar(car) end
   M.active = true
@@ -501,14 +505,17 @@ function M.onParkingArrived(area)
   menuAutoOpened = true
   msg(M.t('msg.enterPa', M.t('pa.' .. area.type)), 4)
   if area.type == 'garage' then M.writeSave() end
+  -- Shop zu Fuß: gleich das Teile-Terminal
+  if area.type == 'shop' and extensions.hashiriyaBattle_parking.isFootShop() then extensions.hashiriyaBattle_shop.openTerminal('shop') end
   M.sendUiState()
 end
 
 function M.onParkingLeft(area)
   homeTab = 'main'
   -- Probeweise eingebaute Teile zurücknehmen, offene Setup-Änderungen verwerfen, Teile-Kamera lösen
-  extensions.hashiriyaBattle_shop.releaseFocus()
   extensions.hashiriyaBattle_shop.cancelPreview()
+  extensions.hashiriyaBattle_shop.closeTerminal()
+  extensions.hashiriyaBattle_shop.releaseFocus()
   extensions.hashiriyaBattle_setup.onParkingLeft()
   garageTab = 'service'
   if menuAutoOpened then showMenu = false end
@@ -533,7 +540,10 @@ function M.onBattleResult(rival, won, result)
   extensions.hashiriyaBattle_progress.onBattle(rival, won, result)
   if not won then style.resetStreak('loss') end
   if won then
-    local reward = math.floor(M.economy().usdToPrice(rival.rewardUsd or 1000) * moneyF / 100 + 0.5) * 100
+    -- rivals.json settings.rewardScale: Preisgeld aller Rivalen auf einmal anpassen (1 = volle rewardUsd)
+    local rs = extensions.hashiriyaBattle_rivals.getData()
+    local scale = tonumber(rs and rs.settings and rs.settings.rewardScale) or 1
+    local reward = math.floor(M.economy().usdToPrice(rival.rewardUsd or 1000) * scale * moneyF / 100 + 0.5) * 100
     M.save.money = M.save.money + reward
     M.save.defeated[rival.id] = true
     M.save.wins = M.save.wins + 1
@@ -647,6 +657,8 @@ local function scalars(t)
   return out
 end
 
+M.getModelKeys = getModelKeys
+
 function M.dumpConfigs()
   local result, count = {}, 0
   for _, key in ipairs(getModelKeys()) do
@@ -680,7 +692,14 @@ local function setLayout(name)
   if gs and gs.setGameState then pcall(gs.setGameState, 'freeroam', name, 'freeroam') end
 end
 
+-- Teile-Terminal (Shop, Garagen-PC) läuft im eigenen Layout: nur die Terminal-App, kein HUD
+function M.setTerminalLayout(on)
+  setLayout(on and 'hashiriyaShop' or M.layoutName) -- settings/ui_apps/originalLayouts/default/hashiriyaShop.uilayout.json
+end
+
 local devRivals = nil -- Dev-Tool: Liste aller Rivalen für die Eingabe im Menü
+
+function M.resetDevRivals() devRivals = nil end
 
 local function buildUiState()
   local eco = M.economy()
@@ -758,7 +777,6 @@ local function buildUiState()
       local cost = parking.repairCost()
       st.repairCost = cost > 0 and eco.formatYen(cost) or nil
       st.canAffordRepair = cost <= M.save.money
-      if area.type == 'shop' then st.shop = extensions.hashiriyaBattle_shop.getUiState() end
       if area.type == 'home' then
         st.home = extensions.hashiriyaBattle_home.getUiState(homeTab)
       end
@@ -766,11 +784,11 @@ local function buildUiState()
       if area.type == 'garage' then st.garageCars = extensions.hashiriyaBattle_dealer.ownedCars() end
       if area.type == 'garage' then
         st.garageTab = garageTab
-        if garageTab == 'parts' then st.shop = extensions.hashiriyaBattle_shop.getUiState('garage') end
         if garageTab == 'setup' then st.setup = extensions.hashiriyaBattle_setup.getUiState() end
       end
     end
   end
+  st.terminal = M.active and M.save and extensions.hashiriyaBattle_shop.terminalState() or nil
   if st.menuVisible and M.active then
     devRivals = devRivals or {}
     if #devRivals == 0 then
@@ -836,8 +854,8 @@ end
 
 -- Wird von den UI-Apps per bngApi.engineLua aufgerufen.
 -- Klick-Sounds der Menüs (Meldungen bringen ihren eigenen Sound mit)
-local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true, fuelHold = true }
-local tabActions = { shopTab = true, garageTab = true, setupCat = true, paintSlot = true }
+local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true, fuelHold = true, termHello = true, termCatalog = true }
+local tabActions = { shopTab = true, garageTab = true, setupCat = true, paintSlot = true, termCat = true }
 local backActions = { back = true, hide = true, previewCancel = true, setupDiscard = true }
 
 local function actionSound(action, arg)
@@ -967,7 +985,36 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_shop.setTab(tostring(arg))
   elseif action == 'garageTab' then
     extensions.hashiriyaBattle_shop.releaseFocus()
-    garageTab = tostring(arg)
+    -- Reiter "Teile" ist jetzt der Garagen-PC (Teile-Terminal mit Teilelager)
+    local area = arrivedArea()
+    if tostring(arg) == 'parts' and area and area.type == 'garage' then
+      extensions.hashiriyaBattle_shop.openTerminal('garage')
+    else
+      garageTab = tostring(arg)
+    end
+  elseif action == 'garagePc' then
+    local area = arrivedArea()
+    if area and area.type == 'garage' then extensions.hashiriyaBattle_shop.openTerminal('garage') end
+  elseif action == 'termHello' or action == 'termCatalog' then
+    extensions.hashiriyaBattle_shop.sendCatalog()
+  elseif action == 'termCat' then
+    extensions.hashiriyaBattle_shop.setCategory(arg)
+  elseif action == 'termView' then
+    extensions.hashiriyaBattle_shop.setView(arg)
+  elseif action == 'termXray' then
+    extensions.hashiriyaBattle_shop.toggleXray()
+  elseif action == 'termRotate' then
+    extensions.hashiriyaBattle_shop.rotate(tonumber(arg) or 1)
+  elseif action == 'termMount' then
+    extensions.hashiriyaBattle_shop.toggleMount()
+  elseif action == 'termClose' then
+    if extensions.hashiriyaBattle_shop.terminalMode() == 'shop' then
+      -- wie "Shop verlassen": aussteigen, am Eingang stehen
+      extensions.hashiriyaBattle_shop.closeTerminal()
+      extensions.hashiriyaBattle_parking.leaveFootShop()
+    else
+      extensions.hashiriyaBattle_shop.closeTerminal()
+    end
   elseif action == 'setupAdjust' then
     local name, dir = tostring(arg or ''):match('^(.+)|([%-%d]+)$')
     local area = arrivedArea()
@@ -1041,6 +1088,10 @@ function M.uiAction(action, arg)
     end
   elseif action == 'cheatFuel' then
     extensions.hashiriyaBattle_fuel.devFill()
+  elseif action == 'builder' then
+    -- Entwickler-Werkzeug: Crews, Wanderer und Bosse bearbeiten (UI-App HashiriyaBuilder)
+    if extensions.hashiriyaBattle_builder then extensions.hashiriyaBattle_builder.open()
+    else M.msg('Builder fehlt (builder.lua nicht im Mod)', 4) end
   elseif action == 'devClearRivals' then
     extensions.hashiriyaBattle_rivals.despawnAll()
   elseif action == 'toggleMarkers' then
@@ -1068,6 +1119,12 @@ end
 -- Hooks -----------------------------------------------------------------------
 
 local function onExtensionLoaded()
+  -- Builder (Entwickler-Werkzeug) nur laden, wenn die Datei da ist (fehlt im Release-Zip)
+  if FS:fileExists('/lua/ge/extensions/hashiriyaBattle/builder.lua') then
+    local has = false
+    for _, n in ipairs(subExtensions) do if n == 'hashiriyaBattle_builder' then has = true end end
+    if not has then table.insert(subExtensions, 'hashiriyaBattle_builder') end
+  end
   for _, name in ipairs(subExtensions) do
     extensions.load(name)
     setExtensionUnloadMode(name, 'manual')
