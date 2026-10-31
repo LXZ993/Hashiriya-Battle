@@ -87,7 +87,8 @@ local defaults = {
   errorRateMin = 0.03,
   errorCooldown = 12,    -- s nach einem Fehler kein neuer
   debug = false,         -- Linie und Verkehr im Spiel einzeichnen
-  logBrakes = true,      -- jeden Bremsgrund (max. 1x pro s) ins beamng.log schreiben
+  logBrakes = true,
+  shoulderMax = 4,       -- m: so weit neben der Fahrbahn (Standstreifen, Abfahrtsspur) darf er an Verkehr vorbei, 0 = nie      -- jeden Bremsgrund (max. 1x pro s) ins beamng.log schreiben
 }
 
 local p = {}             -- aktive Werte
@@ -308,7 +309,7 @@ end
 
 local function newPlan()
   return { n = 0, s = {}, cx = {}, cy = {}, cz = {}, tx = {}, ty = {}, nx = {}, ny = {},
-    baseLo = {}, baseHi = {}, lo = {}, hi = {}, off = {}, px = {}, py = {}, kappa = {}, v = {},
+    baseLo = {}, baseHi = {}, wideLo = {}, wideHi = {}, edgeL = {}, edgeR = {}, rad = {}, lo = {}, hi = {}, off = {}, px = {}, py = {}, kappa = {}, v = {},
     obstacles = {} }
 end
 
@@ -342,6 +343,7 @@ local function buildSamples(pl, look, edgeMargin)
       local lo, hi = left + halfW + edgeMargin, right - halfW - edgeMargin
       if lo > hi then lo, hi = (left + right) * 0.5, (left + right) * 0.5 end
       pl.baseLo[n], pl.baseHi[n] = lo, hi
+      pl.edgeL[n], pl.edgeR[n], pl.rad[n] = xl < 0.01, xr > 0.99, r
       along = along + step
       s = s + step
     end
@@ -412,8 +414,53 @@ end
 local function followSpeed(vO, want, gapLong, v0)
   vO = max(vO, 0)
   local v = max(vO - max(want - gapLong, 0) * 0.6, vO - 3, 0)
-  if vO >= v0 - 0.5 then v = max(v, min(v0, vO)) end
+  if vO > v0 + 1 then v = max(v, v0) end
   return v
+end
+
+-- Echte Breite messen (Standstreifen, Abfahrtsspur): Strahl zur Wand, Boden prüfen ---------
+-- Die Straßendaten der Karte enden oft an der Spur, der Standstreifen daneben ist aber befahrbar.
+-- Nur zum Vorbeifahren am Verkehr, die Ideallinie bleibt auf der Fahrbahn.
+local rayFrom, rayDir = vec3(), vec3()
+local function freeSide(pl, k, side)
+  local nx, ny = pl.nx[k] * side, pl.ny[k] * side
+  local r = pl.rad[k]
+  local maxD = r + p.shoulderMax
+  -- zwei Höhen: niedrige Leitplanke und hohe Wand
+  rayDir:set(nx, ny, 0)
+  rayFrom:set(pl.cx[k], pl.cy[k], pl.cz[k] + 0.45)
+  local wall = obj:castRayStatic(rayFrom, rayDir, maxD)
+  rayFrom:set(pl.cx[k], pl.cy[k], pl.cz[k] + 0.9)
+  wall = min(wall, obj:castRayStatic(rayFrom, rayDir, maxD))
+  local free = min(wall, maxD) - r
+  if free < 0.5 then return 0 end
+  -- Boden am äußeren Rand: kein Abhang, kein Graben
+  local o = r + free - 0.3
+  rayFrom:set(pl.cx[k] + nx * o, pl.cy[k] + ny * o, pl.cz[k] + 1.5)
+  rayDir:set(0, 0, -1)
+  local down = obj:castRayStatic(rayFrom, rayDir, 3)
+  if abs(down - 1.5) > 0.4 then return 0 end
+  return free
+end
+
+local function measureWidth(pl, courage)
+  local n = pl.n
+  local margin = lerp(0.6, 0.3, courage) + ego.width * 0.5
+  local every = 3
+  local lastL, lastR = 0, 0
+  for k = 1, n do
+    pl.wideLo[k], pl.wideHi[k] = pl.baseLo[k], pl.baseHi[k]
+  end
+  if p.shoulderMax <= 0 or not obj.castRayStatic then return end
+  for k = 1, n do
+    if k % every == 1 or k == n then
+      lastL = pl.edgeL[k] and freeSide(pl, k, -1) or 0
+      lastR = pl.edgeR[k] and freeSide(pl, k, 1) or 0
+    end
+    local r = pl.rad[k]
+    if lastL > 0 then pl.wideLo[k] = min(pl.baseLo[k], -(r + lastL) + margin) end
+    if lastR > 0 then pl.wideHi[k] = max(pl.baseHi[k], r + lastR - margin) end
+  end
 end
 
 -- Verkehr einlesen und vorbeifahren planen ---------------------------------------------
@@ -487,6 +534,9 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
   local passDelta = lerp(4, 9, courage) -- m/s schneller als der Vordermann beim Überholen
   local followCaps = {}
   local nearestTtc = math.huge
+  local latLimit = mu * g * lerp(0.4, 0.65, courage) -- wie hart er für eine Lücke querziehen will
+  local laneSwitchDist = passDelta * (sqrt(4.93 * 3.5 / latLimit) + 0.3)
+  pl.laneSwitchDist = laneSwitchDist
   -- Kein Vorbeikommen: dahinter bleiben (Abstand nach Mut, zu dicht = etwas langsamer als der Vordermann)
   local function addFollow(ob, gapLong)
     if ob.capped then return end
@@ -494,18 +544,19 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
     local vO = max(ob.vAlong, 0)
     -- hängt er länger dahinter, lässt er sich etwas zurückfallen: Anlauf für die nächste Lücke
     local back = clamp(((followTime[ob.id] or 0) - 2) * 0.25, 0, 0.7)
-    local want = vO * (headway + back) + 2
+    -- nicht näher als nötig, um aus dem Hinterherfahren heraus noch eine Spur rüberzukommen
+    local want = max(vO * (headway + back), laneSwitchDist) + 2
     local v = followSpeed(vO, want, gapLong, v0)
     followCaps[#followCaps + 1] = { s = max(gapLong - want, 0), v = v, d = ob.d, gap = gapLong, ob = ob }
   end
 
   -- 1. Jedes Auto: wann und wo trifft er es, welche Querlage ist blockiert
-  local latLimit = mu * g * lerp(0.4, 0.65, courage) -- wie hart er für eine Lücke querziehen will
   local cand = {}
   for _, ob in ipairs(list) do
     local halfLen = (ob.len + ego.length) * 0.5
     local gapLong = ob.s - ob.len * 0.5 -- Front des Fahrers bis Heck des anderen
-    local alongside = gapLong <= 0
+    -- daneben: überlappt schon, oder knapp davor und quer schon frei (dann nicht bremsen, einfach vorbei)
+    local alongside = gapLong <= 0 or (gapLong < 4 and abs(ob.d - egoLat) > (ob.wid + ego.width) * 0.5 + 0.2)
     ob.gapLong = gapLong
     -- Er will vorbei: auch wenn er gerade gleich schnell hinterherfährt, plant er mit Überholtempo
     local rel = v0 - ob.vAlong
@@ -568,7 +619,12 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
     if i1 >= i0 then
       -- engste Stelle im Fenster mit bisherigen Einschränkungen
       local loW, hiW = -math.huge, math.huge
-      for k = i0, i1 do loW = max(loW, pl.lo[k]); hiW = min(hiW, pl.hi[k]) end
+      -- noch keine Einschränkung durch Verkehr: Standstreifen/Abfahrtsspur mitnutzen
+      for k = i0, i1 do
+        local lo = pl.lo[k] == pl.baseLo[k] and pl.wideLo[k] or pl.lo[k]
+        local hi = pl.hi[k] == pl.baseHi[k] and pl.wideHi[k] or pl.hi[k]
+        loW = max(loW, lo); hiW = min(hiW, hi)
+      end
       -- blockierte Querlagen (sortiert, zusammengefasst)
       table.clear(blocks)
       local tReach, alongside = math.huge, false
@@ -601,7 +657,17 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
         local ok
         -- seitlicher Versatz in der Zeit bis dorthin (Sinus-Spurwechsel: a = pi²/2 * Weg / t²)
         -- direkt daneben: nur auf der Seite bleiben, auf der er schon ist (wegdrücken geht immer)
-        if alongside then ok = sameSide(a, b) else ok = 4.93 * need / max(tReach - 0.3, 0.05) ^ 2 <= latLimit end
+        -- Hysterese: einen begonnenen Überholvorgang nicht wegen einer Kleinigkeit abbrechen,
+        -- aus dem Hinterherfahren heraus nur starten, wenn es sicher reicht
+        local lim = latLimit
+        local committed, wasFollowing = false, false
+        for _, ob in ipairs(group) do
+          local last = sideChoice[ob.id]
+          if last and last >= a - 0.3 and last <= b + 0.3 then committed = true end
+          if followTime[ob.id] then wasFollowing = true end
+        end
+        if committed then lim = lim * 1.3 elseif wasFollowing then lim = lim * 0.85 end
+        if alongside then ok = sameSide(a, b) else ok = 4.93 * need / max(tReach - 0.3, 0.05) ^ 2 <= lim end
         if not ok then return end
         -- Gegenverkehr: kommt er, bevor das Überholen vorbei ist, in diese Lücke? Dann nicht.
         local tEnd = gs1 / max(v0 + passDelta * 0.5, 1) + 1
@@ -630,8 +696,11 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
       end
       if best then
         for k = i0, i1 do
-          pl.lo[k] = max(pl.lo[k], best[1])
-          pl.hi[k] = min(pl.hi[k], best[2])
+          local lo = pl.lo[k] == pl.baseLo[k] and pl.wideLo[k] or pl.lo[k]
+          local hi = pl.hi[k] == pl.baseHi[k] and pl.wideHi[k] or pl.hi[k]
+          pl.lo[k] = max(lo, best[1])
+          pl.hi[k] = min(hi, best[2])
+          if pl.lo[k] > pl.hi[k] then pl.lo[k], pl.hi[k] = best[3], best[3] end
         end
         groups[#groups + 1] = { members = group, i0 = i0, i1 = i1 }
       else
@@ -746,7 +815,7 @@ local function checkPasses(pl, courage)
     end
     if bad then
       local vO = max(bad.vAlong, 0)
-      local want = vO * headway + 2
+      local want = max(vO * headway, pl.laneSwitchDist or 0) + 2
       local v = followSpeed(vO, want, bad.gapLong, max(ego.speed, 1))
       pl.followCaps[#pl.followCaps + 1] = { s = max(bad.gapLong - want, 0), v = v, d = bad.d, gap = bad.gapLong, ob = bad }
       bad.side = nil
@@ -917,6 +986,21 @@ local function makePlan(dt)
   local edgeMargin = lerp(p.edgeMarginMax, p.edgeMarginMin, courage)
   if not buildSamples(pl, look, edgeMargin) then return nil end
   local egoLat = lateralAt(pl, 1, ego.pos.x, ego.pos.y)
+  measureWidth(pl, courage)
+  -- steht er schon auf dem Standstreifen: dort darf die Linie anfangen und läuft sanft zurück
+  -- (nur so weit, wie gemessen frei ist; sonst zieht die Linie ihn zurück auf die Fahrbahn)
+  local startLat = clamp(egoLat, pl.wideLo[1], pl.wideHi[1])
+  for k = 1, pl.n do
+    local f = clamp(pl.s[k] / 40, 0, 1)
+    if f >= 1 then break end
+    if startLat < pl.baseLo[k] then
+      pl.baseLo[k] = startLat + (pl.baseLo[k] - startLat) * f
+      pl.wideLo[k] = min(pl.wideLo[k], pl.baseLo[k]); pl.lo[k] = pl.baseLo[k]
+    elseif startLat > pl.baseHi[k] then
+      pl.baseHi[k] = startLat + (pl.baseHi[k] - startLat) * f
+      pl.wideHi[k] = max(pl.wideHi[k], pl.baseHi[k]); pl.hi[k] = pl.baseHi[k]
+    end
+  end
   initOffsets(pl, egoLat)
   planTraffic(pl, courage, nerves, dt, egoLat)
   pl.egoLat = egoLat
@@ -1037,8 +1121,8 @@ local function control(dt)
         tostring(ob.id), ob.target and ' (Spieler)' or '', c.gap < math.huge and c.gap or (ob.gapLong or -1), ob.d or 0,
         (ob.vAlong or 0) * 3.6, c.v * 3.6, c.s)
     end
-    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f, %d Autos, %d Lücken | %s',
-      brake, why, v * 3.6, vT * 3.6, pl.ttc or -1, pl.egoLat or 0, pl.baseLo[1] or 0, pl.baseHi[1] or 0,
+    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Lücken | %s',
+      brake, why, v * 3.6, vT * 3.6, pl.ttc or -1, pl.egoLat or 0, pl.baseLo[1] or 0, pl.baseHi[1] or 0, pl.wideLo[5] or 0, pl.wideHi[5] or 0,
       #pl.obstacles, #(pl.groups or {}), capTxt))
   end
 
