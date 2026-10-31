@@ -145,6 +145,7 @@ mapmgr.findBestRoad = function(pos, dir) return closest(pos) end
 -- Fahrzeug (Ego) --------------------------------------------------------------------------
 local car = { pos = vec3(0, 5, 0), h = math.pi / 2, v = 22, steer = 0, len = 4.5, wid = 1.9, wb = 2.6 }
 if SCEN == 'touge' then car.pos = vec3(1.8, 5, 0) car.v = 15 end
+if STARTLAT then car.pos.x = STARTLAT end -- Start neben der Fahrbahn (z. B. Standstreifen)
 local inputs = { steering = 0, throttle = 0, brake = 0, parkingbrake = 0 }
 input = { event = function(name, val) inputs[name] = val end }
 wheels = { wheels = {} }
@@ -203,6 +204,9 @@ elseif SCEN == 'touge' then
   addTraffic(4, 0.55, 1.8, 10)
   addTraffic(5, 0.65, -1.8, -12)
 end
+
+-- Test: stehendes Auto (z. B. nach Unfall), STOPCAR = { Anteil der Strecke, Querlage }
+if STOPCAR then addTraffic(20, STOPCAR[1], STOPCAR[2], 0) end
 
 local function trafficPos(t)
   local i = math.min(math.max(math.floor(t.idx), 1), #center - 1)

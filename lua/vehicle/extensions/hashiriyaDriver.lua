@@ -76,7 +76,8 @@ local defaults = {
   steerLookBase = 5,     -- m Vorschau der Lenkung im Stand
   steerLookTime = 0.5,   -- s Vorschau pro m/s (BeamNG-KI: 0.6)
   steerRate = 6,         -- Lenkeinschlag pro Sekunde höchstens (Anteil voller Einschlag)
-  highSpeedReserve = 0.1, -- schnelle Kurven: bis zu 10 % weniger Querbeschleunigung (ab 110 km/h zunehmend, voll bei 290 km/h)
+  highSpeedReserve = 0.15, -- schnelle Kurven: bis zu 15 % weniger Querbeschleunigung (ab 90 km/h zunehmend, voll bei 234 km/h)
+  driftTol = 0.3,        -- m: so weit darf es ihn in der Kurve nach außen tragen, darüber nimmt er Tempo raus und merkt es sich
   edgeMarginSpeed = 0.012, -- m mehr Abstand zum Rand pro m/s über 20 m/s (230 km/h: +0,5 m)
   -- Duell (Stufe 3)
   blockMinAggression = 0.55, -- ab dieser Aggression macht er dir vorne die Linie zu
@@ -116,6 +117,8 @@ local steerAngleEst = 0.55
 local wheelBase = 2.6
 local prevDir = vec3()
 local yawRate = 0
+local planAge, errLogTime = 0, -10
+local primeSeen = false
 local gripEst = 1        -- gelernter Anteil des Grips, den das Auto wirklich schafft (Untersteuern)
 local stuckTime, reverseTime = 0, 0
 local offRouteTime = 0
@@ -530,11 +533,25 @@ planLattice = function(pl, courage, list, egoLat)
   local tight = false
   local nOk = 0
 
-  local function evaluate(kind, dT, T, acc, cont)
+  -- Steht er schon außerhalb der Fahrbahn: so weit ist das am Anfang erlaubt (er muss erst zurück)
+  local outLo0 = max(valueAt(pl, pl.wideLo, 0) - egoLat, 0)
+  local outHi0 = max(egoLat - valueAt(pl, pl.wideHi, 0), 0)
+  if outLo0 < 0.5 then outLo0 = 0 end
+  if outHi0 < 0.5 then outHi0 = 0 end
+  -- Autos, mit denen es schon jetzt zu eng ist (z. B. steht er direkt hinter einem stehenden Auto):
+  -- dort zählt nur, dass es nicht noch enger wird, sonst käme er nie mehr weg
+  for _, ob in ipairs(list) do
+    local ds0 = -ego.length * 0.5 - ob.s
+    ob.lat0 = abs(egoLat - ob.d)
+    ob.conf0 = abs(ds0) < ob.lenHalf + 0.8 and ob.lat0 < ob.latNeed
+  end
+
+  local function evaluate(kind, dT, T, acc, cont, force)
     -- Tempo- und Weg-Verlauf
     local s, v = 0, v0
     local cost = 0
     local tColl = nil
+    local bad = false
     local minClear = math.huge
     for i = 0, nSteps do
       local t = i * dtc
@@ -556,7 +573,11 @@ planLattice = function(pl, courage, list, egoLat)
       -- Fahrbahn (mit Standstreifen) nicht verlassen
       if s <= lastS then
         local wlo, whi = valueAt(pl, pl.wideLo, s), valueAt(pl, pl.wideHi, s)
-        if d < wlo - 0.1 or d > whi + 0.1 then return nil end
+        local tol = 0.1 + max(1 - t, 0) * (d < wlo and outLo0 or outHi0)
+        if d < wlo - tol or d > whi + tol then
+          if not force then return nil end
+          bad = true
+        end
         local blo, bhi = valueAt(pl, pl.baseLo, s), valueAt(pl, pl.baseHi, s)
         if d < blo then cost = cost + (blo - d) * 1.5 * dtc elseif d > bhi then cost = cost + (d - bhi) * 1.5 * dtc end
         if twoWay then
@@ -565,7 +586,10 @@ planLattice = function(pl, courage, list, egoLat)
           local out = max(olo - d - ego.width * 0.5, d + ego.width * 0.5 - ohi, 0)
           if out > 0 then
             cost = cost + out * 2 * dtc
-            if i == nSteps and out > 0.8 then return nil end
+            if i == nSteps and out > 0.8 then
+              if not force then return nil end
+              bad = true
+            end
           end
         end
       end
@@ -586,15 +610,18 @@ planLattice = function(pl, courage, list, egoLat)
           if kind == 'free' then need = need + 0.8 end
           -- schon zu dicht dran: nur noch echte Berührung zählt (lieber knapp vorbei als hart bremsen)
           if tight then need = (ob.wid + ego.width) * 0.5 + 0.12 + abs(dShift) * 0.3 end
-          if lat < need then
+          -- schon jetzt zu eng: in Ordnung, solange es weiter auseinander geht
+          if ob.conf0 and t < 2 and lat >= ob.lat0 - 0.05 then need = min(need, lat) end
+          if lat < need and not tColl then
             tColl = t
-            break
+            if not force then break end
           end
           minClear = min(minClear, lat - need)
         end
       end
-      if tColl then break end
+      if tColl and not force then break end
     end
+    if force then return nil, tColl end
     if tColl then
       if tColl > bestTColl and not best then
         -- Notlösung merken: der Weg, auf dem es am längsten gut geht
@@ -668,9 +695,9 @@ planLattice = function(pl, courage, list, egoLat)
     -- nichts geht ohne Berührung: Notlösung mit voller Bremse
     local fb = pl.fallback or { kind = 'free', dT = egoLat, T = 1, acc = -6, tColl = 0 }
     -- voll bremsen, außer der Weg ohne Bremse geht deutlich länger gut (er ist schon neben dem Auto)
-    local _, tBrake = evaluate(fb.kind, fb.dT, fb.T, -6)
+    local _, tBrake = evaluate(fb.kind, fb.dT, fb.T, -6, false, true)
     if not (tBrake and fb.acc > -6 and fb.tColl > tBrake + 0.5) then fb.acc = -6 end
-    evaluate(fb.kind, fb.dT, fb.T, fb.acc)
+    evaluate(fb.kind, fb.dT, fb.T, fb.acc, false, true) -- füllt den ganzen Weg
     best = { kind = fb.kind, dT = fb.dT, T = fb.T, acc = fb.acc, n = nSteps + 1 }
     for i = 1, nSteps + 1 do bestT[i], bestS[i], bestD[i] = trajT[i], trajS[i], trajD[i] end
     pl.ttc = fb.tColl or 0
@@ -681,6 +708,10 @@ planLattice = function(pl, courage, list, egoLat)
 
   -- Gewählten Weg als Korridor in die Planung übernehmen (die Glättung bleibt darin)
   local sEnd = bestS[best.n]
+  pl.laneEnd = nil
+  if best.kind == 'lane' then
+    for i = 1, best.n do if bestT[i] >= best.T then pl.laneEnd = bestS[i] + 10 break end end
+  end
   local j = 1
   for k = 1, pl.n do
     local sk = pl.s[k]
@@ -779,6 +810,7 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
             if sObs + oLen * 0.5 > -ego.length and sObs < perceive * (oncoming and 1.7 or 1) then
               present[id] = true
               seen[id] = (seen[id] or 0) + dt
+              if primeSeen then seen[id] = max(seen[id], 10) end
               local isTarget = id == p.targetId
               -- direkt daneben oder ganz nah: sofort bemerkt
               if seen[id] >= reaction or sObs < 15 or isTarget then
@@ -810,6 +842,7 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
     end
   end
   for id in pairs(seen) do if not present[id] then seen[id] = nil; sideChoice[id] = nil; latTrack[id] = nil end end
+  primeSeen = false
   table.sort(list, function(a, b) if a.s ~= b.s then return a.s < b.s end return a.id < b.id end)
 
   pl.groups = {}
@@ -884,8 +917,25 @@ local function speedProfile(pl, courage, pace)
     local kk = max(kappa[k], 1e-5)
     local vk = sqrt(mu * g * cornerUse / kk)
     -- schnelle Kurven: Reserve (Bodenwellen, Lenkfehler, weniger Grip bei Tempo)
-    vk = vk * sqrt(1 - clamp((vk - 30) / 50, 0, 1) * p.highSpeedReserve)
+    vk = vk * sqrt(1 - clamp((vk - 25) / 40, 0, 1) * p.highSpeedReserve)
     v[k] = min(vk, p.maxSpeed)
+  end
+  -- Spurwechsel zum Überholen: der Schlenker selbst soll ihn nicht einbremsen (er ist nur so stark
+  -- geplant, wie das Auto quer schafft). Hängt er dem Wechsel hinterher, wird die Linie ein Knick,
+  -- dann zählt dort das Kurventempo der Straße selbst.
+  if pl.laneEnd then
+    for k = 2, n - 1 do
+      if pl.s[k] > pl.laneEnd then break end
+      local a, b = max(1, k - 2), min(n, k + 2)
+      local ax, ay = pl.cx[k] - pl.cx[a], pl.cy[k] - pl.cy[a]
+      local bx, by = pl.cx[b] - pl.cx[k], pl.cy[b] - pl.cy[k]
+      local cx2, cy2 = pl.cx[b] - pl.cx[a], pl.cy[b] - pl.cy[a]
+      local la, lb, lc = sqrt(ax * ax + ay * ay), sqrt(bx * bx + by * by), sqrt(cx2 * cx2 + cy2 * cy2)
+      local kc = max(abs(2 * (ax * by - ay * bx) / max(la * lb * lc, 1e-6)), 1e-5)
+      local vr = sqrt(mu * g * cornerUse / kc)
+      vr = vr * sqrt(1 - clamp((vr - 25) / 40, 0, 1) * p.highSpeedReserve)
+      v[k] = max(v[k], min(vr * 0.95, p.maxSpeed))
+    end
   end
   -- Kurventempo ohne Verkehr merken (für die Ausweich-Planung der nächsten Runde)
   pl.vRace = pl.vRace or {}
@@ -1092,6 +1142,25 @@ local function control(dt)
   end
   local sNow = pl.s[bestK]
 
+  -- Trägt es ihn in der Kurve nach außen (mehr Tempo als Grip)? Dann sofort etwas Tempo raus
+  -- und für alle weiteren Kurven merken (wie beim Untersteuern)
+  local outSlow = 0
+  if v > 15 and bestK > 2 and bestK < pl.n - 2 then
+    local ax, ay = pl.px[bestK] - pl.px[bestK - 2], pl.py[bestK] - pl.py[bestK - 2]
+    local bx, by = pl.px[bestK + 2] - pl.px[bestK], pl.py[bestK + 2] - pl.py[bestK]
+    local cx, cy = bx - ax, by - ay -- zeigt zur Kurven-Innenseite
+    local cl = sqrt(cx * cx + cy * cy)
+    local mu = obj:getStaticFrictionCoef()
+    if cl > 1e-4 and (pl.kappa[bestK] or 0) * v * v > 0.35 * mu * g then
+      local outErr = -((ego.pos.x - pl.px[bestK]) * cx + (ego.pos.y - pl.py[bestK]) * cy) / cl
+      if outErr > p.driftTol then
+        gripEst = max(gripEst - dt * 0.25 * (outErr - p.driftTol), 0.6)
+        outSlow = clamp((outErr - p.driftTol) * 0.08, 0, 0.12)
+      end
+      pl.outErr = outErr
+    end
+  end
+
   -- Lenkung: Punkt auf der Linie in Vorschau-Entfernung anpeilen
   local ld = clamp(p.steerLookBase + v * p.steerLookTime, 6, 45)
   local sT = min(sNow + ld, pl.s[pl.n])
@@ -1110,7 +1179,7 @@ local function control(dt)
 
   -- Tempo: was die Planung kurz voraus erlaubt (Reaktion/Trägheit)
   local sV = sNow + v * 0.25 + 1.5
-  local vT = valueAt(pl, pl.v, min(sV, pl.s[pl.n]))
+  local vT = valueAt(pl, pl.v, min(sV, pl.s[pl.n])) * (1 - outSlow)
   local err = vT - v
   local throttle, brake = 0, 0
   if err >= 0 then
@@ -1166,9 +1235,9 @@ local function control(dt)
       chTxt = ch.kind == 'free' and 'Ideallinie' or string.format('nach quer %.1f in %.1f s', ch.dT, ch.T)
       chTxt = chTxt .. (ch.acc > 0.01 and ', Gas' or (ch.acc > -0.01 and ', Tempo halten' or string.format(', verzögern %.1f', -ch.acc)))
     end
-    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Wege frei, Wahl: %s, Grip %.2f | %s',
+    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Wege frei, Wahl: %s, Grip %.2f, außen %.1f m | %s',
       brake, why, v * 3.6, vT * 3.6, pl.ttc or -1, pl.egoLat or 0, pl.baseLo[1] or 0, pl.baseHi[1] or 0, pl.wideLo[5] or 0, pl.wideHi[5] or 0,
-      #pl.obstacles, #(pl.groups or {}), chTxt, gripEst, capTxt))
+      #pl.obstacles, #(pl.groups or {}), chTxt, gripEst, pl.outErr or 0, capTxt))
   end
 
   local tcs, absC = wheelCoefs()
@@ -1187,7 +1256,9 @@ local function handleStuck(dt)
     if reverseTime <= 0 then stuckTime = 0 end
     return true
   end
-  if lastThrottle > 0.4 and ego.speed < 1.2 then
+  -- festgefahren: Gas gibt er, kommt aber nicht vom Fleck, oder er steht vor einem Auto und kein Weg ist frei
+  local blocked = plan and (plan.ttc or math.huge) < 0.6 and plan.groups and (plan.groups.n or 0) == 0
+  if (lastThrottle > 0.4 or blocked) and ego.speed < 1.2 then
     stuckTime = stuckTime + dt
   else
     stuckTime = max(0, stuckTime - dt)
@@ -1295,9 +1366,12 @@ local function updateGFX(dt)
       local ok, res = pcall(makePlan, p.replan)
       if ok then
         plan = res
+        planAge = 0
       else
-        log('E', 'hashiriyaDriver', 'Planung: ' .. tostring(res))
-        plan = nil
+        -- Fehler: kurz mit der letzten Planung weiterfahren statt blind geradeaus
+        if simTime - errLogTime > 2 then errLogTime = simTime; log('E', 'hashiriyaDriver', 'Planung: ' .. tostring(res)) end
+        planAge = planAge + p.replan
+        if planAge > 1 then plan = nil end
       end
     end
     status = plan and 'drive' or 'noplan'
@@ -1336,6 +1410,10 @@ function M.start(params)
   table.clear(route)
   table.clear(seen)
   table.clear(sideChoice)
+  table.clear(latTrack)
+  lastChoice.kind, lastChoice.dT, lastChoice.acc, lastChoice.t0, lastChoice.T = 'free', 0, 0, 0, 1
+  planAge, errLogTime = 0, -10
+  primeSeen = true -- bis zum Start fuhr er schon selbst im Verkehr: die Autos um ihn kennt er
   followTime = {}
   table.clear(trail)
   plan = nil
