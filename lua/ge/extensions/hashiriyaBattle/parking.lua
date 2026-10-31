@@ -30,6 +30,8 @@ local onFoot = false         -- Parkplatz zu Fuß betreten (Fußbereich statt Bu
 local footShop = nil         -- Shop zu Fuß betreten: Spieler sitzt fürs Menü im Auto in der Bucht
 local shopCamTimer = 0       -- verzögert die Eingangskamera (nach Einsteigen/Neuspawn setzt BeamNG seine Kamera)
 local footBlocked = nil      -- Fußbereich erst wieder auslösen, wenn man ihn verlassen hat
+local footBlockHold = 0      -- s: so lange bleibt footBlocked sicher bestehen (Position der Figur direkt nach dem Aussteigen ist unzuverlässig)
+local footBlockGrace = 2.5   -- s nach "Shop verlassen"
 local bayHint = nil          -- Hinweis "zu Fuß zum Eingang" nur einmal je Bucht
 local dumpedModels = {}
 
@@ -115,6 +117,9 @@ function M.leaveFootShop()
   if current and arrived then core().onParkingLeft(current) end
   current, arrived, onFoot = nil, false, false
   footBlocked = a
+  -- Direkt nach dem Aussteigen meldet die Figur kurz falsche Positionen (Kamera noch beim Auto). Ohne
+  -- Sperrzeit galt der Eingang dadurch als verlassen und man saß sofort wieder im Auto.
+  footBlockHold = footBlockGrace
   local dir = toVec(a.footDir or a.dir); dir.z = 0
   core().goOnFoot(nil, toVec(a.footPos) + vec3(0, 0, 0.2), quatFromDir(dir:normalized(), vec3(0, 0, 1)))
 end
@@ -208,8 +213,19 @@ function M.towToGarage()
   c.save.money = c.save.money - info.cost
   extensions.hashiriyaBattle_progress.bump(c.save, 'tows')
   pcall(extensions.hashiriyaBattle_rivals.despawnActive)
-  local ok = pcall(function() spawn.safeTeleport(veh, pos, rot) end)
-  if not ok then veh:setPositionRotation(pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, rot.w) end
+  -- Abschleppen repariert nicht: Schaden bleibt (Reparatur kostet in der Garage extra).
+  -- safeTeleport setzt das Auto sonst zurück (letzter Parameter resetVehicle, Standard true).
+  local ok = pcall(function() spawn.safeTeleport(veh, pos, rot, nil, nil, nil, nil, false) end)
+  if not ok then
+    -- Notlösung ohne Zurücksetzen: ganzes Auto am Referenzknoten verschieben und drehen
+    ok = pcall(function()
+      local ref = veh:getRefNodeId()
+      local diff = quat(veh:getClusterRotationSlow(ref)):inversed() * rot
+      veh:setClusterPosRelRot(ref, pos.x, pos.y, pos.z, diff.x, diff.y, diff.z, diff.w)
+      veh:applyClusterVelocityScaleAdd(ref, 0, 0, 0, 0)
+    end)
+    if not ok then log('E', logTag, 'Abschleppen: Auto konnte nicht versetzt werden') end
+  end
   c.writeSave()
   c.msg(c.t('msg.towed', c.economy().formatYen(info.cost)), 6)
 end
@@ -471,6 +487,7 @@ local function onUpdate(dtReal)
     for _, m in pairs(markers) do setOutline(m, 0) end
     return
   end
+  if footBlockHold > 0 then footBlockHold = footBlockHold - dtReal end
   local veh = c.getPlayerVehicle()
   if not veh then
     -- Zu Fuß: nur die Fußbereiche (footPos/footRadius in der Kartendatei, z. B. Garagentür)
@@ -489,7 +506,8 @@ local function onUpdate(dtReal)
         if d:length() <= r then foundFoot = a; break end
       end
     end
-    if footBlocked and foundFoot ~= footBlocked then footBlocked = nil end
+    if footBlocked and foundFoot ~= footBlocked and footBlockHold <= 0 then footBlocked = nil end
+    if footBlocked and footBlockHold > 0 and foundFoot ~= footBlocked then return end
     if foundFoot and foundFoot == footBlocked then return end
     if foundFoot ~= current or not onFoot then
       if current and arrived then c.onParkingLeft(current) end

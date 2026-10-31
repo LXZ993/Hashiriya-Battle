@@ -1,0 +1,62 @@
+{
+  "Body Style":"Liftback",
+  "Config Type":"Custom",
+  "Configuration":"hashiriya_wanderer_lxz",
+  "Country":"Japan",
+  "Population":50,
+  "Region":[
+    "asiaPacific"
+  ],
+  "Type":"Car",
+  "Value":105000,
+  "Years":{
+    "max":1994,
+    "min":1990
+  },
+  "defaultMultiPaintSetup":{
+    "name":"hashiriya_wanderer_lxz Multi Paint Setup",
+    "paint1":{
+      "baseColor":[
+        0.19699999690056,
+        0,
+        0.33500000834465,
+        2
+      ],
+      "class":"hidden",
+      "clearcoat":1,
+      "clearcoatRoughness":0,
+      "metallic":1,
+      "name":"hashiriya_wanderer_lxz Paint 1",
+      "roughness":0.197999999
+    },
+    "paint2":{
+      "baseColor":[
+        0.64999997615814,
+        0.66000002622604,
+        0.14399999380112,
+        1.2000000476837
+      ],
+      "class":"hidden",
+      "clearcoat":1,
+      "clearcoatRoughness":0.100000001,
+      "metallic":0.730000019,
+      "name":"hashiriya_wanderer_lxz Paint 2",
+      "roughness":0.25
+    },
+    "paint3":{
+      "baseColor":[
+        0.8299999833107,
+        0.8299999833107,
+        0.8299999833107,
+        2
+      ],
+      "class":"hidden",
+      "clearcoat":1,
+      "clearcoatRoughness":0,
+      "metallic":1,
+      "name":"hashiriya_wanderer_lxz Paint 3",
+      "roughness":0
+    }
+  },
+  "vehicleSelectorSubGroup":"vehiclesData.bx.street_tuned_M.vehicleSelectorSubGroup"
+}

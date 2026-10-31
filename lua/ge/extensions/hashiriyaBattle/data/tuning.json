@@ -1,10 +1,10 @@
 {
-  "_hinweis": "Regeln für den Tuning-Shop. Die Teile selbst kommen zur Laufzeit aus BeamNG (alle Teile, die in die Slots des Autos passen). 'slot' ist das Ende des Slot-Namens (z. B. '_engine_ecu' passt auf covet_engine_ecu und covet_engine_ecu_2.0). Die Stufe eines Teils ergibt sich aus Wörtern im Teilenamen bzw. Anzeigenamen (levelWords, höchste Stufe zuerst). 'exclude' blendet Teile aus. 'overrides' setzt die Stufe für einzelne Teile fest (0 = ausblenden). Statt 'slot' kann ein Eintrag 'pattern' haben (Lua-Muster auf den ganzen Slot-Namen, z. B. '^wheel_F' für Felgen vorn). Reiter 'paint' = Lackierer: Werkslacke des Modells (paintPriceYen) und Liveries (Slot paint_design, minPriceYen). Reiter 'misc' (all=true) sammelt alle übrigen Slots mit Auswahl; slotExclude = Lua-Muster für Slots, die dort nicht erscheinen. 'customPaintPriceYen' = Preis einer eigenen Lackierung (Farbe und Material frei einstellbar). 'groupBySize' gruppiert die Optionen nach Zoll (Felgen). 'alt' ist bei BeamNG nur eine Größenvariante (z. B. tire_R_15x10_alt) und darf nicht in exclude stehen. Ein 'slot'-Eintrag passt auf das Ende des Slot-Namens oder direkt nach dem Modellnamen mit Varianten dahinter (z. B. '_engine_ecu' auf bx_engine_ecu_i4, '_bumper_F' auf bx_bumper_F_fixed). Reiter 'misc' (Extras) hat jetzt eine feste Liste (Sitze, Lenkrad, Schaltknauf, Käfig, Leichtglas, Innenraum, Dach, Schmutzfänger, Unterbodenbeleuchtung).",
+  "_hinweis": "Regeln für das Teile-Terminal (Tuning-Shop). Die Teile selbst kommen zur Laufzeit aus BeamNG: jeder Slot des Autos mit Auswahl wird eine Zeile. categories = Kategorien links im Terminal, in dieser Reihenfolge; group = Überschrift (mech = Mechaniker, body = Bodyshop, more = Weiteres). match = Lua-Muster auf den Slot-Namen (klein geschrieben, z. B. 'turbo' trifft covet_turbo, '^tire_' trifft tire_F_15x7); die erste passende Kategorie gewinnt, 'other' sammelt den Rest. 'paint' = Lackierer, 'all' = Alle Teile (jeder Slot mit Auswahl, auch was slotExclude ausblendet, außer Kennzeichen/Lack). defaultLevel = Stufe für Teile ohne Stufenwort. groupBySize = Größen-Knöpfe (Felgen/Reifen nach Zoll). engineSwap trifft den Motor-Slot selbst (z. B. covet_engine). Stufe eines Teils: Wörter im Teilenamen (levelWords, höchste zuerst); exclude blendet Teile mit diesen Wörtern aus; overrides setzt die Stufe einzelner Teile (0 = ausblenden). slotExclude = Slots, die nicht in den Kategorien erscheinen. tiers = ab welchem Rang (Index, 0 = Neuling) eine Stufe gekauft werden darf. Felgen werden ohne Reifen verkauft (tireWithRim false): passende eigene Reifen werden automatisch aufgezogen, sonst bleibt der Reifen-Slot leer. preview = Live-Vorschau: distance = Kameraabstand zum Auto in m, pitch = Blickwinkel von oben, yawStep = Grad pro Klick auf Drehen, focusOffsetUp = Teile-Kamera etwas höher. paintPriceYen = Preis eines Werkslacks, customPaintPriceYen = eigene Farbe.",
   "tiers": [
     {
       "level": 1,
       "unlock": {
-        "minWins": 0
+        "minRank": 1
       }
     },
     {
@@ -18,357 +18,6 @@
       "unlock": {
         "minRank": 8
       }
-    }
-  ],
-  "tabs": [
-    {
-      "id": "engine",
-      "items": [
-        {
-          "id": "ecu",
-          "slot": [
-            "_engine_ecu",
-            "_ecu"
-          ]
-        },
-        {
-          "id": "internals",
-          "slot": [
-            "_engine_internals",
-            "_internals"
-          ]
-        },
-        {
-          "id": "intake",
-          "slot": [
-            "_intake"
-          ]
-        },
-        {
-          "id": "header",
-          "slot": [
-            "_header"
-          ]
-        },
-        {
-          "id": "exhaust",
-          "slot": [
-            "_exhaust",
-            "_exhaust_na",
-            "_exhaust_turbo_stock"
-          ]
-        },
-        {
-          "id": "radiator",
-          "slot": [
-            "_radiator"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "drivetrain",
-      "items": [
-        {
-          "id": "transmission",
-          "slot": [
-            "_transmission",
-            "_transaxle"
-          ]
-        },
-        {
-          "id": "flywheel",
-          "slot": [
-            "_flywheel"
-          ]
-        },
-        {
-          "id": "diffF",
-          "slot": [
-            "_differential_F"
-          ]
-        },
-        {
-          "id": "diffR",
-          "slot": [
-            "_differential_R"
-          ]
-        },
-        {
-          "id": "finaldriveF",
-          "slot": [
-            "_finaldrive_F"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "finaldriveR",
-          "slot": [
-            "_finaldrive_R"
-          ],
-          "defaultLevel": 1
-        }
-      ]
-    },
-    {
-      "id": "chassis",
-      "items": [
-        {
-          "id": "springF",
-          "slot": [
-            "_coilover_F",
-            "_strut_F"
-          ]
-        },
-        {
-          "id": "springR",
-          "slot": [
-            "_coilover_R",
-            "_strut_R"
-          ]
-        },
-        {
-          "id": "swayF",
-          "slot": [
-            "_swaybar_F"
-          ]
-        },
-        {
-          "id": "swayR",
-          "slot": [
-            "_swaybar_R"
-          ]
-        },
-        {
-          "id": "strutbar",
-          "slot": [
-            "_strut_bar",
-            "_strut_bar_F",
-            "_strut_bar_R"
-          ],
-          "defaultLevel": 2
-        },
-        {
-          "id": "stiffen",
-          "slot": [
-            "_stiffening"
-          ],
-          "defaultLevel": 3
-        },
-        {
-          "id": "brakeF",
-          "slot": [
-            "_brake_F"
-          ]
-        },
-        {
-          "id": "brakeR",
-          "slot": [
-            "_brake_R"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "wheels",
-      "items": [
-        {
-          "id": "rimF",
-          "pattern": [
-            "^wheel_F"
-          ],
-          "defaultLevel": 1,
-          "groupBySize": true
-        },
-        {
-          "id": "rimR",
-          "pattern": [
-            "^wheel_R"
-          ],
-          "defaultLevel": 1,
-          "groupBySize": true
-        },
-        {
-          "id": "tireF",
-          "pattern": [
-            "^tire_F"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "tireR",
-          "pattern": [
-            "^tire_R"
-          ],
-          "defaultLevel": 1
-        }
-      ]
-    },
-    {
-      "id": "body",
-      "items": [
-        {
-          "id": "bumperF",
-          "slot": [
-            "_bumper_F"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "bumperR",
-          "slot": [
-            "_bumper_R"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "lip",
-          "slot": [
-            "_lip_F",
-            "_lip_F_fl"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "skirts",
-          "slot": [
-            "_sideskirts",
-            "_sideskirt_L",
-            "_sideskirt_R"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "hood",
-          "slot": [
-            "_hood"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "spoiler",
-          "slot": [
-            "_spoiler",
-            "_spoiler_sedan",
-            "_spoiler_wagon"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "fender",
-          "slot": [
-            "_fender_L",
-            "_fender_R"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "quarter",
-          "slot": [
-            "_quarterpanels"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "grille",
-          "slot": [
-            "_grille_F"
-          ],
-          "defaultLevel": 1
-        }
-      ]
-    },
-    {
-      "id": "misc",
-      "items": [
-        {
-          "id": "seats",
-          "slot": [
-            "_seat_FL",
-            "_seat_FR"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "steer",
-          "slot": [
-            "_steer"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "shiftknob",
-          "slot": [
-            "_shiftknob"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "rollcage",
-          "slot": [
-            "_rollcage"
-          ],
-          "defaultLevel": 2
-        },
-        {
-          "id": "glass",
-          "slot": [
-            "_windshield",
-            "_doorglass_L",
-            "_doorglass_R",
-            "_quarterglass_L",
-            "_quarterglass_R",
-            "_backlight",
-            "_tailgateglass"
-          ]
-        },
-        {
-          "id": "interior",
-          "slot": [
-            "_interior",
-            "_interior_coupe",
-            "_interior_hatch",
-            "_interior_sedan",
-            "_interior_wagon"
-          ]
-        },
-        {
-          "id": "roof",
-          "slot": [
-            "_roof_accessory"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "mudflap",
-          "slot": [
-            "_mudflap_FL",
-            "_mudflap_FR",
-            "_mudflap_R"
-          ],
-          "defaultLevel": 1
-        },
-        {
-          "id": "underglow",
-          "slot": [
-            "_underglow"
-          ],
-          "defaultLevel": 1
-        }
-      ]
-    },
-    {
-      "id": "paint",
-      "items": [
-        {
-          "id": "livery",
-          "pattern": [
-            "^paint_design$"
-          ],
-          "defaultLevel": 1,
-          "minPriceYen": 19800
-        }
-      ]
     }
   ],
   "levelWords": {
@@ -482,7 +131,6 @@
     "_battery",
     "skin",
     "_body$",
-    "_engine$",
     "_transfer",
     "_converter",
     "_driveshaft",
@@ -490,9 +138,212 @@
     "_hub",
     "_axle",
     "_spindle",
-    "_strut_bar",
     "police",
     "radar"
   ],
-  "customPaintPriceYen": 98000
+  "customPaintPriceYen": 98000,
+  "categories": [
+    {
+      "id": "engineSwap",
+      "group": "mech",
+      "defaultLevel": 2,
+      "match": [
+        "^[%w]+_engine$"
+      ],
+      "hint": "swap"
+    },
+    {
+      "id": "induction",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "intake",
+        "turbo",
+        "supercharger",
+        "intercooler",
+        "airbox",
+        "downpipe",
+        "throttle",
+        "blowoff",
+        "wastegate"
+      ]
+    },
+    {
+      "id": "engine",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "engine_ecu",
+        "_ecu",
+        "internals",
+        "header",
+        "exhaust",
+        "muffler",
+        "radiator",
+        "oilcooler",
+        "fuelinjector",
+        "ignition",
+        "camshaft",
+        "n2o"
+      ]
+    },
+    {
+      "id": "drivetrain",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "transmission",
+        "transaxle",
+        "flywheel",
+        "clutch",
+        "differential",
+        "finaldrive",
+        "transfercase",
+        "shifter"
+      ]
+    },
+    {
+      "id": "suspension",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "coilover",
+        "strut",
+        "spring",
+        "shock",
+        "damper",
+        "swaybar",
+        "sway",
+        "camber",
+        "steering",
+        "suspension",
+        "stiffening",
+        "subframe",
+        "rideheight",
+        "toe",
+        "knuckle",
+        "arm_"
+      ]
+    },
+    {
+      "id": "brakes",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "brake",
+        "abs"
+      ]
+    },
+    {
+      "id": "wheels",
+      "group": "body",
+      "defaultLevel": 1,
+      "groupBySize": true,
+      "match": [
+        "^wheel_",
+        "^tire_",
+        "spacer",
+        "hubcap",
+        "wheeloffset"
+      ]
+    },
+    {
+      "id": "body",
+      "group": "body",
+      "defaultLevel": 1,
+      "match": [
+        "bumper",
+        "lip",
+        "skirt",
+        "sideskirt",
+        "hood",
+        "spoiler",
+        "wing",
+        "fender",
+        "quarter",
+        "grille",
+        "trunk",
+        "tailgate",
+        "hatch",
+        "mirror",
+        "diffuser",
+        "flare",
+        "door",
+        "roof",
+        "headlight",
+        "taillight",
+        "fascia",
+        "splitter",
+        "canard",
+        "bodykit",
+        "valance",
+        "cowl",
+        "rearpanel",
+        "bed",
+        "body_"
+      ]
+    },
+    {
+      "id": "interior",
+      "group": "body",
+      "defaultLevel": 1,
+      "match": [
+        "seat",
+        "steer",
+        "shiftknob",
+        "rollcage",
+        "interior",
+        "dash",
+        "gauge",
+        "harness",
+        "pedal",
+        "cluster",
+        "radio"
+      ]
+    },
+    {
+      "id": "extras",
+      "group": "body",
+      "defaultLevel": 1,
+      "match": [
+        "underglow",
+        "mudflap",
+        "glass",
+        "windshield",
+        "backlight",
+        "accessory",
+        "light",
+        "horn",
+        "antenna",
+        "sticker",
+        "decal",
+        "plate_frame",
+        "towhitch",
+        "roofrack",
+        "bullbar"
+      ]
+    },
+    {
+      "id": "other",
+      "group": "more",
+      "defaultLevel": 1,
+      "match": []
+    },
+    {
+      "id": "paint",
+      "group": "more"
+    },
+    {
+      "id": "all",
+      "group": "more"
+    }
+  ],
+  "preview": {
+    "distance": 7.0,
+    "pitch": -10,
+    "yawStep": 45,
+    "focusOffsetUp": 0.1
+  },
+  "tireWithRim": false,
+  "liveryMinPriceYen": 19800
 }
