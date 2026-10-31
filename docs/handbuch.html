@@ -773,6 +773,18 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <pre><code>"events":   {"buy": "event:>UI>Career>Buy_01", ...},
 "messages": {"msg.carBought": "buy", "msg.noMoney": "denied", ...}</code></pre>
 <p>Eigene Sounds später: Pfad zu einer .ogg-Datei statt des <code>event:</code>-Namens eintragen.</p>
+<h3>Eigene Sounds und Musik erzeugen <span class="tag">tools\audio\</span> <span class="tag">noch nicht im Spiel</span></h3>
+<p>Alle eigenen Sounds und Songs entstehen per Code (Synthese, keine Samples, keine KI-Audio). Du brauchst Python mit <code>pip install numpy scipy mido</code> und ffmpeg für .ogg.</p>
+<table>
+<tr><td class="path">tools\audio\sfx.py</td><td>Menü- und Spiel-Sounds. Jeder Sound ist eine kleine Funktion <code>s_name()</code> mit Tonhöhe, Länge, Lautstärke. Zahl ändern, neu ausführen.</td></tr>
+<tr><td class="path">tools\audio\music.py</td><td>Songs als Noten (Akkorde, Bass, Melodie, Drums). Erzeugt die MIDI-Datei und eine Vorschau.</td></tr>
+<tr><td class="path">tools\audio\music\*.mid</td><td>Die Songs zum Bearbeiten: in FL Studio, LMMS, Reaper usw. öffnen, jede Spur ist ein Instrument, eigene Synths drauflegen.</td></tr>
+<tr><td class="path">tools\audio\out\</td><td>Fertige Sounds (sfx\*.ogg) und Song-Vorschauen (music\*.ogg). WAVs und Einzelspuren (Stems) entstehen nur lokal.</td></tr>
+</table>
+<pre><code>python tools\audio\sfx.py              (alle Sounds)
+python tools\audio\sfx.py click win    (nur diese)
+python tools\audio\music.py --stems    (Songs + Einzelspuren als WAV)</code></pre>
+<p>Beispiel: Der Bestätigen-Klick soll tiefer klingen. In <span class="path">sfx.py</span> bei <code>s_click</code> die Noten <code>note(88)</code> und <code>note(95)</code> um 12 verkleinern (eine Oktave tiefer), dann <code>python tools\audio\sfx.py click</code>.</p>
 </section>
 
 <section id="texte">
