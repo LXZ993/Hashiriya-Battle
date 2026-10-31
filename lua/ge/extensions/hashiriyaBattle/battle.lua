@@ -566,14 +566,20 @@ local function rivalQuote()
   return text, key
 end
 
--- Porträt des Rivalen (art/portraits/<id>.svg aus dem Silhouetten-Tool), nil wenn keins da ist
+-- Porträt des Rivalen, nil wenn keins da ist. Reihenfolge: rivals.json "portrait" (eigener Pfad),
+-- dann art/portraits/<id>.png / .jpg (eigenes Bild), dann <id>.svg (Silhouetten-Tool).
 local portraitCache = {}
 local function portraitOf(rival)
-  local id = rival and rival.id
+  local id = rival and (rival.baseId or rival.id)
   if not id then return nil end
   if portraitCache[id] == nil then
-    local path = '/art/portraits/' .. id .. '.svg'
-    portraitCache[id] = FS:fileExists(path) and path or false
+    portraitCache[id] = false
+    local list = {}
+    if type(rival.portrait) == 'string' and rival.portrait ~= '' then list[1] = '/' .. rival.portrait:gsub('^/', '') end
+    for _, ext in ipairs({ 'png', 'jpg', 'svg' }) do list[#list + 1] = '/art/portraits/' .. id .. '.' .. ext end
+    for _, path in ipairs(list) do
+      if FS:fileExists(path) then portraitCache[id] = path; break end
+    end
   end
   return portraitCache[id] or nil
 end
