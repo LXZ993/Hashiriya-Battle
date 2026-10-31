@@ -1,0 +1,115 @@
+{
+  "_hinweis": "starterCars = Pool der Startautos (Alex macht die Liste noch fertig). Seed-System: aus Fahrername und Kennzeichen werden starterOffer Autos (verschiedene Modelle) gewählt und ihr Gebrauchtzustand gewürfelt; gleicher Name + Kennzeichen = gleiches Angebot. config = Pfad zur .pc-Datei, leer = Standard-Config. priceUsd (BeamNG-Wert) wird in Yen umgerechnet und beim Start vom Startkapital abgezogen. startMoneyYen = Startgeld der Karriere. careerLevel = Level, das der Hauptmenü-Eintrag lädt. careerTraffic = Verkehr beim Karrierestart einschalten, trafficAmount/parkedAmount = Anzahl fahrende/geparkte Autos (-1 = aus den BeamNG-Einstellungen). trafficMinAmount = so viele fahrende Autos mindestens, auch wenn der Verkehr in BeamNG ausgeschaltet ist. trafficGroup = Fahrzeuggruppe für den Verkehr (Agent Traffic JP; fehlt die Mod, kommt der normale BeamNG-Verkehr). conditionRange = Bereiche für den Gebrauchtzustand [von, bis], pro Auto überschreibbar: odometerKm = Laufleistung, integrity 0-1 (unter 1 mehr Motorreibung und Zündaussetzer, also weniger Leistung), visual 0-1 (gealterter Lack), fuel = Tankfüllung (Anteil, nie unter conditionMinFuel). priceUsd fehlt = BeamNG-Wert der Config. conditionMisfireScale = Anteil der BeamNG-Zündaussetzer bei Verschleiß (0.1 = ein Zehntel). conditionCoolingScale = Anteil von Mehrreibung und Kühlerverschleiß (weniger Kühlmittel) bei Verschleiß, also wie stark ein gebrauchter Motor eher heiß wird (0.4 = 40 %). conditionMinFuel = Tank beim Kauf mindestens so voll (0.25 = 25 %). Startautos dürfen höchstens startMoneyYen kosten (teurere werden nicht angeboten). conditionPowerBias = Zuschlag auf den gewürfelten Zustand nach Leistung: powerPs [schwach, stark], bei den Werten jeweils [Zuschlag für das schwache, Zuschlag für das starke Auto]; dazwischen linear. Im Angebot bekommt das schwächste Auto zusätzlich immer den besten Zustand und die wenigsten Kilometer.",
+  "starterCars": [
+    {
+      "id": "starter_covet",
+      "name": "Ibishu Covet 13S",
+      "model": "covet",
+      "config": "vehicles/covet/13s_M.pc",
+      "priceUsd": 18200
+    },
+    {
+      "id": "starter_covet_dx",
+      "name": "Ibishu Covet 1.5 DX",
+      "model": "covet",
+      "config": "vehicles/covet/DX_M.pc",
+      "priceUsd": 18500
+    },
+    {
+      "id": "starter_covet_15se",
+      "name": "Ibishu Covet 15SE",
+      "model": "covet",
+      "config": "vehicles/covet/15se_M.pc",
+      "priceUsd": 19200
+    },
+    {
+      "id": "starter_miramar",
+      "name": "Ibishu Miramar",
+      "model": "miramar",
+      "config": "vehicles/miramar/base_facelift_M.pc",
+      "priceUsd": 25500
+    },
+    {
+      "id": "starter_miramar_early",
+      "name": "Ibishu Miramar (früh)",
+      "model": "miramar",
+      "config": "vehicles/miramar/base_M.pc",
+      "priceUsd": 24500
+    },
+    {
+      "id": "starter_miramar_export",
+      "name": "Ibishu Miramar Export",
+      "model": "miramar",
+      "config": "vehicles/miramar/base_export_M_early.pc",
+      "priceUsd": 26000
+    },
+    {
+      "id": "starter_bx",
+      "name": "Ibishu 200BX",
+      "model": "bx",
+      "config": "vehicles/bx/200bx_base_M.pc",
+      "priceUsd": 29000,
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
+    },
+    {
+      "id": "starter_pessima_dx",
+      "name": "Ibishu Pessima 1.8 DX",
+      "model": "pessima",
+      "config": "vehicles/pessima/DX_M.pc",
+      "priceUsd": 25000
+    },
+    {
+      "id": "starter_pessima_lx",
+      "name": "Ibishu Pessima 2.0 LX",
+      "model": "pessima",
+      "config": "vehicles/pessima/LX_M.pc",
+      "priceUsd": 27700
+    },
+    {
+      "id": "starter_midsize_dx",
+      "name": "Ibishu Pessima Mk2 1.8 DX",
+      "model": "midsize",
+      "config": "vehicles/midsize/DX_M.pc",
+      "priceUsd": 25000
+    }
+  ],
+  "starterOffer": 3,
+  "conditionRange": {
+    "odometerKm": [
+      90000,
+      240000
+    ],
+    "integrity": [
+      0.83,
+      0.95
+    ],
+    "visual": [
+      0.55,
+      0.9
+    ],
+    "fuel": [
+      0.25,
+      0.7
+    ]
+  },
+  "conditionPowerBias": { "powerPs": [80, 150], "integrity": [0.05, -0.03], "visual": [0.1, -0.05], "odometerKm": [-40000, 30000] },
+  "conditionMisfireScale": 0.1,
+  "conditionCoolingScale": 0.4,
+  "conditionMinFuel": 0.25,
+  "startMoneyYen": 4500000,
+  "careerLevel": "c1",
+  "careerTraffic": true,
+  "trafficAmount": -1,
+  "trafficMinAmount": 12,
+  "parkedAmount": -1,
+  "trafficGroup": "/vehicleGroups/agentTraffic/agent_traffic_jp_urban.vehGroup.json"
+}

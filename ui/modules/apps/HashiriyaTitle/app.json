@@ -1,0 +1,13 @@
+{
+  "domElement": "<hashiriya-title></hashiriya-title>",
+  "name": "Hashiriya Battle: Titel",
+  "types": ["ui.apps.categories.gameplay"],
+  "description": "Titelbildschirm und Neues Spiel (Fahrername, Kennzeichen, Auto, Lack). Läuft im eigenen Layout.",
+  "css": { "top": "0px", "left": "0px", "width": "100%", "height": "100%" },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaTitle",
+  "appName": "hashiriyaTitle",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false
+}

@@ -1,0 +1,20 @@
+{
+  "domElement": "<hashiriya-talk></hashiriya-talk>",
+  "name": "Hashiriya Battle: Sprechblase",
+  "types": [
+    "ui.apps.categories.gameplay"
+  ],
+  "description": "Sprechblase mit Porträt: Sprüche der Rivalen beim Herausfordern, nach Sieg und Niederlage.",
+  "css": {
+    "bottom": "120px",
+    "width": "760px",
+    "height": "170px"
+  },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaTalk",
+  "appName": "hashiriyaTalk",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}
