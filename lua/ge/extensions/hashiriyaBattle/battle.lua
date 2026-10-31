@@ -218,7 +218,7 @@ local function startCountdown(rival, rivalVeh, playerAhead)
     battle.lockSpeed = speed
     battle.rivalSpeed = speed
     lockPlayerSpeed(player, speed)
-    rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", speed))
+    rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", speed))
   end
   core().msg(core().t('msg.challenge', rival.name), 3)
   log('I', logTag, 'Challenge gegen ' .. rival.id)
@@ -655,7 +655,7 @@ local function onUpdate(dtReal, dtSim)
       if battle.rivalRelock <= 0 then
         battle.rivalRelock = 0.5
         local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, behind - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
-        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", battle.rivalSpeed + catchUp))
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", battle.rivalSpeed + catchUp))
       end
       battle.lockSpeed = battle.rivalSpeed
       local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
@@ -664,7 +664,7 @@ local function onUpdate(dtReal, dtSim)
         timer = cfg.countdown
         battle.startGap = gap
         battle.relock = 0
-        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", battle.rivalSpeed))
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", battle.rivalSpeed))
       end
       return
     end
