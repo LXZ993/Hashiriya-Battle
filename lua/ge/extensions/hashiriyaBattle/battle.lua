@@ -572,16 +572,20 @@ local portraitCache = {}
 local function portraitOf(rival)
   local id = rival and (rival.baseId or rival.id)
   if not id then return nil end
-  if portraitCache[id] == nil then
-    portraitCache[id] = false
-    local list = {}
-    if type(rival.portrait) == 'string' and rival.portrait ~= '' then list[1] = '/' .. rival.portrait:gsub('^/', '') end
-    for _, ext in ipairs({ 'png', 'jpg', 'svg' }) do list[#list + 1] = '/art/portraits/' .. id .. '.' .. ext end
-    for _, path in ipairs(list) do
-      if FS:fileExists(path) then portraitCache[id] = path; break end
-    end
+  local hit = portraitCache[id]
+  -- gefundene Bilder bleiben gemerkt; fehlende werden nach 30 s neu gesucht (Bild während des Spiels eingefügt)
+  if hit and hit.path then return hit.path end
+  if hit and os.clock() - hit.t < 30 then return nil end
+  local list = {}
+  if type(rival.portrait) == 'string' and rival.portrait ~= '' then list[1] = '/' .. (rival.portrait:gsub('^/', '')) end
+  for _, ext in ipairs({ 'png', 'jpg', 'svg' }) do list[#list + 1] = '/art/portraits/' .. id .. '.' .. ext end
+  local found = nil
+  for _, path in ipairs(list) do
+    if FS:fileExists(path) then found = path; break end
   end
-  return portraitCache[id] or nil
+  portraitCache[id] = { path = found, t = os.clock() }
+  log(found and 'I' or 'W', logTag, 'Porträt ' .. id .. ': ' .. (found or ('keins gefunden (' .. table.concat(list, ', ') .. ')')))
+  return found
 end
 
 function M.getHudState()

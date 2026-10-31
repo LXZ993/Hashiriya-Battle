@@ -138,6 +138,7 @@ function M.chunkEnd(what, arg)
   incoming = nil
   if what == 'save' then M.save(text)
   elseif what == 'spawn' then M.spawn(text)
+  elseif what == 'silhouette' then M.writeSilhouetteData(text)
   else log('W', logTag, 'Builder: unbekannter Auftrag ' .. tostring(what)) end
 end
 
@@ -179,6 +180,17 @@ function M.save(text)
   if core().resetDevRivals then core().resetDevRivals() end
   reply(true, 'Gespeichert (' .. #data.rivals .. ' Rivalen, ' .. #data.teams .. ' Crews)')
   log('I', logTag, 'Builder: rivals.json gespeichert, Sicherung ' .. tostring(backup))
+end
+
+-- Silhouetten-Tool (Userordner hashiriya_tools/silhouette) bekommt nach jedem Speichern die aktuelle Gegnerliste,
+-- damit neue Rivalen dort sofort auftauchen. Nur wenn der Ordner existiert.
+local silhouetteDir = '/hashiriya_tools/silhouette/'
+function M.writeSilhouetteData(text)
+  if not M.isAllowed() then return end
+  if not FS:directoryExists(silhouetteDir) then return end
+  if type(text) ~= 'string' or not text:find('window.HB_RIVALS', 1, true) then return end
+  writeFile(silhouetteDir .. 'rivals_data.js', text)
+  log('I', logTag, 'Builder: Silhouetten-Tool aktualisiert (' .. silhouetteDir .. 'rivals_data.js)')
 end
 
 -- Probe-Spawn mit den Werten aus dem Formular (auch ungespeichert)

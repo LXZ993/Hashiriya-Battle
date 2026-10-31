@@ -105,6 +105,67 @@ angular.module('beamng.apps')
         lua('chunkEnd("' + what + '")')
       }
 
+      // --- Silhouetten-Tool: rivals_data.js (gleiche Regeln wie tools/silhouette/build_data.py) ---
+      var FEMALE_NAMES = ('Ai Aiko Akane Akari Aoi Asami Asuka Atsuko Ayame Ayano Ayumi Brenda Camille Chiharu ' +
+        'Chiyo Emi Erika Erina Fumiko Giulia Greta Hana Hanae Haruko Hinata Ingrid Junko Kaede Kana Kanna Kazue ' +
+        'Kiko Kimiko Kumiko Kyoko Linda Mai Maki Mamiko Mariko Mathilde Mayu Mayumi Mei Michiko Midori Mika Mio ' +
+        'Mirai Momo Nana Nanami Natsumi Noa Noriko Rei Reika Reiko Rie Rin Rina Rumi Ruriko Ryōko Sachi Sachiko ' +
+        'Sakura Saya Sayaka Sayuri Setsuko Shiho Shiori Shizuka Sumire Tamaki Tomoe Ume Valentina Yoko Yoshie ' +
+        'Yui Yuka Yumi Yuri Élodie Signora').split(' ')
+      var FIGUR_FIX = { t_vivace_6: 'm', b_mugen: 'm' }
+      var SIL_HINTS = [
+        [/sonnenbrille/, 'brille', 'sonne'], [/lehrer|nachhilfe|mathe|buchhalt|clubkasse/, 'brille', 'rund'],
+        [/overall|mechaniker|schraubt|werkstatt|schweißt/, 'jacke', 'overall'], [/pelz/, 'jacke', 'pelz'],
+        [/lederjacke|rocker/, 'jacke', 'leder'], [/soldat|stützpunkt|army|marine|dient seit/, 'jacke', 'militaer'],
+        [/surf|hawaii|kalifornien/, 'jacke', 'hawaii'], [/büro|aktentasche|bank|firmenwagen|unternehmer/, 'jacke', 'anzug'],
+        [/student|studier/, 'jacke', 'hoodie'], [/haarspray/, 'haare', 'wellen'], [/\btolle\b/, 'haare', 'tolle'],
+        [/ramen|koch|bude/, 'haare', 'stirnband'], [/raucht|zigarette/, 'extra', 'zigarette'],
+        [/zahnstocher/, 'extra', 'zahnstocher'], [/zahnarzt|\barzt|krankenschwester/, 'extra', 'maske'],
+        [/\bfunk/, 'extra', 'headset'], [/kopfhörer|eurobeat|kassette|tape|walkman/, 'hals', 'kopfhoerer'],
+        [/onsen|handtuch/, 'hals', 'handtuch'],
+        [/\bopa\b|\boma\b|großvater|großmutter|rentner|enkel|älterer herr/, 'haarfarbe', 'silber']
+      ]
+      function silFigur(r) {
+        if (r.figur === 'f' || r.figur === 'm') return r.figur
+        if (FIGUR_FIX[r.id]) return FIGUR_FIX[r.id]
+        if (FEMALE_NAMES.indexOf(String(r.name || '').split(/\s+/)[0]) >= 0) return 'f'
+        var t = (r.desc && r.desc.de) || ''
+        if (/^\s*(Eine|Die)\b/.test(t)) return 'f'
+        var fem = (t.match(/(?:^|[.!?]\s+)Sie\b|\b(?:ihr|ihre|ihren|ihrem|ihrer)\b/g) || []).length
+        var mal = (t.match(/(?:^|[.!?]\s+)Er\b|\b(?:sein|seine|seinen|seinem|seiner)\b/g) || []).length
+        return fem > mal ? 'f' : 'm'
+      }
+      function silHints(r, fig) {
+        var t = (((r.desc && r.desc.de) || '') + ' ' + ((r.nick && r.nick.de) || '')).toLowerCase()
+        var out = {}, any = false
+        SIL_HINTS.forEach(function (h) {
+          if (!(h[1] in out) && h[0].test(t)) {
+            out[h[1]] = (h[1] === 'jacke' && h[2] === 'anzug' && fig === 'f') ? 'kostuem' : h[2]
+            any = true
+          }
+        })
+        return any ? out : null
+      }
+      function silhouetteData(data) {
+        var out = { teams: [], rivals: [] }
+        ;(data.teams || []).forEach(function (t) {
+          var e = {}
+          ;['id', 'name', 'jp', 'color'].forEach(function (k) { e[k] = t[k] !== undefined ? t[k] : null })
+          out.teams.push(e)
+        })
+        ;(data.rivals || []).forEach(function (r) {
+          var e = {}
+          ;['id', 'name', 'nick', 'team', 'lines', 'silhouette'].forEach(function (k) { if (k in r) e[k] = r[k] })
+          e.figur = silFigur(r)
+          var h = silHints(r, e.figur)
+          if (h) e.hints = h
+          ;['leader', 'wanderer', 'boss', 'final'].forEach(function (k) { if (r[k]) e[k] = true })
+          out.rivals.push(e)
+        })
+        return '// Automatisch erzeugt von build_data.py aus rivals.json. Nicht von Hand bearbeiten.\n' +
+          'window.HB_RIVALS = ' + JSON.stringify(out) + ';\n'
+      }
+
       // --- Daten ----------------------------------------------------------------
       function rivals() { return (b.data && b.data.rivals) || [] }
       function teams() { return (b.data && b.data.teams) || [] }
@@ -446,6 +507,8 @@ angular.module('beamng.apps')
         b.busy = true
         b.status = { ok: true, text: 'Speichere …' }
         sendText('save', text)
+        // Silhouetten-Tool im Userordner (hashiriya_tools/silhouette) gleich mit aktualisieren
+        try { sendText('silhouette', silhouetteData(b.data)) } catch (e) { console.warn('Hashiriya Builder: Silhouetten-Daten', e) }
       }
       scope.save = function () {
         validate()
