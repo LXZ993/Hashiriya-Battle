@@ -33,6 +33,22 @@ angular.module('beamng.apps')
       scope.lineKeys = [
         { id: 'challenge', name: 'Herausforderung' }, { id: 'win', name: 'Rivale gewinnt' }, { id: 'lose', name: 'Rivale verliert' }
       ]
+      // Auswahl-Listen für die eigenen Dropdowns (BeamNG öffnet keine HTML-<select>)
+      scope.opts = {
+        roles: [{ v: 'member', l: 'Crew-Mitglied' }, { v: 'leader', l: 'Crew-Leader' }, { v: 'wanderer', l: 'Wanderer' }, { v: 'boss', l: 'Boss' }],
+        appear: [{ v: 'sameNight', l: 'in derselben Nacht wie das letzte Mitglied' }, { v: 'nextNight', l: 'erst in der nächsten Nacht' }],
+        lights: [{ v: '', l: 'normal' }, { v: 'off', l: 'aus (Markenzeichen)' }, { v: 'on', l: 'immer an' }]
+      }
+      scope.teamOpts = function () { return teams().map(function (t) { return { v: t.id, l: t.name } }) }
+      scope.modelOpts = function () { return b.configs.map(function (m) { return { v: m.id, l: m.name + ' (' + m.id + ')' } }) }
+      scope.configOpts = function () {
+        return scope.modelConfigs().map(function (c) {
+          return { v: scope.configPath(c), l: c.name + (c.source && c.source !== 'BeamNG - Official' ? ' · ' + c.source : '') }
+        })
+      }
+      scope.regionOpts = function () { return ((b.plates && b.plates.regions) || []).map(function (r) { return { v: r, l: r } }) }
+      scope.plateTypeOpts = function () { return scope.plateTypes().map(function (t) { return { v: t, l: scope.typeNames[t] || t } }) }
+      scope.rankOpts = function () { return scope.ranks().map(function (r, i) { return { v: String(i), l: scope.rankName(i) } }) }
       scope.typeNames = {
         standard: 'Privat', kei: 'Kei', commercial: 'Gewerbe', keicommercial: 'Kei-Gewerbe', temporary: 'Überführung',
         glow: 'Leuchtend', olympic: 'Olympia', olympiccommercial: 'Olympia Gewerbe', airforce: 'US Air Force'
@@ -541,6 +557,103 @@ angular.module('beamng.apps')
           }
         })
       })
+    }
+  }
+}]);
+
+// Eigenes Dropdown: BeamNG (CEF) öffnet keine nativen <select>-Listen.
+// <div hbb-pick hbb-model="x" hbb-options="[{v, l}]" hbb-empty="– wählen –" hbb-change="f()"></div>
+angular.module('beamng.apps')
+.directive('hbbPick', ['$document', '$timeout', function ($document, $timeout) {
+  return {
+    restrict: 'A',
+    scope: { model: '=hbbModel', options: '&hbbOptions', change: '&hbbChange', empty: '@hbbEmpty' },
+    template:
+      '<div class="hbb-dd" ng-class="{\'is-open\': open}">' +
+        '<div class="hbb-dd-val" ng-click="toggle()"><span>{{ label() }}</span><i>\u25be</i></div>' +
+        '<div class="hbb-dd-pop" ng-if="open">' +
+          '<input type="text" class="hbb-dd-q" ng-if="list.length > 10" ng-model="q.text" placeholder="Suchen \u2026">' +
+          '<div class="hbb-dd-list">' +
+            '<div class="hbb-dd-opt" ng-repeat="o in filtered() track by $index" ng-class="{\'is-sel\': o.v === model}" ng-click="pick(o)">{{ o.l }}</div>' +
+            '<div class="hbb-dd-none" ng-if="!filtered().length">Keine Treffer</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>',
+    link: function (scope, element) {
+      scope.open = false
+      scope.q = { text: '' }
+      scope.list = []
+      function all() {
+        var l = scope.options() || []
+        return scope.empty ? [{ v: '', l: scope.empty }].concat(l) : l
+      }
+      scope.label = function () {
+        var l = all()
+        for (var i = 0; i < l.length; i++) if (l[i].v === scope.model) return l[i].l
+        return scope.model ? String(scope.model) : (scope.empty || '')
+      }
+      var shown = []
+      scope.filtered = function () {
+        var q = (scope.q.text || '').toLowerCase()
+        if (!q) return scope.list
+        var out = scope.list.filter(function (o) { return String(o.l).toLowerCase().indexOf(q) >= 0 || String(o.v).toLowerCase().indexOf(q) >= 0 })
+        // gleiche Liste zurückgeben, solange sich nichts ändert (sonst rechnet Angular endlos)
+        if (out.length === shown.length && out.every(function (o, i) { return o === shown[i] })) return shown
+        shown = out
+        return shown
+      }
+      scope.toggle = function () {
+        scope.open = !scope.open
+        if (scope.open) { scope.list = all(); scope.q.text = '' }
+      }
+      scope.pick = function (o) {
+        scope.model = o.v
+        scope.open = false
+        $timeout(function () { scope.change() })
+      }
+      function outside(ev) {
+        if (!scope.open || element[0].contains(ev.target)) return
+        scope.$apply(function () { scope.open = false })
+      }
+      $document.on('mousedown', outside)
+      scope.$on('$destroy', function () { $document.off('mousedown', outside) })
+    }
+  }
+}])
+
+// Farbwahl ohne nativen Farbdialog: Hex-Feld, Vorschau und Schieber für Rot, Grün, Blau
+.directive('hbbColor', ['$timeout', function ($timeout) {
+  return {
+    restrict: 'A',
+    scope: { model: '=hbbModel', change: '&hbbChange' },
+    template:
+      '<div class="hbb-col-c">' +
+        '<div class="hbb-col-top"><span class="hbb-swatch" ng-style="{background: model}"></span>' +
+          '<input type="text" ng-model="c.hex" ng-change="fromHex()" placeholder="#ff6600"></div>' +
+        '<input type="range" min="0" max="255" ng-model="c.r" ng-change="fromRgb()" style="accent-color:#e2453c">' +
+        '<input type="range" min="0" max="255" ng-model="c.g" ng-change="fromRgb()" style="accent-color:#3cc46b">' +
+        '<input type="range" min="0" max="255" ng-model="c.b" ng-change="fromRgb()" style="accent-color:#3c8ae2">' +
+      '</div>',
+    link: function (scope) {
+      scope.c = { hex: '', r: 128, g: 128, b: 128 }
+      function hx(v) { var s = Math.max(0, Math.min(255, Math.round(v))).toString(16); return s.length < 2 ? '0' + s : s }
+      function sync(hex) {
+        var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || '')
+        scope.c.hex = hex || ''
+        if (m) { scope.c.r = parseInt(m[1], 16); scope.c.g = parseInt(m[2], 16); scope.c.b = parseInt(m[3], 16) }
+      }
+      scope.$watch('model', function (v) { if (v !== scope.c.hex) sync(v) })
+      function set(v) { scope.model = v; $timeout(function () { scope.change() }) }
+      scope.fromHex = function () {
+        var h = (scope.c.hex || '').trim()
+        if (h && h[0] !== '#') h = '#' + h
+        if (/^#[0-9a-fA-F]{6}$/.test(h)) { sync(h.toLowerCase()); set(h.toLowerCase()) }
+      }
+      scope.fromRgb = function () {
+        var h = '#' + hx(+scope.c.r) + hx(+scope.c.g) + hx(+scope.c.b)
+        scope.c.hex = h
+        set(h)
+      }
     }
   }
 }]);
