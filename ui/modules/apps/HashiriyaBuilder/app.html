@@ -1,0 +1,292 @@
+<div class="bngApp hbb-root" ng-class="{'is-open': b.open}">
+  <div class="hbb" ng-if="b.open">
+    <div class="hbb-head">
+      <div class="hbb-title"><b>HASHIRIYA</b> BUILDER <span>Crews · Wanderer · Bosse</span></div>
+      <div class="hbb-status" ng-if="b.status" ng-class="{'is-err': !b.status.ok}">{{ b.status.text }}<i ng-if="b.status.time"> · {{ b.status.time }}</i></div>
+      <div class="hbb-btn" ng-click="reload()" title="rivals.json neu einlesen">Neu laden</div>
+      <div class="hbb-btn hbb-x" ng-click="close()">{{ b.armed == 'close' ? 'Ungespeichert schließen?' : '✕' }}</div>
+    </div>
+
+    <div class="hbb-main" ng-if="b.data">
+      <!-- Liste links -->
+      <div class="hbb-side">
+        <div class="hbb-tabs">
+          <div class="hbb-tab" ng-repeat="t in [['crews','Crews'],['wanderer','Wanderer'],['boss','Bosse'],['settings','Einstellungen']]"
+            ng-class="{'is-on': b.tab == t[0]}" ng-click="setTab(t[0])">{{ t[1] }}</div>
+        </div>
+        <input class="hbb-filter" type="text" ng-model="b.filter" placeholder="Suchen (Name, ID, Auto) …" ng-if="b.tab != 'settings'">
+        <div class="hbb-list">
+          <div ng-if="b.tab == 'crews'">
+            <div class="hbb-add" ng-click="newTeam()">+ Neue Crew</div>
+            <div ng-repeat="t in listTeams() track by t.id">
+              <div class="hbb-row hbb-team" ng-class="{'is-sel': isSel('team', t.id)}" ng-click="select('team', t.id)">
+                <i class="hbb-dot" ng-style="{background: t.color}"></i><b>{{ t.name }}</b>
+                <span>Rang {{ t.minRank }} · {{ teamMembers(t.id).length }}</span>
+              </div>
+              <div ng-if="b.filter || (b.sel && (b.sel.id == t.id || (b.form && b.form.type == 'rival' && b.form.team == t.id)))">
+                <div class="hbb-row hbb-sub" ng-repeat="r in teamMembers(t.id) track by r.id" ng-class="{'is-sel': isSel('rival', r.id)}" ng-click="select('rival', r.id)">
+                  <b>{{ r.leader ? '★ ' : '' }}{{ r.name }}</b><span>{{ r.model }}</span>
+                </div>
+                <div class="hbb-add hbb-sub" ng-click="newRival('member', t.id)">+ Mitglied</div>
+                <div class="hbb-add hbb-sub" ng-if="!teamMembers(t.id).some(roleIsLeader)" ng-click="newRival('leader', t.id)">+ Leader</div>
+              </div>
+            </div>
+          </div>
+          <div ng-if="b.tab == 'wanderer' || b.tab == 'boss'">
+            <div class="hbb-add" ng-click="newRival(b.tab)">+ {{ b.tab == 'boss' ? 'Neuer Boss' : 'Neuer Wanderer' }}</div>
+            <div class="hbb-row" ng-repeat="r in listKind(b.tab) track by r.id" ng-class="{'is-sel': isSel('rival', r.id)}" ng-click="select('rival', r.id)">
+              <b>{{ r.final ? '♛ ' : '' }}{{ r.name }}</b><span>{{ r.model }}{{ r._platzhalter ? ' · Platzhalter' : '' }}</span>
+            </div>
+          </div>
+          <div ng-if="b.tab == 'settings'" class="hbb-note">Allgemeine Regeln aus rivals.json (settings). Erklärung im Handbuch, Abschnitt Builder.</div>
+        </div>
+      </div>
+
+      <!-- Formular rechts -->
+      <div class="hbb-form" ng-if="!b.form"><div class="hbb-empty">Links eine Crew, einen Rivalen oder "+ Neu" wählen.</div></div>
+      <div class="hbb-form" ng-if="b.form">
+        <div class="hbb-pending" ng-if="b.pending">Ungespeicherte Änderungen.
+          <span class="hbb-btn" ng-click="discardPending()">Verwerfen und wechseln</span><span class="hbb-btn" ng-click="keepEditing()">Weiter bearbeiten</span></div>
+
+        <!-- ===== Rivale ===== -->
+        <div ng-if="b.form.type == 'rival'" class="hbb-cols">
+          <div class="hbb-col">
+            <div class="hbb-sec">Grunddaten</div>
+            <div class="hbb-f"><label>Name</label><input type="text" ng-model="b.form.name" ng-change="nameChanged()"></div>
+            <div class="hbb-f"><label>ID</label><input type="text" ng-model="b.form.id" ng-disabled="!b.form.isNew" ng-change="b.form.idTouched = true; validate()"></div>
+            <div class="hbb-f2"><div class="hbb-f"><label>Spitzname DE</label><input type="text" ng-model="b.form.nick.de" ng-change="validate()"></div>
+              <div class="hbb-f"><label>Spitzname EN</label><input type="text" ng-model="b.form.nick.en" ng-change="validate()"></div></div>
+            <div class="hbb-f2">
+              <div class="hbb-f"><label>Rolle</label><select ng-model="b.form.role" ng-change="roleChanged()" ng-options="r.id as r.name for r in roles"></select></div>
+              <div class="hbb-f" ng-if="b.form.role == 'member' || b.form.role == 'leader'"><label>Crew</label>
+                <select ng-model="b.form.team" ng-change="nameChanged()" ng-options="t.id as t.name for t in teams()"></select></div>
+              <div class="hbb-f" ng-if="b.form.role == 'boss'"><label>&nbsp;</label><label class="hbb-chk"><input type="checkbox" ng-model="b.form.final" ng-change="validate()"> Finaler Boss</label></div>
+            </div>
+            <div class="hbb-f" ng-if="b.form.role == 'leader'"><label>Leader erscheint</label>
+              <select ng-model="b.form.appear"><option value="sameNight">in derselben Nacht wie das letzte Mitglied</option><option value="nextNight">erst in der nächsten Nacht</option></select></div>
+
+            <div class="hbb-sec">Auto</div>
+            <div class="hbb-f"><label>Modell <a ng-if="b.player" ng-click="useCurrentModel()">(mein Auto: {{ modelName(b.player.model) }})</a></label>
+              <select ng-model="b.form.model" ng-change="modelChanged()" ng-options="m.id as (m.name + ' (' + m.id + ')') for m in b.configs"><option value="">– wählen –</option></select></div>
+            <div class="hbb-f"><label>Config</label>
+              <select ng-model="b.form.config" ng-change="validate()" ng-options="configPath(c) as (c.name + (c.source && c.source != 'BeamNG - Official' ? ' · ' + c.source : '')) for c in modelConfigs()"><option value="">– wählen –</option></select></div>
+            <div class="hbb-f"><label>Config-Pfad</label><input type="text" ng-model="b.form.config" ng-change="validate()"></div>
+            <div class="hbb-f2 hbb-car">
+              <div class="hbb-f"><label>Aktuelles Auto als Config speichern (Name)</label><input type="text" ng-model="b.carName" placeholder="{{ b.form.id }}"></div>
+              <div class="hbb-f"><label>&nbsp;</label><span class="hbb-btn" ng-class="{'is-off': !b.player}" ng-click="b.player && saveCarConfig()">Speichern</span></div>
+            </div>
+
+            <div class="hbb-sec">Werte</div>
+            <div class="hbb-f"><label>Aggression {{ b.form.aggression | number:2 }} <i>(0,3 vorsichtig … 1,0 sehr aggressiv)</i></label>
+              <input type="range" min="0.3" max="1" step="0.01" ng-model="b.form.aggression" ng-change="validate()"></div>
+            <div class="hbb-f3">
+              <div class="hbb-f"><label>Tempo vorher (km/h)</label><input type="number" ng-model="b.form.cruiseKmh"></div>
+              <div class="hbb-f"><label>Spirit Points</label><input type="number" ng-model="b.form.maxSp"></div>
+              <div class="hbb-f"><label>Licht nachts</label><select ng-model="b.form.lights"><option value="">normal</option><option value="off">aus (Markenzeichen)</option><option value="on">immer an</option></select></div>
+            </div>
+            <div class="hbb-f2">
+              <div class="hbb-f"><label>Belohnung ($, wird zu Yen)</label><input type="number" ng-model="b.form.rewardUsd"></div>
+              <div class="hbb-f"><label>Ruf-Punkte</label><input type="number" ng-model="b.form.rep"></div>
+            </div>
+            <label class="hbb-chk"><input type="checkbox" ng-model="b.form.driverOn"> Eigene Fahrer-Werte (sonst aus Rang und Aggression berechnet)</label>
+            <div ng-if="b.form.driverOn" class="hbb-driver">
+              <div class="hbb-f" ng-repeat="k in driverKeys"><label>{{ k.name }} {{ b.form.driver[k.id] | number:2 }}</label>
+                <input type="range" min="0" max="1" step="0.05" ng-model="b.form.driver[k.id]"></div>
+            </div>
+
+            <div class="hbb-sec">Kennzeichen</div>
+            <div class="hbb-f3">
+              <div class="hbb-f"><label>Text <a ng-click="randomPlate()">(Zufall)</a></label><input type="text" ng-model="b.form.plateText" ng-change="validate()" placeholder="330/12-34"></div>
+              <div class="hbb-f"><label>Region</label><select ng-model="b.form.plateRegion" ng-change="regionChanged()" ng-options="r as r for r in b.plates.regions"></select></div>
+              <div class="hbb-f"><label>Art</label><select ng-model="b.form.plateType" ng-options="t as (typeNames[t] || t) for t in plateTypes()"></select></div>
+            </div>
+
+            <div class="hbb-sec">Lack</div>
+            <label class="hbb-chk"><input type="checkbox" ng-model="b.form.paintOn"> Fester Lack (sonst der Lack aus der Config; bei Livery wird er nicht benutzt)</label>
+            <div class="hbb-f3" ng-if="b.form.paintOn">
+              <div class="hbb-f"><label>Farbe</label><input type="color" ng-model="b.form.paintHex"></div>
+              <div class="hbb-f"><label>Metallic {{ b.form.metallic | number:2 }}</label><input type="range" min="0" max="1" step="0.05" ng-model="b.form.metallic"></div>
+              <div class="hbb-f"><label>Rauheit {{ b.form.roughness | number:2 }}</label><input type="range" min="0" max="1" step="0.05" ng-model="b.form.roughness"></div>
+            </div>
+          </div>
+
+          <div class="hbb-col">
+            <div class="hbb-sec">Bedingungen</div>
+            <div class="hbb-f3">
+              <div class="hbb-f"><label>Ab Rang</label><select ng-model="b.form.cond.minRank" ng-change="validate()">
+                <option value="">–</option><option ng-repeat="r in ranks()" value="{{ $index }}">{{ rankName($index) }}</option></select></div>
+              <div class="hbb-f"><label>Ab Siegen</label><input type="number" ng-model="b.form.cond.minWins"></div>
+              <div class="hbb-f"><label>Ab Tag</label><input type="number" ng-model="b.form.cond.minDay"></div>
+            </div>
+            <div class="hbb-f3">
+              <div class="hbb-f"><label class="hbb-chk"><input type="checkbox" ng-model="b.form.cond.hoursOn" ng-change="validate()"> Uhrzeit</label>
+                <div class="hbb-inline" ng-if="b.form.cond.hoursOn"><input type="number" min="0" max="23" ng-model="b.form.cond.hFrom" ng-change="validate()"> bis <input type="number" min="0" max="24" ng-model="b.form.cond.hTo" ng-change="validate()"> Uhr</div></div>
+              <div class="hbb-f"><label>Radarfallen</label><input type="text" ng-model="b.form.cond.speedTraps" ng-change="validate()" placeholder="all oder Anzahl"></div>
+              <div class="hbb-f"><label>Teil am Spieler-Auto</label><input type="text" ng-model="b.form.cond.playerPart" placeholder="Wort im Teilenamen"></div>
+            </div>
+            <div class="hbb-f"><label>Nur gegen Spieler-Auto</label>
+              <select ng-model="b.form.cond.playerModel" ng-change="validate()" ng-options="m.id as (m.name + ' (' + m.id + ')') for m in b.configs"><option value="">– egal –</option></select></div>
+            <div class="hbb-f"><label>Crew geschlagen</label>
+              <select ng-model="b.form.cond.beatenTeam" ng-change="validate()" ng-options="t.id as t.name for t in teams()"><option value="">–</option></select></div>
+            <div class="hbb-f"><label>Weitere Crews geschlagen</label>
+              <div class="hbb-chips"><span class="hbb-chip" ng-repeat="id in b.form.cond.beatenTeams">{{ teamLabel(id) }} <a ng-click="removeFrom(b.form.cond.beatenTeams, $index)">✕</a></span></div>
+              <select ng-model="b.addTeam" ng-change="addTo(b.form.cond.beatenTeams, b.addTeam); b.addTeam = ''" ng-options="t.id as t.name for t in teams()"><option value="">+ Crew hinzufügen</option></select></div>
+            <div class="hbb-f"><label>Rivalen geschlagen</label>
+              <div class="hbb-chips"><span class="hbb-chip" ng-repeat="id in b.form.cond.beatenRivals">{{ rivalLabel(id) }} <a ng-click="removeFrom(b.form.cond.beatenRivals, $index)">✕</a></span></div>
+              <input type="text" ng-model="b.addRival" placeholder="+ Rivale suchen (Name oder ID) …">
+              <div class="hbb-pick" ng-if="rivalChoices().length"><div ng-repeat="r in rivalChoices() track by r.id" ng-click="addTo(b.form.cond.beatenRivals, r.id)"><b>{{ r.name }}</b> <span>{{ r.id }}</span></div></div></div>
+
+            <div class="hbb-sec">Texte</div>
+            <div ng-repeat="k in lineKeys" class="hbb-f2">
+              <div class="hbb-f"><label>{{ k.name }} DE</label><textarea ng-model="b.form.lines[k.id].de" ng-change="validate()"></textarea></div>
+              <div class="hbb-f"><label>{{ k.name }} EN</label><textarea ng-model="b.form.lines[k.id].en" ng-change="validate()"></textarea></div>
+            </div>
+            <div class="hbb-f2">
+              <div class="hbb-f"><label>Beschreibung DE</label><textarea ng-model="b.form.desc.de" ng-change="validate()"></textarea></div>
+              <div class="hbb-f"><label>Beschreibung EN</label><textarea ng-model="b.form.desc.en" ng-change="validate()"></textarea></div>
+            </div>
+            <div class="hbb-f2" ng-if="b.form.role == 'wanderer' || b.form.role == 'boss'">
+              <div class="hbb-f"><label>Hinweis DE (Lexikon, solange ungeschlagen)</label><textarea ng-model="b.form.hint.de" ng-change="validate()"></textarea></div>
+              <div class="hbb-f"><label>Hinweis EN</label><textarea ng-model="b.form.hint.en" ng-change="validate()"></textarea></div>
+            </div>
+
+            <div class="hbb-sec">Porträt</div>
+            <div class="hbb-portrait">
+              <div class="hbb-pic"><img ng-if="b.form.portrait || portraitOf(b.form.id)" ng-src="{{ b.form.portrait ? '/' + b.form.portrait : portraitOf(b.form.id) }}"><span ng-if="!b.form.portrait && !portraitOf(b.form.id)">?</span></div>
+              <div class="hbb-f"><label>Eigener Pfad (leer = art/portraits/{{ b.form.id }}.png/.jpg/.svg)</label><input type="text" ng-model="b.form.portrait" ng-change="validate()" placeholder="art/portraits/..."></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== Crew ===== -->
+        <div ng-if="b.form.type == 'team'" class="hbb-cols">
+          <div class="hbb-col">
+            <div class="hbb-sec">Crew</div>
+            <div class="hbb-f"><label>Name</label><input type="text" ng-model="b.form.name" ng-change="nameChanged()"></div>
+            <div class="hbb-f"><label>ID</label><input type="text" ng-model="b.form.id" ng-disabled="!b.form.isNew" ng-change="b.form.idTouched = true; validate()"></div>
+            <div class="hbb-f"><label>Japanischer Name</label><input type="text" ng-model="b.form.jp"></div>
+            <div class="hbb-f2">
+              <div class="hbb-f"><label>Farbe</label><input type="color" ng-model="b.form.color" ng-change="validate()"></div>
+              <div class="hbb-f"><label>Ab Rang</label><select ng-model="b.form.minRank"><option ng-repeat="r in ranks()" value="{{ $index }}">{{ rankName($index) }}</option></select></div>
+            </div>
+            <div class="hbb-f"><label>Beschreibung DE</label><textarea ng-model="b.form.desc.de" ng-change="validate()"></textarea></div>
+            <div class="hbb-f"><label>Beschreibung EN</label><textarea ng-model="b.form.desc.en" ng-change="validate()"></textarea></div>
+          </div>
+          <div class="hbb-col" ng-if="!b.form.isNew">
+            <div class="hbb-sec">Mitglieder</div>
+            <div class="hbb-row" ng-repeat="r in teamMembers(b.form.id) track by r.id" ng-click="select('rival', r.id)">
+              <b>{{ r.leader ? '★ ' : '' }}{{ r.name }}</b><span>{{ r.model }} · {{ r.maxSp }} SP</span></div>
+            <div class="hbb-add" ng-click="newRival('member', b.form.id)">+ Mitglied</div>
+            <div class="hbb-add" ng-if="!teamMembers(b.form.id).some(roleIsLeader)" ng-click="newRival('leader', b.form.id)">+ Leader</div>
+          </div>
+        </div>
+
+        <!-- ===== Einstellungen ===== -->
+        <div ng-if="b.form.type == 'settings'" class="hbb-cols">
+          <div class="hbb-col">
+            <div class="hbb-sec">Einstellungen (settings)</div>
+            <div ng-repeat="row in settingRows(b.form.settings)">
+              <div class="hbb-f hbb-set" ng-if="row.type == 'number'"><label>{{ row.key }}</label><input type="number" step="any" ng-model="b.form.settings[row.key]"></div>
+              <label class="hbb-chk" ng-if="row.type == 'boolean'"><input type="checkbox" ng-model="b.form.settings[row.key]"> {{ row.key }}</label>
+              <div ng-if="row.type == 'object'">
+                <div class="hbb-sec hbb-sec2">{{ row.key }}</div>
+                <div ng-repeat="sub in settingRows(b.form.settings[row.key])">
+                  <div class="hbb-f hbb-set" ng-if="sub.type == 'number'"><label>{{ sub.key }}</label><input type="number" step="any" ng-model="b.form.settings[row.key][sub.key]"></div>
+                  <label class="hbb-chk" ng-if="sub.type == 'boolean'"><input type="checkbox" ng-model="b.form.settings[row.key][sub.key]"> {{ sub.key }}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prüfung + Knöpfe -->
+        <div class="hbb-foot">
+          <div class="hbb-issues" ng-if="b.issues">
+            <div class="hbb-err" ng-repeat="e in b.issues.err track by $index">✕ {{ e }}</div>
+            <div class="hbb-warn" ng-repeat="w in b.issues.warn track by $index">! {{ w }}</div>
+            <div class="hbb-ok" ng-if="!b.issues.err.length && !b.issues.warn.length">✓ Alles in Ordnung</div>
+          </div>
+          <div class="hbb-actions">
+            <span class="hbb-btn hbb-main" ng-class="{'is-off': (b.issues && b.issues.err.length) || b.busy || !b.root}" ng-click="save()">{{ b.form.isNew ? 'Anlegen und speichern' : 'Speichern' }}</span>
+            <span class="hbb-btn" ng-if="b.form.type == 'rival'" ng-class="{'is-off': !b.active}" title="Nur in einer laufenden Karriere" ng-click="b.active && testSpawn()">Test-Spawn</span>
+            <span class="hbb-btn" ng-if="dirty()" ng-click="revert()">Verwerfen</span>
+            <span class="hbb-btn hbb-del" ng-if="b.form.type != 'settings'" ng-click="remove()">{{ b.armed == 'remove' ? 'Wirklich löschen?' : 'Löschen' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .hbb-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;
+      --o:#ff6600;--o2:#ff9a3c;--w:#f4f4f4;--dim:rgba(244,244,244,.6);--bg:rgba(10,11,14,.94);--ln:rgba(255,255,255,.12);
+      font-family:"Overpass","Noto Sans JP",sans-serif;color:var(--w);}
+    .hbb-root.is-open{pointer-events:auto;}
+    .hbb{position:absolute;top:4%;bottom:4%;left:5%;right:5%;display:flex;flex-direction:column;background:var(--bg);border:1px solid var(--ln);
+      border-top:3px solid var(--o);box-shadow:0 10px 40px rgba(0,0,0,.7);}
+    .hbb-head{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--ln);}
+    .hbb-title{flex:1;font-size:15px;font-style:italic;font-weight:900;letter-spacing:2px;}
+    .hbb-title b{color:var(--o);} .hbb-title span{margin-left:10px;font-size:11px;font-weight:400;letter-spacing:1px;color:var(--dim);}
+    .hbb-status{font-size:12px;color:#7ddc8b;} .hbb-status.is-err{color:#ff6b5f;} .hbb-status i{color:var(--dim);font-style:normal;}
+    .hbb-main{flex:1;display:flex;min-height:0;}
+    .hbb-side{width:300px;display:flex;flex-direction:column;border-right:1px solid var(--ln);}
+    .hbb-tabs{display:flex;}
+    .hbb-tab{flex:1;padding:8px 4px;text-align:center;font-size:12px;cursor:pointer;color:var(--dim);border-bottom:2px solid transparent;}
+    .hbb-tab.is-on{color:var(--w);border-bottom-color:var(--o);}
+    .hbb-filter{margin:8px;}
+    .hbb-list{flex:1;overflow-y:auto;padding:0 8px 8px;}
+    .hbb-row{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;font-size:12px;cursor:pointer;align-items:center;}
+    .hbb-row b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .hbb-row span{color:var(--dim);white-space:nowrap;font-size:11px;}
+    .hbb-row:hover{background:rgba(255,102,0,.18);} .hbb-row.is-sel{background:rgba(255,102,0,.35);}
+    .hbb-team{margin-top:2px;} .hbb-team b{flex:1;}
+    .hbb-sub{margin-left:18px;}
+    .hbb-dot{width:10px;height:10px;border-radius:50%;flex:none;}
+    .hbb-add{padding:5px 8px;font-size:12px;color:var(--o2);cursor:pointer;} .hbb-add:hover{background:rgba(255,102,0,.12);}
+    .hbb-note,.hbb-empty{padding:12px;font-size:12px;color:var(--dim);}
+    .hbb-form{flex:1;display:flex;flex-direction:column;min-width:0;}
+    .hbb-cols{flex:1;display:flex;gap:18px;overflow-y:auto;padding:4px 14px 10px;}
+    .hbb-col{flex:1;min-width:0;}
+    .hbb-sec{margin:12px 0 6px;font-size:11px;font-weight:900;font-style:italic;letter-spacing:2px;text-transform:uppercase;color:var(--o2);
+      border-bottom:1px solid var(--ln);padding-bottom:3px;}
+    .hbb-sec2{margin-top:8px;font-size:10px;}
+    .hbb-f{display:flex;flex-direction:column;gap:2px;margin-bottom:6px;flex:1;min-width:0;}
+    .hbb-f label{font-size:11px;color:var(--dim);} .hbb-f label i{font-style:normal;opacity:.7;}
+    .hbb-f label a,.hbb-f a{color:var(--o2);cursor:pointer;}
+    .hbb-f2,.hbb-f3{display:flex;gap:10px;}
+    .hbb-set{flex-direction:row;align-items:center;justify-content:space-between;} .hbb-set input{width:120px;}
+    .hbb input[type=text],.hbb input[type=number],.hbb select,.hbb textarea{background:rgba(0,0,0,.45);border:1px solid var(--ln);color:var(--w);
+      padding:4px 6px;font-size:12px;font-family:inherit;border-radius:0;outline:none;}
+    .hbb input:focus,.hbb select:focus,.hbb textarea:focus{border-color:var(--o);}
+    .hbb input[disabled]{opacity:.5;}
+    .hbb select option{background:#15171c;color:var(--w);}
+    .hbb textarea{min-height:44px;resize:vertical;}
+    .hbb input[type=range]{width:100%;accent-color:var(--o);}
+    .hbb input[type=color]{width:100%;height:24px;padding:0;border:1px solid var(--ln);background:none;}
+    .hbb-chk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--w)!important;margin:4px 0 6px;cursor:pointer;}
+    .hbb-chk input{accent-color:var(--o);}
+    .hbb-inline{display:flex;align-items:center;gap:4px;font-size:12px;} .hbb-inline input{width:52px;}
+    .hbb-driver{padding-left:12px;border-left:2px solid var(--ln);}
+    .hbb-chips{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:3px;}
+    .hbb-chip{font-size:11px;padding:2px 6px;background:rgba(255,102,0,.2);border:1px solid rgba(255,102,0,.4);}
+    .hbb-chip a{color:var(--w);cursor:pointer;margin-left:4px;}
+    .hbb-pick{max-height:160px;overflow-y:auto;background:rgba(0,0,0,.6);border:1px solid var(--ln);}
+    .hbb-pick div{padding:4px 8px;font-size:12px;cursor:pointer;} .hbb-pick div:hover{background:rgba(255,102,0,.25);} .hbb-pick span{color:var(--dim);}
+    .hbb-portrait{display:flex;gap:12px;align-items:flex-start;}
+    .hbb-pic{flex:none;width:110px;height:110px;background:#0e1015;box-shadow:0 0 0 2px var(--o);display:flex;align-items:center;justify-content:center;
+      font-size:48px;font-weight:900;color:rgba(255,255,255,.15);clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);}
+    .hbb-pic img{width:100%;height:100%;}
+    .hbb-foot{border-top:1px solid var(--ln);padding:8px 14px;display:flex;gap:14px;align-items:flex-end;}
+    .hbb-issues{flex:1;max-height:92px;overflow-y:auto;font-size:12px;line-height:17px;}
+    .hbb-err{color:#ff6b5f;} .hbb-warn{color:#ffd23f;} .hbb-ok{color:#7ddc8b;}
+    .hbb-actions{display:flex;gap:6px;flex:none;}
+    .hbb-btn{display:inline-block;padding:6px 12px;font-size:12px;cursor:pointer;background:rgba(255,255,255,.08);border:1px solid var(--ln);white-space:nowrap;}
+    .hbb-btn:hover{background:rgba(255,102,0,.3);}
+    .hbb-btn.hbb-main{background:var(--o);border-color:var(--o);font-weight:700;color:#111;}
+    .hbb-btn.is-off{opacity:.35;pointer-events:none;}
+    .hbb-btn.hbb-del:hover{background:rgba(226,69,60,.5);}
+    .hbb-x{padding:6px 10px;}
+    .hbb-pending{margin:8px 14px 0;padding:6px 10px;font-size:12px;background:rgba(255,210,63,.15);border:1px solid rgba(255,210,63,.4);display:flex;gap:8px;align-items:center;}
+    .hbb-car{align-items:flex-end;}
+  </style>
+</div>

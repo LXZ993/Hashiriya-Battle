@@ -41,6 +41,7 @@
   "msg.battle": "BATTLE!",
   "msg.configDump": "Fahrzeug-Configs exportiert (%d Configs).",
   "menu.dumpConfigs": "Configs exportieren",
+  "menu.builder": "Builder (Crews, Wanderer, Bosse)",
   "pa.garage": "Garage",
   "pa.shop": "Tuning-Shop",
   "msg.enterPa": "%s erreicht.",

@@ -647,6 +647,8 @@ local function scalars(t)
   return out
 end
 
+M.getModelKeys = getModelKeys
+
 function M.dumpConfigs()
   local result, count = {}, 0
   for _, key in ipairs(getModelKeys()) do
@@ -681,6 +683,8 @@ local function setLayout(name)
 end
 
 local devRivals = nil -- Dev-Tool: Liste aller Rivalen für die Eingabe im Menü
+
+function M.resetDevRivals() devRivals = nil end
 
 local function buildUiState()
   local eco = M.economy()
@@ -1041,6 +1045,10 @@ function M.uiAction(action, arg)
     end
   elseif action == 'cheatFuel' then
     extensions.hashiriyaBattle_fuel.devFill()
+  elseif action == 'builder' then
+    -- Entwickler-Werkzeug: Crews, Wanderer und Bosse bearbeiten (UI-App HashiriyaBuilder)
+    if extensions.hashiriyaBattle_builder then extensions.hashiriyaBattle_builder.open()
+    else M.msg('Builder fehlt (builder.lua nicht im Mod)', 4) end
   elseif action == 'devClearRivals' then
     extensions.hashiriyaBattle_rivals.despawnAll()
   elseif action == 'toggleMarkers' then
@@ -1068,6 +1076,12 @@ end
 -- Hooks -----------------------------------------------------------------------
 
 local function onExtensionLoaded()
+  -- Builder (Entwickler-Werkzeug) nur laden, wenn die Datei da ist (fehlt im Release-Zip)
+  if FS:fileExists('/lua/ge/extensions/hashiriyaBattle/builder.lua') then
+    local has = false
+    for _, n in ipairs(subExtensions) do if n == 'hashiriyaBattle_builder' then has = true end end
+    if not has then table.insert(subExtensions, 'hashiriyaBattle_builder') end
+  end
   for _, name in ipairs(subExtensions) do
     extensions.load(name)
     setExtensionUnloadMode(name, 'manual')
