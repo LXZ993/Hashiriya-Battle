@@ -13317,9 +13317,6 @@
       "conditions": {
         "minRank": 3,
         "beatenTeam": "t_neon",
-        "beatenRivals": [
-          "w_noodle"
-        ],
         "hours": [
           23,
           4
@@ -13348,8 +13345,8 @@
         "en": "Used to race his I-Series on the Autobahn. Came all the way across the pond to compare German precision to Japanese ingenuity."
       },
       "hint": {
-        "de": "Erst nach Siegen über den Ginza Neon Club und Noodle, zwischen 23 und 4 Uhr.",
-        "en": "Only after beating the Ginza Neon Club and Noodle, between 11 pm and 4 am."
+        "de": "Erst nach dem Sieg über den Ginza Neon Club, zwischen 23 und 4 Uhr.",
+        "en": "Only after beating the Ginza Neon Club, between 11 pm and 4 am."
       }
     },
     {
