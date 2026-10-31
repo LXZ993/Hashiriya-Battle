@@ -72,7 +72,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 30.10.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 31.10.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -235,7 +235,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><th>Datei</th><th>Inhalt</th></tr>
 <tr><td><code>hashiriya.log</code></td><td>Das aktuelle Log</td></tr>
 <tr><td><code>hashiriya.1.log</code> bis <code>.3.log</code></td><td>Ältere Teile: Wird das Log zu groß, rückt es hierher. Die älteste Datei wird gelöscht.</td></tr>
-<tr><td><code>fehlerbericht.txt</code></td><td>Kommt vom Knopf <b>Fehlerbericht erstellen</b> im Hashiriya-Menü. Das ist <b>die eine Datei, die ein Spieler schicken soll</b>.</td></tr>
+<tr><td><code>bugreport.txt</code></td><td>Kommt vom Knopf <b>Fehlerbericht erstellen</b> im Hashiriya-Menü. Das ist <b>die eine Datei, die ein Spieler schicken soll</b>.</td></tr>
 </table>
 <h3>Was wird geloggt?</h3>
 <ul>
@@ -268,7 +268,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3>Ablauf, wenn ein Tester einen Fehler hat</h3>
 <ol class="steps">
 <li>Tester drückt im Spiel Pos1 und dann <b>Fehlerbericht erstellen</b>. Unten erscheint der Pfad zur Datei.</li>
-<li>Tester schickt dir <code>fehlerbericht.txt</code> und schreibt kurz dazu, was passiert ist.</li>
+<li>Tester schickt dir <code>bugreport.txt</code> und schreibt kurz dazu, was passiert ist.</li>
 <li>Du gibst mir die Datei (hochladen). Ich werte sie aus und baue den Fix.</li>
 </ol>
 <p>Der Bericht enthält den Log-Kopf, den Spielzustand, den Spielstand (<code>save.json</code>) und die letzten etwa 1800 Log-Zeilen. Passwörter oder persönliche Daten stehen nicht drin, höchstens der Fahrername aus dem Spielstand und die Liste der Mods.</p>
@@ -309,7 +309,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>aggression</code></td><td>Wie hart die KI fährt, 0 bis 1 (0.4 = brav, 0.9 = sehr aggressiv)</td><td><code>0.45</code></td></tr>
 <tr><td><code>cruiseKmh</code></td><td>Reisetempo vor dem Battle (auch das Battle-Starttempo)</td><td><code>95</code></td></tr>
 <tr><td><code>maxSp</code></td><td>SP-Balken des Rivalen (du hast 1000)</td><td><code>850</code></td></tr>
-<tr><td><code>rewardUsd</code></td><td>Preisgeld in BeamNG-Dollar, wird mal 150 in Yen umgerechnet</td><td><code>1200</code> = ¥180.000</td></tr>
+<tr><td><code>rewardUsd</code></td><td>Preisgeld in BeamNG-Dollar, wird mal 150 in Yen umgerechnet und dann mit <code>settings.rewardScale</code> (aktuell 0.5) multipliziert</td><td><code>1200</code> = ¥90.000 (bei 0.5)</td></tr>
 <tr><td><code>rep</code></td><td>Ruf, den du für den Sieg bekommst</td><td><code>40</code></td></tr>
 <tr><td><code>conditions</code></td><td>Wann er auftaucht (siehe <a href="#bedingungen">Bedingungen</a>)</td><td><code>{"minRank": 2}</code></td></tr>
 <tr><td><code>plate</code></td><td>Kennzeichen (siehe <a href="#kennzeichen">Kennzeichen</a>)</td><td><code>{"text": "500/22-91", "design": "am5jp_shinagawa_standard"}</code></td></tr>
@@ -484,7 +484,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3 id="raenge">Ränge (ranks)</h3>
 <pre><code>{"rep": 500, "name": {"de": "Nachtgast", "en": "Night Guest"}, "jp": "夜の客"}</code></pre>
 <p><code>rep</code> = ab so viel Ruf hat man den Rang. Reihenfolge = Index (erster Eintrag = Rang 0). Der letzte hat <code>"requiresFinal": true</code> (nur nach dem Endboss). Aktuell 15 Ränge: 0, 500, 1000, 1650, 2500, 3150, 4000, 4850, 5700, 6600, 7750, 8750, 9850, 11000, 12150 Ruf.</p>
-<div class="box warn"><b>Ränge hängen zusammen</b>Wenn du Ränge einfügst oder löschst, verschieben sich die Nummern. Dann stimmen <code>minRank</code> der Crews, der Wanderer, im Händler (<code>dealer.json</code>) und die Tuning-Stufen (<code>tuning.json</code>, Rang 4 und 8) nicht mehr. Lieber nur Namen und <code>rep</code>-Werte ändern.</div>
+<div class="box warn"><b>Ränge hängen zusammen</b>Wenn du Ränge einfügst oder löschst, verschieben sich die Nummern. Dann stimmen <code>minRank</code> der Crews, der Wanderer, im Händler (<code>dealer.json</code>) und die Tuning-Stufen (<code>tuning.json</code>, Rang 1, 4 und 8) nicht mehr. Lieber nur Namen und <code>rep</code>-Werte ändern.</div>
 
 <h3 id="spitznamen">Spitznamen (nicknames)</h3>
 <p>Titel, die man für Statistiken bekommt (wie bei B.A.D.):</p>
@@ -511,6 +511,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>cleanWinMaxDamageSp</code></td><td>60</td><td>Höchstens so viel SP durch Schaden verloren = "sauberer Sieg"</td></tr>
 <tr><td><code>closeWinMaxSpPercent</code></td><td>15</td><td>Unter so viel % SP übrig = "knapper Sieg"</td></tr>
 <tr><td><code>quickWinSeconds</code></td><td>30</td><td>Unter so vielen Sekunden = "schneller Sieg"</td></tr>
+<tr><td><code>rewardScale</code></td><td>0.5</td><td>Faktor für <b>alle</b> Preisgelder (1 = volle <code>rewardUsd</code>, 0.5 = halb so viel). Am einfachsten, um die Wirtschaft knapper oder großzügiger zu machen.</td></tr>
 <tr><td><code>rematch.enabled</code></td><td>true</td><td>Geschlagene Rivalen kommen als Revanche wieder</td></tr>
 <tr><td><code>rematch.weight</code></td><td>0.25</td><td>Wie oft eine Revanche statt eines neuen Gegners gewählt wird</td></tr>
 <tr><td><code>rematch.rewardFactor</code> / <code>repFactor</code></td><td>0.4 / 0.25</td><td>Anteil von Preisgeld und Ruf bei einer Revanche</td></tr>
@@ -581,11 +582,11 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <p>Die Teile selbst kommen aus BeamNG (alles, was in die Slots des Autos passt). <code>tuning.json</code> regelt nur, <b>welche Slots</b> in welchem Reiter erscheinen, <b>welche Stufe</b> ein Teil hat und <b>wann</b> eine Stufe freigeschaltet ist.</p>
 <h3>Stufen freischalten (tiers)</h3>
 <pre><code>"tiers": [
-  {"level": 1, "unlock": {"minWins": 0}},
+  {"level": 1, "unlock": {"minRank": 1}},
   {"level": 2, "unlock": {"minRank": 4}},
   {"level": 3, "unlock": {"minRank": 8}}
 ]</code></pre>
-<p>Stufe 2 ab Rang 4, Stufe 3 ab Rang 8. Ändere die Zahlen, wenn Tuning früher oder später kommen soll.</p>
+<p><code>minRank</code> ist der Index in der Rangliste (0 = Neuling). Stufe 1 gibt es ab dem zweiten Rang (Index 1, Nachtgast), Stufe 2 ab Index 4, Stufe 3 ab Index 8. Als Neuling fährst du also nur mit Serienteilen. Ändere die Zahlen, wenn Tuning früher oder später kommen soll (z. B. <code>"minRank": 2</code> für Stufe 1 erst ab dem dritten Rang). Statt <code>minRank</code> geht auch <code>minWins</code> (Anzahl Siege).</p>
 <h3>Stufe eines Teils (levelWords)</h3>
 <p>Die Stufe wird aus Wörtern im Teilenamen erkannt (höchste Stufe zuerst). Steht im Namen z. B. "race" oder "stage3", ist es Stufe 3; "sport" ist Stufe 1.</p>
 <pre><code>"levelWords": {"3": ["race", "stage3", "ultra", ...], "2": ["stage1", "turbo", ...], "1": ["sport", ...]}</code></pre>
@@ -922,7 +923,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td class="path">fuel.lua</td><td><code>nightFactor</code></td><td>1.45</td><td>Nachtzuschlag an der Tankstelle</td></tr>
 <tr><td class="path">fuel.lua</td><td><code>litersPerSecond</code></td><td>1.2</td><td>Tankgeschwindigkeit</td></tr>
 <tr><td class="path">parking.lua</td><td><code>repairYenPerDamage</code></td><td>2</td><td>Reparaturpreis je Schadenspunkt</td></tr>
-<tr><td class="path">parking.lua</td><td><code>towBaseYen</code> / <code>towYenPerKm</code></td><td>30000 / 2500</td><td>Abschleppen: Grundgebühr plus je km zur Garage</td></tr>
+<tr><td class="path">parking.lua</td><td><code>towBaseYen</code> / <code>towYenPerKm</code></td><td>30000 / 2500</td><td>Abschleppen: Grundgebühr plus je km zur Garage. Abschleppen repariert nicht, der Schaden bleibt (Reparatur in der Garage kostet extra).</td></tr>
 <tr><td class="path">parking.lua</td><td><code>triggerRadius</code> / <code>footRadius</code></td><td>4 / 2.5</td><td>Standard-Auslösebereiche (wenn die Map-Datei keinen <code>radius</code> hat)</td></tr>
 <tr><td class="path">core.lua</td><td><code>platePriceYen</code></td><td>15000</td><td>Kennzeichen ummelden</td></tr>
 </table>
@@ -987,7 +988,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>+¥1.000.000 / +1 Sieg</td><td>Geld und Siege (Tuning-Stufen testen)</td></tr>
 <tr><td>Position merken</td><td>Speichert die aktuelle Position (siehe <a href="#map">Map</a>)</td></tr>
 <tr><td>Parkplatz-Markierung</td><td>Buchten sichtbar machen</td></tr>
-<tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\fehlerbericht.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
+<tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\bugreport.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
 <tr><td>Configs exportieren</td><td>Schreibt alle Configs nach <span class="path">settings\hashiriya_battle\config_dump.json</span> (Grundlage für die Config-Liste)</td></tr>
 </table>
 <div class="box tip"><b>Ablauf: neuen Wanderer testen</b>1. BeamNG starten, Karriere laden. 2. Pos1, ID ins Feld tippen, "Spawnen". 3. Vor ihm Lichthupe geben, Battle fahren. 4. Spruch im HUD prüfen. 5. Soll die Bedingung getestet werden: Uhr vorstellen oder Ruf holen und "Rivalen rufen" benutzen.</div>
