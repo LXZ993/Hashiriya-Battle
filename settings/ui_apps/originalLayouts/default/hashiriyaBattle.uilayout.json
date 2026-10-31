@@ -4,22 +4,22 @@
    "appName": "hashiriyaBoost",
    "appVersion": 1,
    "placement": {
-    "bottom": "310px",
-    "height": "90px",
+    "bottom": "300px",
+    "height": "56px",
     "position": "absolute",
-    "right": "5px",
-    "width": "220px"
+    "right": "20px",
+    "width": "200px"
    }
   },
   {
    "appName": "hashiriyaPowertrain",
    "appVersion": 1,
    "placement": {
-    "bottom": "5px",
-    "height": "130px",
+    "bottom": "8px",
+    "height": "70px",
     "position": "absolute",
     "right": "315px",
-    "width": "330px"
+    "width": "260px"
    }
   },
   {
@@ -39,11 +39,11 @@
    "appName": "hashiriyaMinimap",
    "appVersion": 1,
    "placement": {
-    "bottom": "10px",
-    "height": "320px",
+    "bottom": "16px",
+    "height": "210px",
     "left": "20px",
     "position": "absolute",
-    "width": "270px"
+    "width": "380px"
    }
   },
   {
@@ -171,5 +171,5 @@
  "removedApps": {},
  "title": "Hashiriya Battle",
  "type": "hashiriyaBattle",
- "version": 9
+ "version": 10
 }

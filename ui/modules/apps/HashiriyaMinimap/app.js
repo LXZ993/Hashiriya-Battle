@@ -9,53 +9,33 @@ angular.module('beamng.apps')
   return {
     template: [
       '<div class="bngApp hbn-root">',
-        '<div class="hbn" ng-show="shown" ng-class="{\'hbn-round\': mode === \'circle\', \'hbn-police\': info.policeMode === \'visibleToPolice\', \'hbn-hidden\': info.policeMode === \'hiddenFromPolice\'}">',
-          '<div class="hbn-head">',
-            '<span class="hbn-net">Hashiriya</span><span class="hbn-title">{{ tx(\'hud.navi\', \'Navi\') }}</span>',
+        '<div class="hbn" ng-show="shown" ng-class="{\'hbn-round\': mode === \'circle\', \'hbn-police\': info.policeMode === \'visibleToPolice\'}">',
+          '<div class="hbn-top">',
+            '<span class="hbn-net">Navi</span>',
+            '<span class="hbn-loc">{{ info.locationName || \'\' }}</span>',
+            '<span class="hbn-dist" ng-if="info.distToTarget">{{ info.distToTarget }}</span>',
           '</div>',
-          '<div class="hbn-loc">{{ info.locationName || \' \' }}</div>',
-          '<div class="hbn-map"><div class="hbn-hole"></div>',
-            '<i class="hbn-c hbn-c1"></i><i class="hbn-c hbn-c2"></i><i class="hbn-c hbn-c3"></i><i class="hbn-c hbn-c4"></i>',
-          '</div>',
-          '<div class="hbn-foot">',
-            '<span class="hbn-pol" ng-if="info.policeMode === \'visibleToPolice\'">{{ tx(\'hud.policeSeen\', \'Police on you\') }}</span>',
-            '<span class="hbn-pol hbn-pol-low" ng-if="info.policeMode === \'hiddenFromPolice\'">{{ tx(\'hud.policeLost\', \'Out of sight\') }}</span>',
-            '<span class="hbn-fill"></span>',
-            '<span class="hbn-dist" ng-if="info.distToTarget"><small>{{ tx(\'hud.target\', \'Target\') }}</small> {{ info.distToTarget }}</span>',
-          '</div>',
+          '<div class="hbn-map"><div class="hbn-hole"></div></div>',
+          '<div class="hbn-pol" ng-if="info.policeMode === \'visibleToPolice\'">{{ tx(\'hud.policeSeen\', \'Police on you\') }}</div>',
+          '<div class="hbn-pol hbn-pol-low" ng-if="info.policeMode === \'hiddenFromPolice\'">{{ tx(\'hud.policeLost\', \'Out of sight\') }}</div>',
         '</div>',
         '<style>',
           '.hbn-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;',
             'font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;color:#f4f4f4;}',
-          '.hbn{--ac:#ff6600;position:absolute;inset:0;display:flex;flex-direction:column;box-sizing:border-box;padding:8px 14px 0 14px;',
-            'background:linear-gradient(180deg,rgba(14,15,18,.92),rgba(14,15,18,.82));border-left:4px solid var(--ac);',
-            'box-shadow:0 8px 28px rgba(0,0,0,.55);text-shadow:0 1px 2px rgba(0,0,0,.7);',
-            'clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%);animation:hbnIn .5s cubic-bezier(.2,.9,.25,1) both;}',
-          '.hbn-head{display:flex;align-items:baseline;gap:9px;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;}',
-          '.hbn-net{font-weight:900;font-style:italic;color:var(--ac);}',
-          '.hbn-title{font-weight:700;color:rgba(244,244,244,.65);}',
-          '.hbn-loc{font-size:14px;font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.3px;line-height:17px;',
-            'margin:2px 0 7px;max-height:34px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}',
-          '.hbn-map{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;}',
-          // freies Feld: hier zeichnet BeamNG die Karte hinein
-          '.hbn-hole{width:100%;height:100%;background:rgba(0,0,0,.35);box-shadow:inset 0 0 12px rgba(0,0,0,.7);}',
-          '.hbn-round .hbn-hole{border-radius:50%;width:auto;height:100%;aspect-ratio:1/1;max-width:100%;}',
-          '.hbn-c{position:absolute;width:10px;height:10px;border-color:var(--ac);border-style:solid;border-width:0;opacity:.85;}',
-          '.hbn-c1{left:-2px;top:-2px;border-left-width:2px;border-top-width:2px;}',
-          '.hbn-c2{right:-2px;top:-2px;border-right-width:2px;border-top-width:2px;}',
-          '.hbn-c3{left:-2px;bottom:-2px;border-left-width:2px;border-bottom-width:2px;}',
-          '.hbn-c4{right:-2px;bottom:-2px;border-right-width:2px;border-bottom-width:2px;}',
-          '.hbn-round .hbn-c{display:none;}',
-          '.hbn-foot{display:flex;align-items:center;gap:8px;height:26px;font-size:12px;letter-spacing:1px;}',
-          '.hbn-fill{flex:1;}',
-          '.hbn-dist{font-style:italic;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums;}',
-          '.hbn-dist small{font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:rgba(244,244,244,.55);font-style:normal;margin-right:4px;}',
-          '.hbn-pol{font-weight:900;font-style:italic;text-transform:uppercase;color:#ff5a3c;animation:hbnBlink .7s ease-in-out infinite alternate;}',
-          '.hbn-pol-low{color:#8fa3bf;animation-duration:1.4s;}',
-          '.hbn-police{animation:hbnIn .5s both,hbnPolice .7s ease-in-out infinite alternate;}',
-          '@keyframes hbnIn{from{opacity:0;transform:translateX(-30px);}to{opacity:1;transform:none;}}',
-          '@keyframes hbnBlink{from{opacity:1;}to{opacity:.35;}}',
-          '@keyframes hbnPolice{from{border-left-color:#ff2a2a;}to{border-left-color:#2a5bff;}}',
+          '.hbn{--ac:#ff6600;position:absolute;inset:0;display:flex;flex-direction:column;text-shadow:0 1px 2px rgba(0,0,0,.9);}',
+          // schmale Kopfzeile: Navi | Ort ......... Abstand
+          '.hbn-top{display:flex;align-items:baseline;gap:8px;height:18px;padding:0 2px 0 8px;border-left:3px solid var(--ac);white-space:nowrap;}',
+          '.hbn-net{font-size:10px;font-weight:900;font-style:italic;letter-spacing:2px;text-transform:uppercase;color:var(--ac);}',
+          '.hbn-loc{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:12px;font-weight:700;font-style:italic;text-transform:uppercase;letter-spacing:.3px;}',
+          '.hbn-dist{font-size:13px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;}',
+          // freies Feld: hier zeichnet BeamNG die Karte hinein (Querformat)
+          '.hbn-map{position:relative;flex:1;min-height:0;margin-top:4px;display:flex;justify-content:flex-start;}',
+          '.hbn-hole{width:100%;height:100%;background:rgba(0,0,0,.28);border-bottom:1px solid rgba(255,102,0,.6);}',
+          '.hbn-round .hbn-hole{border-radius:50%;width:auto;aspect-ratio:1/1;border:1px solid rgba(255,102,0,.6);}',
+          '.hbn-police .hbn-hole{animation:hbnPolice .7s ease-in-out infinite alternate;}',
+          '.hbn-pol{position:absolute;left:8px;bottom:-18px;font-size:11px;font-weight:900;font-style:italic;letter-spacing:1px;text-transform:uppercase;color:#ff5a3c;}',
+          '.hbn-pol-low{color:#8fa3bf;}',
+          '@keyframes hbnPolice{from{box-shadow:inset 0 0 10px 3px rgba(255,40,40,.9);}to{box-shadow:inset 0 0 10px 3px rgba(40,90,255,.9);}}',
         '</style>',
       '</div>'
     ].join(''),
@@ -85,7 +65,8 @@ angular.module('beamng.apps')
         if (ready) { cb(); return }
         if (loading) return
         loading = true
-        lua('extensions.load("ui_apps_minimap_minimap"); extensions.load("ui_apps_minimap_additionalInfo")', function () {
+        // mit Rückruf muss es EIN Ausdruck sein (kein ';'), sonst bricht Lua ab
+        lua('extensions.load("ui_apps_minimap_minimap", "ui_apps_minimap_additionalInfo")', function () {
           lua('ui_apps_minimap_minimap and ui_apps_minimap_minimap.getMode()', function (m) {
             scope.$evalAsync(function () { scope.mode = m === 'circle' ? 'circle' : 'rect' })
             ready = true

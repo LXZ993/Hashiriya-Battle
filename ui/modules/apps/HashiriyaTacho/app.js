@@ -27,7 +27,7 @@ angular.module('beamng.apps')
       '<div class="bngApp hbt-root">',
         '<svg class="hbt" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">',
           '<defs>',
-            '<radialGradient id="hbtBg" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#1c1e23" stop-opacity=".95"/><stop offset="1" stop-color="#0e0f12" stop-opacity=".92"/></radialGradient>',
+            '<radialGradient id="hbtBg" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#16181c" stop-opacity=".7"/><stop offset=".8" stop-color="#0e0f12" stop-opacity=".55"/><stop offset="1" stop-color="#0e0f12" stop-opacity="0"/></radialGradient>',
           '</defs>',
           '<circle cx="150" cy="150" r="146" fill="url(#hbtBg)"/>',
           '<path class="hbt-accent" d="' + arc(146, 100, 170) + '"/>',
@@ -53,8 +53,8 @@ angular.module('beamng.apps')
         '<style>',
           '.hbt-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;}',
           '.hbt-root.is-off{opacity:0;}',
-          '.hbt{width:100%;height:100%;font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;filter:drop-shadow(0 6px 14px rgba(0,0,0,.55));}',
-          '.hbt-accent{fill:none;stroke:#ff6600;stroke-width:4;}',
+          '.hbt{width:100%;height:100%;font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}',
+          '.hbt-accent{fill:none;stroke:#ff6600;stroke-width:2;opacity:.9;}',
           '.hbt-seg{fill:rgba(255,255,255,.1);}',
           '.hbt-seg.on{fill:#f4f4f4;}',
           '.hbt-seg.hi.on{fill:#ff6600;}',
@@ -182,13 +182,18 @@ angular.module('beamng.apps')
         set('unit', unitEl, txt, sp.unit || '')
 
         // Gang
+        // Gang: engineInfo[5] kann Zahl oder schon Text sein ("N", "R", "1"), sonst electrics.gear
         var g
-        if (ei[13] === 'manual') {
-          var gear = Number(ei[5])
-          g = gear === 0 ? 'N' : (gear === -1 ? 'R' : (gear < -1 ? 'R' + (-gear) : String(gear)))
+        if (ei[13] === 'manual' || ei[13] === undefined) {
+          var raw = ei[5] !== undefined && ei[5] !== null ? ei[5] : el.gear
+          var gear = Number(raw)
+          if (raw === '' || raw === undefined || raw === null) g = 'N'
+          else if (!isFinite(gear)) g = String(raw).toUpperCase().slice(0, 2)
+          else g = gear === 0 ? 'N' : (gear === -1 ? 'R' : (gear < -1 ? 'R' + (-gear) : String(gear)))
         } else {
           var ga = Number(el.gear_A)
-          g = ['P', 'R', 'N', 'D', '2', '1'][isFinite(ga) ? Math.max(0, Math.min(5, Math.round(ga * 5))) : 2]
+          if (isFinite(ga)) g = ['P', 'R', 'N', 'D', '2', '1'][Math.max(0, Math.min(5, Math.round(ga * 5)))]
+          else g = el.gear !== undefined && el.gear !== null && String(el.gear) !== '' ? String(el.gear).toUpperCase().slice(0, 2) : 'N'
         }
         set('gear', gearEl, txt, g)
 
