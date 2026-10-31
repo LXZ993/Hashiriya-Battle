@@ -35,8 +35,10 @@ Alle Änderungen seit Alpha 0.2 (29.10.2026, intern noch „Alpha 1“ genannt).
 - Menü > Fehlerbericht erstellen schreibt alles Wichtige in eine Datei, die man dem Entwickler schicken kann.
 
 ### Release-Build
-- Im Release-Build sind alle Dev- und Cheat-Werkzeuge aus (Geld, Siege, Ruf, Uhr, Rivalen rufen, Reparieren/Tanken gratis, Position merken, Config-Export).
-- Während der Karriere sind Zurücksetzen, Konsole, Editor, Zeitlupe, Schnellreise über die Karte und Uhrzeit-Änderungen gesperrt. Der Node Grabber bleibt mit fester Stärke erlaubt.
+- Sperren wie in der offiziellen BeamNG-Karriere, nur der Node Grabber bleibt: keine Fahrzeugauswahl und Fahrzeug-Config, kein Reparieren, Recover, Flip oder Zurücksetzen, kein Wechsel zu anderen Autos, keine Konsole, kein Editor, keine Zeitlupe.
+- ESC-Menü ohne Fahrzeug- und Umgebungs-Tab, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Freeroam-Knöpfe mehr.
+- Keine Schnellreise über die große Karte. Time Trials erscheinen auch nicht mehr bei den Points of Interest.
+- Alle Dev- und Cheat-Werkzeuge im Hashiriya-Menü sind aus.
 
 ## Alpha 0.2 (Stand 29.10.2026, intern „Alpha 1“)
 

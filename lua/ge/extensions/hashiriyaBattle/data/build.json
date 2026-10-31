@@ -1,5 +1,5 @@
 {
-  "_hinweis": "release true = Release-Build: die Aktionen unten sind während der Karriere gesperrt. Für Tests/Entwicklung auf false lassen.",
+  "_hinweis": "release true = Release-Build: Sperren wie in der offiziellen BeamNG-Karriere (Tasten, ESC-Menü ohne Fahrzeug-/Umgebungs-Tab, keine Schnellreise, keine Dev-/Cheat-Werkzeuge). Nur der Node Grabber bleibt. blockedActions = zusätzliche Tastenaktionen (die Karriere-Vorlagen sperrt release.lua selbst). Zum Umschalten tools\\Release-Werkzeug.bat benutzen.",
   "release": true,
   "blockedActions": [
     "reset_physics",
@@ -43,7 +43,18 @@
     "funBoostBackwards",
     "funFling",
     "funFlingDownward",
-    "nodegrabberStrength"
+    "nodegrabberStrength",
+    "cefdev_console_toggle",
+    "cefdev_reload_ui",
+    "lua_reload",
+    "toggleTrackBuilder",
+    "cycleTimeOfDay",
+    "vehicleEditorToggle",
+    "debugmode_toggle",
+    "debugmode_reset",
+    "cycle_metrics",
+    "toggle_performance_graph",
+    "flexmeshDebugSelectionToggle"
   ],
   "lockTime": true,
   "_nodeGrabber": "Node Grabber bleibt erlaubt (Teile nach Unfall lösen). Im Release wird die Stärke auf nodeGrabberStrength gesetzt (BeamNG-Standard 30, Skala 0-100) und das Verstellen gesperrt.",

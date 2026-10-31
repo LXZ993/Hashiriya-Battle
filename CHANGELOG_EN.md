@@ -35,8 +35,10 @@ All changes since Alpha 0.2 (29 Oct 2026, internally still called "Alpha 1").
 - Menu > Create bug report writes everything important into one file you can send to the developer.
 
 ### Release build
-- In the release build all dev and cheat tools are off (money, wins, reputation, clock, call rival, free repair/refuel, save position, config export).
-- During the career, vehicle reset, console, editor, slow motion, quick travel via the big map and time-of-day changes are blocked. The node grabber stays allowed with a fixed strength.
+- Restrictions like the official BeamNG career, only the node grabber stays: no vehicle selector or vehicle config, no repair, recover, flip or reset, no switching to other cars, no console, no editor, no slow motion.
+- Pause menu without the vehicle and environment tabs, the freeroam tab is called "Hashiriya Battle" and no longer has freeroam buttons.
+- No quick travel via the big map. Time trials no longer show up in the points of interest either.
+- All dev and cheat tools in the Hashiriya menu are off.
 
 ## Alpha 0.2 (as of 29 Oct 2026, internally "Alpha 1")
 
