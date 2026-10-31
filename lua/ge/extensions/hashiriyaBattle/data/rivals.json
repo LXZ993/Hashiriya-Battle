@@ -2,15 +2,15 @@
   "_hinweis": "Rivalen fuer C1 (297 Gegner: 26 Crews, Wanderer, Bosse). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). settings: maxOnRoad = Rivalen gleichzeitig im Verkehr, spawnBehindNew/spawnBehindRematch = Chance, dass ein neuer Gegner bzw. eine Revanche hinter dir statt vor dir spawnt, rechallengeSeconds = Pause bis zur naechsten Herausforderung desselben Rivalen, falseStartRechallengeSeconds = dieselbe Pause nach einem Fruehstart, maxBattlesPerNight (optional) = Battles pro Nacht. conditions: minRank, minWins, minDay, speedTraps (all oder Anzahl), hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. lines = Sprüche des Rivalen im SP-HUD: challenge beim Start, win wenn der Rivale gewinnt, lose wenn er verliert. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. lines = Sprüche des Rivalen im SP-HUD: challenge beim Start, win wenn der Rivale gewinnt, lose wenn er verliert.",
   "settings": {
     "nightOnly": true,
-    "maxOnRoad": 4,
+    "maxOnRoad": 6,
     "spawnBehindNew": 0.05,
     "spawnBehindRematch": 0.25,
-    "rechallengeSeconds": 60,
-    "falseStartRechallengeSeconds": 30,
-    "teamMembersPerNight": 2,
+    "rechallengeSeconds": 30,
+    "falseStartRechallengeSeconds": 15,
+    "teamMembersPerNight": 12,
     "rivalOncePerNight": false,
     "lostRivalCooldownNights": 0,
-    "leaderNotSameNight": true,
+    "leaderNotSameNight": false,
     "leaderChance": 0.7,
     "lossRep": -10,
     "cleanWinMaxDamageSp": 60,
@@ -21,8 +21,8 @@
       "weight": 0.25,
       "rewardFactor": 0.4,
       "repFactor": 0.25,
-      "aggressionBonus": 0.08,
-      "spFactor": 1.1
+      "aggressionBonus": 0.15,
+      "spFactor": 1.2
     }
   },
   "ranks": [
@@ -13297,6 +13297,59 @@
       "hint": {
         "de": "Nur zwischen 3 und 4 Uhr, erst nach Fukurō und Signora Corsa.",
         "en": "Only between 3 and 4 am, after Fukurō and Signora Corsa."
+      }
+    },
+	 {
+      "id": "w_henry",
+      "name": "Slim Henry",
+      "nick": {
+        "de": "Der Hübsche",
+        "en": "The Handsome"
+      },
+      "wanderer": true,
+      "model": "etki",
+      "config": "vehicles/etki/hashiriya_wanderer_henry.pc",
+      "aggression": 0.80,
+      "cruiseKmh": 115,
+      "maxSp": 1500,
+      "rewardUsd": 15000,
+      "rep": 200,
+      "conditions": {
+        "minRank": 3,
+        "beatenTeam": "t_neon",
+        "beatenRivals": [
+          "w_noodle"
+        ],
+        "hours": [
+          23,
+          4
+        ]		
+      },
+      "plate": {
+        "text": "404/24-07",
+        "design": "am5jp_shinagawa_standard"
+      },
+      "lines": {
+        "challenge": {
+          "de": "Ich hole die schweren Geschütze aus Deutschland! Kommst du damit klar?.",
+          "en": "I'm bringing the big guns from Germany! Can you Handle that?"
+        },
+        "win": {
+          "de": "Ich wusste, dass du das nicht draufhast. Gib mir einfach deine Autoschlüssel und geh zu Fuß nach Hause.",
+          "en": "I knew you didn't have it in you. Just give me your car keys and walk home."
+        },
+        "lose": {
+          "de": "Du fährst wie ein Verrückter... Gefällt mir, aber beim nächsten Mal schlägst du mich nicht!",
+          "en": "You drive like a maniac... I like it, but you wont beat me next time!."
+        }
+      },
+      "desc": {
+        "de": "Er ist früher mit seinem I-Series-Modell auf der Autobahn gefahren. Er hat den weiten Weg über den großen Teich auf sich genommen, um deutsche Präzision mit japanischem Erfindungsreichtum zu vergleichen.",
+        "en": "Used to race his I-Series on the Autobahn. Came all the way across the pond to compare german precision to Japanese ingenuity.."
+      },
+      "hint": {
+        "de": "Erst nach dem Sieg über den Sieg von Ginza Neon Club und um 23-04 Uhr.",
+        "en": "After the beating the Ginza Neon Club, and between 23:00 and 04:00"
       }
     },
     {
