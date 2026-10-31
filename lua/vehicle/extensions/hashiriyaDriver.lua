@@ -76,6 +76,8 @@ local defaults = {
   steerLookBase = 5,     -- m Vorschau der Lenkung im Stand
   steerLookTime = 0.5,   -- s Vorschau pro m/s (BeamNG-KI: 0.6)
   steerRate = 6,         -- Lenkeinschlag pro Sekunde höchstens (Anteil voller Einschlag)
+  highSpeedReserve = 0.1, -- schnelle Kurven: bis zu 10 % weniger Querbeschleunigung (ab 110 km/h zunehmend, voll bei 290 km/h)
+  edgeMarginSpeed = 0.012, -- m mehr Abstand zum Rand pro m/s über 20 m/s (230 km/h: +0,5 m)
   -- Duell (Stufe 3)
   blockMinAggression = 0.55, -- ab dieser Aggression macht er dir vorne die Linie zu
   blockCooldown = 8,     -- s zwischen zwei Blockversuchen (eine Reaktion pro Gerade)
@@ -114,6 +116,7 @@ local steerAngleEst = 0.55
 local wheelBase = 2.6
 local prevDir = vec3()
 local yawRate = 0
+local gripEst = 1        -- gelernter Anteil des Grips, den das Auto wirklich schafft (Untersteuern)
 local stuckTime, reverseTime = 0, 0
 local offRouteTime = 0
 local savedGearbox
@@ -829,8 +832,8 @@ local function speedProfile(pl, courage, pace)
   local n = pl.n
   local px, py, kappa, v = pl.px, pl.py, pl.kappa, pl.v
   local mu = obj:getStaticFrictionCoef()
-  local cornerUse = lerp(p.cornerUseMin, p.cornerUseMax, p.skill) * pace
-  local brakeUse = lerp(p.brakeUseMin, p.brakeUseMax, p.skill) + courage * 0.04
+  local cornerUse = lerp(p.cornerUseMin, p.cornerUseMax, p.skill) * pace * gripEst
+  local brakeUse = (lerp(p.brakeUseMin, p.brakeUseMax, p.skill) + courage * 0.04) * (0.5 + 0.5 * gripEst)
   local aBrake = mu * g * brakeUse
   -- Krümmung über drei Punkte (Abstand 2 Stützpunkte, glatter)
   for k = 1, n do
@@ -848,7 +851,10 @@ local function speedProfile(pl, courage, pace)
   end
   for k = 1, n do
     local kk = max(kappa[k], 1e-5)
-    v[k] = min(sqrt(mu * g * cornerUse / kk), p.maxSpeed)
+    local vk = sqrt(mu * g * cornerUse / kk)
+    -- schnelle Kurven: Reserve (Bodenwellen, Lenkfehler, weniger Grip bei Tempo)
+    vk = vk * sqrt(1 - clamp((vk - 30) / 50, 0, 1) * p.highSpeedReserve)
+    v[k] = min(vk, p.maxSpeed)
   end
   -- Verkehr ohne Lücke: Tempolimit ab der Stelle
   for _, c in ipairs(pl.followCaps or {}) do
@@ -983,7 +989,7 @@ local function makePlan(dt)
   local look = clamp(ego.speed * p.lookTime, p.minLook, p.maxLook)
   extendRoute(look + 60)
   local pl = newPlan()
-  local edgeMargin = lerp(p.edgeMarginMax, p.edgeMarginMin, courage)
+  local edgeMargin = lerp(p.edgeMarginMax, p.edgeMarginMin, courage) + clamp((ego.speed - 20) * p.edgeMarginSpeed, 0, 0.8)
   if not buildSamples(pl, look, edgeMargin) then return nil end
   local egoLat = lateralAt(pl, 1, ego.pos.x, ego.pos.y)
   measureWidth(pl, courage)
@@ -1121,9 +1127,9 @@ local function control(dt)
         tostring(ob.id), ob.target and ' (Spieler)' or '', c.gap < math.huge and c.gap or (ob.gapLong or -1), ob.d or 0,
         (ob.vAlong or 0) * 3.6, c.v * 3.6, c.s)
     end
-    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Lücken | %s',
+    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Lücken, Grip %.2f | %s',
       brake, why, v * 3.6, vT * 3.6, pl.ttc or -1, pl.egoLat or 0, pl.baseLo[1] or 0, pl.baseHi[1] or 0, pl.wideLo[5] or 0, pl.wideHi[5] or 0,
-      #pl.obstacles, #(pl.groups or {}), capTxt))
+      #pl.obstacles, #(pl.groups or {}), gripEst, capTxt))
   end
 
   local tcs, absC = wheelCoefs()
@@ -1191,6 +1197,17 @@ local function learnSteering(dt)
   prevDir:set(ego.dir)
   yawRate = yawRate + (yr - yawRate) * min(1, dt * 10)
   local v = ego.speed
+  -- Untersteuern erkennen: viel Lenkung, aber die Drehung bleibt deutlich unter dem Soll
+  -- -> er schafft weniger Grip als gedacht, Kurventempo runter (langsam wieder rauf)
+  local mu = obj:getStaticFrictionCoef()
+  if v > 12 and abs(lastSteer) > 0.08 then
+    local want = v * math.tan(lastSteer * steerAngleEst) / wheelBase
+    local aLat = abs(yawRate * v)
+    if abs(yawRate) < abs(want) * 0.75 and aLat > 0.45 * mu * g then
+      gripEst = max(gripEst + (clamp(aLat / (mu * g * 0.93), 0.6, 1) - gripEst) * min(1, dt * 2), 0.6)
+    end
+  end
+  gripEst = min(gripEst + dt * 0.004, 1)
   if v > 8 and abs(lastSteer) > 0.04 and abs(lastSteer) < 0.6 and abs(yawRate * v) < 0.45 * g * obj:getStaticFrictionCoef() then
     local meas = math.atan(yawRate * wheelBase / v) / lastSteer
     if meas > 0.12 and meas < 1.3 then
