@@ -703,6 +703,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>wakeHour</code></td><td>20</td><td>Aufwachen nach einem Schlaf tagsüber</td></tr>
 <tr><td><code>napHours</code></td><td>[0.5, 2]</td><td>Nickerchen im Auto auf einem Parkplatz: zufällig 0,5 bis 2 Stunden</td></tr>
 <tr><td><code>restSeconds</code></td><td>{ "nap": 10, "home": 20 }</td><td>So viele echte Sekunden bleibt der Bildschirm beim Schlafen schwarz, während die Uhr bis zur Aufwachzeit vorspult. <code>nap</code> = Nickerchen im Auto, <code>home</code> = zu Hause. Dazu kommt je 1 s Ab- und Aufblenden.</td></tr>
+<tr><td><code>restLockHours</code></td><td>6</td><td>Ruhesperre: nach dem Schlafen zu Hause oder einem Nickerchen im Auto geht <b>beides</b> erst nach so vielen Spielstunden wieder (gegen Dauerschlafen). <code>0</code> = keine Sperre. Zählt ab dem Aufwachen.</td></tr>
 <tr><td><code>jobRewards</code></td><td>garageToGarage</td><td>Lohn in Yen für Tagesjobs (BeamNG-Missionen) je Missionstyp: <code>passed</code> = geschafft, <code>completed</code> = alle Sterne, <code>repeatFactor</code> = dieselbe Mission am selben Spieltag nochmal (0.5 = halber Lohn, beim dritten Mal ein Viertel)</td></tr>
 <tr><td><code>shopHours</code></td><td>[8, 20]</td><td>Öffnungszeiten der Shops (pro Parkplatz mit <code>hours</code> überschreibbar)</td></tr>
 <tr><td><code>trafficByHour</code></td><td>24 Zahlen</td><td>Verkehr in % je Stunde, erster Wert = 0 Uhr, letzter = 23 Uhr. 100 = volle Menge</td></tr>
@@ -715,6 +716,13 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
   "garageToGarage": { "passed": 12000, "completed": 20000, "repeatFactor": 0.3 }
 }</code></pre>
 <div class="box"><b>Schlafen und Nickerchen</b>Der Bildschirm wird schwarz, die Uhr läuft im Zeitraffer bis zur Aufwachzeit, dann wird es wieder hell. Rivalen verschwinden vorher, beim Nickerchen ist das Auto festgehalten, und das Menü reagiert in der Zeit nicht. Wird Mitternacht überschritten, beginnt ein neuer Spieltag.</div>
+<div class="box"><b>Ruhesperre nach dem Schlafen</b>Nach dem Aufwachen (zu Hause oder nach einem Nickerchen) kann man <code>restLockHours</code> Spielstunden lang weder schlafen noch ein Nickerchen machen. Im Zuhause-Menü steht dann „Schlafen ab HH:MM“ mit dem Hinweis „Du hast gerade erst geschlafen …“, beim Nickerchen „Noch nicht müde, wieder ab HH:MM“. Endet die Sperre in der Battle-Zeit (20 bis 22 Uhr), steht zu Hause „ab 22:00“. Gespeichert wird das im Spielstand als <code>restLockUntil</code> (Spielstunde seit Tag 1).
+<pre><code>// Beispiele mit restLockHours = 6
+Zu Hause 23:00 schlafen  -> Aufwachen 06:00 -> wieder schlafen ab 12:00
+Tagsüber 13:00 schlafen  -> Aufwachen 20:00 -> wieder schlafen ab 02:00
+Nickerchen 01:00 (1,5 h) -> Aufwachen 02:30 -> wieder ab 08:30
+// Sperre kürzer machen: "restLockHours": 4   ausschalten: "restLockHours": 0</code></pre>
+Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json</code>: <code>msg.sleepRested</code>, <code>home.sleepRestedNote</code>, <code>msg.nap.rested</code> (<code>%s</code> = Uhrzeit).</div>
 <div class="box tip"><b>Uhr bleibt nie stehen</b>Die Mod startet die Spieluhr immer wieder, auch wenn BeamNG sie pausiert. Das ist Absicht.</div>
 </section>
 

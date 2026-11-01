@@ -754,7 +754,10 @@ local function buildUiState()
     end
     local nap = extensions.hashiriyaBattle_home.napInfo()
     if nap and nap.reason ~= 'notHere' then
-      st.nap = { can = nap.can, reason = nap.reason and M.t('msg.nap.' .. nap.reason) or nil }
+      local reason = nil
+      if nap.untilText then reason = M.t('msg.nap.' .. nap.reason, nap.untilText)
+      elseif nap.reason then reason = M.t('msg.nap.' .. nap.reason) end
+      st.nap = { can = nap.can, reason = reason }
     end
     st.day = extensions.hashiriyaBattle_home.dayText()
     st.clock = extensions.hashiriyaBattle_home.clockInfo()
