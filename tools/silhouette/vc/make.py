@@ -154,8 +154,8 @@ def catalog(preview, hide=True):
     def L(name, body, **kw):
         doc.layer(name, body, hidden=hide and name not in show, **kw)
 
-    for hid, (nm, fn, *_r) in PH.HAIRS.items():
-        b, fr = fn(doc, A, c)
+    hairs = {hid: h[1](doc, A, c) for hid, h in PH.HAIRS.items()}  # einmal zeichnen (Effekt-Namen bleiben gültig)
+    for hid, (b, fr) in hairs.items():
         if b:
             L(f"Haare_hinten_{hid}", b, head=True)
     L("Koerper_M", PB.body_shell(doc, A))
@@ -177,8 +177,7 @@ def catalog(preview, hide=True):
         L(f"Augen_{eid}", PH.eyes_svg(doc, fn), head=True)
     L("Augen_Wimpern_normal", PH.eyes_svg(doc, PH.EYES["normal"][1], lashes=True), head=True)
     L("Maske", PH.mask(doc, A), head=True)
-    for hid, (nm, fn, *_r) in PH.HAIRS.items():
-        b, fr = fn(doc, A, c)
+    for hid, (b, fr) in hairs.items():
         if fr:
             L(f"Haare_{hid}", fr, head=True)
     for eid, (nm, fn, *_r) in PH.EARS.items():
@@ -242,6 +241,6 @@ if __name__ == "__main__":
         for n, s in ov:
             write(out, n, lambda p, s=s: compose(s, p))
         open(os.path.join(out, "uebersicht.txt"), "w").write(",".join(n for n, _ in ov))
-    write(out, "katalog", lambda p: catalog(p, True))
-    write(out, "katalog_alles_sichtbar", lambda p: catalog(p, False))
+    # VectorCraft verwirft ausgeblendete Ebenen beim PSD-Export, daher alle sichtbar
+    write(out, "katalog", lambda p: catalog(p, False))
     print("ok")

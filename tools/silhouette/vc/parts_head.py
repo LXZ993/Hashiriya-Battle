@@ -259,7 +259,7 @@ def h_irokese(doc, A, c):
     right = [(2 * CX - x, y) for x, y in reversed(pts)]
     d = "M" + " L".join(f"{f(x)},{f(y)}" for x, y in pts + tip + right) + " Z"
     shaved = "M214,196 C206,140 246,114 300,114 C354,114 394,140 386,196 C370,176 340,168 300,168 C260,168 230,176 214,196 Z"
-    out = f'<path d="{shaved}" fill="{c[1]}" fill-opacity=".22"/>'
+    out = f'<path d="{shaved}" fill="{c[1]}" fill-opacity=".12"/>'
     out += paint(doc, d, c, A, None)
     out += line("M300,180 L300,70", "#ffffff", 2, .18)
     return "", doc.shadowed(out, 0, 5, 7, 45)

@@ -5172,39 +5172,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00568",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00569",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00571",
+"name": "fxds00569",
 "select": true
 }
 },
@@ -5215,31 +5183,72 @@
 "params": {
 "opacity": 40,
 "x": 0,
-"y": 4,
-"blur": 6
+"y": 3,
+"blur": 4
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00573",
+"name": "fxds00572",
 "select": true
 }
 },
 {
 "command": "effect.apply",
 "params": {
-"effect": "blur.gaussian",
+"effect": "stylize.dropShadow",
 "params": {
-"radius": 5
+"opacity": 40,
+"x": 0,
+"y": 2,
+"blur": 3
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00574",
+"name": "fxds00573",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 40,
+"x": 0,
+"y": 3,
+"blur": 4
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds00574",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 40,
+"x": 0,
+"y": 3,
+"blur": 4
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00577",
 "select": true
 }
 },
@@ -5249,41 +5258,6 @@
 "effect": "blur.gaussian",
 "params": {
 "radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00576",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00578",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
 }
 }
 },
@@ -5299,14 +5273,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 8
+"radius": 3
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxds00581",
+"name": "fxds00580",
 "select": true
 }
 },
@@ -5317,8 +5291,8 @@
 "params": {
 "opacity": 45,
 "x": 0,
-"y": 4,
-"blur": 6
+"y": 6,
+"blur": 8
 }
 }
 },
@@ -5341,16 +5315,19 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00586",
+"name": "fxds00584",
 "select": true
 }
 },
 {
 "command": "effect.apply",
 "params": {
-"effect": "blur.gaussian",
+"effect": "stylize.dropShadow",
 "params": {
-"radius": 5
+"opacity": 45,
+"x": 0,
+"y": 6,
+"blur": 8
 }
 }
 },
@@ -5373,23 +5350,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00590",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00591",
+"name": "fxds00590",
 "select": true
 }
 },
@@ -5417,22 +5378,6 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00594",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
 "radius": 8
 }
 }
@@ -5440,7 +5385,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00596",
+"name": "fxds00595",
 "select": true
 }
 },
@@ -5449,26 +5394,29 @@
 "params": {
 "effect": "stylize.dropShadow",
 "params": {
-"opacity": 45,
+"opacity": 50,
 "x": 0,
-"y": 5,
-"blur": 7
+"y": 7,
+"blur": 8
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00599",
+"name": "fxds00597",
 "select": true
 }
 },
 {
 "command": "effect.apply",
 "params": {
-"effect": "blur.gaussian",
+"effect": "stylize.dropShadow",
 "params": {
-"radius": 5
+"opacity": 35,
+"x": 0,
+"y": 3,
+"blur": 4
 }
 }
 },
@@ -5491,7 +5439,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00602",
+"name": "fxds00601",
 "select": true
 }
 },
@@ -5535,863 +5483,6 @@
 "params": {
 "effect": "stylize.dropShadow",
 "params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00608",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00611",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 40,
-"x": 0,
-"y": 6,
-"blur": 10
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00613",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00616",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00617",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00619",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00621",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00624",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00625",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00627",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 6,
-"blur": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00629",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00632",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00633",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00635",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00637",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00640",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00641",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00643",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00645",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00648",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00649",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00651",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00653",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00654",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00657",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00658",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00660",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00662",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00665",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00668",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00669",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00671",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00674",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 40,
-"x": 0,
-"y": 3,
-"blur": 4
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00677",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 40,
-"x": 0,
-"y": 2,
-"blur": 3
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00678",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 40,
-"x": 0,
-"y": 3,
-"blur": 4
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00679",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 40,
-"x": 0,
-"y": 3,
-"blur": 4
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00682",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00684",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 3
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00685",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 6,
-"blur": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00688",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00689",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 6,
-"blur": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00692",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00695",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 6,
-"blur": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00698",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00700",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 50,
-"x": 0,
-"y": 7,
-"blur": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00702",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 35,
-"x": 0,
-"y": 3,
-"blur": 4
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00705",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00706",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 5,
-"blur": 7
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00709",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00711",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
 "opacity": 50,
 "x": 0,
 "y": 7,
@@ -6402,7 +5493,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00714",
+"name": "fxblur00609",
 "select": true
 }
 },
@@ -6418,7 +5509,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00715",
+"name": "fxds00610",
 "select": true
 }
 },
@@ -6437,7 +5528,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00720",
+"name": "fxds00615",
 "select": true
 }
 },
@@ -6456,7 +5547,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00721",
+"name": "fxds00616",
 "select": true
 }
 },
@@ -6475,7 +5566,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00722",
+"name": "fxds00617",
 "select": true
 }
 },
@@ -6494,7 +5585,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00725",
+"name": "fxds00620",
 "select": true
 }
 },

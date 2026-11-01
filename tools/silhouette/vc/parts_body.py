@@ -246,7 +246,7 @@ def g_tokkou(doc, A, tone, ctx):
     right = (ctx.get("jp") or "走り屋連合")[:4]
     for x, txt in ((228, left), (372, right)):
         for i, ch in enumerate(txt[:4]):
-            out += f'<text x="{x}" y="{448 + i * 34}" text-anchor="middle" font-size="30" font-weight="700" font-family="Yu Mincho, Hiragino Mincho ProN, Noto Serif JP, serif" fill="{gold}" stroke="#000" stroke-opacity=".35" stroke-width=".8">{ch}</text>'
+            out += f'<text x="{x}" y="{448 + i * 34}" text-anchor="middle" font-size="30" font-weight="700" font-family="Yu Gothic, Meiryo, Noto Sans JP, sans-serif" fill="{gold}" stroke="#000" stroke-opacity=".35" stroke-width=".8">{ch}</text>'
     out += line("M210,416 L246,416 M354,416 L390,416", gold, 2, .7)
     return out
 
