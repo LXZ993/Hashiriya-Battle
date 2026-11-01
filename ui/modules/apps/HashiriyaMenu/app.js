@@ -54,42 +54,9 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'report\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.report\'] }}</div>' +
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
-            '<div ng-if="!s.release">' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')"><i class="hbm-ico" ng-bind-html="ico(\'carsChase\')"></i>{{ s.t[\'menu.callRival\'] }}</div>' +
-            '<div class="hbm-plate hbm-dev">' +
-              '<input type="text" ng-model="dev.rival" ng-focus="dev.open = true" placeholder="{{ s.t[\'menu.devRivalPh\'] }}">' +
-              '<span class="hbm-btn" ng-click="dev.open = !dev.open">{{ dev.open ? \'\u25b2\' : \'\u25bc\' }}</span>' +
-            '</div>' +
-            // eigene Vorschlagsliste (das HTML-datalist öffnet sich im BeamNG-UI nicht)
-            '<div class="hbm-dev-list" ng-if="dev.open">' +
-              '<div class="hbm-dev-opt" ng-repeat="r in devMatches() track by r.id" ng-click="dev.rival = r.id; dev.open = false">' +
-                '<b>{{ r.name }}</b><span>{{ r.id }}{{ r.tag ? \' \u00b7 \' + r.tag : \'\' }}</span></div>' +
-              '<div class="hbm-dev-opt hbm-dev-none" ng-if="!devMatches().length">{{ s.t[\'menu.devNoMatch\'] }}</div>' +
-            '</div>' +
-            '<div class="hbm-plate hbm-dev">' +
-              '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !dev.rival}" ng-click="dev.rival && act(\'devSpawnRival\', dev.rival)">{{ s.t[\'menu.devSpawn\'] }}</span>' +
-              '<span class="hbm-btn" ng-class="{\'hbm-dis\': !dev.rival}" ng-click="dev.rival && act(\'devBeatRival\', dev.rival)">{{ s.t[\'menu.devBeat\'] }}</span>' +
-              '<span class="hbm-btn" ng-click="act(\'devSpawnRival\', \'__random\')">{{ s.t[\'menu.devRandom\'] }}</span>' +
-            '</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'devClearRivals\')"><i class="hbm-ico" ng-bind-html="ico(\'xmark\')"></i>{{ s.t[\'menu.devClear\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'devTalkRespawn\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i>{{ s.t[\'menu.devTalk\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRep\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'menu.cheatRep\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'devUnlock\', 2)"><i class="hbm-ico" ng-bind-html="ico(\'wrench\')"></i>{{ s.t[\'menu.devUnlock\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatHour\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\', \'night\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatNight\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatDay\')"><i class="hbm-ico" ng-bind-html="ico(\'house\')"></i>{{ s.t[\'menu.cheatDay\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRepair\')"><i class="hbm-ico" ng-bind-html="ico(\'wrench\')"></i>{{ s.t[\'menu.cheatRepair\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatFuel\')"><i class="hbm-ico" ng-bind-html="ico(\'fuelPump\')"></i>{{ s.t[\'menu.cheatFuel\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'capture\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i>{{ s.t[\'menu.capture\'] }}</div>' +
-            '</div>' +
+            '<div class="hbm-item hbm-sub" ng-if="s.devMenu" ng-click="act(\'devMenu\')"><i class="hbm-ico" ng-bind-html="ico(\'adjust\')"></i>{{ s.t[\'menu.devMenu\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
               '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
-            '<div ng-if="!s.release">' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatMoney\')"><i class="hbm-ico" ng-bind-html="ico(\'banknotes\')"></i>{{ s.t[\'menu.cheatMoney\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatWins\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i>{{ s.t[\'menu.cheatWins\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'dumpConfigs\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.dumpConfigs\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-if="!s.release" ng-click="act(\'builder\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'menu.builder\'] }}</div>' +
-            '</div>' +
           '</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'garage\' || s.screen == \'shop\'">' +
@@ -639,16 +606,6 @@ angular.module('beamng.apps')
         scope.plate.text = ''
         scope.plate.region = null
         scope.plate.type = null
-      }
-      scope.dev = { rival: '', open: false }
-      // Dev-Tool: Rivalen nach ID, Name oder Crew filtern (höchstens 40 Treffer)
-      scope.devMatches = function () {
-        var list = (scope.s && scope.s.devRivals) || [], q = (scope.dev.rival || '').toLowerCase(), out = []
-        for (var i = 0; i < list.length && out.length < 40; i++) {
-          var r = list[i]
-          if (!q || r.id.toLowerCase().indexOf(q) >= 0 || r.name.toLowerCase().indexOf(q) >= 0 || (r.tag || '').toLowerCase().indexOf(q) >= 0) out.push(r)
-        }
-        return out
       }
       // Abschleppen kostet viel: erster Klick fragt nach, zweiter Klick (innerhalb 4 s) bestätigt.
       scope.towArmed = false

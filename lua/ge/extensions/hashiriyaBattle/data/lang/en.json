@@ -533,5 +533,6 @@
   "talk.hintLearned": "New hint in the lexicon",
   "msg.talkHint": "New hint in the rival lexicon",
   "msg.devTalkRespawn": "Parking area drivers are being placed again",
-  "menu.devTalk": "Re-place PA drivers"
+  "menu.devTalk": "Re-place PA drivers",
+  "menu.devMenu": "Open dev menu (Shift+End)"
 }

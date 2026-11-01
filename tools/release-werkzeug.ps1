@@ -30,10 +30,10 @@ $RoadmapFile = Join-Path $PSScriptRoot 'roadmap.json'
 # Ordner und Dateien, die in die ZIP kommen
 $Include = @('lua', 'scripts', 'settings', 'ui', 'art', 'vehicles')
 # Nur für die Entwicklung: kommt nicht in die ZIP
-$ExcludeNames = @('logo-source.html', 'LIESMICH.txt', 'Thumbs.db', '.DS_Store', 'builder.lua')
-$ExcludeDirs = @('ui/modules/apps/HashiriyaBuilder')
-$DevBindings = @('hashiriyaCaptureCamera')
-$DevApps = @('hashiriyaBuilder', 'HashiriyaBuilder')
+$ExcludeNames = @('logo-source.html', 'LIESMICH.txt', 'Thumbs.db', '.DS_Store', 'builder.lua', 'devtools.lua')
+$ExcludeDirs = @('ui/modules/apps/HashiriyaBuilder', 'ui/modules/apps/HashiriyaDev')
+$DevBindings = @('hashiriyaCaptureCamera', 'hashiriyaDevMenu')
+$DevApps = @('hashiriyaBuilder', 'HashiriyaBuilder', 'hashiriyaDev', 'HashiriyaDev')
 
 function Read-Text($path) { [System.IO.File]::ReadAllText($path, $Utf8) }
 function Write-Text($path, $text) { [System.IO.File]::WriteAllText($path, $text, $Utf8) }

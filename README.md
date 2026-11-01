@@ -44,9 +44,9 @@ Falls die Taste nicht reagiert, geht es auch über die Konsole (Taste `^`, Modus
 
 ### Positionen sammeln
 
-Mit **Position merken** wird deine aktuelle Position gespeichert in
-`<BeamNG-Benutzerordner>\settings\hashiriya_battle\captured_positions.json`.
-So sammeln wir Parkplätze und Spawnpunkte für die Map-Datei.
+Im **Dev-Menü** (Umschalt+Ende), Reiter **Orte**, merkst du die aktuelle Position mit Name und Typ.
+Gespeichert wird in `<BeamNG-Benutzerordner>\settings\hashiriya_battle\dev_places.json`; von dort kommen
+Parkplätze, Shops, Tankstellen und Spawnpunkte in die Map-Datei. Die Liste zeigt alle Orte und teleportiert hin.
 
 ## Aufbau
 

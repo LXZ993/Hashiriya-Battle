@@ -135,6 +135,7 @@ local function walkerPosition(veh)
   end
   return pos
 end
+M.walkerPosition = walkerPosition
 
 -- Position des Spielers zu Fuß (nil, wenn er im Auto sitzt)
 function M.getWalkerPos()
@@ -706,9 +707,10 @@ function M.setTerminalLayout(on)
   setLayout(on and 'hashiriyaShop' or M.layoutName) -- settings/ui_apps/originalLayouts/default/hashiriyaShop.uilayout.json
 end
 
-local devRivals = nil -- Dev-Tool: Liste aller Rivalen für die Eingabe im Menü
-
-function M.resetDevRivals() devRivals = nil end
+-- Dev-Menü (devtools.lua): Rivalenliste nach Builder-Speichern neu aufbauen
+function M.resetDevRivals()
+  if extensions.hashiriyaBattle_devtools then extensions.hashiriyaBattle_devtools.resetCache() end
+end
 
 local function buildUiState()
   local eco = M.economy()
@@ -805,20 +807,7 @@ local function buildUiState()
   end
   st.terminal = M.active and M.save and extensions.hashiriyaBattle_shop.terminalState() or nil
   st.release = M.isRelease()
-  if st.menuVisible and M.active and not st.release then
-    devRivals = devRivals or {}
-    if #devRivals == 0 then
-      local data = extensions.hashiriyaBattle_rivals.getData() or {}
-      local teamName = {}
-      for _, t in ipairs(data.teams or {}) do teamName[t.id] = t.name end
-      for _, r in ipairs(data.rivals or {}) do
-        local tag = r.boss and M.t('home.bosses') or r.wanderer and M.t('home.wanderer') or teamName[r.team] or ''
-        if r.leader then tag = tag .. ' (Leader)' end
-        table.insert(devRivals, { id = r.id, name = r.name, tag = tag })
-      end
-    end
-    st.devRivals = devRivals
-  end
+  st.devMenu = (not st.release) and extensions.hashiriyaBattle_devtools ~= nil or nil
   return st
 end
 
@@ -898,6 +887,7 @@ local devActions = {
   callRival = true, capture = true, dumpParts = true, dumpConfigs = true,
   cheatMoney = true, cheatWins = true, cheatRep = true, cheatHour = true, cheatDay = true,
   cheatRepair = true, cheatFuel = true, devSpawnRival = true, devBeatRival = true, devClearRivals = true, builder = true, devUnlock = true, devTalkRespawn = true,
+  devMenu = true, titleCamera = true,
 }
 
 function M.uiAction(action, arg)
@@ -974,7 +964,13 @@ function M.uiAction(action, arg)
   elseif action == 'callRival' then
     extensions.hashiriyaBattle_rivals.spawnNext(true)
   elseif action == 'capture' then
-    capturePosition()
+    -- Dev-Menü > Orte (mit Name und Typ); ohne devtools.lua wie früher in captured_positions.json
+    if extensions.hashiriyaBattle_devtools then extensions.hashiriyaBattle_devtools.capture(arg)
+    else capturePosition() end
+  elseif action == 'devMenu' then
+    M.toggleDevMenu()
+  elseif action == 'titleCamera' then
+    M.captureTitleCamera()
   elseif action == 'save' then
     M.writeSave()
     msg(M.t('msg.saved'))
@@ -1151,6 +1147,13 @@ function M.uiAction(action, arg)
   M.sendUiState()
 end
 
+-- Dev-Menü (eigenes Fenster, UI-App HashiriyaDev), Taste Shift+Ende. Fehlt im Release.
+function M.toggleDevMenu()
+  if M.isRelease() then return end
+  if extensions.hashiriyaBattle_devtools then extensions.hashiriyaBattle_devtools.toggle()
+  else msg('Dev-Menü fehlt (devtools.lua nicht im Mod)', 4) end
+end
+
 function M.toggleMenu()
   showMenu = not showMenu
   if not showMenu then extensions.hashiriyaBattle_shop.releaseFocus() end
@@ -1160,11 +1163,13 @@ end
 -- Hooks -----------------------------------------------------------------------
 
 local function onExtensionLoaded()
-  -- Builder (Entwickler-Werkzeug) nur laden, wenn die Datei da ist (fehlt im Release-Zip)
-  if FS:fileExists('/lua/ge/extensions/hashiriyaBattle/builder.lua') then
-    local has = false
-    for _, n in ipairs(subExtensions) do if n == 'hashiriyaBattle_builder' then has = true end end
-    if not has then table.insert(subExtensions, 'hashiriyaBattle_builder') end
+  -- Builder und Dev-Menü (Entwickler-Werkzeuge) nur laden, wenn die Datei da ist (fehlen im Release-Zip)
+  for file, ext in pairs({ ['builder.lua'] = 'hashiriyaBattle_builder', ['devtools.lua'] = 'hashiriyaBattle_devtools' }) do
+    if FS:fileExists('/lua/ge/extensions/hashiriyaBattle/' .. file) then
+      local has = false
+      for _, n in ipairs(subExtensions) do if n == ext then has = true end end
+      if not has then table.insert(subExtensions, ext) end
+    end
   end
   for _, name in ipairs(subExtensions) do
     extensions.load(name)
