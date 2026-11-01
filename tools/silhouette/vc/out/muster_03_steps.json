@@ -2,7 +2,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur005",
+"name": "fxblur00005",
 "select": true
 }
 },
@@ -18,7 +18,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur006",
+"name": "fxblur00006",
 "select": true
 }
 },
@@ -34,7 +34,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur007",
+"name": "fxblur00007",
 "select": true
 }
 },
@@ -50,7 +50,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur008",
+"name": "fxblur00008",
 "select": true
 }
 },
@@ -66,7 +66,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur009",
+"name": "fxblur00009",
 "select": true
 }
 },
@@ -82,7 +82,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur012",
+"name": "fxblur00012",
 "select": true
 }
 },
@@ -98,7 +98,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur013",
+"name": "fxblur00013",
 "select": true
 }
 },
@@ -114,7 +114,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur014",
+"name": "fxblur00014",
 "select": true
 }
 },
@@ -130,7 +130,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur015",
+"name": "fxblur00015",
 "select": true
 }
 },
@@ -146,23 +146,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur017",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 4
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur020",
+"name": "fxblur00018",
 "select": true
 }
 },
@@ -178,7 +162,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur021",
+"name": "fxblur00019",
 "select": true
 }
 },
@@ -187,14 +171,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 5
+"radius": 9
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur022",
+"name": "fxblur00020",
 "select": true
 }
 },
@@ -203,14 +187,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 5
+"radius": 9
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur023",
+"name": "fxblur00021",
 "select": true
 }
 },
@@ -219,14 +203,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 5
+"radius": 9
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur024",
+"name": "fxblur00022",
 "select": true
 }
 },
@@ -242,61 +226,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur025",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds_Aufnaeher",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 40,
-"x": 0,
-"y": 2,
-"blur": 3
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds_Extra_Hals",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 6,
-"blur": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur030",
+"name": "fxblur00026",
 "select": true
 }
 },
@@ -312,7 +242,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur031",
+"name": "fxblur00027",
 "select": true
 }
 },
@@ -328,7 +258,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur032",
+"name": "fxblur00028",
 "select": true
 }
 },
@@ -344,7 +274,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur033",
+"name": "fxblur00029",
 "select": true
 }
 },
@@ -360,7 +290,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds_Kopf",
+"name": "fxds00030",
 "select": true
 }
 },
@@ -379,7 +309,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxglowled036",
+"name": "fxglowled00032",
 "select": true
 }
 },
@@ -398,23 +328,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur039",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur040",
+"name": "fxblur00036",
 "select": true
 }
 },
@@ -430,7 +344,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds_Haare",
+"name": "fxds00037",
 "select": true
 }
 },
@@ -441,8 +355,8 @@
 "params": {
 "opacity": 45,
 "x": 0,
-"y": 5,
-"blur": 7
+"y": 6,
+"blur": 8
 }
 }
 }

@@ -2,7 +2,74 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur005",
+"name": "fxblur00004",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00007",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 5
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00008",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds00010",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 45,
+"x": 0,
+"y": 5,
+"blur": 7
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00013",
 "select": true
 }
 },
@@ -18,7 +85,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur006",
+"name": "fxblur00014",
 "select": true
 }
 },
@@ -34,7 +101,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur007",
+"name": "fxblur00015",
 "select": true
 }
 },
@@ -50,7 +117,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur008",
+"name": "fxblur00016",
 "select": true
 }
 },
@@ -66,7 +133,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur009",
+"name": "fxblur00017",
 "select": true
 }
 },
@@ -82,7 +149,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur012",
+"name": "fxblur00020",
 "select": true
 }
 },
@@ -98,7 +165,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur013",
+"name": "fxblur00021",
 "select": true
 }
 },
@@ -114,7 +181,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur014",
+"name": "fxblur00022",
 "select": true
 }
 },
@@ -130,7 +197,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur015",
+"name": "fxblur00023",
 "select": true
 }
 },
@@ -146,7 +213,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur018",
+"name": "fxblur00026",
 "select": true
 }
 },
@@ -162,7 +229,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur019",
+"name": "fxblur00027",
 "select": true
 }
 },
@@ -171,14 +238,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 5
+"radius": 9
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur020",
+"name": "fxblur00028",
 "select": true
 }
 },
@@ -187,14 +254,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 5
+"radius": 9
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur021",
+"name": "fxblur00029",
 "select": true
 }
 },
@@ -203,14 +270,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 5
+"radius": 9
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur022",
+"name": "fxblur00030",
 "select": true
 }
 },
@@ -226,58 +293,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur025",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 3
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur028",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 3
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds_Extra_Hals",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 45,
-"x": 0,
-"y": 3,
-"blur": 4
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur035",
+"name": "fxblur00034",
 "select": true
 }
 },
@@ -293,7 +309,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur036",
+"name": "fxblur00035",
 "select": true
 }
 },
@@ -309,7 +325,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur037",
+"name": "fxblur00036",
 "select": true
 }
 },
@@ -325,7 +341,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur038",
+"name": "fxblur00037",
 "select": true
 }
 },
@@ -341,7 +357,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds_Kopf",
+"name": "fxds00038",
 "select": true
 }
 },
@@ -360,7 +376,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxglowled041",
+"name": "fxglowled00040",
 "select": true
 }
 },
@@ -373,57 +389,6 @@
 "opacity": 85,
 "blur": 6,
 "mode": "screen"
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur044",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur045",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 8
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds_Haare",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 50,
-"x": 0,
-"y": 7,
-"blur": 8
 }
 }
 }
