@@ -188,7 +188,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
 <tr><td><code>world.json</code></td><td>Tageslänge, Nacht, Schlaf, Öffnungszeiten, Verkehr je Stunde</td><td><a href="#zeit">Zeit</a></td></tr>
 <tr><td><code>maps\c1.json</code></td><td>Parkplätze, Zuhause, Tankstellen, Showroom auf der C1</td><td><a href="#map">Map</a></td></tr>
 <tr><td><code>style.json</code></td><td>Siegesserie und Fahrstil-Combo</td><td><a href="#stil">Combo</a></td></tr>
-<tr><td><code>chat.json</code></td><td>Texte der PA-Gespräche (System kommt noch)</td><td><a href="#chat">PA-Gespräche</a></td></tr>
+<tr><td><code>chat.json</code></td><td>PA-Gespräche: Fahrer, ihre Autos, Texte und Einstellungen</td><td><a href="#chat">PA-Gespräche</a></td></tr>
 <tr><td><code>credits.json</code></td><td>Credits im Titelbildschirm (feste Abschnitte + Community-Wanderer)</td><td><a href="#community">Community und Credits</a></td></tr>
 <tr><td><code>tutorial.json</code></td><td>Tutorial-Seiten für Neulinge</td><td><a href="#tutorial">Tutorial</a></td></tr>
 <tr><td><code>sounds.json</code></td><td>Welcher Sound bei welcher Aktion</td><td><a href="#sounds">Sounds</a></td></tr>
@@ -454,7 +454,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
   "desc": {"de": "Ein älterer Herr in einem Bluebuck von 1962 ...", "en": "..."},
   "hint": {"de": "Fährt nur gegen Miramar-Fahrer.", "en": "Only races Miramar drivers."}
 }</code></pre>
-<p>Im Lexikon bleiben Name, Spruch und Beschreibung von Wanderern und Bossen verborgen, bis du sie geschlagen hast. Auch der <code>hint</code> ist erst sichtbar, wenn man davon gehört hat (Spielstand <code>knownHints</code>, später durch die PA-Gespräche). Vorher steht dort "Noch unbekannt" (Text <code>home.hintUnknown</code>).</p>
+<p>Im Lexikon bleiben Name, Spruch und Beschreibung von Wanderern und Bossen verborgen, bis du sie geschlagen hast. Auch der <code>hint</code> ist erst sichtbar, wenn man davon gehört hat (Spielstand <code>knownHints</code>, erfährt man durch die <a href="#chat">PA-Gespräche</a>). Vorher steht dort "Noch unbekannt" (Text <code>home.hintUnknown</code>).</p>
 <p>Für Wanderer aus der Community gibt es das <a href="https://claude.ai/artifact/X81uryXxM3PfamZggfK9C9">Wanderer-Formular</a>; sein Export ist schon im richtigen Format.</p>
 
 <h3 id="boss">Bosse und Endboss</h3>
@@ -810,27 +810,72 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 </section>
 
 <section id="chat">
-<h2><span class="n">12</span> PA-Gespräche <span class="tag">data\chat.json</span> <span class="tag">System kommt noch</span></h2>
-<p>Die Texte stehen schon, das Gespräche-System baue ich noch. Aufbau:</p>
-<pre><code>"speakers": [ {"id": "fan", "name": {"de": "Ring-Fan", "en": "Loop fan"}}, ... ],
+<h2><span class="n">12</span> PA-Gespräche <span class="tag">data\chat.json</span> <span class="tag">talk.lua</span></h2>
+<p>Seit Alpha 0.4 stehen an den Parkplätzen (PAs) Fahrer neben ihren geparkten Autos. Du steigst aus, gehst zu Fuß hin, und unten erscheint <b>[T] Reden</b> mit dem Namen. Taste drücken: Die Sprechblase zeigt den Satz mit Porträt. Nochmal T = nächster Satz bzw. Ende. Wer weggeht oder einsteigt, beendet das Gespräch.</p>
+<h3>So läuft es im Spiel</h3>
+<ul>
+<li><b>Welche PAs:</b> alle <code>napSpots</code> aus der Kartendatei (C1: Shibaura PA, Tatsumi 1st PA). Eigene Gesprächs-Orte gehen mit <code>"talkSpots"</code> in der Kartendatei (gleicher Aufbau: <code>name</code>, <code>pos</code>, <code>radius</code>); gibt es die, gelten nur sie.</li>
+<li><b>Wann:</b> Kommst du näher als <code>spawnDistance</code> (230 m), stellen sich die Leute auf, einer nach dem anderen (damit es beim Vorbeifahren nicht ruckelt). Ab <code>despawnDistance</code> (330 m) verschwinden sie. Nachts 3 bis 6 Fahrer, tagsüber 1 bis 2.</li>
+<li><b>Wer:</b> Pro Nacht (bzw. Tag) und PA fest ausgewürfelt aus Spielstand + Nacht. Kommst du in derselben Nacht wieder, stehen dieselben Leute da. In der nächsten Nacht andere, aber nie vor deinen Augen: gewechselt wird erst, wenn du weg bist.</li>
+<li><b>Autos:</b> in freien Parkbuchten der Map (dieselben, die der BeamNG-Parkverkehr nutzt), Motor aus, festgebremst, nicht einsteigbar. Kennzeichen zufällig. Die Config wird zufällig aus dem Modell gewählt, ohne Polizei, Rennwagen usw. (<code>excludeConfigs</code>). Findet die Mod keine freien Buchten, stehen die Fahrer ohne Auto auf dem Platz (steht dann als Warnung im Mod-Log).</li>
+<li><b>Figuren:</b> die BeamNG-Fußgängerfigur (dieselbe wie du zu Fuß), mit zufälligem Gesicht und eigener Farbe je Sprecher. Meist an der Fahrerseite. Kommst du näher als <code>lookDistance</code>, drehen sie sich zu dir.</li>
+<li><b>Porträts:</b> <span class="path">art\portraits\npc\&lt;sprecher&gt;_&lt;1-3&gt;.svg</span>, drei Varianten je Sprecher (36 Bilder).</li>
+</ul>
+<h3>Was sie sagen</h3>
+<table>
+<tr><th>kind</th><th>Wer sagt es</th><th>Wann</th></tr>
+<tr><td><code>small</code></td><td>nur der eigene Sprecher</td><td>immer (Smalltalk)</td></tr>
+<tr><td><code>tip</code></td><td>nur der eigene Sprecher</td><td>immer, am Anfang (Rang 0-2) öfter</td></tr>
+<tr><td><code>crew</code></td><td>jeder (der eigene Sprecher doppelt so oft)</td><td>ab Crew-<code>minRank</code> minus <code>rankSlack</code>, solange der Leader nicht geschlagen ist</td></tr>
+<tr><td><code>leader</code></td><td>jeder</td><td>wenn höchstens noch 2 Mitglieder der Crew offen sind und der Leader nicht geschlagen ist</td></tr>
+<tr><td><code>wanderer</code> / <code>boss</code></td><td>jeder</td><td>ab dessen <code>minRank</code> minus <code>rankSlack</code>, solange nicht geschlagen. <b>Schaltet den Hinweis im Lexikon frei</b> (Meldung „Neuer Hinweis im Rivalen-Lexikon“, grüner Rahmen ums Porträt). Schon bekannte Hinweise kommen seltener.</td></tr>
+<tr><td><code>waiting</code></td><td>nur der eigene Sprecher, nur nachts</td><td><code>{name}</code> = ein Crew-Rivale, der heute Nacht wirklich fahren kann. Wer dich zuletzt geschlagen hat, kommt am häufigsten dran, dann Revanchen.</td></tr>
+<tr><td><code>again</code></td><td>alle (<code>speaker</code> leer)</td><td>wenn du denselben Fahrer in derselben Nacht nochmal ansprichst</td></tr>
+</table>
+<p>Ein Gespräch hat 1 bis 2 Sätze: Mit <code>importantChance</code> (60 %) ein Gerücht oder Hinweis, sonst Smalltalk; mit <code>secondLineChance</code> (35 %) kommt ein zweiter Satz dazu. Kein Fahrer sagt dir denselben Satz zweimal, und Sätze, die du schon kennst, kommen seltener (<code>heardWeight</code>). Gemerkt wird im Spielstand unter <code>talk</code> (<code>heard</code> = gehörte Sätze, <code>count</code> = Gespräche, <code>hints</code> = so gelernte Hinweise); die Lexikon-Hinweise stehen in <code>knownHints</code>.</p>
+<h3>Aufbau von chat.json</h3>
+<pre><code>"pa": { "nightCount": [3, 6], "dayCount": [1, 2], "spawnDistance": 230, ... },
+"speakers": [
+  {"id": "trucker", "name": {"de": "Lkw-Fahrer", "en": "Trucker"},
+   "figur": "m", "night": 2, "day": 3,
+   "cars": [{"model": "van"}, {"model": "pickup"}],
+   "color": [0.7, 0.6, 0.2],
+   "look": [{"jacke": "warnweste", "haare": "cap"}, ...]},
+  {"id": "taxi", ..., "cars": [{"model": "fullsize", "match": "taxi"}]},
+  {"id": "guard", ..., "cars": []}
+],
 "talk": [
   {"id": "small_1", "kind": "small", "speaker": "trucker",
    "text": {"de": "Ich fahr seit 20 Jahren nachts ...", "en": "..."}},
-  {"id": "w_ojisan_tip", "kind": "wanderer", "speaker": "fan", "about": "w_ojisan",
-   "text": {"de": "...", "en": "..."}},
+  {"id": "w_ojisan_tip", "kind": "wanderer", "speaker": "fan", "about": "w_ojisan", "text": {...}},
   {"id": "waiting_1", "kind": "waiting", "speaker": "fan",
    "text": {"de": "Ich hab gehört, {name} sucht dich.", "en": "I heard {name} is looking for you."}}
 ]</code></pre>
 <table>
-<tr><th>kind</th><th>Bedeutung</th></tr>
-<tr><td><code>small</code></td><td>Smalltalk</td></tr>
-<tr><td><code>tip</code></td><td>Spieltipp</td></tr>
-<tr><td><code>crew</code></td><td>Gerücht über eine Crew (<code>about</code> = Crew-ID)</td></tr>
-<tr><td><code>leader</code></td><td>Gerücht über den Leader, wenn die Crew fast geschlagen ist</td></tr>
-<tr><td><code>wanderer</code> / <code>boss</code></td><td>Verrät die Bedingung (<code>about</code> = Rivalen-ID)</td></tr>
-<tr><td><code>waiting</code></td><td>Vorlage, <code>{name}</code> wird durch einen wartenden Rivalen ersetzt</td></tr>
+<tr><th>Feld (speakers)</th><th>Bedeutung</th></tr>
+<tr><td><code>figur</code></td><td><code>m</code> oder <code>f</code> (fürs Porträt)</td></tr>
+<tr><td><code>night</code> / <code>day</code></td><td>Wie oft dieser Sprecher nachts/tagsüber an einer PA steht (Gewicht, 0 = nie). Beispiel: der Drift-Fan steht nur nachts da (<code>"day": 0</code>).</td></tr>
+<tr><td><code>cars</code></td><td>Autos, neben denen er steht. <code>match</code> = Teil des Config-Namens (z. B. <code>taxi</code>); passt keine, nimmt die Mod eine normale Config. Leere Liste = steht ohne Auto (Parkwächter).</td></tr>
+<tr><td><code>color</code></td><td>Lackfarbe der Figur und Hintergrundfarbe im Porträt (Rot, Grün, Blau 0 bis 1)</td></tr>
+<tr><td><code>look</code></td><td>Porträt-Teile je Variante (Namen wie im Silhouetten-Tool). Nach einer Änderung neu erzeugen, siehe unten.</td></tr>
 </table>
-<p>Neuer Wanderer? Dann am besten auch einen <code>wanderer</code>-Eintrag mit <code>about</code> auf seine ID anlegen.</p>
+<table>
+<tr><th>Einstellung (pa)</th><th>Standard</th><th>Bedeutung</th></tr>
+<tr><td><code>nightCount</code> / <code>dayCount</code></td><td>[3, 6] / [1, 2]</td><td>Wie viele Fahrer pro PA (von, bis)</td></tr>
+<tr><td><code>spawnDistance</code> / <code>despawnDistance</code></td><td>230 / 330</td><td>Ab hier erscheinen bzw. verschwinden sie (m zur PA-Mitte)</td></tr>
+<tr><td><code>spotRadius</code></td><td>70</td><td>In diesem Umkreis werden Parkbuchten gesucht (m)</td></tr>
+<tr><td><code>talkDistance</code></td><td>2.8</td><td>So nah musst du ran, damit „Reden“ erscheint (m)</td></tr>
+<tr><td><code>lookDistance</code></td><td>9</td><td>Ab hier dreht sich der Fahrer zu dir (m)</td></tr>
+<tr><td><code>importantChance</code></td><td>0.6</td><td>Chance auf Gerücht/Hinweis statt Smalltalk</td></tr>
+<tr><td><code>secondLineChance</code></td><td>0.35</td><td>Chance auf einen zweiten Satz</td></tr>
+<tr><td><code>rankSlack</code></td><td>1</td><td>So viele Ränge vorher hört man schon von Crews und Wanderern</td></tr>
+<tr><td><code>heardWeight</code></td><td>0.15</td><td>Gewicht für schon gehörte Sätze (1 = wie neu, 0 = nie wieder)</td></tr>
+<tr><td><code>portraitVariants</code></td><td>3</td><td>Porträt-Varianten je Sprecher</td></tr>
+<tr><td><code>excludeConfigs</code></td><td>police, race, rally …</td><td>Configs mit diesen Wörtern parken nie an der PA</td></tr>
+</table>
+<div class="box tip"><b>Beispiele</b>Mehr Leute nachts: <code>"nightCount": [5, 8]</code>. Gerüchte erst ab dem richtigen Rang: <code>"rankSlack": 0</code>. Neuer Wanderer? Dann einen <code>wanderer</code>-Eintrag mit <code>about</code> auf seine ID anlegen, sonst erfährt man im Spiel nie seine Bedingung. Neuer Sprecher: Eintrag in <code>speakers</code> und ein paar <code>small</code>-Sätze mit seiner ID.</div>
+<div class="box"><b>Porträts neu erzeugen</b> (mache ich, wenn du <code>look</code> oder Sprecher änderst): <code>node tools/portraits/export_npc_portraits.js silhouetten.html</code>. Die Texte erzeugt mein Generator <span class="path">tools\generator\chat.py</span>; deine Handänderungen in <code>chat.json</code> bleiben dabei erhalten.</div>
+<div class="box"><b>Testen</b>Im Entwickler-Menü gibt es „PA-Fahrer neu aufstellen“ (lädt <code>chat.json</code> neu und stellt die Leute neu hin). Im Mod-Log steht pro PA „PA-Fahrer an &lt;PA&gt;: &lt;Anzahl&gt; (&lt;Nacht&gt;, &lt;freie Buchten&gt;)“.</div>
 </section>
 
 <section id="community">
@@ -1095,7 +1140,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td><code>HashiriyaTerminal</code></td><td>Teile-Terminal im Shop und Garagen-PC (eigenes Layout <code>hashiriyaShop.uilayout.json</code>, ganzer Bildschirm, Mitte frei für die Live-Vorschau). Siehe <a href="#tuning">Teile-Terminal</a>.</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
 <tr><td><code>HashiriyaUnlock</code></td><td>Karte links am Rand „Neue Teile freigeschaltet“, wenn eine Tuning-Stufe frei wird (Stufe, Grund, neue Teile pro Kategorie fürs aktive Auto). Siehe <a href="#freischalt-meldung">Meldung bei neuen Teilen</a>.</td></tr>
-<tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Später auch für die PA-Gespräche.</td></tr>
+<tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Auch für die <a href="#chat">PA-Gespräche</a>: Fahrer links mit Porträt, unten Taste und „weiter“/„Ende“, Punkte für den Satz; grüner Rahmen = neuer Lexikon-Hinweis. Vor einem Fahrer zeigt sie den Hinweis „[T] Reden“.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
 <tr><td><code>HashiriyaUtility</code></td><td>Oben links, ersetzt die BeamNG-Utility-Apps (Messages, Tasks, Scoreboard). Untereinander: Rangliste (nur wenn ein Spielmodus sie einschaltet), Aufgaben (Titel, Ziele mit Rauten-Haken: grün erledigt, rot gescheitert, orange pulsierend = Achtung) und Meldungen als Karten. Meldungen der Mod sind orange („Hashiriya“), Meldungen vom Spiel grau-blau („BeamNG“), Schäden und Warnungen rot. Gleiche Kategorie ersetzt die alte Karte, höchstens 5 gleichzeitig. Ein Balken unten zeigt, wie lange die Meldung noch steht.</td></tr>
 <tr><td><code>HashiriyaMinimap</code></td><td>Unten links im Querformat, ersetzt die BeamNG-App Navigation. Die Karte zeichnet weiter BeamNG selbst in das freie Feld, die App liefert die schmale Kopfzeile (Navi, Ortsname, Abstand zum Ziel) und den Polizei-Hinweis. Rund oder eckig stellst du in den BeamNG-Optionen (Minimap-Form) ein. Wichtig: nie zusammen mit der BeamNG-App Navigation ins Layout legen, es gibt nur eine Karte.</td></tr>
@@ -1126,15 +1171,17 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <pre><code>{
   "bindings":[
     {"control":"home", "action":"hashiriyaToggleMenu"},
+    {"control":"t", "action":"hashiriyaTalk"},
     {"control":"shift home", "action":"hashiriyaCaptureCamera"}
   ]
 }</code></pre>
 <table>
 <tr><th>Taste</th><th>Aktion</th></tr>
 <tr><td>Pos1 (<code>home</code>)</td><td>Hashiriya-Menü auf/zu</td></tr>
+<tr><td>T</td><td>Zu Fuß an einer PA mit einem Fahrer reden, nächster Satz, Ende (<a href="#chat">PA-Gespräche</a>)</td></tr>
 <tr><td>Umschalt+Pos1</td><td>Aktuelle Kamera als Titelbild-Kamera merken</td></tr>
 </table>
-<p>Ändern geht am einfachsten im Spiel unter Optionen &gt; Steuerung, Kategorie Debug, Eintrag "Hashiriya Battle: Menü ein/aus". Oder hier <code>"control"</code> ändern, z. B. <code>"f6"</code> oder <code>"ctrl m"</code>. Lichthupe, Warnblinker und Blinker sind die normalen BeamNG-Tasten.</p>
+<p>Ändern geht am einfachsten im Spiel unter Optionen &gt; Steuerung, Kategorie Debug, Eintrag "Hashiriya Battle: Menü ein/aus". Oder hier <code>"control"</code> ändern, z. B. <code>"f6"</code> oder <code>"ctrl m"</code>. „Reden“ steht dort als „Hashiriya Battle: Reden (PA)“. Lichthupe, Warnblinker und Blinker sind die normalen BeamNG-Tasten.</p>
 </section>
 
 <section id="roadmap">
@@ -1147,8 +1194,8 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><th>Version</th><th>Meilenstein</th><th>Stand</th></tr>
 <tr><td><b>Alpha 0.2</b></td><td>Erster Testbuild: Battles, Rivalen-Radar, Startautos, Tag und Nacht</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
 <tr><td><b>Alpha 0.3</b></td><td>Großer Kader (26 Crews, 42 Wanderer), Ränge, eigene Rivalen-KI, Release-Build</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
-<tr><td><b>Alpha 0.4</b></td><td>Gespräche mit Fahrern an den Parkplätzen (PA)</td><td><span style="color:var(--accent)">▶ als Nächstes</span></td></tr>
-<tr><td><b>Alpha 0.5</b></td><td>Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.4</b></td><td>Gespräche mit Fahrern an den Parkplätzen (PA)</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.5</b></td><td>Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen</td><td><span style="color:var(--accent)">▶ als Nächstes</span></td></tr>
 <tr><td><b>Alpha 0.6</b></td><td>Bosse und Story-Kapitel mit Zwischengeschichten</td><td><span style="color:var(--muted)">geplant</span></td></tr>
 <tr><td><b>Alpha 0.7</b></td><td>Nebenjobs am Tag und bezahlte Tipps zu seltenen Rivalen</td><td><span style="color:var(--muted)">geplant</span></td></tr>
 <tr><td><b>Alpha 0.8</b></td><td>Teile verkaufen und ausbauen in der Garage</td><td><span style="color:var(--muted)">geplant</span></td></tr>
@@ -1174,7 +1221,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <p>Ideen, die wir besprochen haben. „Meilenstein“ sagt, wo sie eingeplant sind.</p>
 <table>
 <tr><th>Idee</th><th>Meilenstein</th><th>Stand</th></tr>
-<tr><td>PA-Gespräche: zu Fuß mit Fahrern neben ihren Autos reden (Smalltalk, Gerüchte, Hinweise auf Wanderer und wartende Rivalen). Figuren = BeamNG-„Bobs“.</td><td>Alpha 0.4</td><td>über 150 Texte fertig (<code>chat.json</code>), System fehlt</td></tr>
+<tr><td>PA-Gespräche: zu Fuß mit Fahrern neben ihren Autos reden (Smalltalk, Gerüchte, Hinweise auf Wanderer und wartende Rivalen). Figuren = BeamNG-„Bobs“.</td><td>Alpha 0.4</td><td>gebaut (01.11.2026), im Spiel noch ungetestet</td></tr>
 <tr><td>Rivalen und Wanderer stehen auch an den PAs (auf den Parkplätzen der geparkten Autos).</td><td>Alpha 0.5</td><td>offen</td></tr>
 <tr><td>Pink Slip gegen manche PA-Rivalen (ab bestimmtem Ruf): Verlierer verliert sein Auto, der Rivale fährt es, bis du es zurückgewinnst.</td><td>Alpha 0.5</td><td>offen</td></tr>
 <tr><td>Bosse und Story-Kapitel mit Zwischengeschichten (eigene Story).</td><td>Alpha 0.6</td><td>Bosse kommen von dir</td></tr>
@@ -1194,6 +1241,21 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
+<details class="cl">
+<summary><b>Alpha 0.4</b> <small>Stand 01.11.2026</small></summary>
+<div>
+<h4>Neu: Gespräche an den Parkplätzen (PA)</h4>
+<ul>
+<li>An Shibaura PA und Tatsumi PA stehen jetzt Fahrer neben ihren geparkten Autos: nachts 3 bis 6, tagsüber 1 bis 2. Es gibt 12 Typen, zum Beispiel Lkw-Fahrer, Fotografin, Alter Hase, Parkwächter und Drift-Fan. Jeder hat eigene Autos und drei Porträts.</li>
+<li>Steig aus und geh zu Fuß hin. Dann erscheint „[T] Reden“. Mit T redest du, ein weiterer Druck zeigt den nächsten Satz oder beendet das Gespräch.</li>
+<li>Was die Fahrer erzählen, hängt von deinem Fortschritt ab: Gerüchte über Crews ab dem passenden Rang, Gerüchte über Leader, wenn die Crew fast geschlagen ist, und wer heute Nacht auf dich wartet.</li>
+<li>Hinweise auf Wanderer und Bosse schalten den Hinweis im Rivalen-Lexikon frei. So erfährst du, wie man sie trifft.</li>
+<li>Dieselbe Nacht zeigt an einer PA immer dieselben Leute, in der nächsten Nacht stehen andere da. Sprichst du jemanden zweimal an, sagt er dir das auch.</li>
+<li>Fahrer drehen sich zu dir, wenn du näher kommst.</li>
+<li>Neue Taste „Reden“ (Standard T). Sie steht auch im Tasten-Check.</li>
+</ul>
+</div>
+</details>
 <details class="cl">
 <summary><b>Alpha 0.3.5</b> <small>Stand 01.11.2026</small></summary>
 <div>

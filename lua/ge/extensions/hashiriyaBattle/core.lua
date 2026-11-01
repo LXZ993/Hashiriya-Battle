@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_release' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_release', 'hashiriyaBattle_talk' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -491,6 +491,7 @@ local function continueGame()
 end
 
 function M.stopGame()
+  pcall(function() extensions.hashiriyaBattle_talk.despawnAll() end)
   if M.active then M.writeSave() end
   M.active = false
   extensions.hashiriyaBattle_battle.reset()
@@ -739,6 +740,8 @@ local function buildUiState()
     st.rivalKind = rival and extensions.hashiriyaBattle_rivals.markerKind(rival.data) or nil
     st.radar = extensions.hashiriyaBattle_rivals.radarInfo(600)
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
+    local talkHud = extensions.hashiriyaBattle_talk.getHudState()
+    if talkHud then st.talk, st.talkPrompt = talkHud.talk, talkHud.prompt end
     st.style = extensions.hashiriyaBattle_style.getHudState()
     st.unlock = extensions.hashiriyaBattle_shop.unlockHud()
     local parking = extensions.hashiriyaBattle_parking
@@ -894,7 +897,7 @@ end
 local devActions = {
   callRival = true, capture = true, dumpParts = true, dumpConfigs = true,
   cheatMoney = true, cheatWins = true, cheatRep = true, cheatHour = true, cheatDay = true,
-  cheatRepair = true, cheatFuel = true, devSpawnRival = true, devBeatRival = true, devClearRivals = true, builder = true, devUnlock = true,
+  cheatRepair = true, cheatFuel = true, devSpawnRival = true, devBeatRival = true, devClearRivals = true, builder = true, devUnlock = true, devTalkRespawn = true,
 }
 
 function M.uiAction(action, arg)
@@ -1127,6 +1130,9 @@ function M.uiAction(action, arg)
     -- Entwickler-Werkzeug: Crews, Wanderer und Bosse bearbeiten (UI-App HashiriyaBuilder)
     if extensions.hashiriyaBattle_builder then extensions.hashiriyaBattle_builder.open()
     else M.msg('Builder fehlt (builder.lua nicht im Mod)', 4) end
+  elseif action == 'devTalkRespawn' then
+    extensions.hashiriyaBattle_talk.respawn()
+    msg(M.t('msg.devTalkRespawn'), 3)
   elseif action == 'devClearRivals' then
     extensions.hashiriyaBattle_rivals.despawnAll()
   elseif action == 'toggleMarkers' then

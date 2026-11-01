@@ -524,5 +524,14 @@
   "hud.policeLost": "Out of sight",
   "hud.target": "Target",
   "hud.powertrain": "Powertrain",
-  "hud.ignitionTip": "Hold: start / stop engine"
+  "hud.ignitionTip": "Hold: start / stop engine",
+  "keys.talk": "Talk",
+  "keys.talk.d": "Talk to drivers at a parking area on foot, next line (default: T)",
+  "talk.prompt": "Talk",
+  "talk.next": "next",
+  "talk.end": "done",
+  "talk.hintLearned": "New hint in the lexicon",
+  "msg.talkHint": "New hint in the rival lexicon",
+  "msg.devTalkRespawn": "Parking area drivers are being placed again",
+  "menu.devTalk": "Re-place PA drivers"
 }

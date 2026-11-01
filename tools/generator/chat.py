@@ -1,4 +1,4 @@
-# PA-Gespräche (Texte zuerst, das System kommt später). Erzeugt data/chat.json.
+# PA-Gespräche (Texte + Figuren an den Parkplätzen, System: talk.lua). Erzeugt data/chat.json.
 import json
 
 SPEAKERS = [
@@ -174,6 +174,8 @@ SPECIAL = [
  ('w_nitro', 'photo', 'Ein Mann ohne Augenbrauen fährt einen Burnside mit fast 1500 PS. Er will den, der die Greasers und Noodle geschlagen hat.', 'A man with no eyebrows drives a Burnside with almost 1500 hp. He wants whoever beat the Greasers and Noodle.'),
  ('w_afterburner', 'guard', 'Seit Redtail geschlagen ist, fährt ein Bastion ohne erkennbaren Fahrer. Manche sagen, es ist sein alter Flügelmann.', 'Since Redtail was beaten, a Bastion with no visible driver roams the loop. Some say it\'s his old wingman.'),
  ('w_kaminari', 'veteran', 'Zwischen drei und vier Uhr, nach der Eule und der Signora, kommt der Blitz. Mehr weiß niemand.', 'Between three and four am, after the Owl and the Signora, comes the Lightning. Nobody knows more.'),
+ ('w_henry', 'salaryman', 'Ein Amerikaner in einem deutschen I-Series fährt erst, wenn der Ginza Neon Club gefallen ist. Spät, zwischen elf und vier.', 'An American in a German I-Series only shows up once the Ginza Neon Club has fallen. Late, between eleven and four.'),
+ ('w_alex_zockt', 'drifter', 'Da fährt einer im BX, der glaubt, er wäre der Schnellste. Er kommt angeblich erst, wenn dich sieben Blitzer erwischt haben.', 'There\'s a guy in a BX who thinks he\'s the fastest. Supposedly he only comes once seven speed cameras have caught you.'),
  ('b_shirotora', 'veteran', 'Der Weiße Tiger bewacht den Inneren Ring. Er zeigt sich erst, wenn die Lanterns, der Neon Club, die Yama-Gumi und die Kitsune gefallen sind.', 'The White Tiger guards the inner loop. He only shows himself once the Lanterns, the Neon Club, the Yama-Gumi and the Kitsune have fallen.'),
  ('b_kokuryu', 'veteran', 'Den Schwarzen Drachen kennt jeder. Er fährt nur gegen den, der Kasumi, Akatsuki, Raijin und Kurogane geschlagen hat.', 'Everyone knows the Black Dragon. He only races whoever beat Kasumi, Akatsuki, Raijin and Kurogane.'),
  ('b_mugen', 'veteran', 'Mugen gab es schon, als der Ring eröffnet wurde. Wer Tiger und Drache schlägt, trifft ihn vielleicht zwischen zwei und vier.', 'Mugen was here when the loop opened. Whoever beats the Tiger and the Dragon might meet him between two and four.'),
@@ -189,6 +191,55 @@ WAITING = [
  ('veteran', 'Seit deinem Sieg gegen {name} redet hier jeder von einer Revanche.', 'Since you beat {name}, everyone here is talking about a rematch.'),
 ]
 
+# Wie die Figuren an den PAs aussehen und was sie fahren (talk.lua).
+# figur m/f, when = wann sie an den PAs stehen (Gewicht nachts/tagsüber, 0 = nie),
+# cars = Automodelle neben denen sie stehen (leer = steht ohne Auto, z. B. der Parkwächter),
+# match = Teil des Config-Namens, der passen muss (z. B. taxi), look = Teile fürs Porträt (Silhouetten-Tool),
+# color = Lackfarbe der Figur (0..1).
+SPEAKER_STYLE = {
+ 'fan':       dict(figur='m', night=3, day=1, cars=[('sunburst2', ''), ('covet', ''), ('pessima', '')], color=[0.9, 0.45, 0.1], look=[dict(jacke='hoodie', haare='capback'), dict(jacke='tshirt', haare='stachel', hals='kopfhoerer'), dict(jacke='sukajan', haare='kurz')]),
+ 'mechanic':  dict(figur='m', night=2, day=2, cars=[('pickup', ''), ('van', '')], color=[0.25, 0.35, 0.55], look=[dict(jacke='overall', haare='cap', hals='handtuch'), dict(jacke='overall', haare='bandana'), dict(jacke='overall', haare='kahl', brille='goggles')]),
+ 'trucker':   dict(figur='m', night=2, day=3, cars=[('van', ''), ('pickup', '')], color=[0.7, 0.6, 0.2], look=[dict(jacke='warnweste', haare='cap', hals='handtuch'), dict(jacke='warnweste', haare='muetze'), dict(jacke='jeans', haare='kurz', extra='zahnstocher')]),
+ 'taxi':      dict(figur='m', night=2, day=2, cars=[('fullsize', 'taxi'), ('midsize', 'taxi'), ('fullsize', '')], color=[0.85, 0.75, 0.2], look=[dict(jacke='weste', haare='scheitel', haarfarbe='silber'), dict(jacke='anzug', haare='kurz', brille='halb'), dict(jacke='weste', haare='kahl', extra='maske')]),
+ 'photo':     dict(figur='f', night=2, day=1, cars=[('covet', ''), ('etkc', '')], color=[0.75, 0.3, 0.6], look=[dict(jacke='jeans', haare='bobcut', hals='kette'), dict(jacke='bomber', haare='zopf', brille='rund'), dict(jacke='windbreaker', haare='capback')]),
+ 'veteran':   dict(figur='m', night=3, day=1, cars=[('moonhawk', ''), ('bluebuck', ''), ('miramar', ''), ('sbr', '')], color=[0.55, 0.55, 0.6], look=[dict(jacke='leder', haare='tolle', haarfarbe='silber'), dict(jacke='mantel', haare='kahl', brille='sonne'), dict(jacke='strick', haare='scheitel', haarfarbe='silber', brille='rund')]),
+ 'rookie':    dict(figur='m', night=3, day=1, cars=[('covet', ''), ('pessima', ''), ('bx', '')], color=[0.3, 0.75, 0.4], look=[dict(jacke='hoodie', haare='stachel'), dict(jacke='tshirt', haare='kurz'), dict(jacke='training', haare='capback')]),
+ 'guard':     dict(figur='m', night=1, day=2, cars=[], color=[0.2, 0.3, 0.25], look=[dict(jacke='warnweste', haare='muetze'), dict(jacke='warnweste', haare='cap', haarfarbe='silber'), dict(jacke='militaer', haare='muetze', extra='maske')]),
+ 'courier':   dict(figur='m', night=1, day=3, cars=[('van', ''), ('pickup', '')], color=[0.2, 0.5, 0.8], look=[dict(jacke='windbreaker', haare='capback', extra='headset'), dict(jacke='polo', haare='cap'), dict(jacke='windbreaker', haare='kurz', hals='kopfhoerer')]),
+ 'student':   dict(figur='f', night=2, day=1, cars=[('covet', ''), ('pessima', '')], color=[0.6, 0.7, 0.95], look=[dict(jacke='strick', haare='hime', hals='schal'), dict(jacke='bluse', haare='zoepfe', brille='rund'), dict(jacke='hoodie', haare='dutt')]),
+ 'salaryman': dict(figur='m', night=2, day=2, cars=[('midsize', ''), ('etki', ''), ('legran', '')], color=[0.35, 0.35, 0.4], look=[dict(jacke='anzug', haare='scheitel', brille='halb'), dict(jacke='anzug', haare='kurz'), dict(jacke='mantel', haare='scheitel', brille='rund')]),
+ 'drifter':   dict(figur='m', night=3, day=0, cars=[('sunburst2', 'drift'), ('bx', ''), ('sunburst2', '')], color=[0.85, 0.15, 0.2], look=[dict(jacke='sukajan', haare='stachel', extra='zahnstocher'), dict(jacke='tokko', haare='irokese'), dict(jacke='bomber', haare='bandana', brille='sonne')]),
+}
+
+# Wenn man denselben Fahrer in derselben Nacht (oder am selben Tag) nochmal anspricht (kind again)
+AGAIN = [
+ ('Hab dir doch schon alles erzählt. Fahr los, die Nacht wartet nicht.', 'I already told you everything. Get going, the night won\'t wait.'),
+ ('Mehr weiß ich gerade auch nicht. Frag mal die anderen hier.', 'That\'s all I know right now. Ask the others around here.'),
+ ('Du schon wieder? Wenn ich was Neues höre, sag ich Bescheid.', 'You again? If I hear anything new, I\'ll let you know.'),
+ ('Komm morgen wieder. Bis dahin hat sich bestimmt was rumgesprochen.', 'Come back tomorrow. Word gets around by then.'),
+ ('Ich trink nur noch meinen Kaffee aus. Dann bin ich auch weg.', 'Just finishing my coffee. Then I\'m off too.'),
+ ('Wenn du so viel redest wie du fährst, wird das heute nichts mehr.', 'If you talk as much as you drive, nothing\'s happening tonight.'),
+ ('Mehr gibt es nicht zu erzählen. Ehrlich.', 'There\'s nothing more to tell. Honestly.'),
+ ('Schau dich lieber auf dem Ring um als hier auf dem Parkplatz.', 'Better look around on the loop than here in the car park.'),
+]
+
+# Einstellungen fürs Gesprächs-System (talk.lua). Werte im Handbuch erklärt.
+PA = {
+ '_hinweis': 'Fahrer an den PAs (napSpots der Kartendatei). nightCount/dayCount = wie viele Fahrer nachts/tagsüber (von, bis). '
+             'spawnDistance = ab dieser Entfernung zur PA-Mitte erscheinen sie, despawnDistance = ab hier verschwinden sie wieder (m). '
+             'spotRadius = in diesem Umkreis um die PA-Mitte werden Parkbuchten gesucht (m). talkDistance = so nah musst du zu Fuß ran (m), '
+             'lookDistance = ab hier dreht sich der Fahrer zu dir. importantChance = Chance, dass ein Fahrer ein Gerücht oder einen Hinweis statt Smalltalk hat. '
+             'secondLineChance = Chance auf einen zweiten Satz. rankSlack = so viele Ränge vor dem nötigen Rang hört man schon von Crews und Wanderern. '
+             'heardWeight = Gewicht für Sätze, die man schon kennt (1 = normal, 0 = nie wieder). excludeConfigs = Configs mit diesen Wörtern parken nie an der PA. '
+             'portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg).',
+ 'nightCount': [3, 6], 'dayCount': [1, 2],
+ 'spawnDistance': 230, 'despawnDistance': 330, 'spotRadius': 70,
+ 'talkDistance': 2.8, 'lookDistance': 9,
+ 'importantChance': 0.6, 'secondLineChance': 0.35, 'rankSlack': 1, 'heardWeight': 0.15,
+ 'portraitVariants': 3,
+ 'excludeConfigs': ['police', 'pursuit', 'interceptor', 'undercover', 'race', 'rally', 'drag', 'track', 'gymkhana', 'safety', 'baja', 'stunt', 'derby', 'prerunner', 'crawler', 'ambulance', 'fire'],
+}
+
 def build():
     talk = []
     def add(kind, speaker, de, en, **extra):
@@ -199,12 +250,16 @@ def build():
     for team, s, de, en in LEADER: add('leader', s, de, en, about=team)
     for rid, s, de, en in SPECIAL: add('boss' if rid.startswith('b_') else 'wanderer', s, de, en, about=rid)
     for s, de, en in WAITING: add('waiting', s, de, en)
+    for de, en in AGAIN: add('again', '', de, en)
     return {
-     '_hinweis': 'PA-Gespräche (Texte, das Chat-System kommt noch). speakers = allgemeine Figuren an den Parkplätzen. kind: small = belanglos, tip = Spieltipp, '
+     '_hinweis': 'PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), '
                  'crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader '
                  '(wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), '
                  'waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet.',
-     'speakers': [{'id': i, 'name': {'de': de, 'en': en}} for i, de, en in SPEAKERS],
+     'pa': PA,
+     'speakers': [dict({'id': i, 'name': {'de': de, 'en': en}}, figur=SPEAKER_STYLE[i]['figur'], night=SPEAKER_STYLE[i]['night'], day=SPEAKER_STYLE[i]['day'],
+                       cars=[{'model': m, 'match': mt} if mt else {'model': m} for m, mt in SPEAKER_STYLE[i]['cars']],
+                       color=SPEAKER_STYLE[i]['color'], look=SPEAKER_STYLE[i]['look']) for i, de, en in SPEAKERS],
      'talk': talk,
     }
 
@@ -217,7 +272,7 @@ if __name__ == '__main__':
     ids = {r['id'] for r in rv['rivals']} | {t['id'] for t in rv['teams']}
     sp = {s['id'] for s in d['speakers']}
     for t in d['talk']:
-        assert t['speaker'] in sp, t
+        assert t['speaker'] in sp or t['kind'] == 'again', t
         assert 'about' not in t or t['about'] in ids, t
     assert {t['about'] for t in d['talk'] if t['kind'] in ('wanderer', 'boss')} == {r['id'] for r in rv['rivals'] if r.get('wanderer') or r.get('boss')}
     assert {t['about'] for t in d['talk'] if t['kind'] == 'crew'} == {t['id'] for t in rv['teams']}

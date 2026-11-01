@@ -1,7 +1,8 @@
 // Hashiriya Battle: Sprechblase unten mit Porträt des Sprechers (Silhouetten aus art/portraits).
 // Der Rivale steht rechts neben der Blase (wie im SP-HUD rechts der Rivale), die Blase zeigt auf ihn.
 // Daten: Hook 'HashiriyaState' (battle.quote, quoteKind, portrait, rivalName, rivalNick, rivalTag).
-// Später auch für die PA-Gespräche (talk = { text, name, portrait, side }).
+// PA-Gespräche (talk.lua): data.talk = { text, name, portrait, side: 'left', step, steps, key, next, hint },
+// data.talkPrompt = { name, key, text, again } = Hinweis "[T] Reden", wenn man zu Fuß vor einem Fahrer steht.
 angular.module('beamng.apps')
 .directive('hashiriyaTalk', [function () {
   return {
@@ -12,9 +13,15 @@ angular.module('beamng.apps')
           '<div class="hbk-bubble">' +
             '<div class="hbk-who"><b>{{ line.name }}</b><span ng-if="line.nick">{{ line.nick }}</span></div>' +
             '<div class="hbk-text">{{ line.text }}</div>' +
+            '<div class="hbk-foot" ng-if="line.key">' +
+              '<span class="hbk-hint" ng-if="line.hint">{{ line.hint }}</span>' +
+              '<span class="hbk-dots" ng-if="line.steps > 1"><i ng-repeat="d in dots(line.steps) track by $index" ng-class="{on: $index < line.step}"></i></span>' +
+              '<span class="hbk-key"><b>{{ line.key }}</b>{{ line.next }}</span>' +
+            '</div>' +
           '</div>' +
           '<div class="hbk-pic" ng-if="line.side != \'left\'"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
         '</div>' +
+        '<div class="hbk-prompt" ng-if="!line && prompt"><b>{{ prompt.key }}</b><span>{{ prompt.text }}</span><em>{{ prompt.name }}</em></div>' +
         '<style>' +
           '.hbk-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;' +
             '--o:#ff6600;--o2:#ff9a3c;--w:#f4f4f4;--dim:rgba(244,244,244,.65);font-family:"Overpass","Noto Sans JP",sans-serif;}' +
@@ -40,6 +47,18 @@ angular.module('beamng.apps')
           '.hbk-t-wanderer .hbk-pic{box-shadow:0 0 0 2px #b77bff;}' +
           '.hbk-t-boss .hbk-pic{box-shadow:0 0 0 2px #ff3b30;}' +
           '.hbk-t-leader .hbk-pic{box-shadow:0 0 0 2px #ffd23f;}' +
+          '.hbk-t-hint .hbk-pic{box-shadow:0 0 0 2px #4fd18b;}' +
+          '.hbk-k-pa .hbk-who b{color:#9ec3ff;}' +
+          '.hbk-foot{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:6px;font-size:11px;color:var(--dim);}' +
+          '.hbk-hint{margin-right:auto;color:#4fd18b;font-weight:700;letter-spacing:1px;text-transform:uppercase;}' +
+          '.hbk-dots i{display:inline-block;width:6px;height:6px;margin-left:4px;background:rgba(255,255,255,.2);transform:skewX(-20deg);}' +
+          '.hbk-dots i.on{background:var(--o);}' +
+          '.hbk-key b,.hbk-prompt b{display:inline-block;min-width:18px;padding:1px 6px;margin-right:6px;border:1px solid rgba(255,255,255,.5);border-radius:3px;' +
+            'font-style:normal;font-weight:900;color:var(--w);text-align:center;}' +
+          '.hbk-prompt{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:7px 14px;white-space:nowrap;' +
+            'background:rgba(10,11,14,.82);border-left:3px solid var(--o);font-size:14px;color:var(--w);animation:hbkIn .25s ease-out;}' +
+          '.hbk-prompt span{font-weight:800;letter-spacing:1px;text-transform:uppercase;}' +
+          '.hbk-prompt em{font-style:italic;color:var(--dim);}' +
           '@keyframes hbkIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}' +
         '</style>' +
       '</div>',
@@ -47,7 +66,9 @@ angular.module('beamng.apps')
     link: function (scope) {
       'use strict'
       scope.line = null
-      var lastKey = null
+      scope.prompt = null
+      scope.dots = function (n) { return new Array(n) }
+      var lastKey = null, lastPrompt = null
       scope.$on('HashiriyaState', function (event, data) {
         var b = data && data.battle
         var line = null
@@ -57,10 +78,13 @@ angular.module('beamng.apps')
         } else if (data && data.talk && data.talk.text) {
           line = data.talk
         }
-        var key = line ? (line.name + '|' + line.text) : null
-        if (key === lastKey) return
+        var prompt = (data && data.talkPrompt) || null
+        var pKey = prompt ? (prompt.name + '|' + prompt.key) : null
+        var key = line ? (line.name + '|' + line.text + '|' + (line.step || 0) + '|' + (line.key || '')) : null
+        if (key === lastKey && pKey === lastPrompt) return
         lastKey = key
-        scope.$evalAsync(function () { scope.line = line })
+        lastPrompt = pKey
+        scope.$evalAsync(function () { scope.line = line; scope.prompt = prompt })
       })
     }
   }

@@ -1,5 +1,16 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.4 (as of 2026-11-01)
+
+### New: talking at the parking areas (PA)
+- Drivers now stand next to their parked cars at Shibaura PA and Tatsumi PA: 3 to 6 at night, 1 to 2 during the day. There are 12 types, for example trucker, photographer, old hand, car park attendant and drift fan. Each has their own cars and three portraits.
+- Get out and walk over. "[T] Talk" appears. Press T to talk; press again for the next line or to end the conversation.
+- What drivers tell you depends on your progress: rumours about crews once your rank fits, rumours about leaders when a crew is almost beaten, and who is waiting for you tonight.
+- Tips about wanderers and bosses unlock the hint in the rival lexicon, so you learn how to meet them.
+- The same night always shows the same people at a PA; the next night different ones are there. Talk to someone twice and they'll tell you so.
+- Drivers turn towards you as you approach.
+- New key "Talk" (default T), also listed in the key check.
+
 ## Alpha 0.3.5 (as of 2026-11-01)
 
 ### Bug fixes

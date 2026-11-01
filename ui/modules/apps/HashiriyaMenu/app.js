@@ -72,6 +72,7 @@ angular.module('beamng.apps')
               '<span class="hbm-btn" ng-click="act(\'devSpawnRival\', \'__random\')">{{ s.t[\'menu.devRandom\'] }}</span>' +
             '</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'devClearRivals\')"><i class="hbm-ico" ng-bind-html="ico(\'xmark\')"></i>{{ s.t[\'menu.devClear\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'devTalkRespawn\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i>{{ s.t[\'menu.devTalk\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRep\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'menu.cheatRep\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'devUnlock\', 2)"><i class="hbm-ico" ng-bind-html="ico(\'wrench\')"></i>{{ s.t[\'menu.devUnlock\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatHour\'] }}</div>' +

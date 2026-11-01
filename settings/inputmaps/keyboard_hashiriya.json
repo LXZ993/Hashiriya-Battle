@@ -1,6 +1,7 @@
 {
   "bindings":[
     {"control":"home", "action":"hashiriyaToggleMenu"},
+    {"control":"t", "action":"hashiriyaTalk"},
     {"control":"shift home", "action":"hashiriyaCaptureCamera"}
   ]
 }

@@ -580,5 +580,14 @@
   "hud.policeLost": "Außer Sicht",
   "hud.target": "Ziel",
   "hud.powertrain": "Antrieb",
-  "hud.ignitionTip": "Halten: Motor starten / abstellen"
+  "hud.ignitionTip": "Halten: Motor starten / abstellen",
+  "keys.talk": "Reden",
+  "keys.talk.d": "Zu Fuß an einer PA mit Fahrern reden, nächster Satz (Standard: T)",
+  "talk.prompt": "Reden",
+  "talk.next": "weiter",
+  "talk.end": "Ende",
+  "talk.hintLearned": "Neuer Hinweis im Lexikon",
+  "msg.talkHint": "Neuer Hinweis im Rivalen-Lexikon",
+  "msg.devTalkRespawn": "PA-Fahrer werden neu aufgestellt",
+  "menu.devTalk": "PA-Fahrer neu aufstellen"
 }

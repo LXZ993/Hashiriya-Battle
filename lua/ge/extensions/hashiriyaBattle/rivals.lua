@@ -272,6 +272,14 @@ local function isEligible(rival, save)
   return conditionsMet(rival.conditions, save)
 end
 
+-- Für die PA-Gespräche: könnte dieser Rivale gerade auftauchen?
+function M.isEligible(rival, save)
+  save = save or core().save
+  if not save or not rival then return false end
+  local ok, res = pcall(isEligible, rival, save)
+  return ok and res or false
+end
+
 -- Wie viele Battles diese Nacht noch gehen
 function M.battlesLeftTonight()
   local save = core().save
