@@ -59,6 +59,14 @@ td code { white-space: nowrap; }
 ol.steps li, ul li { margin: 4px 0; }
 .hidden { display: none !important; }
 .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; background: var(--panel2); border: 1px solid var(--line); color: var(--muted); margin-left: 6px; vertical-align: middle; }
+details.cl { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); margin: 8px 0; }
+details.cl summary { cursor: pointer; padding: 9px 14px; list-style: none; }
+details.cl summary::-webkit-details-marker { display: none; }
+details.cl summary::before { content: "▸"; color: var(--accent); display: inline-block; width: 16px; }
+details.cl[open] summary::before { content: "▾"; }
+details.cl summary small { color: var(--muted); margin-left: 6px; }
+details.cl > div { padding: 0 16px 10px; border-top: 1px solid var(--line); }
+details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
 .top { position: fixed; right: 18px; bottom: 18px; background: var(--accent); color: #fff; text-decoration: none; border-radius: 50%; width: 40px; height: 40px; display: grid; place-items: center; font-size: 20px; }
 @media (max-width: 860px) {
   .wrap { grid-template-columns: 1fr; }
@@ -118,6 +126,8 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#ui">UI-Apps und Layout</a>
     <a href="#tasten">Tastenbelegung</a>
     <div class="grp">Hilfe</div>
+    <a href="#roadmap">Roadmap und Ideen</a>
+    <a href="#changelog">Changelog (alle Versionen)</a>
     <a href="#dev">Dev-Tools zum Testen</a>
     <a href="#spielstand">Spielstand</a>
     <a href="#probleme">Wenn etwas nicht geht</a>
@@ -918,7 +928,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <li>Hat sich seit dem letzten ZIP am Mod (<code>lua</code>, <code>ui</code>, <code>scripts</code>, <code>settings</code>, <code>art</code>, <code>vehicles</code>) nichts geändert, bleibt die Nummer gleich und die ZIP wird ersetzt.</li>
 </ul>
 Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> ändern oder mir sagen. Den letzten Build merkt sich das Werkzeug in <span class="path">tools\release-stand.json</span> (nur auf deinem PC). Erzwingen geht ohne Menü: <code>release-werkzeug.ps1 -Aktion zip -Version "Alpha 0.4"</code>.</div>
-<div class="box"><b>Changelog</b>Gibt es in <code>CHANGELOG.md</code> noch keinen Abschnitt für die Version, kommt in die ZIP ein Entwurf (beide Sprachen) mit den Commit-Titeln seit dem letzten richtigen Changelog-Eintrag. Die Changelog-Dateien in deinem Mod-Ordner ändert das Werkzeug nicht, damit beim nächsten Update nichts im Weg liegt. Schöner wird es, wenn du mir sagst „das ist jetzt Release-Version“: Dann schreibe ich den Abschnitt spielerfreundlich auf Deutsch und Englisch, und das Werkzeug übernimmt ihn samt Nummer.</div>
+<div class="box"><b>Changelog</b>Gibt es in <code>CHANGELOG.md</code> noch keinen Abschnitt für die Version, kommt in die ZIP ein Entwurf (beide Sprachen) mit den Commit-Titeln seit dem letzten richtigen Changelog-Eintrag. Die Changelog-Dateien in deinem Mod-Ordner ändert das Werkzeug nicht, damit beim nächsten Update nichts im Weg liegt. Schöner wird es, wenn du mir sagst „das ist jetzt Release-Version“: Dann schreibe ich den Abschnitt spielerfreundlich auf Deutsch und Englisch, und das Werkzeug übernimmt ihn samt Nummer. Jede fertige Version steht außerdem im Abschnitt <a href="#changelog">Changelog</a> dieses Handbuchs zum Aufklappen.</div>
 <div class="box warn"><b>Falls Windows das Fenster blockiert</b>Beim ersten Start fragt Windows evtl. nach („Trotzdem ausführen“). Die .bat startet nur das PowerShell-Skript <span class="path">tools\release-werkzeug.ps1</span> daneben.</div>
 
 <h3>Was im Release gesperrt ist</h3>
@@ -1121,6 +1131,221 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Umschalt+Pos1</td><td>Aktuelle Kamera als Titelbild-Kamera merken</td></tr>
 </table>
 <p>Ändern geht am einfachsten im Spiel unter Optionen &gt; Steuerung, Kategorie Debug, Eintrag "Hashiriya Battle: Menü ein/aus". Oder hier <code>"control"</code> ändern, z. B. <code>"f6"</code> oder <code>"ctrl m"</code>. Lichthupe, Warnblinker und Blinker sind die normalen BeamNG-Tasten.</p>
+</section>
+
+<section id="roadmap">
+<h2><span class="n">★</span> Roadmap und Ideen <span class="tag">tools\roadmap.json</span></h2>
+<p>Hier steht alles, was geplant ist, damit du den Überblick behältst. Die Meilenstein-Tabelle kommt aus <span class="path">tools\roadmap.json</span>; nach ihr richtet das <a href="#release">Release-Werkzeug</a> auch die Versionsnummern. Reihenfolge ändern: in der Datei oder mir sagen. Neue Ideen von dir trage ich unten ein.</p>
+
+<h3>Bis 1.0: die komplette C1-Karriere</h3>
+<!-- ROADMAP-START -->
+<table>
+<tr><th>Version</th><th>Meilenstein</th><th>Stand</th></tr>
+<tr><td><b>Alpha 0.2</b></td><td>Erster Testbuild: Battles, Rivalen-Radar, Startautos, Tag und Nacht</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.3</b></td><td>Großer Kader (26 Crews, 42 Wanderer), Ränge, eigene Rivalen-KI, Release-Build</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.4</b></td><td>Gespräche mit Fahrern an den Parkplätzen (PA)</td><td><span style="color:var(--accent)">▶ als Nächstes</span></td></tr>
+<tr><td><b>Alpha 0.5</b></td><td>Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.6</b></td><td>Bosse und Story-Kapitel mit Zwischengeschichten</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.7</b></td><td>Nebenjobs am Tag und bezahlte Tipps zu seltenen Rivalen</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.8</b></td><td>Teile verkaufen und ausbauen in der Garage</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.9</b></td><td>Rivalen mit eigenem Fahrcharakter (sauber, Blocker, Rempler)</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>1.0</b></td><td>Komplette C1-Karriere</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+</table>
+<!-- ROADMAP-ENDE -->
+
+<h3>Nach 1.0: Roadtrip durch Japan</h3>
+<ul>
+<li>Reisen zu anderen japanischen Maps: andere Schnellstraßen, Touge, Rennstrecken, Kleinstädte, auch die Maps nach den Ryu-Ga-Gotoku-Spielen. <b>Nur mit Erlaubnis der jeweiligen Map-Autoren.</b></li>
+<li>Japan-Karte mit Reisezielen nach Präfektur. Ein Klick zeigt die Aktivitäten, soweit dir andere Fahrer davon erzählt haben.</li>
+<li>Jede Region bringt neue Rivalen und Leute zum Reden, dazu alte Bekannte vom C1. Weit mehr als 300 Rivalen.</li>
+<li>Neue Aktivitäten bei Tag und Nacht: illegale Touge-Battles, Duelle auf anderen Schnellstraßen, Drift-Events, offizielle Rennen, Drag, Time Attack auf echten Strecken.</li>
+<li>Wohnungen in anderen Regionen kaufen, mit Zugriff auf die Garage dort.</li>
+<li>DLC-Packs für Maps, Autos und Tuning-Teile. Sie schalten sich selbst frei, wenn die Mods installiert sind, nur in Absprache mit den Mod-Autoren.</li>
+<li>Rad-, Bodykit- und Lackierungs-Mods automatisch in den Shops.</li>
+<li>Eigene Musik und Sounds (erste Probe gibt es schon).</li>
+<li><i>Vielleicht:</i> eigenen Bob-Avatar erstellen, als Porträt in den Gesprächen.</li>
+</ul>
+
+<h3>Ideen-Sammlung</h3>
+<p>Ideen, die wir besprochen haben. „Meilenstein“ sagt, wo sie eingeplant sind.</p>
+<table>
+<tr><th>Idee</th><th>Meilenstein</th><th>Stand</th></tr>
+<tr><td>PA-Gespräche: zu Fuß mit Fahrern neben ihren Autos reden (Smalltalk, Gerüchte, Hinweise auf Wanderer und wartende Rivalen). Figuren = BeamNG-„Bobs“.</td><td>Alpha 0.4</td><td>über 150 Texte fertig (<code>chat.json</code>), System fehlt</td></tr>
+<tr><td>Rivalen und Wanderer stehen auch an den PAs (auf den Parkplätzen der geparkten Autos).</td><td>Alpha 0.5</td><td>offen</td></tr>
+<tr><td>Pink Slip gegen manche PA-Rivalen (ab bestimmtem Ruf): Verlierer verliert sein Auto, der Rivale fährt es, bis du es zurückgewinnst.</td><td>Alpha 0.5</td><td>offen</td></tr>
+<tr><td>Bosse und Story-Kapitel mit Zwischengeschichten (eigene Story).</td><td>Alpha 0.6</td><td>Bosse kommen von dir</td></tr>
+<tr><td>Nebenjobs am Tag: Autoüberführung Händler → Garage (Schaden kürzt Lohn), Kurierfahrten zwischen PAs, Taxi-Schicht, Foto-Jobs. Dazu bezahlte Tipps zu seltenen Rivalen.</td><td>Alpha 0.7</td><td>„Garage to Garage“ zahlt schon Yen</td></tr>
+<tr><td>Teile verkaufen, auch ausgebaute Serienteile; Teile in der Garage ausbauen.</td><td>Alpha 0.8</td><td>offen</td></tr>
+<tr><td>Fahrcharakter pro Rivale: sauber, Blocker, Rempler (nur passende Rivalen).</td><td>Alpha 0.9</td><td>eigene Gegner-KI läuft, Charakter-Feld fehlt</td></tr>
+<tr><td>Game Over, wenn du kein Auto mehr hast und kein Geld für einen Gebrauchten.</td><td>mit Pink Slip</td><td>offen</td></tr>
+<tr><td>Tägliche Straßen-Events: Baustelle mit Spursperrung für 1-2 Tage, Panne oder Unfall auf dem Seitenstreifen, Polizei, Stau, Wetter und Nebel. Infos über HashiNet und PA-Gespräche.</td><td>noch keiner</td><td>Brainstorm</td></tr>
+<tr><td>Showroom im GT/TXR-Stil beim neuen Spielstand (Startauto und Farbe).</td><td>noch keiner</td><td>offen</td></tr>
+<tr><td>Tag-Events auf Rennstrecken (Tsukuba, Ebisu usw.).</td><td>nach 1.0</td><td>wartet auf Erlaubnis der Map-Autoren</td></tr>
+<tr><td>Eigene Gegner-KI später auch als eigene Mod anbieten.</td><td>nach 1.0</td><td>offen</td></tr>
+<tr><td>Eigene Sounds und Songs (Eurobeat, GT-Stil, ohne Gesang).</td><td>nach 1.0</td><td>Probe 1 fertig</td></tr>
+</table>
+</section>
+
+<section id="changelog">
+<h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
+<p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
+<!-- CHANGELOG-START -->
+<details class="cl">
+<summary><b>Alpha 0.3.2</b> <small>Stand 01.11.2026</small></summary>
+<div>
+<p>Alle Änderungen seit Alpha 0.3 (die Test-ZIP Alpha 0.3.1 ist hier mit drin).</p>
+<h4>HUD</h4>
+<ul>
+<li>Eigene HUD-Apps im Hashiriya-Design: Meldungen, Aufgaben und Scoreboard oben links, Minimap im Querformat, Tacho, Ladedruck und Antrieb. Schlanker als vorher, ohne klobige Kästen.</li>
+<li>Gang-Anzeige zeigt keinen Fehlerwert mehr, die Minimap lädt zuverlässig.</li>
+</ul>
+<h4>Tuning</h4>
+<ul>
+<li>Teile sind jetzt auf 6 Stufen (LV1 bis LV6) verteilt statt auf 3, je nach Klasse und Preis. Du musst länger aufsteigen, bis die besten Teile frei sind.</li>
+<li>Wird eine neue Tuning-Stufe frei, erscheint eine Meldung mit den neuen Teilen. Das klappt auch, wenn du gerade zu Fuß unterwegs bist.</li>
+</ul>
+<h4>Schlafen</h4>
+<ul>
+<li>Nach dem Schlafen oder einem Nickerchen kannst du 6 Spielstunden lang nicht erneut schlafen.</li>
+</ul>
+<h4>Release-Build</h4>
+<ul>
+<li>Keine Schnellreise mehr über die große Karte: Die Quicktravel-Punkte fehlen, und kein Ort hat mehr den Knopf „Quick Travel“.</li>
+<li>Ein altes HUD-Layout aus der Entwicklung verdeckt nicht mehr den ganzen Bildschirm.</li>
+<li>Der Test für neue Teile aus dem Entwickler-Menü ist im Release gesperrt.</li>
+</ul>
+<h4>Sonstiges</h4>
+<ul>
+<li>Der Knopf im BeamNG-Hauptmenü (Seite „Mehr …“) zeigt jetzt das Hashiriya-Battle-Logo.</li>
+<li>Credits: neuer Abschnitt „Tests“ mit Slim Henry.</li>
+</ul>
+</div>
+</details>
+<details class="cl">
+<summary><b>Alpha 0.3</b> <small>Stand 30.10.2026</small></summary>
+<div>
+<p>Alle Änderungen seit Alpha 0.2 (29.10.2026, intern noch „Alpha 1“ genannt).</p>
+<h4>Rivalen und Crews</h4>
+<ul>
+<li>Großer Kader: 26 Crews mit Leader und 42 Wanderer, zusammen fast 300 Rivalen. Jeder Rivale hat ein eigenes japanisches Kennzeichen, manche eine feste Lackierung.</li>
+<li>Keine Markennamen mehr bei Rivalen. Alle haben stimmige japanische oder ausländische Namen und eine kurze Hintergrundgeschichte.</li>
+<li>Jeder Rivale hat eigene Sprüche beim Herausfordern, bei Sieg und bei Niederlage. Sie erscheinen in einer neuen Sprechblase mit Silhouetten-Porträt und im Rivalen-Lexikon.</li>
+<li>Neues Ranglisten-System mit 15 Rängen. Tuning-Stufen hängen jetzt am Rang.</li>
+<li>Hinweise auf Wanderer bleiben verborgen, bis man von ihnen gehört hat.</li>
+<li>Rang und Spitzname stehen im Status-HUD.</li>
+</ul>
+<h4>Battles</h4>
+<ul>
+<li>Eigene Rivalen-KI: Vorne fährt der Rivale wie ein echter Hashiriya durch den Verkehr, weicht aus und bremst trotzdem rechtzeitig. Hinten hängt er sich mit Gummiband an dich und bleibt dran.</li>
+<li>Beim Herausfordern steht der Spruch des Rivalen 6 Sekunden da, danach zählt der Countdown von 5 herunter. Das Ergebnis bleibt 9 Sekunden stehen.</li>
+<li>Nach einem Frühstart kann man denselben Rivalen nach 30 Sekunden erneut herausfordern.</li>
+<li>Rivalen spawnen zuverlässiger: richtige Fahrtrichtung auf Einbahnstraßen, keine Spawns an Straßenrändern oder in Lücken, bei Problemen neuer Versuch.</li>
+</ul>
+<h4>Neues Spiel, Startauto und Händler</h4>
+<ul>
+<li>Neuer Titelbildschirm mit eigener Kameraansicht, Uhrzeit und Verkehr schon im Hintergrund. Credits im Titelbildschirm.</li>
+<li>Japanische Kennzeichen (Region, Typ und Sonderkennzeichen) beim neuen Spiel, beim Händler und in der Garage wählbar.</li>
+<li>Startauto-Auswahl mit Kacheln für Leistung, Drehmoment und Gewicht sowie Balken für Zustand und Tank. Schwächere Startautos sind besser erhalten.</li>
+<li>Startautos kosten höchstens so viel wie das Startkapital.</li>
+<li>Farbwechsel im Showroom zeigt das Auto direkt in der neuen Farbe.</li>
+<li>Der Autohändler bietet nur Autos an, die zum Fortschritt passen (Leistungsgrenze nach den erreichbaren Rivalen). Händlerautos sind gebraucht, Importe sehr selten.</li>
+</ul>
+<h4>Tag und Freizeit</h4>
+<ul>
+<li>Tagesjobs: BeamNG-Missionen „Garage zu Garage“ bringen Yen. Time Trials sind ausgeblendet.</li>
+<li>Schlafen und Nickerchen mit schwarzem Bildschirm, die Uhr läuft im Zeitraffer bis zur Aufwachzeit.</li>
+</ul>
+<h4>Fehlersuche</h4>
+<ul>
+<li>Mod-Log in settings/hashiriya_battle/logs im BeamNG-Userordner (begrenzte Größe).</li>
+<li>Menü &gt; Fehlerbericht erstellen schreibt alles Wichtige in eine Datei, die man dem Entwickler schicken kann.</li>
+</ul>
+<h4>Release-Build</h4>
+<ul>
+<li>Sperren wie in der offiziellen BeamNG-Karriere, nur der Node Grabber bleibt: keine Fahrzeugauswahl und Fahrzeug-Config, kein Reparieren, Recover, Flip oder Zurücksetzen, kein Wechsel zu anderen Autos, keine Konsole, kein Editor, keine Zeitlupe.</li>
+<li>ESC-Menü ohne Fahrzeug- und Umgebungs-Tab, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Freeroam-Knöpfe mehr.</li>
+<li>Keine Schnellreise über die große Karte. Time Trials erscheinen auch nicht mehr bei den Points of Interest.</li>
+<li>Alle Dev- und Cheat-Werkzeuge im Hashiriya-Menü sind aus.</li>
+</ul>
+</div>
+</details>
+<details class="cl">
+<summary><b>Alpha 0.2</b> <small>Stand 29.10.2026, intern „Alpha 1“</small></summary>
+<div>
+<p>Alle Änderungen seit dem Testbuild von Henry (Stand 28.10.2026 vormittags, Commit 23d4ccd).</p>
+<h4>Battles und Rivalen</h4>
+<ul>
+<li>Mehrere Rivalen fahren gleichzeitig im Verkehr (bis zu 4). Geschlagene fahren weiter und kommen später als Revanche zurück.</li>
+<li>Rivalen fahren nachts mit Licht. Einzelne Rivalen können später ohne Licht als Markenzeichen fahren.</li>
+<li>Rivalen spawnen weiter weg, nicht mehr auf Auffahrten, und rollen direkt mit Reisetempo los. Festhängende werden neu angeschoben oder entfernt.</li>
+<li>Rivalen-Radar im HUD mit Farben: orange Rivale, gelb Leader, lila Wanderer, rot Boss, grau besiegt, blau verloren.</li>
+<li>Herausfordern ist gesperrt, wenn der Tempounterschied über 30 km/h liegt („Zu schnell“ / „Zu langsam“).</li>
+<li>Herausfordern geht nur noch bis 30 m hinter dem Gegner.</li>
+<li>Vor dem Countdown gleicht der Tempomat das Tempo an und holt zum Gegner auf. Der Countdown startet erst, wenn man nah genug dran ist.</li>
+<li>Im Countdown sperrt der Tempomat das Gas. Wer vorfährt oder zu schnell wird, macht einen Frühstart.</li>
+<li>Leader: Hinweis nach dem letzten Teammitglied. Manche Leader kommen noch in derselben Nacht, andere erst in der nächsten. Ein bereiter Leader wird bevorzugt gespawnt.</li>
+<li>Kein Battle-Limit mehr pro Nacht.</li>
+<li>Rivalen fordern dich jetzt auch selbst heraus: Fährt einer eine Weile hinter dir, gibt er Lichthupe. Warnblinker = annehmen, Blinker links oder rechts = ablehnen.</li>
+</ul>
+<h4>Ruf, Serie und Combo</h4>
+<ul>
+<li>Siegesserie: mehr Preisgeld und Ruf für Siege hintereinander. Sie endet bei einer Niederlage, in der Garage, zu Hause oder bei Tagesanbruch.</li>
+<li>Fahrstil-Combo nur während eines Battles in der Nacht: knapp vorbei, hauchdünn, knapp überholt, Windschatten, Drift, Vollgas im Verkehr. Ein Unfall löscht die Combo.</li>
+<li>Statistik-Seite im Menü.</li>
+<li>Radarfallen zählen nur, wenn man geblitzt wird. Wer alle auslöst, lockt einen Wanderer an.</li>
+</ul>
+<h4>Rivalen-Lexikon</h4>
+<ul>
+<li>Das Lexikon ist überall im Menü erreichbar.</li>
+<li>Merkliste mit bis zu 5 Rivalen, angezeigt im HUD. Nach einem Sieg wird der Rivale gestrichen.</li>
+<li>Beim Leader steht der Status (wartet auf Mitglieder, ab nächster Nacht, unterwegs).</li>
+</ul>
+<h4>Neues Spiel und Startautos</h4>
+<ul>
+<li>Tasten-Check vor dem Start: zeigt, ob Lichthupe, Warnblinker, Blinker links/rechts und das Hashiriya-Menü belegt sind. „Belegen“ öffnet die BeamNG-Steuerung direkt für die fehlende Taste.</li>
+<li>Auswahl Neuling oder Erfahren. Neulinge sehen das Tutorial mit 7 Seiten (Bilder folgen).</li>
+<li>Seed-System: Fahrername und Kennzeichen bestimmen, welche 3 von 13 Gebrauchtwagen angeboten werden. Laufleistung, Zustand und Tankfüllung werden gewürfelt.</li>
+<li>Startautos sind gebraucht: Laufleistung, Verschleiß und älterer Lack. Ein gebrauchter Motor setzt leicht aus und wird schneller warm, aber spielbar.</li>
+<li>Der Tank ist beim Kauf nie unter 25 %.</li>
+<li>Der Kaufpreis des Starterautos wird vom Startkapital abgezogen.</li>
+<li>Der Showroom ist jetzt die Werkstatt der C1-Map. Nach dem Kauf steht das Auto in der Garagenbucht.</li>
+</ul>
+<h4>Tag, Nacht und Zuhause</h4>
+<ul>
+<li>Ein Spieltag dauert jetzt 36 statt 24 Minuten, die Nacht (20 bis 6 Uhr) also 15 Minuten.</li>
+<li>HUD zeigt immer Uhrzeit, Wochentag und Datum.</li>
+<li>Die Spieluhr läuft immer weiter und bleibt nicht mehr stehen.</li>
+<li>Verkehr richtet sich nach der Uhrzeit: tagsüber voll, nachts weniger. Er wird beim Start auch eingeschaltet, wenn er im BeamNG-Hauptmenü aus war.</li>
+<li>Schlafen zu Hause: tagsüber bis 20 Uhr, zwischen 20 und 22 Uhr gesperrt, ab 22 Uhr bis 6 Uhr morgens.</li>
+<li>Nickerchen im Auto auf Parkplätzen (Shibaura PA, Tatsumi PA und an den Buchten): 0,5 bis 2 Stunden.</li>
+</ul>
+<h4>Shop und Garage</h4>
+<ul>
+<li>Shop zu Fuß: Menü am Eingang, Kamera vom Eingang aufs Auto. Während des Shoppens ist das Auto festgesetzt, ein Knopf „Shop verlassen“ beendet den Besuch.</li>
+<li>Öffnungszeiten 8 bis 20 Uhr. Außerhalb kommt ein Hinweis mit den Zeiten.</li>
+<li>Warenkorb mit Gesamtbetrag (einzeln entfernen, alles kaufen, leeren). Fahrzeugwerte zeigen Änderungen grün oder rot.</li>
+<li>Teile-Kategorien überarbeitet: Motor, Karosserie, Stoßstangen und Extras zeigen jetzt die richtigen Teile, auch beim 200BX.</li>
+<li>Die transparente Teileansicht verschwindet beim Verlassen.</li>
+<li>Der Tank ist im Garagen-Setup nicht mehr einstellbar. Der Tankinhalt bleibt bei Respawn, Reparatur und Zurücksetzen erhalten.</li>
+</ul>
+<h4>Tanken</h4>
+<ul>
+<li>Tanken mit gedrückter Taste funktioniert durchgehend. Der Tanksound stoppt sauber.</li>
+</ul>
+<h4>HUD und Menü</h4>
+<ul>
+<li>HUD-Layout von JDMArsch übernommen (Schaden unten, Navigation).</li>
+<li>Status-App größer und unter den Hinweisen, nichts wird mehr oben abgeschnitten.</li>
+<li>„Position merken“ funktioniert auch an der Garage am Kartenursprung.</li>
+</ul>
+<h4>Release-Vorbereitung (in der Alpha noch aus)</h4>
+<ul>
+<li>Release-Schalter in data/build.json: sperrt Zurücksetzen, Konsole, Editor, Zeitlupe, Schnellreise über die Karte und Uhrzeit-Änderungen über Time &amp; Weather.</li>
+<li>Node-Grabber bleibt erlaubt, mit fester Stärke.</li>
+</ul>
+</div>
+</details>
+<!-- CHANGELOG-ENDE -->
 </section>
 
 <section id="dev">

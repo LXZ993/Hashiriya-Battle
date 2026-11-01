@@ -1,5 +1,29 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.3.2 (Stand 01.11.2026)
+
+Alle Änderungen seit Alpha 0.3 (die Test-ZIP Alpha 0.3.1 ist hier mit drin).
+
+### HUD
+- Eigene HUD-Apps im Hashiriya-Design: Meldungen, Aufgaben und Scoreboard oben links, Minimap im Querformat, Tacho, Ladedruck und Antrieb. Schlanker als vorher, ohne klobige Kästen.
+- Gang-Anzeige zeigt keinen Fehlerwert mehr, die Minimap lädt zuverlässig.
+
+### Tuning
+- Teile sind jetzt auf 6 Stufen (LV1 bis LV6) verteilt statt auf 3, je nach Klasse und Preis. Du musst länger aufsteigen, bis die besten Teile frei sind.
+- Wird eine neue Tuning-Stufe frei, erscheint eine Meldung mit den neuen Teilen. Das klappt auch, wenn du gerade zu Fuß unterwegs bist.
+
+### Schlafen
+- Nach dem Schlafen oder einem Nickerchen kannst du 6 Spielstunden lang nicht erneut schlafen.
+
+### Release-Build
+- Keine Schnellreise mehr über die große Karte: Die Quicktravel-Punkte fehlen, und kein Ort hat mehr den Knopf „Quick Travel“.
+- Ein altes HUD-Layout aus der Entwicklung verdeckt nicht mehr den ganzen Bildschirm.
+- Der Test für neue Teile aus dem Entwickler-Menü ist im Release gesperrt.
+
+### Sonstiges
+- Der Knopf im BeamNG-Hauptmenü (Seite „Mehr …“) zeigt jetzt das Hashiriya-Battle-Logo.
+- Credits: neuer Abschnitt „Tests“ mit Slim Henry.
+
 ## Alpha 0.3 (Stand 30.10.2026)
 
 Alle Änderungen seit Alpha 0.2 (29.10.2026, intern noch „Alpha 1“ genannt).
