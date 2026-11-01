@@ -22,8 +22,9 @@ def f(v):
 class Doc:
     """Sammelt Ebenen (oberste <g>), Verläufe und Effekt-Pfade."""
 
-    def __init__(self, preview):
+    def __init__(self, preview, pref=""):
         self.preview = preview
+        self.pref = pref  # Präfix für IDs (Tool-Bausteine dürfen sich nicht in die Quere kommen)
         self.defs = []
         self.layers = []
         self.fx = []  # (name, effect, params)
@@ -31,7 +32,7 @@ class Doc:
 
     def uid(self, p="o"):
         self.n += 1
-        return f"{p}{self.n:05d}"  # feste Länge: kein Name ist Teilstring eines anderen
+        return f"{p}{self.pref}{self.n:05d}"  # feste Länge: kein Name ist Teilstring eines anderen
 
     def lin(self, stops, x1=0, y1=0, x2=0, y2=1):
         i = self.uid("lg")

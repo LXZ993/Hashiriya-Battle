@@ -206,7 +206,6 @@ def build_all(rivals, teams, overrides):
         fixed.update(v1_to_v2(r.get("hints"), fem))          # Hinweise aus der Beschreibung
         fixed.update(FIXED.get(r["id"], {}))                    # feste Looks gehen vor
         fixed.update(v1_to_v2(r.get("silhouette"), fem))       # "silhouette" in rivals.json
-        fixed.update(v1_to_v2(overrides.get(r["id"]), fem))   # silhouetten.json
         team = teams.get(r.get("team"))
         for salt in range(60):
             spec, R, st = auto_spec(r, team, salt)
@@ -227,6 +226,10 @@ def build_all(rivals, teams, overrides):
         spec.update(A=A, jp=jp, emblem=emblem, crew=fixed.get("crew", crew), leader=bool(r.get("leader")),
                     nick=((r.get("nick") or {}).get("en") or r.get("name", ""))[:9],
                     tape=(r.get("name", "").split(" ")[-1] or "HASHIRIYA").upper()[:9])
+        # silhouetten.json (aus dem Tool): genau so übernehmen, wie im Tool gezeigt
+        for k2, v2 in (overrides.get(r["id"]) or {}).items():
+            if k2 in SPEC_KEYS or k2 == "female":
+                spec[k2] = v2
         specs[r["id"]] = spec
     return specs
 
