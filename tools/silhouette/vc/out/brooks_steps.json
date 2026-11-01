@@ -379,23 +379,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur042",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 2
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur045",
+"name": "fxblur044",
 "select": true
 }
 },
@@ -411,7 +395,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur046",
+"name": "fxblur045",
 "select": true
 }
 },

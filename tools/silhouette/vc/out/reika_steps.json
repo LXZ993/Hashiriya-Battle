@@ -462,22 +462,6 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur047",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 2
-}
-}
-},
-{
-"command": "document.find",
-"params": {
 "name": "fxds_Extra_Kopf",
 "select": true
 }

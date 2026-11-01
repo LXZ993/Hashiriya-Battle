@@ -205,7 +205,6 @@ def head(doc, A, eyes, lashes=False):
     v += f'<g id="{glow}" fill="#eef7ff"{gflt}>{"".join(dots_on)}</g>'
     # Spiegelung oben
     v += f'<g {cp}><path d="M230,196 C236,176 266,170 300,170 C334,170 364,176 370,196 C350,186 326,183 300,183 C274,183 250,186 230,196 Z" fill="#ffffff" fill-opacity=".22"/></g>'
-    v += doc.soft("M244,240 C270,248 330,248 356,240", "none", 2, .0)
     doc.layer("Visier", v)
 
 
@@ -253,7 +252,7 @@ def hair_paint(doc, d, base, A, sheen=True):
     out += f"<g {cp}>"
     if sheen:
         out += doc.soft("M215,150 C250,120 330,112 370,140 L372,152 C330,128 255,134 218,164 Z", "#ffffff", 5, .35)
-    out += doc.soft("M372,120 C400,160 404,220 396,260 L420,260 L420,110 Z", A, 8, .5)
+    out += doc.soft("M372,120 C400,160 404,220 396,260 L420,260 L420,110 Z", A, 8, .28)
     out += "</g>"
     out += f'<path d="{d}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="1.4"/>'
     return out
@@ -306,7 +305,7 @@ def hair_buzz_cap(doc, A, tone):
     crown = "M206,176 C204,112 250,92 300,92 C350,92 396,112 394,176 C360,166 334,162 300,162 C266,162 240,166 206,176 Z"
     out = f'<path d="{crown}" fill="{doc.lin([(0, tone[0], 1), (1, tone[1], 1)])}" stroke="#000" stroke-opacity=".5" stroke-width="1.4"/>'
     cp = doc.clip(crown)
-    out += f'<g {cp}>' + doc.soft(ell(262, 118, 46, 18), "#ffffff", 8, .25) + doc.soft(ell(390, 150, 30, 40), A, 8, .45) + "</g>"
+    out += f'<g {cp}>' + doc.soft(ell(262, 118, 46, 18), "#ffffff", 8, .25) + doc.soft(ell(386, 150, 22, 32), A, 8, .22) + "</g>"
     brim = "M200,178 C240,164 360,164 400,178 C392,196 356,204 300,204 C244,204 208,196 200,178 Z"
     out += f'<path d="{brim}" fill="{doc.lin([(0, "#2c3220", 1), (1, "#161a10", 1)])}" stroke="#000" stroke-opacity=".6" stroke-width="1.4"/>'
     out += stitch("M214,182 C250,172 350,172 386,182", "#d8d2b8", .35)
@@ -376,7 +375,7 @@ def fur_coat(doc, A, tone, k):
             sx, sy = x + math.cos(a) * r * .8, y + math.sin(a) * r * .8
             out += line(f"M{f(sx)},{f(sy)} l{f(math.cos(a) * 6)},{f(math.sin(a) * 6 + 2)}", "#fbf6ee", 1.4, .7)
     out += doc.soft("M200,372 C220,354 248,348 264,352 C240,362 222,374 210,392 Z", "#ffffff", 6, .6)
-    out += doc.soft(mirror("M172,404 C176,380 196,366 214,362 C196,380 186,400 184,430 Z"), A, 8, .3)
+    out += doc.soft(mirror("M172,404 C176,380 196,366 214,362 C196,380 186,400 184,430 Z"), A, 8, .12)
     doc.layer("Jacke", doc.shadowed("fxds_Jacke", out, 0, 4, 6, 30))
 
 
@@ -399,7 +398,7 @@ def military(doc, A, k):
         out += line(f"M{300 + sd * 120},{402} L{300 + sd * 168},{426}", "#3a4128", 14)
         out += line(f"M{300 + sd * 120},{402} L{300 + sd * 168},{426}", "#000", 14, .25)
     out += f'<rect x="336" y="428" width="70" height="14" rx="2" fill="#d8d2b8"/>'
-    out += f'<text x="371" y="439" text-anchor="middle" font-size="11" font-weight="800" font-family="Arial, sans-serif" fill="#2a2e1c">BROOKS</text>'
+    out += f'<text x="371" y="439" text-anchor="middle" font-size="11" font-weight="700" font-family="Arial, sans-serif" fill="#2a2e1c">BROOKS</text>'
     out += f'<path d="M150,474 h40 v28 h-40 z" fill="#3a4128" stroke="#1a1d12"/><path d="M158,488 l12,-8 l12,8 m-24,8 l12,-8 l12,8" stroke="{A}" stroke-width="2.4" fill="none"/>'
     doc.layer("Jacke", out)
 
@@ -510,7 +509,6 @@ def build(fig, preview):
 def vc_steps(doc):
     steps = []
     for name, eff, params in doc.fx:
-        kind = "Group" if eff in ("stylize.dropShadow",) or name.startswith("fxglowled") else "Path"
         steps.append({"command": "document.find", "params": {"name": name, "select": True}})
         steps.append({"command": "effect.apply", "params": {"effect": eff, "params": params}})
     return steps
