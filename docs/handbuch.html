@@ -135,7 +135,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
     <a href="#roadmap">Roadmap und Ideen</a>
     <a href="#modliste">Mod-Sammelliste</a>
     <a href="#changelog">Changelog (alle Versionen)</a>
-    <a href="#dev">Dev-Tools zum Testen</a>
+    <a href="#dev">Dev-Menü zum Testen</a>
     <a href="#spielstand">Spielstand</a>
     <a href="#probleme">Wenn etwas nicht geht</a>
     <a href="#lua">Lua-Dateien im Überblick</a>
@@ -165,7 +165,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
   <a class="card" href="#zeit"><b>Nachtzeit verschieben</b><small>world.json</small></a>
   <a class="card" href="#battle"><b>SP-Balken schneller leer</b><small>battle.lua, drain</small></a>
   <a class="card" href="#texte"><b>Menütext umbenennen</b><small>lang/de.json, en.json</small></a>
-  <a class="card" href="#dev"><b>Bestimmten Gegner testen</b><small>Dev-Tools im Menü</small></a>
+  <a class="card" href="#dev"><b>Bestimmten Gegner testen</b><small>Dev-Menü (Umschalt+Ende)</small></a>
   <a class="card" href="#modliste"><b>Mod für später merken</b><small>Mod-Sammelliste</small></a>
 </div>
 </section>
@@ -242,7 +242,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li><b>BeamNG-Log:</b> <span class="path">F:\BeamNG\current\beamng.log</span>. Dort steht alles vom Spiel. Die Meldungen der Mod haben den Tag <code>hashiriya</code>. Fehler beginnen mit <code>E </code>.</li>
 <li><b>Konsole im Spiel:</b> Taste <code>^</code> (bzw. <code>~</code>). Rote Zeilen sind Fehler.</li>
 <li><b>Kaputte JSON:</b> Dann fehlen im Spiel z. B. alle Rivalen oder alle Texte zeigen nur Schlüssel wie <code>menu.newGame</code>. Im Log steht dann ein Fehler zur Datei. Prüfe die Datei in VS Code oder auf <a href="https://jsonlint.com">jsonlint.com</a>.</li>
-<li><b>Schnell testen:</b> Mit den <a href="#dev">Dev-Tools</a> im Menü kannst du jeden Rivalen sofort spawnen, die Uhr vorstellen, Geld/Ruf holen.</li>
+<li><b>Schnell testen:</b> Mit dem <a href="#dev">Dev-Menü</a> (Umschalt+Ende) kannst du jeden Rivalen sofort spawnen, Rang, Uhrzeit, Tag und Geld setzen.</li>
 </ul>
 </section>
 
@@ -301,7 +301,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3>Öffnen</h3>
 <ol class="steps">
 <li>BeamNG starten, Karriere laden (für den Test-Spawn) oder einfach auf der C1 sein.</li>
-<li>Pos1 (Hashiriya-Menü), ganz unten bei <b>Werkzeuge</b>: <b>Builder (Crews, Wanderer, Bosse)</b>.</li>
+<li>Dev-Menü (Umschalt+Ende), Reiter <b>Werkzeuge</b>: <b>Builder (Crews, Wanderer, Bosse)</b>.</li>
 <li>Schließen mit ✕ oben rechts. Hast du etwas nicht gespeichert, fragt der Knopf erst nach.</li>
 </ol>
 <div class="box warn"><b>Nur in der Entwickler-Version</b>Steht in <span class="path">data\build.json</span> <code>"release": true</code>, startet der Builder nicht (Meldung im Spiel). Zum Bearbeiten also <code>"release": false</code> setzen. Im Release-Zip fehlt der Builder ganz. Damit ein altes HUD-Layout aus der Entwicklung dort nicht „Unknown app: hashiriyaBuilder“ über den ganzen Bildschirm legt, packt das Release-Werkzeug einen leeren Platzhalter aus <span class="path">tools\release-stubs\</span> in die ZIP. Wichtig: BeamNG legt jede App in einen Rahmen (<code>.ui-app-host</code>), der Klicks abfängt, solange in <code>app.json</code> nicht <code>"interactive": "no"</code> steht. Eine unsichtbare Vollbild-App ohne diese Zeile macht alles darunter unklickbar.</div>
@@ -400,7 +400,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Öffne <code>rivals.json</code> und suche (Strg+F) die Crew, z. B. <code>"team": "t_lantern"</code>.</li>
 <li>Kopiere einen kompletten Eintrag von <code>{</code> bis zur passenden <code>}</code> und füge ihn direkt danach ein (mit Komma dazwischen).</li>
 <li>Ändere mindestens <code>id</code> (neu und eindeutig!), <code>name</code>, <code>model</code>, <code>config</code>, <code>plate.text</code>.</li>
-<li>Speichern, BeamNG neu starten, mit den Dev-Tools die neue ID spawnen.</li>
+<li>Speichern, BeamNG neu starten, im Dev-Menü (Reiter „Rivalen“) die neue ID spawnen.</li>
 </ol>
 <p>Ein vollständiger Crew-Fahrer zum Kopieren:</p>
 <pre><code>{
@@ -789,8 +789,8 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <h3>Position im Spiel sammeln</h3>
 <ol class="steps">
 <li>Stell dein Auto (oder dich zu Fuß) genau an den Platz.</li>
-<li>Im Hashiriya-Menü unter <b>Werkzeuge</b> auf <b>Position merken</b> klicken (oder Umschalt+Pos1 für die Titelkamera: speichert Kamera und Uhrzeit für den Titelbildschirm).</li>
-<li>Die Position steht dann in <span class="path">F:\BeamNG\current\settings\hashiriya_battle\captured_positions.json</span>. Werte für <code>pos</code> und <code>dir</code> in <code>c1.json</code> kopieren.</li>
+<li>Dev-Menü öffnen (Umschalt+Ende), Reiter <b>Orte</b>: Name und Typ eingeben, <b>Hier merken</b>. Details siehe <a href="#dev">Dev-Menü</a>. (Umschalt+Pos1 merkt die Titelkamera: Kamera und Uhrzeit für den Titelbildschirm.)</li>
+<li>Der Ort steht dann in <span class="path">F:\BeamNG\current\settings\hashiriya_battle\dev_places.json</span>. Werte für <code>pos</code> und <code>dir</code> in <code>c1.json</code> kopieren (oder mir Bescheid sagen).</li>
 <li><b>Parkplatz-Markierung</b> im selben Menü zeigt die Buchten zur Kontrolle an.</li>
 </ol>
 </section>
@@ -992,7 +992,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <li><b>Tasten</b>: Fahrzeugauswahl, Fahrzeug-Config, Fahrzeug neu laden/reparieren, Recover, auf die Straße zurück, Flip, Home laden/speichern, Wechsel zu anderen Autos (auch KI), Verkehr an/aus, Zeitlupe, Fun-Stuff, Editor, Konsole (^), UI-/Lua-Reload, Track Builder, Uhrzeit weiterschalten, Debug-Ansichten. Das radiale Menü blendet diese Punkte dadurch auch aus.</li>
 <li><b>ESC-Menü</b>: Die Tabs „Fahrzeug“ und „Umgebung“ sind weg, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Knöpfe für Reparieren, Fahrzeugauswahl, Replay und Map wechseln mehr. Karte, Fotomodus, Speichern und Beenden bleiben.</li>
 <li><b>Große Karte</b>: keine Schnellreise zu Orten. Die „Quicktravel Points“ fehlen in der Liste, und bei keinem Ort gibt es den Knopf „Quick Travel“ (nur „Set Route“).</li>
-<li><b>Hashiriya-Menü</b>: alle Test-Knöpfe unter „Werkzeuge“ (Rivale rufen, Rivalen-Eingabe, +Ruf, Uhr, Tag +1, gratis reparieren/tanken, Position merken, Geld, Siege, Configs exportieren) und der Builder. Übrig bleiben Parkplatz-Marker und Fehlerbericht.</li>
+<li><b>Dev-Menü</b> (Umschalt+Ende) mit allen Test-Knöpfen und der Builder. Im Hashiriya-Menü bleiben Parkplatz-Marker und Fehlerbericht.</li>
 <li><b>Uhrzeit</b>: nicht über Time &amp; Weather verstellbar (<code>lockTime</code>).</li>
 </ul>
 <p>Die Time Trials sind auf C1 immer ausgeblendet, auch in der Liste der Points of Interest (<code>disabledMissionTypes</code> in <span class="path">data\maps\c1.json</span>).</p>
@@ -1144,7 +1144,8 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <h2><span class="n">20</span> UI-Apps und Layout</h2>
 <table>
 <tr><th>App (Ordner in <span class="path">ui\modules\apps\</span>)</th><th>Was sie zeigt</th></tr>
-<tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Tankstelle, Zuhause, Händler, Lexikon, Statistik, Werkzeuge/Dev-Tools</td></tr>
+<tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Tankstelle, Zuhause, Händler, Lexikon, Statistik, Werkzeuge</td></tr>
+<tr><td><code>HashiriyaDev</code></td><td>Dev-Menü (Umschalt+Ende), eigenes verschiebbares Fenster, nicht im Release. Siehe <a href="#dev">Dev-Menü</a>.</td></tr>
 <tr><td><code>HashiriyaTerminal</code></td><td>Teile-Terminal im Shop und Garagen-PC (eigenes Layout <code>hashiriyaShop.uilayout.json</code>, ganzer Bildschirm, Mitte frei für die Live-Vorschau). Siehe <a href="#tuning">Teile-Terminal</a>.</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
 <tr><td><code>HashiriyaUnlock</code></td><td>Karte links am Rand „Neue Teile freigeschaltet“, wenn eine Tuning-Stufe frei wird (Stufe, Grund, neue Teile pro Kategorie fürs aktive Auto). Siehe <a href="#freischalt-meldung">Meldung bei neuen Teilen</a>.</td></tr>
@@ -1188,6 +1189,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Pos1 (<code>home</code>)</td><td>Hashiriya-Menü auf/zu</td></tr>
 <tr><td>T</td><td>Zu Fuß an einer PA mit einem Fahrer reden, nächster Satz, Ende (<a href="#chat">PA-Gespräche</a>)</td></tr>
 <tr><td>Umschalt+Pos1</td><td>Aktuelle Kamera als Titelbild-Kamera merken</td></tr>
+<tr><td>Umschalt+Ende</td><td><a href="#dev">Dev-Menü</a> auf/zu (nicht im Release)</td></tr>
 </table>
 <p>Ändern geht am einfachsten im Spiel unter Optionen &gt; Steuerung, Kategorie Debug, Eintrag "Hashiriya Battle: Menü ein/aus". Oder hier <code>"control"</code> ändern, z. B. <code>"f6"</code> oder <code>"ctrl m"</code>. „Reden“ steht dort als „Hashiriya Battle: Reden (PA)“. Lichthupe, Warnblinker und Blinker sind die normalen BeamNG-Tasten.</p>
 </section>
@@ -1238,6 +1240,10 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Fahrcharakter pro Rivale: sauber, Blocker, Rempler (nur passende Rivalen).</td><td>Alpha 0.9</td><td>eigene Gegner-KI läuft, Charakter-Feld fehlt</td></tr>
 <tr><td>Game Over, wenn du kein Auto mehr hast und kein Geld für einen Gebrauchten.</td><td>mit Pink Slip</td><td>offen</td></tr>
 <tr><td>Tägliche Straßen-Events: Baustelle mit Spursperrung für 1-2 Tage, Panne oder Unfall auf dem Seitenstreifen, Polizei, Stau, Wetter und Nebel. Infos über HashiNet und PA-Gespräche.</td><td>noch keiner</td><td>Brainstorm</td></tr>
+<tr><td>Map auskundschaften und neue Orte setzen: neue Shop-Standorte (Mechaniker, Lackierer, Bodyshop), neue Tankstellen, 1-2 neue PAs. Orte sammelt Alex im <a href="#dev">Dev-Menü</a>, ich übernehme sie in <code>c1.json</code>.</td><td>noch keiner</td><td>Werkzeug fertig (01.11.2026)</td></tr>
+<tr><td>Wanderer-Wartepunkte: manche Wanderer stehen an einem festen Ort und warten auf dich, statt herumzufahren.</td><td>noch keiner</td><td>Orte sammelbar (Typ „Wanderer-Wartepunkt“), Spiel-Logik offen</td></tr>
+<tr><td>Polizei tagsüber an festen Stellen mit Geschwindigkeitsmessung.</td><td>noch keiner</td><td>Orte sammelbar (Typ „Polizei / Messstelle“), Spiel-Logik offen</td></tr>
+<tr><td>Auf- und Ausfahrten für den Map-Wechsel: dort kommt man nach einem Map-Wechsel wieder auf die C1, oder fährt hin, um die Map zu wechseln.</td><td>nach 1.0 (Map-Reisen)</td><td>Orte sammelbar (Typen Auffahrt, Ausfahrt, Map-Wechsel)</td></tr>
 <tr><td>Showroom im GT/TXR-Stil beim neuen Spielstand (Startauto und Farbe).</td><td>noch keiner</td><td>offen</td></tr>
 <tr><td>Tag-Events auf Rennstrecken (Tsukuba, Ebisu usw.).</td><td>nach 1.0</td><td>wartet auf Erlaubnis der Map-Autoren</td></tr>
 <tr><td>Eigene Gegner-KI später auch als eigene Mod anbieten.</td><td>nach 1.0</td><td>offen</td></tr>
@@ -1394,7 +1400,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>Sperren wie in der offiziellen BeamNG-Karriere, nur der Node Grabber bleibt: keine Fahrzeugauswahl und Fahrzeug-Config, kein Reparieren, Recover, Flip oder Zurücksetzen, kein Wechsel zu anderen Autos, keine Konsole, kein Editor, keine Zeitlupe.</li>
 <li>ESC-Menü ohne Fahrzeug- und Umgebungs-Tab, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Freeroam-Knöpfe mehr.</li>
 <li>Keine Schnellreise über die große Karte. Time Trials erscheinen auch nicht mehr bei den Points of Interest.</li>
-<li>Alle Dev- und Cheat-Werkzeuge im Hashiriya-Menü sind aus.</li>
+<li>Das Dev-Menü mit allen Dev- und Cheat-Werkzeugen ist aus.</li>
 </ul>
 </div>
 </details>
@@ -1478,29 +1484,67 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </section>
 
 <section id="dev">
-<h2><span class="n">22</span> Dev-Tools zum Testen</h2>
-<p>Im Hashiriya-Menü (Pos1) unten im Abschnitt <b>Werkzeuge</b>. Nur sichtbar, solange der Release-Test aus ist (siehe <a href="#release">Release-Test</a>):</p>
+<h2><span class="n">22</span> Dev-Menü zum Testen</h2>
+<p>Alle Test- und Cheat-Werkzeuge stehen in einem eigenen Fenster, dem <b>Dev-Menü</b> (UI-App <code>HashiriyaDev</code>). Das normale Hashiriya-Menü bleibt damit aufgeräumt.</p>
+<ul>
+<li><b>Öffnen/Schließen:</b> Taste <b>Umschalt+Ende</b> (auch vor dem Karrierestart) oder Pos1 &gt; ganz unten bei <b>Werkzeuge</b> &gt; <b>Dev-Menü öffnen</b>. Oben rechts das ✕ schließt es.</li>
+<li><b>Verschieben:</b> am orangen Kopf ziehen. Die Position merkt sich das Spiel.</li>
+<li>Nur da, solange der Release-Test aus ist (siehe <a href="#release">Release-Test</a>). Die Release-ZIP enthält das Dev-Menü gar nicht (<code>devtools.lua</code>, App <code>HashiriyaDev</code> und die Taste fliegen raus).</li>
+<li>Lua-Seite: <span class="path">lua\ge\extensions\hashiriyaBattle\devtools.lua</span>. Taste ändern: Optionen &gt; Steuerung, Eintrag „Hashiriya Battle: Dev-Menü ein/aus“.</li>
+</ul>
+
+<h3>Reiter „Spielstand“</h3>
+<p>Damit testest du jede Situation, ohne ein neues Spiel anzufangen. Alles wird sofort gespeichert.</p>
+<table>
+<tr><th>Teil</th><th>Was er macht</th></tr>
+<tr><td>Rang setzen</td><td>Klick auf einen der Ränge setzt den Ruf genau auf dessen Schwelle. Das geht hoch und runter. Der letzte Rang setzt auch „Endboss besiegt“. Darunter steht, welche Teile-Stufen (LV) damit frei sind.</td></tr>
+<tr><td>Endboss besiegt</td><td>Schalter JA/NEIN (<code>finalBeaten</code>).</td></tr>
+<tr><td>Geld, Ruf, Siege, Niederlagen, Tag</td><td>Wert ins Feld tippen und „Setzen“ (oder Enter). Die Knöpfe daneben zählen dazu oder ziehen ab (z. B. +1 Mio, −500 Ruf, Tag +1).</td></tr>
+<tr><td>Uhrzeit</td><td>Stunde tippen (auch 22,5 für 22:30) oder Schnellknöpfe 6h, 20h, 22h, 2h.</td></tr>
+<tr><td>Freischalt-Meldungen neu zeigen</td><td>Die Karte „Neue Teile freigeschaltet“ kommt für alle freien Stufen noch einmal.</td></tr>
+<tr><td>Meldung testen (LV2)</td><td>Zeigt die Karte für LV2, ohne etwas freizuschalten.</td></tr>
+</table>
+<div class="box tip"><b>Rang runtersetzen</b>Wenn du den Rang senkst, gelten nur die Stufen als „gesehen“, die danach noch frei sind. Steigst du wieder auf, kommt die Freischalt-Meldung also ganz normal.</div>
+
+<h3>Reiter „Rivalen“</h3>
 <table>
 <tr><th>Knopf</th><th>Was er macht</th></tr>
-<tr><td>Rivalen rufen</td><td>Spawnt sofort den nächsten passenden Rivalen</td></tr>
-<tr><td>Eingabefeld "Rivale: ID oder Name"</td><td>Tippe eine ID (<code>w_ojisan</code>), einen Namen oder eine Crew (auch nur einen Teil, z. B. <code>lantern</code>). Mit dem Pfeil daneben öffnet sich die Liste mit Treffern; ein Klick übernimmt den Rivalen.</td></tr>
-<tr><td>Zufall</td><td>Spawnt einen zufälligen Rivalen, der gerade nicht unterwegs ist</td></tr>
-<tr><td>Spawnen</td><td>Spawnt genau diesen Rivalen, egal welche Bedingungen</td></tr>
-<tr><td>Als geschlagen markieren</td><td>Zählt ihn als besiegt (z. B. um eine Crew zu überspringen und den Leader zu testen)</td></tr>
-<tr><td>Alle Rivalen entfernen</td><td>Löscht alle Rivalen von der Straße</td></tr>
-<tr><td>+500 Ruf</td><td>Rang schneller erreichen</td></tr>
-<tr><td>Teile-Meldung testen (LV2)</td><td>Zeigt die Karte „Neue Teile freigeschaltet“ für LV2, ohne etwas freizuschalten</td></tr>
-<tr><td>Uhr +1 Stunde / Auf 22 Uhr</td><td>Zeit vorstellen (Wanderer mit Uhrzeit testen)</td></tr>
-<tr><td>Tag +1</td><td>Nächster Spieltag (neue Händler-Angebote, <code>minDay</code>)</td></tr>
-<tr><td>Gratis reparieren / volltanken</td><td>Auto heil und Tank voll, ohne Kosten</td></tr>
-<tr><td>+¥1.000.000 / +1 Sieg</td><td>Geld und Siege (Tuning-Stufen testen)</td></tr>
-<tr><td>Position merken</td><td>Speichert die aktuelle Position (siehe <a href="#map">Map</a>)</td></tr>
-<tr><td>Parkplatz-Markierung</td><td>Buchten sichtbar machen</td></tr>
-<tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\bugreport.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
-<tr><td>Builder (Crews, Wanderer, Bosse)</td><td>Öffnet den <a href="#builder">Builder</a></td></tr>
-<tr><td>Configs exportieren</td><td>Schreibt alle Configs nach <span class="path">settings\hashiriya_battle\config_dump.json</span> (Grundlage für die Config-Liste)</td></tr>
+<tr><td>Rivale rufen</td><td>Spawnt sofort den nächsten passenden Rivalen (mit Bedingungen).</td></tr>
+<tr><td>Zufälliger Rivale</td><td>Irgendein Rivale, der gerade nicht unterwegs ist.</td></tr>
+<tr><td>Alle entfernen</td><td>Löscht alle Rivalen von der Straße.</td></tr>
+<tr><td>PA-Fahrer neu</td><td>Stellt die Fahrer an den PAs neu auf (siehe <a href="#chat">PA-Gespräche</a>).</td></tr>
+<tr><td>Alle wieder unbesiegt</td><td>Leert die Liste der geschlagenen Rivalen. Zweimal klicken zum Bestätigen.</td></tr>
+<tr><td>Suchfeld + Liste</td><td>Name, ID oder Crew tippen (auch Teile, z. B. <code>lantern</code>). Je Rivale: <b>Spawnen</b> (egal welche Bedingungen) und <b>Offen / Besiegt ✓</b> zum Umschalten.</td></tr>
 </table>
-<div class="box tip"><b>Ablauf: neuen Wanderer testen</b>1. BeamNG starten, Karriere laden. 2. Pos1, ID ins Feld tippen, "Spawnen". 3. Vor ihm Lichthupe geben, Battle fahren. 4. Spruch im HUD prüfen. 5. Soll die Bedingung getestet werden: Uhr vorstellen oder Ruf holen und "Rivalen rufen" benutzen.</div>
+
+<h3>Reiter „Orte“: Positionen merken, benennen, hinteleportieren</h3>
+<p>Zum Auskundschaften der Map: neue Shops, Tankstellen, PAs, Wartepunkte für Wanderer, Polizei-Messstellen, Auf- und Ausfahrten für den späteren Map-Wechsel.</p>
+<ol class="steps">
+<li>Hinfahren oder hinlaufen. Mit der Freecam (Umschalt+C) geht es auch: dann zählt die Stelle unter der Kamera.</li>
+<li>Oben bei <b>Neuen Ort merken</b>: Namen tippen (leer = Typ + Nummer), optional eine Notiz, einen Typ anklicken.</li>
+<li><b>Hier merken</b>. Der Ort steht sofort in der Liste.</li>
+</ol>
+<table>
+<tr><th>Teil</th><th>Was er macht</th></tr>
+<tr><td>Typen</td><td>Garage / HQ, Zuhause, Parkplatz (PA), Shop (allgemein), Mechaniker, Lackierer, Bodyshop, Tankstelle, Wanderer-Wartepunkt, Polizei / Messstelle, Auffahrt, Ausfahrt, Map-Wechsel, Spawnpunkt, Showroom, Sonstiges</td></tr>
+<tr><td>Liste</td><td>Alle Orte der Map: die aus der Kartendatei (<code>c1.json</code>, orange Linie links, „Kartendatei“) und deine eigenen. Mit Typ, Entfernung zu dir und Notiz. Suchfeld und Typ-Filter oben, „Nach Nähe“ sortiert die nächsten nach oben.</td></tr>
+<tr><td>Hin</td><td>Teleportiert dich hin (Auto oder zu Fuß, Schaden bleibt). Mit aktiver Freecam fliegt auch die Kamera mit.</td></tr>
+<tr><td>Bearb.</td><td>Name, Typ und Notiz ändern, <b>Auf aktuelle Stelle setzen</b> (Ort neu setzen) oder <b>Löschen</b> (zweimal klicken). Ganz unten stehen die Koordinaten. Bei Orten aus der Kartendatei lässt sich nur der Anzeigename ändern; die Kartendatei bleibt, wie sie ist.</td></tr>
+<tr><td>Alte Positionen</td><td>Alles, was du früher mit „Position merken“ gesammelt hast (<code>captured_positions.json</code>), wird beim ersten Öffnen einmal übernommen, als „Alt 1“, „Alt 2“ … Liegt eine alte Position bei einem bekannten Ort, steht er dahinter (z. B. „Alt 1 (bei Garage (Bucht))“) und der Typ ist schon gesetzt.</td></tr>
+</table>
+<div class="box tip"><b>Wo landen die Orte?</b>In <span class="path">F:\BeamNG\current\settings\hashiriya_battle\dev_places.json</span>, je Map getrennt (<code>levels.c1.places</code>). Eigene Namen für Orte aus der Kartendatei stehen unter <code>mapNames</code>. Sag mir einfach Bescheid, wenn ein Ort ins Spiel soll, dann übernehme ich ihn aus der Datei in <code>c1.json</code> (neuer Shop, neue Tankstelle, neue PA, Wartepunkt …). Wanderer-Wartepunkte, Polizei und Map-Wechsel brauchen dafür noch eigene Spiel-Logik.</div>
+
+<h3>Reiter „Werkzeuge“</h3>
+<table>
+<tr><th>Knopf</th><th>Was er macht</th></tr>
+<tr><td>Gratis reparieren / volltanken</td><td>Auto heil und Tank voll, ohne Kosten</td></tr>
+<tr><td>Builder (Crews, Wanderer, Bosse)</td><td>Öffnet den <a href="#builder">Builder</a></td></tr>
+<tr><td>Titelbild-Kamera merken</td><td>Speichert Kamera und Uhrzeit für den Titelbildschirm (wie Umschalt+Pos1)</td></tr>
+<tr><td>Configs exportieren</td><td>Schreibt alle Configs nach <span class="path">settings\hashiriya_battle\config_dump.json</span> (Grundlage für die Config-Liste)</td></tr>
+<tr><td>Teile des Autos exportieren</td><td>Schreibt die Teile des Spielerautos nach <span class="path">settings\hashiriya_battle\parts_&lt;modell&gt;.json</span></td></tr>
+</table>
+<p>Im normalen Hashiriya-Menü stehen unter <b>Werkzeuge</b> nur noch <b>Dev-Menü öffnen</b> und <b>Parkplatz-Markierung</b>; <b>Fehlerbericht erstellen</b> steht weiter oben bei der Karriere (gibt es auch im Release).</p>
+<div class="box tip"><b>Ablauf: neuen Wanderer testen</b>1. BeamNG starten, Karriere laden. 2. Umschalt+Ende, Reiter „Rivalen“, Namen oder ID suchen, „Spawnen“. 3. Vor ihm Lichthupe geben, Battle fahren. 4. Spruch im HUD prüfen. 5. Soll die Bedingung getestet werden: im Reiter „Spielstand“ Rang, Tag oder Uhrzeit passend setzen und „Rivale rufen“ benutzen.</div>
 </section>
 
 <section id="spielstand">
@@ -1508,7 +1552,8 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <table>
 <tr><th>Datei in <span class="path">F:\BeamNG\current\settings\hashiriya_battle\</span></th><th>Inhalt</th></tr>
 <tr><td><code>save.json</code></td><td>Der Spielstand: Geld, Ruf, Siege, geschlagene Rivalen (<code>defeated</code>), Autos, Uhrzeit, Tag</td></tr>
-<tr><td><code>captured_positions.json</code></td><td>Mit "Position merken" gesammelte Orte</td></tr>
+<tr><td><code>dev_places.json</code></td><td>Im Dev-Menü (Reiter „Orte“) gemerkte Orte mit Name, Typ und Notiz, je Map</td></tr>
+<tr><td><code>captured_positions.json</code></td><td>Alte Positionen aus „Position merken“ (bis Alpha 0.4); werden ins Dev-Menü übernommen</td></tr>
 <tr><td><code>title_camera.json</code></td><td>Titelbild-Kamera je Map</td></tr>
 <tr><td><code>config_dump.json</code></td><td>Export aller Configs</td></tr>
 <tr><td><code>logs\</code></td><td>Mod-Log und Fehlerbericht (siehe <a href="#log">Log-System</a>)</td></tr>
@@ -1546,6 +1591,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <table>
 <tr><th>Datei</th><th>Aufgabe</th></tr>
 <tr><td><code>core.lua</code></td><td>Herzstück: Spielstand, Texte, Menü-Aktionen, Dev-Tools, Verkehr</td></tr>
+<tr><td><code>devtools.lua</code></td><td>Dev-Menü: Spielstand setzen, Rivalen, Orte (nicht im Release)</td></tr>
 <tr><td><code>career.lua</code></td><td>Karriere starten, Titelbildschirm, Credits, Showroom, Startauto</td></tr>
 <tr><td><code>battle.lua</code></td><td>Herausfordern, Countdown, SP-Balken, Sieg/Niederlage</td></tr>
 <tr><td><code>driver.lua</code></td><td>Fahrer-Werte der Rivalen, startet/stoppt den eigenen Gegner-Fahrer</td></tr>

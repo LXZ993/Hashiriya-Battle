@@ -166,10 +166,23 @@
     "height": "100%",
     "width": "100%"
    }
+  },
+  {
+   "appName": "hashiriyaDev",
+   "appVersion": 1,
+   "placement": {
+    "bottom": "0px",
+    "left": "0px",
+    "position": "absolute",
+    "right": "0px",
+    "top": "0px",
+    "height": "100%",
+    "width": "100%"
+   }
   }
  ],
  "removedApps": {},
  "title": "Hashiriya Battle",
  "type": "hashiriyaBattle",
- "version": 10
+ "version": 11
 }

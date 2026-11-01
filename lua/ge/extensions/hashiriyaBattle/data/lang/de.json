@@ -589,5 +589,6 @@
   "talk.hintLearned": "Neuer Hinweis im Lexikon",
   "msg.talkHint": "Neuer Hinweis im Rivalen-Lexikon",
   "msg.devTalkRespawn": "PA-Fahrer werden neu aufgestellt",
-  "menu.devTalk": "PA-Fahrer neu aufstellen"
+  "menu.devTalk": "PA-Fahrer neu aufstellen",
+  "menu.devMenu": "Dev-Menü öffnen (Shift+Ende)"
 }
