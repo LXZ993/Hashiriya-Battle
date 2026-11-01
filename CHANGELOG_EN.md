@@ -1,5 +1,29 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.3.2 (as of 2026-11-01)
+
+All changes since Alpha 0.3 (includes the test build Alpha 0.3.1).
+
+### HUD
+- Own HUD apps in the Hashiriya style: messages, tasks and scoreboard top left, a landscape minimap, speedometer, boost and drivetrain. Slimmer than before, no chunky boxes.
+- The gear display no longer shows an error value, and the minimap loads reliably.
+
+### Tuning
+- Parts are now spread over 6 tiers (LV1 to LV6) instead of 3, based on class and price. It takes longer to unlock the best parts.
+- When a new tuning tier unlocks, a notice shows the new parts. This also works while you are on foot.
+
+### Sleeping
+- After sleeping or a nap you cannot sleep again for 6 in-game hours.
+
+### Release build
+- No more quick travel via the big map: the quick travel points are gone, and no location has a "Quick Travel" button.
+- An old HUD layout from development no longer covers the whole screen.
+- The new-parts test from the developer menu is locked in the release.
+
+### Other
+- The button in the BeamNG main menu ("More ..." page) now shows the Hashiriya Battle logo.
+- Credits: new "Testing" section with Slim Henry.
+
 ## Alpha 0.3 (as of 30 Oct 2026)
 
 All changes since Alpha 0.2 (29 Oct 2026, internally still called "Alpha 1").
