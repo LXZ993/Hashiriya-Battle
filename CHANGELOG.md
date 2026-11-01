@@ -1,5 +1,16 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.4.1 (Stand 01.11.2026)
+
+### Neu: Mehr Gesprächsstoff an den PAs
+- Die Fahrer an den Parkplätzen erzählen jetzt viel mehr: 77 Wissens-Texte über den Shutoko, den C1, Tokio, Japan, Autos und die Geschichte der Straßenrennen. Viele davon sind kleine Geschichten über zwei oder drei Sprechblasen.
+- Beispiele: Wann das erste Stück Shutoko eröffnet wurde und was die Maut damals kostete, warum der C1 über Flüsse und alte Burggräben führt, warum die Nihonbashi der Kilometer null von Japan ist und bald wieder Himmel über sich hat, die Rainbow Bridge, die Szene der späten 80er, Kei-Cars und gelbe Kennzeichen.
+- Jede PA hat eigene Fun Facts: An Shibaura PA erfährst du etwas über die Rainbow Bridge und die Schleife davor, an Tatsumi PA über das Viertel und die Wochenend-Sperrungen.
+- Jeder Fahrer-Typ hat seine Lieblingsthemen. Der Alte Hase erzählt Geschichte, der Lkw-Fahrer vom Verkehr, die Studentin von Tokio.
+- Wissens-Texte haben einen blauen Rand und zeigen unten das Thema, zum Beispiel „Wissen · Shutoko“.
+- Sprichst du jemanden nochmal an, fällt ihm oft noch etwas ein, das du noch nicht kennst.
+- 47 neue Sätze Smalltalk, 4 für jeden Fahrer-Typ.
+
 ## Alpha 0.4 (Stand 01.11.2026)
 
 ### Neu: Gespräche an den Parkplätzen (PA)

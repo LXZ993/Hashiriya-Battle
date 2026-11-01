@@ -1,5 +1,16 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.4.1 (as of 2026-11-01)
+
+### New: more to talk about at the PAs
+- Drivers in the parking areas now have far more to say: 77 knowledge texts about the Shutoko, the C1, Tokyo, Japan, cars and the history of street racing. Many are short stories spread over two or three speech bubbles.
+- Examples: when the first piece of the Shutoko opened and what the toll cost, why the C1 runs over rivers and old castle moats, why Nihonbashi is Japan's kilometre zero and will soon see the sky again, the Rainbow Bridge, the late-80s scene, kei cars and yellow plates.
+- Every PA has its own fun facts: at Shibaura PA you learn about the Rainbow Bridge and its loop, at Tatsumi PA about the district and the weekend closures.
+- Each driver type has favourite topics. The veteran tells history, the trucker talks traffic, the student talks about Tokyo.
+- Knowledge texts have a blue edge and show their topic at the bottom, for example "Knowledge · Shutoko".
+- Talk to someone again and they often remember something you haven't heard yet.
+- 47 new lines of small talk, 4 for each driver type.
+
 ## Alpha 0.4 (as of 2026-11-01)
 
 ### New: talking at the parking areas (PA)
