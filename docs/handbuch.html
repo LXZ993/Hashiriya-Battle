@@ -67,6 +67,12 @@ details.cl[open] summary::before { content: "▾"; }
 details.cl summary small { color: var(--muted); margin-left: 6px; }
 details.cl > div { padding: 0 16px 10px; border-top: 1px solid var(--line); }
 details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
+.mods td:nth-child(1) { min-width: 170px; }
+.st { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 10px; border: 1px solid var(--line); white-space: nowrap; }
+.st.ok { color: var(--ok); border-color: var(--ok); }
+.st.ask { color: var(--warn); border-color: var(--warn); }
+.st.open { color: var(--muted); }
+.st.no { color: var(--bad); border-color: var(--bad); }
 .top { position: fixed; right: 18px; bottom: 18px; background: var(--accent); color: #fff; text-decoration: none; border-radius: 50%; width: 40px; height: 40px; display: grid; place-items: center; font-size: 20px; }
 @media (max-width: 860px) {
   .wrap { grid-template-columns: 1fr; }
@@ -127,6 +133,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
     <a href="#tasten">Tastenbelegung</a>
     <div class="grp">Hilfe</div>
     <a href="#roadmap">Roadmap und Ideen</a>
+    <a href="#modliste">Mod-Sammelliste</a>
     <a href="#changelog">Changelog (alle Versionen)</a>
     <a href="#dev">Dev-Tools zum Testen</a>
     <a href="#spielstand">Spielstand</a>
@@ -159,6 +166,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
   <a class="card" href="#battle"><b>SP-Balken schneller leer</b><small>battle.lua, drain</small></a>
   <a class="card" href="#texte"><b>Menütext umbenennen</b><small>lang/de.json, en.json</small></a>
   <a class="card" href="#dev"><b>Bestimmten Gegner testen</b><small>Dev-Tools im Menü</small></a>
+  <a class="card" href="#modliste"><b>Mod für später merken</b><small>Mod-Sammelliste</small></a>
 </div>
 </section>
 
@@ -1235,6 +1243,40 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Eigene Gegner-KI später auch als eigene Mod anbieten.</td><td>nach 1.0</td><td>offen</td></tr>
 <tr><td>Eigene Sounds und Songs (Eurobeat, GT-Stil, ohne Gesang).</td><td>nach 1.0</td><td>Probe 1 fertig</td></tr>
 </table>
+</section>
+
+<section id="modliste">
+<h2><span class="n">★</span> Mod-Sammelliste <span class="tag">Maps · Fahrzeuge · Teile</span></h2>
+<p>Hier sammeln wir Mods, die später zu Hashiriya Battle passen könnten: Maps, Fahrzeuge, Tuning-Teile und alles andere. Erst sammeln, später entscheiden. Eingebaut wird eine Mod erst, wenn der Autor zugestimmt hat (siehe Spalte <b>Erlaubnis</b>).</p>
+
+<div class="box tip"><b>Neue Mod eintragen</b>
+Schick mir im Thread „Passende Mods für später sammeln“ einfach den Link und ein paar Worte, zum Beispiel:
+<pre><code>https://www.beamng.com/resources/...
+Name: Akagi Touge
+Typ: Map
+Wofür: Touge-Battles nachts, eigene Crew dort, Reiseziel Gunma</code></pre>
+Fehlt etwas (Name, Autor, Typ), schaue ich selbst nach. Ich trage die Mod hier ein und spiele das Handbuch auf deinen PC.</div>
+
+<h3>Legende Erlaubnis</h3>
+<p><span class="st ok">✓ erlaubt</span> Autor hat zugestimmt &nbsp; <span class="st ask">angefragt</span> Nachricht ist raus, keine Antwort &nbsp; <span class="st open">offen</span> noch nicht gefragt &nbsp; <span class="st no">✗ abgelehnt</span> nicht verwenden</p>
+
+<h3>Schon im Einsatz (Pflicht-Mods)</h3>
+<p>Diese Mods braucht die Mod heute schon. Sie stehen auch in den Credits (<span class="path">data\credits.json</span>).</p>
+<table class="mods">
+<tr><th>Mod</th><th>Typ</th><th>Autor</th><th>Wo / wie im Spiel</th><th>Erlaubnis</th></tr>
+<tr><td><b>Shuto Expressway C1</b></td><td>Map</td><td>Ezo</td><td>Hauptmap der ganzen C1-Karriere</td><td><span class="st open">offen</span><br><small>Ezo hat private Nachrichten aus; Frage über Agent und öffentlichen Forum-Post</small></td></tr>
+<tr><td><b>Agents simplified realistic traffic</b></td><td>Verkehr</td><td>AgentMooshroom5</td><td>Japanischer Verkehr auf dem C1</td><td><span class="st ask">angefragt</span><br><small>PN seit 28.10.2026 ohne Antwort</small></td></tr>
+<tr><td><b>Agent's Japanese Plates Pack</b></td><td>Kennzeichen</td><td>AgentMooshroom5</td><td>JP-Kennzeichen für alle Rivalen</td><td><span class="st ask">angefragt</span><br><small>vermutlich mit der gleichen PN gefragt, bitte bestätigen</small></td></tr>
+</table>
+
+<h3>Für später gesammelt</h3>
+<!-- MODLISTE-START -->
+<table class="mods">
+<tr><th>Mod</th><th>Typ</th><th>Autor</th><th>Wo / wie im Spiel</th><th>Erlaubnis</th><th>Eingetragen</th></tr>
+<tr><td><b>KLJP</b><br><small>Link fehlt noch</small></td><td>Fahrzeuge (?)</td><td>?</td><td>Würde Lore, Rivalen und Tuning stark erweitern, falls die Mod ein Update bekommt</td><td><span class="st open">offen</span></td><td>28.10.2026</td></tr>
+</table>
+<!-- MODLISTE-ENDE -->
+<p><small>Typen: Map, Fahrzeug, Teile (Räder, Bodykits, Tuning), Lackierung, Verkehr, Sound, Sonstiges. Wo eine Mod im Spiel hinpasst, kann sich später noch ändern, zum Beispiel als <a href="#roadmap">DLC-Pack</a> nach 1.0.</small></p>
 </section>
 
 <section id="changelog">
