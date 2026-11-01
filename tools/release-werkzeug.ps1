@@ -5,11 +5,11 @@
 #   2  Release-Test AUS  -> data\build.json "release": false (Dev-Tools wieder da)
 #   3  Release-ZIP bauen -> mods\hashiriya_battle_<version>.zip (neben unpacked\), mit Changelog und mod_info
 #
-# Die Versionsnummer bestimmt das Werkzeug selbst (Get-AutoVersion):
-#   - oberste Version im CHANGELOG.md, z. B. "Alpha 0.3"
+# Die Versionsnummer bestimmt das Werkzeug selbst nach der Roadmap (tools\roadmap.json, Get-AutoVersion):
+#   - Hauptnummer = letzter fertiger Meilenstein der Roadmap (oder oberste Version im CHANGELOG.md, falls höher)
+#   - Zwischen-Builds davor: Alpha 0.3 -> Alpha 0.3.1 -> Alpha 0.3.2 ... (nie von selbst Alpha 0.4)
 #   - seit dem letzten Build (tools\release-stand.json) nichts am Mod geändert -> gleiche Version nochmal
-#   - sonst nächste Nummer: Alpha 0.3 -> Alpha 0.3.1 -> Alpha 0.3.2 ...
-#   - steht im Changelog schon eine höhere Version (z. B. von Claude "Alpha 0.4"), wird die genommen
+#   - steht ein neuer Meilenstein auf "fertig", bekommt die nächste ZIP seine Nummer (z. B. Alpha 0.4)
 #
 # Ohne Menü:  release-werkzeug.ps1 -Aktion an | aus | zip [-Version "Alpha 0.4"]  (-Version nur zum Erzwingen)
 param(
@@ -25,6 +25,7 @@ $Utf8 = New-Object System.Text.UTF8Encoding($false)
 $StandFile = Join-Path $PSScriptRoot 'release-stand.json'
 # Nur Änderungen in diesen Ordnern zählen als neue Version (Doku/Werkzeuge nicht)
 $ModPaths = @('lua', 'scripts', 'settings', 'ui', 'art', 'vehicles')
+$RoadmapFile = Join-Path $PSScriptRoot 'roadmap.json'
 
 # Ordner und Dateien, die in die ZIP kommen
 $Include = @('lua', 'scripts', 'settings', 'ui', 'art', 'vehicles')
@@ -171,26 +172,37 @@ function Get-ModChangeCount($base) {
   return [int]("$c".Trim())
 }
 
+function Get-Roadmap {
+  if (-not (Test-Path $RoadmapFile)) { return @() }
+  try { return @(((Read-Text $RoadmapFile) | ConvertFrom-Json).meilensteine) } catch { return @() }
+}
+
+# Höchster fertiger Meilenstein bzw. erster offener
+function Get-RoadmapDone { $d = @(Get-Roadmap | Where-Object { $_.fertig }); if ($d.Count) { return $d[$d.Count - 1] }; return $null }
+function Get-RoadmapNext { $n = @(Get-Roadmap | Where-Object { -not $_.fertig }); if ($n.Count) { return $n[0] }; return $null }
+
 # Versionsnummer automatisch: @{ version; base (letzter Changelog-Commit, ab dem der Entwurf zählt); reason }
 function Get-AutoVersion {
   $top = Get-ChangelogTopVersion
   if (-not $top) { $top = Get-ModVersion }
+  $done = Get-RoadmapDone
+  if ($done -and (Compare-Version $done.version $top) -gt 0) { $top = $done.version }
   $stand = Get-Stand
   $changelogCommit = Invoke-Git log -1 --format=%H -- CHANGELOG.md
   if ($stand -and $stand.version) {
     if ((Compare-Version $top $stand.version) -gt 0) {
-      return @{ version = $top; base = $changelogCommit; reason = "neue Version aus dem Changelog (letzter Build: $($stand.version))" }
+      return @{ version = $top; base = $changelogCommit; reason = "neuer Meilenstein laut Roadmap/Changelog (letzter Build: $($stand.version))" }
     }
     $changes = Get-ModChangeCount $stand.commit
     if ($changes -eq 0) {
       return @{ version = $stand.version; base = $changelogCommit; reason = 'seit dem letzten Build nichts am Mod geändert, gleiche Version' }
     }
-    return @{ version = (Step-Version $stand.version); base = $changelogCommit; reason = "letzter Build $($stand.version), seitdem Änderungen am Mod" }
+    return @{ version = (Step-Version $stand.version); base = $changelogCommit; reason = "Zwischen-Build: letzter Build $($stand.version), seitdem Änderungen am Mod" }
   }
   # Erster Build auf diesem PC: Changelog-Version, außer der Mod hat sich seit dem Changelog-Eintrag geändert
   $changes = Get-ModChangeCount $changelogCommit
   if ($changes -gt 0) {
-    return @{ version = (Step-Version $top); base = $changelogCommit; reason = "$changes Änderungen seit dem Changelog-Eintrag $top" }
+    return @{ version = (Step-Version $top); base = $changelogCommit; reason = "Zwischen-Build: $changes Änderungen seit $top" }
   }
   return @{ version = $top; base = $changelogCommit; reason = 'Version aus dem Changelog' }
 }
@@ -356,6 +368,8 @@ function Show-Menu {
     $next = '?'
     try { $next = (Get-AutoVersion).version } catch { }
     Write-Host "Release-Test: $state      Nächste ZIP-Version: $next"
+    $ms = Get-RoadmapNext
+    if ($ms) { Write-Host "Nächster Meilenstein: $($ms.version) - $($ms.titel)" }
     Write-Host ''
     Write-Host '  1  Release-Test AN   (so testen, wie es die Tester bekommen)'
     Write-Host '  2  Release-Test AUS  (zurück zur Entwicklung)'
