@@ -126,6 +126,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
     <a href="#ui">UI-Apps und Layout</a>
     <a href="#tasten">Tastenbelegung</a>
     <div class="grp">Hilfe</div>
+    <a href="#roadmap">Roadmap und Ideen</a>
     <a href="#changelog">Changelog (alle Versionen)</a>
     <a href="#dev">Dev-Tools zum Testen</a>
     <a href="#spielstand">Spielstand</a>
@@ -1132,9 +1133,62 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <p>Ändern geht am einfachsten im Spiel unter Optionen &gt; Steuerung, Kategorie Debug, Eintrag "Hashiriya Battle: Menü ein/aus". Oder hier <code>"control"</code> ändern, z. B. <code>"f6"</code> oder <code>"ctrl m"</code>. Lichthupe, Warnblinker und Blinker sind die normalen BeamNG-Tasten.</p>
 </section>
 
+<section id="roadmap">
+<h2><span class="n">★</span> Roadmap und Ideen <span class="tag">tools\roadmap.json</span></h2>
+<p>Hier steht alles, was geplant ist, damit du den Überblick behältst. Die Meilenstein-Tabelle kommt aus <span class="path">tools\roadmap.json</span>; nach ihr richtet das <a href="#release">Release-Werkzeug</a> auch die Versionsnummern. Reihenfolge ändern: in der Datei oder mir sagen. Neue Ideen von dir trage ich unten ein.</p>
+
+<h3>Bis 1.0: die komplette C1-Karriere</h3>
+<!-- ROADMAP-START -->
+<table>
+<tr><th>Version</th><th>Meilenstein</th><th>Stand</th></tr>
+<tr><td><b>Alpha 0.2</b></td><td>Erster Testbuild: Battles, Rivalen-Radar, Startautos, Tag und Nacht</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.3</b></td><td>Großer Kader (26 Crews, 42 Wanderer), Ränge, eigene Rivalen-KI, Release-Build</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.4</b></td><td>Gespräche mit Fahrern an den Parkplätzen (PA)</td><td><span style="color:var(--accent)">▶ als Nächstes</span></td></tr>
+<tr><td><b>Alpha 0.5</b></td><td>Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.6</b></td><td>Bosse und Story-Kapitel mit Zwischengeschichten</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.7</b></td><td>Nebenjobs am Tag und bezahlte Tipps zu seltenen Rivalen</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.8</b></td><td>Teile verkaufen und ausbauen in der Garage</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.9</b></td><td>Rivalen mit eigenem Fahrcharakter (sauber, Blocker, Rempler)</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>1.0</b></td><td>Komplette C1-Karriere</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+</table>
+<!-- ROADMAP-ENDE -->
+
+<h3>Nach 1.0: Roadtrip durch Japan</h3>
+<ul>
+<li>Reisen zu anderen japanischen Maps: andere Schnellstraßen, Touge, Rennstrecken, Kleinstädte, auch die Maps nach den Ryu-Ga-Gotoku-Spielen. <b>Nur mit Erlaubnis der jeweiligen Map-Autoren.</b></li>
+<li>Japan-Karte mit Reisezielen nach Präfektur. Ein Klick zeigt die Aktivitäten, soweit dir andere Fahrer davon erzählt haben.</li>
+<li>Jede Region bringt neue Rivalen und Leute zum Reden, dazu alte Bekannte vom C1. Weit mehr als 300 Rivalen.</li>
+<li>Neue Aktivitäten bei Tag und Nacht: illegale Touge-Battles, Duelle auf anderen Schnellstraßen, Drift-Events, offizielle Rennen, Drag, Time Attack auf echten Strecken.</li>
+<li>Wohnungen in anderen Regionen kaufen, mit Zugriff auf die Garage dort.</li>
+<li>DLC-Packs für Maps, Autos und Tuning-Teile. Sie schalten sich selbst frei, wenn die Mods installiert sind, nur in Absprache mit den Mod-Autoren.</li>
+<li>Rad-, Bodykit- und Lackierungs-Mods automatisch in den Shops.</li>
+<li>Eigene Musik und Sounds (erste Probe gibt es schon).</li>
+<li><i>Vielleicht:</i> eigenen Bob-Avatar erstellen, als Porträt in den Gesprächen.</li>
+</ul>
+
+<h3>Ideen-Sammlung</h3>
+<p>Ideen, die wir besprochen haben. „Meilenstein“ sagt, wo sie eingeplant sind.</p>
+<table>
+<tr><th>Idee</th><th>Meilenstein</th><th>Stand</th></tr>
+<tr><td>PA-Gespräche: zu Fuß mit Fahrern neben ihren Autos reden (Smalltalk, Gerüchte, Hinweise auf Wanderer und wartende Rivalen). Figuren = BeamNG-„Bobs“.</td><td>Alpha 0.4</td><td>über 150 Texte fertig (<code>chat.json</code>), System fehlt</td></tr>
+<tr><td>Rivalen und Wanderer stehen auch an den PAs (auf den Parkplätzen der geparkten Autos).</td><td>Alpha 0.5</td><td>offen</td></tr>
+<tr><td>Pink Slip gegen manche PA-Rivalen (ab bestimmtem Ruf): Verlierer verliert sein Auto, der Rivale fährt es, bis du es zurückgewinnst.</td><td>Alpha 0.5</td><td>offen</td></tr>
+<tr><td>Bosse und Story-Kapitel mit Zwischengeschichten (eigene Story).</td><td>Alpha 0.6</td><td>Bosse kommen von dir</td></tr>
+<tr><td>Nebenjobs am Tag: Autoüberführung Händler → Garage (Schaden kürzt Lohn), Kurierfahrten zwischen PAs, Taxi-Schicht, Foto-Jobs. Dazu bezahlte Tipps zu seltenen Rivalen.</td><td>Alpha 0.7</td><td>„Garage to Garage“ zahlt schon Yen</td></tr>
+<tr><td>Teile verkaufen, auch ausgebaute Serienteile; Teile in der Garage ausbauen.</td><td>Alpha 0.8</td><td>offen</td></tr>
+<tr><td>Fahrcharakter pro Rivale: sauber, Blocker, Rempler (nur passende Rivalen).</td><td>Alpha 0.9</td><td>eigene Gegner-KI läuft, Charakter-Feld fehlt</td></tr>
+<tr><td>Game Over, wenn du kein Auto mehr hast und kein Geld für einen Gebrauchten.</td><td>mit Pink Slip</td><td>offen</td></tr>
+<tr><td>Tägliche Straßen-Events: Baustelle mit Spursperrung für 1-2 Tage, Panne oder Unfall auf dem Seitenstreifen, Polizei, Stau, Wetter und Nebel. Infos über HashiNet und PA-Gespräche.</td><td>noch keiner</td><td>Brainstorm</td></tr>
+<tr><td>Showroom im GT/TXR-Stil beim neuen Spielstand (Startauto und Farbe).</td><td>noch keiner</td><td>offen</td></tr>
+<tr><td>Tag-Events auf Rennstrecken (Tsukuba, Ebisu usw.).</td><td>nach 1.0</td><td>wartet auf Erlaubnis der Map-Autoren</td></tr>
+<tr><td>Eigene Gegner-KI später auch als eigene Mod anbieten.</td><td>nach 1.0</td><td>offen</td></tr>
+<tr><td>Eigene Sounds und Songs (Eurobeat, GT-Stil, ohne Gesang).</td><td>nach 1.0</td><td>Probe 1 fertig</td></tr>
+</table>
+</section>
+
 <section id="changelog">
 <h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
-<p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/changelog_handbuch.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
+<p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
 <details class="cl">
 <summary><b>Alpha 0.3.2</b> <small>Stand 01.11.2026</small></summary>
