@@ -865,6 +865,8 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
     { "name": "AgentMooshroom5", "what": "Agent's Japanese Plates Pack" }
   ] }</code></pre>
 <p>Einträge mit leerem <code>name</code> werden nicht angezeigt. Abschnitte im Moment: Idee und Entwicklung (JDMArsch), Tests (Slim Henry), Benötigte Mods (Ezo, AgentMooshroom5), Spiel (BeamNG). Neue Tester einfach als weiteren Eintrag unter „Tests“ eintragen.</p>
+<h3>Changelog im Spiel</h3>
+<p>Im Titelbildschirm gibt es den Menüpunkt <b>Changelog</b>. Er zeigt alle Versionen aus <span class="path">CHANGELOG.md</span> (bei englischer Spielsprache <span class="path">CHANGELOG_EN.md</span>), jede zum Aufklappen, die neueste ist offen. Neue Version = neuer Abschnitt <code>## Alpha 0.x (Stand …)</code> oben in beiden Dateien; <code>###</code> sind Gruppen, <code>- </code> sind Punkte. In der Release-ZIP legt das Release-Werkzeug beide Dateien zusätzlich nach <span class="path">data\changelog\</span>.</p>
 </section>
 
 <section id="tutorial">
@@ -1190,6 +1192,19 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
+<details class="cl">
+<summary><b>Alpha 0.3.3</b> <small>Stand 01.11.2026</small></summary>
+<div>
+<h4>Fehler behoben</h4>
+<ul>
+<li>Alpha 0.3.2: Im Spiel ließ sich nichts mehr anklicken (Menüs, Seitenmenü, Apps). Behoben.</li>
+</ul>
+<h4>Neu</h4>
+<ul>
+<li>Titelbildschirm: neuer Punkt „Changelog“. Dort kannst du alle Versionen aufklappen und nachlesen.</li>
+</ul>
+</div>
+</details>
 <details class="cl">
 <summary><b>Alpha 0.3.2</b> <small>Stand 01.11.2026</small></summary>
 <div>

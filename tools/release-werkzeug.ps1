@@ -350,6 +350,10 @@ function Build-Zip {
     }
     Add-Entry 'CHANGELOG_DE.md' ($Utf8.GetBytes($changelogs['CHANGELOG.md']))
     Add-Entry 'CHANGELOG_EN.md' ($Utf8.GetBytes($changelogs['CHANGELOG_EN.md']))
+    # Zusätzlich unter data/changelog/ (eindeutiger Pfad) für den Changelog im Titelbildschirm
+    Add-Entry 'lua/ge/extensions/hashiriyaBattle/data/changelog/CHANGELOG_DE.md' ($Utf8.GetBytes($changelogs['CHANGELOG.md']))
+    Add-Entry 'lua/ge/extensions/hashiriyaBattle/data/changelog/CHANGELOG_EN.md' ($Utf8.GetBytes($changelogs['CHANGELOG_EN.md']))
+    $script:count += 2
     $script:count += 2
     Add-Entry 'mod_info/HASHIRIYABATTLE/info.json' ($Utf8.GetBytes($modInfo))
     foreach ($img in @('icon.jpg', 'banner.jpg')) {

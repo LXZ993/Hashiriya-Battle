@@ -154,6 +154,8 @@
   "credits.role.Testing": "Tests",
   "credits.role.Mod author": "Mod-Autor",
   "credits.role.Other": "Unterstützung",
+  "title.changelog": "Changelog",
+  "changelog.empty": "Noch kein Changelog gefunden.",
   "title.quit": "Hauptmenü",
   "title.hint": "Wenn die Stadt schläft, gehört die Bahn den Schnellen.",
   "new.step.experience": "Erfahrung",

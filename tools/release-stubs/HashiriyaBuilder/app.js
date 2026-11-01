@@ -1,4 +1,6 @@
 // Release-Platzhalter für den Builder: zeigt nichts und fängt keine Klicks ab.
+// Genau 3 Ebenen wie der echte Builder: die 4. Ebene ist der ganze HUD-Container,
+// pointer-events:none dort macht ALLE Apps unklickbar (Fehler in Alpha 0.3.2).
 // Alte HUD-Layouts aus der Entwicklung enthalten den Builder noch (Vollbild); ohne diese App
 // zeigt BeamNG dort "Unknown app" über den ganzen Bildschirm.
 angular.module('beamng.apps')
@@ -8,7 +10,7 @@ angular.module('beamng.apps')
     replace: true,
     link: function (scope, element) {
       var el = element[0]
-      for (var i = 0; i < 4 && el; i++) { el.style.pointerEvents = 'none'; el = el.parentElement }
+      for (var i = 0; i < 3 && el; i++) { el.style.pointerEvents = 'none'; el = el.parentElement }
     }
   }
 }])
