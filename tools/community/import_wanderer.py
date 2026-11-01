@@ -8,7 +8,7 @@ Was passiert:
   - credits.json             -> "community" in data/credits.json (nach id)
 Kontaktdaten (_kontakt) kommen nicht in die Mod. Neue Wanderer zählen für tools/generator/protect.py als Handeintrag
 und bleiben beim nächsten Generatorlauf erhalten.
-Danach: Porträts neu erzeugen (rivals_data.js mit tools/silhouette/build_data.py, dann tools/portraits/export_portraits.js).
+Danach: Porträts neu erzeugen (tools/silhouette/build_data.py, dann tools/silhouette/vc/rivals_v2.py und tools/silhouette/vc/build_tool.py).
 """
 import json, os, re, shutil, sys, tempfile, zipfile
 

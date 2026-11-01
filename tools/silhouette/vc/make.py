@@ -109,7 +109,8 @@ def compose(spec, preview):
     doc = Doc(preview)
     A = spec["A"]
     k = FEMALE_K if spec["female"] else 1.0
-    ctx = dict(female=spec["female"], leader=bool(spec.get("leader")), jp=spec["jp"], nick=spec.get("nick", ""), tape=spec.get("tape", "").upper())
+    from html import escape
+    ctx = dict(female=spec["female"], leader=bool(spec.get("leader")), jp=spec["jp"], nick=escape(spec.get("nick", "")), tape=escape(spec.get("tape", "").upper()))
     doc.layer("Hintergrund", background(doc, A, spec["jp"]))
     c = PH.HAIR_COLORS[spec["haircolor"]]
     back, front = PH.HAIRS[spec["hair"]][1](doc, A, c)
