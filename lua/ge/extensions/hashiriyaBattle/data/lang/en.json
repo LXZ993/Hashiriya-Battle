@@ -154,6 +154,8 @@
   "credits.role.Testing": "Testing",
   "credits.role.Mod author": "Mod author",
   "credits.role.Other": "Support",
+  "title.changelog": "Changelog",
+  "changelog.empty": "No changelog found.",
   "title.quit": "Main menu",
   "title.hint": "When the city sleeps, the expressway belongs to the fast.",
   "new.step.experience": "Experience",

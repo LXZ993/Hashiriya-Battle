@@ -514,7 +514,7 @@ function M.action(arg)
     end
     return
   end
-  if step == 'credits' then
+  if step == 'credits' or step == 'changelog' then
     if cmd == 'back' then flow = { step = 'title' } end
     return
   end
@@ -531,6 +531,8 @@ function M.action(arg)
       core().continueCareer()
     elseif cmd == 'credits' then
       flow = { step = 'credits' }
+    elseif cmd == 'changelog' then
+      flow = { step = 'changelog' }
     elseif cmd == 'quit' then
       -- zurück ins BeamNG-Hauptmenü
       M.close()
@@ -613,6 +615,51 @@ local function creditsList()
   return out, pr.loc(d.thanks)
 end
 
+-- Changelog für den Titelbildschirm: CHANGELOG.md (deutsch) bzw. CHANGELOG_EN.md, je nach Spielsprache.
+-- In der Release-ZIP legt das Release-Werkzeug beide Dateien zusätzlich nach data/changelog/ (eindeutiger Pfad).
+local changelogCache = {}
+local function changelogList()
+  local lang = core().lang == 'de' and 'de' or 'en'
+  if changelogCache[lang] then return changelogCache[lang] end
+  local candidates = lang == 'de'
+    and { '/lua/ge/extensions/hashiriyaBattle/data/changelog/CHANGELOG_DE.md', '/CHANGELOG.md', '/CHANGELOG_DE.md' }
+    or { '/lua/ge/extensions/hashiriyaBattle/data/changelog/CHANGELOG_EN.md', '/CHANGELOG_EN.md' }
+  local text
+  for _, path in ipairs(candidates) do
+    text = readFile(path)
+    if text and text:find('\n## ') then break end
+    text = nil
+  end
+  local out = {}
+  if text then
+    local cur, grp
+    for line in (text .. '\n'):gmatch('([^\n]*)\n') do
+      line = line:gsub('\r$', '')
+      local head = line:match('^## (.+)$')
+      if head then
+        local ver, info = head:match('^(.-)%s*%((.*)%)%s*$')
+        cur = { version = ver or head, info = info, intro = {}, groups = {} }
+        grp = nil
+        table.insert(out, cur)
+      elseif cur then
+        local sub = line:match('^### (.+)$')
+        local item = line:match('^%s*%- (.+)$')
+        if sub then
+          grp = { title = sub, items = {} }
+          table.insert(cur.groups, grp)
+        elseif item then
+          if not grp then grp = { title = nil, items = {} }; table.insert(cur.groups, grp) end
+          table.insert(grp.items, (item:gsub('%*%*', ''):gsub('`', '')))
+        elseif line:match('%S') then
+          if grp then table.insert(grp.items, line) else table.insert(cur.intro, line) end
+        end
+      end
+    end
+  end
+  changelogCache[lang] = out
+  return out
+end
+
 function M.getUiState()
   if not flow then return nil end
   local c = core()
@@ -631,6 +678,7 @@ function M.getUiState()
     st.tutorial = { page = i, count = #pages, title = pr.loc(p.title), text = pr.loc(p.text), image = img, last = i >= #pages }
   end
   if flow.step == 'credits' then st.credits, st.creditsThanks = creditsList() end
+  if flow.step == 'changelog' then st.changelog = changelogList() end
   flow.platePick = nil
   if flow.step == 'title' then
     local save = c.peekSave()

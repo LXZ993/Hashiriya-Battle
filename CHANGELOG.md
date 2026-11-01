@@ -1,5 +1,13 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.3.3 (Stand 01.11.2026)
+
+### Fehler behoben
+- Alpha 0.3.2: Im Spiel ließ sich nichts mehr anklicken (Menüs, Seitenmenü, Apps). Behoben.
+
+### Neu
+- Titelbildschirm: neuer Punkt „Changelog“. Dort kannst du alle Versionen aufklappen und nachlesen.
+
 ## Alpha 0.3.2 (Stand 01.11.2026)
 
 Alle Änderungen seit Alpha 0.3 (die Test-ZIP Alpha 0.3.1 ist hier mit drin).
