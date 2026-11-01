@@ -107,6 +107,30 @@ local function partLevel(partName, display, defaultLevel)
   return defaultLevel or 1
 end
 
+-- Stufen verteilen (levelSpread in tuning.json): Die Wörter geben nur die Klasse 1-3. Innerhalb eines Slots
+-- werden die Teile nach Klasse und Preis sortiert und gleichmäßig auf LV1..levels verteilt (billig früh, teuer spät).
+-- bands begrenzt jede Klasse auf einen Bereich, damit z. B. Rennteile (Klasse 3) nie vor LV4 kommen.
+-- Erwartet die Liste schon nach Klasse, dann Preis sortiert. Ohne levelSpread bleibt Stufe = Klasse.
+local function spreadLevels(options)
+  local sp = rules.levelSpread
+  if type(sp) ~= 'table' or #options == 0 then return end
+  local levels = tonumber(sp.levels) or 6
+  local bands = sp.bands or {}
+  local k = #options
+  for i, o in ipairs(options) do
+    local band = bands[tostring(o.level)] or { 1, levels }
+    local lo, hi = tonumber(band[1]) or 1, tonumber(band[2]) or levels
+    local lv = (k > 1) and math.ceil((i - 0.5) / k * levels) or lo
+    o.cls = o.level
+    o.level = math.min(math.max(lv, lo), hi)
+  end
+  -- nach der neuen Stufe sortieren, innerhalb der Stufe nach Preis
+  table.sort(options, function(a, b)
+    if a.level ~= b.level then return a.level < b.level end
+    return a.price < b.price
+  end)
+end
+
 local function tierInfo(level)
   for _, t in ipairs(rules.tiers or {}) do
     if t.level == level then return t end
@@ -136,15 +160,17 @@ local function isUnlocked(level)
 end
 
 -- "LV1 ab Nachtgast · LV2 ab ... " für die Statuszeile
+-- "Nächste Stufe: LV3 ab Kurvenkünstler" für die Statuszeile (nur die nächste gesperrte Stufe)
 local function unlockText()
   local c = core()
-  local parts = {}
   for _, t in ipairs(rules.tiers or {}) do
     local u = t.unlock or {}
-    if u.minRank and u.minRank > 0 then table.insert(parts, c.t('term.unlockRank', t.level, rankName(u.minRank)))
-    elseif u.minWins and u.minWins > 0 then table.insert(parts, c.t('term.unlockWins', t.level, u.minWins)) end
+    if not (c.save and isUnlocked(t.level)) then
+      if u.minRank and u.minRank > 0 then return c.t('term.unlockRank', t.level, rankName(u.minRank))
+      elseif u.minWins and u.minWins > 0 then return c.t('term.unlockWins', t.level, u.minWins) end
+    end
   end
-  return table.concat(parts, ' · ')
+  return ''
 end
 
 local function yen(usd) return core().economy().usdToPrice(usd or 0) end
@@ -325,6 +351,7 @@ local function buildCatalog(vehOverride)
           if a.level ~= b.level then return a.level < b.level end
           return a.price < b.price
         end)
+        spreadLevels(options)
         local parentInfo = slotParent[slot] and partInfo(slotParent[slot])
         local row = {
           id = key, slot = slot, cat = excluded and nil or catId, inAll = true,
