@@ -325,6 +325,117 @@ LORE = [
  ('rookie', 'japan', None, None, [
   ('Hier mit 18 den Führerschein zu machen, kostet in der Fahrschule locker 300.000 Yen. Darum fahre ich so vorsichtig. Das Auto war billiger als der Schein.',
    'Getting a licence at 18 here easily costs 300,000 yen at driving school. That\'s why I drive so carefully. The car was cheaper than the licence.')]),
+ # --- BeamNG: unsere Welt (Alpha 0.4.1b). Quellen: beamng.com Blog v0.40, documentation.beamng.com, Wikipedia "BeamNG.drive".
+ # Die Fahrer sind Bobs und wissen, dass ihre Welt aus Knoten und Balken besteht. Immer hinten anhängen (IDs).
+ ('veteran', 'beamng', None, None, [
+  ('Weißt du, woher unsere Welt kommt? Aus Bremen, in Deutschland. Dort sitzt die Firma, die alles hier gebaut hat.',
+   'Know where our world comes from? Bremen, in Germany. That\'s where the company that built all this is based.'),
+  ('Angefangen hat es 2011 mit ein paar Leuten aus der Szene um Rigs of Rods, einem freien Physik-Spiel. Sie wollten einen besseren Nachfolger bauen.',
+   'It started in 2011 with a few people from the Rigs of Rods scene, a free physics game. They wanted to build a better successor.'),
+  ('Darum heißt es auch "NG". Das steht für Next Generation. Die nächste Generation.',
+   'That\'s why it\'s called "NG". It stands for Next Generation.')]),
+ ('student', 'beamng', None, None, [
+  ('Die Webseite unserer Welt ging am 8. Mai 2012 online. Drei Wochen später kam ein Video, in dem sich Autos echt verformen.',
+   'Our world\'s website went online on 8 May 2012. Three weeks later came a video of cars deforming for real.'),
+  ('Über Nacht hatte es über eine Million Aufrufe. Danach wollte jeder wissen, was das ist.',
+   'It got over a million views overnight. After that everyone wanted to know what it was.')]),
+ ('fan', 'beamng', None, None, [
+  ('Am 3. August 2013 gab es die erste spielbare Demo. Ein Auto, eine Karte. Mehr nicht.',
+   'The first playable demo came out on 3 August 2013. One car, one map. That\'s it.'),
+  ('Wer früh bezahlt hat, bekam fünf Autos und sechs Karten. Und am 10. September 2013 kam das sechste Auto dazu: der Moonhawk.',
+   'Those who paid early got five cars and six maps. And on 10 September 2013 the sixth car arrived: the Moonhawk.')]),
+ ('rookie', 'beamng', None, None, [
+  ('Seit dem 29. Mai 2015 kann jeder im Vorabzugang mitspielen. Und es ist immer noch nicht "fertig". Version 0.40, über zehn Jahre später.',
+   'Since 29 May 2015 anyone can play in early access. And it still isn\'t "finished". Version 0.40, more than ten years later.')]),
+ ('mechanic', 'beamng', None, None, [
+  ('Bei uns ist nichts aus einem Stück. Jedes Auto besteht aus Knoten mit Gewicht und Balken dazwischen. Die Balken wirken wie Federn.',
+   'Nothing here is made of one piece. Every car is made of nodes with mass and beams between them. The beams act like springs.'),
+  ('Jeder Balken hat eine Kraft, ab der er sich verbiegt, und eine, ab der er bricht. Bricht er, hängen die Knoten nicht mehr zusammen. So entsteht jede Delle.',
+   'Every beam has a force where it bends and one where it breaks. When it breaks, the nodes are no longer connected. That\'s where every dent comes from.')]),
+ ('mechanic', 'beamng', None, None, [
+  ('Weiche Physik heißt das. Darum fühlt sich ein Unfall hier so echt an. Motor kaputt, Türen weg, Scheiben zersprungen, Reifen geplatzt. Alles gerechnet, nichts vorgespielt.',
+   'Soft-body physics, they call it. That\'s why a crash feels so real here. Engine wrecked, doors off, windows shattered, tyres burst. All calculated, nothing faked.')]),
+ ('student', 'beamng', None, None, [
+  ('Die Baupläne unserer Autos heißen JBeam. Das ist eine Textdatei, die wie JSON aufgebaut ist. Da steht jeder Knoten und jeder Balken drin.',
+   'The blueprints of our cars are called JBeam. It\'s a text file laid out like JSON. Every node and every beam is listed in it.'),
+  ('Und alles, was dabei passiert, Rennen, Verkehr, sogar diese Gespräche, ist in einer Sprache namens Lua geschrieben.',
+   'And everything that happens around it, races, traffic, even this conversation, is written in a language called Lua.')]),
+ ('salaryman', 'beamng', None, None, [
+  ('Wusstest du, dass es unsere Welt auch für die Forschung gibt? BeamNG.tech heißt das. Ein Ableger für Lehre, Industrie und Forschung an Universitäten.',
+   'Did you know our world is also used for research? It\'s called BeamNG.tech. A spin-off for education, industry and university research.')]),
+ ('photo', 'beamng', None, None, [
+  ('Sogar die Filmbranche hat sich für unsere Welt interessiert. Man kann Stunts damit vorher ausprobieren, ohne ein echtes Auto zu zerlegen.',
+   'Even the film industry got interested in our world. You can try out stunts first without wrecking a real car.')]),
+ # Bobs
+ ('guard', 'beamng', None, None, [
+  ('Wir Bobs sind noch nicht lange da. Erst seit Version 0.40, die kam am 19. Oktober 2026 raus.',
+   'We Bobs haven\'t been around long. Only since version 0.40, which came out on 19 October 2026.'),
+  ('Die Ankündigung hieß "Behold, the Coming of Bob". Und es stand dabei: Jeder liebt Bob.',
+   'The announcement was called "Behold, the Coming of Bob". And it said: everyone loves Bob.')]),
+ ('taxi', 'beamng', None, None, [
+  ('Jeder von uns wiegt 89 Kilo. Wenn ich einen Fahrgast hinten habe, fährt mein Taxi wirklich anders.',
+   'Each of us weighs 89 kilos. With a fare in the back, my taxi really does drive differently.'),
+  ('Wir sitzen richtig im Auto und sind selbst aus Knoten und Balken. Darum wackeln wir mit, wenn du hart fährst.',
+   'We actually sit in the car and are made of nodes and beams ourselves. That\'s why we wobble along when you drive hard.')]),
+ ('drifter', 'beamng', None, None, [
+  ('Seit es uns Bobs gibt, sind Rallyeautos schwerer. Mit Fahrer und Beifahrer drin stimmt die Gewichtsverteilung endlich.',
+   'Since we Bobs arrived, rally cars are heavier. With a driver and co-driver inside, the weight balance is finally right.')]),
+ ('fan', 'beamng', None, None, [
+  ('Die Entwickler sagen, wir Bobs sind nur für den Realismus da. Dass wir etwas albern aussehen, sei ein glücklicher Zufall. Ehrlich, haben sie geschworen.',
+   'The developers say we Bobs are only here for realism. Looking a bit silly is a happy coincidence. They swore, honestly.')]),
+ ('rookie', 'beamng', None, None, [
+  ('Seit 0.40 kannst du dich zu Fuß im Spiegel sehen. Ich hab eine halbe Stunde vor dem Seitenspiegel gestanden.',
+   'Since 0.40 you can see yourself in the mirror on foot. I stood in front of a wing mirror for half an hour.'),
+  ('Und unsere Farbe bleibt, wenn wir einsteigen. So weiß man immer, wer in welchem Auto sitzt.',
+   'And our colour stays when we get in. So you always know who\'s in which car.')]),
+ ('courier', 'beamng', None, None, [
+  ('Es gibt ein Dino-Maskottchen namens Tyrannos. Das wiegt 86 Kilo, drei weniger als ich. Ich finde das beleidigend.',
+   'There\'s a dinosaur mascot called Tyrannos. It weighs 86 kilos, three less than me. I find that offensive.')]),
+ # Hersteller unserer Welt
+ ('veteran', 'beamng', None, None, [
+  ('In unserer Welt kommen Ibishu und Hirochi aus Japan. Gavril und Bruckell aus Amerika, ETK aus Deutschland, Civetta aus Italien, Cherrier aus Frankreich.',
+   'In our world Ibishu and Hirochi are from Japan. Gavril and Bruckell from America, ETK from Germany, Civetta from Italy, Cherrier from France.'),
+  ('Hier auf dem Shutoko siehst du natürlich am meisten Ibishu und Hirochi. Heimvorteil.',
+   'Here on the Shutoko you naturally see the most Ibishu and Hirochi. Home advantage.')]),
+ ('fan', 'beamng', None, None, [
+  ('Die BX-Reihe von Ibishu wurde von 1990 bis 1994 gebaut. Es gibt eine Version namens Runner. Laut Beschreibung gebaut für Japans Expressways. Also genau für hier.',
+   'Ibishu built the BX series from 1990 to 1994. There\'s a version called the Runner. The description says it\'s built for Japan\'s expressways. So exactly for here.')]),
+ ('rookie', 'beamng', None, None, [
+  ('Der Covet von Ibishu lief von 1986 bis 1992. Es gibt sogar eine Version mit Mittelmotor und Turbo, eine Homologation von 1986 bis 1989.',
+   'The Ibishu Covet ran from 1986 to 1992. There\'s even a mid-engined turbo version, a homologation special from 1986 to 1989.'),
+  ('Und eine, bei der statt Hinterreifen Metallplatten drauf sind. Zum Driften auf Parkplätzen. Bitte nicht hier.',
+   'And one with metal plates instead of rear tyres. For drifting in car parks. Please not here.')]),
+ ('veteran', 'beamng', None, None, [
+  ('Der Miramar von Ibishu ist von 1963 bis 1968. Im Export gab es ihn noch bis 1994. Es gibt sogar eine Version, die "Canyon King" heißt, für enge Bergstraßen.',
+   'The Ibishu Miramar dates from 1963 to 1968. Export versions ran until 1994. There\'s even one called the "Canyon King", for narrow mountain roads.')]),
+ ('drifter', 'beamng', None, None, [
+  ('Der Sunburst von Hirochi ist von 2009 bis 2014. Es gibt ihn als Itasha, mit Anime-Folie. Und als Kombi mit Hinterradantrieb zum Driften lernen.',
+   'The Hirochi Sunburst dates from 2009 to 2014. There\'s an itasha version with an anime wrap. And a rear-drive estate for learning to drift.')]),
+ ('salaryman', 'beamng', None, None, [
+  ('Der SBR4 von Hirochi ist ein Shooting Brake, von 2013 bis 2020. Es gibt ihn auch elektrisch, als eSBR 300, 500 und 800.',
+   'The Hirochi SBR4 is a shooting brake, from 2013 to 2020. There\'s an electric one too, the eSBR 300, 500 and 800.')]),
+ ('trucker', 'beamng', None, None, [
+  ('Hirochi baut nicht nur Autos. Auch Muldenkipper und Radlader. Der HT-55 trägt 55 Tonnen. Es gibt sogar eine Version, die Autos zerquetscht.',
+   'Hirochi doesn\'t just build cars. Also dump trucks and wheel loaders. The HT-55 carries 55 tonnes. There\'s even a version that crushes cars.')]),
+ ('trucker', 'beamng', None, None, [
+  ('Der neueste Lkw ist der Cherrier Percheron, aus Frankreich. Ein 12,8-Liter-Sechszylinder mit Turbo, 310 bis 500 PS, bis zu fünf Achsen.',
+   'The newest truck is the Cherrier Percheron, from France. A 12.8-litre turbo six, 310 to 500 hp, up to five axles.')]),
+ ('student', 'beamng', None, None, [
+  ('Eine Rennstrecke heißt Hirochi Raceway. Witzig: Die Firma ist japanisch, aber die Strecke liegt an der Ostküste der USA.',
+   'One race track is called Hirochi Raceway. Funny: the company is Japanese, but the track is on the east coast of the USA.')]),
+ ('photo', 'beamng', None, None, [
+  ('Die anderen Gegenden unserer Welt sind fast alle weit weg: Westküste und Ostküste der USA, die Canyons von Utah, eine kleine Insel in Italien, eine Dschungelinsel im Pazifik.',
+   'The other regions of our world are almost all far away: the US west and east coasts, the canyons of Utah, a small island in Italy, a jungle island in the Pacific.'),
+  ('Und ein Fahrtrainingszentrum von ETK in Deutschland. Eine Stadtautobahn wie diese hier gibt es da nirgends.',
+   'And an ETK driver training centre in Germany. There\'s no city expressway like this one anywhere there.')]),
+ ('courier', 'beamng', None, None, [
+  ('Seit 0.40 können bis zu 64 Leute an einem Rechner gleichzeitig spielen, mit geteiltem Bild. Auf der Konsole sind es vier.',
+   'Since 0.40 up to 64 people can play on one computer at once, split screen. On console it\'s four.'),
+  ('Online geht es übrigens nur mit einer Mod aus der Community. Die Gemeinschaft hier baut viel selbst. Auch diese Strecke.',
+   'Online play, by the way, only works with a community mod. The community here builds a lot itself. This track too.')]),
+ ('guard', 'beamng', None, None, [
+  ('Unsere Welt gibt es seit dem 19. Oktober 2026 auch auf Konsole. Seitdem ist hier auf dem Parkplatz mehr los.',
+   'Our world has been on console too since 19 October 2026. It\'s busier in this car park since then.')]),
 ]
 
 # Mehr Smalltalk (kind small): (speaker, de, en)
