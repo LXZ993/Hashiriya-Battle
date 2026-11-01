@@ -146,7 +146,32 @@ local mistake = { kind = nil, time = 0, cool = 0, scared = {} }
 local startDelay = 0
 local launchPrepped = false -- im Countdown schon runtergeschaltet (hohe Schaltpunkte)
 local launchHold = 0
-local tac = { kind = nil, time = 0, step = 0, cool = 15, lightsSaved = nil }
+local tac = { kind = nil, time = 0, step = 0, cool = 15, lightsSaved = nil, neon = nil }
+local extraLights = {} -- Zusatzlichter des Autos (Neon/Unterboden usw.): electrics-Namen
+
+-- Zusatzlichter finden: Licht-Props, die kein normales Licht sind (Neon, Unterboden, LED ...).
+-- Ihr Wert steht in electrics.values[Name]; wir überschreiben ihn jeden Frame (nach den Controllern, vor den Props).
+local normalLight = { 'beam', 'brake', 'signal', 'reverse', 'fog', 'lightbar', 'hazard', 'interior', 'dome', 'dash',
+  'gauge', 'tail', 'head', 'running', 'parking', 'plate', 'ignition', 'warn', 'turn', 'lights' }
+local function findExtraLights()
+  table.clear(extraLights)
+  local props = v and v.data and v.data.props
+  if type(props) ~= 'table' then return end
+  local seen = {}
+  for _, prop in pairs(props) do
+    local f = type(prop) == 'table' and prop.func
+    if type(f) == 'string' and not seen[f] then
+      local lf = f:lower()
+      local named = lf:find('neon') or lf:find('glow') or lf:find('under') or lf:find('accent') or lf:find('ambient') or lf:find('rgb') or lf:find('led')
+      local normal = false
+      for _, w in ipairs(normalLight) do if lf:find(w, 1, true) then normal = true break end end
+      if named or (not normal and (prop.lightBrightness or prop.lightRange)) then
+        seen[f] = true
+        extraLights[#extraLights + 1] = f
+      end
+    end
+  end
+end
 -- Reibwert für die Planung: BeamNG meldet bei Sport-/Rennreifen bis ~1.7 (Reifen-Spitzenwert),
 -- ein Auto schafft auf der Straße aber kaum mehr als ~1 g. Gedeckelt (wie die BeamNG-KI mit aggression)
 local function muEff() return min(obj:getStaticFrictionCoef(), p.muMax or 1.05) end
@@ -1388,7 +1413,7 @@ local function tacticsOff()
     elseif tac.kind == 'horn' then electrics.horn(false)
     elseif tac.kind == 'lightsOff' and tac.lightsSaved then electrics.setLightsState(tac.lightsSaved) end
   end)
-  tac.kind, tac.lightsSaved = nil, nil
+  tac.kind, tac.lightsSaved, tac.neon = nil, nil, nil
 end
 
 local function updateTactics(dt)
@@ -1407,7 +1432,12 @@ local function updateTactics(dt)
         local on = tac.step % 2 == 1
         if tac.kind == 'flash' then electrics.light_flash_highbeams(on) else electrics.horn(on) end
       end
+    elseif tac.kind == 'neonFlash' then
+      tac.step = math.floor(tac.time / 0.25) -- Neon an, aus, an, aus ...
+      tac.neon = tac.step % 2 == 1 and 1 or 0
     end
+    -- Zusatzlichter (Neon) überschreiben, solange die Taktik läuft
+    if tac.neon then for _, f in ipairs(extraLights) do electrics.values[f] = tac.neon end end
     if tac.time <= 0 then tacticsOff() end
     return
   end
@@ -1425,20 +1455,31 @@ local function updateTactics(dt)
       tac.lightsSaved = lights
       tac.time = lerp(4, 8, math.random())
       electrics.setLightsState(0)
+      -- Licht aus, aber Neon/Unterboden an: man sieht nur noch das Glühen
+      if #extraLights > 0 and math.random() < 0.6 then tac.neon = 1 end
+    elseif #extraLights > 0 and math.random() < 0.35 then
+      kind = 'neonFlash'
+      tac.time = 0.25 * 2 * math.random(3, 6)
     else
       kind = 'blink'
       tac.time = 0.55 * (4 + math.random(0, 4))
     end
   else
     -- hinten: Lichthupe oder Hupe, um dich nervös zu machen
-    kind = math.random() < 0.6 and 'flash' or 'horn'
-    tac.time = 0.3 * 2 * math.random(2, 4)
+    local r = math.random()
+    if #extraLights > 0 and r < 0.25 then
+      kind = 'neonFlash'
+      tac.time = 0.25 * 2 * math.random(3, 6)
+    else
+      kind = r < 0.6 and 'flash' or 'horn'
+      tac.time = 0.3 * 2 * math.random(2, 4)
+    end
   end
   tac.kind, tac.step = kind, -1
   if kind == 'blink' then tac.step = math.floor(tac.time / 0.55) + 1 end
   if kind == 'flash' or kind == 'horn' then tac.step = math.floor(tac.time / 0.3) + 1 end
   tac.cool = lerp(30, 10, mood)
-  log('I', 'hashiriyaDriver', 'Taktik: ' .. kind .. string.format(' (Abstand %.0f m)', gap))
+  log('I', 'hashiriyaDriver', 'Taktik: ' .. kind .. (tac.neon and ' + Neon an' or '') .. string.format(' (Abstand %.0f m)', gap))
 end
 
 local function updateLaunch(dt)
@@ -1557,7 +1598,9 @@ function M.start(params)
   -- im Countdown schon runtergeschaltet: er wartet auf den Start, statt erst zu reagieren
   if launchPrepped then startDelay = startDelay * 0.4; launchHold = p.launchHold end
   launchPrepped = false
-  tac.kind, tac.time, tac.step, tac.cool, tac.lightsSaved = nil, 0, 0, lerp(20, 8, p.aggression), nil
+  tac.kind, tac.time, tac.step, tac.cool, tac.lightsSaved, tac.neon = nil, 0, 0, lerp(20, 8, p.aggression), nil, nil
+  pcall(findExtraLights)
+  if #extraLights > 0 then log('I', 'hashiriyaDriver', 'Zusatzlichter für Taktik: ' .. table.concat(extraLights, ', ')) end
   ego.width = obj:getInitialWidth()
   wheelBase = computeWheelBase()
   prevDir:set(obj:getDirectionVectorXYZ())
