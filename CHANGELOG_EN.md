@@ -10,6 +10,8 @@
 - Knowledge texts have a blue edge and show their topic at the bottom, for example "Knowledge · Shutoko".
 - Talk to someone again and they often remember something you haven't heard yet.
 - 47 new lines of small talk, 4 for each driver type.
+- The drivers are Bobs and they know it: 27 knowledge texts about BeamNG, such as where the world comes from, how nodes and beams make every dent, why a Bob weighs 89 kilos and which manufacturers are Japanese ("Knowledge · BeamNG").
+- 104 knowledge texts in total.
 
 ## Alpha 0.4 (as of 2026-11-01)
 

@@ -10,6 +10,8 @@
 - Wissens-Texte haben einen blauen Rand und zeigen unten das Thema, zum Beispiel „Wissen · Shutoko“.
 - Sprichst du jemanden nochmal an, fällt ihm oft noch etwas ein, das du noch nicht kennst.
 - 47 neue Sätze Smalltalk, 4 für jeden Fahrer-Typ.
+- Die Fahrer sind Bobs und wissen das auch: 27 Wissens-Texte über BeamNG, zum Beispiel wo die Welt herkommt, wie Knoten und Balken jede Delle erzeugen, warum ein Bob 89 Kilo wiegt und welche Hersteller aus Japan kommen („Wissen · BeamNG“).
+- Insgesamt jetzt 104 Wissens-Texte.
 
 ## Alpha 0.4 (Stand 01.11.2026)
 

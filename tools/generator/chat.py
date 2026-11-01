@@ -299,7 +299,7 @@ if __name__ == '__main__':
     sp = {s['id'] for s in d['speakers']}
     for t in d['talk']:
         assert t['speaker'] in sp or t['kind'] in ('again', 'more'), t
-        assert t['kind'] != 'fact' or t['topic'] in ('shutoko', 'c1', 'place', 'racing', 'cars', 'tokyo', 'japan'), t
+        assert t['kind'] != 'fact' or t['topic'] in ('shutoko', 'c1', 'place', 'racing', 'cars', 'tokyo', 'japan', 'beamng'), t
         assert 'about' not in t or t['about'] in ids, t
     assert {t['about'] for t in d['talk'] if t['kind'] in ('wanderer', 'boss')} == {r['id'] for r in rv['rivals'] if r.get('wanderer') or r.get('boss')}
     assert {t['about'] for t in d['talk'] if t['kind'] == 'crew'} == {t['id'] for t in rv['teams']}
