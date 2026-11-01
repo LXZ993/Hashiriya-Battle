@@ -33,6 +33,7 @@
     "msg.setupApplied": "buy",
     "msg.carBought": "buy",
     "msg.noMoney": "denied",
+    "msg.repairFirst": "denied",
     "msg.partLocked": "denied",
     "msg.partIncompatible": "denied",
     "msg.needCarInBay": "denied",

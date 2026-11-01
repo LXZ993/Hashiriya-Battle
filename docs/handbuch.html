@@ -1083,6 +1083,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td class="path">parking.lua</td><td><code>triggerRadius</code> / <code>footRadius</code></td><td>4 / 2.5</td><td>Standard-Auslösebereiche (wenn die Map-Datei keinen <code>radius</code> hat)</td></tr>
 <tr><td class="path">core.lua</td><td><code>platePriceYen</code></td><td>15000</td><td>Kennzeichen ummelden</td></tr>
 </table>
+<div class="box"><b>Schaden und Teile-Shop</b>Teile anprobieren, umbauen, Kennzeichen-Design wechseln und das Garagen-Setup übernehmen bauen das Auto in BeamNG neu auf. Dabei würden alle Verformungen verschwinden (BeamNG kann den Schaden nach einem Teiletausch nicht zurückspielen, weil das Auto dann andere Knoten hat). Darum gilt wie in der BeamNG-Karriere: <b>Ist das Auto beschädigt, erst reparieren.</b> Im HashiNet-Terminal und am Garagen-PC steht dann oben ein roter Balken mit dem Knopf <b>Reparieren</b> und dem Preis; ohne Reparatur kommt beim Anprobieren die Meldung „Auto ist beschädigt. Erst reparieren …“. Lackieren geht weiter (der Lack wird live gefärbt, ohne Neuaufbau). Als „beschädigt“ zählt alles ab einem Reparaturpreis über 0 Yen. Geprüft in <span class="path">shop.lua</span> (<code>blockedByDamage</code>, auch von <span class="path">setup.lua</span> genutzt). Verschleiß und Laufleistung je Teil bleiben beim Neuaufbau jetzt ebenfalls erhalten.</div>
 <p>Preisgeld und Ruf pro Rivale: <code>rewardUsd</code> und <code>rep</code> in <code>rivals.json</code>. Startgeld: <code>cars.json</code>.</p>
 </section>
 
@@ -1193,6 +1194,16 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
+<details class="cl">
+<summary><b>Alpha 0.3.5</b> <small>Stand 01.11.2026</small></summary>
+<div>
+<h4>Fehler behoben</h4>
+<ul>
+<li>Teile im Shop anzuprobieren hat das Auto komplett repariert. Jetzt muss ein beschädigtes Auto erst repariert werden, bevor du Teile anprobierst, umbaust oder das Setup übernimmst. Im Terminal steht dafür ein Reparieren-Knopf mit Preis. Lackieren geht weiterhin.</li>
+<li>Beim Teiletausch im Shop gingen Verschleiß und Laufleistung der Teile verloren. Sie bleiben jetzt erhalten.</li>
+</ul>
+</div>
+</details>
 <details class="cl">
 <summary><b>Alpha 0.3.4</b> <small>Stand 01.11.2026</small></summary>
 <div>
