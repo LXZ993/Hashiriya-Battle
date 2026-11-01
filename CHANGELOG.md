@@ -1,5 +1,11 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.3.5 (Stand 01.11.2026)
+
+### Fehler behoben
+- Teile im Shop anzuprobieren hat das Auto komplett repariert. Jetzt muss ein beschädigtes Auto erst repariert werden, bevor du Teile anprobierst, umbaust oder das Setup übernimmst. Im Terminal steht dafür ein Reparieren-Knopf mit Preis. Lackieren geht weiterhin.
+- Beim Teiletausch im Shop gingen Verschleiß und Laufleistung der Teile verloren. Sie bleiben jetzt erhalten.
+
 ## Alpha 0.3.4 (Stand 01.11.2026)
 
 ### Fehler behoben

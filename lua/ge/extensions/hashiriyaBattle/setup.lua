@@ -108,6 +108,8 @@ function M.apply()
   local c = core()
   local car = activeCar()
   if not car or not M.hasPending() then return end
+  -- Übernehmen baut das Auto neu auf; ein beschädigtes Auto erst reparieren (sonst wäre der Schaden weg)
+  if extensions.hashiriyaBattle_shop.blockedByDamage() then return end
   local cfg = extensions.hashiriyaBattle_shop.currentConfig()
   if not cfg then
     c.msg(c.t('msg.partFailed'))
@@ -117,6 +119,7 @@ function M.apply()
   pending = {}
   car.config = cfg
   extensions.hashiriyaBattle_fuel.keepAfterRespawn()
+  extensions.hashiriyaBattle_condition.keepAfterRespawn()
   core_vehicles.replaceVehicle(car.model, { config = cfg })
   c.writeSave()
   c.msg(c.t('msg.setupApplied'))

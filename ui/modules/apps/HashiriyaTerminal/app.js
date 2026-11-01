@@ -23,6 +23,8 @@ angular.module('beamng.apps')
             '<div class="hbt-tab" ng-class="{\'is-on\': ui.gtab == \'fit\'}" ng-click="ui.gtab = \'fit\'">{{ t(\'term.gtab.fit\') }}</div>' +
             '<div class="hbt-tab" ng-class="{\'is-on\': ui.gtab == \'store\'}" ng-click="ui.gtab = \'store\'">{{ t(\'term.gtab.store\') }}</div>' +
           '</div>' +
+          '<div class="hbt-dmg" ng-if="term.damaged"><span class="hbt-dmg-t">{{ t(\'term.damaged\') }}</span>' +
+            '<button class="hbt-btn hbt-dmg-b" ng-disabled="!term.damaged.affordable" ng-click="act(\'repair\')">{{ t(\'term.repair\') }} {{ term.damaged.cost }}</button></div>' +
           '<div class="hbt-split">' +
             '<div class="hbt-nav" ng-if="!(term.mode == \'garage\' && ui.gtab == \'store\')">' +
               '<div ng-repeat="g in groups track by g.id">' +
@@ -198,6 +200,8 @@ angular.module('beamng.apps')
         '.hbt-lv.lv1{background:#2f6f3a;color:#e9ffe9;}.hbt-lv.lv2{background:#26706b;color:#e6fffc;}.hbt-lv.lv3{background:#2c5d9c;color:#eaf3ff;}' +
         '.hbt-lv.lv4{background:#5a3f9e;color:#f1ebff;}.hbt-lv.lv5{background:#a35d1c;color:#fff3e6;}.hbt-lv.lv6{background:#9c2c2c;color:#ffeaea;}' +
         '.hbt-note{padding:12px;color:#aab6c3;}' +
+        '.hbt-dmg{flex:none;display:flex;align-items:center;gap:10px;padding:5px 10px;font-size:12px;color:#ffd9c2;background:rgba(190,40,20,.28);border-bottom:1px solid rgba(255,90,60,.45);}' +
+        '.hbt-dmg-t{flex:1;min-width:0;}.hbt-dmg-b{flex:none;}.hbt-dmg-b[disabled]{opacity:.5;}' +
         '.hbt-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;}' +
         '.hbt-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);cursor:pointer;}' +
         '.hbt-chip.is-on{border-color:#ff8a33;background:rgba(255,102,0,.3);}' +

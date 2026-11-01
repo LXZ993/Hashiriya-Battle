@@ -1,5 +1,11 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.3.5 (as of 2026-11-01)
+
+### Bug fixes
+- Trying on parts in the shop fully repaired the car. A damaged car now has to be repaired before you try on or swap parts or apply the setup. The terminal shows a repair button with the price. Painting still works.
+- Swapping parts in the shop reset the wear and mileage of the parts. They are kept now.
+
 ## Alpha 0.3.4 (as of 2026-11-01)
 
 ### Bug fixes

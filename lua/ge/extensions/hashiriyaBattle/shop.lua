@@ -514,12 +514,31 @@ end
 local focusSlotName = nil   -- Slot, dessen Teil gerade in der Vorschau gezeigt wird
 local refocusTimer = 0
 
+-- Schaden: BeamNG baut beim Teiletausch das Auto neu auf (replaceVehicle), Verformungen gehen dabei verloren
+-- (der Spielstand der Knoten passt nach einem Teiletausch nicht mehr zum Auto). Wie in der BeamNG-Karriere
+-- muss ein beschädigtes Auto darum erst repariert werden, bevor Teile anprobiert oder umgebaut werden.
+local function repairCost() return extensions.hashiriyaBattle_parking.repairCost() end
+
+local function blockedByDamage()
+  local cost = repairCost()
+  if cost <= 0 then return false end
+  local c = core()
+  c.msg(c.t('msg.repairFirst', c.economy().formatYen(cost)))
+  return true
+end
+M.blockedByDamage = blockedByDamage
+
 local function respawn(cfg)
+  if repairCost() > 0 then
+    log('W', logTag, 'Shop: Respawn verhindert, Auto ist beschädigt')
+    return false
+  end
   local car = activeCar()
   catalog = nil
   retryTimer = 2 -- Katalog erst neu aufbauen, wenn das Auto neu gespawnt ist
   bump()
   extensions.hashiriyaBattle_fuel.keepAfterRespawn()
+  extensions.hashiriyaBattle_condition.keepAfterRespawn() -- Verschleiß/Laufleistung je Teil wieder setzen
   core_vehicles.replaceVehicle(car.model, { config = cfg })
   extensions.hashiriyaBattle_parking.refreshShopCamera(0.8)
   camTimer = 0.9
@@ -776,6 +795,7 @@ end
 local function install(slot, part, label)
   local c = core()
   local car = activeCar()
+  if blockedByDamage() then return end
   local cfg = baseConfig()
   if not cfg then
     c.msg(c.t('msg.partFailed'))
@@ -814,6 +834,7 @@ function M.setPlateDesign(design)
   local car = activeCar()
   local cfg = baseConfig()
   if not car or not cfg then return end
+  if blockedByDamage() then return end
   cfg = extensions.hashiriyaBattle_plates.applyToConfig(cfg, design)
   car.config = cfg
   if cart then cart.original = copyConfig(cfg); applyCart(true) else respawn(cfg) end
@@ -840,6 +861,7 @@ function M.select(slot, part)
   if cart and cartIndex('part:' .. slot) and slotValue(cart.original, slot) == part then
     return M.removeFromCart('part:' .. slot)
   end
+  if blockedByDamage() then return end
   local free = option.stock or part == '' or ownsPart(car, part)
   if free and not cart then return install(slot, part, option.name) end
   if not ensureCart() then
@@ -1270,6 +1292,10 @@ function M.terminalState()
     loading = cat == nil,
     unlockText = unlockText(),
   }
+  local dmgCost = repairCost()
+  if dmgCost > 0 then
+    st.damaged = { cost = eco.formatYen(dmgCost), affordable = c.save.money >= dmgCost }
+  end
   if terminal == 'shop' and termCat == 'paint' then st.paint = paintRow() end
   return st
 end
