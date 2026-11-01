@@ -1285,13 +1285,20 @@ local function checkMissionFilter(dtReal)
   end
 end
 
--- POIs der großen Karte: ausgeblendete Missionstypen auch dann weglassen, wenn eine Mission sie trotzdem meldet
+-- POIs der großen Karte: ausgeblendete Missionstypen auch dann weglassen, wenn eine Mission sie trotzdem meldet.
+-- Im Release außerdem keine Schnellreise: Quicktravel-Punkte (spawnPoint) fliegen raus, und allen anderen POIs
+-- fehlt die Schnellreise-Funktion, dann zeigt die Karte keinen "Quick Travel"-Knopf (wie in der BeamNG-Karriere).
 local function onGetRawPoiListForLevel(levelIdentifier, elements)
   if not M.active or type(elements) ~= 'table' then return end
+  local release = M.isRelease() and (M.buildData or {}).blockBigMapTeleport ~= false
   for i = #elements, 1, -1 do
     local e = elements[i]
-    if type(e) == 'table' and type(e.data) == 'table' and e.data.type == 'mission' and hiddenMissions[e.data.missionId] then
-      table.remove(elements, i)
+    if type(e) == 'table' and type(e.data) == 'table' then
+      if (e.data.type == 'mission' and hiddenMissions[e.data.missionId]) or (release and e.data.type == 'spawnPoint') then
+        table.remove(elements, i)
+      elseif release and type(e.markerInfo) == 'table' and type(e.markerInfo.bigmapMarker) == 'table' then
+        e.markerInfo.bigmapMarker.quickTravelPosRotFunction = nil
+      end
     end
   end
 end

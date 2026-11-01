@@ -175,6 +175,9 @@ function M.update(dtReal, want, bd)
     setActionFilter(want, bd)
     applyPatches(want, bd)
     patchTimer = 0
+    -- POI-Liste der großen Karte neu bauen lassen (core.onGetRawPoiListForLevel nimmt die Schnellreise raus)
+    local rp = rawget(_G, 'gameplay_rawPois')
+    if rp and rp.clear then pcall(rp.clear) end
     -- offenes Menü neu aufbauen, damit Tabs sofort stimmen
     local router = rawget(_G, 'ui_router')
     if want and router and router.getCurrent then

@@ -338,6 +338,16 @@ function Build-Zip {
         $script:count++
       }
     }
+    # Platzhalter für Dev-Apps (z. B. Builder): alte HUD-Layouts aus der Entwicklung verweisen noch darauf,
+    # ohne App zeigt BeamNG dort "Unknown app" über den ganzen Bildschirm
+    $stubRoot = Join-Path $PSScriptRoot 'release-stubs'
+    if (Test-Path $stubRoot) {
+      Get-ChildItem -Path $stubRoot -Recurse -File | Sort-Object FullName | ForEach-Object {
+        $rel = 'ui/modules/apps/' + ($_.FullName.Substring($stubRoot.Length).TrimStart('\', '/') -replace '\\', '/')
+        Add-Entry $rel ([System.IO.File]::ReadAllBytes($_.FullName))
+        $script:count++
+      }
+    }
     Add-Entry 'CHANGELOG_DE.md' ($Utf8.GetBytes($changelogs['CHANGELOG.md']))
     Add-Entry 'CHANGELOG_EN.md' ($Utf8.GetBytes($changelogs['CHANGELOG_EN.md']))
     $script:count += 2
