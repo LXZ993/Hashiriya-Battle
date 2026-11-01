@@ -123,6 +123,28 @@ function M.update(dt, veh, gap, rivalSp, playerSp)
   veh:queueLuaCommand(string.format('if hashiriyaDriver then hashiriyaDriver.setRace({gap=%.1f,ownSp=%.3f,otherSp=%.3f}) end', gap, rivalSp, playerSp))
 end
 
+-- Start: Erfahrene schalten vor dem Ende des Countdowns runter (wie vor einem Ampelstart).
+-- Gibt zurück, wie viele Sekunden vor "Los" er das tut, oder nil (Anfänger rollen einfach los).
+-- driver.json "launch": { "minSkill": 0.3, "fullSkill": 0.8, "leadMin": 0.4, "leadMax": 1.8 }
+function M.launchLead(rival)
+  local l = settings().launch or {}
+  local skill = M.profile(rival).skill
+  local chance = clamp((skill - (l.minSkill or 0.3)) / math.max((l.fullSkill or 0.8) - (l.minSkill or 0.3), 0.01), 0, 1)
+  if math.random() >= chance then return nil end
+  local lead = (l.leadMin or 0.4) + ((l.leadMax or 1.8) - (l.leadMin or 0.4)) * skill
+  return lead * (0.8 + 0.4 * math.random())
+end
+
+function M.prepareLaunch(veh)
+  if not veh then return end
+  veh:queueLuaCommand("extensions.load('hashiriyaDriver') if hashiriyaDriver and hashiriyaDriver.prepareLaunch then hashiriyaDriver.prepareLaunch() end")
+end
+
+function M.cancelLaunch(veh)
+  if not veh then return end
+  veh:queueLuaCommand('if hashiriyaDriver and hashiriyaDriver.cancelLaunch then hashiriyaDriver.cancelLaunch() end')
+end
+
 function M.stop(veh)
   if not veh then return end
   local id = veh:getID()

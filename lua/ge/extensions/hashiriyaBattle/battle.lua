@@ -116,6 +116,10 @@ function M.reset(cooldown)
     end
   end
   if state == 'countdown' or state == 'sync' then releasePlayerSpeed() end
+  if state == 'countdown' and battle and battle.launchDone then
+    local veh = rivals() and rivals().getRivalVehicle()
+    if veh then extensions.hashiriyaBattle_driver.cancelLaunch(veh) end
+  end
   state = 'idle'
   battle = nil
   if rivals() and rivals().disengage then rivals().disengage(cooldown) end
@@ -706,6 +710,15 @@ local function onUpdate(dtReal, dtSim)
 
   if state == 'countdown' then
     timer = timer - dtSim
+    -- Erfahrene Rivalen schalten kurz vor "Los" runter (eigener Fahrer)
+    if battle.launchAt == nil then
+      battle.launchAt = false
+      if aiMode(rivalVeh) == 'own' then battle.launchAt = driver().launchLead(battle.rival) or false end
+    end
+    if battle.launchAt and not battle.launchDone and timer <= battle.launchAt then
+      battle.launchDone = true
+      driver().prepareLaunch(rivalVeh)
+    end
     local count = math.ceil(timer)
     if count ~= battle.beep and count > 0 then
       battle.beep = count

@@ -1,7 +1,13 @@
 {
-  "_hinweis": "Eigener Gegner-Fahrer im Battle (lua/vehicle/extensions/hashiriyaDriver.lua). enabled false = alte BeamNG-KI (battle.lua cfg.rivalAiMode fallback). debug true = Fahrlinie (Kugeln grün schnell bis rot langsam) und Entscheidung pro Verkehrsauto (blau links vorbei, gelb rechts vorbei, rot dahinter bleiben) im Spiel einzeichnen. tiers = Zuschlag auf die Fahrer-Werte je Stufe (rival, leader, wanderer, boss), z. B. {\"boss\": {\"courage\": 0.05}}. params = Feineinstellung des Fahrers für alle Gegner, gleiche Namen wie defaults in hashiriyaDriver.lua (z. B. cornerUseMax, sideGapMin, emergencyTtcMin, steerLookTime). Pro Rivale in rivals.json: \"driver\": {\"skill\": 0.7, \"courage\": 0.9, \"aggression\": 0.8, \"nerves\": 0.5, \"fairness\": 0.2} überschreibt die berechneten Werte (alle 0 bis 1).",
+  "_hinweis": "Eigener Gegner-Fahrer im Battle (lua/vehicle/extensions/hashiriyaDriver.lua). enabled false = alte BeamNG-KI (battle.lua cfg.rivalAiMode fallback). debug true = Fahrlinie (Kugeln grün schnell bis rot langsam) und Entscheidung pro Verkehrsauto (blau links vorbei, gelb rechts vorbei, rot dahinter bleiben) im Spiel einzeichnen. tiers = Zuschlag auf die Fahrer-Werte je Stufe (rival, leader, wanderer, boss), z. B. {\"boss\": {\"courage\": 0.05}}. params = Feineinstellung des Fahrers für alle Gegner, gleiche Namen wie defaults in hashiriyaDriver.lua (z. B. cornerUseMax, sideGapMin, emergencyTtcMin, steerLookTime). Pro Rivale in rivals.json: \"driver\": {\"skill\": 0.7, \"courage\": 0.9, \"aggression\": 0.8, \"nerves\": 0.5, \"fairness\": 0.2} überschreibt die berechneten Werte (alle 0 bis 1). launch = Start-Runterschalten im Countdown: ab minSkill (Können) macht er es manchmal, ab fullSkill immer; leadMin/leadMax = Sekunden vor \"Los\" bei Können 0/1.",
   "enabled": true,
   "debug": false,
   "tiers": {},
-  "params": {}
+  "params": {},
+  "launch": {
+    "minSkill": 0.3,
+    "fullSkill": 0.8,
+    "leadMin": 0.4,
+    "leadMax": 1.8
+  }
 }

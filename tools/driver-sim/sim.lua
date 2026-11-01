@@ -149,8 +149,8 @@ if STARTLAT then car.pos.x = STARTLAT end -- Start neben der Fahrbahn (z. B. Sta
 local inputs = { steering = 0, throttle = 0, brake = 0, parkingbrake = 0 }
 input = { event = function(name, val) inputs[name] = val end }
 wheels = { wheels = {} }
-controller = { mainController = { setGearboxMode = nop } }
-electrics = { values = { gearboxMode = 'arcade' } }
+controller = { mainController = { setGearboxMode = nop, setAggressionOverride = nop } }
+electrics = { values = { gearboxMode = 'arcade', lights_state = 1 }, set_left_signal = nop, set_right_signal = nop, light_flash_highbeams = nop, horn = nop, setLightsState = nop }
 
 local function dirV() return vec3(math.cos(car.h), math.sin(car.h), 0) end
 local function frontPos() return car.pos + dirV() * (car.len * 0.5) end
