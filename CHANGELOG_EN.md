@@ -1,5 +1,10 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.3.4 (as of 2026-11-01)
+
+### Bug fixes
+- In the release build the Hashiriya menu on the left could not be clicked. Cause: an old HUD layout from development still contains the builder as an invisible full-screen app, and BeamNG did not let clicks through it. The placeholder is now marked as non-interactive and lets every click through.
+
 ## Alpha 0.3.3 (as of 2026-11-01)
 
 ### Bug fixes

@@ -296,7 +296,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Pos1 (Hashiriya-Menü), ganz unten bei <b>Werkzeuge</b>: <b>Builder (Crews, Wanderer, Bosse)</b>.</li>
 <li>Schließen mit ✕ oben rechts. Hast du etwas nicht gespeichert, fragt der Knopf erst nach.</li>
 </ol>
-<div class="box warn"><b>Nur in der Entwickler-Version</b>Steht in <span class="path">data\build.json</span> <code>"release": true</code>, startet der Builder nicht (Meldung im Spiel). Zum Bearbeiten also <code>"release": false</code> setzen. Im Release-Zip fehlt der Builder ganz. Damit ein altes HUD-Layout aus der Entwicklung dort nicht „Unknown app: hashiriyaBuilder“ über den ganzen Bildschirm legt, packt das Release-Werkzeug einen leeren Platzhalter aus <span class="path">tools\release-stubs\</span> in die ZIP.</div>
+<div class="box warn"><b>Nur in der Entwickler-Version</b>Steht in <span class="path">data\build.json</span> <code>"release": true</code>, startet der Builder nicht (Meldung im Spiel). Zum Bearbeiten also <code>"release": false</code> setzen. Im Release-Zip fehlt der Builder ganz. Damit ein altes HUD-Layout aus der Entwicklung dort nicht „Unknown app: hashiriyaBuilder“ über den ganzen Bildschirm legt, packt das Release-Werkzeug einen leeren Platzhalter aus <span class="path">tools\release-stubs\</span> in die ZIP. Wichtig: BeamNG legt jede App in einen Rahmen (<code>.ui-app-host</code>), der Klicks abfängt, solange in <code>app.json</code> nicht <code>"interactive": "no"</code> steht. Eine unsichtbare Vollbild-App ohne diese Zeile macht alles darunter unklickbar.</div>
 <h3>Aufbau</h3>
 <table>
 <tr><th>Bereich</th><th>Was du dort machst</th></tr>
@@ -1192,6 +1192,15 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
+<details class="cl">
+<summary><b>Alpha 0.3.4</b> <small>Stand 01.11.2026</small></summary>
+<div>
+<h4>Fehler behoben</h4>
+<ul>
+<li>Im Release-Build ließ sich das Hashiriya-Menü links nicht anklicken. Ursache: Ein altes HUD-Layout aus der Entwicklung enthält noch den Builder als unsichtbare Vollbild-App, und BeamNG lässt Klicks dort nicht durch. Der Platzhalter ist jetzt als „nicht interaktiv“ markiert und lässt alle Klicks durch.</li>
+</ul>
+</div>
+</details>
 <details class="cl">
 <summary><b>Alpha 0.3.3</b> <small>Stand 01.11.2026</small></summary>
 <div>
