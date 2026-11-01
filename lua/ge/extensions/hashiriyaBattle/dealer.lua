@@ -144,10 +144,11 @@ local function pickWeighted(all, rand)
   return table.remove(all, #all)
 end
 
+-- Zustandsklassen der Händlerautos: Preisfaktor und Gebrauchtzustand (Motor = integrity, Lack = visual, je [von, bis])
 local conditions = {
-  { id = 'A', factor = 1.0 },
-  { id = 'B', factor = 0.88 },
-  { id = 'C', factor = 0.75 },
+  { id = 'A', factor = 1.0, integrity = { 0.93, 0.98 }, visual = { 0.80, 0.95 } },
+  { id = 'B', factor = 0.88, integrity = { 0.87, 0.93 }, visual = { 0.65, 0.85 } },
+  { id = 'C', factor = 0.75, integrity = { 0.80, 0.88 }, visual = { 0.50, 0.72 } },
 }
 
 local function makeOffers()
@@ -167,12 +168,21 @@ local function makeOffers()
     local kmFactor = 1 - math.min(0.3, km / 190000 * 0.3)
     local base = c.economy().usdToPrice(tonumber(pick.info.Value))
     local price = math.max(10000, math.floor(base * cond.factor * kmFactor / 10000 + 0.5) * 10000)
+    -- Gebrauchtzustand wie bei den Startautos (condition.lua): viele km = etwas mehr Verschleiß
+    local function roll(range) return range[1] + rand() * (range[2] - range[1]) end
+    local kmWear = math.min(0.04, km / 190000 * 0.04)
+    local wear = {
+      odometerKm = km,
+      integrity = math.floor((roll(cond.integrity) - kmWear) * 100 + 0.5) / 100,
+      visual = math.floor(roll(cond.visual) * 100 + 0.5) / 100,
+      fuel = math.floor((0.25 + rand() * 0.35) * 100 + 0.5) / 100,
+    }
     table.insert(list, {
       index = i, model = pick.model, key = pick.key, info = pick.info,
       title = (pick.brand ~= '' and (pick.brand .. ' ') or '') .. pick.name,
       config = pick.info.Configuration or pick.key,
       preview = pick.info.preview or ('/vehicles/' .. pick.model .. '/' .. pick.key .. '.jpg'),
-      km = km, condition = cond.id, price = price,
+      km = km, condition = cond.id, price = price, wear = wear,
       lot = string.format('%02d-%03d', (save.day or 1) % 100, rand(100, 999)),
     })
   end
@@ -183,15 +193,6 @@ end
 local function soldKey(i)
   local save = core().save
   return tostring(save.day or 1) .. ':' .. tostring(i)
-end
-
-local function randomPlate()
-  local ok, text = pcall(function()
-    local skia = extensions.core_skiaTemplate or (extensions.load('core_skiaTemplate') and extensions.core_skiaTemplate)
-    return skia and skia.generateText(nil, nil)
-  end)
-  if ok and type(text) == 'string' and text ~= '' then return text end
-  return string.format('%d%d-%02d', math.random(1, 9), math.random(0, 9), math.random(0, 99))
 end
 
 function M.buy(i)
@@ -210,10 +211,15 @@ function M.buy(i)
   extensions.hashiriyaBattle_progress.bump(save, 'carsBought')
   save.dealerSold[soldKey(i)] = true
   local name = offer.title .. ' ' .. offer.config
-  table.insert(save.cars, {
+  local plates = extensions.hashiriyaBattle_plates
+  local entry = {
     model = offer.model, config = '/vehicles/' .. offer.model .. '/' .. offer.key .. '.pc',
-    name = name, plate = randomPlate(), km = offer.km,
-  })
+    name = name, plate = plates.random(), plateDesign = plates.defaultDesign, km = offer.km,
+  }
+  -- Gebrauchtzustand: wird beim ersten Spawnen angewendet (wie beim Startauto)
+  extensions.hashiriyaBattle_condition.initUsedCar(entry, offer.wear, nil)
+  entry.freshWear, entry.wearFrom = true, 'dealer' -- wearFrom: nicht mit Startauto-Werten abgleichen
+  table.insert(save.cars, entry)
   c.writeSave()
   c.msg(c.t('msg.carBought', name, c.economy().formatYen(offer.price)), 6)
   log('I', logTag, string.format('Autohändler: %s/%s für %d Yen', offer.model, offer.key, offer.price))
@@ -247,7 +253,15 @@ function M.getUiState()
   for i, o in ipairs(makeOffers()) do
     local sold = save and save.dealerSold and save.dealerSold[soldKey(i)] or false
     table.insert(st.offers, {
-      index = i, title = o.title, config = o.config, preview = o.preview, specs = specs(o.info),
+      index = i, title = o.title, config = o.config, preview = o.preview,
+      specs = (function()
+        local t = specs(o.info)
+        if o.wear then
+          table.insert(t, c.t('spec.condition') .. ' ' .. math.floor(o.wear.integrity * 100 + 0.5) .. ' %')
+          table.insert(t, c.t('spec.fuel') .. ' ' .. math.floor(o.wear.fuel * 100 + 0.5) .. ' %')
+        end
+        return t
+      end)(),
       km = formatKm(o.km), condition = o.condition, lot = o.lot,
       price = c.economy().formatYen(o.price), sold = sold,
       affordable = save and save.money >= o.price,

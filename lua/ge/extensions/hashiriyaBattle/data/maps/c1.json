@@ -2,6 +2,8 @@
   "speedTrapsTotal": 45,
   "_hinweisRadar": "speedTrapsTotal = Anzahl Radarfallen auf der Map (laut Alex 45 auf der C1; im Spiel noch prüfen).",
   "_hinweis": "Orte auf der C1-Map, mit 'Position merken' gesammelt (27./28.10.2026). type: garage | shop | home | gas. pos/dir/radius = Bucht für das Auto (Auslösebereich in m um die Buchtmitte). footPos/footRadius = Punkt zu Fuß. footOnly = nur zu Fuß (keine Bucht). Beim Shop (footEntry) parkt man das Auto in der Bucht und geht zu Fuß zum Eingang; dort öffnet sich das Menü, die Kamera zeigt vom Eingang aufs Auto. Ohne footEntry öffnet Reinfahren und Anhalten den Shop. Optional: markerPos/markerDir/markerSize für die exakte Bucht. napSpots = Parkplätze für ein Nickerchen im Auto (Mitte und Radius in m; aus den Spawnpunkten der Map). playerSpawn = Startpunkt zu Fuß nach Neues Spiel/Weiterspielen (Zuhause). showroom = Präsentationsplatz für Autokauf/Neues Spiel (C1: Parkplatz garage1spot der Werkstatt 'Garage' am Kartenursprung, aus facilities.sites.json der Map; nach dem Kauf kommt das Auto in die Garagenbucht).",
+  "disabledMissionTypes": ["timeTrial", "generatedTimeTrial"],
+  "_hinweisMissionen": "disabledMissionTypes = BeamNG-Missionstypen, die auf dieser Map ausgeblendet werden (Map-Dateien bleiben unverändert). Tagsüber nichts Illegales, darum keine Time Trials. Welche Typen es gibt, steht beim Laden im Mod-Log (Zeile 'Missionen auf c1: ...').",
   "showroom": { "pos": [-0.269, 1.742, -0.015], "dir": [0, -1, 0] },
   "napSpots": [
     { "name": "Shibaura PA", "pos": [1102.37, 4709.02, 874.106], "radius": 80 },

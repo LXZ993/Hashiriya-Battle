@@ -1,0 +1,14 @@
+{
+  "_hinweis": "Vorlage für mod_info/HASHIRIYABATTLE/info.json in der Release-ZIP (BeamNG-Mod-Manager: Titel, Kurzbeschreibung, Bild, Beschreibung). Das Release-Werkzeug setzt {VERSION}, {DATE} und {CHANGES} (Changelog-Abschnitt der Version, englisch) ein. Texte hier ändern; html ist die Beschreibung (HTML).",
+  "title": "Hashiriya Battle",
+  "tag_line": "Night-time expressway career on the Shuto C1: flash a rival, win the SP battle, climb the ranks. ({VERSION})",
+  "version_string": "{VERSION}",
+  "username": "JDMArsch (LXZ aka. LXZockt)",
+  "category_title": "Gameplay",
+  "prefix_title": "Alpha",
+  "icon": "icon.jpg",
+  "attachments": [
+    { "thumb_filename": "banner.jpg" }
+  ],
+  "html": "<p><b>The city sleeps. The expressway doesn't.</b></p><p>A night-time expressway career for BeamNG.drive on the Shuto Expressway C1. Start with a used car, find rivals cruising in traffic, flash your lights and fight SP battles on the open road. Crews with leaders, lone wanderers, money, fuel, repairs, shops you visit on foot, a home to sleep in and a career that grows with you.</p><p><b>Required:</b> Shuto Expressway C1 map by Ezo, traffic and Japanese plates by AgentMooshroom5.</p><p><b>Version {VERSION}</b> ({DATE})</p>{CHANGES}<p>Made by JDMArsch (LXZ aka. LXZockt). Full changelog in CHANGELOG_EN.md / CHANGELOG_DE.md inside the zip.</p>"
+}

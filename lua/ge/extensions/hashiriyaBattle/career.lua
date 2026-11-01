@@ -12,6 +12,7 @@ local titleLayout = 'hashiriyaTitle'
 
 local flow = nil          -- nil = kein Titel/Assistent offen
 local spawnTimer = 0      -- kurze Sperre, solange das Showroom-Auto spawnt
+local designFix = nil     -- Showroom-Auto ohne lesbare .pc: nach dem Spawn mit Kennzeichen-Design neu laden
 local pendingTitle = false -- Level wird gerade für den Titelbildschirm geladen
 local fallbackTimer = 0   -- falls onLoadingScreenFadeout nicht kommt: Titel trotzdem öffnen
 
@@ -41,9 +42,17 @@ local function seededRandom(seed)
   end
 end
 
+local starterPriceYen -- weiter unten
+
+-- Startautos, die man sich vom Startgeld leisten kann (sonst würde man mit 0 Yen oder im Minus starten)
 local function pool()
   local d = core().carsData
-  return d and d.starterCars or {}
+  local out = {}
+  local money = core().startMoney()
+  for _, e in ipairs(d and d.starterCars or {}) do
+    if starterPriceYen(e) <= money then table.insert(out, e) end
+  end
+  return out
 end
 
 local function rollCondition(rand, entry)
@@ -64,6 +73,33 @@ local function rollCondition(rand, entry)
   }
 end
 
+-- Leistung (PS) aus den Config-Infos von BeamNG
+local function starterPower(starter)
+  local key = tostring(starter.config or ''):match('([^/]+)%.pc$')
+  local okM, m = pcall(core_vehicles.getModel, starter.model)
+  local info = okM and m and m.configs and key and m.configs[key] or {}
+  return tonumber(info.Power)
+end
+
+-- Schwächere Starter sind besser erhalten (cars.json: conditionPowerBias). Zuschlag linear zwischen
+-- powerPs[1] (schwach: erster Wert) und powerPs[2] (stark: zweiter Wert).
+local function powerBias(cond, ps)
+  local b = (core().carsData or {}).conditionPowerBias
+  if not b or not ps or type(b.powerPs) ~= 'table' then return end
+  local lo, hi = b.powerPs[1] or 80, b.powerPs[2] or 150
+  local t = hi > lo and math.min(math.max((ps - lo) / (hi - lo), 0), 1) or 0.5
+  local function add(key, minV, maxV, step)
+    local r = b[key]
+    if type(r) ~= 'table' or cond[key] == nil then return end
+    local v = cond[key] + (r[1] + (r[2] - r[1]) * t)
+    v = math.min(math.max(v, minV), maxV)
+    cond[key] = math.floor(v / step + 0.5) * step
+  end
+  add('integrity', 0.6, 0.99, 0.01)
+  add('visual', 0.3, 0.99, 0.01)
+  add('odometerKm', 20000, 400000, 1000)
+end
+
 local function buildOffer(name, plate)
   local d = core().carsData or {}
   local list = {}
@@ -81,8 +117,20 @@ local function buildOffer(name, plate)
       local car = {}
       for k, v in pairs(e) do car[k] = v end
       car.condition = rollCondition(rand, e)
+      car.powerPs = starterPower(e)
+      powerBias(car.condition, car.powerPs)
       table.insert(offer, car)
     end
+  end
+  -- Reihenfolge sicherstellen: das schwächste Auto hat den besten Zustand und die wenigsten Kilometer
+  local byPower = {}
+  for _, c in ipairs(offer) do table.insert(byPower, c) end
+  table.sort(byPower, function(a, b) return (a.powerPs or 0) < (b.powerPs or 0) end)
+  for _, key in ipairs({ 'integrity', 'visual', 'odometerKm' }) do
+    local vals = {}
+    for _, c in ipairs(byPower) do table.insert(vals, c.condition[key]) end
+    if key == 'odometerKm' then table.sort(vals) else table.sort(vals, function(a, b) return a > b end) end
+    for i, c in ipairs(byPower) do c.condition[key] = vals[i] end
   end
   -- günstigstes zuerst
   table.sort(offer, function(a, b) return (a.priceUsd or 30000) < (b.priceUsd or 30000) end)
@@ -126,6 +174,7 @@ local keyActions = {
   { id = 'left', action = 'toggle_left_signal' },
   { id = 'right', action = 'toggle_right_signal' },
   { id = 'menu', action = 'hashiriyaToggleMenu' },
+  { id = 'talk', action = 'hashiriyaTalk' },
 }
 
 -- Lesbare Tastennamen: "comma" -> ",", "modifier2 btn_lt" -> "Mod2 + LT"
@@ -186,6 +235,22 @@ local function keyStatus()
   return list, missing
 end
 
+-- Lesbarer Name der ersten Taste für eine Aktion (z. B. für "[T] Reden"), nil = nicht belegt
+function M.keyFor(action)
+  local b = rawget(_G, 'core_input_bindings')
+  for _, device in ipairs(b and b.bindings or {}) do
+    local d = tostring(device.devname or '')
+    if d:find('^keyboard') then
+      for _, binding in ipairs((device.contents or {}).bindings or {}) do
+        if binding.action == action and not binding.unused and binding.control and binding.control ~= '' then
+          return prettyControl(binding.control)
+        end
+      end
+    end
+  end
+  return nil
+end
+
 -- BeamNG-Steuerung öffnen (wie der Knopf im Spiel): mit Aktion direkt den Belegen-Dialog dafür
 local function openControls(id)
   local router = extensions.ui_router or rawget(_G, 'ui_router')
@@ -233,13 +298,31 @@ end
 
 -- Feste Kameraansicht auf die Garagenbucht, solange noch kein Auto dasteht.
 -- (Ohne Auto schaltet Freeroam auf die freie Kamera; wir stellen sie nur passend hin.)
+-- Die freie Kamera ist erst ein paar Frames nach setFreeCamera aktiv (vorher ignoriert setPosRot den Aufruf),
+-- darum wird die Ansicht kurz in jedem Frame neu gesetzt.
+local camHold = nil
+local function holdCamera(pos, rot)
+  camHold = { pos = pos, rot = rot, t = 2 }
+  pcall(function() if commands and commands.setFreeCamera then commands.setFreeCamera() end end)
+end
+
+local function applyHeldCamera(dtReal)
+  if not camHold then return end
+  camHold.t = camHold.t - (dtReal or 0)
+  local p, r = camHold.pos, camHold.rot
+  pcall(function()
+    if commands and commands.isFreeCamera and not commands.isFreeCamera(0) and commands.setFreeCamera then commands.setFreeCamera() end
+    core_camera.setPosRot(0, p[1], p[2], p[3], r[1], r[2], r[3], r[4])
+  end)
+  if camHold.t <= 0 then camHold = nil end
+end
+
 local function garageCamera()
   local cam = core().getTitleCamera and core().getTitleCamera()
   if cam and cam.pos and cam.rot then
-    pcall(function()
-      if commands and commands.setFreeCamera then commands.setFreeCamera() end
-      core_camera.setPosRot(0, cam.pos[1], cam.pos[2], cam.pos[3], cam.rot[1], cam.rot[2], cam.rot[3], cam.rot[4])
-    end)
+    holdCamera(cam.pos, cam.rot)
+    -- Uhrzeit, die beim Speichern der Titelkamera war (nur für den Titelbildschirm; ein Spielstand stellt seine eigene Zeit)
+    if cam.hour then pcall(extensions.hashiriyaBattle_home.applyClock, cam.hour) end
     return
   end
   local area = parking().find('garage')
@@ -251,10 +334,7 @@ local function garageCamera()
   local side = dir:cross(vec3(0, 0, 1))
   local camPos = target + dir * 5.5 + side * 3 + vec3(0, 0, 1.2)
   local rot = quatFromDir((target - camPos):normalized(), vec3(0, 0, 1))
-  pcall(function()
-    if commands and commands.setFreeCamera then commands.setFreeCamera() end
-    core_camera.setPosRot(0, camPos.x, camPos.y, camPos.z, rot.x, rot.y, rot.z, rot.w)
-  end)
+  holdCamera({ camPos.x, camPos.y, camPos.z }, { rot.x, rot.y, rot.z, rot.w })
 end
 
 -- Ladebildschirm ist weg: BeamNG-Hauptmenü verlassen und Titel zeigen.
@@ -266,6 +346,9 @@ local function showTitleAfterLoad()
   if router and router.navigate then pcall(router.navigate, 'play') end
   garageCamera()
   M.openTitle()
+  -- Verkehr schon im Titelbildschirm, damit die Ansicht lebt (läuft danach im Spiel einfach weiter)
+  local ok, err = pcall(core().startTraffic)
+  if not ok then log('W', logTag, 'Verkehr im Titelbildschirm: ' .. tostring(err)) end
   log('I', logTag, 'Karriere: Titelbildschirm geöffnet')
 end
 
@@ -290,8 +373,15 @@ end
 
 local function spawnShowroomCar(starter, paint)
   core().engineOffAfterSpawn()
+  extensions.hashiriyaBattle_condition.previewAfterSpawn(starter.condition)
   local pos, rot = showroomTransform()
-  local opts = { config = starter.config, pos = pos, rot = rot, paint = paint, paint2 = paint, paint3 = paint }
+  -- Kennzeichen-Design (Plates Pack) gleich in die Config, damit Showroom-Auto und Startauto es haben
+  local cfg = extensions.hashiriyaBattle_plates.applyToConfig(starter.config, flow and flow.plateDesign)
+  -- Lack gehört in 0.40 in die Config: die Werkslacke aus der .pc gewinnen sonst gegen die Spawn-Option
+  if paint and type(cfg) == 'table' then cfg.paints = { paint, paint, paint } end
+  -- Config nicht lesbar: erst so spawnen, dann mit Kennzeichen-Design aus der geladenen Teileliste neu laden
+  designFix = type(cfg) ~= 'table' and { model = starter.model, paint = paint } or nil
+  local opts = { config = cfg, pos = pos, rot = rot, paint = paint, paint2 = paint, paint3 = paint }
   if flow and flow.plate and flow.plate ~= '' then opts.licenseText = flow.plate end
   local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
   spawnTimer = 1.2
@@ -306,7 +396,7 @@ local function spawnShowroomCar(starter, paint)
 end
 
 -- Kaufpreis des Starterautos in Yen (wird vom Startkapital abgezogen)
-local function starterPriceYen(starter)
+function starterPriceYen(starter)
   local info = {}
   local key = tostring(starter.config or ''):match('([^/]+)%.pc$')
   local okM, m = pcall(core_vehicles.getModel, starter.model)
@@ -318,30 +408,42 @@ end
 local function carSpecs(starter)
   local c = core()
   local eco = c.economy()
-  local specs, info = {}, {}
+  local info = {}
   local key = tostring(starter.config or ''):match('([^/]+)%.pc$')
   local okM, m = pcall(core_vehicles.getModel, starter.model)
   if okM and m and m.configs and key then info = m.configs[key] or {} end
   local brand = okM and m and m.model and m.model.Brand or ''
-  local function add(label, value) if value then table.insert(specs, { label = c.t(label), value = value }) end end
-  local power = tonumber(info.Power)
-  local torque = tonumber(info.Torque)
-  local weight = tonumber(info.Weight)
-  add('spec.power', power and string.format('%d PS', math.floor(power + 0.5)))
-  add('spec.torque', torque and string.format('%d Nm', math.floor(torque + 0.5)))
-  add('spec.weight', weight and string.format('%d kg', math.floor(weight + 0.5)))
-  add('spec.drivetrain', info.Drivetrain)
-  add('spec.transmission', info.Transmission)
-  add('spec.price', eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0)))
+  local function num(v) return tonumber(v) and math.floor(tonumber(v) + 0.5) or nil end
+  -- Kennzahlen als Kacheln (Symbol, Wert, Einheit), Zustand als Balken
+  local sheet = { stats = {}, tags = {}, bars = {} }
+  local function stat(icon, label, value, unit)
+    if value then table.insert(sheet.stats, { icon = icon, label = c.t(label), value = value, unit = unit }) end
+  end
+  stat('power', 'spec.power', num(info.Power), 'PS')
+  stat('torque', 'spec.torque', num(info.Torque), 'Nm')
+  stat('weight', 'spec.weight', num(info.Weight), 'kg')
+  if info.Drivetrain then table.insert(sheet.tags, info.Drivetrain) end
+  if info.Transmission then table.insert(sheet.tags, info.Transmission) end
   local cond = starter.condition
   if cond then
-    add('spec.odometer', cond.odometerKm and (tostring(cond.odometerKm):reverse():gsub('(%d%d%d)', '%1.'):reverse():gsub('^%.', '')) .. ' km')
-    add('spec.condition', cond.integrity and string.format('%d %%', math.floor(cond.integrity * 100 + 0.5)))
-    add('spec.fuel', cond.fuel and string.format('%d %%', math.floor(math.max(cond.fuel, (core().carsData or {}).conditionMinFuel or 0.25) * 100 + 0.5)))
+    local function bar(icon, label, share)
+      if not share then return end
+      local pct = math.floor(math.min(math.max(share, 0), 1) * 100 + 0.5)
+      -- Farbe: gut ab 85 %, mittel ab 60 %, sonst schlecht (Tank: ab 50 / 30 %)
+      local good, mid = 85, 60
+      if icon == 'fuel' then good, mid = 50, 30 end
+      table.insert(sheet.bars, { icon = icon, label = c.t(label), pct = pct, tone = pct >= good and 'good' or (pct >= mid and 'mid' or 'bad') })
+    end
+    bar('wrench', 'spec.condition', cond.integrity)
+    bar('fuel', 'spec.fuel', cond.fuel and math.max(cond.fuel, (c.carsData or {}).conditionMinFuel or 0.25))
+    if cond.odometerKm then
+      sheet.mileage = (tostring(cond.odometerKm):reverse():gsub('(%d%d%d)', '%1.'):reverse():gsub('^%.', '')) .. ' km'
+    end
   end
+  sheet.newPrice = eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0))
   local name = starter.name or ''
   local modelName = brand ~= '' and name:sub(1, #brand) == brand and name:sub(#brand + 2) or name
-  return specs, info.Drivetrain, brand, modelName, eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0))
+  return sheet, info.Drivetrain, brand, modelName, eco.formatYen(eco.usdToPrice(starter.priceUsd or info.Value or 0))
 end
 
 local function selectCar(id)
@@ -358,24 +460,16 @@ local function selectPaint(id)
   for _, p in ipairs(shop().factoryPaints(starter.model)) do
     if p.id == id then
       flow.paintId = id
-      -- gleiches Auto steht schon da: nur umlackieren, nicht neu laden
-      local veh = core().getPlayerVehicle()
-      local same = veh and veh:getJBeamFilename() == starter.model
-      if not (same and shop().applyPaintsLive({ p.paint, p.paint, p.paint })) then spawnShowroomCar(starter, p.paint) end
+      -- Neu laden statt live umfärben: live blieb der Lack im Showroom teils unverändert
+      spawnShowroomCar(starter, p.paint)
       return
     end
   end
 end
 
--- Kennzeichen: Vorschlag von BeamNG (zufällig) übernehmen
+-- Kennzeichen: zufällig im Format des Plates Packs (z. B. 330/12-34)
 local function randomPlate()
-  local text = nil
-  local okGen, gen = pcall(function()
-    local skia = extensions.core_skiaTemplate or (extensions.load('core_skiaTemplate') and extensions.core_skiaTemplate)
-    return skia and skia.generateText(nil, nil)
-  end)
-  if okGen and type(gen) == 'string' and gen ~= '' then text = gen end
-  if not text then text = string.format('%d%d-%02d', math.random(1, 9), math.random(0, 9), math.random(0, 99)) end
+  local text = extensions.hashiriyaBattle_plates.random()
   flow.plate = text
   flow.platePick = text
 end
@@ -391,17 +485,15 @@ local function startCareer()
     c.msg(c.t('msg.partFailed'))
     return
   end
-  local plate = flow.plate
-  if not plate or plate == '' then
-    local okP, p = pcall(core_vehicles.getVehicleLicenseText, veh)
-    plate = okP and p or nil
-  end
+  local plates = extensions.hashiriyaBattle_plates
+  local plate = plates.normalize(flow.plate) or plates.random()
+  cfg = plates.applyToConfig(cfg, flow.plateDesign)
   c.newCareer({
     playerName = flow.name,
     experience = flow.experience,
     carPrice = starterPriceYen(starter),
     condition = starter.condition,
-    car = { model = starter.model, config = cfg, name = starter.name, plate = plate, seeded = true,
+    car = { model = starter.model, config = cfg, name = starter.name, plate = plate, plateDesign = flow.plateDesign or plates.defaultDesign, seeded = true,
       paintId = flow.paintId, paintIds = { flow.paintId }, ownedPaints = flow.paintId and { [flow.paintId] = true } or nil },
   })
   M.close()
@@ -439,6 +531,10 @@ function M.action(arg)
     end
     return
   end
+  if step == 'credits' or step == 'changelog' then
+    if cmd == 'back' then flow = { step = 'title' } end
+    return
+  end
   if cmd == 'back' then
     if step == 'experience' then flow = { step = 'title' }
     elseif step == 'driver' then flow.step = (flow.experience == 'newbie' and #tutorialPages() > 0) and 'tutorial' or 'keys'
@@ -446,10 +542,14 @@ function M.action(arg)
     elseif step == 'confirm' then flow.step = 'car' end
   elseif step == 'title' then
     if cmd == 'newGame' then
-      flow = { step = 'experience', name = '', plate = '' }
+      flow = { step = 'experience', name = '', plate = '', plateDesign = extensions.hashiriyaBattle_plates.defaultDesign }
     elseif cmd == 'continue' then
       M.close()
       core().continueCareer()
+    elseif cmd == 'credits' then
+      flow = { step = 'credits' }
+    elseif cmd == 'changelog' then
+      flow = { step = 'changelog' }
     elseif cmd == 'quit' then
       -- zurück ins BeamNG-Hauptmenü
       M.close()
@@ -462,22 +562,33 @@ function M.action(arg)
       flow.step = 'keys'
     end
   elseif step == 'driver' then
+    local plates = extensions.hashiriyaBattle_plates
     if cmd == 'randomPlate' then
       randomPlate()
+    elseif cmd == 'plateRegion' or cmd == 'plateType' then
+      local region, kind = plates.splitDesign(flow.plateDesign)
+      if cmd == 'plateRegion' then region = val else kind = val end
+      local d = plates.fitDesign(region, kind)
+      if plates.validDesign(d) then flow.plateDesign = d end
     elseif cmd == 'driver' then
       local name, plate = val:match('^(.-)\031(.*)$')
       name = (name or val):gsub('[%c]', ''):sub(1, 16)
       if name == '' then return end
       flow.name = name
-      flow.plate = (plate or ''):gsub('[%c]', ''):sub(1, 12)
-      flow.platePick = nil
+      local typed = (plate or ''):gsub('[%c]', '')
+      if typed == '' then
+        flow.plate = plates.random()
+      else
+        local norm = plates.normalize(typed)
+        if not norm then
+          core().msg(core().t('msg.plateInvalid'), 6)
+          return
+        end
+        flow.plate = norm
+      end
+      flow.platePick = flow.plate
       flow.step = 'car'
       local seedPlate = flow.plate
-      if seedPlate == '' then
-        local veh = core().getPlayerVehicle()
-        local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)
-        seedPlate = okP and p or ''
-      end
       local key = flow.name .. '|' .. tostring(seedPlate)
       if flow.offerKey ~= key then
         flow.offerKey = key
@@ -493,6 +604,77 @@ function M.action(arg)
   elseif step == 'confirm' then
     if cmd == 'next' then startCareer() end
   end
+end
+
+-- Credits für den Titelbildschirm aus data/credits.json: Abschnitte mit Name und Aufgabe
+local creditsPath = '/lua/ge/extensions/hashiriyaBattle/data/credits.json'
+local function creditsList()
+  local d = jsonReadFile(creditsPath) or {}
+  local pr = extensions.hashiriyaBattle_progress
+  local c = core()
+  local out = {}
+  for _, sec in ipairs(d.sections or {}) do
+    local entries = {}
+    for _, e in ipairs(sec.entries or {}) do
+      if e.name and e.name ~= '' then table.insert(entries, { name = e.name, what = pr.loc(e.what) or '' }) end
+    end
+    if #entries > 0 then table.insert(out, { title = pr.loc(sec.title), entries = entries }) end
+  end
+  -- Community: jeder angenommene Wanderer (vom Formular), mit Wanderer-Name
+  local community = {}
+  for _, e in ipairs(d.community or {}) do
+    if e.name and e.name ~= '' then
+      local role = c.t('credits.role.' .. tostring(e.role or 'Other'))
+      table.insert(community, { name = e.name, what = role .. (e.wanderer and (' · ' .. c.t('credits.wanderer', e.wanderer)) or '') })
+    end
+  end
+  if #community > 0 then table.insert(out, { title = c.t('credits.community'), entries = community }) end
+  return out, pr.loc(d.thanks)
+end
+
+-- Changelog für den Titelbildschirm: CHANGELOG.md (deutsch) bzw. CHANGELOG_EN.md, je nach Spielsprache.
+-- In der Release-ZIP legt das Release-Werkzeug beide Dateien zusätzlich nach data/changelog/ (eindeutiger Pfad).
+local changelogCache = {}
+local function changelogList()
+  local lang = core().lang == 'de' and 'de' or 'en'
+  if changelogCache[lang] then return changelogCache[lang] end
+  local candidates = lang == 'de'
+    and { '/lua/ge/extensions/hashiriyaBattle/data/changelog/CHANGELOG_DE.md', '/CHANGELOG.md', '/CHANGELOG_DE.md' }
+    or { '/lua/ge/extensions/hashiriyaBattle/data/changelog/CHANGELOG_EN.md', '/CHANGELOG_EN.md' }
+  local text
+  for _, path in ipairs(candidates) do
+    text = readFile(path)
+    if text and text:find('\n## ') then break end
+    text = nil
+  end
+  local out = {}
+  if text then
+    local cur, grp
+    for line in (text .. '\n'):gmatch('([^\n]*)\n') do
+      line = line:gsub('\r$', '')
+      local head = line:match('^## (.+)$')
+      if head then
+        local ver, info = head:match('^(.-)%s*%((.*)%)%s*$')
+        cur = { version = ver or head, info = info, intro = {}, groups = {} }
+        grp = nil
+        table.insert(out, cur)
+      elseif cur then
+        local sub = line:match('^### (.+)$')
+        local item = line:match('^%s*%- (.+)$')
+        if sub then
+          grp = { title = sub, items = {} }
+          table.insert(cur.groups, grp)
+        elseif item then
+          if not grp then grp = { title = nil, items = {} }; table.insert(cur.groups, grp) end
+          table.insert(grp.items, (item:gsub('%*%*', ''):gsub('`', '')))
+        elseif line:match('%S') then
+          if grp then table.insert(grp.items, line) else table.insert(cur.intro, line) end
+        end
+      end
+    end
+  end
+  changelogCache[lang] = out
+  return out
 end
 
 function M.getUiState()
@@ -512,6 +694,8 @@ function M.getUiState()
     if img and not (FS and FS:fileExists(img)) then img = nil end
     st.tutorial = { page = i, count = #pages, title = pr.loc(p.title), text = pr.loc(p.text), image = img, last = i >= #pages }
   end
+  if flow.step == 'credits' then st.credits, st.creditsThanks = creditsList() end
+  if flow.step == 'changelog' then st.changelog = changelogList() end
   flow.platePick = nil
   if flow.step == 'title' then
     local save = c.peekSave()
@@ -521,15 +705,16 @@ function M.getUiState()
     end
   end
   if flow.step == 'driver' then
-    local veh = c.getPlayerVehicle()
-    local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)
-    st.plateHint = okP and p or ''
+    local plates = extensions.hashiriyaBattle_plates
+    st.plateHint = '330 1234'
+    st.plateRegion, st.plateType = plates.splitDesign(flow.plateDesign)
+    st.plateOptions = plates.uiOptions(c.t, st.plateRegion)
   end
   if flow.step == 'car' then
     st.cars = {}
     for _, s in ipairs(starters()) do
-      local specs, drivetrain, brand, modelName, price = carSpecs(s)
-      table.insert(st.cars, { id = s.id, name = s.name, specs = specs, drivetrain = drivetrain, brand = brand, model = modelName,
+      local sheet, drivetrain, brand, modelName, price = carSpecs(s)
+      table.insert(st.cars, { id = s.id, name = s.name, sheet = sheet, drivetrain = drivetrain, brand = brand, model = modelName,
         price = price, selected = s.id == flow.carId })
     end
   end
@@ -547,7 +732,10 @@ function M.getUiState()
       if p.id == flow.paintId then paintName, swatch = p.name, shop().paintSwatch(p.paint) end
     end
     st.summary = {
-      name = flow.name, plate = (flow.plate ~= '' and flow.plate) or st.plateHint or '—',
+      name = flow.name, plate = ((flow.plate ~= '' and flow.plate) or '—') .. (function()
+        local region, kind = extensions.hashiriyaBattle_plates.splitDesign(flow.plateDesign)
+        return ' · ' .. c.t('plate.region.' .. region) .. ', ' .. c.t('plate.type.' .. kind)
+      end)(),
       car = starter and starter.name or '', paint = paintName, swatch = swatch,
       money = eco.formatYen(c.startMoney()),
       carPrice = starter and eco.formatYen(starterPriceYen(starter)) or nil,
@@ -562,8 +750,35 @@ function M.getUiState()
   return st
 end
 
+-- Showroom-Auto ohne lesbare .pc: Teileliste vom gespawnten Auto nehmen, Design und Lack einsetzen, neu laden
+local function applyDesignFix()
+  local fix = designFix
+  designFix = nil
+  if not flow then return end
+  local veh = core().getPlayerVehicle()
+  local cfg = shop().currentConfig()
+  if not veh or not cfg or veh:getJBeamFilename() ~= fix.model then return end
+  cfg = extensions.hashiriyaBattle_plates.applyToConfig(cfg, flow.plateDesign)
+  if fix.paint then cfg.paints = { fix.paint, fix.paint, fix.paint } end
+  local starter = starterById(flow.carId)
+  core().engineOffAfterSpawn()
+  if starter then extensions.hashiriyaBattle_condition.previewAfterSpawn(starter.condition) end
+  local opts = { config = cfg }
+  if flow.plate and flow.plate ~= '' then opts.licenseText = flow.plate end
+  spawnTimer = 1.2
+  core_vehicles.replaceVehicle(fix.model, opts)
+  log('I', logTag, 'Showroom: Kennzeichen-Design nachträglich gesetzt (' .. tostring(fix.model) .. ')')
+end
+
 local function onUpdate(dtReal)
-  if spawnTimer > 0 then spawnTimer = spawnTimer - dtReal end
+  if spawnTimer > 0 then
+    spawnTimer = spawnTimer - dtReal
+    if spawnTimer <= 0 and designFix then
+      local ok, err = pcall(applyDesignFix)
+      if not ok then log('W', logTag, 'Showroom-Kennzeichen: ' .. tostring(err)) end
+    end
+  end
+  applyHeldCamera(dtReal)
   if fallbackTimer > 0 then
     fallbackTimer = fallbackTimer - dtReal
     if fallbackTimer <= 0 then showTitleAfterLoad() end

@@ -52,8 +52,16 @@ function M.nightId()
 end
 
 -- Uhr stellen und laufen lassen (ein Spieltag = dayLengthMinutes echte Minuten)
+local pendingClock = nil -- Uhr ließ sich noch nicht stellen (Level lädt noch): { hour } für den nächsten Frame
+
 function M.applyClock(hour)
   local w = M.world()
+  local okT, tod0 = pcall(core_environment.getTimeOfDay)
+  if not okT or not tod0 then
+    pendingClock = { hour = hour }
+    return
+  end
+  pendingClock = nil
   local ok, err = pcall(function()
     local tod = core_environment.getTimeOfDay()
     if hour then tod.time = ((hour - 12) / 24) % 1 end
@@ -119,31 +127,125 @@ local function newDay()
   log('I', logTag, 'Neuer Tag: ' .. save.day)
 end
 
+-- Ruhesperre: nach dem Schlafen oder einem Nickerchen geht beides erst nach restLockHours Spielstunden wieder
+-- (world.json, Standard 6). Gespeichert als Spielstunde seit Tag 1 in save.restLockUntil.
+local function absHour()
+  local h = M.hour()
+  if not h then return nil end
+  return (M.getDay() - 1) * 24 + h
+end
+
+local function fmtHour(h)
+  h = h % 24
+  local hh, mm = math.floor(h), math.floor((h % 1) * 60 + 0.5)
+  if mm >= 60 then hh, mm = (hh + 1) % 24, 0 end
+  return string.format('%02d:%02d', hh, mm)
+end
+
+-- Gibt nil zurück, wenn man wieder schlafen darf, sonst { untilHour = Uhrzeit 0-24, text = "HH:MM", left = Stunden }
+function M.restLock()
+  local save = core().save
+  if not save or not save.restLockUntil then return nil end
+  local now = absHour()
+  if not now then return nil end
+  local left = save.restLockUntil - now
+  local maxH = tonumber(M.world().restLockHours) or 6
+  -- abgelaufen, oder Uhr zurückgestellt (z. B. Spielstand aus alter Version): Sperre aufheben
+  if left <= 0 or left > maxH + 0.25 then
+    save.restLockUntil = nil
+    return nil
+  end
+  return { untilHour = save.restLockUntil % 24, text = fmtHour(save.restLockUntil), left = left }
+end
+
+local function setRestLock()
+  local save = core().save
+  local now = absHour()
+  local hours = tonumber(M.world().restLockHours) or 6
+  if save and now and hours > 0 then save.restLockUntil = now + hours end
+end
+
 -- Schlafen zu Hause: tagsüber bis zum Abend (wakeHour), nachts ab sleepFrom bis zum Morgen (nightWakeHour).
 -- Zwischen nightFrom und sleepFrom (20 bis 22 Uhr) geht es nicht, dann ist Battle-Zeit.
+-- Nach dem Schlafen/Nickerchen gilt die Ruhesperre (reason 'rested').
 function M.sleepInfo()
   local w = M.world()
   local h = M.hour() or 0
   local from, nightFrom = w.sleepFrom or 22, w.nightFrom or 20
   local morning = w.nightWakeHour or 6
+  local lock = M.restLock()
+  if lock then
+    -- Sperre endet in der Battle-Zeit vor sleepFrom: dann erst ab sleepFrom
+    local u = lock.untilHour
+    local text = (u >= nightFrom and u < from) and string.format('%02d:00', from) or lock.text
+    return { can = false, wake = text, reason = 'rested' }
+  end
   if h >= nightFrom and h < from then return { can = false, wake = from, reason = 'early' } end
   if h >= from or h < morning then return { can = true, wake = morning, newDay = h >= from } end
   return { can = true, wake = w.wakeHour or 20, newDay = false }
 end
 
+-- Ruhephase (Schlafen/Nickerchen): Bildschirm wird schwarz, die Uhr läuft im Zeitraffer bis zur Aufwachzeit,
+-- dann wird es wieder hell. Dauer: world.json restSeconds { nap, home }. Währenddessen sind Menü-Aktionen gesperrt.
+local rest = nil
+local restFade = 1 -- Sekunden für Ab- und Aufblenden
+
+function M.isResting() return rest ~= nil end
+
+local function fadeScreen() return rawget(_G, 'ui_fadeScreen') or extensions.ui_fadeScreen end
+
+local function freezePlayer(on)
+  local veh = core().getPlayerVehicle()
+  if veh then veh:queueLuaCommand('controller.setFreeze(' .. (on and 1 or 0) .. ')') end
+end
+
+local function startRest(kind, fromHour, toHour, isNewDay, doneMsg)
+  local secs = M.world().restSeconds or {}
+  rest = { kind = kind, from = fromHour, to = toHour, newDay = isNewDay, msg = doneMsg,
+           black = math.max(1, tonumber(secs[kind]) or (kind == 'home' and 20 or 10)), t = 0 }
+  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
+  if kind == 'nap' then freezePlayer(true) end
+  local fs = fadeScreen()
+  if fs and fs.start then pcall(fs.start, restFade) end
+  log('I', logTag, string.format('Ruhephase %s: %.2f -> %.2f Uhr (%d s schwarz)', kind, fromHour, toHour % 24, rest.black))
+end
+
+local function finishRest()
+  local r = rest
+  rest = nil
+  M.applyClock(r.to % 24)
+  if r.newDay then newDay() end
+  setRestLock()
+  local c = core()
+  c.writeSave()
+  if r.kind == 'nap' then freezePlayer(false) end
+  local fs = fadeScreen()
+  if fs and fs.stop then pcall(fs.stop, restFade) end
+  if r.msg then c.msg(r.msg(), 5) end
+end
+
+-- Zeitraffer: erst abblenden, dann die Uhr bis zur Aufwachzeit drehen (weich ein- und auslaufend)
+local function updateRest(dtReal)
+  rest.t = rest.t + (dtReal or 0)
+  local p = math.min(1, math.max(0, (rest.t - restFade) / rest.black))
+  local e = p * p * (3 - 2 * p)
+  if p > 0 then M.applyClock((rest.from + (rest.to - rest.from) * e) % 24) end
+  if p >= 1 then finishRest() end
+end
+
 function M.sleep()
   local c = core()
-  if not c.save then return end
+  if not c.save or rest then return end
   local info = M.sleepInfo()
   if not info.can then
-    c.msg(c.t('msg.sleepEarly', string.format('%02d:00', info.wake)), 4)
+    if info.reason == 'rested' then c.msg(c.t('msg.sleepRested', info.wake), 4)
+    else c.msg(c.t('msg.sleepEarly', string.format('%02d:00', info.wake)), 4) end
     return
   end
-  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
-  M.applyClock(info.wake)
-  if info.newDay then newDay() end
-  c.writeSave()
-  c.msg(c.t('msg.slept', M.getDay()), 5)
+  local h = M.hour() or 0
+  local to = info.wake
+  if to <= h then to = to + 24 end
+  startRest('home', h, to, info.newDay, function() return c.t('msg.slept', M.getDay()) end)
 end
 
 -- Nickerchen im Auto auf einem Parkplatz (napSpots der Kartendatei, sonst an jedem Parkplatz): 0,5 bis 2 h
@@ -164,32 +266,35 @@ function M.napInfo()
   local c = core()
   local veh = c.getPlayerVehicle()
   if not veh or not c.save then return nil end
-  local reason = nil
+  local reason, lock = nil, nil
   if not napSpotNear(veh:getPosition()) then reason = 'notHere'
   elseif extensions.hashiriyaBattle_battle.isBusy() then reason = 'battle'
-  elseif veh:getVelocity():length() > napMaxSpeed then reason = 'moving' end
-  return { can = reason == nil, reason = reason }
+  else
+    lock = M.restLock()
+    if lock then reason = 'rested'
+    elseif veh:getVelocity():length() > napMaxSpeed then reason = 'moving' end
+  end
+  return { can = reason == nil, reason = reason, untilText = lock and lock.text or nil }
 end
 
 function M.nap()
   local c = core()
+  if rest then return end
   local info = M.napInfo()
   if not info then return end
   if info.reason then
-    c.msg(c.t('msg.nap.' .. info.reason), 3)
+    if info.untilText then c.msg(c.t('msg.nap.' .. info.reason, info.untilText), 3)
+    else c.msg(c.t('msg.nap.' .. info.reason), 3) end
     return
   end
   local range = M.world().napHours or { 0.5, 2 }
   local dur = range[1] + math.random() * (range[2] - range[1])
   dur = math.floor(dur * 4 + 0.5) / 4 -- auf Viertelstunden
   local h = M.hour() or 0
-  local wake = h + dur
-  pcall(extensions.hashiriyaBattle_rivals.despawnActive)
-  M.applyClock(wake % 24)
-  if wake >= 24 then newDay() end
-  c.writeSave()
   local hh, mm = math.floor(dur), math.floor((dur % 1) * 60 + 0.5)
-  c.msg(c.t('msg.napped', mm > 0 and string.format('%d:%02d', hh, mm) or tostring(hh)), 5)
+  startRest('nap', h, h + dur, h + dur >= 24, function()
+    return c.t('msg.napped', mm > 0 and string.format('%d:%02d', hh, mm) or tostring(hh))
+  end)
 end
 
 -- Merkliste: bis zu 5 Rivalen aus dem Lexikon, die man suchen oder schlagen will (HUD zeigt sie an)
@@ -226,6 +331,21 @@ function M.unwatch(id)
   return false
 end
 
+-- Hinweis zu einem Wanderer/Boss: erst sichtbar, wenn man davon gehört hat (save.knownHints, später durch PA-Gespräche)
+local function hintText(r, save)
+  local pr = extensions.hashiriyaBattle_progress
+  if save and save.knownHints and save.knownHints[r.id] then return pr.loc(r.hint) end
+  return core().t('home.hintUnknown')
+end
+M.hintText = hintText
+
+function M.learnHint(id)
+  local save = core().save
+  if not save or not id then return end
+  save.knownHints = save.knownHints or {}
+  save.knownHints[id] = true
+end
+
 -- Für das HUD: Name (oder Hinweis, solange unbekannt), Farbe nach Art
 function M.watchHud()
   local list = M.watchList()
@@ -244,7 +364,7 @@ function M.watchHud()
       local beaten = save.defeated and save.defeated[id]
       local hidden = (r.wanderer or r.boss) and not beaten
       table.insert(out, { id = id, name = hidden and '???' or r.name, kind = rv.markerKind(r), near = onRoad[id] or false,
-        hint = hidden and pr.loc(r.hint) or nil })
+        hint = hidden and hintText(r, save) or nil })
     end
   end
   return out
@@ -275,7 +395,7 @@ local function lexicon()
       name = hidden and '???' or r.name,
       nick = hidden and '' or pr.loc(r.nick),
       car = hidden and '???' or (rv.vehicleName and rv.vehicleName(r.model) or r.model),
-      desc = hidden and pr.loc(r.hint) or pr.loc(r.desc),
+      desc = hidden and hintText(r, save) or pr.loc(r.desc),
       quote = (not hidden and r.lines) and pr.loc(r.lines.challenge) or nil,
       leader = r.leader or false, boss = r.boss or false,
       beaten = beaten,
@@ -301,7 +421,8 @@ end
 function M.getUiState(tab)
   local st = { tab = tab or 'main', day = M.getDay() }
   local si = M.sleepInfo()
-  st.sleep = { can = si.can, wake = string.format('%02d:00', si.wake) }
+  st.sleep = { can = si.can, wake = type(si.wake) == 'string' and si.wake or string.format('%02d:00', si.wake) }
+  if si.reason == 'rested' then st.sleep.note = core().t('home.sleepRestedNote', si.wake) end
   if st.tab == 'lexicon' then
     st.lexicon = lexicon()
     st.watchCount = #M.watchList()
@@ -318,6 +439,18 @@ end
 local stallTime, stallSim = nil, 0 -- erkennt eine stehende Uhr
 
 local function onUpdate(dtReal, dtSim)
+  if pendingClock then M.applyClock(pendingClock.hour) end
+  if rest then
+    local ok, err = pcall(updateRest, dtReal)
+    if not ok then
+      log('E', logTag, 'Ruhephase abgebrochen: ' .. tostring(err))
+      rest = nil
+      freezePlayer(false)
+      local fs = fadeScreen()
+      if fs and fs.stop then pcall(fs.stop, restFade) end
+    end
+    return
+  end
   local t = timeOfDay()
   if not t then return end
   local c = core()

@@ -13,6 +13,7 @@ local pollTimer = pollInterval
 local restoreWindow = 0  -- nach keepAfterRespawn: nächster Spawn des Spielerautos bekommt den Zustand
 local restoreTimer = nil
 local pending = nil      -- Zustand für das gerade gespawnte Auto
+local preview = nil      -- Showroom-Auto im Starterkauf: { wear = ... } statt des Autos im Spielstand
 
 local function core() return extensions.hashiriyaBattle_core end
 
@@ -23,6 +24,8 @@ end
 
 -- Zustand ins Auto schreiben: parts = { [partId] = { o, i, v } } oder nur Grundwerte (frisch gekaufter Gebrauchtwagen)
 local function apply(veh, car, fresh)
+  -- gekauft, aber noch nie gespawnt (Händlerauto): beim ersten Spawn Kaufzustand inkl. Tank setzen
+  if car.freshWear then fresh = true; car.freshWear = nil end
   local wear = car.wear or {}
   local parts = car.parts
   local tbl = 'nil'
@@ -158,7 +161,15 @@ function M.syncStarterWear(save)
 end
 
 -- Vor einem Respawn des Spielerautos (über core.engineOffAfterSpawn)
-function M.keepAfterRespawn() restoreWindow = 5 end
+function M.keepAfterRespawn() restoreWindow = 5; preview = nil end
+
+-- Showroom beim Starterkauf: das nächste gespawnte Auto bekommt den angezeigten Gebrauchtzustand (nicht den
+-- Zustand aus einem alten Spielstand)
+function M.previewAfterSpawn(cond)
+  cond = cond or {}
+  preview = { wear = { odometerKm = cond.odometerKm or 0, integrity = cond.integrity or 1, visual = cond.visual or 1, fuel = cond.fuel } }
+  restoreWindow = 5
+end
 
 function M.onVehicleSpawned(vehId)
   if restoreWindow <= 0 then return end
@@ -177,9 +188,10 @@ function M.onUpdate(dtReal)
     if restoreTimer <= 0 then
       restoreTimer = nil
       local veh = pending and be:getObjectByID(pending)
-      local car = activeCar()
-      pending = nil
-      if veh and car and (car.wear or car.parts) then apply(veh, car) end
+      local car = preview or activeCar()
+      local fresh = preview ~= nil
+      pending, preview = nil, nil
+      if veh and car and (car.wear or car.parts) then apply(veh, car, fresh) end
     end
     return
   end

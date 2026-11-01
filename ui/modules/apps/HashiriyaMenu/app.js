@@ -54,28 +54,9 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'report\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.report\'] }}</div>' +
             '<div class="hbm-section">{{ s.t[\'menu.tools\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'callRival\')"><i class="hbm-ico" ng-bind-html="ico(\'carsChase\')"></i>{{ s.t[\'menu.callRival\'] }}</div>' +
-            '<div class="hbm-plate hbm-dev">' +
-              '<input type="text" list="hbm-dev-rivals" ng-model="dev.rival" placeholder="{{ s.t[\'menu.devRivalPh\'] }}">' +
-              '<datalist id="hbm-dev-rivals"><option ng-repeat="r in s.devRivals track by r.id" value="{{ r.id }}">{{ r.name }}</option></datalist>' +
-            '</div>' +
-            '<div class="hbm-plate hbm-dev">' +
-              '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !dev.rival}" ng-click="dev.rival && act(\'devSpawnRival\', dev.rival)">{{ s.t[\'menu.devSpawn\'] }}</span>' +
-              '<span class="hbm-btn" ng-class="{\'hbm-dis\': !dev.rival}" ng-click="dev.rival && act(\'devBeatRival\', dev.rival)">{{ s.t[\'menu.devBeat\'] }}</span>' +
-            '</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'devClearRivals\')"><i class="hbm-ico" ng-bind-html="ico(\'xmark\')"></i>{{ s.t[\'menu.devClear\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRep\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'menu.cheatRep\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatHour\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\', \'night\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatNight\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatDay\')"><i class="hbm-ico" ng-bind-html="ico(\'house\')"></i>{{ s.t[\'menu.cheatDay\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRepair\')"><i class="hbm-ico" ng-bind-html="ico(\'wrench\')"></i>{{ s.t[\'menu.cheatRepair\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatFuel\')"><i class="hbm-ico" ng-bind-html="ico(\'fuelPump\')"></i>{{ s.t[\'menu.cheatFuel\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'capture\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i>{{ s.t[\'menu.capture\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-if="s.devMenu" ng-click="act(\'devMenu\')"><i class="hbm-ico" ng-bind-html="ico(\'adjust\')"></i>{{ s.t[\'menu.devMenu\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
               '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatMoney\')"><i class="hbm-ico" ng-bind-html="ico(\'banknotes\')"></i>{{ s.t[\'menu.cheatMoney\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'cheatWins\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i>{{ s.t[\'menu.cheatWins\'] }}</div>' +
-            '<div class="hbm-item hbm-sub" ng-click="act(\'dumpConfigs\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.dumpConfigs\'] }}</div>' +
           '</div>' +
 
           '<div class="hbm-body" ng-if="s.screen == \'garage\' || s.screen == \'shop\'">' +
@@ -98,8 +79,20 @@ angular.module('beamng.apps')
               '<div class="hbm-section"><i class="hbm-ico hbm-ico-s" ng-bind-html="ico(\'rename\')"></i>{{ s.t[\'garage.plate\'] }}</div>' +
               '<div class="hbm-plate">' +
                 '<input type="text" maxlength="12" ng-model="plate.text" placeholder="{{ s.plate }}">' +
-                '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !plate.text || plate.text == s.plate}" ' +
-                  'ng-click="plate.text && plate.text != s.plate && act(\'setPlate\', plate.text); plate.text = \'\'">{{ s.t[\'garage.plateChange\'] }} \u00b7 {{ s.platePrice }}</span>' +
+              '</div>' +
+              '<div class="hbm-cycle" ng-if="s.plateOptions">' +
+                '<span class="hbm-cycle-btn" ng-click="plateCycle(\'region\', -1)">\u2039</span>' +
+                '<span class="hbm-cycle-val">{{ plateName(\'regions\', plateSel().region) }}</span>' +
+                '<span class="hbm-cycle-btn" ng-click="plateCycle(\'region\', 1)">\u203a</span>' +
+              '</div>' +
+              '<div class="hbm-cycle" ng-if="s.plateOptions">' +
+                '<span class="hbm-cycle-btn" ng-click="plateCycle(\'type\', -1)">\u2039</span>' +
+                '<span class="hbm-cycle-val">{{ plateName(\'types\', plateSel().type) }}</span>' +
+                '<span class="hbm-cycle-btn" ng-click="plateCycle(\'type\', 1)">\u203a</span>' +
+              '</div>' +
+              '<div class="hbm-plate">' +
+                '<span class="hbm-btn hbm-btn-main" style="flex:1;text-align:center" ng-class="{\'hbm-dis\': !plateChanged()}" ' +
+                  'ng-click="plateChanged() && plateSubmit()">{{ s.t[\'garage.plateChange\'] }} \u00b7 {{ s.platePrice }}</span>' +
               '</div>' +
             '</div>' +
 
@@ -219,7 +212,7 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
               '<div class="hbm-item" ng-class="{\'hbm-off\': s.home.sleep && !s.home.sleep.can}" ng-click="(!s.home.sleep || s.home.sleep.can) && act(\'sleep\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>' +
                 '<span class="hbm-car-name">{{ s.home.sleep.can ? s.t[\'home.sleepUntil\'] : s.t[\'home.sleepFrom\'] }} {{ s.home.sleep.wake }}</span></div>' +
-              '<div class="hbm-note">{{ s.home.sleep.can ? s.t[\'home.sleepNote\'] : s.t[\'home.sleepEarlyNote\'] }}</div>' +
+              '<div class="hbm-note">{{ s.home.sleep.can ? s.t[\'home.sleepNote\'] : (s.home.sleep.note || s.t[\'home.sleepEarlyNote\']) }}</div>' +
               '<div class="hbm-item" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
               '<div class="hbm-item" ng-click="act(\'tutorial\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'home.tutorial\'] }}</div>' +
               '<div class="hbm-item hbm-off"><i class="hbm-ico" ng-bind-html="ico(\'fastTravel\')"></i>{{ s.t[\'home.travel\'] }}</div>' +
@@ -455,6 +448,15 @@ angular.module('beamng.apps')
           '.hbm-dev{padding:2px 18px 4px;} .hbm-dev .hbm-btn{flex:1;text-align:center;}' +
           '.hbm-plate input{flex:1;min-width:0;height:26px;padding:0 8px;font:700 13px "Overpass",sans-serif;letter-spacing:1px;color:#141414;background:#f4f1e6;border:2px solid #2a2a2a;border-radius:3px;outline:none;}' +
           '.hbm-plate .hbm-btn{flex:none;padding:6px 10px;}' +
+          '.hbm-dev-list{max-height:220px;overflow-y:auto;margin:0 18px 6px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);}' +
+          '.hbm-dev-opt{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;font-size:12px;cursor:pointer;}' +
+          '.hbm-dev-opt span{opacity:.6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+          '.hbm-dev-opt:hover{background:rgba(255,102,0,.25);}' +
+          '.hbm-dev-none{opacity:.6;cursor:default;}' +
+          '.hbm-cycle{display:grid;grid-template-columns:28px 1fr 28px;align-items:center;margin:0 18px 6px;background:rgba(255,255,255,.05);}' +
+          '.hbm-cycle-btn{text-align:center;font-size:18px;line-height:26px;cursor:pointer;color:#ff6600;}' +
+          '.hbm-cycle-btn:hover{background:rgba(255,255,255,.08);}' +
+          '.hbm-cycle-val{text-align:center;font-size:12px;font-weight:700;letter-spacing:.5px;}' +
           '.hbm-badge{display:inline-block;margin-left:6px;padding:0 6px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.1);color:rgba(244,244,244,.8);transform:skewX(-12deg);}' +
           '.hbm-badge-night{background:rgba(120,140,255,.25);color:#b8c4ff;}' +
           '.hbm-stat-live b{color:var(--o);}' +
@@ -563,8 +565,48 @@ angular.module('beamng.apps')
       'use strict'
       scope.s = null
       scope.open = { slot: null }
-      scope.plate = { text: '' }
-      scope.dev = { rival: '' }
+      scope.plate = { text: '', region: null, type: null }
+      // Kennzeichen-Design (Region, Art) in der Garage: Auswahl per Pfeilen, Standard = aktuelles Design des Autos
+      scope.plateSel = function () {
+        var s = scope.s || {}
+        return { region: scope.plate.region || s.plateRegion, type: scope.plate.type || s.plateType }
+      }
+      scope.plateName = function (list, id) {
+        var po = (scope.s && scope.s.plateOptions) || {}
+        if (list === 'types' && po.typeNames && po.typeNames[id]) return po.typeNames[id]
+        var o = po[list] || []
+        for (var i = 0; i < o.length; i++) if (o[i].id === id) return o[i].name
+        return id || ''
+      }
+      // Arten, die es in der Region gibt (Sonderkennzeichen nur in Shinagawa, Okinawa nur Air Force)
+      scope.plateTypes = function (region) {
+        var po = (scope.s && scope.s.plateOptions) || {}
+        if (po.byRegion && po.byRegion[region]) return po.byRegion[region]
+        return (po.types || []).map(function (k) { return k.id })
+      }
+      scope.plateCycle = function (what, step) {
+        var po = (scope.s && scope.s.plateOptions) || {}
+        var sel = scope.plateSel()
+        var o = what === 'region' ? (po.regions || []).map(function (r) { return r.id }) : scope.plateTypes(sel.region)
+        if (!o.length) return
+        var i = Math.max(0, o.indexOf(sel[what]))
+        scope.plate[what] = o[(i + step + o.length) % o.length]
+        if (what === 'region') {
+          var kinds = scope.plateTypes(scope.plate.region)
+          if (kinds.indexOf(sel.type) < 0) scope.plate.type = kinds[0]
+        }
+      }
+      scope.plateChanged = function () {
+        var s = scope.s || {}, sel = scope.plateSel()
+        return !!(scope.plate.text && scope.plate.text !== s.plate) || sel.region !== s.plateRegion || sel.type !== s.plateType
+      }
+      scope.plateSubmit = function () {
+        var sel = scope.plateSel()
+        scope.act('setPlate', (scope.plate.text || '') + '|am5jp_' + sel.region + '_' + sel.type)
+        scope.plate.text = ''
+        scope.plate.region = null
+        scope.plate.type = null
+      }
       // Abschleppen kostet viel: erster Klick fragt nach, zweiter Klick (innerhalb 4 s) bestätigt.
       scope.towArmed = false
       var towTimer = null

@@ -23,7 +23,10 @@
     "sleep": "event:>UI>Bigmap>Whoosh_Out",
     "save": "event:>UI>Career>Drift_Combo_5x",
     "combo": "event:>UI>Career>Drift_Combo_1x",
-    "comboBank": "event:>UI>Career>EndScreen_Receive_Money"
+    "comboBank": "event:>UI>Career>EndScreen_Receive_Money",
+    "unlock": "event:>UI>Career>Progress_LevelUp",
+    "talk": "event:>UI>Missions>Info_Open",
+    "talkHint": "event:>UI>Career>Progress_LevelUp"
   },
   "messages": {
     "msg.partInstalled": "buy",
@@ -32,6 +35,7 @@
     "msg.setupApplied": "buy",
     "msg.carBought": "buy",
     "msg.noMoney": "denied",
+    "msg.repairFirst": "denied",
     "msg.partLocked": "denied",
     "msg.partIncompatible": "denied",
     "msg.needCarInBay": "denied",

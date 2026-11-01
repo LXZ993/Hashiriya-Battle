@@ -8,6 +8,11 @@ angular.module('beamng.apps')
         '<div class="hbt" ng-if="s && s.active">' +
           '<div class="hbt-clock" ng-if="s.clock"><span class="hbt-clock-time" ng-class="{\'is-night\': s.clock.night}">{{ s.clock.time }}</span>' +
             '<span class="hbt-clock-date"><b>{{ s.clock.weekday }}</b> {{ s.clock.date }}</span></div>' +
+          // Rang und Spitzname (Stil-Titel) unter Uhr und Datum
+          '<div class="hbt-rank" ng-if="s.progress">' +
+            '<span class="hbt-rank-name">{{ s.progress.rank }}</span>' +
+            '<span class="hbt-rank-nick" ng-if="s.progress.nick">{{ s.progress.nick }}</span>' +
+          '</div>' +
           '<div class="hbt-money">{{ s.money }}</div>' +
           '<div class="hbt-streak" ng-if="s.style && s.style.streak >= 2">{{ s.t[\'hud.streak\'] }} <b>{{ s.style.streak }}</b></div>' +
           '<div class="hbt-combo" ng-if="s.style && s.style.combo">' +
@@ -83,6 +88,11 @@ angular.module('beamng.apps')
           '.hbt-clock-time.is-night{color:#8fb8ff;}' +
           '.hbt-clock-date{font-size:10px;letter-spacing:1px;color:rgba(244,244,244,.65);font-variant-numeric:tabular-nums;}' +
           '.hbt-clock-date b{color:#f4f4f4;font-weight:800;text-transform:uppercase;margin-right:2px;}' +
+          '.hbt-rank{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;margin-bottom:3px;}' +
+          '.hbt-rank-name{font-size:11px;font-weight:900;font-style:italic;letter-spacing:1px;text-transform:uppercase;color:#ff6600;}' +
+          '.hbt-rank-nick{font-size:10px;font-weight:700;letter-spacing:.5px;color:rgba(244,244,244,.8);}' +
+          '.hbt-rank-nick:before{content:"\\201E";margin-right:1px;}' +
+          '.hbt-rank-nick:after{content:"\\201C";margin-left:1px;}' +
           '.hbt-streak{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,244,244,.65);margin-top:1px;}' +
           '.hbt-streak b{color:#ffd23f;font-weight:900;font-style:italic;font-size:12px;}' +
           '.hbt-combo{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.12);}' +

@@ -11,7 +11,8 @@ local cfg = {
   challengeMinBehind = 4,
   challengeMaxLateral = 10, -- m seitlicher Versatz
   challengeMinSpeed = 40 / 3.6,
-  countdown = 3,            -- s
+  countdown = 5,            -- s, startet erst, wenn der Spruch des Rivalen ausgeblendet ist
+  challengeQuoteTime = 6,   -- s: so lange steht der Spruch beim Herausfordern, erst danach kommt der Countdown
   maxChallengeDiffKmh = 30, -- km/h: größerer Tempounterschied zum Rivalen = Herausfordern nicht möglich
   syncToleranceKmh = 5,     -- so nah am Battle-Tempo, dann startet der Countdown
   syncTimeout = 25,         -- s: spätestens dann startet der Countdown trotzdem
@@ -29,7 +30,28 @@ local cfg = {
   maxDamageSpPerTick = 150,
   winGap = 250,             -- m Vorsprung = Sofortsieg
   modeSwitchHysteresis = 10,-- m, bevor die Gegner-KI zwischen Flucht und Jagd wechselt
-  resultTime = 6,           -- s bis der Rivale nach dem Battle verschwindet
+  resultTime = 9,           -- s Ergebnis und Spruch nach dem Battle, dann fährt der Rivale weiter
+  -- KI des Rivalen im Battle:
+  --  'own'     = eigener Fahrer (hashiriyaDriver, Standard): Ideallinie, weicht knapp aus, bremst erst zuletzt;
+  --              Werte in data/driver.json und pro Rivale in rivals.json "driver". Gibt er auf, übernimmt 'fleeGuard'
+  --  'fleeGuard' = vorne BeamNG-Flucht-KI (zügig, weicht seitlich aus) plus eigener Bremsschutz (siehe guard*),
+  --                hinten 'span' mit eigenem Gummiband (Standard)
+  --  'span'    = freie Fahrt ohne Tempolimit und Spurzwang: weicht aus, bremst nur wenn nötig, überholt zügig
+  --  'traffic' = Verkehrsmodus ohne Tempolimit: sehr vorsichtig, bremst oft mitten im Überholen
+  --  'pursuit' = BeamNG flee (vorne) / chase (hinten): flee bremst nicht für Verkehr, chase rammt dich von hinten
+  rivalAiMode = 'own',
+  -- Bremsschutz für die Flucht-KI (BeamNG lässt sie wegen anderer Autos nie bremsen, nur seitlich ausweichen):
+  -- steht ein langsameres Auto in seiner Spur voraus und würde er in weniger als guardTtc Sekunden auffahren,
+  -- wird sein Tempo kurz auf das des Vordermanns begrenzt
+  guardTtc = 1.6,           -- s bis zum Aufprall, ab dann bremsen
+  guardLateral = 2.2,       -- m seitlicher Abstand Mitte zu Mitte, ab dem ein Auto "in der Spur" ist
+  guardLookAhead = 90,      -- m so weit schaut er nach vorne
+  guardHold = 0.8,          -- s Begrenzung bleibt mindestens so lange
+  guardSpeedMargin = 1.5,   -- m/s langsamer als der Vordermann, damit die Lücke wieder aufgeht
+  -- Gummiband für 'span': Aggression = Grundwert des Rivalen, vorne bis rubberAhead weniger, hinten bis rubberBehind mehr
+  rubberAhead = 0.25,       -- weniger Aggression bei rubberDist m Vorsprung
+  rubberBehind = 0.3,       -- mehr Aggression bei rubberDist m Rückstand
+  rubberDist = 200,
   -- Rivale fordert dich heraus (er fährt hinter dir und gibt Lichthupe)
   rivalChallenge = true,
   rivalChallengeMinBehind = 6,   -- m
@@ -85,7 +107,19 @@ end
 
 function M.reset(cooldown)
   offer = nil
+  -- Battle abgebrochen: eigenen Fahrer stoppen, BeamNG-KI fährt im Verkehr weiter
+  if battle and battle.ownAi then
+    local veh = rivals() and rivals().getRivalVehicle()
+    if veh then
+      extensions.hashiriyaBattle_driver.stop(veh)
+      rivals().setCruise(veh, battle.rival)
+    end
+  end
   if state == 'countdown' or state == 'sync' then releasePlayerSpeed() end
+  if state == 'countdown' and battle and battle.launchDone then
+    local veh = rivals() and rivals().getRivalVehicle()
+    if veh then extensions.hashiriyaBattle_driver.cancelLaunch(veh) end
+  end
   state = 'idle'
   battle = nil
   if rivals() and rivals().disengage then rivals().disengage(cooldown) end
@@ -173,6 +207,7 @@ local function startCountdown(rival, rivalVeh, playerAhead)
     lastRivalDamage = nil,
     rivalMode = nil,
     lastCount = nil,
+    quoteLeft = (type(rival.lines) == 'table' and extensions.hashiriyaBattle_progress.loc(rival.lines.challenge) ~= '') and cfg.challengeQuoteTime or 0,
     time = 0,
     rivalCar = vehicleDisplayName(rival.model),
     playerAhead = playerAhead or nil,
@@ -187,7 +222,7 @@ local function startCountdown(rival, rivalVeh, playerAhead)
     battle.lockSpeed = speed
     battle.rivalSpeed = speed
     lockPlayerSpeed(player, speed)
-    rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", speed))
+    rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", speed))
   end
   core().msg(core().t('msg.challenge', rival.name), 3)
   log('I', logTag, 'Challenge gegen ' .. rival.id)
@@ -310,10 +345,76 @@ local function getGap(player, rivalVeh)
   return (rivalVeh:getPosition() - player:getPosition()):dot(dir)
 end
 
+local function spanCommand(playerId)
+  return string.format(
+    "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('span') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggressionMode('off') ai.setAggression(%f)",
+    playerId, battle.rubberAggr or battle.rival.aggression or 0.6)
+end
+
+local function driver() return extensions.hashiriyaBattle_driver end
+
+-- welche KI gerade gilt: eigener Fahrer, solange er nicht aufgegeben hat
+local function aiMode(rivalVeh)
+  if cfg.rivalAiMode == 'own' then
+    local d = driver()
+    if d and d.enabled() and not d.hasFailed(rivalVeh:getID()) then return 'own' end
+    return 'fleeGuard'
+  end
+  return cfg.rivalAiMode
+end
+
 local function setRivalAi(rivalVeh, mode)
+  local ai = aiMode(rivalVeh)
+  local player = core().getPlayerVehicle()
+  if ai == 'own' then
+    -- eigener Fahrer: entscheidet vorne und hinten selbst, nur einmal starten
+    if not battle.ownAi then
+      battle.ownAi = true
+      battle.rivalMode = 'own'
+      driver().start(rivalVeh, battle.rival, player:getID())
+    end
+    return
+  end
+  if battle.ownAi then
+    -- Fahrer hat aufgegeben: BeamNG-KI übernimmt
+    battle.ownAi = false
+    battle.rivalMode = nil
+  end
   if battle.rivalMode == mode then return end
   battle.rivalMode = mode
-  local player = core().getPlayerVehicle()
+  if ai == 'fleeGuard' then
+    battle.guardSpeed, battle.guardHold = nil, 0
+    if mode == 'flee' then
+      -- vorne: Flucht-KI mit BeamNG-Gummiband, Bremsschutz läuft in updateGuard
+      battle.spanAi = false
+      rivalVeh:queueLuaCommand(string.format(
+        "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('flee') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggressionMode('rubberBand') ai.setAggression(%f)",
+        player:getID(), battle.rival.aggression or 0.6))
+    else
+      -- hinten: span (bremst selbst für Verkehr, rammt nicht) mit eigenem Gummiband
+      battle.spanAi = true
+      battle.rubberTimer = 0
+      rivalVeh:queueLuaCommand(spanCommand(player:getID()))
+    end
+    return
+  end
+  if ai == 'span' then
+    -- gilt vorne und hinten gleich: nur einmal setzen (ein neues setMode würde die Route neu planen)
+    if battle.spanAi then return end
+    battle.spanAi = true
+    rivalVeh:queueLuaCommand(spanCommand(player:getID()))
+    return
+  end
+  if ai == 'traffic' then
+    -- Verkehrsmodus ohne Tempolimit und ohne Spurzwang, Gummiband wie bei flee/chase (wartet vorne, holt hinten auf)
+    -- gilt vorne und hinten gleich: nur einmal setzen (ein neues setMode würde die Route neu planen)
+    if battle.trafficAi then return end
+    battle.trafficAi = true
+    rivalVeh:queueLuaCommand(string.format(
+      "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('traffic') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggression(%f) ai.setAggressionMode('rubberBand')",
+      player:getID(), battle.rival.aggression or 0.6))
+    return
+  end
   rivalVeh:queueLuaCommand(string.format(
     "ai.setSpeedMode('off') ai.setAggression(%f) ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('%s')",
     battle.rival.aggression or 0.6, player:getID(), mode))
@@ -326,6 +427,7 @@ local function finishBattle(won)
   local rivalVeh = rivals().getRivalVehicle()
   if rivalVeh then
     setWarnSignal(rivalVeh, false)
+    if battle.ownAi then driver().stop(rivalVeh); battle.ownAi = false end
     rivals().setCruise(rivalVeh, battle.rival)
   end
   core().onBattleResult(battle.rival, won, {
@@ -339,6 +441,55 @@ local function damageSp(vehId, lastKey)
   return math.min(math.max(dmg - last, 0) * cfg.spPerDamage, cfg.maxDamageSpPerTick)
 end
 
+-- Bremsschutz der Flucht-KI: langsameres Auto direkt voraus in der Spur -> Tempo kurz begrenzen
+local function updateGuard(dt, rivalVeh)
+  battle.guardTimer = (battle.guardTimer or 0) - dt
+  battle.guardHold = math.max((battle.guardHold or 0) - dt, 0)
+  if battle.guardTimer > 0 then return end
+  battle.guardTimer = 0.1
+  local objs = map and map.objects
+  if not objs and not battle.guardWarned then
+    battle.guardWarned = true
+    log('W', logTag, 'Bremsschutz: map.objects fehlt, Flucht-KI fährt ohne Bremsschutz')
+  end
+  local rid = rivalVeh:getID()
+  local me = objs and objs[rid]
+  if not me then return end
+  local dir = rivalVeh:getDirectionVector()
+  dir.z = 0
+  if dir:length() < 0.1 then return end
+  dir = dir:normalized()
+  local right = dir:cross(vec3(0, 0, 1))
+  local myV = me.vel:dot(dir)
+  local want = nil
+  for id, o in pairs(objs) do
+    if id ~= rid and o.pos then
+      local rel = o.pos - me.pos
+      local along = rel:dot(dir)
+      if along > 1 and along < cfg.guardLookAhead and math.abs(rel:dot(right)) < cfg.guardLateral and math.abs(rel.z) < 4 then
+        local otherV = o.vel and o.vel:dot(dir) or 0
+        local closing = myV - otherV
+        -- Abstand Front zu Heck grob: Mitte zu Mitte minus eine Autolänge
+        local gap = along - 4.5
+        if closing > 0.5 and gap / closing < cfg.guardTtc then
+          local v = math.max(otherV - cfg.guardSpeedMargin, 0)
+          if not want or v < want then want = v end
+        end
+      end
+    end
+  end
+  if want then
+    battle.guardHold = cfg.guardHold
+    if not battle.guardSpeed or math.abs(battle.guardSpeed - want) > 1 then
+      battle.guardSpeed = want
+      rivalVeh:queueLuaCommand(string.format("ai.setSpeed(%f) ai.setSpeedMode('limit')", want))
+    end
+  elseif battle.guardSpeed and battle.guardHold <= 0 then
+    battle.guardSpeed = nil
+    rivalVeh:queueLuaCommand("ai.setSpeedMode('off')")
+  end
+end
+
 local function updateBattle(dt, player, rivalVeh)
   local gap = getGap(player, rivalVeh)
   battle.gap = gap
@@ -350,6 +501,34 @@ local function updateBattle(dt, player, rivalVeh)
     setRivalAi(rivalVeh, 'chase')
   elseif not battle.rivalMode then
     setRivalAi(rivalVeh, gap >= 0 and 'flee' or 'chase')
+  end
+
+  if battle.ownAi then
+    driver().update(dt, rivalVeh, gap, battle.rivalSp / math.max(battle.rivalMaxSp, 1), battle.playerSp / math.max(cfg.playerMaxSp, 1))
+  end
+
+  if not battle.ownAi and aiMode(rivalVeh) == 'fleeGuard' and battle.rivalMode == 'flee' then
+    local ok, err = pcall(updateGuard, dt, rivalVeh)
+    if not ok and not battle.guardWarned then
+      battle.guardWarned = true
+      log('W', logTag, 'Bremsschutz: ' .. tostring(err))
+    end
+  end
+
+  -- Eigenes Gummiband im span-Modus (BeamNG hat dort keins): vorne etwas ruhiger, hinten mehr Druck
+  if battle.spanAi then
+    battle.rubberTimer = (battle.rubberTimer or 0) - dt
+    if battle.rubberTimer <= 0 then
+      battle.rubberTimer = 1
+      local base = battle.rival.aggression or 0.6
+      local f = math.min(math.abs(gap) / cfg.rubberDist, 1)
+      local a = gap > 0 and (base - cfg.rubberAhead * f) or (base + cfg.rubberBehind * f)
+      a = math.floor(math.max(0.3, math.min(1, a)) * 100 + 0.5) / 100
+      if a ~= battle.rubberAggr then
+        battle.rubberAggr = a
+        rivalVeh:queueLuaCommand(string.format('ai.setAggression(%f)', a))
+      end
+    end
   end
 
   -- Wer hinten liegt, verliert SP
@@ -378,21 +557,48 @@ end
 -- HUD-Daten für die UI-App ------------------------------------------------------------
 
 -- Spruch des Rivalen (lines.challenge / lines.win / lines.lose aus rivals.json, aus Sicht des Rivalen):
--- challenge beim Angleichen und Countdown, nach dem Battle win (Rivale gewinnt) oder lose (Rivale verliert)
+-- challenge beim Angleichen (challengeQuoteTime lang, danach Countdown ohne Spruch), nach dem Battle win (Rivale gewinnt) oder lose (Rivale verliert).
+-- Zweiter Rückgabewert = Art (challenge/win/lose) für die Farbe der Sprechblase
 local function rivalQuote()
   local lines = battle.rival.lines
   if type(lines) ~= 'table' then return nil end
   local key
-  if state == 'sync' or state == 'countdown' then key = 'challenge'
+  if state == 'sync' and (battle.quoteLeft or 0) > 0 then key = 'challenge'
   elseif state == 'result' then key = battle.won and 'lose' or 'win' end
   local text = key and extensions.hashiriyaBattle_progress.loc(lines[key]) or ''
-  return text ~= '' and text or nil
+  if text == '' then return nil end
+  return text, key
+end
+
+-- Porträt des Rivalen, nil wenn keins da ist. Reihenfolge: rivals.json "portrait" (eigener Pfad),
+-- dann art/portraits/<id>.png / .jpg (eigenes Bild), dann <id>.svg (Silhouetten-Tool).
+local portraitCache = {}
+local function portraitOf(rival)
+  local id = rival and (rival.baseId or rival.id)
+  if not id then return nil end
+  local hit = portraitCache[id]
+  -- gefundene Bilder bleiben gemerkt; fehlende werden nach 30 s neu gesucht (Bild während des Spiels eingefügt)
+  if hit and hit.path then return hit.path end
+  if hit and os.clock() - hit.t < 30 then return nil end
+  local list = {}
+  if type(rival.portrait) == 'string' and rival.portrait ~= '' then list[1] = '/' .. (rival.portrait:gsub('^/', '')) end
+  for _, ext in ipairs({ 'png', 'jpg', 'svg' }) do list[#list + 1] = '/art/portraits/' .. id .. '.' .. ext end
+  local found = nil
+  for _, path in ipairs(list) do
+    if FS:fileExists(path) then found = path; break end
+  end
+  portraitCache[id] = { path = found, t = os.clock() }
+  log(found and 'I' or 'W', logTag, 'Porträt ' .. id .. ': ' .. (found or ('keins gefunden (' .. table.concat(list, ', ') .. ')')))
+  return found
 end
 
 function M.getHudState()
   if not battle then return nil end
+  local quote, quoteKind = rivalQuote()
   return {
-    quote = rivalQuote(),
+    quote = quote,
+    quoteKind = quoteKind,
+    portrait = quote and portraitOf(battle.rival) or nil,
     state = state,
     rivalName = battle.rival.name,
     playerSp = math.max(math.floor(battle.playerSp), 0),
@@ -417,6 +623,7 @@ end
 local function onUpdate(dtReal, dtSim)
   local c = core()
   if not c or not c.active then return end
+  if extensions.hashiriyaBattle_home.isResting() then return end
   local player = c.getPlayerVehicle()
   if not player then return end
 
@@ -436,6 +643,9 @@ local function onUpdate(dtReal, dtSim)
   if not rivalVeh then M.reset(); return end
 
   if state == 'sync' or state == 'countdown' then
+    -- echtes Tempo des Rivalen (geglättet): die KI bremst für Verkehr und Kurven, dein Tempomat folgt ihr
+    local rvNow = rivalVeh:getVelocity():length()
+    battle.rivalV = battle.rivalV and (battle.rivalV + (rvNow - battle.rivalV) * math.min(1, dtSim * 2)) or rvNow
     -- Der BeamNG-Tempomat schaltet sich beim Bremsen ab: regelmäßig wieder einschalten
     battle.relock = (battle.relock or 0.5) - dtSim
     if battle.relock <= 0 then
@@ -445,6 +655,7 @@ local function onUpdate(dtReal, dtSim)
   end
 
   if state == 'sync' then
+    battle.quoteLeft = math.max(0, (battle.quoteLeft or 0) - dtSim)
     -- Tempo angleichen: Tempomat gibt Gas bzw. lässt ausrollen (er bremst nicht), dann startet der Countdown
     timer = timer - dtSim
     local gap = getGap(player, rivalVeh)
@@ -461,20 +672,23 @@ local function onUpdate(dtReal, dtSim)
       if battle.rivalRelock <= 0 then
         battle.rivalRelock = 0.5
         local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, behind - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
-        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", battle.rivalSpeed + catchUp))
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", battle.rivalSpeed + catchUp))
       end
       battle.lockSpeed = battle.rivalSpeed
       local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
-      if (behind <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0 then
+      if ((behind <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 then
         state = 'countdown'
         timer = cfg.countdown
         battle.startGap = gap
         battle.relock = 0
-        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", battle.rivalSpeed))
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", battle.rivalSpeed))
       end
       return
     end
-    if gap < 2 then -- in der Angleich-Phase überholt = Frühstart
+    -- in der Angleich-Phase überholt = Frühstart, aber nur wenn du schneller warst
+    -- (bremst der Rivale für Verkehr und du rollst ran, ist das nicht deine Schuld)
+    local playerFaster = player:getVelocity():length() > battle.rivalV + 3 / 3.6
+    if gap < 2 and (playerFaster or gap < -4) then
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)
       M.reset(falseStartCooldown())
@@ -482,13 +696,13 @@ local function onUpdate(dtReal, dtSim)
     end
     -- Zu weit weg: Tempomat etwas schneller als der Rivale, bis man auf syncTargetGap dran ist
     local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, gap - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
-    battle.lockSpeed = battle.rivalSpeed + catchUp
-    local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
-    if (gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0 then
+    battle.lockSpeed = battle.rivalV + catchUp
+    local diff = math.abs(player:getVelocity():length() - battle.rivalV) * 3.6
+    if ((gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 then
       state = 'countdown'
       timer = cfg.countdown
       battle.startGap = gap
-      battle.lockSpeed = math.max(battle.rivalSpeed, math.min(player:getVelocity():length(), battle.rivalSpeed + cfg.syncToleranceKmh / 3.6))
+      battle.lockSpeed = math.max(battle.rivalV, math.min(player:getVelocity():length(), battle.rivalV + cfg.syncToleranceKmh / 3.6))
       battle.relock = 0
     end
     return
@@ -496,6 +710,15 @@ local function onUpdate(dtReal, dtSim)
 
   if state == 'countdown' then
     timer = timer - dtSim
+    -- Erfahrene Rivalen schalten kurz vor "Los" runter (eigener Fahrer)
+    if battle.launchAt == nil then
+      battle.launchAt = false
+      if aiMode(rivalVeh) == 'own' then battle.launchAt = driver().launchLead(battle.rival) or false end
+    end
+    if battle.launchAt and not battle.launchDone and timer <= battle.launchAt then
+      battle.launchDone = true
+      driver().prepareLaunch(rivalVeh)
+    end
     local count = math.ceil(timer)
     if count ~= battle.beep and count > 0 then
       battle.beep = count
@@ -513,7 +736,12 @@ local function onUpdate(dtReal, dtSim)
     end
     -- Frühstart: vorgefahren oder schneller als der Tempomat
     local gap = getGap(player, rivalVeh)
-    if battle.startGap and (gap < battle.startGap - cfg.falseStartGap
+    -- Tempomat folgt dem Rivalen und hält den Abstand vom Countdown-Start
+    if battle.startGap then
+      battle.lockSpeed = math.max(battle.rivalV + math.max(-2, math.min(2, (gap - battle.startGap) * 0.4)), 5)
+    end
+    local playerFaster = player:getVelocity():length() > battle.rivalV + 3 / 3.6
+    if battle.startGap and ((gap < battle.startGap - cfg.falseStartGap and playerFaster)
         or player:getVelocity():length() > battle.lockSpeed + cfg.falseStartKmh / 3.6) then
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)

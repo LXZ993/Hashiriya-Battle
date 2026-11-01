@@ -120,7 +120,25 @@ local function rivalPaint(p)
   }
 end
 
--- Config fürs Spawnen: Pfad, oder Tabelle mit Kennzeichen-Design und Lack. Zweiter Wert = Lack (oder nil)
+-- Lack aus der info_<config>.json neben der .pc (defaultMultiPaintSetup paint1..3), so wie BeamNG ihn beim
+-- Speichern einer eigenen Config ablegt. Wird gebraucht, weil wir mit einer Config-Tabelle spawnen.
+local function infoPaints(path)
+  local dir, name = tostring(path):match('^(.*)/([^/]+)%.pc$')
+  if not dir then return nil end
+  local info = readPc(dir .. '/info_' .. name .. '.json')
+  local setup = type(info) == 'table' and info.defaultMultiPaintSetup
+  if type(setup) ~= 'table' or type(setup.paint1) ~= 'table' then return nil end
+  local function one(p)
+    if type(p) ~= 'table' or type(p.baseColor) ~= 'table' then return nil end
+    return { baseColor = p.baseColor, metallic = p.metallic or 0, roughness = p.roughness or 0.5,
+      clearcoat = p.clearcoat or 0, clearcoatRoughness = p.clearcoatRoughness or 0 }
+  end
+  local p1 = one(setup.paint1)
+  if not p1 then return nil end
+  return { p1, one(setup.paint2) or p1, one(setup.paint3) or p1 }
+end
+
+-- Config fürs Spawnen: Pfad, oder Tabelle mit Kennzeichen-Design und Lack. Zweiter Wert = Lacke {1,2,3} (oder nil)
 local function spawnSetup(rival)
   local path = rival.config ~= '' and rival.config or nil
   local design = rival.plate and rival.plate.design
@@ -130,6 +148,9 @@ local function spawnSetup(rival)
   if not pc or type(pc.parts) ~= 'table' then return path, nil end
   if paint and hasLivery(pc.parts) then paint = nil end
   local cfg = { parts = {}, vars = {}, paints = pc.paints }
+  local paints = nil
+  if paint then paints = { paint, paint, paint }
+  elseif not pc.paints then paints = infoPaints(path); cfg.paints = paints end
   for k, v in pairs(pc.parts) do cfg.parts[k] = v end
   for k, v in pairs(pc.vars or {}) do cfg.vars[k] = v end
   if design then
@@ -139,8 +160,8 @@ local function spawnSetup(rival)
     end
     if not set then cfg.parts.licenseplate_design_2_1 = design end
   end
-  if paint then cfg.paints = { paint, paint, paint } end
-  return cfg, paint
+  if paint then cfg.paints = paints end
+  return cfg, paints
 end
 
 local function leaderOf(teamId)
@@ -251,6 +272,14 @@ local function isEligible(rival, save)
   return conditionsMet(rival.conditions, save)
 end
 
+-- Für die PA-Gespräche: könnte dieser Rivale gerade auftauchen?
+function M.isEligible(rival, save)
+  save = save or core().save
+  if not save or not rival then return false end
+  local ok, res = pcall(isEligible, rival, save)
+  return ok and res or false
+end
+
 -- Wie viele Battles diese Nacht noch gehen
 function M.battlesLeftTonight()
   local save = core().save
@@ -272,6 +301,7 @@ local function rematchOf(r, save)
   copy.maxSp = math.floor((r.maxSp or 1000) * (rm.spFactor or 1.1) * (1 + math.min(n, 3) * 0.05))
   copy.cruiseKmh = (r.cruiseKmh or 100) + 5
   copy.rewardUsd = math.floor((r.rewardUsd or 1000) * (rm.rewardFactor or 0.4))
+  if tonumber(r.rewardYen) then copy.rewardYen = math.floor(tonumber(r.rewardYen) * (rm.rewardFactor or 0.4)) end
   copy.rep = math.floor((r.rep or 30) * (rm.repFactor or 0.25))
   return copy
 end
@@ -312,6 +342,33 @@ local function isRivalVeh(id)
   return false
 end
 
+-- Kanten im KI-Straßennetz können einseitig gespeichert sein (nur nodes[a].links[b], nicht nodes[b].links[a]),
+-- daher immer in beide Richtungen nachsehen (wie map.lua selbst).
+local function edgeOf(nodes, a, b)
+  local na, nb = nodes[a], nodes[b]
+  return (na and na.links and na.links[b]) or (nb and nb.links and nb.links[a]) or nil
+end
+
+-- Nachbarn eines Knotens, auch über einseitig gespeicherte Kanten (Rückwärts-Index, einmal pro Straßennetz)
+local reverseLinks, reverseFor = nil, nil
+local function neighbors(nodes, id)
+  if reverseFor ~= nodes then
+    reverseLinks, reverseFor = {}, nodes
+    for a, n in pairs(nodes) do
+      for b in pairs(n.links or {}) do
+        reverseLinks[b] = reverseLinks[b] or {}
+        reverseLinks[b][a] = true
+      end
+    end
+  end
+  local out = {}
+  for b in pairs((nodes[id] and nodes[id].links) or {}) do out[b] = true end
+  for a in pairs(reverseLinks[id] or {}) do out[a] = true end
+  return out
+end
+
+local relaxOneWay = false -- Dev-Spawn: zur Not ohne Einbahn-Regeln
+
 local function calibrateOneWay(player)
   local nodes = map.getMap().nodes
   if not nodes then return end
@@ -323,7 +380,7 @@ local function calibrateOneWay(player)
       if vel and vel:length() > 8 then
         local p = o:getPosition()
         local n1, n2, dist = map.findClosestRoad(p)
-        local l = n1 and n2 and nodes[n1] and nodes[n1].links and nodes[n1].links[n2]
+        local l = n1 and n2 and edgeOf(nodes, n1, n2)
         if l and dist and dist < 5 and l.oneWay and l.inNode and l.outNode and nodes[l.inNode] and nodes[l.outNode] then
           local d = (nodes[l.outNode].pos - nodes[l.inNode].pos):normalized():dot(vel:normalized())
           if d > 0.7 then oneWayVotes.plus = oneWayVotes.plus + 1 elseif d < -0.7 then oneWayVotes.minus = oneWayVotes.minus + 1 end
@@ -345,9 +402,9 @@ end
 
 -- Darf man von `from` nach `to` fahren? nil = Richtung noch unbekannt (Einbahn, aber noch nichts gelernt)
 local function linkAllowed(nodes, from, to)
-  local l = nodes[from] and nodes[from].links and nodes[from].links[to]
+  local l = edgeOf(nodes, from, to)
   if not l then return false, nil end
-  if not (l.oneWay and l.inNode and l.outNode) then return true, l end
+  if relaxOneWay or not (l.oneWay and l.inNode and l.outNode) then return true, l end
   if not oneWaySign then return nil, l end
   local forward = (l.inNode == from) == (oneWaySign > 0)
   return forward, l
@@ -357,17 +414,20 @@ end
 -- Einbahn-Kanten in Gegenrichtung (= Gegenfahrbahn) werden abgelehnt.
 local function closestRoadSpawn(pos, dir, distance)
   local target = pos + dir * distance
-  local n1, n2 = map.findClosestRoad(target)
+  local n1, n2, roadDist = map.findClosestRoad(target)
   if not n1 or not n2 then return nil, 'keine Straße am Ziel' end
   local nodes = map.getMap().nodes
   if not nodes[n1] or not nodes[n2] then return nil, 'Knoten fehlt' end
-  local np = nodes[n1].pos
-  if math.abs(np.z - target.z) > 8 or (vec3(np.x, np.y, 0) - vec3(target.x, target.y, 0)):length() > 25 then return nil, 'Ziel neben der Straße' end
   local p1, p2 = nodes[n1].pos, nodes[n2].pos
   local seg = p2 - p1
   local segLen2 = seg:squaredLength()
   if segLen2 < 0.01 then return nil, 'Kante zu kurz' end
   local t = clamp((target - p1):dot(seg) / segLen2, 0, 1)
+  -- Abstand zum nächsten Punkt auf der Kante (nicht zum Knoten: Kanten können lang sein)
+  local onRoadPos = p1 + seg * t
+  if (roadDist and roadDist > 25) or math.abs(onRoadPos.z - target.z) > 12 then
+    return nil, string.format('Ziel neben der Straße (%.0f m)', roadDist or -1)
+  end
   local a, b = n1, n2
   if seg:dot(dir) < 0 then a, b = n2, n1 end
   local ok = linkAllowed(nodes, a, b)
@@ -397,7 +457,7 @@ local function walkRoad(nodes, pos, dir, distance)
   local bridges, walked = 0, 0
   for _ = 1, 800 do
     local best, bestScore
-    for nid in pairs(nodes[cur].links or {}) do
+    for nid in pairs(neighbors(nodes, cur)) do
       if nid ~= prev and nodes[nid] then
         local ok, l = allowed(cur, nid)
         if ok then
@@ -509,7 +569,7 @@ local cruiseAggression = 0.3
 function setCruise(veh, rival)
   local speed = (rival.cruiseKmh or 100) / 3.6
   veh:queueLuaCommand(string.format(
-    "ai.setMode('traffic') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
+    "ai.setMode('traffic') ai.setAggressionMode('off') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
     speed, cruiseAggression))
 end
 M.setCruise = setCruise
@@ -565,10 +625,18 @@ function M.spawnNext(force, forced)
   local behindChance = rival.rematch and (settings().spawnBehindRematch or 0.25) or (settings().spawnBehindNew or 0.05)
   local behind = not force and math.random() < behindChance
   local pos, dir, dist, failWhy
-  for _ = 1, 4 do
+  -- Rufen/Dev-Spawn: mehrere Abstände probieren, zur Not ohne Einbahn-Regeln
+  local forceDists = { 160, 250, 350, 120, 500, -150 }
+  local tries = force and #forceDists * 2 or 4
+  for i = 1, tries do
     dist = behind and -(behindMin + math.random() * (behindMax - behindMin)) or (spawnMin + math.random() * (spawnMax - spawnMin))
-    if force then dist = 160 end
+    if force then
+      dist = forceDists[(i - 1) % #forceDists + 1]
+      relaxOneWay = i > #forceDists
+    end
     pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), dist)
+    relaxOneWay = false
+    if pos and force and i > #forceDists then log('W', logTag, 'Rivale ohne Einbahn-Prüfung gespawnt (Straßennetz unklar)') end
     if pos then
       if spawnFree(pos, 20) then break end
       failWhy = 'Verkehr am Spawnpunkt'
@@ -578,15 +646,16 @@ function M.spawnNext(force, forced)
     pos = nil
   end
   if not pos then
-    log('I', logTag, 'Kein Rivalen-Spawnpunkt (' .. tostring(dist and math.floor(dist)) .. ' m): ' .. tostring(failWhy))
+    log('I', logTag, 'Kein Rivalen-Spawnpunkt (' .. tostring(dist and math.floor(dist)) .. ' m): ' .. tostring(failWhy)
+      .. ', Einbahn gelernt: ' .. tostring(oneWaySign) .. string.format(' (%d/%d)', oneWayVotes.plus, oneWayVotes.minus))
     if force then core().msg(core().t('msg.noRoad')) end
     return
   end
 
-  local cfg, paint = spawnSetup(rival)
+  local cfg, paints = spawnSetup(rival)
   local plateText = rival.plate and rival.plate.text
   local opts = { config = cfg, pos = pos, rot = quatFromDir(dir, vec3(0, 0, 1)), autoEnterVehicle = false, licenseText = plateText }
-  if paint then opts.paint, opts.paint2, opts.paint3 = paint, paint, paint end
+  if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
   local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, rival.model, opts)
   if (not okSpawn or not veh) and type(cfg) == 'table' then
     -- Ersatz: Original-Config ohne Kennzeichen-Design und Lack
@@ -680,7 +749,7 @@ end
 
 local function onUpdate(dtReal, dtSim)
   local c = core()
-  if not c or not c.active then return end
+  if not c or not c.active or home().isResting() then return end
   local player = c.getPlayerVehicle()
   local busy = extensions.hashiriyaBattle_battle.isBusy()
   local night = not settings().nightOnly or home().isNight()

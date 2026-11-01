@@ -1,16 +1,17 @@
 {
-  "_hinweis": "Rivalen fuer C1 (297 Gegner: 26 Crews, Wanderer, Bosse). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). settings: maxOnRoad = Rivalen gleichzeitig im Verkehr, spawnBehindNew/spawnBehindRematch = Chance, dass ein neuer Gegner bzw. eine Revanche hinter dir statt vor dir spawnt, rechallengeSeconds = Pause bis zur naechsten Herausforderung desselben Rivalen, falseStartRechallengeSeconds = dieselbe Pause nach einem Fruehstart, maxBattlesPerNight (optional) = Battles pro Nacht. conditions: minRank, minWins, minDay, speedTraps (all oder Anzahl), hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. lines = Sprüche des Rivalen im SP-HUD: challenge beim Start, win wenn der Rivale gewinnt, lose wenn er verliert. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. lines = Sprüche des Rivalen im SP-HUD: challenge beim Start, win wenn der Rivale gewinnt, lose wenn er verliert.",
+  "_hinweis": "Rivalen fuer C1 (297 Gegner: 26 Crews, Wanderer, Bosse). Eigene Namen, keine Originalnamen. model/config = BeamNG-Config (vehicles/<model>/<key>.pc). aggression 0.3 (vorsichtig) bis 1.0 (sehr aggressiv). cruiseKmh = Tempo vor dem Battle. maxSp = Spirit Points. rewardUsd wird in Yen umgerechnet (settings.rewardScale = Faktor für alle Preisgelder, 0.5 = halb so viel). rewardYen (optional) = genauer Yen-Betrag, ersetzt rewardUsd ohne Umrechnung, Rundung, rewardScale und Serien-Bonus. rep = Ruf-Punkte fuer den Rang. Geschlagene Rivalen kommen als Revanche wieder (settings.rematch: weight = Anteil der Revanchen, solange neue Gegner da sind, rewardFactor/repFactor = Anteil der Belohnung, aggressionBonus/spFactor = staerker). Teams erscheinen ab minRank (Index in ranks, 0 = erster Rang). settings: maxOnRoad = Rivalen gleichzeitig im Verkehr, spawnBehindNew/spawnBehindRematch = Chance, dass ein neuer Gegner bzw. eine Revanche hinter dir statt vor dir spawnt, rechallengeSeconds = Pause bis zur naechsten Herausforderung desselben Rivalen, falseStartRechallengeSeconds = dieselbe Pause nach einem Fruehstart, maxBattlesPerNight (optional) = Battles pro Nacht. conditions: minRank, minWins, minDay, speedTraps (all oder Anzahl), hours [von, bis], playerModel, playerPart (Wort im Teilenamen), beatenTeam, beatenTeams, beatenRivals. plate = Kennzeichen aus Agent's Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. lines = Sprüche des Rivalen im SP-HUD: challenge beim Start, win wenn der Rivale gewinnt, lose wenn er verliert.",
   "settings": {
     "nightOnly": true,
-    "maxOnRoad": 4,
+    "rewardScale": 0.5,
+    "maxOnRoad": 6,
     "spawnBehindNew": 0.05,
     "spawnBehindRematch": 0.25,
-    "rechallengeSeconds": 60,
-    "falseStartRechallengeSeconds": 30,
-    "teamMembersPerNight": 2,
+    "rechallengeSeconds": 30,
+    "falseStartRechallengeSeconds": 15,
+    "teamMembersPerNight": 12,
     "rivalOncePerNight": false,
     "lostRivalCooldownNights": 0,
-    "leaderNotSameNight": true,
+    "leaderNotSameNight": false,
     "leaderChance": 0.7,
     "lossRep": -10,
     "cleanWinMaxDamageSp": 60,
@@ -21,8 +22,8 @@
       "weight": 0.25,
       "rewardFactor": 0.4,
       "repFactor": 0.25,
-      "aggressionBonus": 0.08,
-      "spFactor": 1.1
+      "aggressionBonus": 0.15,
+      "spFactor": 1.2
     }
   },
   "ranks": [
@@ -590,7 +591,7 @@
       "paint": {
         "name": "pink",
         "color": [
-          1.0,
+          1,
           0.35,
           0.65
         ],
@@ -878,7 +879,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -1216,7 +1217,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -1476,7 +1477,7 @@
           0.9,
           0.75
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.45
       },
       "lines": {
@@ -1741,8 +1742,8 @@
         "name": "italred",
         "color": [
           0.75,
-          0.0,
-          0.0
+          0,
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -1866,7 +1867,7 @@
       "paint": {
         "name": "peach",
         "color": [
-          1.0,
+          1,
           0.7,
           0.55
         ],
@@ -1962,7 +1963,7 @@
       "paint": {
         "name": "yellow",
         "color": [
-          1.0,
+          1,
           0.82,
           0.05
         ],
@@ -2010,7 +2011,7 @@
       "paint": {
         "name": "pink",
         "color": [
-          1.0,
+          1,
           0.35,
           0.65
         ],
@@ -2106,7 +2107,7 @@
       "paint": {
         "name": "coral",
         "color": [
-          1.0,
+          1,
           0.45,
           0.4
         ],
@@ -2636,7 +2637,7 @@
           0.9,
           0.75
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.45
       },
       "lines": {
@@ -2762,7 +2763,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -2982,7 +2983,7 @@
         "color": [
           0.8,
           0.9,
-          1.0
+          1
         ],
         "metallic": 0.7,
         "roughness": 0.25
@@ -4570,7 +4571,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -4896,7 +4897,7 @@
       "paint": {
         "name": "yellow",
         "color": [
-          1.0,
+          1,
           0.82,
           0.05
         ],
@@ -5916,7 +5917,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -6146,7 +6147,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -6482,7 +6483,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -6738,7 +6739,7 @@
         "color": [
           0.1,
           0.6,
-          1.0
+          1
         ],
         "metallic": 0.7,
         "roughness": 0.2
@@ -6826,7 +6827,7 @@
         "color": [
           0.1,
           0.6,
-          1.0
+          1
         ],
         "metallic": 0.7,
         "roughness": 0.2
@@ -7614,7 +7615,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -8056,7 +8057,7 @@
       "paint": {
         "name": "yellow",
         "color": [
-          1.0,
+          1,
           0.82,
           0.05
         ],
@@ -8696,7 +8697,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -8947,8 +8948,8 @@
         "name": "italred",
         "color": [
           0.75,
-          0.0,
-          0.0
+          0,
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -8998,7 +8999,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -9118,9 +9119,9 @@
       "paint": {
         "name": "italyellow",
         "color": [
-          1.0,
+          1,
           0.78,
-          0.0
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -9294,7 +9295,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -9341,8 +9342,8 @@
         "name": "italred",
         "color": [
           0.75,
-          0.0,
-          0.0
+          0,
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -9502,7 +9503,7 @@
       "paint": {
         "name": "frenchblue",
         "color": [
-          0.0,
+          0,
           0.2,
           0.6
         ],
@@ -9554,7 +9555,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -9638,7 +9639,7 @@
       "paint": {
         "name": "frenchblue",
         "color": [
-          0.0,
+          0,
           0.2,
           0.6
         ],
@@ -10044,7 +10045,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -10582,7 +10583,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -10838,9 +10839,9 @@
       "paint": {
         "name": "italyellow",
         "color": [
-          1.0,
+          1,
           0.78,
-          0.0
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -10890,7 +10891,7 @@
           0.95,
           0.95
         ],
-        "metallic": 0.0,
+        "metallic": 0,
         "roughness": 0.35
       },
       "lines": {
@@ -11080,7 +11081,7 @@
         "color": [
           0.4,
           0.7,
-          1.0
+          1
         ],
         "metallic": 0.6,
         "roughness": 0.25
@@ -11127,8 +11128,8 @@
         "name": "italred",
         "color": [
           0.75,
-          0.0,
-          0.0
+          0,
+          0
         ],
         "metallic": 0.1,
         "roughness": 0.25
@@ -11174,7 +11175,7 @@
       "paint": {
         "name": "orange",
         "color": [
-          1.0,
+          1,
           0.45,
           0.05
         ],
@@ -13297,6 +13298,103 @@
       "hint": {
         "de": "Nur zwischen 3 und 4 Uhr, erst nach Fukurō und Signora Corsa.",
         "en": "Only between 3 and 4 am, after Fukurō and Signora Corsa."
+      }
+    },
+    {
+      "id": "w_henry",
+      "name": "Slim Henry",
+      "nick": {
+        "de": "Der Hübsche",
+        "en": "The Handsome"
+      },
+      "wanderer": true,
+      "model": "etki",
+      "config": "vehicles/etki/hashiriya_wanderer_henry.pc",
+      "aggression": 0.8,
+      "cruiseKmh": 115,
+      "maxSp": 1500,
+      "rewardUsd": 15000,
+      "rep": 200,
+      "conditions": {
+        "minRank": 3,
+        "beatenTeam": "t_neon",
+        "hours": [
+          23,
+          4
+        ]
+      },
+      "plate": {
+        "text": "404/24-07",
+        "design": "am5jp_shinagawa_standard"
+      },
+      "lines": {
+        "challenge": {
+          "de": "Ich hole die schweren Geschütze aus Deutschland! Kommst du damit klar?",
+          "en": "I'm bringing the big guns from Germany! Can you handle that?"
+        },
+        "win": {
+          "de": "Ich wusste, dass du das nicht draufhast. Gib mir einfach deine Autoschlüssel und geh zu Fuß nach Hause.",
+          "en": "I knew you didn't have it in you. Just give me your car keys and walk home."
+        },
+        "lose": {
+          "de": "Du fährst wie ein Verrückter... Gefällt mir, aber beim nächsten Mal schlägst du mich nicht!",
+          "en": "You drive like a maniac... I like it, but you won't beat me next time!"
+        }
+      },
+      "desc": {
+        "de": "Er ist früher mit seinem I-Series-Modell auf der Autobahn gefahren. Er hat den weiten Weg über den großen Teich auf sich genommen, um deutsche Präzision mit japanischem Erfindungsreichtum zu vergleichen.",
+        "en": "Used to race his I-Series on the Autobahn. Came all the way across the pond to compare German precision to Japanese ingenuity."
+      },
+      "hint": {
+        "de": "Erst nach dem Sieg über den Ginza Neon Club, zwischen 23 und 4 Uhr.",
+        "en": "Only after beating the Ginza Neon Club, between 11 pm and 4 am."
+      }
+    },
+    {
+      "id": "w_alex_zockt",
+      "name": "Alex Zockt",
+      "nick": {
+        "de": "LXZ",
+        "en": "LXZ"
+      },
+      "wanderer": true,
+      "model": "bx",
+      "config": "vehicles/bx/hashiriya_wanderer_lxz.pc",
+      "aggression": 0.85,
+      "cruiseKmh": 130,
+      "maxSp": 1477,
+      "rewardUsd": 7777,
+      "rewardYen": 777777,
+      "rep": 80,
+      "conditions": {
+        "minRank": 7,
+        "speedTraps": 7
+      },
+      "plate": {
+        "text": "330/.. .7",
+        "design": "am5jp_shinagawa_glow"
+      },
+      "lines": {
+        "challenge": {
+          "de": "Friss den Ruß aus meinem glühenden Endtopf!",
+          "en": "Eat the soot from my glowing tailpipe!"
+        },
+        "win": {
+          "de": "7x Glück für mich, 7x Pech für dich!",
+          "en": "7 times luck for me, 7 times bad luck for you!"
+        },
+        "lose": {
+          "de": "Näääh niemals ist das passiert!",
+          "en": "Nah, that never happened!"
+        }
+      },
+      "desc": {
+        "de": "Er weiß nicht, wie er heißt, aber denkt, er wäre der Schnellste!",
+        "en": "He doesn’t know what his own name is, but he thinks he’s the fastest!"
+      },	  
+      "hint": {
+        "de": "Sieben ist die Zahl.",
+        "en": "Seven is the number."
       }
     },
     {

@@ -1,5 +1,5 @@
 // BeamNG-Symbole (aus ui/ui-vue/src/assets/fonts/bngIcons, Farbe über currentColor)
-var HB_TITLE_ICONS = {"raceFlag": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 5,4 l 4,0 0,2 2,0 0,-2 2,0 0.39,0.08 0.32,0.21 0.21,0.32 0.08,0.39 0,2 1,0 0,-2 2,0 0,2 1,0 0,-2 0.08,-0.39 0.21,-0.32 0.32,-0.21 0.39,-0.08 0,10 -0.08,0.39 -0.21,0.32 -0.32,0.21 -0.39,0.08 0,-2 -1,0 0,2 -2,0 0,-2 -1,0 0,2 -0.39,-0.08 -0.32,-0.21 -0.21,-0.32 -0.08,-0.39 -2,0 0,-2 -2,0 0,2 -2,0 0,6 -2,0 0,-16 Z M 7,6 l 0,2 2,0 0,2 -2,0 0,2 2,0 0,-2 2,0 0,2 2,0 0,-2 -2,0 0,-2 2,0 0,-2 -2,0 0,2 -2,0 0,-2 -2,0 Z M 15,9 l 2,0 0,-2 -2,0 0,2 Z M 17,11 l -2,0 0,2 2,0 0,-2 Z M 15,11 l 0,-2 -1,0 0,2 1,0 Z M 17,11 l 1,0 0,-2 -1,0 0,2 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "playRound": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 12,22 l -1.02,-0.05 -1,-0.15 -0.95,-0.25 -0.92,-0.34 -1.7,-0.92 -1.48,-1.22 -1.22,-1.48 -0.92,-1.7 -0.34,-0.92 -0.25,-0.95 -0.15,-1 -0.05,-1.02 0.05,-1.02 0.15,-1 0.25,-0.95 0.34,-0.92 0.92,-1.7 1.22,-1.48 1.48,-1.22 1.7,-0.92 0.92,-0.34 0.95,-0.25 1,-0.15 1.02,-0.05 1.02,0.05 1,0.15 0.95,0.25 0.92,0.34 1.7,0.92 1.48,1.22 1.22,1.48 0.92,1.7 0.34,0.92 0.25,0.95 0.15,1 0.05,1.02 -0.05,1.02 -0.15,1 -0.25,0.95 -0.34,0.92 -0.92,1.7 -1.22,1.48 -1.48,1.22 -1.7,0.92 -0.92,0.34 -0.95,0.25 -1,0.15 -1.02,0.05 Z M 9.48,6.81 l -0.51,-0.13 -0.48,0.14 -0.35,0.36 -0.14,0.5 0,8.64 0.14,0.5 0.35,0.36 0.48,0.14 0.51,-0.13 7.91,-4.31 0.39,-0.38 0.13,-0.5 -0.13,-0.5 -0.39,-0.38 -7.91,-4.31 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "exit": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 17.13,4.35 l 2.37,-1.35 1.5,0 0,18 -1.5,0 -2.37,-1.35 -0.53,0.26 -0.6,0.09 -8,0 -0.78,-0.16 -0.63,-0.43 -0.43,-0.63 -0.16,-0.78 10,0 0,-12 -10,0 0.16,-0.78 0.43,-0.63 0.63,-0.43 0.78,-0.16 8,0 0.6,0.09 0.53,0.26 Z M 3,12 l 4,-4 1.5,0 -0.5,2.5 5,0 0,3 -5,0 0.5,2.5 -1.5,0 -4,-4 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "diceD6": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 10.66,4.17 l 0.66,-0.24 0.68,-0.08 0.68,0.08 0.66,0.24 5,2.5 0.69,0.47 0.52,0.64 0.33,0.75 0.12,0.82 0,5.3 -0.12,0.82 -0.33,0.75 -0.52,0.64 -0.69,0.47 -5,2.5 -0.66,0.24 -0.68,0.08 -0.68,-0.08 -0.66,-0.24 -5,-2.5 -0.69,-0.47 -0.52,-0.64 -0.33,-0.75 -0.12,-0.82 0,-5.3 0.12,-0.82 0.33,-0.75 0.52,-0.64 0.69,-0.47 5,-2.5 Z M 16.24,8.59 l -1.25,0.31 -0.99,0.5 -0.73,0.65 -0.51,0.79 -0.29,0.89 -0.1,0.96 0.16,0.96 0.46,0.76 0.33,0.3 0.41,0.22 0.48,0.13 0.54,0.05 0.63,-0.07 0.56,-0.19 0.46,-0.31 0.36,-0.42 0.22,-0.5 0.07,-0.57 -0.07,-0.58 -0.21,-0.5 -0.33,-0.41 -0.43,-0.32 -0.52,-0.2 -0.58,-0.06 -0.47,0.06 -0.37,0.15 0.23,-0.36 0.31,-0.29 0.79,-0.4 0.84,-0.21 0,-1.34 Z M 9.8,9.11 l 0,1.64 -0.39,-0.34 -0.51,-0.12 -0.53,0.08 -0.46,0.23 -0.39,0.37 -0.28,0.48 -0.19,0.58 -0.06,0.67 0.13,1.02 0.37,0.76 0.6,0.47 0.79,0.16 0.57,-0.13 0.35,-0.37 0,0.39 1.35,0 0,-6.5 -1.35,0.61 Z M 9.12,11.6 l 0.38,0.07 0.3,0.22 0,1.65 -0.27,0.2 -0.41,0.06 -0.44,-0.12 -0.25,-0.36 -0.09,-0.62 0.05,-0.48 0.15,-0.34 0.25,-0.21 0.33,-0.07 Z M 14.75,12.32 l 0.35,0.05 0.29,0.15 0.2,0.23 0.06,0.3 -0.12,0.39 -0.32,0.24 -0.46,0.09 -0.47,-0.09 -0.33,-0.24 -0.12,-0.39 0.12,-0.38 0.33,-0.26 0.47,-0.09 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "arrowLargeLeft": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 13,20 l -8,-8 8,-8 2,2 -6,6 6,6 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "arrowLargeRight": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 10,20 l -2,-2 6,-6 -6,-6 2,-2 8,8 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>"}
+var HB_TITLE_ICONS = {"raceFlag": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 5,4 l 4,0 0,2 2,0 0,-2 2,0 0.39,0.08 0.32,0.21 0.21,0.32 0.08,0.39 0,2 1,0 0,-2 2,0 0,2 1,0 0,-2 0.08,-0.39 0.21,-0.32 0.32,-0.21 0.39,-0.08 0,10 -0.08,0.39 -0.21,0.32 -0.32,0.21 -0.39,0.08 0,-2 -1,0 0,2 -2,0 0,-2 -1,0 0,2 -0.39,-0.08 -0.32,-0.21 -0.21,-0.32 -0.08,-0.39 -2,0 0,-2 -2,0 0,2 -2,0 0,6 -2,0 0,-16 Z M 7,6 l 0,2 2,0 0,2 -2,0 0,2 2,0 0,-2 2,0 0,2 2,0 0,-2 -2,0 0,-2 2,0 0,-2 -2,0 0,2 -2,0 0,-2 -2,0 Z M 15,9 l 2,0 0,-2 -2,0 0,2 Z M 17,11 l -2,0 0,2 2,0 0,-2 Z M 15,11 l 0,-2 -1,0 0,2 1,0 Z M 17,11 l 1,0 0,-2 -1,0 0,2 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "playRound": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 12,22 l -1.02,-0.05 -1,-0.15 -0.95,-0.25 -0.92,-0.34 -1.7,-0.92 -1.48,-1.22 -1.22,-1.48 -0.92,-1.7 -0.34,-0.92 -0.25,-0.95 -0.15,-1 -0.05,-1.02 0.05,-1.02 0.15,-1 0.25,-0.95 0.34,-0.92 0.92,-1.7 1.22,-1.48 1.48,-1.22 1.7,-0.92 0.92,-0.34 0.95,-0.25 1,-0.15 1.02,-0.05 1.02,0.05 1,0.15 0.95,0.25 0.92,0.34 1.7,0.92 1.48,1.22 1.22,1.48 0.92,1.7 0.34,0.92 0.25,0.95 0.15,1 0.05,1.02 -0.05,1.02 -0.15,1 -0.25,0.95 -0.34,0.92 -0.92,1.7 -1.22,1.48 -1.48,1.22 -1.7,0.92 -0.92,0.34 -0.95,0.25 -1,0.15 -1.02,0.05 Z M 9.48,6.81 l -0.51,-0.13 -0.48,0.14 -0.35,0.36 -0.14,0.5 0,8.64 0.14,0.5 0.35,0.36 0.48,0.14 0.51,-0.13 7.91,-4.31 0.39,-0.38 0.13,-0.5 -0.13,-0.5 -0.39,-0.38 -7.91,-4.31 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "exit": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 17.13,4.35 l 2.37,-1.35 1.5,0 0,18 -1.5,0 -2.37,-1.35 -0.53,0.26 -0.6,0.09 -8,0 -0.78,-0.16 -0.63,-0.43 -0.43,-0.63 -0.16,-0.78 10,0 0,-12 -10,0 0.16,-0.78 0.43,-0.63 0.63,-0.43 0.78,-0.16 8,0 0.6,0.09 0.53,0.26 Z M 3,12 l 4,-4 1.5,0 -0.5,2.5 5,0 0,3 -5,0 0.5,2.5 -1.5,0 -4,-4 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "diceD6": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 10.66,4.17 l 0.66,-0.24 0.68,-0.08 0.68,0.08 0.66,0.24 5,2.5 0.69,0.47 0.52,0.64 0.33,0.75 0.12,0.82 0,5.3 -0.12,0.82 -0.33,0.75 -0.52,0.64 -0.69,0.47 -5,2.5 -0.66,0.24 -0.68,0.08 -0.68,-0.08 -0.66,-0.24 -5,-2.5 -0.69,-0.47 -0.52,-0.64 -0.33,-0.75 -0.12,-0.82 0,-5.3 0.12,-0.82 0.33,-0.75 0.52,-0.64 0.69,-0.47 5,-2.5 Z M 16.24,8.59 l -1.25,0.31 -0.99,0.5 -0.73,0.65 -0.51,0.79 -0.29,0.89 -0.1,0.96 0.16,0.96 0.46,0.76 0.33,0.3 0.41,0.22 0.48,0.13 0.54,0.05 0.63,-0.07 0.56,-0.19 0.46,-0.31 0.36,-0.42 0.22,-0.5 0.07,-0.57 -0.07,-0.58 -0.21,-0.5 -0.33,-0.41 -0.43,-0.32 -0.52,-0.2 -0.58,-0.06 -0.47,0.06 -0.37,0.15 0.23,-0.36 0.31,-0.29 0.79,-0.4 0.84,-0.21 0,-1.34 Z M 9.8,9.11 l 0,1.64 -0.39,-0.34 -0.51,-0.12 -0.53,0.08 -0.46,0.23 -0.39,0.37 -0.28,0.48 -0.19,0.58 -0.06,0.67 0.13,1.02 0.37,0.76 0.6,0.47 0.79,0.16 0.57,-0.13 0.35,-0.37 0,0.39 1.35,0 0,-6.5 -1.35,0.61 Z M 9.12,11.6 l 0.38,0.07 0.3,0.22 0,1.65 -0.27,0.2 -0.41,0.06 -0.44,-0.12 -0.25,-0.36 -0.09,-0.62 0.05,-0.48 0.15,-0.34 0.25,-0.21 0.33,-0.07 Z M 14.75,12.32 l 0.35,0.05 0.29,0.15 0.2,0.23 0.06,0.3 -0.12,0.39 -0.32,0.24 -0.46,0.09 -0.47,-0.09 -0.33,-0.24 -0.12,-0.39 0.12,-0.38 0.33,-0.26 0.47,-0.09 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "arrowLargeLeft": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 13,20 l -8,-8 8,-8 2,2 -6,6 6,6 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "list": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5zM7 11v2h10v-2zm0 4v2h10v-2zm0-8v2h5V7z\" fill=\"currentColor\"/></svg>", "star": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 12,2.5 l 2.9,6.1 6.6,0.8 -4.9,4.6 1.3,6.6 -5.9,-3.3 -5.9,3.3 1.3,-6.6 -4.9,-4.6 6.6,-0.8 Z\" fill=\"currentColor\" /> </svg>", "arrowLargeRight": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"> <path d=\"M 10,20 l -2,-2 6,-6 -6,-6 2,-2 8,8 Z\" fill-rule=\"evenodd\" fill=\"currentColor\" /> </svg>", "power": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M13.5 2 5 13.5h5.5L9 22l9.5-12.5H13z\" fill=\"currentColor\"/></svg>", "torque": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M12 4a8 8 0 1 0 7.75 10h-2.1A6 6 0 1 1 12 6c1.6 0 3.07.63 4.15 1.65L13 11h7V4l-2.4 2.4A7.96 7.96 0 0 0 12 4z\" fill=\"currentColor\"/></svg>", "weight": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M9 3h6a3 3 0 0 1 2.6 4.5L17.2 8H18a1 1 0 0 1 1 .8l2 11a1 1 0 0 1-1 1.2H4a1 1 0 0 1-1-1.2l2-11A1 1 0 0 1 6 8h.8l-.4-.5A3 3 0 0 1 9 3zm0 2a1 1 0 0 0-.8 1.6L9.4 8h5.2l1.2-1.4A1 1 0 0 0 15 5z\" fill=\"currentColor\"/></svg>", "odometer": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M12 4a10 10 0 0 0-8.66 15h17.32A10 10 0 0 0 12 4zm0 2a8 8 0 0 1 7.46 11H4.54A8 8 0 0 1 12 6zm4.2 2.4-4.9 4.3a1.6 1.6 0 1 0 2 2z\" fill=\"currentColor\"/></svg>", "wrench": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M21 7.5a5.5 5.5 0 0 1-7.3 5.2l-7.1 7.1a2 2 0 0 1-2.8-2.8l7.1-7.1A5.5 5.5 0 0 1 17.6 2.6L14.5 5.7l.6 3.2 3.2.6 3.1-3.1c.4.6.6 1.3.6 1.1z\" fill=\"currentColor\"/></svg>", "paint": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M12 2.5S5.5 10 5.5 14.5a6.5 6.5 0 0 0 13 0C18.5 10 12 2.5 12 2.5zm-3 12.2a1 1 0 0 1 2 0 2 2 0 0 0 2 2 1 1 0 0 1 0 2 4 4 0 0 1-4-4z\" fill=\"currentColor\"/></svg>", "fuel": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M5 3h9a1 1 0 0 1 1 1v7h1a2 2 0 0 1 2 2v4a.75.75 0 0 0 1.5 0V9.4l-2.2-2.2 1.4-1.4 2.6 2.6c.2.2.3.5.3.7V17a2.75 2.75 0 0 1-5.5 0v-4H15v8H4V4a1 1 0 0 1 1-1zm1 2v5h7V5z\" fill=\"currentColor\"/></svg>"}
 
 // Hashiriya Battle: Titelbildschirm und "Neues Spiel" (Fahrer, Auto, Lack, Bestätigung).
 // Läuft im eigenen Layout 'hashiriyaTitle' ohne HUD. Zustand kommt als s.flow über 'HashiriyaState',
@@ -25,13 +25,15 @@ angular.module('beamng.apps')
               '<div class="hbt-save" ng-if="f.save">' +
                 '<span>{{ f.save.name }}</span><span>{{ f.save.car }}</span><span class="hbt-yen">{{ f.save.money }}</span>' +
               '</div>' +
-              '<div class="hbt-mi hbt-mi-sub" ng-click="cmd(\'quit\')"><span class="hbt-mi-n">03</span><i class="hbt-ico" ng-bind-html="ico(\'exit\')"></i>{{ t(\'title.quit\') }}</div>' +
+              '<div class="hbt-mi hbt-mi-sub" ng-click="cmd(\'credits\')"><span class="hbt-mi-n">03</span><i class="hbt-ico" ng-bind-html="ico(\'star\')"></i>{{ t(\'title.credits\') }}</div>' +
+              '<div class="hbt-mi hbt-mi-sub" ng-click="cmd(\'changelog\')"><span class="hbt-mi-n">04</span><i class="hbt-ico" ng-bind-html="ico(\'list\')"></i>{{ t(\'title.changelog\') }}</div>' +
+              '<div class="hbt-mi hbt-mi-sub" ng-click="cmd(\'quit\')"><span class="hbt-mi-n">05</span><i class="hbt-ico" ng-bind-html="ico(\'exit\')"></i>{{ t(\'title.quit\') }}</div>' +
             '</div>' +
             '<div class="hbt-foot">{{ t(\'title.hint\') }}</div>' +
           '</div>' +
 
           // Neues Spiel -----------------------------------------------------------
-          '<div class="hbt-wiz" ng-if="f.step != \'title\' && f.step != \'tutorial\'">' +
+          '<div class="hbt-wiz" ng-if="f.step != \'title\' && f.step != \'tutorial\' && f.step != \'credits\' && f.step != \'changelog\'">' +
             '<div class="hbt-wiz-head">' +
               '<div class="hbt-kicker">{{ t(\'title.newGame\') }}</div>' +
               '<div class="hbt-h1">{{ t(\'new.step.\' + f.step) }}</div>' +
@@ -69,6 +71,13 @@ angular.module('beamng.apps')
                 '<span class="hbt-btn" ng-click="cmd(\'randomPlate\')"><i class="hbt-ico hbt-ico-s" ng-bind-html="ico(\'diceD6\')"></i>{{ t(\'new.random\') }}</span>' +
               '</div>' +
               '<div class="hbt-note">{{ t(\'new.plateNote\') }}</div>' +
+              '<label class="hbt-label">{{ t(\'new.plateRegion\') }}</label>' +
+              '<div class="hbt-chips">' +
+                '<span class="hbt-chip" ng-repeat="r in f.plateOptions.regions track by r.id" ng-class="{\'is-on\': f.plateRegion == r.id}" ng-click="cmd(\'plateRegion\', r.id)">{{ r.name }}</span>' +
+              '</div>' +
+              '<div class="hbt-chips">' +
+                '<span class="hbt-chip" ng-repeat="k in f.plateOptions.types track by k.id" ng-class="{\'is-on\': f.plateType == k.id}" ng-click="cmd(\'plateType\', k.id)">{{ k.name }}</span>' +
+              '</div>' +
             '</div>' +
 
             '<div class="hbt-wiz-body" ng-if="f.step == \'car\'">' +
@@ -77,8 +86,25 @@ angular.module('beamng.apps')
                 '<span class="hbt-car-name">{{ c.name }}</span>' +
                 '<span class="hbt-car-tag">{{ c.drivetrain }}</span>' +
               '</div>' +
-              '<div class="hbt-specs" ng-if="selectedCar()">' +
-                '<div class="hbt-spec" ng-repeat="sp in selectedCar().specs"><span>{{ sp.label }}</span><b>{{ sp.value }}</b></div>' +
+              '<div class="hbt-sheet" ng-if="selectedCar()">' +
+                '<div class="hbt-stats">' +
+                  '<div class="hbt-stat" ng-repeat="x in selectedCar().sheet.stats">' +
+                    '<i class="hbt-ico" ng-bind-html="ico(x.icon)"></i>' +
+                    '<div><b>{{ x.value }}<small>{{ x.unit }}</small></b><span>{{ x.label }}</span></div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="hbt-tags">' +
+                  '<span class="hbt-tag" ng-repeat="g in selectedCar().sheet.tags track by $index">{{ g }}</span>' +
+                  '<span class="hbt-tag hbt-tag-km" ng-if="selectedCar().sheet.mileage" title="{{ t(\'spec.odometer\') }}">' +
+                    '<i class="hbt-ico hbt-ico-s" ng-bind-html="ico(\'odometer\')"></i>{{ selectedCar().sheet.mileage }}</span>' +
+                '</div>' +
+                '<div class="hbt-bar" ng-repeat="b in selectedCar().sheet.bars" ng-class="\'is-\' + b.tone">' +
+                  '<i class="hbt-ico" ng-bind-html="ico(b.icon)"></i>' +
+                  '<span class="hbt-bar-l">{{ b.label }}</span>' +
+                  '<div class="hbt-bar-track"><div class="hbt-bar-fill" ng-style="{width: b.pct + \'%\'}"></div></div>' +
+                  '<b>{{ b.pct }}<small>%</small></b>' +
+                '</div>' +
+                '<div class="hbt-newprice"><span>{{ t(\'new.carPrice\') }}</span><b>{{ selectedCar().sheet.newPrice }}</b></div>' +
               '</div>' +
               '<label class="hbt-label">{{ t(\'new.tab.color\') }}</label>' +
               '<div class="hbt-paints">' +
@@ -120,6 +146,48 @@ angular.module('beamng.apps')
                 '<span class="hbt-btn" ng-click="cmd(\'back\')"><i class="hbt-ico hbt-ico-s" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ t(\'menu.back\') }}</span>' +
                 '<span class="hbt-btn" ng-if="!f.tutorial.last" ng-click="cmd(\'skip\')">{{ t(\'tut.skip\') }}</span>' +
                 '<span class="hbt-btn hbt-btn-main" ng-click="cmd(\'next\')">{{ f.tutorial.last ? (f.fromHome ? t(\'tut.done\') : t(\'tut.start\')) : t(\'new.next\') }}</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // Credits (data/credits.json) -------------------------------------------------
+          '<div class="hbt-tut" ng-if="f.step == \'credits\' && f.credits">' +
+            '<div class="hbt-tut-box">' +
+              '<div class="hbt-kicker">{{ t(\'title.credits\') }}</div>' +
+              '<div class="hbt-h1">HASHIRIYA BATTLE</div>' +
+              '<div class="hbt-cred-sec" ng-repeat="sec in f.credits track by $index">' +
+                '<div class="hbt-cred-h">{{ sec.title }}</div>' +
+                '<div class="hbt-cred-row" ng-repeat="e in sec.entries track by $index">' +
+                  '<b>{{ e.name }}</b><span ng-if="e.what">{{ e.what }}</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="hbt-tut-text" ng-if="f.creditsThanks">{{ f.creditsThanks }}</div>' +
+              '<div class="hbt-nav">' +
+                '<span class="hbt-btn" ng-click="cmd(\'back\')"><i class="hbt-ico hbt-ico-s" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ t(\'menu.back\') }}</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
+          // Changelog (CHANGELOG.md / CHANGELOG_EN.md): jede Version zum Aufklappen, neueste offen ----
+          '<div class="hbt-tut" ng-if="f.step == \'changelog\'">' +
+            '<div class="hbt-tut-box">' +
+              '<div class="hbt-kicker">{{ t(\'title.changelog\') }}</div>' +
+              '<div class="hbt-h1">HASHIRIYA BATTLE</div>' +
+              '<div class="hbt-tut-text" ng-if="!f.changelog.length">{{ t(\'changelog.empty\') }}</div>' +
+              '<div class="hbt-cl" ng-repeat="v in f.changelog track by $index" ng-class="{\'is-open\': clOpen[$index]}">' +
+                '<div class="hbt-cl-head" ng-click="clOpen[$index] = !clOpen[$index]">' +
+                  '<span class="hbt-cl-arrow">{{ clOpen[$index] ? \'▾\' : \'▸\' }}</span><b>{{ v.version }}</b><span class="hbt-cl-info" ng-if="v.info">{{ v.info }}</span>' +
+                '</div>' +
+                '<div class="hbt-cl-body" ng-if="clOpen[$index]">' +
+                  '<div class="hbt-cl-intro" ng-repeat="p in v.intro track by $index">{{ p }}</div>' +
+                  '<div class="hbt-cl-grp" ng-repeat="g in v.groups track by $index">' +
+                    '<div class="hbt-cred-h" ng-if="g.title">{{ g.title }}</div>' +
+                    '<div class="hbt-cl-item" ng-repeat="it in g.items track by $index">{{ it }}</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="hbt-nav">' +
+                '<span class="hbt-btn" ng-click="cmd(\'back\')"><i class="hbt-ico hbt-ico-s" ng-bind-html="ico(\'arrowLargeLeft\')"></i>{{ t(\'menu.back\') }}</span>' +
               '</div>' +
             '</div>' +
           '</div>' +
@@ -177,6 +245,10 @@ angular.module('beamng.apps')
             'background:rgba(255,255,255,.06);border:none;border-bottom:3px solid var(--o);outline:none;}' +
           '.hbt-input:focus{background:rgba(255,102,0,.14);}' +
           '.hbt-plate-row{display:flex;gap:8px;align-items:center;}' +
+          '.hbt-chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px;}' +
+          '.hbt-chip{padding:6px 10px;font-size:12px;font-weight:700;letter-spacing:.5px;color:#cfd3da;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);cursor:pointer;}' +
+          '.hbt-chip:hover{border-color:#ff6c00;}' +
+          '.hbt-chip.is-on{color:#fff;background:#ff6c00;border-color:#ff6c00;}' +
           '.hbt-plate{flex:1;color:#141414;background:#f4f1e6;border:3px solid #2a2a2a;border-radius:4px;font-style:normal;text-align:center;}' +
           '.hbt-plate:focus{background:#fffbe9;}' +
           '.hbt-exp{display:flex;gap:16px;align-items:flex-start;padding:16px 18px;margin-bottom:12px;cursor:pointer;background:rgba(255,255,255,.04);border-left:4px solid transparent;transition:background .12s;}' +
@@ -187,6 +259,13 @@ angular.module('beamng.apps')
           '.hbt-tut{position:absolute;z-index:4;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(8,8,10,.55);animation:hbtIn .3s ease-out;}' +
           '.hbt-tut-box{width:min(1100px,86vw);max-height:90vh;overflow-y:auto;padding:34px 44px;box-sizing:border-box;background:linear-gradient(160deg,rgba(26,26,29,.96),rgba(14,14,16,.94));border-left:5px solid var(--o);box-shadow:0 12px 40px rgba(0,0,0,.6);}' +
           '.hbt-tut-img{margin:4px 0 16px;background:#000;} .hbt-tut-img img{display:block;width:100%;max-height:52vh;object-fit:contain;}' +
+          '.hbt-cred-sec{margin:0 0 18px;} .hbt-cred-h{font-size:12px;font-weight:900;font-style:italic;letter-spacing:3px;text-transform:uppercase;color:var(--o);margin:0 0 6px;}' +
+          '.hbt-cred-row{display:flex;align-items:baseline;gap:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:15px;color:#f4f4f4;}' +
+          '.hbt-cred-row span{font-size:13px;color:rgba(244,244,244,.6);}' +
+          '.hbt-cl{border-bottom:1px solid rgba(255,255,255,.08);} .hbt-cl-head{display:flex;align-items:baseline;gap:10px;padding:9px 4px;cursor:pointer;font-size:17px;color:#f4f4f4;} .hbt-cl-head:hover{background:rgba(255,255,255,.04);}' +
+          '.hbt-cl-arrow{color:var(--o);width:14px;} .hbt-cl-info{font-size:13px;color:rgba(244,244,244,.55);} .hbt-cl.is-open .hbt-cl-head b{color:var(--o);}' +
+          '.hbt-cl-body{padding:4px 4px 14px 28px;} .hbt-cl-intro{font-size:14px;color:rgba(244,244,244,.7);margin:0 0 10px;} .hbt-cl-grp{margin:0 0 12px;}' +
+          '.hbt-cl-item{position:relative;padding:2px 0 2px 16px;font-size:14px;line-height:1.5;color:rgba(244,244,244,.88);} .hbt-cl-item:before{content:"";position:absolute;left:2px;top:10px;width:6px;height:2px;background:var(--o);}' +
           '.hbt-tut-text{font-size:16px;line-height:1.6;color:rgba(244,244,244,.88);max-width:900px;}' +
           '.hbt-tut-dots{display:flex;gap:8px;margin:20px 0 4px;} .hbt-tut-dots i{width:26px;height:4px;background:rgba(255,255,255,.18);transform:skewX(-20deg);} .hbt-tut-dots i.is-on{background:var(--o);}' +
           '.hbt-note{font-size:12px;line-height:1.5;color:var(--dim);margin:8px 0 22px;}' +
@@ -206,6 +285,28 @@ angular.module('beamng.apps')
           '.hbt-car-name{flex:1;font-size:19px;font-weight:800;font-style:italic;letter-spacing:1px;}' +
           '.hbt-car-tag{font-size:11px;font-weight:800;letter-spacing:1px;opacity:.75;}' +
           '.hbt-specs{margin-top:18px;}' +
+          '.hbt-sheet{margin-top:16px;}' +
+          '.hbt-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}' +
+          '.hbt-stat{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,.05);border-bottom:2px solid rgba(255,102,0,.55);}' +
+          '.hbt-stat .hbt-ico{width:22px;height:22px;flex:none;color:var(--o);}' +
+          '.hbt-stat b{display:block;font-size:20px;font-weight:900;font-style:italic;line-height:1;font-variant-numeric:tabular-nums;}' +
+          '.hbt-stat b small{font-size:11px;font-weight:800;font-style:normal;margin-left:3px;color:var(--dim);}' +
+          '.hbt-stat span{display:block;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-top:4px;}' +
+          '.hbt-tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px;}' +
+          '.hbt-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#cfd3da;background:rgba(255,255,255,.07);transform:skewX(-12deg);}' +
+          '.hbt-tag-km{margin-left:auto;color:var(--w);} .hbt-tag .hbt-ico-s{width:14px;height:14px;color:var(--o);}' +
+          '.hbt-bar{display:grid;grid-template-columns:20px 78px 1fr 52px;align-items:center;gap:10px;padding:6px 2px;}' +
+          '.hbt-bar .hbt-ico{width:18px;height:18px;color:var(--bar);}' +
+          '.hbt-bar-l{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);}' +
+          '.hbt-bar-track{position:relative;height:10px;background:rgba(255,255,255,.08);transform:skewX(-20deg);overflow:hidden;}' +
+          '.hbt-bar-fill{height:100%;background:var(--bar);transition:width .35s ease-out;' +
+            '-webkit-mask:repeating-linear-gradient(90deg,#000 0 9px,transparent 9px 11px);mask:repeating-linear-gradient(90deg,#000 0 9px,transparent 9px 11px);}' +
+          '.hbt-bar b{font-size:16px;font-weight:900;font-style:italic;text-align:right;font-variant-numeric:tabular-nums;color:var(--bar);}' +
+          '.hbt-bar b small{font-size:10px;margin-left:1px;}' +
+          '.hbt-bar.is-good{--bar:#3fbf6f;} .hbt-bar.is-mid{--bar:#ffb020;} .hbt-bar.is-bad{--bar:#e8453c;}' +
+          '.hbt-newprice{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08);}' +
+          '.hbt-newprice span{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
+          '.hbt-newprice b{font-size:20px;font-weight:900;font-style:italic;color:var(--o);}' +
           '.hbt-spec{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:9px 2px;border-bottom:1px solid rgba(255,255,255,.08);}' +
           '.hbt-spec span{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
           '.hbt-spec b{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right;display:flex;align-items:center;gap:8px;}' +
@@ -255,6 +356,7 @@ angular.module('beamng.apps')
       'use strict'
       scope.f = null
       scope.strings = {}
+      scope.clOpen = {}
       scope.form = { name: '', plate: '' }
       scope.steps = ['experience', 'driver', 'car', 'confirm']
       scope.range = function (n) { var a = []; for (var i = 0; i < n; i++) a.push(i); return a }
@@ -299,6 +401,8 @@ angular.module('beamng.apps')
             scope.form.plate = scope.f.plate || scope.form.plate
           }
           if (scope.f && scope.f.platePick) { scope.form.plate = scope.f.platePick }
+          // Changelog: beim Öffnen ist nur die neueste Version aufgeklappt
+          if (scope.f && scope.f.step === 'changelog' && prev !== 'changelog') scope.clOpen = { 0: true }
         })
       })
     }

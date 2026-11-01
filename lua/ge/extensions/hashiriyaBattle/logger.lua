@@ -11,7 +11,8 @@ local beamLog = log
 
 local logDir = 'settings/hashiriya_battle/logs/'
 local logPath = logDir .. 'hashiriya.log'
-local reportPath = logDir .. 'fehlerbericht.txt'
+-- Dateiname immer englisch (Tester aus aller Welt schicken diese Datei)
+local reportPath = logDir .. 'bugreport.txt'
 local dataDir = '/lua/ge/extensions/hashiriyaBattle/data/'
 
 -- Standardwerte, überschreibbar in data/build.json unter "log"
@@ -153,7 +154,10 @@ function M.context()
       add('yen', s.money)
       add('ruf', s.rep)
       add('siege', s.wins)
-      add('auto', try(function() local c = s.cars[s.activeCar or 1] return c and (c.model .. ' ' .. tostring(c.config)) end))
+      add('auto', try(function()
+        local c = s.cars[s.activeCar or 1]
+        return c and (c.model .. ' ' .. (type(c.config) == 'string' and c.config or (c.name or 'eigene Config')))
+      end))
     end
     add('zuFuss', try(function() return core.isWalking() end))
   end
@@ -200,7 +204,7 @@ end
 local function modList()
   local names = {}
   pcall(function()
-    local list = core_modmanager.getModList()
+    local list = core_modmanager.getMods()
     for name, mod in pairs(list or {}) do
       if mod.active ~= false then names[#names + 1] = name end
     end
