@@ -462,7 +462,11 @@ local function findPaint(model, paintId)
 end
 -- Lackschicht 1-3 (BeamNG: Haupt-, Zweit-, Drittfarbe; je nach Auto und Livery sichtbar)
 local paintSlot = 1
-function M.setPaintSlot(n) paintSlot = clamp(math.floor(tonumber(n) or 1), 1, 3) end
+local settleLivePaint
+function M.setPaintSlot(n)
+  if settleLivePaint then settleLivePaint() end
+  paintSlot = clamp(math.floor(tonumber(n) or 1), 1, 3)
+end
 
 local function paintIdOf(car, slot)
   if car.paintIds and car.paintIds[slot] ~= nil then return car.paintIds[slot] end
@@ -586,6 +590,36 @@ end
 -- Nur der Lack ändert sich: live färben. Lief vorher eine Teile-Vorschau, muss das Auto neu gespawnt werden.
 local function applyPaintCfg(cfg, wasPartPreview)
   if wasPartPreview or not M.applyPaintsLive(cfg.paints) then respawn(cfg) end
+end
+
+-- Live-Vorschau der eigenen Farbe: jede Regler-Bewegung färbt das Auto sofort um, ohne Warenkorb.
+-- livePaint.orig = Lack vor der ersten Regler-Bewegung. Vor jeder anderen Aktion (Warenkorb, Kasse,
+-- Kategorie- oder Schichtwechsel, Terminal schließen) wird er wiederhergestellt.
+local livePaint = nil
+
+settleLivePaint = function()
+  if not livePaint then return end
+  local orig = livePaint.orig
+  livePaint = nil
+  M.applyPaintsLive(orig)
+end
+M.settleLivePaint = settleLivePaint
+
+function M.previewPaintLive(arg)
+  if terminal ~= 'shop' or termCat ~= 'paint' then return end
+  local v = {}
+  for n in tostring(arg or ''):gmatch('[^,]+') do table.insert(v, clamp(tonumber(n) or 0, 0, 1)) end
+  if #v ~= 7 then return end
+  local veh = core().getPlayerVehicle()
+  local vm = rawget(_G, 'core_vehicle_manager')
+  if not veh or not vm or not vm.liveUpdateVehicleColors then return end
+  if not livePaint then
+    local cfg = currentConfig()
+    if not cfg then return end
+    livePaint = { orig = deepcopy and deepcopy(cfg.paints or {}) or (cfg.paints or {}) }
+  end
+  local paint = { baseColor = { v[1], v[2], v[3], 1.2 }, metallic = v[4], roughness = v[5], clearcoat = v[6], clearcoatRoughness = v[7] }
+  pcall(vm.liveUpdateVehicleColors, veh:getID(), veh, paintSlot, paint)
 end
 
 function M.hasPreview() return cart ~= nil end
@@ -719,6 +753,7 @@ local function putInCart(item)
 end
 
 function M.removeFromCart(key)
+  settleLivePaint()
   local i, it = cartIndex(key)
   if not i then return end
   table.remove(cart.items, i)
@@ -726,6 +761,7 @@ function M.removeFromCart(key)
 end
 
 function M.cancelPreview(silent)
+  settleLivePaint()
   if not cart then return end
   local hadParts = false
   for _, it in ipairs(cart.items) do if it.kind == 'part' then hadParts = true end end
@@ -785,6 +821,7 @@ end
 
 -- Garagen-PC: nur eigene Teile, kostenlos umbauen
 function M.buy(slot, part, garageOnly)
+  settleLivePaint()
   local car = activeCar()
   local option, row = findOption(slot, part)
   if not option then return end
@@ -794,6 +831,7 @@ end
 
 -- Shop: Klick auf eine Option legt sie in den Warenkorb (ersetzt ein anderes Teil im selben Slot).
 function M.select(slot, part)
+  settleLivePaint()
   local c = core()
   local car = activeCar()
   local option, row = findOption(slot, part)
@@ -815,6 +853,7 @@ function M.select(slot, part)
 end
 
 function M.selectPaint(paintId)
+  settleLivePaint()
   local c = core()
   local car = activeCar()
   local entry = findPaint(car.model, paintId)
@@ -852,6 +891,7 @@ end
 -- Eigene Farbe: arg = "r,g,b,metallic,rauheit,klarlack,klarlackRauheit" (alles 0..1).
 -- Wird immer neu bezahlt (neue Lackierung).
 function M.selectCustomPaint(arg)
+  settleLivePaint()
   local c = core()
   local v = {}
   for n in tostring(arg or ''):gmatch('[^,]+') do table.insert(v, clamp(tonumber(n) or 0, 0, 1)) end
@@ -875,6 +915,7 @@ end
 -- Kasse: alles im Warenkorb auf einmal bezahlen. Mit "Teile direkt montieren" bleibt alles verbaut,
 -- sonst wandern die gekauften Teile ins Lager und das Auto wird wie vorher (nur neuer Lack bleibt drauf).
 function M.confirmPreview()
+  settleLivePaint()
   local c = core()
   local car = activeCar()
   if not cart or #cart.items == 0 then return end
@@ -1125,6 +1166,7 @@ end
 
 function M.closeTerminal()
   if not terminal then return end
+  settleLivePaint()
   terminal = nil
   M.releaseFocus()
   core().setTerminalLayout(false)
@@ -1135,6 +1177,7 @@ function M.terminalMode() return terminal end
 
 function M.setCategory(id)
   termCat = tostring(id or 'engine')
+  if termCat ~= 'paint' then settleLivePaint() end
 end
 
 function M.setTab(tab) M.setCategory(tab) end

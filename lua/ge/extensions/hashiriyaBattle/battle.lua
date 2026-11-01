@@ -218,7 +218,7 @@ local function startCountdown(rival, rivalVeh, playerAhead)
     battle.lockSpeed = speed
     battle.rivalSpeed = speed
     lockPlayerSpeed(player, speed)
-    rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", speed))
+    rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", speed))
   end
   core().msg(core().t('msg.challenge', rival.name), 3)
   log('I', logTag, 'Challenge gegen ' .. rival.id)
@@ -566,16 +566,26 @@ local function rivalQuote()
   return text, key
 end
 
--- Porträt des Rivalen (art/portraits/<id>.svg aus dem Silhouetten-Tool), nil wenn keins da ist
+-- Porträt des Rivalen, nil wenn keins da ist. Reihenfolge: rivals.json "portrait" (eigener Pfad),
+-- dann art/portraits/<id>.png / .jpg (eigenes Bild), dann <id>.svg (Silhouetten-Tool).
 local portraitCache = {}
 local function portraitOf(rival)
-  local id = rival and rival.id
+  local id = rival and (rival.baseId or rival.id)
   if not id then return nil end
-  if portraitCache[id] == nil then
-    local path = '/art/portraits/' .. id .. '.svg'
-    portraitCache[id] = FS:fileExists(path) and path or false
+  local hit = portraitCache[id]
+  -- gefundene Bilder bleiben gemerkt; fehlende werden nach 30 s neu gesucht (Bild während des Spiels eingefügt)
+  if hit and hit.path then return hit.path end
+  if hit and os.clock() - hit.t < 30 then return nil end
+  local list = {}
+  if type(rival.portrait) == 'string' and rival.portrait ~= '' then list[1] = '/' .. (rival.portrait:gsub('^/', '')) end
+  for _, ext in ipairs({ 'png', 'jpg', 'svg' }) do list[#list + 1] = '/art/portraits/' .. id .. '.' .. ext end
+  local found = nil
+  for _, path in ipairs(list) do
+    if FS:fileExists(path) then found = path; break end
   end
-  return portraitCache[id] or nil
+  portraitCache[id] = { path = found, t = os.clock() }
+  log(found and 'I' or 'W', logTag, 'Porträt ' .. id .. ': ' .. (found or ('keins gefunden (' .. table.concat(list, ', ') .. ')')))
+  return found
 end
 
 function M.getHudState()
@@ -629,6 +639,9 @@ local function onUpdate(dtReal, dtSim)
   if not rivalVeh then M.reset(); return end
 
   if state == 'sync' or state == 'countdown' then
+    -- echtes Tempo des Rivalen (geglättet): die KI bremst für Verkehr und Kurven, dein Tempomat folgt ihr
+    local rvNow = rivalVeh:getVelocity():length()
+    battle.rivalV = battle.rivalV and (battle.rivalV + (rvNow - battle.rivalV) * math.min(1, dtSim * 2)) or rvNow
     -- Der BeamNG-Tempomat schaltet sich beim Bremsen ab: regelmäßig wieder einschalten
     battle.relock = (battle.relock or 0.5) - dtSim
     if battle.relock <= 0 then
@@ -655,7 +668,7 @@ local function onUpdate(dtReal, dtSim)
       if battle.rivalRelock <= 0 then
         battle.rivalRelock = 0.5
         local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, behind - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
-        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", battle.rivalSpeed + catchUp))
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", battle.rivalSpeed + catchUp))
       end
       battle.lockSpeed = battle.rivalSpeed
       local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
@@ -664,11 +677,14 @@ local function onUpdate(dtReal, dtSim)
         timer = cfg.countdown
         battle.startGap = gap
         battle.relock = 0
-        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('set') ai.setSpeed(%f)", battle.rivalSpeed))
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", battle.rivalSpeed))
       end
       return
     end
-    if gap < 2 then -- in der Angleich-Phase überholt = Frühstart
+    -- in der Angleich-Phase überholt = Frühstart, aber nur wenn du schneller warst
+    -- (bremst der Rivale für Verkehr und du rollst ran, ist das nicht deine Schuld)
+    local playerFaster = player:getVelocity():length() > battle.rivalV + 3 / 3.6
+    if gap < 2 and (playerFaster or gap < -4) then
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)
       M.reset(falseStartCooldown())
@@ -676,13 +692,13 @@ local function onUpdate(dtReal, dtSim)
     end
     -- Zu weit weg: Tempomat etwas schneller als der Rivale, bis man auf syncTargetGap dran ist
     local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, gap - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
-    battle.lockSpeed = battle.rivalSpeed + catchUp
-    local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
+    battle.lockSpeed = battle.rivalV + catchUp
+    local diff = math.abs(player:getVelocity():length() - battle.rivalV) * 3.6
     if ((gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 then
       state = 'countdown'
       timer = cfg.countdown
       battle.startGap = gap
-      battle.lockSpeed = math.max(battle.rivalSpeed, math.min(player:getVelocity():length(), battle.rivalSpeed + cfg.syncToleranceKmh / 3.6))
+      battle.lockSpeed = math.max(battle.rivalV, math.min(player:getVelocity():length(), battle.rivalV + cfg.syncToleranceKmh / 3.6))
       battle.relock = 0
     end
     return
@@ -707,7 +723,12 @@ local function onUpdate(dtReal, dtSim)
     end
     -- Frühstart: vorgefahren oder schneller als der Tempomat
     local gap = getGap(player, rivalVeh)
-    if battle.startGap and (gap < battle.startGap - cfg.falseStartGap
+    -- Tempomat folgt dem Rivalen und hält den Abstand vom Countdown-Start
+    if battle.startGap then
+      battle.lockSpeed = math.max(battle.rivalV + math.max(-2, math.min(2, (gap - battle.startGap) * 0.4)), 5)
+    end
+    local playerFaster = player:getVelocity():length() > battle.rivalV + 3 / 3.6
+    if battle.startGap and ((gap < battle.startGap - cfg.falseStartGap and playerFaster)
         or player:getVelocity():length() > battle.lockSpeed + cfg.falseStartKmh / 3.6) then
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)

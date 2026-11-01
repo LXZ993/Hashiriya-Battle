@@ -12,7 +12,7 @@ angular.module('beamng.apps')
         '<div class="hbt-win hbt-main">' +
           '<div class="hbt-title"><span class="hbt-title-ico">&#9636;</span>' +
             '<span class="hbt-title-txt">{{ term.title }}</span>' +
-            '<button class="hbt-cap hbt-capx" ng-click="act(\'termClose\')" title="{{ t(\'term.close\') }}">&#10005;</button></div>' +
+            '<button class="hbt-cap hbt-capx" ng-click="act(\'termClose\')" title="{{ term.mode == \'garage\' ? t(\'term.close\') : t(\'shop.leave\') }}">&#10005; {{ term.mode == \'garage\' ? t(\'term.close\') : t(\'shop.leave\') }}</button></div>' +
           '<div class="hbt-bar">' +
             '<div class="hbt-addr">{{ addrText() }}</div>' +
             '<div class="hbt-search"><span class="hbt-search-ico">&#9906;</span>' +
@@ -46,10 +46,10 @@ angular.module('beamng.apps')
                 '<div class="hbt-custom">' +
                   '<i class="hbt-sw hbt-sw-xl" ng-style="{background: customCss()}"></i>' +
                   '<div class="hbt-sliders">' +
-                    '<label>{{ t(\'shop.hue\') }}<input type="range" min="0" max="360" ng-model="custom.h" class="hbt-hue"></label>' +
-                    '<label>{{ t(\'shop.saturation\') }}<input type="range" min="0" max="100" ng-model="custom.s"></label>' +
-                    '<label>{{ t(\'shop.brightness\') }}<input type="range" min="0" max="100" ng-model="custom.v"></label>' +
-                    '<label ng-repeat="m in materials">{{ t(m.label) }}<input type="range" min="0" max="100" ng-model="custom[m.id]"></label>' +
+                    '<label>{{ t(\'shop.hue\') }}<input type="range" min="0" max="360" ng-model="custom.h" ng-change="liveCustom()" class="hbt-hue"></label>' +
+                    '<label>{{ t(\'shop.saturation\') }}<input type="range" min="0" max="100" ng-model="custom.s" ng-change="liveCustom()"></label>' +
+                    '<label>{{ t(\'shop.brightness\') }}<input type="range" min="0" max="100" ng-model="custom.v" ng-change="liveCustom()"></label>' +
+                    '<label ng-repeat="m in materials">{{ t(m.label) }}<input type="range" min="0" max="100" ng-model="custom[m.id]" ng-change="liveCustom()"></label>' +
                   '</div>' +
                   '<button class="hbt-btn" ng-click="previewCustom()">{{ t(\'term.toCart\') }}</button>' +
                 '</div>' +
@@ -131,7 +131,7 @@ angular.module('beamng.apps')
         '<div class="hbt-task">' +
           '<div class="hbt-orb">H</div>' +
           '<div class="hbt-tb is-on">{{ term.mode == \'garage\' ? t(\'term.garagePc\') : t(\'term.terminal\') }}</div>' +
-          '<div class="hbt-tb hbt-tb-leave" ng-click="act(\'termClose\')">{{ term.mode == \'garage\' ? t(\'term.close\') : t(\'shop.leave\') }}</div>' +
+          '<div class="hbt-tb hbt-tb-leave" ng-click="act(\'termClose\')"><span class="hbt-leave-ico">&#10140;</span>{{ term.mode == \'garage\' ? t(\'term.close\') : t(\'shop.leave\') }}</div>' +
           '<div class="hbt-tray"><span>{{ term.money }}</span><span>{{ term.carName }}</span><span>{{ term.clock }}</span></div>' +
         '</div>' +
       '</div>',
@@ -155,7 +155,9 @@ angular.module('beamng.apps')
         '.hbt-title-txt{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
         '.hbt-cap{width:26px;height:18px;border-radius:3px;border:1px solid rgba(0,0,0,.6);color:#fff;font-size:10px;line-height:14px;padding:0;cursor:pointer;' +
           'background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.08) 50%,rgba(0,0,0,.1) 51%);flex:none;}' +
-        '.hbt-capx{width:44px;background:linear-gradient(180deg,#e9a28f,#c4492f 50%,#a92d14 51%,#d8603d);}' +
+        '.hbt-capx{width:auto;min-width:44px;padding:0 10px;font-size:11px;font-weight:700;letter-spacing:.3px;white-space:nowrap;' +
+          'background:linear-gradient(180deg,#ffb3a0,#e0402a 50%,#b81e0c 51%,#ef5a36);box-shadow:0 0 6px rgba(255,60,30,.6);}' +
+        '.hbt-capx:hover{background:linear-gradient(180deg,#ffc8b8,#ff5638 50%,#d42a12 51%,#ff7046);}' +
         '.hbt-bar{display:flex;align-items:center;gap:8px;padding:6px 10px;flex:none;background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02));border-bottom:1px solid rgba(0,0,0,.45);}' +
         '.hbt-addr{flex:1;min-width:0;height:24px;line-height:22px;border:1px solid rgba(0,0,0,.6);border-radius:3px;background:rgba(10,14,20,.75);padding:0 8px;color:#c7d2de;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
         '.hbt-search{width:45%;height:24px;border:1px solid rgba(0,0,0,.6);border-radius:3px;background:#f6f8fb;display:flex;align-items:center;padding:0 6px;gap:4px;}' +
@@ -242,7 +244,13 @@ angular.module('beamng.apps')
         '.hbt-tb{height:32px;min-width:150px;display:flex;align-items:center;padding:0 12px;border-radius:3px;border:1px solid rgba(255,255,255,.25);cursor:pointer;' +
           'background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.04) 50%,rgba(0,0,0,.1) 51%);}' +
         '.hbt-tb.is-on{border-color:rgba(255,170,110,.8);background:linear-gradient(180deg,rgba(255,170,110,.45),rgba(255,102,0,.25) 50%,rgba(150,50,0,.3) 51%);cursor:default;}' +
-        '.hbt-tb-leave:hover{border-color:#ff8a7a;}' +
+        '.hbt-tb-leave{height:36px;min-width:200px;justify-content:center;gap:10px;font-size:15px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#fff;' +
+          'text-shadow:0 1px 2px rgba(0,0,0,.7);border:1px solid #ffb09c;border-radius:4px;' +
+          'background:linear-gradient(180deg,#ff9a7e,#e8381c 48%,#b71a06 52%,#ff5a2e);animation:hbtLeaveGlow 1.6s ease-in-out infinite;}' +
+        '.hbt-tb-leave:hover{background:linear-gradient(180deg,#ffb59e,#ff4a26 48%,#d42408 52%,#ff7448);border-color:#fff;}' +
+        '.hbt-leave-ico{font-size:18px;line-height:1;}' +
+        '@keyframes hbtLeaveGlow{0%,100%{box-shadow:0 0 6px rgba(255,70,30,.55),inset 0 0 0 1px rgba(255,255,255,.25);}' +
+          '50%{box-shadow:0 0 18px rgba(255,90,40,.95),inset 0 0 0 1px rgba(255,255,255,.4);}}' +
         '.hbt-tray{margin-left:auto;display:flex;gap:18px;align-items:center;height:32px;padding:0 12px;border-left:1px solid rgba(255,255,255,.2);}'
       var styleEl = document.createElement('style')
       styleEl.textContent = css
@@ -390,10 +398,22 @@ angular.module('beamng.apps')
         var c = hsv(+scope.custom.h, +scope.custom.s, +scope.custom.v)
         return 'rgb(' + c.map(function (v) { return Math.round(v * 255) }).join(',') + ')'
       }
-      scope.previewCustom = function () {
+      var customArg = function () {
         var c = hsv(+scope.custom.h, +scope.custom.s, +scope.custom.v)
         var m = scope.materials.map(function (k) { return +scope.custom[k.id] / 100 })
-        scope.act('customPaint', c.concat(m).map(function (v) { return v.toFixed(3) }).join(','))
+        return c.concat(m).map(function (v) { return v.toFixed(3) }).join(',')
+      }
+      scope.previewCustom = function () {
+        if (liveTimer) { clearTimeout(liveTimer); liveTimer = null }
+        scope.act('customPaint', customArg())
+      }
+      // Regler bewegen = Farbe sofort am Auto (gedrosselt, letzte Stellung kommt immer an)
+      var liveTimer = null, liveLast = 0
+      var sendLive = function () { liveTimer = null; liveLast = Date.now(); scope.act('paintLive', customArg()) }
+      scope.liveCustom = function () {
+        if (liveTimer) return
+        var wait = 90 - (Date.now() - liveLast)
+        if (wait <= 0) sendLive(); else liveTimer = setTimeout(sendLive, wait)
       }
 
       var requested = null

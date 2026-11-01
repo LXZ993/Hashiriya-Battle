@@ -82,6 +82,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#testen">Testen und Fehler finden</a>
     <a href="#log">Log-System und Fehlerbericht</a>
     <div class="grp">Gegner</div>
+    <a href="#builder">Builder (im Spiel)</a>
     <a href="#rivalen">Rivalen (rivals.json)</a>
     <a class="l2" href="#rivale-felder">Alle Felder eines Rivalen</a>
     <a class="l2" href="#rivale-neu">Neuen Rivalen anlegen</a>
@@ -108,7 +109,7 @@ ol.steps li, ul li { margin: 4px 0; }
     <a href="#community">Community-Wanderer und Credits</a>
     <a href="#sounds">Sounds</a>
     <a href="#texte">Texte und Sprachen</a>
-    <a href="#release">Release-Sperren</a>
+    <a href="#release">Release-Test und Release-ZIP</a>
     <div class="grp">Im Code</div>
     <a href="#battle">Battle und SP-Balken</a>
     <a href="#fahrer">Gegner-Fahrer (eigene KI)</a>
@@ -139,6 +140,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <p>Oben links kannst du suchen: Tipp ein Wort wie <i>Kennzeichen</i> oder <i>Uhrzeit</i>, dann bleiben nur die passenden Kapitel sichtbar.</p>
 <h3>Häufige Aufgaben</h3>
 <div class="cards">
+  <a class="card" href="#builder"><b>Crew, Wanderer, Boss anlegen</b><small>Builder im Spiel, ohne JSON</small></a>
   <a class="card" href="#rivale-neu"><b>Neuen Gegner einbauen</b><small>rivals.json, Beispiel zum Kopieren</small></a>
   <a class="card" href="#bedingungen"><b>Wanderer nur um 3 Uhr</b><small>Bedingungen wie Uhrzeit, Auto, Teil</small></a>
   <a class="card" href="#kennzeichen"><b>Kennzeichen ändern</b><small>Text und Region</small></a>
@@ -255,7 +257,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Ein Code-Fehler bekommt nur beim ersten Mal den ganzen Traceback. Danach wird nur noch mitgezählt.</li>
 </ul>
 <h3>Einstellungen <span class="tag">data\build.json</span></h3>
-<pre><code>"modVersion": "Alpha 1",
+<pre><code>"modVersion": "Alpha 0.3",
 "log": {"level": "I", "maxKb": 512, "files": 4, "statusMinutes": 5, "perMinute": 30}</code></pre>
 <table>
 <tr><th>Feld</th><th>Bedeutung</th></tr>
@@ -273,6 +275,58 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </ol>
 <p>Der Bericht enthält den Log-Kopf, den Spielzustand, den Spielstand (<code>save.json</code>) und die letzten etwa 1800 Log-Zeilen. Passwörter oder persönliche Daten stehen nicht drin, höchstens der Fahrername aus dem Spielstand und die Liste der Mods.</p>
 <div class="box tip"><b>Für Entwickler</b>In eigenem Lua-Code einfach <code>log('I', logTag, 'Text')</code> benutzen, wie überall in der Mod. Jede Datei leitet <code>log</code> automatisch auch in <code>hashiriya.log</code> um (<code>logger.lua</code>). <code>log('D', ...)</code> erscheint nur mit <code>"level": "D"</code>.</div>
+</section>
+
+<section id="builder">
+<h2><span class="n">4a</span> Builder: Crews, Wanderer und Bosse im Spiel bearbeiten <span class="tag">builder.lua</span> <span class="tag">UI-App HashiriyaBuilder</span></h2>
+<p>Mit dem Builder legst du Crews, Mitglieder, Leader, Wanderer und Bosse an oder änderst sie, ohne <code>rivals.json</code> von Hand anzufassen. Er prüft alles vor dem Speichern und schreibt direkt in den Mod-Ordner.</p>
+<h3>Öffnen</h3>
+<ol class="steps">
+<li>BeamNG starten, Karriere laden (für den Test-Spawn) oder einfach auf der C1 sein.</li>
+<li>Pos1 (Hashiriya-Menü), ganz unten bei <b>Werkzeuge</b>: <b>Builder (Crews, Wanderer, Bosse)</b>.</li>
+<li>Schließen mit ✕ oben rechts. Hast du etwas nicht gespeichert, fragt der Knopf erst nach.</li>
+</ol>
+<div class="box warn"><b>Nur in der Entwickler-Version</b>Steht in <span class="path">data\build.json</span> <code>"release": true</code>, startet der Builder nicht (Meldung im Spiel). Zum Bearbeiten also <code>"release": false</code> setzen. Im Release-Zip fehlt der Builder ganz.</div>
+<h3>Aufbau</h3>
+<table>
+<tr><th>Bereich</th><th>Was du dort machst</th></tr>
+<tr><td>Reiter <b>Crews</b></td><td>Alle Crews mit Farbe, Rang und Mitgliederzahl. Klick auf eine Crew zeigt ihre Daten und klappt die Mitglieder auf (★ = Leader). <b>+ Neue Crew</b>, <b>+ Mitglied</b>, <b>+ Leader</b> (nur solange die Crew keinen hat).</td></tr>
+<tr><td>Reiter <b>Wanderer</b> / <b>Bosse</b></td><td>Liste mit <b>+ Neuer Wanderer</b> / <b>+ Neuer Boss</b>. ♛ = finaler Boss.</td></tr>
+<tr><td>Reiter <b>Einstellungen</b></td><td>Die Spawn-Regeln (<a href="#rival-settings">settings</a>) als Zahlen und Haken.</td></tr>
+<tr><td>Suchfeld</td><td>Name, ID, Auto oder Spitzname. Bei Crews bleiben auch Crews sichtbar, in denen ein Treffer fährt.</td></tr>
+</table>
+<h3>Das Formular eines Rivalen</h3>
+<table>
+<tr><th>Abschnitt</th><th>Inhalt</th></tr>
+<tr><td>Grunddaten</td><td>Name, ID (wird bei neuen Einträgen aus dem Namen gebildet, z. B. <code>w_slim_henry</code>; danach nicht mehr änderbar, weil sie im Spielstand steht), Spitzname DE/EN, Rolle (Crew-Mitglied, Leader, Wanderer, Boss), Crew, beim Leader „erscheint in derselben/nächsten Nacht“, beim Boss „Finaler Boss“.</td></tr>
+<tr><td>Auto</td><td>Modell und Config aus allen installierten Autos (auch Mod-Autos und eigene Configs). Hinter der Config steht die Quelle, wenn sie nicht von BeamNG ist. Der Pfad lässt sich auch direkt eintippen. <b>Aktuelles Auto als Config speichern</b>: speichert dein gerade gefahrenes Auto mit allen Teilen, Einstellungen und dem Lack als <span class="path">vehicles\&lt;modell&gt;\hashiriya_&lt;name&gt;.pc</span> im Mod-Ordner und trägt es gleich ein.</td></tr>
+<tr><td>Werte</td><td>Aggression (Schieber), Tempo vor dem Battle, Spirit Points, Licht nachts (normal / aus als Markenzeichen / immer an), Belohnung in $ (wird zu Yen), Ruf-Punkte. Optional <b>eigene Fahrer-Werte</b> (Können, Mut, Aggression, Nerven, Fairness, siehe <a href="#fahrer-werte">Fahrer-Werte</a>).</td></tr>
+<tr><td>Kennzeichen</td><td>Text (Knopf „Zufall“ nimmt eine freie Nummer), Region und Art. Nur erlaubte Arten der Region sind wählbar.</td></tr>
+<tr><td>Lack</td><td>Optional fester Lack mit Farbwähler, Metallic und Rauheit. Ohne Haken fährt er den Lack aus der Config.</td></tr>
+<tr><td>Bedingungen</td><td>Ab Rang (mit Rangname), ab Siegen, ab Tag, Uhrzeit von/bis (über Mitternacht geht, z. B. 23 bis 4), Radarfallen (<code>all</code> oder Anzahl), Teil am Spieler-Auto, nur gegen ein bestimmtes Spieler-Auto, Crew geschlagen, weitere Crews, Rivalen geschlagen (Suchfeld, Treffer anklicken). Siehe <a href="#bedingungen">Bedingungen</a>.</td></tr>
+<tr><td>Texte</td><td>Sprüche (Herausforderung, Rivale gewinnt, Rivale verliert), Beschreibung und bei Wanderern/Bossen der Hinweis fürs Lexikon, jeweils DE und EN.</td></tr>
+<tr><td>Porträt</td><td>Vorschau des Bilds aus <span class="path">art\portraits\</span>. Optional eigener Pfad (siehe <a href="#portraets">Porträts</a>).</td></tr>
+</table>
+<h3>Prüfung</h3>
+<p>Unten links steht laufend, was nicht passt. <b style="color:#ff6b5f">✕ Fehler</b> verhindern das Speichern, <b style="color:#c9a400">! Hinweise</b> nicht. Geprüft wird unter anderem:</p>
+<ul>
+<li>ID doppelt oder mit falschen Zeichen, Name/Auto/Config fehlt, Crew fehlt, zweiter Leader in einer Crew.</li>
+<li>Kennzeichen-Format (<a href="#kennzeichen">Kennzeichen</a>) und ob ein anderer Rivale dieselbe Nummer hat.</li>
+<li>Bedingungen, die auf eine Crew oder einen Rivalen zeigen, den es nicht gibt.</li>
+<li><b>Effektiver Rang:</b> Verlangt ein Wanderer z. B. einen Rivalen, der selbst erst ab Rang 9 kommt, meldet der Builder „kommt effektiv erst ab Rang 9“, auch wenn bei ihm Rang 3 steht.</li>
+<li>Config-Datei oder Modell nicht installiert, fehlende DE/EN-Texte, fehlendes Porträt.</li>
+</ul>
+<h3>Knöpfe</h3>
+<table>
+<tr><th>Knopf</th><th>Was er macht</th></tr>
+<tr><td>Speichern / Anlegen und speichern</td><td>Übernimmt den Eintrag und schreibt <span class="path">mods\unpacked\Hashiriya-Battle\lua\ge\extensions\hashiriyaBattle\data\rivals.json</span>. Vorher kommt eine Sicherung nach <span class="path">F:\BeamNG\current\settings\hashiriya_battle\builder_backups\rivals_&lt;Datum_Zeit&gt;.json</span> (die letzten 20 bleiben). Das Spiel liest die Rivalen sofort neu, kein Neustart nötig.</td></tr>
+<tr><td>Test-Spawn</td><td>Spawnt den Rivalen mit den Werten aus dem Formular vor dir, auch ungespeichert (nur in einer laufenden Karriere).</td></tr>
+<tr><td>Verwerfen</td><td>Holt den gespeicherten Stand zurück.</td></tr>
+<tr><td>Löschen</td><td>Zweimal klicken. Geht nicht, solange ein anderer Rivale ihn (oder die Crew) als Bedingung hat oder eine Crew noch Mitglieder hat.</td></tr>
+<tr><td>Neu laden</td><td>Liest <code>rivals.json</code> neu ein (z. B. nachdem du sie von Hand geändert hast).</td></tr>
+</table>
+<div class="box tip"><b>Was mit deinen Builder-Änderungen passiert</b>Der Builder schreibt dieselbe Datei, die du sonst von Hand änderst. Felder, die er nicht kennt (z. B. <code>_platzhalter</code>, <code>community</code>), bleiben erhalten. Vor jedem Update auf deinen PC übernehme ich deine Änderungen zuerst ins Repo, und der Generator behält sie (<a href="#sicher">Sicher ändern</a>). Beim ersten Speichern schreibt der Builder Zahlen wie <code>1.0</code> als <code>1</code>; das ist gleichwertig.</div>
+<div class="box"><b>Beispiel: neuer Wanderer mit eigenem Auto</b>1. Auto in BeamNG bauen und fahren. 2. Builder öffnen, Reiter Wanderer, <b>+ Neuer Wanderer</b>. 3. Name eintippen (ID entsteht von selbst). 4. Bei Auto einen Namen eingeben und <b>Speichern</b> (Config landet im Mod-Ordner). 5. Bedingungen setzen, z. B. Crew geschlagen = Ginza Neon Club, Uhrzeit 23 bis 4. 6. Kennzeichen „Zufall“, Texte schreiben. 7. Speichern, dann Test-Spawn. 8. Porträt mit dem Silhouetten-Tool als <span class="path">art\portraits\&lt;id&gt;.png</span> ablegen.</div>
 </section>
 
 <section id="rivalen">
@@ -310,6 +364,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>cruiseKmh</code></td><td>Reisetempo vor dem Battle (auch das Battle-Starttempo)</td><td><code>95</code></td></tr>
 <tr><td><code>maxSp</code></td><td>SP-Balken des Rivalen (du hast 1000)</td><td><code>850</code></td></tr>
 <tr><td><code>rewardUsd</code></td><td>Preisgeld in BeamNG-Dollar, wird mal 150 in Yen umgerechnet und dann mit <code>settings.rewardScale</code> (aktuell 0.5) multipliziert</td><td><code>1200</code> = ¥90.000 (bei 0.5)</td></tr>
+<tr><td><code>rewardYen</code></td><td>Optional: genauer Betrag in Yen. Ersetzt <code>rewardUsd</code> komplett, ohne Umrechnung, Rundung, <code>rewardScale</code> und Serien-Bonus. Für Gag-Beträge. Bei einer Revanche gibt es davon den Revanche-Anteil (<code>rematch.rewardFactor</code>). Im Builder: Feld „Genauer Betrag in Yen“.</td><td><code>777777</code> = genau ¥777.777 (Alex Zockt)</td></tr>
 <tr><td><code>rep</code></td><td>Ruf, den du für den Sieg bekommst</td><td><code>40</code></td></tr>
 <tr><td><code>conditions</code></td><td>Wann er auftaucht (siehe <a href="#bedingungen">Bedingungen</a>)</td><td><code>{"minRank": 2}</code></td></tr>
 <tr><td><code>plate</code></td><td>Kennzeichen (siehe <a href="#kennzeichen">Kennzeichen</a>)</td><td><code>{"text": "500/22-91", "design": "am5jp_shinagawa_standard"}</code></td></tr>
@@ -323,6 +378,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 
 <h3 id="rivale-neu">Neuen Rivalen anlegen (Schritt für Schritt)</h3>
 <ol class="steps">
+<li><b>Einfacher:</b> mit dem <a href="#builder">Builder</a> im Spiel. Von Hand geht es so:</li>
 <li>Öffne <code>rivals.json</code> und suche (Strg+F) die Crew, z. B. <code>"team": "t_lantern"</code>.</li>
 <li>Kopiere einen kompletten Eintrag von <code>{</code> bis zur passenden <code>}</code> und füge ihn direkt danach ein (mit Komma dazwischen).</li>
 <li>Ändere mindestens <code>id</code> (neu und eindeutig!), <code>name</code>, <code>model</code>, <code>config</code>, <code>plate.text</code>.</li>
@@ -451,7 +507,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </ul>
 
 <h3 id="lack">Lackierung (paint)</h3>
-<p>Optional. Fehlt <code>paint</code>, fährt der Rivale die Farbe aus der Config. Hat die Config eine Livery (Slot <code>paint_design</code>), wird <code>paint</code> ignoriert, damit die Livery nicht übermalt wird.</p>
+<p>Optional. Fehlt <code>paint</code>, fährt der Rivale die Farbe aus der Config. Bei einer eigenen Config, die BeamNG gespeichert hat, steht der Lack oft nicht in der <code>.pc</code>, sondern in <span class="path">info_&lt;config&gt;.json</span> daneben (<code>defaultMultiPaintSetup</code>, Lack 1 bis 3). Den nimmt die Mod dann automatisch. Hat die Config eine Livery (Slot <code>paint_design</code>), wird <code>paint</code> ignoriert, damit die Livery nicht übermalt wird.</p>
 <pre><code>"paint": {
   "name": "Mitternachtsblau",
   "color": [0.05, 0.08, 0.25],
@@ -585,6 +641,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li><b>Links</b>: Kategorien (Mechaniker, Bodyshop, Weiteres), Suchfeld oben (sucht in allen Kategorien nach Teil- und Slot-Namen, z. B. <code>turbo</code> oder <code>15x7</code>).</li>
 <li><b>Mitte</b>: Live-Vorschau. Dort ist kein Bild, sondern ein Loch im Terminal, durch das du die echte 3D-Szene siehst. Fährst du mit der Maus über ein Teil, schwenkt die BeamNG-Teilekamera darauf. Knöpfe: <b>Ganzes Auto</b>, <b>Teil zeigen</b>, <b>Röntgen</b> (Rest des Autos durchsichtig) und Drehen. Mit der Maus kannst du in der Mitte auch selbst drehen.</li>
 <li><b>Rechts</b>: Fahrzeugwerte (grün/rot = besser/schlechter als vor dem Warenkorb) und das Warenkorb-Fenster mit dem Schalter <b>Teile direkt montieren</b>. Aus = Gekauftes wandert ins Teilelager der Garage, das Auto bleibt wie vorher (nur neuer Lack bleibt drauf).</li>
+<li><b>Lackierer</b>: Werkslacke wählen oder bei <b>Eigene Farbe</b> Farbton, Sättigung, Helligkeit, Metallic, Rauheit und Klarlack mit den Reglern einstellen. Jede Regler-Bewegung siehst du <b>sofort am Auto</b> (Live-Vorschau, kostet nichts). Erst <b>In den Warenkorb</b> macht daraus eine Lackierung zum Kaufen. Wechselst du die Kategorie oder die Lackschicht, legst etwas anderes in den Warenkorb oder verlässt den Shop, springt das Auto zurück auf den Lack davor.</li>
+<li><b>Verlassen</b>: der rote, leuchtende Knopf <b>Shop verlassen</b> unten links in der Taskleiste oder der rote Knopf oben rechts im Terminalfenster.</li>
 <li><b>Garagen-PC</b>: Reiter <b>Umbauen</b> (nur eigene Teile, kostenlos) und <b>Teilelager</b> (Liste aller eigenen Teile mit montiert/im Lager, Knopf Montieren).</li>
 </ul>
 <h3>Felgen und Reifen</h3>
@@ -654,6 +712,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>wakeHour</code></td><td>20</td><td>Aufwachen nach einem Schlaf tagsüber</td></tr>
 <tr><td><code>napHours</code></td><td>[0.5, 2]</td><td>Nickerchen im Auto auf einem Parkplatz: zufällig 0,5 bis 2 Stunden</td></tr>
 <tr><td><code>restSeconds</code></td><td>{ "nap": 10, "home": 20 }</td><td>So viele echte Sekunden bleibt der Bildschirm beim Schlafen schwarz, während die Uhr bis zur Aufwachzeit vorspult. <code>nap</code> = Nickerchen im Auto, <code>home</code> = zu Hause. Dazu kommt je 1 s Ab- und Aufblenden.</td></tr>
+<tr><td><code>restLockHours</code></td><td>6</td><td>Ruhesperre: nach dem Schlafen zu Hause oder einem Nickerchen im Auto geht <b>beides</b> erst nach so vielen Spielstunden wieder (gegen Dauerschlafen). <code>0</code> = keine Sperre. Zählt ab dem Aufwachen.</td></tr>
 <tr><td><code>jobRewards</code></td><td>garageToGarage</td><td>Lohn in Yen für Tagesjobs (BeamNG-Missionen) je Missionstyp: <code>passed</code> = geschafft, <code>completed</code> = alle Sterne, <code>repeatFactor</code> = dieselbe Mission am selben Spieltag nochmal (0.5 = halber Lohn, beim dritten Mal ein Viertel)</td></tr>
 <tr><td><code>shopHours</code></td><td>[8, 20]</td><td>Öffnungszeiten der Shops (pro Parkplatz mit <code>hours</code> überschreibbar)</td></tr>
 <tr><td><code>trafficByHour</code></td><td>24 Zahlen</td><td>Verkehr in % je Stunde, erster Wert = 0 Uhr, letzter = 23 Uhr. 100 = volle Menge</td></tr>
@@ -666,6 +725,13 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
   "garageToGarage": { "passed": 12000, "completed": 20000, "repeatFactor": 0.3 }
 }</code></pre>
 <div class="box"><b>Schlafen und Nickerchen</b>Der Bildschirm wird schwarz, die Uhr läuft im Zeitraffer bis zur Aufwachzeit, dann wird es wieder hell. Rivalen verschwinden vorher, beim Nickerchen ist das Auto festgehalten, und das Menü reagiert in der Zeit nicht. Wird Mitternacht überschritten, beginnt ein neuer Spieltag.</div>
+<div class="box"><b>Ruhesperre nach dem Schlafen</b>Nach dem Aufwachen (zu Hause oder nach einem Nickerchen) kann man <code>restLockHours</code> Spielstunden lang weder schlafen noch ein Nickerchen machen. Im Zuhause-Menü steht dann „Schlafen ab HH:MM“ mit dem Hinweis „Du hast gerade erst geschlafen …“, beim Nickerchen „Noch nicht müde, wieder ab HH:MM“. Endet die Sperre in der Battle-Zeit (20 bis 22 Uhr), steht zu Hause „ab 22:00“. Gespeichert wird das im Spielstand als <code>restLockUntil</code> (Spielstunde seit Tag 1).
+<pre><code>// Beispiele mit restLockHours = 6
+Zu Hause 23:00 schlafen  -> Aufwachen 06:00 -> wieder schlafen ab 12:00
+Tagsüber 13:00 schlafen  -> Aufwachen 20:00 -> wieder schlafen ab 02:00
+Nickerchen 01:00 (1,5 h) -> Aufwachen 02:30 -> wieder ab 08:30
+// Sperre kürzer machen: "restLockHours": 4   ausschalten: "restLockHours": 0</code></pre>
+Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json</code>: <code>msg.sleepRested</code>, <code>home.sleepRestedNote</code>, <code>msg.nap.rested</code> (<code>%s</code> = Uhrzeit).</div>
 <div class="box tip"><b>Uhr bleibt nie stehen</b>Die Mod startet die Spieluhr immer wieder, auch wenn BeamNG sie pausiert. Das ist Absicht.</div>
 </section>
 
@@ -825,17 +891,48 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </section>
 
 <section id="release">
-<h2><span class="n">16</span> Release-Sperren <span class="tag">data\build.json</span></h2>
+<h2><span class="n">16</span> Release-Sperren und Release-Build <span class="tag">data\build.json · release.lua</span></h2>
+
+<h3>Release-Test an/aus und ZIP bauen: Release-Werkzeug</h3>
+<p>Doppelklick auf <span class="path">tools\Release-Werkzeug.bat</span> im Mod-Ordner. Es öffnet sich ein kleines Fenster mit drei Punkten:</p>
+<table>
+<tr><th>Taste</th><th>Was passiert</th></tr>
+<tr><td>1</td><td><b>Release-Test AN</b>: setzt in <code>build.json</code> <code>release</code> auf <code>true</code>. Danach BeamNG <b>komplett neu starten</b> und die Karriere laden. Du spielst dann genau so, wie es die Tester bekommen.</td></tr>
+<tr><td>2</td><td><b>Release-Test AUS</b>: zurück zur Entwicklung (<code>false</code>), alle Dev-Tools und der Builder sind wieder da. Auch hier BeamNG neu starten.</td></tr>
+<tr><td>3</td><td><b>Release-ZIP bauen</b>: fragt nach der Versionsnummer (Enter = <code>modVersion</code> aus <code>build.json</code>) und legt <span class="path">F:\BeamNG\current\mods\hashiriya_battle_&lt;version&gt;.zip</span> an, also direkt neben <span class="path">unpacked</span>. Der Explorer zeigt die Datei danach an.</td></tr>
+</table>
+<p>Die ZIP heißt nach der Version und taucht damit im Mod-Manager als eigener Mod auf. So testest du den Release-Build unabhängig vom Entwicklungs-Ordner: im Mod-Manager entweder die ZIP oder <b>Hashiriya-Battle</b> (unpacked) aktivieren, nie beide gleichzeitig.</p>
+<p>In der ZIP ist <code>release</code> immer an und die Version gesetzt, egal wie dein Mod-Ordner gerade steht. Außerdem drin:</p>
+<ul>
+<li><code>CHANGELOG_DE.md</code> (aus <code>CHANGELOG.md</code>) und <code>CHANGELOG_EN.md</code>.</li>
+<li><code>mod_info/HASHIRIYABATTLE/</code> mit <code>info.json</code>, Logo (<code>icon.jpg</code>) und Banner: Damit zeigt der Mod-Manager Titel, Kurzbeschreibung, Autor, Version und die Neuerungen dieser Version (aus <code>CHANGELOG_EN.md</code>). Texte und Bilder liegen in <span class="path">tools\mod_info\</span>, dort kannst du sie ändern.</li>
+</ul>
+<p>Nicht in die ZIP kommen: <code>tools</code>, <code>docs</code>, die README, der Builder (<code>builder.lua</code>, App <code>HashiriyaBuilder</code>) und die Taste Shift+Pos1 (Titelbild-Kamera merken). Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
+<div class="box"><b>Changelog</b>Gibt es in <code>CHANGELOG.md</code> noch keinen Abschnitt <code>## &lt;Version&gt;</code>, legt das Werkzeug ihn in beiden Changelogs selbst an: mit den Commit-Titeln seit der letzten Changelog-Änderung (technisch und auf Deutsch). Schöner wird es, wenn du mir vorher sagst „das ist jetzt Release-Version &lt;Version&gt;“: Dann schreibe ich beide Abschnitte spielerfreundlich auf Deutsch und Englisch, und das Werkzeug übernimmt sie unverändert.</div>
+<div class="box warn"><b>Falls Windows das Fenster blockiert</b>Beim ersten Start fragt Windows evtl. nach („Trotzdem ausführen“). Die .bat startet nur das PowerShell-Skript <span class="path">tools\release-werkzeug.ps1</span> daneben.</div>
+
+<h3>Was im Release gesperrt ist</h3>
+<p>Wie in der offiziellen BeamNG-Karriere (<span class="path">lua\ge\extensions\career\career.lua</span> im Spiel) und noch etwas strenger. Gilt nur, solange deine Karriere läuft. Nur der Node Grabber bleibt.</p>
+<ul>
+<li><b>Tasten</b>: Fahrzeugauswahl, Fahrzeug-Config, Fahrzeug neu laden/reparieren, Recover, auf die Straße zurück, Flip, Home laden/speichern, Wechsel zu anderen Autos (auch KI), Verkehr an/aus, Zeitlupe, Fun-Stuff, Editor, Konsole (^), UI-/Lua-Reload, Track Builder, Uhrzeit weiterschalten, Debug-Ansichten. Das radiale Menü blendet diese Punkte dadurch auch aus.</li>
+<li><b>ESC-Menü</b>: Die Tabs „Fahrzeug“ und „Umgebung“ sind weg, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Knöpfe für Reparieren, Fahrzeugauswahl, Replay und Map wechseln mehr. Karte, Fotomodus, Speichern und Beenden bleiben.</li>
+<li><b>Große Karte</b>: keine Schnellreise zu Orten.</li>
+<li><b>Hashiriya-Menü</b>: alle Test-Knöpfe unter „Werkzeuge“ (Rivale rufen, Rivalen-Eingabe, +Ruf, Uhr, Tag +1, gratis reparieren/tanken, Position merken, Geld, Siege, Configs exportieren) und der Builder. Übrig bleiben Parkplatz-Marker und Fehlerbericht.</li>
+<li><b>Uhrzeit</b>: nicht über Time &amp; Weather verstellbar (<code>lockTime</code>).</li>
+</ul>
+<p>Die Time Trials sind auf C1 immer ausgeblendet, auch in der Liste der Points of Interest (<code>disabledMissionTypes</code> in <span class="path">data\maps\c1.json</span>).</p>
+
+<h3>Felder in build.json</h3>
 <table>
 <tr><th>Feld</th><th>Jetzt</th><th>Bedeutung</th></tr>
-<tr><td><code>release</code></td><td>false</td><td>true = Release-Build: die Sperren unten gelten in der Karriere</td></tr>
-<tr><td><code>blockedActions</code></td><td>["reset_physics"]</td><td>Gesperrte BeamNG-Aktionen (Auto zurücksetzen)</td></tr>
+<tr><td><code>release</code></td><td>true</td><td>true = Release-Test (Sperren an), false = Entwicklung. Am besten mit dem Release-Werkzeug umschalten.</td></tr>
+<tr><td><code>blockedActions</code></td><td>Liste</td><td>Zusätzliche gesperrte Tastenaktionen (Konsole, Debug usw.). Die Karriere-Vorlagen sperrt <span class="path">release.lua</span> selbst. Steht <code>nodegrabberStrength</code> drin, lässt sich die Stärke nicht verstellen.</td></tr>
 <tr><td><code>lockTime</code></td><td>true</td><td>Uhrzeit nicht verstellbar</td></tr>
 <tr><td><code>blockBigMapTeleport</code></td><td>true</td><td>Keine Schnellreise über die große Karte</td></tr>
-<tr><td><code>nodeGrabberStrength</code></td><td>20</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
-<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 1"</td><td>Version und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
+<tr><td><code>nodeGrabberStrength</code></td><td>30</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
+<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 0.3"</td><td>Version (Vorschlag beim ZIP-Bauen) und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
 </table>
-<div class="box warn"><b>Erst kurz vor dem ersten Release</b><code>release</code> bleibt bis kurz vor der ersten öffentlichen Version auf <code>false</code>. Mit <code>true</code> sind auch die Dev-Tools nicht mehr gedacht.</div>
+<p>Welche Tabs und Knöpfe im ESC-Menü verschwinden, steht oben in <span class="path">lua\ge\extensions\hashiriyaBattle\release.lua</span> (<code>hiddenTabs</code>, <code>hiddenRailActions</code>). Im Mod-Log steht beim Start „Release-Sperren an (… Tastenaktionen)“.</p>
 </section>
 
 <section id="battle">
@@ -856,8 +953,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>maxChallengeDiffKmh</code></td><td>30</td><td>Größerer Tempounterschied = kein Herausfordern</td></tr>
 <tr><td><code>challengeQuoteTime</code></td><td>6</td><td>So lange steht der Spruch des Rivalen in der Sprechblase, wenn ihr euch angleicht. Erst danach startet der Countdown (ohne Spruch hat der Rivale keine Wartezeit).</td></tr>
 <tr><td><code>countdown</code></td><td>5</td><td>Sekunden Countdown</td></tr>
-<tr><td><code>syncToleranceKmh</code> / <code>syncTimeout</code></td><td>5 / 25</td><td>Angleichen: so nah am Tempo, spätestens nach 25 s startet der Countdown</td></tr>
-<tr><td><code>falseStartGap</code> / <code>falseStartKmh</code></td><td>3 / 10</td><td>Ab wann es ein Frühstart ist</td></tr>
+<tr><td><code>syncToleranceKmh</code> / <code>syncTimeout</code></td><td>5 / 25</td><td>Angleichen: so nah am Tempo, spätestens nach 25 s startet der Countdown. Der Rivale fährt dabei mit der BeamNG-KI und bremst für Verkehr und Kurven; dein Tempomat folgt seinem echten Tempo und hält im Countdown den Abstand.</td></tr>
+<tr><td><code>falseStartGap</code> / <code>falseStartKmh</code></td><td>3 / 10</td><td>Ab wann es ein Frühstart ist. Rollst du nur heran, weil der Rivale gebremst hat (du bist nicht schneller als er), ist es kein Frühstart.</td></tr>
 <tr><td><code>resultTime</code></td><td>9</td><td>Sekunden Ergebnisanzeige mit Spruch</td></tr>
 <tr><td><code>rivalAiMode</code></td><td>'own'</td><td>KI des Rivalen im Battle. <code>'own'</code> = unser eigener Fahrer (siehe <a href="#fahrer">Gegner-Fahrer</a>); gibt er auf, übernimmt automatisch <code>'fleeGuard'</code>. <code>'fleeGuard'</code> = vorne die BeamNG-Flucht-KI (zügig, weicht seitlich aus) plus unser Bremsschutz, hinten <code>'span'</code>. <code>'span'</code> = freie Fahrt ohne Tempolimit und Spurzwang: weicht Verkehr aus, bremst nur wenn nötig. <code>'traffic'</code> = Verkehrsmodus, sehr vorsichtig. <code>'pursuit'</code> = BeamNG flee/chase: flee bremst nicht für Verkehr, chase rammt dich.</td></tr>
 <tr><td><code>guardTtc</code> / <code>guardLateral</code> / <code>guardLookAhead</code> / <code>guardHold</code> / <code>guardSpeedMargin</code></td><td>1.6 / 2.2 / 90 / 0.8 / 1.5</td><td>Nur bei <code>'fleeGuard'</code>: Bremsschutz für die Flucht-KI (BeamNG lässt sie wegen anderer Autos nie bremsen). Steht ein langsameres Auto bis 90 m voraus und höchstens 2,2 m seitlich versetzt, und würde der Rivale in weniger als 1,6 s auffahren, fährt er kurz höchstens 1,5 m/s langsamer als der Vordermann, mindestens 0,8 s lang. Fährt er noch auf: <code>guardTtc</code> höher (z. B. 2.2). Bremst er zu oft: <code>guardTtc</code> kleiner oder <code>guardLateral</code> kleiner.</td></tr>
@@ -878,20 +975,22 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <p>Im Battle fährt der Rivale mit unserem eigenen Fahrer statt mit der BeamNG-KI. Er bedient Lenkung, Gas und Bremse selbst, plant 10x pro Sekunde neu und funktioniert auf jeder Karte mit Straßennetz (auch Touge mit Gegenverkehr). Vor und nach dem Battle (im Verkehr) fährt weiter die BeamNG-KI.</p>
 <ul>
 <li><b>Ideallinie</b> über alle Spuren der eigenen Richtung (am Touge über die ganze Straße), Kurventempo aus Kurvenradius und Grip.</li>
-<li><b>Verkehr:</b> Er sieht jedes Auto, sagt voraus, wo es beim Vorbeifahren ist, und sucht eine Lücke (links, rechts oder zwischen zwei Autos). Erst wenn keine Lücke passt: Gas weg, dann bremsen, hinter dem Auto einreihen und auf die nächste Lücke warten. Notbremse nur kurz vor dem Aufprall.</li>
-<li><b>Gegenverkehr:</b> Überholt nicht, wenn der Gegenverkehr vor dem Ende des Überholens da ist.</li>
+<li><b>Verkehr (Wege-Planer):</b> 10x pro Sekunde probiert er rund 100 bis 200 mögliche Wege für die nächsten 4 Sekunden durch: die Ideallinie und weiche Spurwechsel auf jede Querlage der Straße (alle 0,6 m, inkl. Standstreifen), jeweils schnell oder gemütlich gefahren, und dazu Vollgas, Tempo halten, leicht oder stark verzögern. Für jeden Weg rechnet er aus, wo jedes Auto in jedem Moment sein wird. Wege mit Berührung fliegen raus, vom Rest nimmt er den, der am weitesten nach vorne kommt (Standstreifen, Gegenfahrbahn und viel Querweg kosten etwas). Ausweichen kommt deshalb immer vor Bremsen: Er bremst nur, wenn wirklich <b>kein</b> Weg vorbei frei ist. Einen begonnenen Spurwechsel zieht er durch und bleibt auf der Seite, bis das überholte Auto hinter ihm ist. Lenkt ein Auto rüber, merkt er das an der Querbewegung und plant einen Bereich frei. Notbremse nur, wenn gar nichts mehr geht; ist er schon neben dem Auto, bleibt er dann lieber auf dem Gas und zieht mit knappem Abstand vorbei. Der Überhol-Schlenker selbst bremst ihn nicht ein: Dort zählt nur das Kurventempo der Straße.</li>
+<li><b>Battle-Start:</b> Beim Tempo-Angleichen und im Countdown fährt noch die BeamNG-KI (bremst dabei für Verkehr). Ab dem Start übernimmt unser Fahrer und kennt sofort alle Autos um sich herum (keine Reaktionszeit für Autos, die schon da waren). Gibt es einmal einen Fehler in der Planung, fährt er bis zu 1 s mit der letzten Planung weiter statt blind geradeaus.</li>
+<li><b>Gegenverkehr:</b> Am Touge zählt er Gegenverkehr mit ein (Vorausschau dann 6 s). Auf der Gegenfahrbahn darf ein Weg nur liegen, wenn er am Ende wieder auf seiner Seite ist und das entgegenkommende Auto ihn bis dahin nicht trifft.</li>
 <li><b>Abzweige:</b> Fährt die natürliche Fortsetzung der Straße. Liegt der Spieler vorne, folgt er dessen Weg.</li>
 <li><b>Gummiband:</b> Vorne mit großem Vorsprung bis zu 6 % langsamer in Kurven, hinten mehr Mut (knappere Lücken). Bosse ohne Gummiband.</li>
 <li><b>SP-Lage:</b> Wenig eigene SP = mehr Mut, schwächere Nerven. Spieler fast leer und er vorne = sicherer.</li>
 <li><b>Festgefahren:</b> setzt kurz zurück und fährt weiter.</li>
-<li><b>Überholst du ihn</b> oder fährt der Vordermann schneller, bremst er nicht, sondern geht nur vom Gas. Ist er zu dicht hinter einem langsameren Auto, fällt er höchstens 10 km/h unter dessen Tempo.</li>
-<li><b>Hinterherfahren:</b> Er bleibt nur so weit hinter einem Auto, dass er jederzeit noch eine Spur rüberkommt (je mutiger, desto dichter). Hängt er länger fest, lässt er sich etwas zurückfallen und nimmt Anlauf. Einen begonnenen Überholvorgang bricht er nicht wegen einer Kleinigkeit ab. Ist er langsam (unter ca. 40 km/h, z. B. hinter einem stehenden oder schleichenden Auto), lenkt er einfach drum herum, sobald der Einschlag reicht. Ist ein Auto vor ihm quer schon frei, fährt er einfach vorbei, statt zu bremsen.</li>
-<li><b>Schnelle Kurven:</b> Er merkt, wenn sein Auto untersteuert (viel Lenkung, wenig Drehung), und fährt danach alle Kurven entsprechend langsamer (<code>Grip</code> im Log, 1,00 = voller Grip, sinkt bis 0,60, erholt sich langsam). Ab ca. 110 km/h hält er in Kurven zusätzlich Reserve (bis 10 %) und mehr Abstand zum Rand (+0,5 m bei 230 km/h).</li>
+<li><b>Überholst du ihn</b> oder fährt ein Auto neben ihm schneller, bremst er nicht: Für den Planer ist das einfach ein Auto, das ihm nicht im Weg ist.</li>
+<li><b>Hinterherfahren:</b> Gibt es keinen freien Weg (z. B. drei Autos nebeneinander und kein Standstreifen), nimmt er das Tempo, mit dem er gerade nicht auffährt, und probiert weiter alle Wege durch. Sobald sich irgendwo eine Lücke auftut, auch auf dem Standstreifen oder der Abfahrtsspur, zieht er rüber. Stehende oder schleichende Autos umfährt er einfach. Steht er direkt hinter einem Auto und kein Weg ist frei, setzt er nach 2,5 s kurz zurück und fährt dann drum herum.</li>
+<li><b>Schnelle Kurven:</b> Er merkt, wenn sein Auto untersteuert (viel Lenkung, wenig Drehung), und fährt danach alle Kurven entsprechend langsamer (<code>Grip</code> im Log, 1,00 = voller Grip, sinkt bis 0,60, erholt sich langsam). Ab ca. 90 km/h hält er in Kurven zusätzlich Reserve (bis 20 % ab 234 km/h) und mehr Abstand zum Rand (+0,5 m bei 230 km/h). Bremsen plant er wie ein echter Fahrer: Je mehr er schon lenkt, desto weniger bremst er (der Reifen braucht den Grip zum Lenken), und bei hohem Tempo plant er längere Bremswege. Wie stark sein Auto wirklich bremst, misst er bei jeder Vollbremsung (<code>Bremskraft</code> im Log, in m/s²) und plant danach. Trägt es ihn in einer Kurve trotzdem mehr als 0,3 m (<code>driftTol</code>) nach außen, nimmt er sofort Tempo raus, bleibt den Rest der Kurve (bis 4 s, <code>driftMemory</code>) vorsichtig, statt gleich wieder Gas zu geben, und fährt danach alle Kurven vorsichtiger (<code>Grip</code> sinkt, <code>außen</code> im Log). Wichtig: BeamNG meldet bei Sport- und Rennreifen einen Reibwert bis 1,7. Damit hätte er mit viel zu viel Grip geplant, deshalb rechnet er mit höchstens 1,05 (<code>muMax</code>).</li>
+<li><b>Standstreifen und Überholen:</b> Auf dem Standstreifen hält er 0,3 m mehr Abstand zu Autos daneben (<code>shoulderSideGap</code>) und 0,2 m mehr zur Leitplanke (<code>shoulderWallGap</code>). Bremsen beim Überholen ist bei der Wegwahl teuer (<code>brakePassCost</code>), er bremst nur, wenn ohne Bremsen kein Weg frei ist.</li>
 <li><b>Standstreifen und Abfahrtsspur:</b> Die Straßendaten der Karte hören oft an der Spur auf. Der Fahrer misst deshalb selbst, wie weit es bis zur Wand oder Leitplanke frei ist und ob dort Boden ist (kein Abhang), und nutzt bis zu 4 m daneben (<code>shoulderMax</code>) zum Vorbeifahren am Verkehr. Die Ideallinie bleibt auf der Fahrbahn. Das funktioniert auf jeder Karte.</li>
 </ul>
 <h3 id="fahrer-duell">Duell mit dir (Stufe 3)</h3>
 <ul>
-<li><b>Windschatten:</b> Liegt er hinten und ist bis 45 m hinter dir, hängt er sich direkt hinter dich. Überholt wird, sobald die Lückensuche eine Lücke findet.</li>
+<li><b>Windschatten:</b> Liegt er hinten und ist bis 45 m hinter dir, hängt er sich direkt hinter dich. Überholt wird, sobald der Wege-Planer einen freien Weg an dir vorbei findet.</li>
 <li><b>Blocken:</b> Rivalen mit <code>aggression</code> ab 0,55 machen vorne auf der Geraden deine Linie zu (1,5 bis 3 s, je aggressiver desto länger). Ziehst du rüber, zieht er <b>einmal</b> nach, dann bist du dran. Danach 8 s Pause.</li>
 <li><b>Bremstest:</b> Nur Fieslinge mit <code>fairness</code> unter 0,35: Fährst du direkt hinter ihm (bis ca. 18 m), tritt er manchmal 0,7 s auf die Bremse. Höchstens alle 25 s. Je niedriger die Fairness, desto öfter.</li>
 <li><b>Start:</b> Er reagiert beim Rennstart verzögert (Können 0 = 0,8 s, Können 1 = 0,2 s).</li>
@@ -910,7 +1009,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <p>Jeder Rivale hat fünf Werte von 0 bis 1. Sie werden automatisch berechnet, du kannst jeden in <code>rivals.json</code> überschreiben.</p>
 <table>
 <tr><th>Wert</th><th>Automatisch</th><th>Wirkung</th></tr>
-<tr><td><code>skill</code> (Können)</td><td>Crew-Rang 0 = 0,3 bis höchster Rang = 0,75; Leader +0,15; Wanderer ca. 0,8; Boss 0,95; Revanche +0,05</td><td>Kurventempo (82 bis 93 % des Grips), Bremskraft, Sichtweite für Verkehr (80 bis 170 m), Reaktionszeit (0,8 bis 0,2 s), wie stark er die ganze Straßenbreite nutzt</td></tr>
+<tr><td><code>skill</code> (Können)</td><td>Crew-Rang 0 = 0,3 bis höchster Rang = 0,75; Leader +0,15; Wanderer ca. 0,8; Boss 0,95; Revanche +0,05</td><td>Kurventempo (78 bis 87 % des Grips), Bremskraft, Sichtweite für Verkehr (80 bis 170 m), Reaktionszeit (0,8 bis 0,2 s), wie stark er die ganze Straßenbreite nutzt</td></tr>
 <tr><td><code>courage</code> (Mut)</td><td>= <code>aggression</code> aus rivals.json</td><td>Seitenabstand zu Verkehr (1,0 bis 0,3 m pro Seite), Abstand zum Rand, Abstand hinter Verkehr (0,9 bis 0,35 s), wie spät er notbremst (1,0 bis 0,6 s vor dem Aufprall), wie hart er für eine Lücke querzieht</td></tr>
 <tr><td><code>aggression</code></td><td>= <code>aggression</code></td><td>ab 0,55 blockt er dich vorne auf der Geraden (siehe <a href="#fahrer-duell">Duell</a>)</td></tr>
 <tr><td><code>nerves</code> (Nerven)</td><td>ca. Können × 0,8</td><td>Unter Druck (du dicht dran) reagiert er mit schwachen Nerven langsamer und macht mehr Fehler; Schreckreaktion und Schlingern</td></tr>
@@ -922,7 +1021,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <table>
 <tr><th>Feld</th><th>Jetzt</th><th>Bedeutung</th></tr>
 <tr><td><code>enabled</code></td><td>true</td><td><code>false</code> = alte BeamNG-KI (fleeGuard)</td></tr>
-<tr><td><code>debug</code></td><td>false</td><td><code>true</code> = Fahrlinie als Kugeln im Spiel (grün schnell, rot langsam) und über jedem Verkehrsauto seine Entscheidung (blau links vorbei, gelb rechts vorbei, rot dahinter bleiben)</td></tr>
+<tr><td><code>debug</code></td><td>false</td><td><code>true</code> = Fahrlinie als Kugeln im Spiel (grün schnell, rot langsam) und über jedem Verkehrsauto seine Entscheidung (blau links vorbei, gelb rechts vorbei, rot dahinter bleiben, weil gerade kein Weg frei ist)</td></tr>
 <tr><td><code>tiers</code></td><td>{}</td><td>Zuschlag je Stufe (<code>rival</code>, <code>leader</code>, <code>wanderer</code>, <code>boss</code>)</td></tr>
 <tr><td><code>params</code></td><td>{}</td><td>Feineinstellung des Fahrers für alle Gegner (Namen wie in <code>defaults</code> ganz oben in <span class="path">lua\vehicle\extensions\hashiriyaDriver.lua</span>)</td></tr>
 </table>
@@ -930,9 +1029,9 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 "debug": true,
 "tiers": { "boss": { "courage": 0.05 } },
 "params": { "cornerUseMax": 0.97, "cornerUseMin": 0.86 }</code></pre>
-<p>Wichtige <code>params</code>: <code>cornerUseMin</code>/<code>Max</code> 0.82/0.93 (Kurventempo bei Können 0/1), <code>brakeUseMin</code>/<code>Max</code> 0.72/0.95 (Bremskraft), <code>sideGapMin</code>/<code>Max</code> 0.3/1.0 (Seitenabstand bei Mut 1/0), <code>emergencyTtcMin</code>/<code>Max</code> 0.6/1.0 (Notbremse), <code>steerLookTime</code> 0.5 (Lenk-Vorschau: schlingert er, höher, z. B. 0.6; schneidet er Kurven, niedriger), <code>steerGain</code> 1.0 (Lenkstärke), <code>blockMinAggression</code> 0.55, <code>blockCooldown</code> 8, <code>draftDist</code> 45, <code>brakeCheckFairness</code> 0.35, <code>brakeCheckCooldown</code> 25, <code>errorRateMax</code>/<code>Min</code> 1.0/0.03 (Fehler pro Minute bei Können 0/1, <code>0</code> = keine Fehler), <code>errorCooldown</code> 12, <code>logBrakes</code> true, <code>shoulderMax</code> 4 (m neben der Fahrbahn, 0 = nie Standstreifen), <code>highSpeedReserve</code> 0.1 (Kurvenreserve bei hohem Tempo; fliegt er raus: höher, z. B. 0.15), <code>edgeMarginSpeed</code> 0.012 (Randabstand pro m/s).</p>
-<p><b>Warum bremst er?</b> Mit <code>logBrakes</code> (Standard: an) steht jeder Bremsvorgang höchstens 1x pro Sekunde im <span class="path">beamng.log</span>, z. B.:<br><code>Bremse 0.62 (Linie) bei 63 km/h, Ziel 49 km/h, TTC 4.4, quer 1.5, Spur -4.4..4.4, 3 Autos, 0 Lücken | Auto 2 in 9 m, quer -0.0, 58 km/h, Limit 55 km/h ab 0 m</code><br>Grund: <i>Linie</i> (Kurve oder Verkehr ohne Lücke), <i>Notbremse</i>, <i>Schreck</i>, <i>Bremstest</i>. „Spur“ ist die Breite laut Karte, „frei“ die selbst gemessene Breite mit Standstreifen (Meter links/rechts der Straßenmitte), „0 Lücken“ heißt: er hat keinen Weg vorbei gefunden. Schick mir einfach das Log nach einem Battle.</p>
-<p><b>Läuft er nicht?</b> Im Log steht „Eigener Fahrer für …“ beim Battle-Start. „Eigener Fahrer aufgegeben“ heißt: keine Straßendaten gefunden, dann fährt die alte KI. <b>Testen ohne Spiel:</b> <code>python3 tools/driver-sim/run.py highway 0.6 0.7</code> (Strecke, Können, Mut) simuliert eine Autobahn oder einen Touge mit Verkehr. Mit <code>debug: true</code> steht im Log auch „blockt“, „Bremstest“ und „Fehler: …“.</p>
+<p>Wichtige <code>params</code>: <code>cornerUseMin</code>/<code>Max</code> 0.78/0.87 (Kurventempo bei Können 0/1), <code>brakeUseMin</code>/<code>Max</code> 0.68/0.90 (Bremskraft), <code>highSpeedBrakeReserve</code> 0.2 (bei hohem Tempo bis 20 % längerer Bremsweg eingeplant; bremst er zu spät: höher, z. B. 0.3), <code>sideGapMin</code>/<code>Max</code> 0.3/1.0 (Seitenabstand bei Mut 1/0), <code>emergencyTtcMin</code>/<code>Max</code> 0.6/1.0 (Notbremse), <code>steerLookTime</code> 0.5 (Lenk-Vorschau: schlingert er, höher, z. B. 0.6; schneidet er Kurven, niedriger), <code>steerGain</code> 1.0 (Lenkstärke), <code>blockMinAggression</code> 0.55, <code>blockCooldown</code> 8, <code>draftDist</code> 45, <code>brakeCheckFairness</code> 0.35, <code>brakeCheckCooldown</code> 25, <code>errorRateMax</code>/<code>Min</code> 1.0/0.03 (Fehler pro Minute bei Können 0/1, <code>0</code> = keine Fehler), <code>errorCooldown</code> 12, <code>logBrakes</code> true, <code>shoulderMax</code> 4 (m neben der Fahrbahn, 0 = nie Standstreifen), <code>highSpeedReserve</code> 0.2 (Kurvenreserve bei hohem Tempo; fliegt er raus: höher, z. B. 0.3), <code>driftTol</code> 0.3 (m nach außen, ab dem er in der Kurve Tempo rausnimmt; kleiner = vorsichtiger), <code>edgeMarginSpeed</code> 0.012 (Randabstand pro m/s), <code>muMax</code> 1.05 (höchster eingeplanter Reibwert; fliegt er in Kurven raus: kleiner, z. B. 1.0), <code>driftMemory</code> 4 (s vorsichtig nach dem Abfangen), <code>shoulderSideGap</code> 0.3 / <code>shoulderWallGap</code> 0.2 (m mehr Abstand auf dem Standstreifen zu Autos / Leitplanke), <code>brakePassCost</code> 4 (je höher, desto seltener bremst er beim Überholen).</p>
+<p><b>Warum bremst er?</b> Mit <code>logBrakes</code> (Standard: an) steht jeder Bremsvorgang höchstens 1x pro Sekunde im <span class="path">beamng.log</span>, z. B.:<br><code>Bremse 0.62 (Linie) bei 63 km/h, Ziel 49 km/h, TTC 4.4, quer 1.5, Spur -4.4..4.4 (frei -6.8..6.8), 3 Autos, 0 Wege frei, Wahl: nach quer 1.5 in 1.0 s, verzögern 2.5, Grip 1.00, Bremskraft 8.5, außen 0.0 m | Auto 2 in 9 m, quer -0.0, 58 km/h, Limit 55 km/h ab 0 m</code><br>Grund: <i>Linie</i> (Kurve oder kein freier Weg), <i>Notbremse</i>, <i>Schreck</i>, <i>Bremstest</i>. „Spur“ ist die Breite laut Karte, „frei“ die selbst gemessene Breite mit Standstreifen (Meter links/rechts der Straßenmitte). „Wege frei“ = wie viele der durchprobierten Wege ohne Berührung gehen (0 = keiner, dann bremst er zu Recht). „Wahl“ = was er gerade macht: <i>Ideallinie</i> oder <i>nach quer X in Y s</i> (Spurwechsel auf X m), dazu <i>Gas</i>, <i>Tempo halten</i> oder <i>verzögern</i>. Steht dort „Gas“ und er bremst trotzdem, ist es die Kurve. „außen“ = wie weit es ihn gerade in der Kurve nach außen trägt (über 0,3 m nimmt er Tempo raus). Schick mir einfach das Log nach einem Battle.</p>
+<p><b>Läuft er nicht?</b> Im Log steht „Eigener Fahrer für …“ beim Battle-Start. „Eigener Fahrer aufgegeben“ heißt: keine Straßendaten gefunden, dann fährt die alte KI. <b>Testen ohne Spiel:</b> <code>python3 tools/driver-sim/run.py highway 0.6 0.7</code> (Strecke, Können, Mut) simuliert eine Autobahn oder einen Touge mit Verkehr. Zusätzlich z. B. <code>STOPCAR=0.02,0</code> (stehendes Auto kurz vor ihm) oder <code>STARTLAT=7.5</code> (Start neben der Fahrbahn). Mit <code>debug: true</code> steht im Log auch „blockt“, „Bremstest“ und „Fehler: …“.</p>
 </section>
 
 <section id="spawn">
@@ -975,16 +1074,23 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>HashiriyaUnlock</code></td><td>Karte links am Rand „Neue Teile freigeschaltet“, wenn eine Tuning-Stufe frei wird (Stufe, Grund, neue Teile pro Kategorie fürs aktive Auto). Siehe <a href="#freischalt-meldung">Meldung bei neuen Teilen</a>.</td></tr>
 <tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Später auch für die PA-Gespräche.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
+<tr><td><code>HashiriyaUtility</code></td><td>Oben links, ersetzt die BeamNG-Utility-Apps (Messages, Tasks, Scoreboard). Untereinander: Rangliste (nur wenn ein Spielmodus sie einschaltet), Aufgaben (Titel, Ziele mit Rauten-Haken: grün erledigt, rot gescheitert, orange pulsierend = Achtung) und Meldungen als Karten. Meldungen der Mod sind orange („Hashiriya“), Meldungen vom Spiel grau-blau („BeamNG“), Schäden und Warnungen rot. Gleiche Kategorie ersetzt die alte Karte, höchstens 5 gleichzeitig. Ein Balken unten zeigt, wie lange die Meldung noch steht.</td></tr>
+<tr><td><code>HashiriyaMinimap</code></td><td>Unten links im Querformat, ersetzt die BeamNG-App Navigation. Die Karte zeichnet weiter BeamNG selbst in das freie Feld, die App liefert die schmale Kopfzeile (Navi, Ortsname, Abstand zum Ziel) und den Polizei-Hinweis. Rund oder eckig stellst du in den BeamNG-Optionen (Minimap-Form) ein. Wichtig: nie zusammen mit der BeamNG-App Navigation ins Layout legen, es gibt nur eine Karte.</td></tr>
+<tr><td><code>HashiriyaTacho</code></td><td>Unten rechts, eigener Drehzahlmesser (abgeleitet vom Advanced Tachometer): Drehzahl-Bogen aus Segmenten (weiß, ab 85 % der Höchstdrehzahl orange, darüber rot), Geschwindigkeit, Gang im schrägen Abzeichen (blinkt rot am Begrenzer), Blinker, Licht (grün Abblend-, blau Fernlicht), P = Handbremse, ABS, unten F = Tank (rot blinkend unter 10 %) und T = Wassertemperatur. Ohne Auto blendet er aus.</td></tr>
+<tr><td><code>HashiriyaBoost</code></td><td>Über dem Tacho, Ladedruck (abgeleitet von Forced Induction): Wert in deiner Spiel-Einheit (bar/psi/kPa), Balken von Unterdruck bis Höchstdruck, oranger Strich = 0, ab 80 % rot. Erscheint nur bei Autos mit Turbo oder Kompressor.</td></tr>
+<tr><td><code>HashiriyaPowertrain</code></td><td>Links neben dem Tacho, Antriebs-Steuerung (abgeleitet von Simple Powertrain Control): START/STOP gedrückt halten startet oder stellt den Motor ab (Strich oben orange = an, blinkend = nur Zündung). Daneben kleine Kacheln für das, was das Auto anbietet (Sperren, 4WD, ESC, N2O ...), Farbe/Strich unten = aktueller Zustand. Beim Drüberfahren mit der Maus steht der Name darüber.</td></tr>
 <tr><td><code>HashiriyaTitle</code></td><td>Titelbildschirm (Neues Spiel / Weiter / Credits). Kamera und Uhrzeit: Umschalt+Pos1. Der Verkehr läuft schon im Titelbildschirm. Beim Startauto zeigt er Leistung, Drehmoment und Gewicht als Kacheln und Zustand und Tank als Balken (grün/gelb/rot). Ein Farbwechsel lädt das Showroom-Auto kurz neu; es hat dabei den angezeigten Gebrauchtzustand.</td></tr>
 </table>
 <ul>
 <li><b>Apps verschieben:</b> im Spiel im Esc-Menü die UI-Apps-Bearbeitung öffnen, App ziehen, speichern. Das Standard-Layout der Mod liegt in <span class="path">settings\ui_apps\originalLayouts\default\hashiriyaBattle.uilayout.json</span> (Titelbildschirm: <code>hashiriyaTitle.uilayout.json</code>).</li>
+<li><b>Gemeinsamer Look:</b> Alle eigenen HUD-Apps nutzen eine schlanke Form der Teile-Meldung: dünne orange Kante links (<code>#ff6600</code>), dunkler Verlauf, der nach rechts ausläuft, kleine Kopfzeile in Großbuchstaben. Die BeamNG-Originale Navigation, Tacho2, Forced Induction, Simple Powertrain Control und topLeftApps sind im Mod-Layout durch diese Apps ersetzt.</li>
 <li><b>Farben:</b> In jeder <code>app.js</code> steht der Stil (CSS) als Text. Such nach Farbcodes mit <code>#</code> (z. B. <code>#ff7a1a</code>) und tausch nur den Code.</li>
 <li>Nach Änderungen an <code>app.js</code>: BeamNG neu starten.</li>
 <li><b>Neue App fehlt im Spiel?</b> BeamNG nimmt deine eigene Layout-Kopie in <span class="path">F:\BeamNG\current\settings\ui_apps\layouts\default\hashiriyaBattle.uilayout.json</span> vor dem Mod-Layout. Neue Apps trage ich dort mit ein. Fehlt eine trotzdem: Datei löschen, dann gilt wieder das Mod-Layout.</li>
 </ul>
-<h3>Porträts (Silhouetten)</h3>
-<p>Die Bilder liegen in <span class="path">art\portraits\&lt;rivalen-id&gt;.svg</span>, eins pro Rivale (297). Sie kommen aus deinem Silhouetten-Tool (<span class="path">F:\BeamNG\current\hashiriya_tools\silhouette\silhouetten.html</span>). Fehlt für einen Rivalen das Bild, zeigt die Blase ein Fragezeichen.</p>
+<h3 id="portraets">Porträts (Silhouetten)</h3>
+<p>Die Bilder liegen in <span class="path">art\portraits\</span>, eins pro Rivale. Das Spiel sucht in dieser Reihenfolge: 1. eigener Pfad aus <code>rivals.json</code> (<code>"portrait": "art/portraits/xyz.png"</code>), 2. <span class="path">&lt;rivalen-id&gt;.png</span>, 3. <span class="path">&lt;rivalen-id&gt;.jpg</span>, 4. <span class="path">&lt;rivalen-id&gt;.svg</span>. Ein PNG aus dem Silhouetten-Tool (z. B. <span class="path">w_henry.png</span>) geht also direkt, quadratisch ist am besten (z. B. 512 x 512). Sie kommen aus deinem Silhouetten-Tool (<span class="path">F:\BeamNG\current\hashiriya_tools\silhouette\silhouetten.html</span>). Fehlt für einen Rivalen das Bild, zeigt die Blase ein Fragezeichen. Ein Bild, das du bei laufendem Spiel einfügst, findet das Spiel nach spätestens 30 Sekunden. Im Mod-Log (<span class="path">settings\hashiriya_battle\logs\hashiriya.log</span>) steht beim ersten Spruch eines Rivalen „Porträt &lt;id&gt;: &lt;Pfad&gt;“ oder „keins gefunden“ mit allen gesuchten Pfaden.</p>
+<div class="box tip"><b>Neue Rivalen im Silhouetten-Tool</b>Jedes Speichern im <a href="#builder">Builder</a> schreibt auch <span class="path">F:\BeamNG\current\hashiriya_tools\silhouette\rivals_data.js</span> neu. Danach im Browser die Seite neu laden (F5), dann stehen neue Wanderer wie Slim Henry oder Alex Zockt in der Liste. Hast du <code>rivals.json</code> von Hand geändert: Knopf <b>rivals.json laden</b> im Tool und die Datei aus <span class="path">mods\unpacked\Hashiriya-Battle\lua\ge\extensions\hashiriyaBattle\data\</span> wählen, oder einmal im Builder speichern. Der Knopf <b>Import</b> lädt dagegen nur deine gespeicherten Handanpassungen (<code>silhouetten.json</code>), keine Rivalen.</div>
 <ul>
 <li><b>Neu erzeugen</b> (mache ich, wenn du das Tool oder Rivalen änderst): <code>node tools/portraits/export_portraits.js silhouetten.html rivals_data.js [silhouetten.json]</code>. Die optionale <code>silhouetten.json</code> ist der Export deiner Handanpassungen aus dem Tool.</li>
 <li><b>Ein Bild von Hand ersetzen:</b> eine eigene SVG mit derselben ID als Namen in den Ordner legen. Achtung: Beim nächsten Neuerzeugen wird sie überschrieben, sag mir also Bescheid.</li>
@@ -1009,7 +1115,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 
 <section id="dev">
 <h2><span class="n">22</span> Dev-Tools zum Testen</h2>
-<p>Im Hashiriya-Menü (Pos1) unten im Abschnitt <b>Werkzeuge</b>:</p>
+<p>Im Hashiriya-Menü (Pos1) unten im Abschnitt <b>Werkzeuge</b>. Nur sichtbar, solange der Release-Test aus ist (siehe <a href="#release">Release-Test</a>):</p>
 <table>
 <tr><th>Knopf</th><th>Was er macht</th></tr>
 <tr><td>Rivalen rufen</td><td>Spawnt sofort den nächsten passenden Rivalen</td></tr>
@@ -1027,6 +1133,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>Position merken</td><td>Speichert die aktuelle Position (siehe <a href="#map">Map</a>)</td></tr>
 <tr><td>Parkplatz-Markierung</td><td>Buchten sichtbar machen</td></tr>
 <tr><td>Fehlerbericht erstellen</td><td>Schreibt <span class="path">settings\hashiriya_battle\logs\bugreport.txt</span> (siehe <a href="#log">Log-System</a>). Diesen Knopf gibt es auch im Release.</td></tr>
+<tr><td>Builder (Crews, Wanderer, Bosse)</td><td>Öffnet den <a href="#builder">Builder</a></td></tr>
 <tr><td>Configs exportieren</td><td>Schreibt alle Configs nach <span class="path">settings\hashiriya_battle\config_dump.json</span> (Grundlage für die Config-Liste)</td></tr>
 </table>
 <div class="box tip"><b>Ablauf: neuen Wanderer testen</b>1. BeamNG starten, Karriere laden. 2. Pos1, ID ins Feld tippen, "Spawnen". 3. Vor ihm Lichthupe geben, Battle fahren. 4. Spruch im HUD prüfen. 5. Soll die Bedingung getestet werden: Uhr vorstellen oder Ruf holen und "Rivalen rufen" benutzen.</div>

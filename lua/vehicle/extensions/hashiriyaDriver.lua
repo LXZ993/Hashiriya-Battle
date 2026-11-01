@@ -52,10 +52,10 @@ local defaults = {
   sideGapMax = 1.0,      -- ... bei null Mut
   playerSideGap = 0.5,   -- seitlicher Abstand zum Spieler (faire Fahrer)
   -- Tempo
-  cornerUseMin = 0.82,   -- Anteil des Grips in Kurven bei Können 0
-  cornerUseMax = 0.93,   -- ... bei Können 1
-  brakeUseMin = 0.72,    -- Anteil des Grips beim Bremsen bei Können 0
-  brakeUseMax = 0.95,
+  cornerUseMin = 0.78,   -- Anteil des Grips in Kurven bei Können 0
+  cornerUseMax = 0.87,   -- ... bei Können 1
+  brakeUseMin = 0.68,    -- Anteil des Grips beim Bremsen bei Können 0
+  brakeUseMax = 0.9,
   followDecel = 4.0,     -- m/s² geplante Verzögerung hinter Verkehr ohne Lücke (mutige Fahrer: mehr)
   headwayMin = 0.35,     -- s Abstand hinter Verkehr ohne Lücke bei vollem Mut
   headwayMax = 0.9,
@@ -76,7 +76,14 @@ local defaults = {
   steerLookBase = 5,     -- m Vorschau der Lenkung im Stand
   steerLookTime = 0.5,   -- s Vorschau pro m/s (BeamNG-KI: 0.6)
   steerRate = 6,         -- Lenkeinschlag pro Sekunde höchstens (Anteil voller Einschlag)
-  highSpeedReserve = 0.1, -- schnelle Kurven: bis zu 10 % weniger Querbeschleunigung (ab 110 km/h zunehmend, voll bei 290 km/h)
+  highSpeedBrakeReserve = 0.2, -- bei hohem Tempo bis zu 20 % weniger Bremsweg-Verzögerung eingeplant (ab 90 km/h, voll bei 270 km/h)
+  highSpeedReserve = 0.2, -- schnelle Kurven: bis zu 20 % weniger Querbeschleunigung (ab 90 km/h zunehmend, voll bei 234 km/h)
+  muMax = 1.05,          -- höchstens so viel Reibwert einplanen (BeamNG meldet bei guten Reifen bis 1.7)
+  driftTol = 0.3,        -- m: so weit darf es ihn in der Kurve nach außen tragen, darüber nimmt er Tempo raus und merkt es sich
+  driftMemory = 4,       -- s: so lange bleibt er nach dem Abfangen vorsichtiger (lässt sich nicht gleich wieder raustragen)
+  shoulderSideGap = 0.3, -- m mehr Abstand zu Autos, solange er auf dem Standstreifen ist
+  shoulderWallGap = 0.2, -- m mehr Abstand zur Leitplanke am Standstreifen
+  brakePassCost = 4,     -- Strafe pro m/s² Bremsen bei der Wegwahl (lieber vorbei als bremsen)
   edgeMarginSpeed = 0.012, -- m mehr Abstand zum Rand pro m/s über 20 m/s (230 km/h: +0,5 m)
   -- Duell (Stufe 3)
   blockMinAggression = 0.55, -- ab dieser Aggression macht er dir vorne die Linie zu
@@ -116,6 +123,11 @@ local steerAngleEst = 0.55
 local wheelBase = 2.6
 local prevDir = vec3()
 local yawRate = 0
+local planAge, errLogTime = 0, -10
+local brakeCap = 9.8     -- m/s²: gelernte Verzögerung bei Vollbremsung (wird beim Start auf mu*g gesetzt)
+local brakeTime, prevSpeed = 0, nil
+local primeSeen = false
+local outMem = 0         -- Nachwirkung nach dem Rausgetragen-Werden (0..0.12)
 local gripEst = 1        -- gelernter Anteil des Grips, den das Auto wirklich schafft (Untersteuern)
 local stuckTime, reverseTime = 0, 0
 local offRouteTime = 0
@@ -126,6 +138,9 @@ local failedReported = false
 local duel = { blockTime = 0, blockCool = 0, blockLat = nil, blockMoves = 0, brakeCheck = 0, brakeCool = 10 }
 local mistake = { kind = nil, time = 0, cool = 0, scared = {} }
 local startDelay = 0
+-- Reibwert für die Planung: BeamNG meldet bei Sport-/Rennreifen bis ~1.7 (Reifen-Spitzenwert),
+-- ein Auto schafft auf der Straße aber kaum mehr als ~1 g. Gedeckelt (wie die BeamNG-KI mit aggression)
+local function muEff() return min(obj:getStaticFrictionCoef(), p.muMax or 1.05) end
 local function dlog(text) if p.debug then log('I', 'hashiriyaDriver', text) end end
 local brakeLogTime = 0 -- Bremsgrund höchstens 1x pro Sekunde ins Log
 
@@ -210,8 +225,8 @@ local function laneSpan(a, b)
   end
   if not left then return 0, 1, n, e.oneWay end
   -- Touge / Landstraße (eine Spur je Richtung): die ganze Straße gehört dem Racer, Gegenverkehr ist ein Hindernis
-  if not e.oneWay and plus == 1 and n <= 2 then return 0, 1, n, false end
-  return (left - 1) / n, right / n, n, e.oneWay
+  if not e.oneWay and plus == 1 and n <= 2 then return 0, 1, n, false, (left - 1) / n, right / n end
+  return (left - 1) / n, right / n, n, e.oneWay, (left - 1) / n, right / n
 end
 
 -- Darf man von cur nach k fahren (Einbahn in Gegenrichtung = nein)?
@@ -312,7 +327,7 @@ end
 
 local function newPlan()
   return { n = 0, s = {}, cx = {}, cy = {}, cz = {}, tx = {}, ty = {}, nx = {}, ny = {},
-    baseLo = {}, baseHi = {}, wideLo = {}, wideHi = {}, edgeL = {}, edgeR = {}, rad = {}, lo = {}, hi = {}, off = {}, px = {}, py = {}, kappa = {}, v = {},
+    baseLo = {}, baseHi = {}, wideLo = {}, wideHi = {}, ownLo = {}, ownHi = {}, edgeL = {}, edgeR = {}, rad = {}, lo = {}, hi = {}, off = {}, px = {}, py = {}, kappa = {}, v = {},
     obstacles = {} }
 end
 
@@ -333,7 +348,8 @@ local function buildSamples(pl, look, edgeMargin)
     local pa, pb = mapData:getEdgePositions(na, nb)
     local ra, rb = mapData:getEdgeRadii(na, nb)
     local segLen = pa:distance(pb)
-    local xl, xr = laneSpan(na, nb)
+    local xl, xr, _, _, ol, orr = laneSpan(na, nb)
+    ol, orr = ol or xl, orr or xr
     while along <= segLen and s <= look do
       local t = segLen > 1e-3 and along / segLen or 0
       n = n + 1
@@ -347,6 +363,7 @@ local function buildSamples(pl, look, edgeMargin)
       if lo > hi then lo, hi = (left + right) * 0.5, (left + right) * 0.5 end
       pl.baseLo[n], pl.baseHi[n] = lo, hi
       pl.edgeL[n], pl.edgeR[n], pl.rad[n] = xl < 0.01, xr > 0.99, r
+      pl.ownLo[n], pl.ownHi[n] = -r + ol * 2 * r, -r + orr * 2 * r -- eigene Fahrspuren (Rest = Gegenverkehr)
       along = along + step
       s = s + step
     end
@@ -401,6 +418,7 @@ local function initOffsets(pl, egoLat)
     end
     if bestD < 100 then shift = prev.s[bestK] end
   end
+  pl.prevShift = shift
   for k = 1, pl.n do
     local o = egoLat
     if shift then
@@ -409,16 +427,6 @@ local function initOffsets(pl, egoLat)
     end
     pl.off[k] = clamp(o, pl.lo[k], pl.hi[k])
   end
-end
-
--- Tempo hinter einem Auto, das er nicht überholen kann: zu dicht = etwas langsamer als der Vordermann.
--- Ist der Vordermann schneller (z. B. du hast ihn gerade überholt), wird der Abstand von allein größer:
--- dann nur kein Gas mehr, nicht bremsen.
-local function followSpeed(vO, want, gapLong, v0)
-  vO = max(vO, 0)
-  local v = max(vO - max(want - gapLong, 0) * 0.6, vO - 3, 0)
-  if vO > v0 + 1 then v = max(v, v0) end
-  return v
 end
 
 -- Echte Breite messen (Standstreifen, Abfahrtsspur): Strahl zur Wand, Boden prüfen ---------
@@ -448,7 +456,7 @@ end
 
 local function measureWidth(pl, courage)
   local n = pl.n
-  local margin = lerp(0.6, 0.3, courage) + ego.width * 0.5
+  local margin = lerp(0.6, 0.3, courage) + ego.width * 0.5 + p.shoulderWallGap
   local every = 3
   local lastL, lastR = 0, 0
   for k = 1, n do
@@ -463,6 +471,316 @@ local function measureWidth(pl, courage)
     local r = pl.rad[k]
     if lastL > 0 then pl.wideLo[k] = min(pl.baseLo[k], -(r + lastL) + margin) end
     if lastR > 0 then pl.wideHi[k] = max(pl.baseHi[k], r + lastR - margin) end
+  end
+end
+
+-- Ausweichen: Kandidaten durchrechnen (Querlage x Spurwechseldauer x Gas/Bremse) ------------
+-- Jeder Kandidat ist ein Weg für die nächsten Sekunden. Alle Autos werden in die Zukunft
+-- vorausgesagt; was irgendwann zu nah kommt, fällt raus. Vom Rest gewinnt der, mit dem er am
+-- weitesten kommt (wenig bremsen, Ideallinie, nicht hin und her). Kein Sonderfall für
+-- Lücken, Standstreifen, zwischen zwei Autos oder Gegenverkehr: das ergibt sich von selbst.
+local latTrack = {}
+local lastChoice = { kind = 'free', dT = 0, acc = 0, t0 = 0, T = 1 }
+local planLattice
+local trajT, trajS, trajD = {}, {}, {}
+local bestT, bestS, bestD = {}, {}, {}
+
+-- Quintischer Spurwechsel von (d0, Quergeschwindigkeit dv0) nach dT in T Sekunden
+local function quintic(d0, dv0, dT, T, t)
+  if t >= T then return dT end
+  local x = t / T
+  local x3 = x * x * x
+  local base = d0 + (dT - d0) * x3 * (10 - 15 * x + 6 * x * x)
+  -- Quergeschwindigkeit am Anfang klingt weich aus
+  local h = dv0 * T * x * (1 - x) * (1 - x) * (1 - x)
+  return base + h
+end
+
+planLattice = function(pl, courage, list, egoLat)
+  local v0 = max(ego.speed, 0.5)
+  local mu = muEff()
+  local latLimit = mu * g * lerp(0.35, 0.6, courage) * gripEst
+  local sideGap = lerp(p.sideGapMax, p.sideGapMin, courage)
+  local reserve = 0.15
+  if mistake.kind == 'gap' then sideGap, reserve = 0, -0.1 end
+  local twoWay = false
+  for _, ob in ipairs(list) do if ob.vAlong < -1 then twoWay = true end end
+  local H = twoWay and 6 or 4
+  local dtc = 0.25
+  local nSteps = floor(H / dtc + 0.5)
+  local lastS = pl.s[pl.n]
+  -- Quergeschwindigkeit jetzt
+  local dv0 = (ego.dir.x * pl.nx[1] + ego.dir.y * pl.ny[1]) * v0
+  -- Tempo der Ideallinie aus der letzten Planung (Kurven), sonst Höchsttempo
+  local prev, shift = plan, pl.prevShift
+  local function raceV(sq)
+    if prev and shift and prev.vRace and sq + shift <= prev.s[prev.n] then return valueAt(prev, prev.vRace, sq + shift) end
+    return p.maxSpeed
+  end
+  local aGo = clamp(3.2 * (1 - v0 / 90), 0.6, 3.2)
+  local accs = { aGo, 0, -2.5, -6 }
+  -- Abstände je Auto
+  for _, ob in ipairs(list) do
+    local gap = sideGap
+    if ob.target then gap = lerp(min(sideGap, 0.15), max(sideGap, p.playerSideGap), p.fairness) end
+    ob.latNeed = (ob.wid + ego.width) * 0.5 + gap + reserve
+    ob.lenHalf = (ob.len + ego.length) * 0.5
+    ob.side = nil
+  end
+
+  -- Querlagen: über die ganze freie Breite (inkl. Standstreifen), dazu die Ideallinie ("free")
+  local loAll, hiAll = math.huge, -math.huge
+  for k = 1, pl.n do
+    if pl.s[k] > v0 * H + 20 then break end
+    loAll = min(loAll, pl.wideLo[k]); hiAll = max(hiAll, pl.wideHi[k])
+  end
+  local targets = {}
+  local step = 0.6
+  local dq = loAll
+  while dq <= hiAll + 1e-6 do targets[#targets + 1] = dq; dq = dq + step end
+  targets[#targets + 1] = clamp(egoLat, loAll, hiAll)
+  local Ts = { 1.0, 1.6, 2.4, 3.4 }
+
+  local bestCost, bestTColl, best = math.huge, -1, nil
+  local tight = false
+  local nOk = 0
+
+  -- Steht er schon außerhalb der Fahrbahn: so weit ist das am Anfang erlaubt (er muss erst zurück)
+  local outLo0 = max(valueAt(pl, pl.wideLo, 0) - egoLat, 0)
+  local outHi0 = max(egoLat - valueAt(pl, pl.wideHi, 0), 0)
+  if outLo0 < 0.5 then outLo0 = 0 end
+  if outHi0 < 0.5 then outHi0 = 0 end
+  -- Autos, mit denen es schon jetzt zu eng ist (z. B. steht er direkt hinter einem stehenden Auto):
+  -- dort zählt nur, dass es nicht noch enger wird, sonst käme er nie mehr weg
+  for _, ob in ipairs(list) do
+    local ds0 = -ego.length * 0.5 - ob.s
+    ob.lat0 = abs(egoLat - ob.d)
+    ob.conf0 = abs(ds0) < ob.lenHalf + 0.8 and ob.lat0 < ob.latNeed
+  end
+
+  local function evaluate(kind, dT, T, acc, cont, force)
+    -- Tempo- und Weg-Verlauf
+    local s, v = 0, v0
+    local cost = 0
+    local tColl = nil
+    local bad = false
+    local shoulderX = 0
+    local minClear = math.huge
+    for i = 0, nSteps do
+      local t = i * dtc
+      if i > 0 then
+        local vr = raceV(s)
+        local a = acc
+        if a > 0 and v >= vr then a = 0 end
+        v = max(v + a * dtc, 0)
+        if acc > 0 then v = min(v, max(vr, v0)) end
+        s = s + v * dtc
+      end
+      local d
+      if kind == 'free' then
+        d = s <= lastS and valueAt(pl, pl.off, s) or pl.off[pl.n]
+      else
+        d = quintic(egoLat, dv0, dT, T, t)
+      end
+      trajT[i + 1], trajS[i + 1], trajD[i + 1] = t, s, d
+      -- Fahrbahn (mit Standstreifen) nicht verlassen
+      if s <= lastS then
+        local wlo, whi = valueAt(pl, pl.wideLo, s), valueAt(pl, pl.wideHi, s)
+        local tol = 0.1 + max(1 - t, 0) * (d < wlo and outLo0 or outHi0)
+        if d < wlo - tol or d > whi + tol then
+          if not force then return nil end
+          bad = true
+        end
+        local blo, bhi = valueAt(pl, pl.baseLo, s), valueAt(pl, pl.baseHi, s)
+        if d < blo then cost = cost + (blo - d) * 1.5 * dtc elseif d > bhi then cost = cost + (d - bhi) * 1.5 * dtc end
+        shoulderX = (d < blo - 0.3 or d > bhi + 0.3) and p.shoulderSideGap or 0
+        if twoWay then
+          -- Gegenfahrbahn: kostet, und am Ende der Vorausschau muss er wieder drüben sein
+          local olo, ohi = valueAt(pl, pl.ownLo, s), valueAt(pl, pl.ownHi, s)
+          local out = max(olo - d - ego.width * 0.5, d + ego.width * 0.5 - ohi, 0)
+          if out > 0 then
+            cost = cost + out * 2 * dtc
+            if i == nSteps and out > 0.8 then
+              if not force then return nil end
+              bad = true
+            end
+          end
+        end
+      end
+      -- Autos
+      for _, ob in ipairs(list) do
+        local so = ob.s + ob.vAlong * t
+        -- Querbewegung (Spurwechsel) ist unsicher: belegt ist alles zwischen jetzt und vorausgesagt
+        local dShift = abs(ob.vLat) > 0.5 and clamp(ob.vLat * min(t, 1.2), -2, 2) or 0
+        local dob = ob.d + dShift * 0.5
+        local ds = (s - ego.length * 0.5) - so
+        local longNeed = ob.lenHalf + 0.8
+        if ds < 0 then longNeed = longNeed + max(v - ob.vAlong, 0) * 0.25 -- hinter ihm: Bremsweg-Puffer
+        else longNeed = longNeed + max(ob.vAlong - v, 0) * 0.35 end      -- vor ihm: er kommt von hinten
+        if abs(ds) < longNeed then
+          local lat = abs(d - dob)
+          local need = ob.latNeed + abs(dShift) * 0.5 + 0.06 * t -- Unsicherheit wächst mit der Zeit
+          -- Ideallinie nur, wenn der Verkehr gar nicht im Weg ist (Ausweichen machen die Spurwechsel)
+          if kind == 'free' then need = need + 0.8 end
+          need = need + shoulderX -- auf dem Standstreifen: Leitplanke daneben, also mehr Luft zum Auto
+          -- schon zu dicht dran: nur noch echte Berührung zählt (lieber knapp vorbei als hart bremsen)
+          if tight then need = (ob.wid + ego.width) * 0.5 + 0.12 + abs(dShift) * 0.3 end
+          -- schon jetzt zu eng: in Ordnung, solange es weiter auseinander geht
+          if ob.conf0 and t < 2 and lat >= ob.lat0 - 0.05 then need = min(need, lat) end
+          if lat < need and not tColl then
+            tColl = t
+            if not force then break end
+          end
+          minClear = min(minClear, lat - need)
+        end
+      end
+      if tColl and not force then break end
+    end
+    if force then return nil, tColl end
+    if tColl then
+      if tColl > bestTColl and not best then
+        -- Notlösung merken: der Weg, auf dem es am längsten gut geht
+        bestTColl = tColl
+      end
+      return nil, tColl
+    end
+    -- Kosten: Weg (Fortschritt), Querweg, Hin und Her, Abstand, Ideallinie
+    cost = cost - s
+    if kind == 'lane' then
+      cost = cost + abs(dT - egoLat) * 0.6 + (cont and 0 or 2 / T)
+      if cont then cost = cost - 8 end -- begonnenen Spurwechsel durchziehen
+    else
+      cost = cost - 3
+      if lastChoice.kind == 'free' then cost = cost - 6 end
+    end
+    if acc == lastChoice.acc then cost = cost - 1 end
+    if acc < 0 then cost = cost - acc * p.brakePassCost end -- Bremsen nur, wenn ohne wirklich nichts geht
+    if minClear < math.huge then cost = cost + 1.5 / (minClear + 0.25) end
+    return cost
+  end
+
+  local function consider(kind, dT, T, acc, cont)
+    local cost, tColl = evaluate(kind, dT, T, acc, cont)
+    if cost then
+      nOk = nOk + 1
+      if cost < bestCost then
+        bestCost = cost
+        best = { kind = kind, dT = dT, T = T, acc = acc, n = nSteps + 1, cont = cont }
+        for i = 1, nSteps + 1 do bestT[i], bestS[i], bestD[i] = trajT[i], trajS[i], trajD[i] end
+      end
+    elseif tColl and not best and tColl >= bestTColl then
+      bestTColl = tColl
+      pl.fallback = { kind = kind, dT = dT, T = T, acc = acc, tColl = tColl }
+    end
+  end
+
+  pl.fallback = nil
+  -- laufender Spurwechsel: mit der Restzeit weiterführen (sonst fängt er jedes Mal von vorn an)
+  local contT = nil
+  if lastChoice.kind == 'lane' then
+    contT = max(lastChoice.T - (simTime - lastChoice.t0), 0.4)
+    if abs(lastChoice.dT - egoLat) < 0.15 then contT = nil end
+  end
+  local function searchAll()
+  for _, acc in ipairs(accs) do
+    consider('free', 0, 1, acc)
+    if contT then consider('lane', clamp(lastChoice.dT, loAll, hiAll), contT, acc, true) end
+    for _, dT in ipairs(targets) do
+      local dd = abs(dT - egoLat)
+      for _, T in ipairs(Ts) do
+        -- Spurwechsel muss fahrbar sein (Spitzen-Querbeschleunigung eines quintischen Wechsels)
+        if 5.77 * dd / (T * T) <= latLimit or dd < 0.3 then
+          consider('lane', dT, T, acc)
+        end
+        if dd < 0.3 then break end
+      end
+    end
+  end
+  end
+  searchAll()
+  if not best then
+    -- alles innerhalb der Sicherheitsabstände: mit knappem Abstand nochmal suchen
+    tight = true
+    searchAll()
+    tight = false
+  end
+  pl.groups = { n = nOk }
+  for i = 1, nOk do pl.groups[i] = true end
+
+  if not best then
+    -- nichts geht ohne Berührung: Notlösung mit voller Bremse
+    local fb = pl.fallback or { kind = 'free', dT = egoLat, T = 1, acc = -6, tColl = 0 }
+    -- voll bremsen, außer der Weg ohne Bremse geht deutlich länger gut (er ist schon neben dem Auto)
+    local _, tBrake = evaluate(fb.kind, fb.dT, fb.T, -6, false, true)
+    if not (tBrake and fb.acc > -6 and fb.tColl > tBrake + 0.5) then fb.acc = -6 end
+    evaluate(fb.kind, fb.dT, fb.T, fb.acc, false, true) -- füllt den ganzen Weg
+    best = { kind = fb.kind, dT = fb.dT, T = fb.T, acc = fb.acc, n = nSteps + 1 }
+    for i = 1, nSteps + 1 do bestT[i], bestS[i], bestD[i] = trajT[i], trajS[i], trajD[i] end
+    pl.ttc = fb.tColl or 0
+  end
+  if best.kind == 'lane' and not best.cont then lastChoice.t0, lastChoice.T = simTime, best.T end
+  lastChoice.kind, lastChoice.dT, lastChoice.acc = best.kind, best.dT, best.acc
+  pl.choice = best
+
+  -- Gewählten Weg als Korridor in die Planung übernehmen (die Glättung bleibt darin)
+  local sEnd = bestS[best.n]
+  pl.laneEnd = nil
+  if best.kind == 'lane' then
+    for i = 1, best.n do if bestT[i] >= best.T then pl.laneEnd = bestS[i] + 10 break end end
+  end
+  local j = 1
+  for k = 1, pl.n do
+    local sk = pl.s[k]
+    if sk > sEnd then break end
+    while j < best.n and bestS[j + 1] < sk do j = j + 1 end
+    local d
+    if j >= best.n then d = bestD[best.n]
+    else
+      local s0, s1 = bestS[j], bestS[j + 1]
+      local f = s1 > s0 and clamp((sk - s0) / (s1 - s0), 0, 1) or 0
+      d = bestD[j] + (bestD[j + 1] - bestD[j]) * f
+    end
+    local w = best.kind == 'free' and 0.4 or 0.2
+    pl.lo[k] = clamp(d - w, pl.wideLo[k], pl.wideHi[k])
+    pl.hi[k] = clamp(d + w, pl.wideLo[k], pl.wideHi[k])
+    if pl.lo[k] > pl.hi[k] then pl.lo[k], pl.hi[k] = d, d end
+    pl.off[k] = clamp(pl.off[k], pl.lo[k], pl.hi[k])
+  end
+  -- Nach dem Wechsel noch auf der Seite bleiben, bis die Autos dort hinten sind
+  if best.kind == 'lane' then
+    local holdUntil = sEnd
+    for _, ob in ipairs(list) do
+      if abs(ob.d - best.dT) < ob.latNeed + 1.5 and ob.vAlong > 0 and ob.s > -ob.lenHalf then
+        -- wo überholt er ihn ungefähr?
+        local rel = max(v0 - ob.vAlong, 1)
+        local sPass = ob.s + ob.lenHalf + 2 + ob.vAlong * (ob.s + ob.lenHalf) / rel
+        holdUntil = max(holdUntil, min(sPass, sEnd + 150))
+      end
+    end
+    for k = 1, pl.n do
+      if pl.s[k] > sEnd and pl.s[k] <= holdUntil then
+        pl.lo[k] = clamp(best.dT - 0.4, pl.wideLo[k], pl.wideHi[k])
+        pl.hi[k] = clamp(best.dT + 0.4, pl.wideLo[k], pl.wideHi[k])
+        pl.off[k] = clamp(pl.off[k], pl.lo[k], pl.hi[k])
+      end
+    end
+  end
+  -- Für Anzeige und Log: an wem fährt er wie vorbei
+  for _, ob in ipairs(list) do
+    if ob.s > -ob.lenHalf and ob.s < sEnd then
+      local dAt = best.dT
+      ob.side = dAt < ob.d and -1 or 1
+    end
+  end
+  -- Tempo: nicht "Vollgas" gewählt -> Grenze ab sofort (Rest macht das Tempo-Profil)
+  if best.acc < aGo - 0.01 then
+    local blocker = nil
+    for _, ob in ipairs(list) do
+      if ob.s > 0 and abs(ob.d - bestD[1]) < ob.latNeed + 0.5 and (not blocker or ob.s < blocker.s) then blocker = ob end
+    end
+    if blocker then blocker.side = nil end -- Anzeige: rot = dahinter bleiben
+    local vCap = max(v0 + best.acc * 1.0, 0)
+    pl.followCaps[1] = { s = 0, v = vCap, d = blocker and blocker.d or 0, gap = blocker and (blocker.s - blocker.len * 0.5) or math.huge, ob = blocker }
   end
 end
 
@@ -508,14 +826,28 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
             if sObs + oLen * 0.5 > -ego.length and sObs < perceive * (oncoming and 1.7 or 1) then
               present[id] = true
               seen[id] = (seen[id] or 0) + dt
+              if primeSeen then seen[id] = max(seen[id], 10) end
               local isTarget = id == p.targetId
               -- direkt daneben oder ganz nah: sofort bemerkt
               if seen[id] >= reaction or sObs < 15 or isTarget then
                 local tx, ty = pl.tx[bestK], pl.ty[bestK]
+                -- Querbewegung zur Straße: aus der Änderung der Querlage (gefiltert). Die
+                -- Projektion der Geschwindigkeit wackelt in Kurven (Tangente nur alle 3 m),
+                -- dann sähe ein Gegenverkehrsauto so aus, als würde es herüberziehen.
+                local tr = latTrack[id]
+                local vLatRaw = o.vel.x * pl.nx[bestK] + o.vel.y * pl.ny[bestK]
+                if tr and simTime - tr.t > 0.02 and simTime - tr.t < 1 then
+                  local est = clamp((lat - tr.d) / (simTime - tr.t), -6, 6)
+                  tr.v = tr.v + (est - tr.v) * min((simTime - tr.t) / 0.35, 1)
+                  tr.d, tr.t = lat, simTime
+                elseif not tr or simTime - tr.t >= 1 then
+                  tr = { d = lat, t = simTime, v = clamp(vLatRaw, -1, 1) * 0.5 }
+                  latTrack[id] = tr
+                end
                 list[#list + 1] = {
                   id = id, s = sObs, d = lat, len = oLen, wid = oWid,
                   vAlong = o.vel.x * tx + o.vel.y * ty,
-                  vLat = o.vel.x * pl.nx[bestK] + o.vel.y * pl.ny[bestK],
+                  vLat = tr.v,
                   target = isTarget,
                 }
               end
@@ -525,250 +857,15 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
       end
     end
   end
-  for id in pairs(seen) do if not present[id] then seen[id] = nil; sideChoice[id] = nil end end
+  for id in pairs(seen) do if not present[id] then seen[id] = nil; sideChoice[id] = nil; latTrack[id] = nil end end
+  primeSeen = false
   table.sort(list, function(a, b) if a.s ~= b.s then return a.s < b.s end return a.id < b.id end)
 
-  local v0 = max(ego.speed, 1)
-  local mu = obj:getStaticFrictionCoef()
-  local sideGap = lerp(p.sideGapMax, p.sideGapMin, courage)
-  local reserve = 0.15 -- Reserve für Lenkfehler
-  if mistake.kind == 'gap' then sideGap, reserve = 0, -0.1 end -- Lücke verschätzt: es wird ganz eng
-  local headway = lerp(p.headwayMax, p.headwayMin, courage)
-  local passDelta = lerp(4, 9, courage) -- m/s schneller als der Vordermann beim Überholen
-  local followCaps = {}
-  local nearestTtc = math.huge
-  local latLimit = mu * g * lerp(0.4, 0.65, courage) -- wie hart er für eine Lücke querziehen will
-  local laneSwitchDist = passDelta * (sqrt(4.93 * 3.5 / latLimit) + 0.3)
-  pl.laneSwitchDist = laneSwitchDist
-  -- Kein Vorbeikommen: dahinter bleiben (Abstand nach Mut, zu dicht = etwas langsamer als der Vordermann)
-  local function addFollow(ob, gapLong)
-    if ob.capped then return end
-    ob.capped = true
-    local vO = max(ob.vAlong, 0)
-    -- hängt er länger dahinter, lässt er sich etwas zurückfallen: Anlauf für die nächste Lücke
-    local back = clamp(((followTime[ob.id] or 0) - 2) * 0.25, 0, 0.7)
-    -- nicht näher als nötig, um aus dem Hinterherfahren heraus noch eine Spur rüberzukommen
-    local want = max(vO * (headway + back), laneSwitchDist) + 2
-    local v = followSpeed(vO, want, gapLong, v0)
-    followCaps[#followCaps + 1] = { s = max(gapLong - want, 0), v = v, d = ob.d, gap = gapLong, ob = ob }
-  end
-
-  -- 1. Jedes Auto: wann und wo trifft er es, welche Querlage ist blockiert
-  local cand = {}
-  for _, ob in ipairs(list) do
-    local halfLen = (ob.len + ego.length) * 0.5
-    local gapLong = ob.s - ob.len * 0.5 -- Front des Fahrers bis Heck des anderen
-    -- daneben: überlappt schon, oder knapp davor und quer schon frei (dann nicht bremsen, einfach vorbei)
-    local alongside = gapLong <= 0 or (gapLong < 4 and abs(ob.d - egoLat) > (ob.wid + ego.width) * 0.5 + 0.2)
-    ob.gapLong = gapLong
-    -- Er will vorbei: auch wenn er gerade gleich schnell hinterherfährt, plant er mit Überholtempo
-    local rel = v0 - ob.vAlong
-    if ob.vAlong <= v0 + 1 or (gapLong < 60 and ob.vAlong > 0) then rel = max(rel, passDelta) end
-    local tMeet
-    if alongside then
-      tMeet = 0
-    elseif rel > 0.3 then
-      tMeet = gapLong / rel
-    end
-    ob.tMeet = tMeet
-
-    -- Seitlicher Abstand: Spieler fair (playerSideGap), Fieslinge (Fairness niedrig) drängen dichter
-    local gap = sideGap
-    if ob.target then gap = lerp(min(sideGap, 0.15), max(sideGap, p.playerSideGap), p.fairness) end
-    local half = ob.wid * 0.5 + ego.width * 0.5 + gap + reserve
-    ob.half = half
-
-    if tMeet and tMeet < p.lookTime + 2 then
-      local sMeet = alongside and ob.s or (ob.s + ob.vAlong * tMeet)
-      local dMeet = ob.d + clamp(ob.vLat * min(tMeet, 2), -3.6, 3.6)
-      local tPass = (ob.len + ego.length) / max(rel, 1)
-      local s0 = max(sMeet - halfLen - 1.5 - v0 * 0.25, 0)
-      local s1 = alongside and (max(ob.s + halfLen, 0) + 6) or (sMeet + halfLen + 1.5 + max(ob.vAlong, 0) * min(tPass, 4))
-      s1 = min(s1, s0 + 120)
-      ob.sMeet, ob.dMeet, ob.half, ob.alongside = sMeet, dMeet, half, alongside
-      ob.s0, ob.s1 = s0, s1
-      cand[#cand + 1] = ob
-    elseif not tMeet and gapLong < 40 and abs(ob.d - egoLat) < half then
-      -- fährt davon, aber direkt vor ihm: nicht auffahren
-      addFollow(ob, gapLong)
-    end
-
-    -- Notbremse: Auto genau in der aktuellen Fahrlinie und Aufprall in Kürze
-    local closing = v0 - ob.vAlong
-    if not alongside and closing > 0.5 then
-      local myLat = pl.off[indexAt(pl, min(gapLong, 30))] or 0
-      if abs(ob.d - myLat) < ob.wid * 0.5 + ego.width * 0.5 + 0.1 then
-        nearestTtc = min(nearestTtc, gapLong / closing)
-      end
-    end
-  end
-
-  -- 2. Autos, die er zur selben Zeit passiert, gemeinsam betrachten (zwei nebeneinander = eine Lücke dazwischen?)
-  table.sort(cand, function(a, b) if a.s0 ~= b.s0 then return a.s0 < b.s0 end return a.id < b.id end)
-  local ci = 1
-  local blocks = {}
-  local groups = {}
-  pl.groups = groups
-  while ci <= #cand do
-    local group = { cand[ci] }
-    local gs0, gs1 = cand[ci].s0, cand[ci].s1
-    ci = ci + 1
-    while ci <= #cand and cand[ci].s0 <= gs1 do
-      group[#group + 1] = cand[ci]
-      gs1 = max(gs1, cand[ci].s1)
-      ci = ci + 1
-    end
-    local i0, i1 = max(indexAt(pl, gs0), 2), indexAt(pl, gs1)
-    if i1 >= i0 then
-      -- engste Stelle im Fenster mit bisherigen Einschränkungen
-      local loW, hiW = -math.huge, math.huge
-      -- noch keine Einschränkung durch Verkehr: Standstreifen/Abfahrtsspur mitnutzen
-      for k = i0, i1 do
-        local lo = pl.lo[k] == pl.baseLo[k] and pl.wideLo[k] or pl.lo[k]
-        local hi = pl.hi[k] == pl.baseHi[k] and pl.wideHi[k] or pl.hi[k]
-        loW = max(loW, lo); hiW = min(hiW, hi)
-      end
-      -- blockierte Querlagen (sortiert, zusammengefasst)
-      table.clear(blocks)
-      local tReach, alongside = math.huge, false
-      for _, ob in ipairs(group) do
-        blocks[#blocks + 1] = { ob.dMeet - ob.half, ob.dMeet + ob.half }
-        tReach = min(tReach, max(ob.tMeet or 0, 0.05))
-        alongside = alongside or ob.alongside
-      end
-      table.sort(blocks, function(a, b) return a[1] < b[1] end)
-      -- freie Lücken dazwischen
-      local best, bestCost = nil, math.huge
-      local cursor = loW
-      local function inGroup(o)
-        for _, ob in ipairs(group) do if ob == o then return true end end
-        return false
-      end
-      local function sameSide(a, b)
-        for _, ob in ipairs(group) do
-          if ob.alongside then
-            local mySide = egoLat < ob.d and -1 or 1
-            if (mySide == -1 and a > ob.d) or (mySide == 1 and b < ob.d) then return false end
-          end
-        end
-        return true
-      end
-      local function consider(a, b)
-        if b < a then return end
-        local target = clamp(egoLat, a, b)
-        local need = abs(target - egoLat)
-        local ok
-        -- seitlicher Versatz in der Zeit bis dorthin (Sinus-Spurwechsel: a = pi²/2 * Weg / t²)
-        -- direkt daneben: nur auf der Seite bleiben, auf der er schon ist (wegdrücken geht immer)
-        -- Hysterese: einen begonnenen Überholvorgang nicht wegen einer Kleinigkeit abbrechen,
-        -- aus dem Hinterherfahren heraus nur starten, wenn es sicher reicht
-        local lim = latLimit
-        local committed, wasFollowing = false, false
-        for _, ob in ipairs(group) do
-          local last = sideChoice[ob.id]
-          if last and last >= a - 0.3 and last <= b + 0.3 then committed = true end
-          if followTime[ob.id] then wasFollowing = true end
-        end
-        if committed then lim = lim * 1.3 elseif wasFollowing then lim = lim * 0.85 end
-        if alongside then ok = sameSide(a, b) else ok = 4.93 * need / max(tReach - 0.3, 0.05) ^ 2 <= lim end
-        -- langsam (Stau, stehendes Auto): es zählt nur, ob er mit vollem Einschlag noch rumkommt
-        if not ok and not alongside and v0 < 12 then
-          local room = math.huge
-          for _, ob in ipairs(group) do room = min(room, ob.gapLong - 0.5) end
-          ok = room > 0.5 and 2 * need / (room * room) <= 0.12
-        end
-        if not ok then return end
-        -- Gegenverkehr: kommt er, bevor das Überholen vorbei ist, in diese Lücke? Dann nicht.
-        local tEnd = gs1 / max(v0 + passDelta * 0.5, 1) + 1
-        for _, on in ipairs(list) do
-          if on.vAlong < -1 and on.gapLong > 0 then
-            local tO = on.gapLong / (v0 + abs(on.vAlong))
-            if tO < tEnd and on.d + on.half > a and on.d - on.half < b and not inGroup(on) then return end
-          end
-        end
-        local cost = need
-        -- bei der letzten Wahl bleiben (kein Hin und Her)
-        for _, ob in ipairs(group) do
-          local last = sideChoice[ob.id]
-          if last and last >= a - 0.3 and last <= b + 0.3 then cost = cost - 1.5 break end
-        end
-        if cost < bestCost then best, bestCost = { a, b, target }, cost end
-      end
-      for _, bl in ipairs(blocks) do
-        consider(cursor, min(bl[1], hiW))
-        cursor = max(cursor, bl[2])
-      end
-      consider(cursor, hiW)
-      for _, ob in ipairs(group) do
-        sideChoice[ob.id] = best and best[3] or nil
-        ob.side = best and (best[3] < ob.dMeet and -1 or 1) or nil
-      end
-      if best then
-        for k = i0, i1 do
-          local lo = pl.lo[k] == pl.baseLo[k] and pl.wideLo[k] or pl.lo[k]
-          local hi = pl.hi[k] == pl.baseHi[k] and pl.wideHi[k] or pl.hi[k]
-          pl.lo[k] = max(lo, best[1])
-          pl.hi[k] = min(hi, best[2])
-          if pl.lo[k] > pl.hi[k] then pl.lo[k], pl.hi[k] = best[3], best[3] end
-        end
-        groups[#groups + 1] = { members = group, i0 = i0, i1 = i1 }
-      else
-        -- keine Lücke: hinter dem bleiben, hinter dem er quer am ehesten steht
-        local fob = nil
-        for _, ob in ipairs(group) do
-          if not ob.alongside and (not fob or abs(ob.d - egoLat) < abs(fob.d - egoLat)) then fob = ob end
-        end
-        if fob and fob.vAlong > -1 then addFollow(fob, fob.gapLong) end
-        -- wer direkt daneben fährt: auf der eigenen Seite bleiben
-        for _, ob in ipairs(group) do
-          if ob.alongside then
-            local i1b = indexAt(pl, max(ob.s + (ob.len + ego.length) * 0.5, 0) + 6)
-            for k = 2, i1b do
-              if egoLat < ob.d then pl.hi[k] = max(min(pl.hi[k], ob.dMeet - ob.half), pl.lo[k])
-              else pl.lo[k] = min(max(pl.lo[k], ob.dMeet + ob.half), pl.hi[k]) end
-            end
-          end
-        end
-        -- Gegenverkehr ohne Lücke: weg von seiner Seite (notfalls eng an ein anderes Auto) und Tempo raus
-        for _, ob in ipairs(group) do
-          if ob.vAlong <= -1 and ob.gapLong > 0 then
-            local away = ob.dMeet < egoLat and 1 or -1
-            local i1b = indexAt(pl, ob.gapLong + 10)
-            for k = 2, i1b do
-              if away == 1 then
-                pl.lo[k] = min(max(pl.lo[k], ob.dMeet + ob.half), pl.baseHi[k])
-                pl.hi[k] = max(pl.hi[k], pl.lo[k])
-              else
-                pl.hi[k] = max(min(pl.hi[k], ob.dMeet - ob.half), pl.baseLo[k])
-                pl.lo[k] = min(pl.lo[k], pl.hi[k])
-              end
-            end
-            followCaps[#followCaps + 1] = { s = 0, v = v0 * 0.6, d = ob.d, gap = math.huge, ob = ob }
-          end
-        end
-      end
-    end
-  end
-  -- hinter dem Vordermann einordnen (der nächste, den er nicht überholen kann), bereit für die nächste Lücke
-  -- bei mehreren (Wand aus Autos): der, hinter dem er quer gerade am ehesten steht
-  local fc = nil
-  for _, c in ipairs(followCaps) do
-    if c.gap < math.huge and (not fc or abs(c.d - egoLat) + c.gap * 0.05 < abs(fc.d - egoLat) + fc.gap * 0.05) then fc = c end
-  end
-  if fc then
-    local i1 = indexAt(pl, max(fc.gap, 0))
-    for k = 3, i1 do
-      local lo, hi = max(pl.lo[k], fc.d - 0.6), min(pl.hi[k], fc.d + 0.6)
-      if lo <= hi then pl.lo[k], pl.hi[k] = lo, hi end
-    end
-  end
-  pl.followCaps = followCaps
-  local nowFollow = {}
-  for _, c in ipairs(followCaps) do
-    if c.ob and c.gap < math.huge then nowFollow[c.ob.id] = (followTime[c.ob.id] or 0) + dt end
-  end
-  followTime = nowFollow
-  pl.ttc = nearestTtc
+  pl.groups = {}
+  pl.followCaps = {}
+  pl.ttc = math.huge
+  if #list == 0 then lastChoice.kind = 'free'; pl.choice = nil return end
+  planLattice(pl, courage, list, egoLat)
 end
 
 -- Glatteste Linie in der erlaubten Spanne (minimale Krümmung) --------------------------
@@ -810,37 +907,16 @@ local function smoothLine(pl, egoLat, prefOverride, pullOverride, prefUntil)
   end
 end
 
--- Schafft die geglättete Linie das Vorbeifahren wirklich? Sonst dahinter bleiben -------
-local function checkPasses(pl, courage)
-  local headway = lerp(p.headwayMax, p.headwayMin, courage)
-  for _, gr in ipairs(pl.groups or {}) do
-    local bad = nil
-    for _, ob in ipairs(gr.members) do
-      local minHalf = ob.wid * 0.5 + ego.width * 0.5 + 0.1
-      local k = indexAt(pl, max(ob.sMeet, 0))
-      if abs(pl.off[k] - ob.dMeet) < minHalf and not ob.alongside then
-        if not bad or ob.gapLong < bad.gapLong then bad = ob end
-      end
-    end
-    if bad then
-      local vO = max(bad.vAlong, 0)
-      local want = max(vO * headway, pl.laneSwitchDist or 0) + 2
-      local v = followSpeed(vO, want, bad.gapLong, max(ego.speed, 1))
-      pl.followCaps[#pl.followCaps + 1] = { s = max(bad.gapLong - want, 0), v = v, d = bad.d, gap = bad.gapLong, ob = bad }
-      bad.side = nil
-    end
-  end
-  table.sort(pl.followCaps, function(a, b) return a.s < b.s end)
-end
-
 -- Tempo-Profil ---------------------------------------------------------------------------
 local function speedProfile(pl, courage, pace)
   local n = pl.n
   local px, py, kappa, v = pl.px, pl.py, pl.kappa, pl.v
-  local mu = obj:getStaticFrictionCoef()
+  local mu = muEff()
   local cornerUse = lerp(p.cornerUseMin, p.cornerUseMax, p.skill) * pace * gripEst
   local brakeUse = (lerp(p.brakeUseMin, p.brakeUseMax, p.skill) + courage * 0.04) * (0.5 + 0.5 * gripEst)
-  local aBrake = mu * g * brakeUse
+  -- gelernte echte Bremsleistung des Autos (Vollbremsungen gemessen)
+  local aBrake = min(mu * g * brakeUse, brakeCap * brakeUse / 0.95)
+  local aLatMax = mu * g * cornerUse
   -- Krümmung über drei Punkte (Abstand 2 Stützpunkte, glatter)
   for k = 1, n do
     local a, b = max(1, k - 2), min(n, k + 2)
@@ -859,9 +935,29 @@ local function speedProfile(pl, courage, pace)
     local kk = max(kappa[k], 1e-5)
     local vk = sqrt(mu * g * cornerUse / kk)
     -- schnelle Kurven: Reserve (Bodenwellen, Lenkfehler, weniger Grip bei Tempo)
-    vk = vk * sqrt(1 - clamp((vk - 30) / 50, 0, 1) * p.highSpeedReserve)
+    vk = vk * sqrt(1 - clamp((vk - 25) / 40, 0, 1) * p.highSpeedReserve)
     v[k] = min(vk, p.maxSpeed)
   end
+  -- Spurwechsel zum Überholen: der Schlenker selbst soll ihn nicht einbremsen (er ist nur so stark
+  -- geplant, wie das Auto quer schafft). Hängt er dem Wechsel hinterher, wird die Linie ein Knick,
+  -- dann zählt dort das Kurventempo der Straße selbst.
+  if pl.laneEnd then
+    for k = 2, n - 1 do
+      if pl.s[k] > pl.laneEnd then break end
+      local a, b = max(1, k - 2), min(n, k + 2)
+      local ax, ay = pl.cx[k] - pl.cx[a], pl.cy[k] - pl.cy[a]
+      local bx, by = pl.cx[b] - pl.cx[k], pl.cy[b] - pl.cy[k]
+      local cx2, cy2 = pl.cx[b] - pl.cx[a], pl.cy[b] - pl.cy[a]
+      local la, lb, lc = sqrt(ax * ax + ay * ay), sqrt(bx * bx + by * by), sqrt(cx2 * cx2 + cy2 * cy2)
+      local kc = max(abs(2 * (ax * by - ay * bx) / max(la * lb * lc, 1e-6)), 1e-5)
+      local vr = sqrt(mu * g * cornerUse / kc)
+      vr = vr * sqrt(1 - clamp((vr - 25) / 40, 0, 1) * p.highSpeedReserve)
+      v[k] = max(v[k], min(vr * 0.95, p.maxSpeed))
+    end
+  end
+  -- Kurventempo ohne Verkehr merken (für die Ausweich-Planung der nächsten Runde)
+  pl.vRace = pl.vRace or {}
+  for k = 1, n do pl.vRace[k] = v[k] end
   -- Verkehr ohne Lücke: Tempolimit ab der Stelle
   for _, c in ipairs(pl.followCaps or {}) do
     for k = indexAt(pl, c.s), n do v[k] = min(v[k], c.v) end
@@ -873,7 +969,13 @@ local function speedProfile(pl, courage, pace)
   for k = n - 1, 1, -1 do
     local ds = pl.s[k + 1] - pl.s[k]
     local a = (k < firstCap and hasCap) and aFollow or aBrake
-    v[k] = min(v[k], sqrt(v[k + 1] * v[k + 1] + 2 * a * ds))
+    local vn = v[k + 1]
+    -- in der Kurve braucht der Reifen Grip zum Lenken: weniger bleibt zum Bremsen (Kamm'scher Kreis)
+    local latUse = clamp(vn * vn * kappa[k + 1] / aLatMax, 0, 1)
+    a = a * sqrt(max(1 - latUse * latUse, 0.2))
+    -- bei hohem Tempo bremst ein Auto schwächer (Bremsen werden heiß, weniger Abtrieb als gedacht)
+    a = a * (1 - clamp((vn - 25) / 50, 0, 1) * p.highSpeedBrakeReserve)
+    v[k] = min(v[k], sqrt(vn * vn + 2 * a * ds))
   end
   pl.aBrake = aBrake
 end
@@ -1019,7 +1121,6 @@ local function makePlan(dt)
   planMistakes(pl, courage, nerves, dt)
   local prefLat, prefPull, prefUntil = planDuel(pl, egoLat, dt)
   smoothLine(pl, egoLat, prefLat, prefPull, prefUntil)
-  checkPasses(pl, courage)
   speedProfile(pl, courage, pace)
   pl.egoLat = egoLat
   pl.courage = courage
@@ -1065,6 +1166,29 @@ local function control(dt)
   end
   local sNow = pl.s[bestK]
 
+  -- Trägt es ihn in der Kurve nach außen (mehr Tempo als Grip)? Dann sofort etwas Tempo raus
+  -- und für alle weiteren Kurven merken (wie beim Untersteuern)
+  local outSlow, inCorner = 0, false
+  -- (die Planung ist bis 0.1 s alt, das Auto steht meist am 1. oder 2. Punkt: Krümmung ab Punkt 3)
+  local kc = clamp(bestK, 3, pl.n - 2)
+  if v > 15 and pl.n > 5 then
+    local ax, ay = pl.px[kc] - pl.px[kc - 2], pl.py[kc] - pl.py[kc - 2]
+    local bx, by = pl.px[kc + 2] - pl.px[kc], pl.py[kc + 2] - pl.py[kc]
+    local cx, cy = bx - ax, by - ay -- zeigt zur Kurven-Innenseite
+    local cl = sqrt(cx * cx + cy * cy)
+    local mu = muEff()
+    if (pl.kappa[kc] or 0) * v * v > 0.25 * mu * g then inCorner = true end
+    if cl > 1e-4 and (pl.kappa[kc] or 0) * v * v > 0.35 * mu * g then
+      local outErr = -((ego.pos.x - pl.px[bestK]) * cx + (ego.pos.y - pl.py[bestK]) * cy) / cl
+      if outErr > p.driftTol then
+        gripEst = max(gripEst - dt * 0.5 * (outErr - p.driftTol), 0.6)
+        outSlow = clamp((outErr - p.driftTol) * 0.08, 0, 0.12)
+        outMem = max(outMem, outSlow)
+      end
+      pl.outErr = outErr
+    end
+  end
+
   -- Lenkung: Punkt auf der Linie in Vorschau-Entfernung anpeilen
   local ld = clamp(p.steerLookBase + v * p.steerLookTime, 6, 45)
   local sT = min(sNow + ld, pl.s[pl.n])
@@ -1083,7 +1207,10 @@ local function control(dt)
 
   -- Tempo: was die Planung kurz voraus erlaubt (Reaktion/Trägheit)
   local sV = sNow + v * 0.25 + 1.5
-  local vT = valueAt(pl, pl.v, min(sV, pl.s[pl.n]))
+  -- nach dem Abfangen nicht gleich wieder voll rein: wirkt einige Sekunden nach
+  outMem = max(outMem - dt * 0.12 / max(p.driftMemory, 0.5), 0)
+  if inCorner then outSlow = max(outSlow, outMem) end
+  local vT = valueAt(pl, pl.v, min(sV, pl.s[pl.n])) * (1 - outSlow)
   local err = vT - v
   local throttle, brake = 0, 0
   if err >= 0 then
@@ -1133,9 +1260,15 @@ local function control(dt)
         tostring(ob.id), ob.target and ' (Spieler)' or '', c.gap < math.huge and c.gap or (ob.gapLong or -1), ob.d or 0,
         (ob.vAlong or 0) * 3.6, c.v * 3.6, c.s)
     end
-    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Lücken, Grip %.2f | %s',
+    local ch = pl.choice
+    local chTxt = 'Ideallinie'
+    if ch and #pl.obstacles > 0 then
+      chTxt = ch.kind == 'free' and 'Ideallinie' or string.format('nach quer %.1f in %.1f s', ch.dT, ch.T)
+      chTxt = chTxt .. (ch.acc > 0.01 and ', Gas' or (ch.acc > -0.01 and ', Tempo halten' or string.format(', verzögern %.1f', -ch.acc)))
+    end
+    log('I', 'hashiriyaDriver', string.format('Bremse %.2f (%s) bei %.0f km/h, Ziel %.0f km/h, TTC %.1f, quer %.1f, Spur %.1f..%.1f (frei %.1f..%.1f), %d Autos, %d Wege frei, Wahl: %s, Grip %.2f, Bremskraft %.1f, außen %.1f m | %s',
       brake, why, v * 3.6, vT * 3.6, pl.ttc or -1, pl.egoLat or 0, pl.baseLo[1] or 0, pl.baseHi[1] or 0, pl.wideLo[5] or 0, pl.wideHi[5] or 0,
-      #pl.obstacles, #(pl.groups or {}), gripEst, capTxt))
+      #pl.obstacles, #(pl.groups or {}), chTxt, gripEst, brakeCap, pl.outErr or 0, capTxt))
   end
 
   local tcs, absC = wheelCoefs()
@@ -1154,7 +1287,9 @@ local function handleStuck(dt)
     if reverseTime <= 0 then stuckTime = 0 end
     return true
   end
-  if lastThrottle > 0.4 and ego.speed < 1.2 then
+  -- festgefahren: Gas gibt er, kommt aber nicht vom Fleck, oder er steht vor einem Auto und kein Weg ist frei
+  local blocked = plan and (plan.ttc or math.huge) < 0.6 and plan.groups and (plan.groups.n or 0) == 0
+  if (lastThrottle > 0.4 or blocked) and ego.speed < 1.2 then
     stuckTime = stuckTime + dt
   else
     stuckTime = max(0, stuckTime - dt)
@@ -1205,7 +1340,7 @@ local function learnSteering(dt)
   local v = ego.speed
   -- Untersteuern erkennen: viel Lenkung, aber die Drehung bleibt deutlich unter dem Soll
   -- -> er schafft weniger Grip als gedacht, Kurventempo runter (langsam wieder rauf)
-  local mu = obj:getStaticFrictionCoef()
+  local mu = muEff()
   if v > 12 and abs(lastSteer) > 0.08 then
     local want = v * math.tan(lastSteer * steerAngleEst) / wheelBase
     local aLat = abs(yawRate * v)
@@ -1214,7 +1349,20 @@ local function learnSteering(dt)
     end
   end
   gripEst = min(gripEst + dt * 0.004, 1)
-  if v > 8 and abs(lastSteer) > 0.04 and abs(lastSteer) < 0.6 and abs(yawRate * v) < 0.45 * g * obj:getStaticFrictionCoef() then
+  -- Bremsleistung messen: bei (fast) voller Bremse die echte Verzögerung
+  if prevSpeed and lastBrake >= 0.85 and v > 12 then
+    brakeTime = brakeTime + dt
+    local dec = (prevSpeed - v) / dt
+    -- Ausreißer (Einschlag, Rutschen) nicht mitlernen; nie mehr als der Reifen-Grip
+    if brakeTime > 0.3 and dec > 1 and dec < mu * g * 1.5 then
+      local k = dec < brakeCap and min(1, dt * 1.5) or min(1, dt * 0.2)
+      brakeCap = clamp(brakeCap + (dec - brakeCap) * k, 4, mu * g)
+    end
+  else
+    brakeTime = 0
+  end
+  prevSpeed = v
+  if v > 8 and abs(lastSteer) > 0.04 and abs(lastSteer) < 0.6 and abs(yawRate * v) < 0.45 * g * muEff() then
     local meas = math.atan(yawRate * wheelBase / v) / lastSteer
     if meas > 0.12 and meas < 1.3 then
       steerAngleEst = steerAngleEst + (meas - steerAngleEst) * min(1, dt * 0.6)
@@ -1262,9 +1410,12 @@ local function updateGFX(dt)
       local ok, res = pcall(makePlan, p.replan)
       if ok then
         plan = res
+        planAge = 0
       else
-        log('E', 'hashiriyaDriver', 'Planung: ' .. tostring(res))
-        plan = nil
+        -- Fehler: kurz mit der letzten Planung weiterfahren statt blind geradeaus
+        if simTime - errLogTime > 2 then errLogTime = simTime; log('E', 'hashiriyaDriver', 'Planung: ' .. tostring(res)) end
+        planAge = planAge + p.replan
+        if planAge > 1 then plan = nil end
       end
     end
     status = plan and 'drive' or 'noplan'
@@ -1303,6 +1454,12 @@ function M.start(params)
   table.clear(route)
   table.clear(seen)
   table.clear(sideChoice)
+  table.clear(latTrack)
+  lastChoice.kind, lastChoice.dT, lastChoice.acc, lastChoice.t0, lastChoice.T = 'free', 0, 0, 0, 1
+  planAge, errLogTime = 0, -10
+  brakeCap, brakeTime, prevSpeed = muEff() * g, 0, nil
+  outMem = 0
+  primeSeen = true -- bis zum Start fuhr er schon selbst im Verkehr: die Autos um ihn kennt er
   followTime = {}
   table.clear(trail)
   plan = nil
