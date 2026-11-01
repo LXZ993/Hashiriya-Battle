@@ -18,6 +18,21 @@
     },
     {
       "title": {
+        "de": "Tests",
+        "en": "Testing"
+      },
+      "entries": [
+        {
+          "name": "Slim Henry",
+          "what": {
+            "de": "Tester der ersten Stunde",
+            "en": "Tester from day one"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
         "de": "Benötigte Mods",
         "en": "Required mods"
       },

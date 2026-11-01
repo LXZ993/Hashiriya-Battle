@@ -286,7 +286,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Pos1 (Hashiriya-Menü), ganz unten bei <b>Werkzeuge</b>: <b>Builder (Crews, Wanderer, Bosse)</b>.</li>
 <li>Schließen mit ✕ oben rechts. Hast du etwas nicht gespeichert, fragt der Knopf erst nach.</li>
 </ol>
-<div class="box warn"><b>Nur in der Entwickler-Version</b>Steht in <span class="path">data\build.json</span> <code>"release": true</code>, startet der Builder nicht (Meldung im Spiel). Zum Bearbeiten also <code>"release": false</code> setzen. Im Release-Zip fehlt der Builder ganz.</div>
+<div class="box warn"><b>Nur in der Entwickler-Version</b>Steht in <span class="path">data\build.json</span> <code>"release": true</code>, startet der Builder nicht (Meldung im Spiel). Zum Bearbeiten also <code>"release": false</code> setzen. Im Release-Zip fehlt der Builder ganz. Damit ein altes HUD-Layout aus der Entwicklung dort nicht „Unknown app: hashiriyaBuilder“ über den ganzen Bildschirm legt, packt das Release-Werkzeug einen leeren Platzhalter aus <span class="path">tools\release-stubs\</span> in die ZIP.</div>
 <h3>Aufbau</h3>
 <table>
 <tr><th>Bereich</th><th>Was du dort machst</th></tr>
@@ -854,7 +854,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
   "entries": [
     { "name": "AgentMooshroom5", "what": "Agent's Japanese Plates Pack" }
   ] }</code></pre>
-<p>Einträge mit leerem <code>name</code> werden nicht angezeigt.</p>
+<p>Einträge mit leerem <code>name</code> werden nicht angezeigt. Abschnitte im Moment: Idee und Entwicklung (JDMArsch), Tests (Slim Henry), Benötigte Mods (Ezo, AgentMooshroom5), Spiel (BeamNG). Neue Tester einfach als weiteren Eintrag unter „Tests“ eintragen.</p>
 </section>
 
 <section id="tutorial">
@@ -906,6 +906,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <ul>
 <li><code>CHANGELOG_DE.md</code> (aus <code>CHANGELOG.md</code>) und <code>CHANGELOG_EN.md</code>.</li>
 <li><code>mod_info/HASHIRIYABATTLE/</code> mit <code>info.json</code>, Logo (<code>icon.jpg</code>) und Banner: Damit zeigt der Mod-Manager Titel, Kurzbeschreibung, Autor, Version und die Neuerungen dieser Version (aus <code>CHANGELOG_EN.md</code>). Texte und Bilder liegen in <span class="path">tools\mod_info\</span>, dort kannst du sie ändern.</li>
+<li>Hauptmenü-Knopf (Seite „Mehr …“): zeigt unser Logo <span class="path">ui\ui-vue\mods\hashiriyaBattle\assets\icon.png</span> statt eines BeamNG-Symbols. Bild austauschen = Datei ersetzen (quadratisch, PNG oder SVG). Code: <code>index.js</code> im selben Ordner.</li>
 </ul>
 <p>Nicht in die ZIP kommen: <code>tools</code>, <code>docs</code>, die README, der Builder (<code>builder.lua</code>, App <code>HashiriyaBuilder</code>) und die Taste Shift+Pos1 (Titelbild-Kamera merken). Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
 <div class="box tip"><b>Versionsnummer: macht das Werkzeug, nach der Roadmap</b>Du musst keine Nummer wissen. Das Menü zeigt oben „Nächste ZIP-Version“ und den nächsten Meilenstein, beim Bauen steht dabei, warum.
@@ -925,7 +926,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <ul>
 <li><b>Tasten</b>: Fahrzeugauswahl, Fahrzeug-Config, Fahrzeug neu laden/reparieren, Recover, auf die Straße zurück, Flip, Home laden/speichern, Wechsel zu anderen Autos (auch KI), Verkehr an/aus, Zeitlupe, Fun-Stuff, Editor, Konsole (^), UI-/Lua-Reload, Track Builder, Uhrzeit weiterschalten, Debug-Ansichten. Das radiale Menü blendet diese Punkte dadurch auch aus.</li>
 <li><b>ESC-Menü</b>: Die Tabs „Fahrzeug“ und „Umgebung“ sind weg, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Knöpfe für Reparieren, Fahrzeugauswahl, Replay und Map wechseln mehr. Karte, Fotomodus, Speichern und Beenden bleiben.</li>
-<li><b>Große Karte</b>: keine Schnellreise zu Orten.</li>
+<li><b>Große Karte</b>: keine Schnellreise zu Orten. Die „Quicktravel Points“ fehlen in der Liste, und bei keinem Ort gibt es den Knopf „Quick Travel“ (nur „Set Route“).</li>
 <li><b>Hashiriya-Menü</b>: alle Test-Knöpfe unter „Werkzeuge“ (Rivale rufen, Rivalen-Eingabe, +Ruf, Uhr, Tag +1, gratis reparieren/tanken, Position merken, Geld, Siege, Configs exportieren) und der Builder. Übrig bleiben Parkplatz-Marker und Fehlerbericht.</li>
 <li><b>Uhrzeit</b>: nicht über Time &amp; Weather verstellbar (<code>lockTime</code>).</li>
 </ul>

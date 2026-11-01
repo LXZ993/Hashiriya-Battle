@@ -1,0 +1,13 @@
+{
+  "domElement": "<hashiriya-builder></hashiriya-builder>",
+  "name": "Hashiriya Battle: Builder (nur Entwicklung)",
+  "types": [],
+  "description": "Platzhalter im Release-Build. Der Builder ist ein Entwickler-Werkzeug; dieser leere Platzhalter verhindert, dass ein altes HUD-Layout den Bildschirm mit 'Unknown app' verdeckt.",
+  "css": { "top": "0px", "left": "0px", "width": "0px", "height": "0px" },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaBuilder",
+  "appName": "hashiriyaBuilder",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false
+}
