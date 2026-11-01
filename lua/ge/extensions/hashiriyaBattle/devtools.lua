@@ -47,6 +47,15 @@ local placeTypes = {
 local typeName = {}
 for _, t in ipairs(placeTypes) do typeName[t.id] = t.name end
 
+-- Säulen-Markierungen (nur bei offenem Dev-Menü): Standardfarbe je Typ, im Menü änderbar (dev_places.json markers.colors)
+local defaultColors = {
+  garage = '#ff6600', home = '#ffffff', pa = '#3fa9ff', shop = '#ffd400', shop_mech = '#ff9a3c', shop_paint = '#ff4fd8',
+  shop_body = '#b07bff', gas = '#3ddc84', wanderer = '#9b30ff', police = '#1e40ff', ramp_on = '#00e5d4', ramp_off = '#ff3b3b',
+  mapchange = '#c6ff00', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
+}
+local markerDefaults = { on = true, showMap = true, height = 40, radius = 0.8, labels = true }
+local drawList = nil -- vorbereitete Säulen (wird bei jeder Änderung neu gebaut)
+
 function M.isAllowed()
   local c = core()
   return not (c and c.isRelease and c.isRelease())
@@ -67,12 +76,30 @@ local function loadPlaces()
   d._hinweis = 'Dev-Menü > Orte. Je Level: places = selbst gemerkte Orte (id, name, type, note, pos, dir, center = Mitte des Autos, onFoot = zu Fuß gemerkt). mapNames = eigene Namen für Orte aus der Kartendatei (maps/<level>.json). Typen: ' ..
     table.concat((function() local o = {} for _, t in ipairs(placeTypes) do table.insert(o, t.id) end return o end)(), ', ') .. '.'
   d.levels = d.levels or {}
+  d.markers = d.markers or {}
+  for k, v in pairs(markerDefaults) do if d.markers[k] == nil then d.markers[k] = v end end
+  d.markers.colors = d.markers.colors or {}
   placesCache = d
   return d
 end
 
 local function savePlaces()
+  drawList = nil
   if placesCache then jsonWriteFile(placesPath, placesCache, true) end
+end
+
+local function markerCfg() return loadPlaces().markers end
+
+local function typeColor(t)
+  return markerCfg().colors[t] or defaultColors[t] or defaultColors.other
+end
+
+local function typesWithColors()
+  local out = {}
+  for _, t in ipairs(placeTypes) do
+    table.insert(out, { id = t.id, name = t.name, color = typeColor(t.id), custom = markerCfg().colors[t.id] ~= nil })
+  end
+  return out
 end
 
 local function levelPlaces()
@@ -295,7 +322,7 @@ local function fullState()
   return {
     open = isOpen, tab = tab, active = c.active or false, level = c.levelName,
     save = c.active and saveState() or nil,
-    places = allPlaces(), types = placeTypes,
+    places = allPlaces(), types = typesWithColors(), markers = markerCfg(),
     rivals = c.active and rivalList() or {},
     player = playerInfo(), hour = extensions.hashiriyaBattle_home.hour(),
   }
@@ -495,6 +522,23 @@ function actions.deletePlace(a)
   msg('Ort gelöscht: ' .. p.name, 3)
 end
 
+function actions.setMarkers(a)
+  local m = markerCfg()
+  if a.on ~= nil then m.on = a.on and true or false end
+  if a.showMap ~= nil then m.showMap = a.showMap and true or false end
+  if a.labels ~= nil then m.labels = a.labels and true or false end
+  if tonumber(a.height) then m.height = math.max(5, math.min(200, tonumber(a.height))) end
+  savePlaces()
+end
+
+function actions.setColor(a)
+  if not typeName[a.type] then return end
+  local c = tostring(a.color or '')
+  local m = markerCfg()
+  if c:match('^#%x%x%x%x%x%x$') then m.colors[a.type] = c:lower() else m.colors[a.type] = nil end
+  savePlaces()
+end
+
 function actions.teleport(a)
   for _, p in ipairs(allPlaces()) do
     if p.id == a.id then
@@ -528,8 +572,54 @@ function M.capture(name, placeType)
   M.refresh()
 end
 
+-- Säulen zeichnen ---------------------------------------------------------------------
+
+local function hexColor(h)
+  local r, g, b = tostring(h):match('^#(%x%x)(%x%x)(%x%x)$')
+  if not r then return 0.5, 0.5, 0.5 end
+  return tonumber(r, 16) / 255, tonumber(g, 16) / 255, tonumber(b, 16) / 255
+end
+
+local function buildDrawList()
+  local m = markerCfg()
+  local list = {}
+  for _, p in ipairs(allPlaces()) do
+    if type(p.pos) == 'table' and (m.showMap or not p.map) then
+      local r, g, b = hexColor(typeColor(p.type))
+      table.insert(list, { pos = v3(p.pos), name = p.name, r = r, g = g, b = b, map = p.map })
+    end
+  end
+  return list
+end
+
+local function drawMarkers()
+  local m = markerCfg()
+  if not m.on or not debugDrawer then return end
+  drawList = drawList or buildDrawList()
+  local okC, cam = pcall(core_camera.getPosition)
+  cam = okC and cam and vec3(cam) or nil
+  local h = m.height or 40
+  local rad = m.radius or 0.8
+  for _, e in ipairs(drawList) do
+    local d = cam and (e.pos - cam):length() or 0
+    if d < 6000 then
+      local top = e.pos + vec3(0, 0, h)
+      -- dicker werden mit der Entfernung, damit die Säule auch von weit weg sichtbar bleibt
+      local w = rad * math.max(1, d / 400)
+      debugDrawer:drawCylinder(e.pos, top, w, ColorF(e.r, e.g, e.b, 0.55))
+      debugDrawer:drawCylinder(e.pos, e.pos + vec3(0, 0, 0.15), 2.5, ColorF(e.r, e.g, e.b, 0.35))
+      if m.labels and d < 1500 then
+        debugDrawer:drawTextAdvanced(e.pos + vec3(0, 0, math.min(h, 4 + d / 60)), String(e.name), ColorF(1, 1, 1, 1), true, false,
+          ColorI(math.floor(e.r * 160), math.floor(e.g * 160), math.floor(e.b * 160), 200))
+      end
+    end
+  end
+end
+
 local function onUpdate(dtReal)
   if not isOpen then return end
+  local okD, errD = pcall(drawMarkers)
+  if not okD and not M._drawWarned then M._drawWarned = true log('E', logTag, 'Markierungen: ' .. tostring(errD)) end
   tickTimer = tickTimer - dtReal
   if tickTimer > 0 then return end
   tickTimer = 0.5
@@ -540,6 +630,7 @@ end
 
 local function onClientEndMission()
   placesCache = nil
+  drawList = nil
   rivalCache = nil
   if isOpen then M.close() end
 end
