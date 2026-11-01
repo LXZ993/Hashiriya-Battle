@@ -231,31 +231,57 @@ PA = {
              'lookDistance = ab hier dreht sich der Fahrer zu dir. importantChance = Chance, dass ein Fahrer ein Gerücht oder einen Hinweis statt Smalltalk hat. '
              'secondLineChance = Chance auf einen zweiten Satz. rankSlack = so viele Ränge vor dem nötigen Rang hört man schon von Crews und Wanderern. '
              'heardWeight = Gewicht für Sätze, die man schon kennt (1 = normal, 0 = nie wieder). excludeConfigs = Configs mit diesen Wörtern parken nie an der PA. '
-             'portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg).',
+             'portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg). '
+             'loreChance = Chance auf Wissen (fact) statt Smalltalk, wenn kein Gerücht kommt. ownTopicWeight/otherTopicWeight = Gewicht für Wissen der eigenen Figur bzw. anderer Figuren. '
+             'placeWeight = Faktor für Wissen über genau diese PA. moreChance = Chance, beim zweiten Ansprechen noch Wissen zu bekommen statt "Hab dir schon alles erzählt".',
  'nightCount': [3, 6], 'dayCount': [1, 2],
  'spawnDistance': 230, 'despawnDistance': 330, 'spotRadius': 70,
  'talkDistance': 2.8, 'lookDistance': 9,
- 'importantChance': 0.6, 'secondLineChance': 0.35, 'rankSlack': 1, 'heardWeight': 0.15,
+ 'importantChance': 0.4, 'secondLineChance': 0.35, 'rankSlack': 1, 'heardWeight': 0.15,
+ 'loreChance': 0.6, 'ownTopicWeight': 3, 'otherTopicWeight': 0.5, 'placeWeight': 3, 'moreChance': 0.5,
  'portraitVariants': 3,
  'excludeConfigs': ['police', 'pursuit', 'interceptor', 'undercover', 'race', 'rally', 'drag', 'track', 'gymkhana', 'safety', 'baja', 'stunt', 'derby', 'prerunner', 'crawler', 'ambulance', 'fire'],
 }
 
+# Überleitung, wenn man denselben Fahrer nochmal anspricht und er noch etwas Wissenswertes kennt (kind more)
+MORE = [
+ ('Ach, wo du schon mal da bist, eins noch.', 'Oh, since you\'re here, one more thing.'),
+ ('Warte, mir ist noch was eingefallen.', 'Wait, something else just came to mind.'),
+ ('Du bist ja neugierig. Na gut, hör zu.', 'Curious one, aren\'t you? Fine, listen.'),
+ ('Hast du kurz Zeit? Das hier weiß kaum einer.', 'Got a second? Hardly anyone knows this.'),
+ ('Eine Sache noch, dann lass ich dich in Ruhe.', 'One more thing, then I\'ll leave you alone.'),
+ ('Schon wieder du? Dann erzähl ich dir was Neues.', 'You again? Then I\'ll tell you something new.'),
+]
+
 def build():
+    import os, sys
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from lore import LORE, SMALL_MORE
     talk = []
     def add(kind, speaker, de, en, **extra):
         talk.append(dict(id=f'{kind}_{len([t for t in talk if t["kind"] == kind]) + 1}', kind=kind, speaker=speaker, text={'de': de, 'en': en}, **extra))
-    for s, de, en in SMALL: add('small', s, de, en)
+    for s, de, en in SMALL + SMALL_MORE: add('small', s, de, en)
     for s, de, en in TIPS: add('tip', s, de, en)
     for team, s, de, en in CREW: add('crew', s, de, en, about=team)
     for team, s, de, en in LEADER: add('leader', s, de, en, about=team)
     for rid, s, de, en in SPECIAL: add('boss' if rid.startswith('b_') else 'wanderer', s, de, en, about=rid)
     for s, de, en in WAITING: add('waiting', s, de, en)
     for de, en in AGAIN: add('again', '', de, en)
+    for de, en in MORE: add('more', '', de, en)
+    for s, topic, mp, place, lines in LORE:
+        extra = dict(topic=topic)
+        if mp: extra['map'] = mp
+        if place: extra['place'] = place
+        if len(lines) > 1: extra['lines'] = [{'de': de, 'en': en} for de, en in lines[1:]]
+        add('fact', s, lines[0][0], lines[0][1], **extra)
     return {
      '_hinweis': 'PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), '
                  'crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader '
                  '(wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), '
-                 'waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet.',
+                 'waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet. '
+                 'fact = Wissen über Japan, Tokio, den Shutoko und die Szene (topic = Thema fürs Label, map = nur auf dieser Karte, place = nur an PAs, deren Name das enthält, '
+                 'text = erster Satz, lines = weitere Sätze der Geschichte). more = Überleitung, wenn man jemanden nochmal anspricht und er noch Wissen hat. '
+                 'Neue Wissens-Texte am besten in tools/generator/lore.py eintragen.',
      'pa': PA,
      'speakers': [dict({'id': i, 'name': {'de': de, 'en': en}}, figur=SPEAKER_STYLE[i]['figur'], night=SPEAKER_STYLE[i]['night'], day=SPEAKER_STYLE[i]['day'],
                        cars=[{'model': m, 'match': mt} if mt else {'model': m} for m, mt in SPEAKER_STYLE[i]['cars']],
@@ -272,7 +298,8 @@ if __name__ == '__main__':
     ids = {r['id'] for r in rv['rivals']} | {t['id'] for t in rv['teams']}
     sp = {s['id'] for s in d['speakers']}
     for t in d['talk']:
-        assert t['speaker'] in sp or t['kind'] == 'again', t
+        assert t['speaker'] in sp or t['kind'] in ('again', 'more'), t
+        assert t['kind'] != 'fact' or t['topic'] in ('shutoko', 'c1', 'place', 'racing', 'cars', 'tokyo', 'japan'), t
         assert 'about' not in t or t['about'] in ids, t
     assert {t['about'] for t in d['talk'] if t['kind'] in ('wanderer', 'boss')} == {r['id'] for r in rv['rivals'] if r.get('wanderer') or r.get('boss')}
     assert {t['about'] for t in d['talk'] if t['kind'] == 'crew'} == {t['id'] for t in rv['teams']}

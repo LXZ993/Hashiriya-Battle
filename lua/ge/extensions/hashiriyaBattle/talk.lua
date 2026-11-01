@@ -3,6 +3,8 @@
 -- Nachts mehr, tagsüber wenige. Zu Fuß hingehen, Taste "Reden" (Standard T): Sprechblase mit Name und Porträt.
 -- Was sie sagen, hängt vom Fortschritt ab: Crew-Gerüchte ab dem passenden Rang, Leader-Gerüchte wenn die Crew fast
 -- geschlagen ist, Hinweise auf Wanderer und Bosse (schaltet den Hinweis im Lexikon frei), wartende Rivalen, Smalltalk.
+-- Dazu Wissen (kind fact, Alpha 0.4.1): echte Fakten über Japan, Tokio, den Shutoko und die Szene, oft als kleine
+-- Geschichte über mehrere Sätze. Gefiltert nach Karte (map) und PA (place), jede Figur hat ihre eigenen Themen.
 -- Texte und Einstellungen: data/chat.json (speakers, talk, pa). Figuren = BeamNG-Fußgänger (Einrad mit Figur),
 -- Porträts: art/portraits/npc/<sprecher>_<n>.svg.
 local M = {}
@@ -31,8 +33,9 @@ local pendingFace = {}  -- [figId] = { dir, tries }: Blickrichtung nach dem Spaw
 
 local defaults = {
   nightCount = { 3, 6 }, dayCount = { 1, 2 }, spawnDistance = 230, despawnDistance = 330, spotRadius = 70,
-  talkDistance = 2.8, lookDistance = 9, importantChance = 0.6, secondLineChance = 0.35, rankSlack = 1,
+  talkDistance = 2.8, lookDistance = 9, importantChance = 0.4, secondLineChance = 0.35, rankSlack = 1,
   heardWeight = 0.15, portraitVariants = 3, excludeConfigs = { 'police', 'race' },
+  loreChance = 0.6, ownTopicWeight = 3, otherTopicWeight = 0.5, placeWeight = 3, moreChance = 0.5,
 }
 
 local function cfg()
@@ -266,7 +269,7 @@ local function spawnCrowd(i, pa)
     local s = pickWeighted(pool, function(e) return night and (e.night or 1) or (e.day or 1) end, rand)
     if not s then break end
     used[s.id] = true
-    local n = { speaker = s.id, variant = math.floor(rand() * (c.portraitVariants or 3)) + 1, heard = {} }
+    local n = { speaker = s.id, variant = math.floor(rand() * (c.portraitVariants or 3)) + 1, heard = {}, place = pa.name }
     local cars = s.cars or {}
     if #cars > 0 and spots[spotIdx] then
       local ps = spots[spotIdx]
@@ -399,6 +402,27 @@ local function candidates(n, save, important)
   return out
 end
 
+-- Wissen (fact): nur für diese Karte (map) und diese PA (place = Teil des PA-Namens). Eigene Themen der Figur zuerst.
+-- fresh = nur, was man noch nie gehört hat (fürs zweite Ansprechen).
+local function factCandidates(n, save, fresh)
+  local c = cfg()
+  local heard = talkHeard(save).heard
+  local level = core().levelName
+  local place = string.lower(tostring(n.place or ''))
+  local out = {}
+  for _, t in ipairs(chat.talk or {}) do
+    if t.kind == 'fact' and not n.heard[t.id] and (t.map == nil or t.map == level)
+       and (t.place == nil or place:find(string.lower(t.place), 1, true) ~= nil)
+       and not (fresh and heard[t.id]) then
+      local w = t.speaker == n.speaker and (c.ownTopicWeight or 3) or (c.otherTopicWeight or 0.5)
+      if t.place then w = w * (c.placeWeight or 3) end
+      if heard[t.id] then w = w * (c.heardWeight or 0) end
+      if w > 0 then table.insert(out, { t = t, w = w }) end
+    end
+  end
+  return out
+end
+
 local function speakerName(n)
   local s = speakerById[n.speaker]
   return s and loc(s.name) or ''
@@ -427,21 +451,36 @@ local function buildLines(n, save)
     elseif t.kind == 'wanderer' or t.kind == 'boss' then
       about = t.about
     end
-    table.insert(lines, { id = t.id, kind = t.kind, text = text, hint = about })
+    table.insert(lines, { id = t.id, kind = t.kind, text = text, hint = about, topic = t.topic })
+    -- mehrteilige Geschichte: jeder weitere Satz ist eine eigene Sprechblase
+    for k, more in ipairs(t.lines or {}) do
+      table.insert(lines, { id = t.id, kind = t.kind, text = loc(more), topic = t.topic, part = k + 1 })
+    end
     n.heard[t.id] = true
     return true
   end
-  if n.talked then
-    local again = {}
+  local function pushKind(kind)
+    local list = {}
     for _, t in ipairs(chat.talk or {}) do
-      if t.kind == 'again' and (t.speaker == '' or t.speaker == nil or t.speaker == n.speaker) then table.insert(again, t) end
+      if t.kind == kind and (t.speaker == '' or t.speaker == nil or t.speaker == n.speaker) then table.insert(list, t) end
     end
-    local t = again[math.random(math.max(#again, 1))]
-    if t then table.insert(lines, { id = t.id, kind = 'again', text = loc(t.text) }) end
+    local t = list[math.random(math.max(#list, 1))]
+    if t then table.insert(lines, { id = t.id, kind = kind, text = loc(t.text) }) end
+  end
+  if n.talked then
+    -- nochmal angesprochen: manchmal kennt er noch etwas, das du noch nie gehört hast
+    local fresh = factCandidates(n, save, true)
+    if #fresh > 0 and math.random() < (c.moreChance or 0.5) then
+      pushKind('more')
+      push(pickWeighted(fresh, function(e) return e.w end))
+    else
+      pushKind('again')
+    end
     return lines
   end
   local imp = candidates(n, save, true)
   local small = candidates(n, save, false)
+  local facts = factCandidates(n, save, false)
   local wantImportant = #imp > 0 and math.random() < (c.importantChance or 0.6)
   if wantImportant then
     -- manchmal erst ein Satz Smalltalk, dann das Gerücht
@@ -452,6 +491,13 @@ local function buildLines(n, save)
       local e = pickWeighted(imp, function(x) return x.w end)
       if e and push(e) then break end
     end
+  end
+  if #lines == 0 and #facts > 0 and math.random() < (c.loreChance or 0.5) then
+    -- Wissen, manchmal mit einem Satz Smalltalk davor
+    if #small > 0 and math.random() < (c.secondLineChance or 0.35) then
+      push(pickWeighted(small, function(e) return e.w end))
+    end
+    push(pickWeighted(facts, function(e) return e.w end))
   end
   if #lines == 0 and #small > 0 then
     push(pickWeighted(small, function(e) return e.w end))
@@ -479,7 +525,10 @@ local function showLine()
   -- gehört: merken, Hinweis im Lexikon freischalten
   if save then
     local th = talkHeard(save)
-    th.heard[line.id] = (th.heard[line.id] or 0) + 1
+    if not line.part then
+      if line.kind == 'fact' and not th.heard[line.id] then th.facts = (th.facts or 0) + 1 end
+      th.heard[line.id] = (th.heard[line.id] or 0) + 1
+    end
     if line.hint and not (save.knownHints and save.knownHints[line.hint]) then
       home().learnHint(line.hint)
       th.hints = (th.hints or 0) + 1
@@ -542,7 +591,8 @@ function M.getHudState()
     local last = convo.index >= #convo.lines
     return {
       talk = { text = line.text, name = speakerName(convo.npc), portrait = portraitOf(convo.npc), side = 'left', kind = 'pa',
-        tag = line.hint and 'hint' or 'npc', step = convo.index, steps = #convo.lines,
+        tag = line.hint and 'hint' or (line.kind == 'fact' and 'fact' or 'npc'), step = convo.index, steps = #convo.lines,
+        topic = line.topic and c.t('talk.topic.' .. line.topic) or nil,
         key = M.keyName(), next = c.t(last and 'talk.end' or 'talk.next'), hint = line.hint and c.t('talk.hintLearned') or nil },
     }
   end

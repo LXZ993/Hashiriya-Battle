@@ -888,9 +888,11 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><td><code>leader</code></td><td>jeder</td><td>wenn höchstens noch 2 Mitglieder der Crew offen sind und der Leader nicht geschlagen ist</td></tr>
 <tr><td><code>wanderer</code> / <code>boss</code></td><td>jeder</td><td>ab dessen <code>minRank</code> minus <code>rankSlack</code>, solange nicht geschlagen. <b>Schaltet den Hinweis im Lexikon frei</b> (Meldung „Neuer Hinweis im Rivalen-Lexikon“, grüner Rahmen ums Porträt). Schon bekannte Hinweise kommen seltener.</td></tr>
 <tr><td><code>waiting</code></td><td>nur der eigene Sprecher, nur nachts</td><td><code>{name}</code> = ein Crew-Rivale, der heute Nacht wirklich fahren kann. Wer dich zuletzt geschlagen hat, kommt am häufigsten dran, dann Revanchen.</td></tr>
+<tr><td><code>fact</code></td><td>jeder, der eigene Sprecher am häufigsten (<code>ownTopicWeight</code> 3, andere <code>otherTopicWeight</code> 0.5)</td><td><b>Wissen</b> (seit Alpha 0.4.1): echte Fakten über Japan, Tokio, den Shutoko, den C1 und die Geschichte der Straßenrennen, oft als kleine Geschichte über 2 bis 3 Sprechblasen. Nur auf der passenden Karte (<code>map</code>) und, wenn <code>place</code> gesetzt ist, nur an der PA, deren Name das enthält (dann 3-mal so oft, <code>placeWeight</code>). Unten links steht das Thema („Wissen · Shutoko“), der Rahmen oben ist blau.</td></tr>
 <tr><td><code>again</code></td><td>alle (<code>speaker</code> leer)</td><td>wenn du denselben Fahrer in derselben Nacht nochmal ansprichst</td></tr>
+<tr><td><code>more</code></td><td>alle (<code>speaker</code> leer)</td><td>Überleitung („Warte, mir ist noch was eingefallen.“), wenn du jemanden nochmal ansprichst und er noch Wissen hat, das du nie gehört hast (<code>moreChance</code> 50 %). Danach kommt ein <code>fact</code>.</td></tr>
 </table>
-<p>Ein Gespräch hat 1 bis 2 Sätze: Mit <code>importantChance</code> (60 %) ein Gerücht oder Hinweis, sonst Smalltalk; mit <code>secondLineChance</code> (35 %) kommt ein zweiter Satz dazu. Kein Fahrer sagt dir denselben Satz zweimal, und Sätze, die du schon kennst, kommen seltener (<code>heardWeight</code>). Gemerkt wird im Spielstand unter <code>talk</code> (<code>heard</code> = gehörte Sätze, <code>count</code> = Gespräche, <code>hints</code> = so gelernte Hinweise); die Lexikon-Hinweise stehen in <code>knownHints</code>.</p>
+<p>Ein Gespräch hat 1 bis 4 Sprechblasen: Mit <code>importantChance</code> (40 %) ein Gerücht oder Hinweis. Sonst mit <code>loreChance</code> (60 %) Wissen, und sonst Smalltalk; mit <code>secondLineChance</code> (35 %) kommt ein Satz Smalltalk davor oder ein Gerücht danach. Wer einen Fahrer mehrmals anspricht, bekommt oft noch eine Geschichte (siehe <code>more</code>). Kein Fahrer sagt dir denselben Satz zweimal, und Sätze, die du schon kennst, kommen seltener (<code>heardWeight</code>). Gemerkt wird im Spielstand unter <code>talk</code> (<code>heard</code> = gehörte Sätze, <code>count</code> = Gespräche, <code>hints</code> = so gelernte Hinweise, <code>facts</code> = verschiedene Wissens-Texte gehört); die Lexikon-Hinweise stehen in <code>knownHints</code>.</p>
 <h3>Aufbau von chat.json</h3>
 <pre><code>"pa": { "nightCount": [3, 6], "dayCount": [1, 2], "spawnDistance": 230, ... },
 "speakers": [
@@ -907,7 +909,11 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
    "text": {"de": "Ich fahr seit 20 Jahren nachts ...", "en": "..."}},
   {"id": "w_ojisan_tip", "kind": "wanderer", "speaker": "fan", "about": "w_ojisan", "text": {...}},
   {"id": "waiting_1", "kind": "waiting", "speaker": "fan",
-   "text": {"de": "Ich hab gehört, {name} sucht dich.", "en": "I heard {name} is looking for you."}}
+   "text": {"de": "Ich hab gehört, {name} sucht dich.", "en": "I heard {name} is looking for you."}},
+  {"id": "fact_5", "kind": "fact", "speaker": "photo", "topic": "c1", "map": "c1",
+   "text": {"de": "Kennst du die Nihonbashi? ...", "en": "..."},
+   "lines": [{"de": "Dabei ist das der Kilometer null von Japan. ...", "en": "..."}]},
+  {"id": "fact_25", "kind": "fact", "speaker": "photo", "topic": "place", "map": "c1", "place": "shibaura", ...}
 ]</code></pre>
 <table>
 <tr><th>Feld (speakers)</th><th>Bedeutung</th></tr>
@@ -930,7 +936,22 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><td><code>heardWeight</code></td><td>0.15</td><td>Gewicht für schon gehörte Sätze (1 = wie neu, 0 = nie wieder)</td></tr>
 <tr><td><code>portraitVariants</code></td><td>3</td><td>Porträt-Varianten je Sprecher</td></tr>
 <tr><td><code>excludeConfigs</code></td><td>police, race, rally …</td><td>Configs mit diesen Wörtern parken nie an der PA</td></tr>
+<tr><td><code>loreChance</code></td><td>0.6</td><td>Chance auf Wissen statt Smalltalk, wenn kein Gerücht kommt</td></tr>
+<tr><td><code>ownTopicWeight</code> / <code>otherTopicWeight</code></td><td>3 / 0.5</td><td>Gewicht für Wissen des eigenen Sprechers bzw. anderer Sprecher (der Alte Hase erzählt lieber Geschichte, der Lkw-Fahrer lieber Verkehr)</td></tr>
+<tr><td><code>placeWeight</code></td><td>3</td><td>Faktor für Wissen über genau diese PA</td></tr>
+<tr><td><code>moreChance</code></td><td>0.5</td><td>Chance, beim zweiten Ansprechen noch eine neue Geschichte zu bekommen</td></tr>
 </table>
+<h3>Wissen: Felder und Themen</h3>
+<table>
+<tr><th>Feld (fact)</th><th>Bedeutung</th></tr>
+<tr><td><code>topic</code></td><td>Thema fürs Label: <code>shutoko</code> (Geschichte und Technik des Netzes), <code>c1</code> (der Innere Ring), <code>place</code> (genau diese PA und ihre Umgebung), <code>racing</code> (Szene und Geschichte der Straßenrennen), <code>cars</code> (Autos und Verkehr in Japan), <code>tokyo</code>, <code>japan</code>. Texte der Labels: <code>talk.topic.&lt;topic&gt;</code> in den Sprachdateien.</td></tr>
+<tr><td><code>map</code></td><td>Level-ID der Karte (C1 = <code>c1</code>). Weglassen = auf jeder Karte (allgemeines Japan-Wissen).</td></tr>
+<tr><td><code>place</code></td><td>Teil des PA-Namens, klein geschrieben (<code>shibaura</code>, <code>tatsumi</code>). Weglassen = an jeder PA der Karte.</td></tr>
+<tr><td><code>text</code> / <code>lines</code></td><td>Erster Satz bzw. alle weiteren Sätze der Geschichte. Jeder Satz ist eine eigene Sprechblase, die Punkte unten zeigen, wie viele noch kommen.</td></tr>
+</table>
+<p>Stand Alpha 0.4.1: 77 Wissens-Texte (13 Shutoko, 11 C1, 9 zu Shibaura und Tatsumi, 13 Szene, 11 Autos, 11 Tokio, 9 Japan) und 83 Sätze Smalltalk. Einige Beispiele: die erste Strecke vom 20.12.1962 (Kyōbashi bis Shibaura, 4,5 km, 50 Yen Maut), warum der C1 über Flüsse und Burggräben läuft, die Nihonbashi als Kilometer null und ihr Tunnel bis etwa 2035, Innen- und Außenring, die Rainbow Bridge von 1993, die Geschichte des legendären Nacht-Clubs und der Bōsōzoku, die 280-PS-Absprache, Kei-Cars, gelbe Kennzeichen und warum es auf Nummernschildern kein „shi“ gibt.</p>
+<div class="box tip"><b>Neue Karte, neues Wissen</b>Sag mir, wo eine Karte in Japan liegt und wie ihre Orte heißen. Ich recherchiere dazu und trage die Texte in <span class="path">tools\generator\lore.py</span> ein, mit <code>map</code> = Level-ID der neuen Karte und <code>place</code> = Teil des Namens des Ortes. Allgemeines Japan-Wissen (ohne <code>map</code>) gibt es dann automatisch auch dort. Selbst eintragen geht auch direkt in <code>chat.json</code>: einen Eintrag wie oben mit neuer ID (<code>fact_78</code> usw.) anlegen. Wichtig: neue Einträge in <code>lore.py</code> immer <b>hinten anhängen</b>, sonst verschieben sich die IDs, und das Spiel hält schon gehörte Texte für neu.</div>
+<div class="box"><b>Quellen (Recherche 01.11.2026)</b>Englische und japanische Wikipedia (Shuto Expressway / 首都高速道路, Inner Circular Route / 首都高速都心環状線, Rainbow Bridge, Nihonbashi, Bōsōzoku, Kei car, Japanese license plates), Seiten des Autobahnbetreibers zu PA-Sperrungen und Umbau der Nihonbashi, Artikel zur Geschichte des Nacht-Clubs auf dem Wangan und zu Daikoku PA. Zahlen stehen nur drin, wenn sie belegt sind. Wie bei den Rivalen: keine echten Marken- oder Modellnamen.</div>
 <div class="box tip"><b>Beispiele</b>Mehr Leute nachts: <code>"nightCount": [5, 8]</code>. Gerüchte erst ab dem richtigen Rang: <code>"rankSlack": 0</code>. Neuer Wanderer? Dann einen <code>wanderer</code>-Eintrag mit <code>about</code> auf seine ID anlegen, sonst erfährt man im Spiel nie seine Bedingung. Neuer Sprecher: Eintrag in <code>speakers</code> und ein paar <code>small</code>-Sätze mit seiner ID.</div>
 <div class="box"><b>Porträts neu erzeugen</b> (mache ich, wenn du <code>look</code> oder Sprecher änderst): <code>python tools/silhouette/vc/rivals_v2.py</code> (erzeugt Gegner- und PA-Porträts im neuen Look). Die alten Teilenamen in <code>look</code> (z. B. <code>"jacke": "warnweste"</code>, <code>"haare": "cap"</code>) werden automatisch übersetzt. Die Texte erzeugt mein Generator <span class="path">tools\generator\chat.py</span>; deine Handänderungen in <code>chat.json</code> bleiben dabei erhalten.</div>
 <div class="box"><b>Testen</b>Im Entwickler-Menü gibt es „PA-Fahrer neu aufstellen“ (lädt <code>chat.json</code> neu und stellt die Leute neu hin). Im Mod-Log steht pro PA „PA-Fahrer an &lt;PA&gt;: &lt;Anzahl&gt; (&lt;Nacht&gt;, &lt;freie Buchten&gt;)“.</div>
@@ -1201,7 +1222,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td><code>HashiriyaTerminal</code></td><td>Teile-Terminal im Shop und Garagen-PC (eigenes Layout <code>hashiriyaShop.uilayout.json</code>, ganzer Bildschirm, Mitte frei für die Live-Vorschau). Siehe <a href="#tuning">Teile-Terminal</a>.</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
 <tr><td><code>HashiriyaUnlock</code></td><td>Karte links am Rand „Neue Teile freigeschaltet“, wenn eine Tuning-Stufe frei wird (Stufe, Grund, neue Teile pro Kategorie fürs aktive Auto). Siehe <a href="#freischalt-meldung">Meldung bei neuen Teilen</a>.</td></tr>
-<tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Auch für die <a href="#chat">PA-Gespräche</a>: Fahrer links mit Porträt, unten Taste und „weiter“/„Ende“, Punkte für den Satz; grüner Rahmen = neuer Lexikon-Hinweis. Vor einem Fahrer zeigt sie den Hinweis „[T] Reden“.</td></tr>
+<tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Auch für die <a href="#chat">PA-Gespräche</a>: Fahrer links mit Porträt, unten Taste und „weiter“/„Ende“, Punkte für den Satz; grüner Rahmen = neuer Lexikon-Hinweis; blauer Rand oben und „Wissen · Thema“ unten links = Wissens-Text. Vor einem Fahrer zeigt sie den Hinweis „[T] Reden“.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
 <tr><td><code>HashiriyaUtility</code></td><td>Oben links, ersetzt die BeamNG-Utility-Apps (Messages, Tasks, Scoreboard). Untereinander: Rangliste (nur wenn ein Spielmodus sie einschaltet), Aufgaben (Titel, Ziele mit Rauten-Haken: grün erledigt, rot gescheitert, orange pulsierend = Achtung) und Meldungen als Karten. Meldungen der Mod sind orange („Hashiriya“), Meldungen vom Spiel grau-blau („BeamNG“), Schäden und Warnungen rot. Gleiche Kategorie ersetzt die alte Karte, höchstens 5 gleichzeitig. Ein Balken unten zeigt, wie lange die Meldung noch steht.</td></tr>
 <tr><td><code>HashiriyaMinimap</code></td><td>Unten links im Querformat, ersetzt die BeamNG-App Navigation. Die Karte zeichnet weiter BeamNG selbst in das freie Feld, die App liefert die schmale Kopfzeile (Navi, Ortsname, Abstand zum Ziel) und den Polizei-Hinweis. Rund oder eckig stellst du in den BeamNG-Optionen (Minimap-Form) ein. Wichtig: nie zusammen mit der BeamNG-App Navigation ins Layout legen, es gibt nur eine Karte.</td></tr>
@@ -1283,7 +1304,10 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <p>Ideen, die wir besprochen haben. „Meilenstein“ sagt, wo sie eingeplant sind.</p>
 <table>
 <tr><th>Idee</th><th>Meilenstein</th><th>Stand</th></tr>
-<tr><td>PA-Gespräche: zu Fuß mit Fahrern neben ihren Autos reden (Smalltalk, Gerüchte, Hinweise auf Wanderer und wartende Rivalen). Figuren = BeamNG-„Bobs“.</td><td>Alpha 0.4</td><td>gebaut (01.11.2026), im Spiel noch ungetestet</td></tr>
+<tr><td>PA-Gespräche: zu Fuß mit Fahrern neben ihren Autos reden (Smalltalk, Gerüchte, Hinweise auf Wanderer und wartende Rivalen). Figuren = BeamNG-„Bobs“.</td><td>Alpha 0.4</td><td>gebaut (01.11.2026), im Spiel getestet: kein Ruckeln, Fahrer stehen still. Ob sie sich zu dir drehen und eigene Autos haben, noch offen.</td></tr>
+<tr><td>Mehr Gesprächsstoff: Wissen über Japan, Tokio, Shutoko, C1 und Straßenrennen-Geschichte, Fun Facts zur jeweiligen PA, mehrteilige Geschichten, viel mehr Smalltalk. Später auch für jede neue Karte (JDMArsch sagt, wo die Orte liegen).</td><td>Alpha 0.4.1</td><td>gebaut (01.11.2026), im Spiel noch ungetestet</td></tr>
+<tr><td>Wissens-Notizbuch im Lexikon: alle gehörten Wissens-Texte zum Nachlesen, nach Thema sortiert, mit Zähler (z. B. „31 von 77 entdeckt“).</td><td>noch keiner</td><td>Idee</td></tr>
+<tr><td>Im Gespräch Thema wählen („Erzähl mir was über …“: Gerüchte, Strecke, Geschichte, Autos).</td><td>noch keiner</td><td>Idee</td></tr>
 <tr><td>Rivalen und Wanderer stehen auch an den PAs (auf den Parkplätzen der geparkten Autos).</td><td>Alpha 0.5</td><td>offen</td></tr>
 <tr><td>Pink Slip gegen manche PA-Rivalen (ab bestimmtem Ruf): Verlierer verliert sein Auto, der Rivale fährt es, bis du es zurückgewinnst.</td><td>Alpha 0.5</td><td>offen</td></tr>
 <tr><td>Bosse und Story-Kapitel mit Zwischengeschichten (eigene Story).</td><td>Alpha 0.6</td><td>Bosse kommen von dir</td></tr>
@@ -1332,6 +1356,21 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
+<details class="cl">
+<summary><b>Alpha 0.4.1</b> <small>Stand 01.11.2026</small></summary>
+<div>
+<h4>Neu: Mehr Gesprächsstoff an den PAs</h4>
+<ul>
+<li>Die Fahrer an den Parkplätzen erzählen jetzt viel mehr: 77 Wissens-Texte über den Shutoko, den C1, Tokio, Japan, Autos und die Geschichte der Straßenrennen. Viele davon sind kleine Geschichten über zwei oder drei Sprechblasen.</li>
+<li>Beispiele: Wann das erste Stück Shutoko eröffnet wurde und was die Maut damals kostete, warum der C1 über Flüsse und alte Burggräben führt, warum die Nihonbashi der Kilometer null von Japan ist und bald wieder Himmel über sich hat, die Rainbow Bridge, die Szene der späten 80er, Kei-Cars und gelbe Kennzeichen.</li>
+<li>Jede PA hat eigene Fun Facts: An Shibaura PA erfährst du etwas über die Rainbow Bridge und die Schleife davor, an Tatsumi PA über das Viertel und die Wochenend-Sperrungen.</li>
+<li>Jeder Fahrer-Typ hat seine Lieblingsthemen. Der Alte Hase erzählt Geschichte, der Lkw-Fahrer vom Verkehr, die Studentin von Tokio.</li>
+<li>Wissens-Texte haben einen blauen Rand und zeigen unten das Thema, zum Beispiel „Wissen · Shutoko“.</li>
+<li>Sprichst du jemanden nochmal an, fällt ihm oft noch etwas ein, das du noch nicht kennst.</li>
+<li>47 neue Sätze Smalltalk, 4 für jeden Fahrer-Typ.</li>
+</ul>
+</div>
+</details>
 <details class="cl">
 <summary><b>Alpha 0.4</b> <small>Stand 01.11.2026</small></summary>
 <div>
@@ -1454,7 +1493,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>Sperren wie in der offiziellen BeamNG-Karriere, nur der Node Grabber bleibt: keine Fahrzeugauswahl und Fahrzeug-Config, kein Reparieren, Recover, Flip oder Zurücksetzen, kein Wechsel zu anderen Autos, keine Konsole, kein Editor, keine Zeitlupe.</li>
 <li>ESC-Menü ohne Fahrzeug- und Umgebungs-Tab, der Freeroam-Tab heißt „Hashiriya Battle“ und hat keine Freeroam-Knöpfe mehr.</li>
 <li>Keine Schnellreise über die große Karte. Time Trials erscheinen auch nicht mehr bei den Points of Interest.</li>
-<li>Das Dev-Menü mit allen Dev- und Cheat-Werkzeugen ist aus.</li>
+<li>Alle Dev- und Cheat-Werkzeuge im Hashiriya-Menü sind aus.</li>
 </ul>
 </div>
 </details>
