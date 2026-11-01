@@ -82,12 +82,31 @@ angular.module('beamng.apps')
               '<input type="text" ng-model="nw.note" placeholder="Notiz (optional)">' +
             '</div>' +
             '<div class="hbd-chips">' +
-              '<span class="hbd-chip" ng-repeat="t in d.types" ng-class="{\'is-on\': nw.type == t.id}" ng-click="nw.type = t.id">{{ t.name }}</span>' +
+              '<span class="hbd-chip" ng-repeat="t in d.types" ng-class="{\'is-on\': nw.type == t.id}" ng-click="nw.type = t.id"><i class="hbd-dot" ng-style="{background: t.color}"></i>{{ t.name }}</span>' +
             '</div>' +
             '<div class="hbd-form">' +
               '<span class="hbd-check" ng-click="nw.useCam = !nw.useCam" ng-class="{\'is-on\': nw.useCam || (d.player && d.player.freecam)}">' +
                 '<i></i>Kamera-Position (Freecam){{ d.player && d.player.freecam ? \' \u00b7 aktiv\' : \'\' }}</span>' +
               '<span class="hbd-btn hbd-main hbd-wide" ng-click="capture()">Hier merken</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="hbd-card hbd-mk">' +
+            '<div class="hbd-sec">Markierungen <em>Säulen auf der Map, solange das Dev-Menü offen ist</em></div>' +
+            '<div class="hbd-chips">' +
+              '<span class="hbd-check" ng-class="{\'is-on\': d.markers.on}" ng-click="dev(\'setMarkers\', {on: !d.markers.on})"><i></i>Säulen</span>' +
+              '<span class="hbd-check" ng-class="{\'is-on\': d.markers.labels}" ng-click="dev(\'setMarkers\', {labels: !d.markers.labels})"><i></i>Namen</span>' +
+              '<span class="hbd-check" ng-class="{\'is-on\': d.markers.showMap}" ng-click="dev(\'setMarkers\', {showMap: !d.markers.showMap})"><i></i>Orte aus Kartendatei</span>' +
+            '</div>' +
+            '<div class="hbd-chips"><span class="hbd-lbl">Höhe</span>' +
+              '<span class="hbd-chip" ng-repeat="h in [15, 40, 80, 150]" ng-class="{\'is-on\': d.markers.height == h}" ng-click="dev(\'setMarkers\', {height: h})">{{ h }} m</span>' +
+              '<span class="hbd-btn hbd-right" ng-click="ui.colors = !ui.colors">{{ ui.colors ? \'Farben zu\' : \'Farben ändern\' }}</span>' +
+            '</div>' +
+            '<div ng-if="ui.colors">' +
+              '<div class="hbd-crow" ng-repeat="t in d.types track by t.id">' +
+                '<i class="hbd-dot hbd-dot-big" ng-style="{background: t.color}"></i><span class="hbd-cname">{{ t.name }}</span>' +
+                '<span class="hbd-sw" ng-repeat="c in palette" ng-style="{background: c}" ng-class="{\'is-on\': c == t.color}" ng-click="dev(\'setColor\', {type: t.id, color: c})"></span>' +
+                '<span class="hbd-btn hbd-mini" ng-if="t.custom" ng-click="dev(\'setColor\', {type: t.id, color: \'\'})" title="Standardfarbe">\u21ba</span>' +
+              '</div>' +
             '</div>' +
           '</div>' +
           '<div class="hbd-form">' +
@@ -100,9 +119,9 @@ angular.module('beamng.apps')
           '</div>' +
           '<div class="hbd-list">' +
             '<div ng-repeat="p in placeMatches() track by p.id">' +
-              '<div class="hbd-li" ng-class="{\'is-map\': p.map}">' +
+              '<div class="hbd-li" ng-class="{\'is-map\': p.map}" ng-style="{\'border-left-color\': color(p.type)}">' +
                 '<div class="hbd-li-main" ng-click="toggleEdit(p)"><b>{{ p.name }}</b>' +
-                  '<span><i class="hbd-type">{{ p.typeName }}</i>{{ p.map ? \' \u00b7 Kartendatei\' : \'\' }}{{ p.onFoot ? \' \u00b7 zu Fuß\' : \'\' }} \u00b7 {{ distText(p) }}{{ p.note ? \' \u00b7 \' + p.note : \'\' }}</span></div>' +
+                  '<span><i class="hbd-type" ng-style="{color: color(p.type)}">{{ p.typeName }}</i>{{ p.map ? \' \u00b7 Kartendatei\' : \'\' }}{{ p.onFoot ? \' \u00b7 zu Fuß\' : \'\' }} \u00b7 {{ distText(p) }}{{ p.note ? \' \u00b7 \' + p.note : \'\' }}</span></div>' +
                 '<span class="hbd-btn hbd-main" ng-click="dev(\'teleport\', {id: p.id})">Hin</span>' +
                 '<span class="hbd-btn" ng-click="toggleEdit(p)">{{ edit.id == p.id ? \'Zu\' : \'Bearb.\' }}</span>' +
               '</div>' +
@@ -112,7 +131,7 @@ angular.module('beamng.apps')
                   '<input type="text" ng-model="edit.note" placeholder="Notiz" ng-if="!p.map">' +
                 '</div>' +
                 '<div class="hbd-chips" ng-if="!p.map">' +
-                  '<span class="hbd-chip" ng-repeat="t in d.types" ng-class="{\'is-on\': edit.type == t.id}" ng-click="edit.type = t.id">{{ t.name }}</span>' +
+                  '<span class="hbd-chip" ng-repeat="t in d.types" ng-class="{\'is-on\': edit.type == t.id}" ng-click="edit.type = t.id"><i class="hbd-dot" ng-style="{background: t.color}"></i>{{ t.name }}</span>' +
                 '</div>' +
                 '<div class="hbd-note" ng-if="p.map">Ort aus der Kartendatei: nur der Anzeigename lässt sich hier ändern (leer = Standardname).</div>' +
                 '<div class="hbd-grid">' +
@@ -193,11 +212,18 @@ angular.module('beamng.apps')
         '.hbd-check i{width:12px;height:12px;border:1px solid rgba(255,255,255,.4);} .hbd-check.is-on{color:var(--w);} .hbd-check.is-on i{background:var(--o);border-color:var(--o);}' +
         '.hbd-list{display:flex;flex-direction:column;gap:2px;}' +
         '.hbd-li{display:flex;align-items:center;gap:4px;padding:4px 6px;background:rgba(255,255,255,.04);}' +
-        '.hbd-li:hover{background:rgba(255,102,0,.12);} .hbd-li.is-beaten{opacity:.6;} .hbd-li.is-map{border-left:2px solid rgba(255,154,60,.6);}' +
+        '.hbd-li:hover{background:rgba(255,102,0,.12);} .hbd-li.is-beaten{opacity:.6;} .hbd-li.is-map{background:rgba(255,255,255,.02);} .hbd-li.is-map .hbd-li-main b{font-style:italic;}' +
         '.hbd-li-main{flex:1;min-width:0;cursor:pointer;} .hbd-li-main b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
         '.hbd-li-main span{display:block;font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
         '.hbd-type{font-style:normal;color:var(--o2);}' +
         '.hbd-edit{background:rgba(0,0,0,.25);padding:4px 6px 6px;margin-bottom:3px;}' +
+        '.hbd-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:0;box-shadow:0 0 0 1px rgba(0,0,0,.5);}' +
+        '.hbd-dot-big{width:12px;height:12px;flex:none;}' +
+        '.hbd-li{border-left:3px solid transparent;}' +
+        '.hbd-mk .hbd-check{flex:none;margin-right:12px;} .hbd-mk .hbd-lbl{width:auto;margin-right:6px;align-self:center;} .hbd-right{margin-left:auto;}' +
+        '.hbd-crow{display:flex;align-items:center;gap:3px;padding:2px 0;} .hbd-cname{width:130px;font-size:11px;flex:none;}' +
+        '.hbd-sw{width:14px;height:14px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.4);} .hbd-sw:hover{transform:scale(1.25);}' +
+        '.hbd-sw.is-on{box-shadow:0 0 0 2px #fff;} .hbd-mini{padding:1px 5px;margin-left:4px;}' +
         '.hbd-coords{font-size:9px;color:var(--dim);padding-top:4px;font-family:monospace;}' +
       '</style>' +
       '</div>',
@@ -224,6 +250,13 @@ angular.module('beamng.apps')
       scope.nw = { name: '', note: '', type: 'pa', useCam: false }
       scope.edit = { id: null }
       scope.sortNear = true
+      scope.ui = { colors: false }
+      scope.palette = ['#ff6600', '#ff9a3c', '#ffd400', '#c6ff00', '#3ddc84', '#00e5d4', '#3fa9ff', '#1e40ff', '#9b30ff', '#b07bff', '#ff4fd8', '#ff3b3b', '#ffffff', '#ffe9a8', '#a0a0a0', '#7a7a7a']
+      scope.color = function (type) {
+        var l = scope.d.types || []
+        for (var i = 0; i < l.length; i++) if (l[i].id === type) return l[i].color
+        return 'transparent'
+      }
       scope.fields = [
         { id: 'money', name: 'Geld (\u00a5)', quick: [{ l: '+1 Mio', v: 1000000 }, { l: '+10 Mio', v: 10000000 }, { l: '\u22121 Mio', v: -1000000 }] },
         { id: 'rep', name: 'Ruf', quick: [{ l: '+100', v: 100 }, { l: '+500', v: 500 }, { l: '\u2212500', v: -500 }] },
@@ -395,6 +428,7 @@ angular.module('beamng.apps')
           var wasOpen = scope.d.open
           // leere Lua-Tabellen kommen als {} an: Listen absichern
           ;['places', 'types', 'rivals'].forEach(function (k) { if (!Array.isArray(msg[k])) msg[k] = [] })
+          msg.markers = msg.markers || {}
           if (msg.save) {
             if (!Array.isArray(msg.save.ranks)) msg.save.ranks = []
             if (!Array.isArray(msg.save.levels)) msg.save.levels = []
