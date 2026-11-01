@@ -16,5 +16,6 @@
   "directive": "hashiriyaBuilder",
   "appName": "hashiriyaBuilder",
   "category": "Hashiriya Battle",
-  "isAuxiliary": false
+  "isAuxiliary": false,
+  "interactive": "no"
 }

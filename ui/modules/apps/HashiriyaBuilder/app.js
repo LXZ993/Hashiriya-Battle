@@ -10,10 +10,16 @@ angular.module('beamng.apps')
     link: function (scope, element) {
       'use strict'
       // Die App liegt im Layout über dem ganzen Bildschirm: geschlossen darf sie keine Klicks abfangen
-      // (auch nicht ihr BeamNG-Rahmen), offen schon.
+      // (auch nicht ihr BeamNG-Host .ui-app-host), offen schon. app.json hat "interactive": "no",
+      // damit der Host von sich aus durchlässig ist; hier vom App-Element bis genau zum eigenen Host.
       function setClickable(on) {
         var el = element[0]
-        for (var i = 0; i < 3 && el; i++) { el.style.pointerEvents = on ? 'auto' : 'none'; el = el.parentElement }
+        var host = el.closest && el.closest('.ui-app-host')
+        while (el) {
+          el.style.pointerEvents = on ? 'auto' : 'none'
+          if (!host || el === host) break
+          el = el.parentElement
+        }
       }
       setClickable(false)
 
