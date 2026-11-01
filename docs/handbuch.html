@@ -899,7 +899,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><th>Taste</th><th>Was passiert</th></tr>
 <tr><td>1</td><td><b>Release-Test AN</b>: setzt in <code>build.json</code> <code>release</code> auf <code>true</code>. Danach BeamNG <b>komplett neu starten</b> und die Karriere laden. Du spielst dann genau so, wie es die Tester bekommen.</td></tr>
 <tr><td>2</td><td><b>Release-Test AUS</b>: zurück zur Entwicklung (<code>false</code>), alle Dev-Tools und der Builder sind wieder da. Auch hier BeamNG neu starten.</td></tr>
-<tr><td>3</td><td><b>Release-ZIP bauen</b>: fragt nach der Versionsnummer (Enter = <code>modVersion</code> aus <code>build.json</code>) und legt <span class="path">F:\BeamNG\current\mods\hashiriya_battle_&lt;version&gt;.zip</span> an, also direkt neben <span class="path">unpacked</span>. Der Explorer zeigt die Datei danach an.</td></tr>
+<tr><td>3</td><td><b>Release-ZIP bauen</b>: bestimmt die Versionsnummer selbst (siehe unten) und legt <span class="path">F:\BeamNG\current\mods\hashiriya_battle_&lt;version&gt;.zip</span> an, also direkt neben <span class="path">unpacked</span>. Der Explorer zeigt die Datei danach an.</td></tr>
 </table>
 <p>Die ZIP heißt nach der Version und taucht damit im Mod-Manager als eigener Mod auf. So testest du den Release-Build unabhängig vom Entwicklungs-Ordner: im Mod-Manager entweder die ZIP oder <b>Hashiriya-Battle</b> (unpacked) aktivieren, nie beide gleichzeitig.</p>
 <p>In der ZIP ist <code>release</code> immer an und die Version gesetzt, egal wie dein Mod-Ordner gerade steht. Außerdem drin:</p>
@@ -908,7 +908,15 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <li><code>mod_info/HASHIRIYABATTLE/</code> mit <code>info.json</code>, Logo (<code>icon.jpg</code>) und Banner: Damit zeigt der Mod-Manager Titel, Kurzbeschreibung, Autor, Version und die Neuerungen dieser Version (aus <code>CHANGELOG_EN.md</code>). Texte und Bilder liegen in <span class="path">tools\mod_info\</span>, dort kannst du sie ändern.</li>
 </ul>
 <p>Nicht in die ZIP kommen: <code>tools</code>, <code>docs</code>, die README, der Builder (<code>builder.lua</code>, App <code>HashiriyaBuilder</code>) und die Taste Shift+Pos1 (Titelbild-Kamera merken). Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
-<div class="box"><b>Changelog</b>Gibt es in <code>CHANGELOG.md</code> noch keinen Abschnitt <code>## &lt;Version&gt;</code>, legt das Werkzeug ihn in beiden Changelogs selbst an: mit den Commit-Titeln seit der letzten Changelog-Änderung (technisch und auf Deutsch). Schöner wird es, wenn du mir vorher sagst „das ist jetzt Release-Version &lt;Version&gt;“: Dann schreibe ich beide Abschnitte spielerfreundlich auf Deutsch und Englisch, und das Werkzeug übernimmt sie unverändert.</div>
+<div class="box tip"><b>Versionsnummer: macht das Werkzeug</b>Du musst keine Nummer wissen. Das Menü zeigt oben „Nächste ZIP-Version“, und beim Bauen steht dabei, warum:
+<ul>
+<li>Ausgangspunkt ist die oberste Version in <code>CHANGELOG.md</code>, z. B. <code>Alpha 0.3</code>.</li>
+<li>Hat sich seit dem letzten ZIP am Mod nichts geändert, bekommt die neue ZIP dieselbe Nummer (sie ersetzt die alte).</li>
+<li>Gab es Änderungen in <code>lua</code>, <code>ui</code>, <code>scripts</code>, <code>settings</code>, <code>art</code> oder <code>vehicles</code>, zählt es hoch: <code>Alpha 0.3</code> → <code>Alpha 0.3.1</code> → <code>Alpha 0.3.2</code> … Reine Handbuch- oder Werkzeug-Änderungen zählen nicht.</li>
+<li>Steht im Changelog schon eine höhere Version (z. B. <code>Alpha 0.4</code>, weil ich sie geschrieben habe), nimmt es die.</li>
+</ul>
+Den letzten Build merkt es sich in <span class="path">tools\release-stand.json</span> (nur auf deinem PC, nicht im Repo). Löschst du die Datei, rechnet es wieder ab dem Changelog. Erzwingen geht ohne Menü: <code>release-werkzeug.ps1 -Aktion zip -Version "Alpha 0.4"</code>.</div>
+<div class="box"><b>Changelog</b>Gibt es in <code>CHANGELOG.md</code> noch keinen Abschnitt für die Version, kommt in die ZIP ein Entwurf (beide Sprachen) mit den Commit-Titeln seit dem letzten richtigen Changelog-Eintrag. Die Changelog-Dateien in deinem Mod-Ordner ändert das Werkzeug nicht, damit beim nächsten Update nichts im Weg liegt. Schöner wird es, wenn du mir sagst „das ist jetzt Release-Version“: Dann schreibe ich den Abschnitt spielerfreundlich auf Deutsch und Englisch, und das Werkzeug übernimmt ihn samt Nummer.</div>
 <div class="box warn"><b>Falls Windows das Fenster blockiert</b>Beim ersten Start fragt Windows evtl. nach („Trotzdem ausführen“). Die .bat startet nur das PowerShell-Skript <span class="path">tools\release-werkzeug.ps1</span> daneben.</div>
 
 <h3>Was im Release gesperrt ist</h3>
@@ -930,7 +938,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><td><code>lockTime</code></td><td>true</td><td>Uhrzeit nicht verstellbar</td></tr>
 <tr><td><code>blockBigMapTeleport</code></td><td>true</td><td>Keine Schnellreise über die große Karte</td></tr>
 <tr><td><code>nodeGrabberStrength</code></td><td>30</td><td>Stärke des Node Grabbers im Release (BeamNG-Standard 30)</td></tr>
-<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 0.3"</td><td>Version (Vorschlag beim ZIP-Bauen) und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
+<tr><td><code>modVersion</code>, <code>log</code></td><td>"Alpha 0.3"</td><td>Version im Log-Kopf (die ZIP-Version bestimmt das Release-Werkzeug selbst) und Log-Einstellungen, siehe <a href="#log">Log-System</a></td></tr>
 </table>
 <p>Welche Tabs und Knöpfe im ESC-Menü verschwinden, steht oben in <span class="path">lua\ge\extensions\hashiriyaBattle\release.lua</span> (<code>hiddenTabs</code>, <code>hiddenRailActions</code>). Im Mod-Log steht beim Start „Release-Sperren an (… Tastenaktionen)“.</p>
 </section>

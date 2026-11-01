@@ -5,7 +5,13 @@
 #   2  Release-Test AUS  -> data\build.json "release": false (Dev-Tools wieder da)
 #   3  Release-ZIP bauen -> mods\hashiriya_battle_<version>.zip (neben unpacked\), mit Changelog und mod_info
 #
-# Ohne Menü:  release-werkzeug.ps1 -Aktion an | aus | zip [-Version "Alpha 0.4"]
+# Die Versionsnummer bestimmt das Werkzeug selbst (Get-AutoVersion):
+#   - oberste Version im CHANGELOG.md, z. B. "Alpha 0.3"
+#   - seit dem letzten Build (tools\release-stand.json) nichts am Mod geändert -> gleiche Version nochmal
+#   - sonst nächste Nummer: Alpha 0.3 -> Alpha 0.3.1 -> Alpha 0.3.2 ...
+#   - steht im Changelog schon eine höhere Version (z. B. von Claude "Alpha 0.4"), wird die genommen
+#
+# Ohne Menü:  release-werkzeug.ps1 -Aktion an | aus | zip [-Version "Alpha 0.4"]  (-Version nur zum Erzwingen)
 param(
   [string]$Aktion = '',
   [string]$Version = ''
@@ -15,6 +21,10 @@ $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $PSScriptRoot
 $BuildJson = Join-Path $Root 'lua\ge\extensions\hashiriyaBattle\data\build.json'
 $Utf8 = New-Object System.Text.UTF8Encoding($false)
+# Merkt sich den letzten Build (Version + Commit), nur auf diesem PC (steht in .gitignore)
+$StandFile = Join-Path $PSScriptRoot 'release-stand.json'
+# Nur Änderungen in diesen Ordnern zählen als neue Version (Doku/Werkzeuge nicht)
+$ModPaths = @('lua', 'scripts', 'settings', 'ui', 'art', 'vehicles')
 
 # Ordner und Dateien, die in die ZIP kommen
 $Include = @('lua', 'scripts', 'settings', 'ui', 'art', 'vehicles')
@@ -96,35 +106,127 @@ function Get-ChangelogSection($text, $ver) {
   return $null
 }
 
-# Fehlt der Abschnitt für die Version, wird er aus den Commits seit dem letzten Changelog-Stand angelegt
-function Add-ChangelogDraft($ver) {
-  $subjects = @()
-  $git = Get-Command git -ErrorAction SilentlyContinue
-  if ($git) {
-    Push-Location $Root
-    try {
-      $base = (& git log -1 --format=%H -- CHANGELOG.md 2>$null)
-      if ($base) { $subjects = @(& git log --no-merges --format=%s "$base..HEAD" 2>$null) }
-    } finally { Pop-Location }
+# git im Mod-Ordner aufrufen; ohne git oder bei Fehler: $null
+function Invoke-Git {
+  if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return $null }
+  Push-Location $Root
+  try {
+    $out = & git @args 2>$null
+    if ($LASTEXITCODE -ne 0) { return $null }
+    return $out
+  } catch { return $null } finally { Pop-Location }
+}
+
+# Oberste Version im deutschen Changelog ("## Alpha 0.3 (Stand ...)" -> "Alpha 0.3")
+function Get-ChangelogTopVersion {
+  $text = Read-Text (Join-Path $Root 'CHANGELOG.md')
+  $m = [regex]::Match($text, '(?m)^## ([^(\r\n]+?)\s*(\(|\r?$)')
+  if ($m.Success) { return $m.Groups[1].Value.Trim() }
+  return $null
+}
+
+# "Alpha 0.3" -> @{ prefix = 'Alpha'; nums = 0,3 }
+function Split-Version($ver) {
+  $m = [regex]::Match($ver, '^(.*?)\s*(\d+(?:\.\d+)*)$')
+  if (-not $m.Success) { return @{ prefix = $ver; nums = @() } }
+  return @{ prefix = $m.Groups[1].Value.Trim(); nums = @($m.Groups[2].Value.Split('.') | ForEach-Object { [int]$_ }) }
+}
+
+# Positiv, wenn a neuer als b ist (Alpha < Beta < RC < ohne Zusatz)
+function Compare-Version($a, $b) {
+  $rank = @{ 'alpha' = 0; 'beta' = 1; 'rc' = 2; '' = 3 }
+  $va = Split-Version $a; $vb = Split-Version $b
+  $ra = $rank[$va.prefix.ToLower()]; $rb = $rank[$vb.prefix.ToLower()]
+  if ($null -eq $ra) { $ra = 0 }; if ($null -eq $rb) { $rb = 0 }
+  if ($ra -ne $rb) { return $ra - $rb }
+  $n = [math]::Max($va.nums.Count, $vb.nums.Count)
+  for ($i = 0; $i -lt $n; $i++) {
+    $x = 0; $y = 0
+    if ($i -lt $va.nums.Count) { $x = $va.nums[$i] }
+    if ($i -lt $vb.nums.Count) { $y = $vb.nums[$i] }
+    if ($x -ne $y) { return $x - $y }
   }
+  return 0
+}
+
+# Alpha 0.3 -> Alpha 0.3.1, Alpha 0.3.1 -> Alpha 0.3.2
+function Step-Version($ver) {
+  $v = Split-Version $ver
+  $nums = @($v.nums)
+  if ($nums.Count -eq 0) { return ($ver + ' 0.1') }
+  if ($nums.Count -lt 3) { $nums += 1 } else { $nums[$nums.Count - 1]++ }
+  return (($v.prefix + ' ' + ($nums -join '.')).Trim())
+}
+
+function Get-Stand {
+  if (-not (Test-Path $StandFile)) { return $null }
+  try { return ((Read-Text $StandFile) | ConvertFrom-Json) } catch { return $null }
+}
+
+# Anzahl Commits mit Mod-Änderungen seit $base (-1 = unbekannt)
+function Get-ModChangeCount($base) {
+  if (-not $base) { return -1 }
+  $c = Invoke-Git rev-list --count "$base..HEAD" '--' @ModPaths
+  if ($null -eq $c) { return -1 }
+  return [int]("$c".Trim())
+}
+
+# Versionsnummer automatisch: @{ version; base (letzter Changelog-Commit, ab dem der Entwurf zählt); reason }
+function Get-AutoVersion {
+  $top = Get-ChangelogTopVersion
+  if (-not $top) { $top = Get-ModVersion }
+  $stand = Get-Stand
+  $changelogCommit = Invoke-Git log -1 --format=%H -- CHANGELOG.md
+  if ($stand -and $stand.version) {
+    if ((Compare-Version $top $stand.version) -gt 0) {
+      return @{ version = $top; base = $changelogCommit; reason = "neue Version aus dem Changelog (letzter Build: $($stand.version))" }
+    }
+    $changes = Get-ModChangeCount $stand.commit
+    if ($changes -eq 0) {
+      return @{ version = $stand.version; base = $changelogCommit; reason = 'seit dem letzten Build nichts am Mod geändert, gleiche Version' }
+    }
+    return @{ version = (Step-Version $stand.version); base = $changelogCommit; reason = "letzter Build $($stand.version), seitdem Änderungen am Mod" }
+  }
+  # Erster Build auf diesem PC: Changelog-Version, außer der Mod hat sich seit dem Changelog-Eintrag geändert
+  $changes = Get-ModChangeCount $changelogCommit
+  if ($changes -gt 0) {
+    return @{ version = (Step-Version $top); base = $changelogCommit; reason = "$changes Änderungen seit dem Changelog-Eintrag $top" }
+  }
+  return @{ version = $top; base = $changelogCommit; reason = 'Version aus dem Changelog' }
+}
+
+function Save-Stand($ver) {
+  $head = Invoke-Git rev-parse HEAD
+  $obj = [ordered]@{ version = $ver; commit = "$head".Trim(); built = (Get-Date).ToString('yyyy-MM-dd HH:mm') }
+  Write-Text $StandFile ($obj | ConvertTo-Json)
+}
+
+# Changelogs für die ZIP. Fehlt der Abschnitt für die Version, kommt ein Entwurf aus den Commits seit $base dazu.
+# Die Changelog-Dateien im Mod-Ordner bleiben unverändert (keine offenen Änderungen auf dem PC).
+function Get-ChangelogTexts($ver, $base) {
+  $subjects = @()
+  if ($base) { $subjects = @(Invoke-Git log --no-merges --format=%s "$base..HEAD" '--' @ModPaths) }
   $subjects = @($subjects | Where-Object { $_ -and $_.Trim() } | ForEach-Object { '- ' + $_.Trim() })
   if ($subjects.Count -eq 0) { $subjects = @('- (bitte ergänzen / please fill in)') }
   $today = Get-Date
+  $since = Get-ChangelogTopVersion
   $files = @(
-    @{ name = 'CHANGELOG.md'; head = '## ' + $ver + ' (Stand ' + $today.ToString('dd.MM.yyyy') + ')'; note = 'Automatisch aus der Commit-Liste erstellt. Schöne Texte: Claude sagen „das ist jetzt Release-Version ' + $ver + '“.' },
-    @{ name = 'CHANGELOG_EN.md'; head = '## ' + $ver + ' (as of ' + $today.ToString('yyyy-MM-dd') + ')'; note = 'Generated automatically from the commit list.' }
+    @{ name = 'CHANGELOG.md'; head = '## ' + $ver + ' (Stand ' + $today.ToString('dd.MM.yyyy') + ')'; note = 'Automatisch aus der Commit-Liste erstellt (alles seit ' + $since + ').' },
+    @{ name = 'CHANGELOG_EN.md'; head = '## ' + $ver + ' (as of ' + $today.ToString('yyyy-MM-dd') + ')'; note = 'Generated automatically from the commit list (everything since ' + $since + ').' }
   )
+  $result = @{}
   foreach ($f in $files) {
-    $path = Join-Path $Root $f.name
-    $text = Read-Text $path
-    if (Get-ChangelogSection $text $ver) { continue }
-    $block = $f.head + "`n`n" + $f.note + "`n`n" + ($subjects -join "`n") + "`n`n"
-    $idx = $text.IndexOf("`n## ")
-    if ($idx -ge 0) { $text = $text.Substring(0, $idx + 1) + $block + $text.Substring($idx + 1) }
-    else { $text = $text.TrimEnd() + "`n`n" + $block }
-    Write-Text $path $text
-    Write-Host "Changelog-Abschnitt für '$ver' in $($f.name) angelegt ($($subjects.Count) Einträge)." -ForegroundColor Yellow
+    $text = (Read-Text (Join-Path $Root $f.name)) -replace "`r`n", "`n"
+    if (-not (Get-ChangelogSection $text $ver)) {
+      $block = $f.head + "`n`n" + $f.note + "`n`n" + ($subjects -join "`n") + "`n`n"
+      $idx = $text.IndexOf("`n## ")
+      if ($idx -ge 0) { $text = $text.Substring(0, $idx + 1) + $block + $text.Substring($idx + 1) }
+      else { $text = $text.TrimEnd() + "`n`n" + $block }
+      Write-Host "Changelog-Abschnitt '$ver' als Entwurf in die ZIP ($($f.name), $($subjects.Count) Einträge)." -ForegroundColor Yellow
+    }
+    $result[$f.name] = $text
   }
+  return $result
 }
 
 # Markdown-Abschnitt (### Überschriften, - Punkte) als einfaches HTML für den Mod-Manager
@@ -149,9 +251,9 @@ function Convert-ChangesToHtml($md) {
 }
 
 # mod_info/HASHIRIYABATTLE/info.json aus tools\mod_info\info.json (Titel, Bild, Beschreibung im Mod-Manager)
-function Get-ModInfoJson($ver) {
+function Get-ModInfoJson($ver, $changelogEn) {
   $tpl = Read-Text (Join-Path $PSScriptRoot 'mod_info\info.json')
-  $changes = Convert-ChangesToHtml (Get-ChangelogSection (Read-Text (Join-Path $Root 'CHANGELOG_EN.md')) $ver)
+  $changes = Convert-ChangesToHtml (Get-ChangelogSection $changelogEn $ver)
   $obj = $tpl | ConvertFrom-Json
   $obj.PSObject.Properties.Remove('_hinweis')
   foreach ($p in $obj.PSObject.Properties) {
@@ -170,11 +272,13 @@ function Get-OutputDir {
 }
 
 function Build-Zip {
+  $auto = Get-AutoVersion
   $ver = $Version
-  if (-not $ver) {
-    $current = Get-ModVersion
-    $ver = Read-Host "Versionsnummer (Enter = $current)"
-    if (-not $ver) { $ver = $current }
+  if ($ver) {
+    Write-Host "Version (vorgegeben): $ver"
+  } else {
+    $ver = $auto.version
+    Write-Host "Version: $ver  ($($auto.reason))" -ForegroundColor Cyan
   }
   $ver = $ver.Trim()
   $slug = ($ver.ToLower() -replace '[^a-z0-9.]+', '_').Trim('_')
@@ -189,8 +293,8 @@ function Build-Zip {
   foreach ($cl in @('CHANGELOG.md', 'CHANGELOG_EN.md')) {
     if (-not (Test-Path (Join-Path $Root $cl))) { throw "$cl fehlt im Mod-Ordner." }
   }
-  Add-ChangelogDraft $ver
-  $modInfo = Get-ModInfoJson $ver
+  $changelogs = Get-ChangelogTexts $ver $auto.base
+  $modInfo = Get-ModInfoJson $ver $changelogs['CHANGELOG_EN.md']
 
   Add-Type -AssemblyName System.IO.Compression
   Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -222,8 +326,8 @@ function Build-Zip {
         $script:count++
       }
     }
-    Add-Entry 'CHANGELOG_DE.md' ([System.IO.File]::ReadAllBytes((Join-Path $Root 'CHANGELOG.md')))
-    Add-Entry 'CHANGELOG_EN.md' ([System.IO.File]::ReadAllBytes((Join-Path $Root 'CHANGELOG_EN.md')))
+    Add-Entry 'CHANGELOG_DE.md' ($Utf8.GetBytes($changelogs['CHANGELOG.md']))
+    Add-Entry 'CHANGELOG_EN.md' ($Utf8.GetBytes($changelogs['CHANGELOG_EN.md']))
     $script:count += 2
     Add-Entry 'mod_info/HASHIRIYABATTLE/info.json' ($Utf8.GetBytes($modInfo))
     foreach ($img in @('icon.jpg', 'banner.jpg')) {
@@ -233,6 +337,7 @@ function Build-Zip {
   } finally {
     $zip.Dispose()
   }
+  Save-Stand $ver
   $kb = [math]::Round((Get-Item $zipPath).Length / 1024)
   Write-Host ''
   Write-Host "Fertig: $zipPath ($script:count Dateien, $kb KB)" -ForegroundColor Green
@@ -248,11 +353,13 @@ function Show-Menu {
     Write-Host ''
     Write-Host '=== Hashiriya Battle: Release-Werkzeug ===' -ForegroundColor Cyan
     Write-Host "Mod-Ordner:   $Root"
-    Write-Host "Release-Test: $state      Version: $(Get-ModVersion)"
+    $next = '?'
+    try { $next = (Get-AutoVersion).version } catch { }
+    Write-Host "Release-Test: $state      Nächste ZIP-Version: $next"
     Write-Host ''
     Write-Host '  1  Release-Test AN   (so testen, wie es die Tester bekommen)'
     Write-Host '  2  Release-Test AUS  (zurück zur Entwicklung)'
-    Write-Host '  3  Release-ZIP bauen (zum Verschicken und Testen im Mod-Manager)'
+    Write-Host '  3  Release-ZIP bauen (Version automatisch, zum Verschicken und Testen im Mod-Manager)'
     Write-Host '  0  Beenden'
     $c = Read-Host 'Auswahl'
     switch ($c) {
