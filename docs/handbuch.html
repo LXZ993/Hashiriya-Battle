@@ -908,14 +908,15 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <li><code>mod_info/HASHIRIYABATTLE/</code> mit <code>info.json</code>, Logo (<code>icon.jpg</code>) und Banner: Damit zeigt der Mod-Manager Titel, Kurzbeschreibung, Autor, Version und die Neuerungen dieser Version (aus <code>CHANGELOG_EN.md</code>). Texte und Bilder liegen in <span class="path">tools\mod_info\</span>, dort kannst du sie ändern.</li>
 </ul>
 <p>Nicht in die ZIP kommen: <code>tools</code>, <code>docs</code>, die README, der Builder (<code>builder.lua</code>, App <code>HashiriyaBuilder</code>) und die Taste Shift+Pos1 (Titelbild-Kamera merken). Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
-<div class="box tip"><b>Versionsnummer: macht das Werkzeug</b>Du musst keine Nummer wissen. Das Menü zeigt oben „Nächste ZIP-Version“, und beim Bauen steht dabei, warum:
+<div class="box tip"><b>Versionsnummer: macht das Werkzeug, nach der Roadmap</b>Du musst keine Nummer wissen. Das Menü zeigt oben „Nächste ZIP-Version“ und den nächsten Meilenstein, beim Bauen steht dabei, warum.
 <ul>
-<li>Ausgangspunkt ist die oberste Version in <code>CHANGELOG.md</code>, z. B. <code>Alpha 0.3</code>.</li>
-<li>Hat sich seit dem letzten ZIP am Mod nichts geändert, bekommt die neue ZIP dieselbe Nummer (sie ersetzt die alte).</li>
-<li>Gab es Änderungen in <code>lua</code>, <code>ui</code>, <code>scripts</code>, <code>settings</code>, <code>art</code> oder <code>vehicles</code>, zählt es hoch: <code>Alpha 0.3</code> → <code>Alpha 0.3.1</code> → <code>Alpha 0.3.2</code> … Reine Handbuch- oder Werkzeug-Änderungen zählen nicht.</li>
-<li>Steht im Changelog schon eine höhere Version (z. B. <code>Alpha 0.4</code>, weil ich sie geschrieben habe), nimmt es die.</li>
+<li>Die Roadmap bis 1.0 steht in <span class="path">tools\roadmap.json</span>: Alpha 0.4 PA-Gespräche, 0.5 Rivalen an den PAs und Pink Slip, 0.6 Bosse und Story, 0.7 Nebenjobs und Tipps, 0.8 Teile verkaufen/ausbauen, 0.9 Fahrcharaktere, 1.0 komplette C1-Karriere (wie im Forum-Post).</li>
+<li>Die Hauptnummer ist der letzte fertige Meilenstein, im Moment <code>Alpha 0.3</code>.</li>
+<li>Test-Builds dazwischen zählen nur hinten hoch: <code>Alpha 0.3.1</code>, <code>Alpha 0.3.2</code> … Von selbst springt das Werkzeug nie auf <code>Alpha 0.4</code>.</li>
+<li>Erst wenn ein Meilenstein drin ist, setze ich ihn in <code>roadmap.json</code> auf <code>"fertig": true</code>. Dann heißt die nächste ZIP <code>Alpha 0.4</code>, danach <code>Alpha 0.4.1</code> usw.</li>
+<li>Hat sich seit dem letzten ZIP am Mod (<code>lua</code>, <code>ui</code>, <code>scripts</code>, <code>settings</code>, <code>art</code>, <code>vehicles</code>) nichts geändert, bleibt die Nummer gleich und die ZIP wird ersetzt.</li>
 </ul>
-Den letzten Build merkt es sich in <span class="path">tools\release-stand.json</span> (nur auf deinem PC, nicht im Repo). Löschst du die Datei, rechnet es wieder ab dem Changelog. Erzwingen geht ohne Menü: <code>release-werkzeug.ps1 -Aktion zip -Version "Alpha 0.4"</code>.</div>
+Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> ändern oder mir sagen. Den letzten Build merkt sich das Werkzeug in <span class="path">tools\release-stand.json</span> (nur auf deinem PC). Erzwingen geht ohne Menü: <code>release-werkzeug.ps1 -Aktion zip -Version "Alpha 0.4"</code>.</div>
 <div class="box"><b>Changelog</b>Gibt es in <code>CHANGELOG.md</code> noch keinen Abschnitt für die Version, kommt in die ZIP ein Entwurf (beide Sprachen) mit den Commit-Titeln seit dem letzten richtigen Changelog-Eintrag. Die Changelog-Dateien in deinem Mod-Ordner ändert das Werkzeug nicht, damit beim nächsten Update nichts im Weg liegt. Schöner wird es, wenn du mir sagst „das ist jetzt Release-Version“: Dann schreibe ich den Abschnitt spielerfreundlich auf Deutsch und Englisch, und das Werkzeug übernimmt ihn samt Nummer.</div>
 <div class="box warn"><b>Falls Windows das Fenster blockiert</b>Beim ersten Start fragt Windows evtl. nach („Trotzdem ausführen“). Die .bat startet nur das PowerShell-Skript <span class="path">tools\release-werkzeug.ps1</span> daneben.</div>
 
