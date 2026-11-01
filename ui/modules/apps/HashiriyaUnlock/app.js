@@ -32,8 +32,11 @@ angular.module('beamng.apps')
             'clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);animation:hbuIn .5s cubic-bezier(.2,.9,.25,1) both;}' +
           '.hbu.is-out{animation:hbuOut .45s ease-in both;}' +
           '.hbu-lv1{--lv:#3fbf5a;--lvBg:#2f6f3a;}' +
-          '.hbu-lv2{--lv:#4d93ec;--lvBg:#2c5d9c;}' +
-          '.hbu-lv3{--lv:#ff5a3c;--lvBg:#9c3a2c;}' +
+          '.hbu-lv2{--lv:#3cc8bd;--lvBg:#26706b;}' +
+          '.hbu-lv3{--lv:#4d93ec;--lvBg:#2c5d9c;}' +
+          '.hbu-lv4{--lv:#a98bff;--lvBg:#5a3f9e;}' +
+          '.hbu-lv5{--lv:#ffa24a;--lvBg:#a35d1c;}' +
+          '.hbu-lv6{--lv:#ff5a4f;--lvBg:#9c2c2c;}' +
           // Lichtstreifen, der einmal über die Karte läuft
           '.hbu:before{content:"";position:absolute;top:0;bottom:0;left:-40%;width:35%;pointer-events:none;' +
             'background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent);animation:hbuSweep 1.1s .35s ease-out both;}' +

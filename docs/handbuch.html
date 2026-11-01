@@ -72,7 +72,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 31.10.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 01.11.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -651,13 +651,16 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <p>Die Kategorie <b>Motor-Swap</b> zeigt alle Motoren, die BeamNG für dein Modell kennt (auch aus Mods). Der neue Motor kommt mit seinen Serien-Anbauteilen; die gehören dir nach dem Kauf. Motoren ohne Stufenwort sind Stufe 2 (<code>defaultLevel</code>).</p>
 <h3>Stufen freischalten (tiers)</h3>
 <pre><code>"tiers": [
-  {"level": 1, "unlock": {"minRank": 1}},
-  {"level": 2, "unlock": {"minRank": 4}},
-  {"level": 3, "unlock": {"minRank": 8}}
+  {"level": 1, "unlock": {"minRank": 1}},    // Nachtgast
+  {"level": 2, "unlock": {"minRank": 3}},    // Ampelstarter
+  {"level": 3, "unlock": {"minRank": 5}},    // Kurvenkünstler
+  {"level": 4, "unlock": {"minRank": 7}},    // Schattenläufer
+  {"level": 5, "unlock": {"minRank": 9}},    // Turbowolf
+  {"level": 6, "unlock": {"minRank": 11}}    // Asphaltdrache
 ]</code></pre>
-<p><code>minRank</code> ist der Index in der Rangliste (0 = Neuling). Stufe 1 gibt es ab dem zweiten Rang (Index 1, Nachtgast), Stufe 2 ab Index 4, Stufe 3 ab Index 8. Als Neuling fährst du also nur mit Serienteilen und eigenen Teilen. Ändere die Zahlen, wenn Tuning früher oder später kommen soll (z. B. <code>"minRank": 2</code> für Stufe 1 erst ab dem dritten Rang). Statt <code>minRank</code> geht auch <code>minWins</code> (Anzahl Siege). Gesperrte Teile kannst du in den Warenkorb legen und ansehen, aber nicht kaufen.</p>
+<p>Es gibt 6 Stufen (seit 01.11.2026, vorher 3). <code>minRank</code> ist der Index in der Rangliste (0 = Neuling). Etwa alle zwei Ränge wird eine neue Stufe frei. Die Statuszeile im Terminal zeigt immer nur die nächste gesperrte Stufe. Als Neuling fährst du also nur mit Serienteilen und eigenen Teilen. Ändere die Zahlen, wenn Tuning früher oder später kommen soll (z. B. <code>"minRank": 2</code> für Stufe 1 erst ab dem dritten Rang). Statt <code>minRank</code> geht auch <code>minWins</code> (Anzahl Siege). Gesperrte Teile kannst du in den Warenkorb legen und ansehen, aber nicht kaufen.</p>
 <h3 id="freischalt-meldung">Meldung bei neuen Teilen (unlockNotice)</h3>
-<p>Wird eine Stufe frei (durch einen Rangaufstieg oder genug Siege), schiebt sich links am Bildschirmrand eine Karte herein (UI-App <code>HashiriyaUnlock</code>): <b>HashiNet · Neue Teile freigeschaltet</b>, die Stufe (LV1 grün, LV2 blau, LV3 rot wie im Terminal), der Grund (z. B. „Rang erreicht: Nachtgast“) und wie viele neue Teile es für dein <b>aktives Auto</b> gibt, nach Kategorie (die größten zuerst, der Rest als „+N in weiteren Kategorien“). Bist du gerade zu Fuß, steht dort „Gilt für alle deine Autos“. Ein Balken unten zeigt, wie lange die Karte noch steht, danach gleitet sie wieder hinaus.</p>
+<p>Wird eine Stufe frei (durch einen Rangaufstieg oder genug Siege), schiebt sich links am Bildschirmrand eine Karte herein (UI-App <code>HashiriyaUnlock</code>): <b>HashiNet · Neue Teile freigeschaltet</b>, die Stufe (Farben wie im Terminal: LV1 grün, LV2 türkis, LV3 blau, LV4 lila, LV5 orange, LV6 rot), der Grund (z. B. „Rang erreicht: Nachtgast“) und wie viele neue Teile es für dein <b>aktives Auto</b> gibt, nach Kategorie (die größten zuerst, der Rest als „+N in weiteren Kategorien“). Bist du gerade zu Fuß, steht dort „Gilt für alle deine Autos“. Ein Balken unten zeigt, wie lange die Karte noch steht, danach gleitet sie wieder hinaus.</p>
 <p>Die Meldung kommt <b>nach</b> dem Battle: erst wenn kein Battle läuft, das Terminal zu ist und ein paar Sekunden Ruhe war (Siegesspruch und „Neuer Rang“ sind dann durch). Werden mehrere Stufen auf einmal frei, kommen sie nacheinander. Jede Stufe meldet sich pro Spielstand nur einmal (gemerkt in <code>save.json</code> als <code>unlockSeen</code>). Alte Spielstände melden nichts nachträglich: Was beim ersten Laden schon frei ist, gilt als gesehen. Auch mit „+500 Ruf“ aus dem Entwickler-Menü kommt die Meldung, wenn dadurch eine Stufe frei wird.</p>
 <pre><code>"unlockNotice": { "enabled": true, "seconds": 9, "delay": 3, "maxCategories": 5 }</code></pre>
 <table><tr><th>Feld</th><th>Standard</th><th>Bedeutung</th></tr>
@@ -672,12 +675,18 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <p>Jeder Slot des Autos mit Auswahl wird eine Zeile. <code>match</code> sind Lua-Muster auf den Slot-Namen (klein geschrieben): <code>"turbo"</code> trifft <code>covet_turbo</code>, <code>"^tire_"</code> trifft <code>tire_F_15x7</code>. Die <b>erste</b> passende Kategorie gewinnt, die Reihenfolge in der Datei ist auch die Reihenfolge im Terminal. Was nirgends passt, landet in <b>Sonstiges</b> (<code>other</code>). <code>group</code>: <code>mech</code> = Mechaniker, <code>body</code> = Bodyshop, <code>more</code> = Weiteres. <code>paint</code> = Lackierer, <code>all</code> = Alle Teile (jeder Slot, auch die in <code>slotExclude</code>). Den Namen einer Kategorie stellst du in <span class="path">lang\de.json</span> unter <code>term.cat.&lt;id&gt;</code> ein.</p>
 <p><b>Beispiel: Nitro soll im Motor-Reiter erscheinen</b>: In <code>slotExclude</code> den Eintrag <code>"n2o_"</code> löschen. Die Kategorie <code>engine</code> hat <code>"n2o"</code> schon in <code>match</code>.</p>
 <p>Zeilennamen: eigene Übersetzung <code>shop.slot.&lt;Slot ohne Modellname&gt;</code> in <span class="path">lang\*.json</span> (z. B. <code>shop.slot.engine_ecu</code>), sonst der englische Name aus BeamNG.</p>
-<h3>Stufe eines Teils (levelWords)</h3>
-<p>Die Stufe wird aus Wörtern im Teilenamen erkannt (höchste Stufe zuerst). Steht im Namen z. B. "race" oder "stage3", ist es Stufe 3; "sport" ist Stufe 1. Ohne Stufenwort gilt <code>defaultLevel</code> der Kategorie.</p>
-<pre><code>"levelWords": {"3": ["race", "stage3", "ultra", ...], "2": ["stage1", "turbo", ...], "1": ["sport", ...]}</code></pre>
+<h3>Stufe eines Teils (levelWords + levelSpread)</h3>
+<p>Die Stufe entsteht in zwei Schritten:</p>
+<ol>
+<li><b>Klasse 1-3 aus dem Namen</b> (<code>levelWords</code>, höchste zuerst): "race" oder "stage3" = Klasse 3, "turbo" oder "stage1" = Klasse 2, "sport" = Klasse 1. Ohne Wort gilt <code>defaultLevel</code> der Kategorie.</li>
+<li><b>Verteilen auf LV1-6</b> (<code>levelSpread</code>): Pro Slot (z. B. Stoßdämpfer vorne) werden alle Teile nach Klasse und dann Preis sortiert und gleichmäßig auf LV1 bis LV6 verteilt. Das billigste Teil kommt früh, das teuerste spät. <code>bands</code> begrenzt jede Klasse: Klasse 1 landet auf LV1-3, Klasse 2 auf LV2-5, Klasse 3 (Rennteile) auf LV4-6. Hat ein Slot nur ein Teil, bekommt es die niedrigste Stufe seiner Klasse.</li>
+</ol>
+<pre><code>"levelWords": {"3": ["race", "stage3", "ultra", ...], "2": ["stage1", "turbo", ...], "1": ["sport", ...]},
+"levelSpread": { "levels": 6, "bands": { "1": [1, 3], "2": [2, 5], "3": [4, 6] } }</code></pre>
+<p>Beispiele: Rennteile sollen nur ganz am Ende kommen → <code>"3": [5, 6]</code>. Mehr Stufen → <code>"levels": 8</code>, dann auch <code>tiers</code> bis Stufe 8 ergänzen und die Bänder anpassen. <code>levelSpread</code> ganz löschen = alte Regel (Stufe = Klasse, nur LV1-3). Beim Sunburst verteilen sich so etwa 106/58/84/19/54/23 Teile auf LV1-6 statt vorher 219/62/63 auf LV1-3.</p>
 <h3>Einzelne Teile festlegen</h3>
 <pre><code>"exclude":   ["ruined", "broken"],          // Teile mit diesen Wörtern ausblenden
-"overrides": {"covet_engine_ecu_race": 2,   // dieses Teil auf Stufe 2 setzen
+"overrides": {"covet_engine_ecu_race": 2,   // dieses Teil auf Klasse 2 setzen (Stufe dann per levelSpread)
               "bx_intake_debug": 0}          // 0 = ausblenden</code></pre>
 <h3>Live-Vorschau (preview)</h3>
 <pre><code>"preview": {"distance": 7.0, "pitch": -10, "yawStep": 45, "focusOffsetUp": 0.1}</code></pre>

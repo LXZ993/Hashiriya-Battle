@@ -195,7 +195,8 @@ angular.module('beamng.apps')
         '.hbt-bad{color:#ff8a7a;}' +
         '.hbt-warn{color:#ffb070;}' +
         '.hbt-lv{display:inline-block;text-align:center;font-size:10px;font-weight:700;border-radius:2px;padding:1px 3px;background:#4b5563;color:#f1f5f9;}' +
-        '.hbt-lv.lv1{background:#2f6f3a;color:#e9ffe9;}.hbt-lv.lv2{background:#2c5d9c;color:#eaf3ff;}.hbt-lv.lv3{background:#9c3a2c;color:#fff0ea;}' +
+        '.hbt-lv.lv1{background:#2f6f3a;color:#e9ffe9;}.hbt-lv.lv2{background:#26706b;color:#e6fffc;}.hbt-lv.lv3{background:#2c5d9c;color:#eaf3ff;}' +
+        '.hbt-lv.lv4{background:#5a3f9e;color:#f1ebff;}.hbt-lv.lv5{background:#a35d1c;color:#fff3e6;}.hbt-lv.lv6{background:#9c2c2c;color:#ffeaea;}' +
         '.hbt-note{padding:12px;color:#aab6c3;}' +
         '.hbt-chips{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;}' +
         '.hbt-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);cursor:pointer;}' +

@@ -107,6 +107,30 @@ local function partLevel(partName, display, defaultLevel)
   return defaultLevel or 1
 end
 
+-- Stufen verteilen (levelSpread in tuning.json): Die Wörter geben nur die Klasse 1-3. Innerhalb eines Slots
+-- werden die Teile nach Klasse und Preis sortiert und gleichmäßig auf LV1..levels verteilt (billig früh, teuer spät).
+-- bands begrenzt jede Klasse auf einen Bereich, damit z. B. Rennteile (Klasse 3) nie vor LV4 kommen.
+-- Erwartet die Liste schon nach Klasse, dann Preis sortiert. Ohne levelSpread bleibt Stufe = Klasse.
+local function spreadLevels(options)
+  local sp = rules.levelSpread
+  if type(sp) ~= 'table' or #options == 0 then return end
+  local levels = tonumber(sp.levels) or 6
+  local bands = sp.bands or {}
+  local k = #options
+  for i, o in ipairs(options) do
+    local band = bands[tostring(o.level)] or { 1, levels }
+    local lo, hi = tonumber(band[1]) or 1, tonumber(band[2]) or levels
+    local lv = (k > 1) and math.ceil((i - 0.5) / k * levels) or lo
+    o.cls = o.level
+    o.level = math.min(math.max(lv, lo), hi)
+  end
+  -- nach der neuen Stufe sortieren, innerhalb der Stufe nach Preis
+  table.sort(options, function(a, b)
+    if a.level ~= b.level then return a.level < b.level end
+    return a.price < b.price
+  end)
+end
+
 local function tierInfo(level)
   for _, t in ipairs(rules.tiers or {}) do
     if t.level == level then return t end
@@ -136,15 +160,17 @@ local function isUnlocked(level)
 end
 
 -- "LV1 ab Nachtgast · LV2 ab ... " für die Statuszeile
+-- "Nächste Stufe: LV3 ab Kurvenkünstler" für die Statuszeile (nur die nächste gesperrte Stufe)
 local function unlockText()
   local c = core()
-  local parts = {}
   for _, t in ipairs(rules.tiers or {}) do
     local u = t.unlock or {}
-    if u.minRank and u.minRank > 0 then table.insert(parts, c.t('term.unlockRank', t.level, rankName(u.minRank)))
-    elseif u.minWins and u.minWins > 0 then table.insert(parts, c.t('term.unlockWins', t.level, u.minWins)) end
+    if not (c.save and isUnlocked(t.level)) then
+      if u.minRank and u.minRank > 0 then return c.t('term.unlockRank', t.level, rankName(u.minRank))
+      elseif u.minWins and u.minWins > 0 then return c.t('term.unlockWins', t.level, u.minWins) end
+    end
   end
-  return table.concat(parts, ' · ')
+  return ''
 end
 
 local function yen(usd) return core().economy().usdToPrice(usd or 0) end
@@ -157,8 +183,12 @@ end
 
 -- Katalog aus den Teilen des aktuellen Autos aufbauen ----------------------------
 
-local function currentConfig()
-  local ok, vd = pcall(function() return core_vehicle_manager.getPlayerVehicleData() end)
+local function currentConfig(vehId)
+  -- vehId: anderes Auto als das Spielerauto (z. B. das geparkte Auto, während man zu Fuß ist)
+  local ok, vd = pcall(function()
+    if vehId then return core_vehicle_manager.getVehicleData(vehId) end
+    return core_vehicle_manager.getPlayerVehicleData()
+  end)
   if not ok or not vd then return nil end
   local cfg = vd.config or {}
   -- Ab 0.40 gibt es nur noch den Teilebaum (partsTree); BeamNG macht daraus selbst eine flache
@@ -227,12 +257,12 @@ local function slotLabel(car, slot, desc)
   return (s:gsub('^%l', string.upper))
 end
 
-local function buildCatalog()
+local function buildCatalog(vehOverride)
   local c = core()
-  local veh = c.getPlayerVehicle()
+  local veh = vehOverride or c.getPlayerVehicle()
   local car = activeCar()
   if not veh or not car then return nil end
-  local cfg, vd = currentConfig()
+  local cfg, vd = currentConfig(vehOverride and veh:getID() or nil)
   if not cfg then return nil end
   if not vd.ioCtx then
     log('W', logTag, 'Shop: kein ioCtx in den Fahrzeugdaten')
@@ -321,6 +351,7 @@ local function buildCatalog()
           if a.level ~= b.level then return a.level < b.level end
           return a.price < b.price
         end)
+        spreadLevels(options)
         local parentInfo = slotParent[slot] and partInfo(slotParent[slot])
         local row = {
           id = key, slot = slot, cat = excluded and nil or catId, inAll = true,
@@ -1261,6 +1292,16 @@ end
 -- Neue Teile der Stufe fürs aktive Auto, nach Kategorie gezählt (nil, wenn kein Katalog da ist)
 local function newPartsOf(level)
   local ok, cat = pcall(getCatalog)
+  if not (ok and cat) then
+    -- zu Fuß (oder Katalog gerade gesperrt): direkt vom aktiven Auto bauen, nicht als Shop-Katalog merken.
+    -- Zu Fuß ist das Spielerfahrzeug der Fußgänger; das geparkte Auto merkt sich core.carVehId.
+    local veh = core().getPlayerVehicle()
+    if not veh then
+      local id = core().carVehId
+      veh = id and be:getObjectByID(id) or nil
+    end
+    if veh then ok, cat = pcall(buildCatalog, veh) end
+  end
   if not ok or not cat then return nil end
   local c = core()
   local counts, total = {}, 0
