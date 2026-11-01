@@ -894,7 +894,7 @@ end
 local devActions = {
   callRival = true, capture = true, dumpParts = true, dumpConfigs = true,
   cheatMoney = true, cheatWins = true, cheatRep = true, cheatHour = true, cheatDay = true,
-  cheatRepair = true, cheatFuel = true, devSpawnRival = true, devBeatRival = true, devClearRivals = true, builder = true,
+  cheatRepair = true, cheatFuel = true, devSpawnRival = true, devBeatRival = true, devClearRivals = true, builder = true, devUnlock = true,
 }
 
 function M.uiAction(action, arg)
