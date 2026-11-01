@@ -24,63 +24,63 @@ angular.module('beamng.apps')
 
   return {
     template: [
-      '<div class="bngApp hbt-root">',
-        '<svg class="hbt" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">',
+      '<div class="bngApp hxt-root">',
+        '<svg class="hxt" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">',
           '<defs>',
-            '<radialGradient id="hbtBg" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#16181c" stop-opacity=".7"/><stop offset=".8" stop-color="#0e0f12" stop-opacity=".55"/><stop offset="1" stop-color="#0e0f12" stop-opacity="0"/></radialGradient>',
+            '<radialGradient id="hxtBg" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#16181c" stop-opacity=".42"/><stop offset=".75" stop-color="#0e0f12" stop-opacity=".32"/><stop offset="1" stop-color="#0e0f12" stop-opacity="0"/></radialGradient>',
           '</defs>',
-          '<circle cx="150" cy="150" r="146" fill="url(#hbtBg)"/>',
-          '<path class="hbt-accent" d="' + arc(146, 100, 170) + '"/>',
-          '<g class="hbt-segs"></g>',
-          '<g class="hbt-nums"></g>',
-          '<text class="hbt-legend" x="150" y="96">x1000 RPM</text>',
-          '<line class="hbt-needle" x1="150" y1="58" x2="150" y2="22"/>',
-          '<text class="hbt-speed" x="150" y="186">0</text>',
-          '<text class="hbt-unit" x="150" y="204">km/h</text>',
-          '<g class="hbt-gearbox"><path class="hbt-gearbg" d="M128,214 L182,214 L172,250 L118,250 Z"/><text class="hbt-gear" x="150" y="243">N</text></g>',
-          '<g class="hbt-lamps">',
-            '<text class="hbt-lamp hbt-sigl" x="96" y="132">◀</text>',
-            '<text class="hbt-lamp hbt-sigr" x="204" y="132">▶</text>',
-            '<text class="hbt-lamp hbt-park" x="104" y="226">P</text>',
-            '<text class="hbt-lamp hbt-abs" x="196" y="226">ABS</text>',
-            '<text class="hbt-lamp hbt-beam" x="150" y="122">●</text>',
+          '<circle cx="150" cy="150" r="146" fill="url(#hxtBg)"/>',
+          '<path class="hxt-accent" d="' + arc(146, 100, 170) + '"/>',
+          '<g class="hxt-segs"></g>',
+          '<g class="hxt-nums"></g>',
+          '<text class="hxt-legend" x="150" y="96">x1000 RPM</text>',
+          '<line class="hxt-needle" x1="150" y1="58" x2="150" y2="22"/>',
+          '<text class="hxt-speed" x="150" y="186">0</text>',
+          '<text class="hxt-unit" x="150" y="204">km/h</text>',
+          '<g class="hxt-gearbox"><path class="hxt-gearbg" d="M128,214 L182,214 L172,250 L118,250 Z"/><text class="hxt-gear" x="150" y="243">N</text></g>',
+          '<g class="hxt-lamps">',
+            '<text class="hxt-lamp hxt-sigl" x="96" y="132">◀</text>',
+            '<text class="hxt-lamp hxt-sigr" x="204" y="132">▶</text>',
+            '<text class="hxt-lamp hxt-park" x="104" y="226">P</text>',
+            '<text class="hxt-lamp hxt-abs" x="196" y="226">ABS</text>',
+            '<text class="hxt-lamp hxt-beam" x="150" y="122">●</text>',
           '</g>',
-          '<g class="hbt-bars">',
-            '<text class="hbt-blabel" x="88" y="276">F</text><rect class="hbt-btrack" x="96" y="270" width="48" height="4"/><rect class="hbt-fuel" x="96" y="270" width="48" height="4"/>',
-            '<text class="hbt-blabel" x="212" y="276">T</text><rect class="hbt-btrack" x="156" y="270" width="48" height="4"/><rect class="hbt-temp" x="156" y="270" width="0" height="4"/>',
+          '<g class="hxt-bars">',
+            '<text class="hxt-blabel" x="88" y="276">F</text><rect class="hxt-btrack" x="96" y="270" width="48" height="4"/><rect class="hxt-fuel" x="96" y="270" width="48" height="4"/>',
+            '<text class="hxt-blabel" x="212" y="276">T</text><rect class="hxt-btrack" x="156" y="270" width="48" height="4"/><rect class="hxt-temp" x="156" y="270" width="0" height="4"/>',
           '</g>',
         '</svg>',
         '<style>',
-          '.hbt-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;}',
-          '.hbt-root.is-off{opacity:0;}',
-          '.hbt{width:100%;height:100%;font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}',
-          '.hbt-accent{fill:none;stroke:#ff6600;stroke-width:2;opacity:.9;}',
-          '.hbt-seg{fill:rgba(255,255,255,.1);}',
-          '.hbt-seg.on{fill:#f4f4f4;}',
-          '.hbt-seg.hi.on{fill:#ff6600;}',
-          '.hbt-seg.red{fill:rgba(255,58,40,.35);}',
-          '.hbt-seg.red.on{fill:#ff3a28;}',
-          '.hbt-num{fill:rgba(244,244,244,.8);font-size:15px;font-weight:900;font-style:italic;text-anchor:middle;dominant-baseline:middle;}',
-          '.hbt-num.red{fill:#ff5a3c;}',
-          '.hbt-legend{fill:rgba(244,244,244,.4);font-size:8px;letter-spacing:1.5px;text-anchor:middle;}',
-          '.hbt-needle{stroke:#ff6600;stroke-width:3;stroke-linecap:round;}',
-                    '.hbt-speed{fill:#f4f4f4;font-size:52px;font-weight:900;font-style:italic;text-anchor:middle;font-variant-numeric:tabular-nums;letter-spacing:-1px;}',
-          '.hbt-unit{fill:rgba(244,244,244,.55);font-size:10px;letter-spacing:2.5px;text-anchor:middle;text-transform:uppercase;}',
-          '.hbt-gearbg{fill:#9c3a2c;}',
-          '.hbt-gearbox{transition:opacity .1s;}',
-          '.hbt-root.is-limit .hbt-gearbg{fill:#ff3a28;animation:hbtFlash .12s steps(2) infinite;}',
-          '.hbt-gear{fill:#fff;font-size:30px;font-weight:900;font-style:italic;text-anchor:middle;}',
-          '.hbt-lamp{fill:rgba(255,255,255,.12);font-size:12px;font-weight:900;text-anchor:middle;}',
-          '.hbt-lamp.on{fill:#ff6600;}',
-          '.hbt-sigl.on,.hbt-sigr.on{fill:#3fbf5a;}',
-          '.hbt-beam.on{fill:#3fbf5a;}.hbt-beam.high{fill:#4d93ec;}',
-          '.hbt-abs.on,.hbt-park.on{fill:#ff5a3c;}',
-          '.hbt-blabel{fill:rgba(244,244,244,.5);font-size:9px;font-weight:700;text-anchor:middle;}',
-          '.hbt-btrack{fill:rgba(255,255,255,.12);}',
-          '.hbt-fuel{fill:#f4f4f4;}.hbt-fuel.low{fill:#ff5a3c;animation:hbtBlink .8s ease-in-out infinite alternate;}',
-          '.hbt-temp{fill:#4d93ec;}.hbt-temp.hot{fill:#ff5a3c;}',
-          '@keyframes hbtFlash{50%{fill:#9c3a2c;}}',
-          '@keyframes hbtBlink{to{opacity:.3;}}',
+          '.hxt-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;}',
+          '.hxt-root.is-off{opacity:0;}',
+          '.hxt{width:100%;height:100%;font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}',
+          '.hxt-accent{fill:none;stroke:#ff6600;stroke-width:2;opacity:.9;}',
+          '.hxt-seg{fill:rgba(255,255,255,.1);}',
+          '.hxt-seg.on{fill:#f4f4f4;}',
+          '.hxt-seg.hi.on{fill:#ff6600;}',
+          '.hxt-seg.red{fill:rgba(255,58,40,.35);}',
+          '.hxt-seg.red.on{fill:#ff3a28;}',
+          '.hxt-num{fill:rgba(244,244,244,.8);font-size:15px;font-weight:900;font-style:italic;text-anchor:middle;dominant-baseline:middle;}',
+          '.hxt-num.red{fill:#ff5a3c;}',
+          '.hxt-legend{fill:rgba(244,244,244,.4);font-size:8px;letter-spacing:1.5px;text-anchor:middle;}',
+          '.hxt-needle{stroke:#ff6600;stroke-width:3;stroke-linecap:round;}',
+                    '.hxt-speed{fill:#f4f4f4;font-size:52px;font-weight:900;font-style:italic;text-anchor:middle;font-variant-numeric:tabular-nums;letter-spacing:-1px;}',
+          '.hxt-unit{fill:rgba(244,244,244,.55);font-size:10px;letter-spacing:2.5px;text-anchor:middle;text-transform:uppercase;}',
+          '.hxt-gearbg{fill:#9c3a2c;}',
+          '.hxt-gearbox{transition:opacity .1s;}',
+          '.hxt-root.is-limit .hxt-gearbg{fill:#ff3a28;animation:hxtFlash .12s steps(2) infinite;}',
+          '.hxt-gear{fill:#fff;font-size:30px;font-weight:900;font-style:italic;text-anchor:middle;}',
+          '.hxt-lamp{fill:rgba(255,255,255,.12);font-size:12px;font-weight:900;text-anchor:middle;}',
+          '.hxt-lamp.on{fill:#ff6600;}',
+          '.hxt-sigl.on,.hxt-sigr.on{fill:#3fbf5a;}',
+          '.hxt-beam.on{fill:#3fbf5a;}.hxt-beam.high{fill:#4d93ec;}',
+          '.hxt-abs.on,.hxt-park.on{fill:#ff5a3c;}',
+          '.hxt-blabel{fill:rgba(244,244,244,.5);font-size:9px;font-weight:700;text-anchor:middle;}',
+          '.hxt-btrack{fill:rgba(255,255,255,.12);}',
+          '.hxt-fuel{fill:#f4f4f4;}.hxt-fuel.low{fill:#ff5a3c;animation:hxtBlink .8s ease-in-out infinite alternate;}',
+          '.hxt-temp{fill:#4d93ec;}.hxt-temp.hot{fill:#ff5a3c;}',
+          '@keyframes hxtFlash{50%{fill:#9c3a2c;}}',
+          '@keyframes hxtBlink{to{opacity:.3;}}',
         '</style>',
       '</div>'
     ].join(''),
@@ -89,10 +89,10 @@ angular.module('beamng.apps')
       'use strict'
       var root = element[0]
       var q = function (s) { return root.querySelector(s) }
-      var segG = q('.hbt-segs'), numG = q('.hbt-nums'), needle = q('.hbt-needle')
-      var speedEl = q('.hbt-speed'), unitEl = q('.hbt-unit'), gearEl = q('.hbt-gear'), legendEl = q('.hbt-legend')
-      var lamps = { sigl: q('.hbt-sigl'), sigr: q('.hbt-sigr'), park: q('.hbt-park'), abs: q('.hbt-abs'), beam: q('.hbt-beam') }
-      var fuelEl = q('.hbt-fuel'), tempEl = q('.hbt-temp')
+      var segG = q('.hxt-segs'), numG = q('.hxt-nums'), needle = q('.hxt-needle')
+      var speedEl = q('.hxt-speed'), unitEl = q('.hxt-unit'), gearEl = q('.hxt-gear'), legendEl = q('.hxt-legend')
+      var lamps = { sigl: q('.hxt-sigl'), sigr: q('.hxt-sigr'), park: q('.hxt-park'), abs: q('.hxt-abs'), beam: q('.hxt-beam') }
+      var fuelEl = q('.hxt-fuel'), tempEl = q('.hxt-temp')
       var segs = []
       var fullRange = 0, maxRpm = 0
       var cache = {}
@@ -120,7 +120,7 @@ angular.module('beamng.apps')
           var p = document.createElementNS(SVGNS, 'path')
           var rIn = R_IN + (t * 6) // Segmente werden nach außen leicht breiter (TXR-artiger Keil)
           p.setAttribute('d', seg(rIn - 6, R_OUT, a1, a2))
-          var c = 'hbt-seg'
+          var c = 'hxt-seg'
           if (t * fullRange > maxRpm) c += ' red'
           else if (t * fullRange > maxRpm * 0.85) c += ' hi'
           p.setAttribute('class', c)
@@ -132,7 +132,7 @@ angular.module('beamng.apps')
           var pos = pt(R_NUM - 8, a)
           var n = document.createElementNS(SVGNS, 'text')
           n.setAttribute('x', pos[0]); n.setAttribute('y', pos[1])
-          n.setAttribute('class', 'hbt-num' + (r > maxRpm ? ' red' : ''))
+          n.setAttribute('class', 'hxt-num' + (r > maxRpm ? ' red' : ''))
           n.textContent = String(r / div)
           numG.appendChild(n)
         }

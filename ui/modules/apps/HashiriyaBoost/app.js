@@ -6,33 +6,33 @@ angular.module('beamng.apps')
 .directive('hashiriyaBoost', [function () {
   return {
     template: [
-      '<div class="bngApp hbb-root is-off">',
-        '<div class="hbb">',
-          '<div class="hbb-val"><span class="hbb-net">Boost</span><b class="hbb-num">0.0</b><small class="hbb-unit">bar</small></div>',
-          '<div class="hbb-bar">',
-            '<span class="hbb-red"></span><span class="hbb-fill"></span><span class="hbb-zero"></span>',
+      '<div class="bngApp hxb-root is-off">',
+        '<div class="hxb">',
+          '<div class="hxb-val"><span class="hxb-net">Boost</span><b class="hxb-num">0.0</b><small class="hxb-unit">bar</small></div>',
+          '<div class="hxb-bar">',
+            '<span class="hxb-red"></span><span class="hxb-fill"></span><span class="hxb-zero"></span>',
           '</div>',
-          '<div class="hbb-scale"><span class="hbb-min">-1</span><span class="hbb-max">1.5</span></div>',
+          '<div class="hxb-scale"><span class="hxb-min">-1</span><span class="hxb-max">1.5</span></div>',
         '</div>',
         '<style>',
-          '.hbb-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;',
+          '.hxb-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;',
             'font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;color:#f4f4f4;}',
-          '.hbb-root.is-off{opacity:0;}',
-          '.hbb{--ac:#ff6600;position:absolute;left:0;right:0;bottom:0;padding:3px 14px 5px 8px;box-sizing:border-box;',
+          '.hxb-root.is-off{opacity:0;}',
+          '.hxb{--ac:#ff6600;position:absolute;left:0;right:0;bottom:0;padding:3px 14px 5px 8px;box-sizing:border-box;',
             'background:linear-gradient(90deg,rgba(10,11,14,.62),rgba(10,11,14,.3) 70%,rgba(10,11,14,0));border-left:3px solid var(--ac);',
             'text-shadow:0 1px 2px rgba(0,0,0,.8);}',
-          '.hbb-net{font-size:10px;font-weight:900;font-style:italic;letter-spacing:2px;text-transform:uppercase;color:var(--ac);margin-right:4px;}',
-          '.hbb-val{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;}',
-          '.hbb-num{font-size:20px;line-height:22px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;}',
-          '.hbb-unit{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,244,244,.6);}',
-          '.hbb-bar{position:relative;height:4px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 5px,transparent 5px 7px);',
+          '.hxb-net{font-size:10px;font-weight:900;font-style:italic;letter-spacing:2px;text-transform:uppercase;color:var(--ac);margin-right:4px;}',
+          '.hxb-val{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;}',
+          '.hxb-num{font-size:20px;line-height:22px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;}',
+          '.hxb-unit{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,244,244,.6);}',
+          '.hxb-bar{position:relative;height:4px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 5px,transparent 5px 7px);',
             'clip-path:polygon(0 0,100% 0,calc(100% - 4px) 100%,0 100%);}',
-          '.hbb-fill{position:absolute;top:0;bottom:0;left:0;width:0;background:#f4f4f4;transition:width .08s linear;}',
-          '.hbb-fill.hi{background:#ff6600;}',
-          '.hbb-fill.red{background:#ff3a28;}',
-          '.hbb-red{position:absolute;top:0;bottom:0;left:80%;right:0;background:rgba(255,58,40,.3);}',
-          '.hbb-zero{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ac);}',
-          '.hbb-scale{display:flex;justify-content:space-between;font-size:9px;color:rgba(244,244,244,.45);margin-top:1px;font-variant-numeric:tabular-nums;}',
+          '.hxb-fill{position:absolute;top:0;bottom:0;left:0;width:0;background:#f4f4f4;transition:width .08s linear;}',
+          '.hxb-fill.hi{background:#ff6600;}',
+          '.hxb-fill.red{background:#ff3a28;}',
+          '.hxb-red{position:absolute;top:0;bottom:0;left:80%;right:0;background:rgba(255,58,40,.3);}',
+          '.hxb-zero{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ac);}',
+          '.hxb-scale{display:flex;justify-content:space-between;font-size:9px;color:rgba(244,244,244,.45);margin-top:1px;font-variant-numeric:tabular-nums;}',
         '</style>',
       '</div>'
     ].join(''),
@@ -41,8 +41,8 @@ angular.module('beamng.apps')
       'use strict'
       var root = element[0]
       var q = function (s) { return root.querySelector(s) }
-      var numEl = q('.hbb-num'), unitEl = q('.hbb-unit'), fillEl = q('.hbb-fill'), zeroEl = q('.hbb-zero')
-      var minEl = q('.hbb-min'), maxEl = q('.hbb-max')
+      var numEl = q('.hxb-num'), unitEl = q('.hxb-unit'), fillEl = q('.hxb-fill'), zeroEl = q('.hxb-zero')
+      var minEl = q('.hxb-min'), maxEl = q('.hxb-max')
       var streamsList = ['forcedInductionInfo']
       var hideTimer = null
       var last = {}
