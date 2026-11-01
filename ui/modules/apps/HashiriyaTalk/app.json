@@ -4,7 +4,7 @@
   "types": [
     "ui.apps.categories.gameplay"
   ],
-  "description": "Sprechblase mit Porträt: Sprüche der Rivalen beim Herausfordern, nach Sieg und Niederlage.",
+  "description": "Sprechblase mit Porträt: Sprüche der Rivalen beim Herausfordern, nach Sieg und Niederlage, und Gespräche mit Fahrern an den PAs.",
   "css": {
     "bottom": "120px",
     "width": "760px",

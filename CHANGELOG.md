@@ -1,5 +1,16 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.4 (Stand 01.11.2026)
+
+### Neu: Gespräche an den Parkplätzen (PA)
+- An Shibaura PA und Tatsumi PA stehen jetzt Fahrer neben ihren geparkten Autos: nachts 3 bis 6, tagsüber 1 bis 2. Es gibt 12 Typen, zum Beispiel Lkw-Fahrer, Fotografin, Alter Hase, Parkwächter und Drift-Fan. Jeder hat eigene Autos und drei Porträts.
+- Steig aus und geh zu Fuß hin. Dann erscheint „[T] Reden“. Mit T redest du, ein weiterer Druck zeigt den nächsten Satz oder beendet das Gespräch.
+- Was die Fahrer erzählen, hängt von deinem Fortschritt ab: Gerüchte über Crews ab dem passenden Rang, Gerüchte über Leader, wenn die Crew fast geschlagen ist, und wer heute Nacht auf dich wartet.
+- Hinweise auf Wanderer und Bosse schalten den Hinweis im Rivalen-Lexikon frei. So erfährst du, wie man sie trifft.
+- Dieselbe Nacht zeigt an einer PA immer dieselben Leute, in der nächsten Nacht stehen andere da. Sprichst du jemanden zweimal an, sagt er dir das auch.
+- Fahrer drehen sich zu dir, wenn du näher kommst.
+- Neue Taste „Reden“ (Standard T). Sie steht auch im Tasten-Check.
+
 ## Alpha 0.3.5 (Stand 01.11.2026)
 
 ### Fehler behoben

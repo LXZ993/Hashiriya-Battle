@@ -174,6 +174,7 @@ local keyActions = {
   { id = 'left', action = 'toggle_left_signal' },
   { id = 'right', action = 'toggle_right_signal' },
   { id = 'menu', action = 'hashiriyaToggleMenu' },
+  { id = 'talk', action = 'hashiriyaTalk' },
 }
 
 -- Lesbare Tastennamen: "comma" -> ",", "modifier2 btn_lt" -> "Mod2 + LT"
@@ -232,6 +233,22 @@ local function keyStatus()
     table.insert(list, { id = k.id, keys = keys and table.concat(keys, ' / ') or nil })
   end
   return list, missing
+end
+
+-- Lesbarer Name der ersten Taste für eine Aktion (z. B. für "[T] Reden"), nil = nicht belegt
+function M.keyFor(action)
+  local b = rawget(_G, 'core_input_bindings')
+  for _, device in ipairs(b and b.bindings or {}) do
+    local d = tostring(device.devname or '')
+    if d:find('^keyboard') then
+      for _, binding in ipairs((device.contents or {}).bindings or {}) do
+        if binding.action == action and not binding.unused and binding.control and binding.control ~= '' then
+          return prettyControl(binding.control)
+        end
+      end
+    end
+  end
+  return nil
 end
 
 -- BeamNG-Steuerung öffnen (wie der Knopf im Spiel): mit Aktion direkt den Belegen-Dialog dafür

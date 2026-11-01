@@ -1,89 +1,530 @@
 {
-  "_hinweis": "PA-Gespräche (Texte, das Chat-System kommt noch). speakers = allgemeine Figuren an den Parkplätzen. kind: small = belanglos, tip = Spieltipp, crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader (wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet.",
+  "_hinweis": "PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader (wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet.",
+  "pa": {
+    "_hinweis": "Fahrer an den PAs (napSpots der Kartendatei). nightCount/dayCount = wie viele Fahrer nachts/tagsüber (von, bis). spawnDistance = ab dieser Entfernung zur PA-Mitte erscheinen sie, despawnDistance = ab hier verschwinden sie wieder (m). spotRadius = in diesem Umkreis um die PA-Mitte werden Parkbuchten gesucht (m). talkDistance = so nah musst du zu Fuß ran (m), lookDistance = ab hier dreht sich der Fahrer zu dir. importantChance = Chance, dass ein Fahrer ein Gerücht oder einen Hinweis statt Smalltalk hat. secondLineChance = Chance auf einen zweiten Satz. rankSlack = so viele Ränge vor dem nötigen Rang hört man schon von Crews und Wanderern. heardWeight = Gewicht für Sätze, die man schon kennt (1 = normal, 0 = nie wieder). excludeConfigs = Configs mit diesen Wörtern parken nie an der PA. portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg).",
+    "nightCount": [
+      3,
+      6
+    ],
+    "dayCount": [
+      1,
+      2
+    ],
+    "spawnDistance": 230,
+    "despawnDistance": 330,
+    "spotRadius": 70,
+    "talkDistance": 2.8,
+    "lookDistance": 9,
+    "importantChance": 0.6,
+    "secondLineChance": 0.35,
+    "rankSlack": 1,
+    "heardWeight": 0.15,
+    "portraitVariants": 3,
+    "excludeConfigs": [
+      "police",
+      "pursuit",
+      "interceptor",
+      "undercover",
+      "race",
+      "rally",
+      "drag",
+      "track",
+      "gymkhana",
+      "safety",
+      "baja",
+      "stunt",
+      "derby",
+      "prerunner",
+      "crawler",
+      "ambulance",
+      "fire"
+    ]
+  },
   "speakers": [
     {
       "id": "fan",
       "name": {
         "de": "Ring-Fan",
         "en": "Loop fan"
-      }
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 1,
+      "cars": [
+        {
+          "model": "sunburst2"
+        },
+        {
+          "model": "covet"
+        },
+        {
+          "model": "pessima"
+        }
+      ],
+      "color": [
+        0.9,
+        0.45,
+        0.1
+      ],
+      "look": [
+        {
+          "jacke": "hoodie",
+          "haare": "capback"
+        },
+        {
+          "jacke": "tshirt",
+          "haare": "stachel",
+          "hals": "kopfhoerer"
+        },
+        {
+          "jacke": "sukajan",
+          "haare": "kurz"
+        }
+      ]
     },
     {
       "id": "mechanic",
       "name": {
         "de": "Mechaniker",
         "en": "Mechanic"
-      }
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 2,
+      "cars": [
+        {
+          "model": "pickup"
+        },
+        {
+          "model": "van"
+        }
+      ],
+      "color": [
+        0.25,
+        0.35,
+        0.55
+      ],
+      "look": [
+        {
+          "jacke": "overall",
+          "haare": "cap",
+          "hals": "handtuch"
+        },
+        {
+          "jacke": "overall",
+          "haare": "bandana"
+        },
+        {
+          "jacke": "overall",
+          "haare": "kahl",
+          "brille": "goggles"
+        }
+      ]
     },
     {
       "id": "trucker",
       "name": {
         "de": "Lkw-Fahrer",
         "en": "Trucker"
-      }
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 3,
+      "cars": [
+        {
+          "model": "van"
+        },
+        {
+          "model": "pickup"
+        }
+      ],
+      "color": [
+        0.7,
+        0.6,
+        0.2
+      ],
+      "look": [
+        {
+          "jacke": "warnweste",
+          "haare": "cap",
+          "hals": "handtuch"
+        },
+        {
+          "jacke": "warnweste",
+          "haare": "muetze"
+        },
+        {
+          "jacke": "jeans",
+          "haare": "kurz",
+          "extra": "zahnstocher"
+        }
+      ]
     },
     {
       "id": "taxi",
       "name": {
         "de": "Taxifahrer",
         "en": "Taxi driver"
-      }
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 2,
+      "cars": [
+        {
+          "model": "fullsize",
+          "match": "taxi"
+        },
+        {
+          "model": "midsize",
+          "match": "taxi"
+        },
+        {
+          "model": "fullsize"
+        }
+      ],
+      "color": [
+        0.85,
+        0.75,
+        0.2
+      ],
+      "look": [
+        {
+          "jacke": "weste",
+          "haare": "scheitel",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "anzug",
+          "haare": "kurz",
+          "brille": "halb"
+        },
+        {
+          "jacke": "weste",
+          "haare": "kahl",
+          "extra": "maske"
+        }
+      ]
     },
     {
       "id": "photo",
       "name": {
         "de": "Fotografin",
         "en": "Photographer"
-      }
+      },
+      "figur": "f",
+      "night": 2,
+      "day": 1,
+      "cars": [
+        {
+          "model": "covet"
+        },
+        {
+          "model": "etkc"
+        }
+      ],
+      "color": [
+        0.75,
+        0.3,
+        0.6
+      ],
+      "look": [
+        {
+          "jacke": "jeans",
+          "haare": "bobcut",
+          "hals": "kette"
+        },
+        {
+          "jacke": "bomber",
+          "haare": "zopf",
+          "brille": "rund"
+        },
+        {
+          "jacke": "windbreaker",
+          "haare": "capback"
+        }
+      ]
     },
     {
       "id": "veteran",
       "name": {
         "de": "Alter Hase",
         "en": "Old hand"
-      }
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 1,
+      "cars": [
+        {
+          "model": "moonhawk"
+        },
+        {
+          "model": "bluebuck"
+        },
+        {
+          "model": "miramar"
+        },
+        {
+          "model": "sbr"
+        }
+      ],
+      "color": [
+        0.55,
+        0.55,
+        0.6
+      ],
+      "look": [
+        {
+          "jacke": "leder",
+          "haare": "tolle",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "mantel",
+          "haare": "kahl",
+          "brille": "sonne"
+        },
+        {
+          "jacke": "strick",
+          "haare": "scheitel",
+          "haarfarbe": "silber",
+          "brille": "rund"
+        }
+      ]
     },
     {
       "id": "rookie",
       "name": {
         "de": "Neuling",
         "en": "Rookie"
-      }
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 1,
+      "cars": [
+        {
+          "model": "covet"
+        },
+        {
+          "model": "pessima"
+        },
+        {
+          "model": "bx"
+        }
+      ],
+      "color": [
+        0.3,
+        0.75,
+        0.4
+      ],
+      "look": [
+        {
+          "jacke": "hoodie",
+          "haare": "stachel"
+        },
+        {
+          "jacke": "tshirt",
+          "haare": "kurz"
+        },
+        {
+          "jacke": "training",
+          "haare": "capback"
+        }
+      ]
     },
     {
       "id": "guard",
       "name": {
         "de": "Parkwächter",
         "en": "Car park attendant"
-      }
+      },
+      "figur": "m",
+      "night": 1,
+      "day": 2,
+      "cars": [],
+      "color": [
+        0.2,
+        0.3,
+        0.25
+      ],
+      "look": [
+        {
+          "jacke": "warnweste",
+          "haare": "muetze"
+        },
+        {
+          "jacke": "warnweste",
+          "haare": "cap",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "militaer",
+          "haare": "muetze",
+          "extra": "maske"
+        }
+      ]
     },
     {
       "id": "courier",
       "name": {
         "de": "Kurier",
         "en": "Courier"
-      }
+      },
+      "figur": "m",
+      "night": 1,
+      "day": 3,
+      "cars": [
+        {
+          "model": "van"
+        },
+        {
+          "model": "pickup"
+        }
+      ],
+      "color": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "look": [
+        {
+          "jacke": "windbreaker",
+          "haare": "capback",
+          "extra": "headset"
+        },
+        {
+          "jacke": "polo",
+          "haare": "cap"
+        },
+        {
+          "jacke": "windbreaker",
+          "haare": "kurz",
+          "hals": "kopfhoerer"
+        }
+      ]
     },
     {
       "id": "student",
       "name": {
         "de": "Studentin",
         "en": "Student"
-      }
+      },
+      "figur": "f",
+      "night": 2,
+      "day": 1,
+      "cars": [
+        {
+          "model": "covet"
+        },
+        {
+          "model": "pessima"
+        }
+      ],
+      "color": [
+        0.6,
+        0.7,
+        0.95
+      ],
+      "look": [
+        {
+          "jacke": "strick",
+          "haare": "hime",
+          "hals": "schal"
+        },
+        {
+          "jacke": "bluse",
+          "haare": "zoepfe",
+          "brille": "rund"
+        },
+        {
+          "jacke": "hoodie",
+          "haare": "dutt"
+        }
+      ]
     },
     {
       "id": "salaryman",
       "name": {
         "de": "Angestellter",
         "en": "Office worker"
-      }
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 2,
+      "cars": [
+        {
+          "model": "midsize"
+        },
+        {
+          "model": "etki"
+        },
+        {
+          "model": "legran"
+        }
+      ],
+      "color": [
+        0.35,
+        0.35,
+        0.4
+      ],
+      "look": [
+        {
+          "jacke": "anzug",
+          "haare": "scheitel",
+          "brille": "halb"
+        },
+        {
+          "jacke": "anzug",
+          "haare": "kurz"
+        },
+        {
+          "jacke": "mantel",
+          "haare": "scheitel",
+          "brille": "rund"
+        }
+      ]
     },
     {
       "id": "drifter",
       "name": {
         "de": "Drift-Fan",
         "en": "Drift fan"
-      }
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 0,
+      "cars": [
+        {
+          "model": "sunburst2",
+          "match": "drift"
+        },
+        {
+          "model": "bx"
+        },
+        {
+          "model": "sunburst2"
+        }
+      ],
+      "color": [
+        0.85,
+        0.15,
+        0.2
+      ],
+      "look": [
+        {
+          "jacke": "sukajan",
+          "haare": "stachel",
+          "extra": "zahnstocher"
+        },
+        {
+          "jacke": "tokko",
+          "haare": "irokese"
+        },
+        {
+          "jacke": "bomber",
+          "haare": "bandana",
+          "brille": "sonne"
+        }
+      ]
     }
   ],
   "talk": [
@@ -1514,6 +1955,26 @@
       "about": "w_kaminari"
     },
     {
+      "id": "wanderer_43",
+      "kind": "wanderer",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Ein Amerikaner in einem deutschen I-Series fährt erst, wenn der Ginza Neon Club gefallen ist. Spät, zwischen elf und vier.",
+        "en": "An American in a German I-Series only shows up once the Ginza Neon Club has fallen. Late, between eleven and four."
+      },
+      "about": "w_henry"
+    },
+    {
+      "id": "wanderer_44",
+      "kind": "wanderer",
+      "speaker": "drifter",
+      "text": {
+        "de": "Da fährt einer im BX, der glaubt, er wäre der Schnellste. Er kommt angeblich erst, wenn dich sieben Blitzer erwischt haben.",
+        "en": "There's a guy in a BX who thinks he's the fastest. Supposedly he only comes once seven speed cameras have caught you."
+      },
+      "about": "w_alex_zockt"
+    },
+    {
       "id": "boss_1",
       "kind": "boss",
       "speaker": "veteran",
@@ -1595,6 +2056,78 @@
       "text": {
         "de": "Seit deinem Sieg gegen {name} redet hier jeder von einer Revanche.",
         "en": "Since you beat {name}, everyone here is talking about a rematch."
+      }
+    },
+    {
+      "id": "again_1",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Hab dir doch schon alles erzählt. Fahr los, die Nacht wartet nicht.",
+        "en": "I already told you everything. Get going, the night won't wait."
+      }
+    },
+    {
+      "id": "again_2",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Mehr weiß ich gerade auch nicht. Frag mal die anderen hier.",
+        "en": "That's all I know right now. Ask the others around here."
+      }
+    },
+    {
+      "id": "again_3",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Du schon wieder? Wenn ich was Neues höre, sag ich Bescheid.",
+        "en": "You again? If I hear anything new, I'll let you know."
+      }
+    },
+    {
+      "id": "again_4",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Komm morgen wieder. Bis dahin hat sich bestimmt was rumgesprochen.",
+        "en": "Come back tomorrow. Word gets around by then."
+      }
+    },
+    {
+      "id": "again_5",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Ich trink nur noch meinen Kaffee aus. Dann bin ich auch weg.",
+        "en": "Just finishing my coffee. Then I'm off too."
+      }
+    },
+    {
+      "id": "again_6",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Wenn du so viel redest wie du fährst, wird das heute nichts mehr.",
+        "en": "If you talk as much as you drive, nothing's happening tonight."
+      }
+    },
+    {
+      "id": "again_7",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Mehr gibt es nicht zu erzählen. Ehrlich.",
+        "en": "There's nothing more to tell. Honestly."
+      }
+    },
+    {
+      "id": "again_8",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Schau dich lieber auf dem Ring um als hier auf dem Parkplatz.",
+        "en": "Better look around on the loop than here in the car park."
       }
     }
   ]
