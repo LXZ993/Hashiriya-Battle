@@ -1,0 +1,516 @@
+[
+{
+"command": "document.find",
+"params": {
+"name": "fxblur005",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur008",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 5
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur009",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds_Haare",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 45,
+"x": 0,
+"y": 6,
+"blur": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur012",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 6
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur013",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 4
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur014",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 2
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur015",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 4
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur016",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 6
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur019",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 22.359999999999996
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur020",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 17.39111111111111
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur021",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 2
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur022",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 15.651999999999997
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur025",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 10
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur026",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 5
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur027",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 5
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur028",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 10
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur033",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 12
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur035",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 14
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur036",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 6
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur037",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds_Jacke",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 30,
+"x": 0,
+"y": 4,
+"blur": 6
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur040",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 12.571428571428571
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur041",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 9.777777777777779
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur042",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 2
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur043",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8.8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds_Kopf",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 35,
+"x": 0,
+"y": 8,
+"blur": 10
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxglowled046",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.outerGlow",
+"params": {
+"color": "#bfe0ff",
+"opacity": 85,
+"blur": 6,
+"mode": "screen"
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur047",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 2
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds_Extra_Kopf",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 40,
+"x": 0,
+"y": 3,
+"blur": 4
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds_Brille",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 45,
+"x": 0,
+"y": 4,
+"blur": 5
+}
+}
+}
+]
