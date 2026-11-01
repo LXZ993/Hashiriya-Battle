@@ -552,6 +552,28 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li><b>Neue Gegner in rivals.json eingetragen:</b> "rivals.json laden" klicken und die Datei aus <span class="path">lua\ge\extensions\hashiriyaBattle\data\</span> wählen. Oder einmal <code>python tools\silhouette\build_data.py</code> ausführen, dann ist sie fest im Tool.</li>
 </ul>
 <div class="box tip"><b>Später im Spiel</b>Geplant ist: Jeder Gegner bekommt in <code>rivals.json</code> optional ein Feld <code>"silhouette": {"haare": "tolle", "brille": "sonne"}</code>. Was fehlt, wird wie im Tool automatisch aus der ID berechnet. Das Tool liest dieses Feld schon heute mit. Genauso <code>"figur": "f"</code> oder <code>"m"</code>, um Frau/Mann fest vorzugeben (danach <code>build_data.py</code> ausführen oder "rivals.json laden").</div>
+<h3>Version 2: schönere Figuren mit VectorCraft (in Arbeit)</h3>
+<p>Die Bobs werden neu gezeichnet: weiche Verläufe, Glanzlichter, Schatten und leuchtende Pixel-Augen statt flacher Flächen. Gerendert wird mit <b>VectorCraft</b>, liegt portabel unter <span class="path">F:\BeamNG\current\hashiriya_tools\vectorcraft\</span>. Das alte Tool oben bleibt, bis die neuen Teile fertig eingebaut sind.</p>
+<ul>
+<li><b>Wo:</b> <span class="path">tools\silhouette\vc\</span>. <code>core.py</code> enthält die Grundlagen (Schattierung, Ebenen), <code>parts_head.py</code> die Kopfteile, <code>parts_body.py</code> Körper und Kleidung, <code>make.py</code> setzt alles zusammen.</li>
+<li><b>Teile:</b>
+<ul>
+<li>Kopf und Gesicht: 8 Augen, 16 Frisuren (z. B. Tolle, Undercut, Irokese, Afro, Bob, Hime-Schnitt, Dutt, Zöpfe), 7 Kopfbedeckungen (Cap, Cap rückwärts, Strickmütze, Feldmütze, Hachimaki, Bandana, Trilby), 5 Brillen, 4 Ohrteile und eine Maske.</li>
+<li>Kleidung: 18 Oberteile, z. B. Hoodie, Pelzmantel, Feldjacke, Lederjacke, Bomber, Anzug, Kostüm, Tokkou-Mantel, Trainingsjacke, Rennanzug, Jeansjacke, Sukajan, Parka, Weste, Bluse.</li>
+<li>Dazu 6 Halsteile: Kopfhörer, Hundemarken, Goldkette, Schal, Halsband, Handtuch.</li>
+</ul></li>
+<li><b>Logisch statt zufällig:</b>
+<ul>
+<li>Jedes Oberteil hat feste Plätze für Crew-Abzeichen und Rang, und die Art passt zum Stoff: Stoffaufnäher auf Hoodie und Jacken, Anstecknadel auf Anzug, Pelz und Pullover, Aufdruck auf dem T-Shirt, Stickerei auf Sukajan und Tokkou. Beim Tokkou-Mantel ist der Crewname schon eingestickt. Die Plätze stehen in <code>GARMENTS</code> in <code>parts_body.py</code>.</li>
+<li>Halsteile gibt es nur bei passendem Ausschnitt, zum Beispiel keine Hundemarken über Pelz oder Krawatte.</li>
+<li>Hüte gibt es nur bei passender Frisur und Kleidung: keine Cap über Tolle oder Dutt, die Feldmütze nur zur Feldjacke, den Trilby nur zu eleganter Kleidung, keine Cap zum Anzug.</li>
+<li>Eine Sonnenbrille im Haar gibt es nur ohne Hut.</li>
+<li>Die Regeln stehen in <code>make.py</code> (<code>allowed_hats</code>, <code>allowed_glasses</code>, <code>allowed_necks</code>).</li>
+</ul></li>
+<li><b>Bauen:</b> <code>python tools\silhouette\vc\make.py AUSGABEORDNER</code> erzeugt 12 Musterfiguren und den Katalog. Mit <code>--uebersicht</code> kommt je Teil eine Beispielfigur dazu. Rendern geht so: <code>vectorcraft-cli run --in X.svg --commands X_steps.json --export X.png --export X.psd --scale 2</code>.</li>
+<li><b>Eine PSD mit allem:</b> <code>katalog.psd</code> enthält jedes Teil als eigene Ebene auf einer Leinwand. Die Ebenen heißen z. B. <code>Oberteil_W_pelz</code>, <code>Haare_tolle</code>, <code>Kopfbedeckung_cap</code>, <code>Hals_kette</code>. Blende ein, was du sehen willst, und bearbeite es in Photoshop oder PhotoCraft. Die gerenderten Dateien liegen unter <span class="path">F:\BeamNG\current\hashiriya_tools\vc_lab\v3\</span>.</li>
+<li><b>Frauen:</b> Schultern und Kleidung sind auf 86 % Breite verschmälert. Dazu kommen Wimpern im Visier und eine dezente Brustform bei eng anliegenden Oberteilen.</li>
+</ul>
 </section>
 
 <section id="autos">
