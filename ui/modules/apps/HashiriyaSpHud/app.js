@@ -19,6 +19,7 @@ angular.module('beamng.apps')
             '<div class="hbh-id hbh-id-r">' +
               '<div class="hbh-car">{{ b.rivalCar | uppercase }}</div>' +
               '<div class="hbh-badge hbh-badge-r" ng-class="{\'hbh-badge-lead\': b.rivalTag == \'leader\', \'hbh-badge-wand\': b.rivalTag == \'wanderer\', \'hbh-badge-boss\': b.rivalTag == \'boss\'}">{{ t[\'hud.tag.\' + b.rivalTag] }}</div>' +
+              '<div class="hbh-badge hbh-badge-r hbh-badge-pink" ng-if="b.pinkSlip">{{ t[\'hud.tag.pink\'] }}</div>' +
             '</div>' +
           '</div>' +
 
@@ -72,6 +73,7 @@ angular.module('beamng.apps')
           '.hbh-badge-lead{background:var(--o);color:#141414;text-shadow:none;}' +
           '.hbh-badge-wand{border-color:#b98cff;color:#b98cff;}' +
           '.hbh-badge-boss{border-color:#ff5a36;color:#ff5a36;}' +
+          '.hbh-badge-pink{border-color:#ff7eb6;color:#ff7eb6;}' +
           '.hbh-car{font-size:13px;font-weight:700;letter-spacing:1.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
           '.hbh-clock{font-family:"Overpass Mono","Roboto Mono",monospace;font-size:21px;font-weight:700;font-style:italic;' +
             'letter-spacing:1px;font-variant-numeric:tabular-nums;}' +

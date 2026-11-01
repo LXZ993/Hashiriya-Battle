@@ -120,6 +120,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
     <a href="#map">Map: Parkplätze und Orte</a>
     <a href="#stil">Siegesserie und Combo</a>
     <a href="#chat">PA-Gespräche</a>
+    <a href="#pinkslip">Rivalen an den PAs und Pink Slip</a>
     <a href="#tutorial">Tutorial-Seiten</a>
     <a href="#community">Community-Wanderer und Credits</a>
     <a href="#sounds">Sounds</a>
@@ -588,6 +589,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>quickWinSeconds</code></td><td>30</td><td>Unter so vielen Sekunden = "schneller Sieg"</td></tr>
 <tr><td><code>rewardScale</code></td><td>0.5</td><td>Faktor für <b>alle</b> Preisgelder (1 = volle <code>rewardUsd</code>, 0.5 = halb so viel). Am einfachsten, um die Wirtschaft knapper oder großzügiger zu machen.</td></tr>
 <tr><td><code>rematch.enabled</code></td><td>true</td><td>Geschlagene Rivalen kommen als Revanche wieder</td></tr>
+<tr><td><code>pinkSlip.…</code></td><td></td><td>Pink Slip an den PAs, siehe <a href="#pinkslip">Rivalen an den PAs und Pink Slip</a>. Pro Rivale: <code>"pinkSlip": true/false</code></td></tr>
 <tr><td><code>rematch.weight</code></td><td>0.25</td><td>Wie oft eine Revanche statt eines neuen Gegners gewählt wird</td></tr>
 <tr><td><code>rematch.rewardFactor</code> / <code>repFactor</code></td><td>0.4 / 0.25</td><td>Anteil von Preisgeld und Ruf bei einer Revanche</td></tr>
 <tr><td><code>rematch.aggressionBonus</code> / <code>spFactor</code></td><td>0.08 / 1.1</td><td>Revanche-Gegner fahren härter und haben mehr SP</td></tr>
@@ -957,6 +959,51 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <div class="box"><b>Testen</b>Im Entwickler-Menü gibt es „PA-Fahrer neu aufstellen“ (lädt <code>chat.json</code> neu und stellt die Leute neu hin). Im Mod-Log steht pro PA „PA-Fahrer an &lt;PA&gt;: &lt;Anzahl&gt; (&lt;Nacht&gt;, &lt;freie Buchten&gt;)“.</div>
 </section>
 
+<section id="pinkslip">
+<h2><span class="n">12b</span> Rivalen an den PAs und Pink Slip <span class="tag">talk.lua</span> <span class="tag">pinkslip.lua</span> <span class="tag">rivals.json settings.pinkSlip</span></h2>
+<p>Seit Alpha 0.5 stehen nachts auch <b>Rivalen und Wanderer</b> an den PAs, neben ihrem eigenen Auto (gleiche Config, Lack und Kennzeichen wie auf der Straße) und mit ihrem eigenen Porträt. Bosse stehen nie an der PA. Unten steht dann „[T] Ansprechen“ mit Name und Spitzname, der Rand hat die Farbe des Rivalen (orange, gelb = Leader, lila = Wanderer).</p>
+<h3>So läuft es im Spiel</h3>
+<ol>
+<li><b>Ansprechen (T):</b> Er sagt seinen Herausforderungs-Spruch aus <code>rivals.json</code> (<code>lines.challenge</code>), dann fragt er nach einem Battle.</li>
+<li><b>Annehmen:</b> <b>T</b> = normales Battle, <b>G</b> = Pink Slip (nur wenn er um Autos fährt, siehe unten). <b>Weggehen</b> = Nein. Sprichst du ihn später nochmal an, fragt er wieder.</li>
+<li><b>Er fährt vor:</b> Figur und Auto verschwinden, Meldung „… fährt schon mal vor“. Steig ein und fahr raus auf den C1.</li>
+<li><b>Er wartet:</b> Bist du mehr als <code>rivalWaitDistance</code> (250 m) von der PA weg und schneller als <code>rivalWaitSpeed</code> (30 km/h), taucht er vor dir auf. Lichthupe, sobald du hinter ihm bist (oder er fordert dich heraus, wenn er hinter dir ist, dann sicher statt zufällig). Danach ist es ein ganz normales Battle mit SP-Balken.</li>
+<li>Die Verabredung verfällt bei Tagesanbruch („… hat nicht mehr auf dich gewartet“) oder wenn er 30 Sekunden lang keinen Platz auf der Straße findet.</li>
+</ol>
+<ul>
+<li><b>Wer steht da:</b> pro Nacht und PA 0 bis 2 Rivalen (<code>rivalNight</code>, tagsüber <code>rivalDay</code> = keine), fest ausgewürfelt wie die anderen Fahrer. Nur wer heute Nacht auch auf der Straße auftauchen dürfte (gleiche Regeln wie unterwegs: Rang der Crew, Leader erst nach den Mitgliedern, Bedingungen von Wanderern). Neue Gegner kommen öfter (<code>rivalWeightNew</code> 3) als schon geschlagene (<code>rivalWeightBeaten</code> 1, dann als Revanche). Wer dein Auto hat, steht am liebsten hier und zeigt es herum (<code>rivalWeightHolder</code> 6).</li>
+<li>Wer an einer PA steht, taucht so lange nicht auf der Straße auf (und nicht an der anderen PA).</li>
+<li>Die Einstellungen stehen in <code>chat.json</code> unter <code>pa</code>.</li>
+</ul>
+<table>
+<tr><th>Einstellung (chat.json pa)</th><th>Standard</th><th>Bedeutung</th></tr>
+<tr><td><code>rivalNight</code> / <code>rivalDay</code></td><td>[0, 2] / [0, 0]</td><td>Wie viele Rivalen pro PA nachts/tagsüber (von, bis)</td></tr>
+<tr><td><code>rivalWaitDistance</code></td><td>250</td><td>So weit (m) musst du von der PA weg sein, bevor er vor dir auftaucht</td></tr>
+<tr><td><code>rivalWaitSpeed</code></td><td>30</td><td>So schnell (km/h) musst du dabei fahren</td></tr>
+<tr><td><code>rivalWeightNew</code> / <code>rivalWeightBeaten</code> / <code>rivalWeightHolder</code></td><td>3 / 1 / 6</td><td>Wie oft neue, schon geschlagene und Rivalen mit deinem Auto an der PA stehen</td></tr>
+</table>
+<h3>Pink Slip: um die Papiere fahren</h3>
+<ul>
+<li><b>Wer fährt um Autos:</b> etwa jeder dritte Rivale (<code>share</code> 0.35, fest pro Rivale ausgewürfelt), nie Bosse. Pro Rivale festlegen geht in <code>rivals.json</code> mit <code>"pinkSlip": true</code> (immer) oder <code>"pinkSlip": false</code> (nie).</li>
+<li><b>Wann:</b> ab Rang <code>minRank</code> (3) und nur, wenn du mindestens zwei Autos hast (<code>requireSpareCar</code>). Sonst sagt er dir, warum nicht („Mit deinem einzigen Auto?“). Damit du nie ohne Auto dastehst. Im SP-HUD steht während des Rennens ein rosa „PINK SLIP“.</li>
+<li><b>Gewinnst du:</b> sein Auto steht in deiner Garage, als „&lt;Auto&gt; von &lt;Name&gt;“, mit seiner Config, seinem Lack und seinem Kennzeichen. Statt Preisgeld (<code>money</code>: false; mit true gibt es beides). Ruf und „geschlagen“ zählen wie immer.</li>
+<li><b>Verlierst du:</b> er nimmt dein aktuelles Auto mit, mit allen Umbauten. Ein Freund fährt dich nach Hause, in der Garage steht dein nächstes Auto. Ab jetzt fährt <b>er dein Auto</b>, auf der Straße und an der PA. Im HUD steht dein alter Autoname bei ihm.</li>
+<li><b>Zurückholen:</b> Jeder Sieg gegen ihn bringt dein Auto zurück (normales Battle oder Pink Slip). Er steht dann besonders oft an den PAs.</li>
+</ul>
+<table>
+<tr><th>Einstellung (rivals.json settings.pinkSlip)</th><th>Standard</th><th>Bedeutung</th></tr>
+<tr><td><code>enabled</code></td><td>true</td><td>Pink Slip überhaupt an</td></tr>
+<tr><td><code>minRank</code></td><td>3</td><td>Ab diesem Rang (Index wie bei den Crews)</td></tr>
+<tr><td><code>share</code></td><td>0.35</td><td>Anteil der Rivalen, die um Autos fahren (0 = keiner, 1 = alle außer Bosse)</td></tr>
+<tr><td><code>requireSpareCar</code></td><td>true</td><td>Nur mit mindestens zwei Autos (false = auch mit dem letzten Auto; dann kannst du ohne Auto dastehen, Game Over kommt später)</td></tr>
+<tr><td><code>money</code></td><td>false</td><td>true = beim Pink-Slip-Sieg auch Preisgeld</td></tr>
+<tr><td><code>wanderers</code> / <code>leaders</code></td><td>true / true</td><td>Ob Wanderer bzw. Leader um Autos fahren können</td></tr>
+</table>
+<div class="box tip"><b>Beispiele</b>Mehr Rivalen an den PAs: <code>"rivalNight": [1, 3]</code> in <code>chat.json</code>. Ein bestimmter Wanderer soll immer um Autos fahren: <code>"pinkSlip": true</code> bei ihm in <code>rivals.json</code>. Pink Slip erst später: <code>"minRank": 6</code>.</div>
+<div class="box"><b>Im Spielstand</b><code>pinkHeld</code> = Autos, die Rivalen dir abgenommen haben (Rivalen-ID → dein Auto), <code>pinkWon</code> = wie oft du wem das Auto abgenommen hast. Gewonnene Autos stehen ganz normal in <code>cars</code> (mit <code>pinkFrom</code>). In der Statistik zählen <code>pinkWins</code>, <code>pinkLosses</code>, <code>pinkBack</code>.</div>
+<div class="box warn"><b>Noch ungetestet im Spiel</b>Offline mit nachgebauten Spiel-Funktionen getestet: Aufstellen an der PA, Gespräch, Annehmen (T/G), Auftauchen auf dem C1, Pink Slip gewinnen, verlieren und zurückholen. Im echten Spiel noch nicht. Am wichtigsten beim ersten Test: Steht der Rivale wirklich neben seinem eigenen Auto, und taucht er nach dem Rausfahren vor dir auf?</div>
+</section>
+
 <section id="community">
 <h2><span class="n">13b</span> Community-Wanderer und Credits <span class="tag">tools\community\</span> <span class="tag">data\credits.json</span></h2>
 <p>Jeder, der hilft (Tests, Mods), bekommt einen eigenen Wanderer. Das läuft über ein Google-Formular, das ein Google-Script für dich anlegt. Das Script liegt in <span class="path">tools\community\wanderer-formular.gs</span>.</p>
@@ -1222,7 +1269,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td><code>HashiriyaTerminal</code></td><td>Teile-Terminal im Shop und Garagen-PC (eigenes Layout <code>hashiriyaShop.uilayout.json</code>, ganzer Bildschirm, Mitte frei für die Live-Vorschau). Siehe <a href="#tuning">Teile-Terminal</a>.</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
 <tr><td><code>HashiriyaUnlock</code></td><td>Karte links am Rand „Neue Teile freigeschaltet“, wenn eine Tuning-Stufe frei wird (Stufe, Grund, neue Teile pro Kategorie fürs aktive Auto). Siehe <a href="#freischalt-meldung">Meldung bei neuen Teilen</a>.</td></tr>
-<tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Auch für die <a href="#chat">PA-Gespräche</a>: Fahrer links mit Porträt, unten Taste und „weiter“/„Ende“, Punkte für den Satz; grüner Rahmen = neuer Lexikon-Hinweis; blauer Rand oben und „Wissen · Thema“ unten links = Wissens-Text. Vor einem Fahrer zeigt sie den Hinweis „[T] Reden“.</td></tr>
+<tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Auch für die <a href="#chat">PA-Gespräche</a>: Fahrer links mit Porträt, unten Taste und „weiter“/„Ende“, Punkte für den Satz; grüner Rahmen = neuer Lexikon-Hinweis; blauer Rand oben und „Wissen · Thema“ unten links = Wissens-Text. Vor einem Fahrer zeigt sie den Hinweis „[T] Reden“. Bei Rivalen an der PA: „[T] Ansprechen“ mit Rand in seiner Farbe, im Gespräch unten „[G] Pink Slip“ (rosa) und „[T] Battle“.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
 <tr><td><code>HashiriyaUtility</code></td><td>Oben links, ersetzt die BeamNG-Utility-Apps (Messages, Tasks, Scoreboard). Untereinander: Rangliste (nur wenn ein Spielmodus sie einschaltet), Aufgaben (Titel, Ziele mit Rauten-Haken: grün erledigt, rot gescheitert, orange pulsierend = Achtung) und Meldungen als Karten. Meldungen der Mod sind orange („Hashiriya“), Meldungen vom Spiel grau-blau („BeamNG“), Schäden und Warnungen rot. Gleiche Kategorie ersetzt die alte Karte, höchstens 5 gleichzeitig. Ein Balken unten zeigt, wie lange die Meldung noch steht.</td></tr>
 <tr><td><code>HashiriyaMinimap</code></td><td>Unten links im Querformat, ersetzt die BeamNG-App Navigation. Die Karte zeichnet weiter BeamNG selbst in das freie Feld, die App liefert die schmale Kopfzeile (Navi, Ortsname, Abstand zum Ziel) und den Polizei-Hinweis. Rund oder eckig stellst du in den BeamNG-Optionen (Minimap-Form) ein. Wichtig: nie zusammen mit der BeamNG-App Navigation ins Layout legen, es gibt nur eine Karte.</td></tr>
@@ -1260,7 +1307,8 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <table>
 <tr><th>Taste</th><th>Aktion</th></tr>
 <tr><td>Pos1 (<code>home</code>)</td><td>Hashiriya-Menü auf/zu</td></tr>
-<tr><td>T</td><td>Zu Fuß an einer PA mit einem Fahrer reden, nächster Satz, Ende (<a href="#chat">PA-Gespräche</a>)</td></tr>
+<tr><td>T</td><td>Zu Fuß an einer PA mit einem Fahrer reden, nächster Satz, Ende (<a href="#chat">PA-Gespräche</a>). Bei Rivalen: Battle annehmen</td></tr>
+<tr><td>G</td><td>Im Gespräch mit einem Rivalen an der PA: Pink Slip annehmen (<a href="#pinkslip">Pink Slip</a>). Steht auch im Tasten-Check; falls G bei dir schon belegt ist, in den BeamNG-Optionen unter „Hashiriya Battle: Reden, Pink Slip“ umlegen.</td></tr>
 <tr><td>Umschalt+Pos1</td><td>Aktuelle Kamera als Titelbild-Kamera merken</td></tr>
 <tr><td>Umschalt+Ende</td><td><a href="#dev">Dev-Menü</a> auf/zu (nicht im Release)</td></tr>
 </table>
@@ -1278,8 +1326,8 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td><b>Alpha 0.2</b></td><td>Erster Testbuild: Battles, Rivalen-Radar, Startautos, Tag und Nacht</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
 <tr><td><b>Alpha 0.3</b></td><td>Großer Kader (26 Crews, 42 Wanderer), Ränge, eigene Rivalen-KI, Release-Build</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
 <tr><td><b>Alpha 0.4</b></td><td>Gespräche mit Fahrern an den Parkplätzen (PA)</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
-<tr><td><b>Alpha 0.5</b></td><td>Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen</td><td><span style="color:var(--accent)">▶ als Nächstes</span></td></tr>
-<tr><td><b>Alpha 0.6</b></td><td>Bosse und Story-Kapitel mit Zwischengeschichten</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.5</b></td><td>Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.6</b></td><td>Bosse und Story-Kapitel mit Zwischengeschichten</td><td><span style="color:var(--accent)">▶ als Nächstes</span></td></tr>
 <tr><td><b>Alpha 0.7</b></td><td>Nebenjobs am Tag und bezahlte Tipps zu seltenen Rivalen</td><td><span style="color:var(--muted)">geplant</span></td></tr>
 <tr><td><b>Alpha 0.8</b></td><td>Teile verkaufen und ausbauen in der Garage</td><td><span style="color:var(--muted)">geplant</span></td></tr>
 <tr><td><b>Alpha 0.9</b></td><td>Rivalen mit eigenem Fahrcharakter (sauber, Blocker, Rempler)</td><td><span style="color:var(--muted)">geplant</span></td></tr>
@@ -1308,8 +1356,8 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Mehr Gesprächsstoff: Wissen über Japan, Tokio, Shutoko, C1 und Straßenrennen-Geschichte, Fun Facts zur jeweiligen PA, Wissen über BeamNG und die Bobs, mehrteilige Geschichten, viel mehr Smalltalk. Später auch für jede neue Karte (JDMArsch sagt, wo die Orte liegen).</td><td>Alpha 0.4.1</td><td>gebaut (01.11.2026), im Spiel noch ungetestet</td></tr>
 <tr><td>Wissens-Notizbuch im Lexikon: alle gehörten Wissens-Texte zum Nachlesen, nach Thema sortiert, mit Zähler (z. B. „31 von 77 entdeckt“).</td><td>noch keiner</td><td>Idee</td></tr>
 <tr><td>Im Gespräch Thema wählen („Erzähl mir was über …“: Gerüchte, Strecke, Geschichte, Autos).</td><td>noch keiner</td><td>Idee</td></tr>
-<tr><td>Rivalen und Wanderer stehen auch an den PAs (auf den Parkplätzen der geparkten Autos).</td><td>Alpha 0.5</td><td>offen</td></tr>
-<tr><td>Pink Slip gegen manche PA-Rivalen (ab bestimmtem Ruf): Verlierer verliert sein Auto, der Rivale fährt es, bis du es zurückgewinnst.</td><td>Alpha 0.5</td><td>offen</td></tr>
+<tr><td>Rivalen und Wanderer stehen auch an den PAs (auf den Parkplätzen der geparkten Autos), ansprechen = Battle verabreden.</td><td>Alpha 0.5</td><td>gebaut (01.11.2026), im Spiel noch ungetestet</td></tr>
+<tr><td>Pink Slip gegen manche PA-Rivalen (ab bestimmtem Ruf): Verlierer verliert sein Auto, der Rivale fährt es, bis du es zurückgewinnst.</td><td>Alpha 0.5</td><td>gebaut (01.11.2026), im Spiel noch ungetestet</td></tr>
 <tr><td>Bosse und Story-Kapitel mit Zwischengeschichten (eigene Story).</td><td>Alpha 0.6</td><td>Bosse kommen von dir</td></tr>
 <tr><td>Nebenjobs am Tag: Autoüberführung Händler → Garage (Schaden kürzt Lohn), Kurierfahrten zwischen PAs, Taxi-Schicht, Foto-Jobs. Dazu bezahlte Tipps zu seltenen Rivalen.</td><td>Alpha 0.7</td><td>„Garage to Garage“ zahlt schon Yen</td></tr>
 <tr><td>Teile verkaufen, auch ausgebaute Serienteile; Teile in der Garage ausbauen.</td><td>Alpha 0.8</td><td>offen</td></tr>
@@ -1356,6 +1404,27 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
+<details class="cl">
+<summary><b>Alpha 0.5</b> <small>Stand 01.11.2026</small></summary>
+<div>
+<h4>Neu: Rivalen an den Parkplätzen</h4>
+<ul>
+<li>Nachts stehen an Shibaura PA und Tatsumi PA jetzt auch Rivalen und Wanderer neben ihrem eigenen Auto, mit Porträt, Spitzname und ihrem Spruch. Bosse nicht.</li>
+<li>Geh hin und sprich sie mit T an. Danach T = Battle, weggehen = nein.</li>
+<li>Der Rivale fährt vor und wartet auf dem C1. Sobald du rausfährst, taucht er vor dir auf. Lichthupe, und das Battle läuft wie gewohnt.</li>
+<li>Wer an einer PA steht, taucht so lange nicht auf der Straße auf.</li>
+</ul>
+<h4>Neu: Pink Slip</h4>
+<ul>
+<li>Etwa jeder dritte Rivale fährt auch um die Papiere. Das geht ab Rang 3 und mit mindestens zwei Autos in der Garage. Annehmen mit G.</li>
+<li>Gewinnst du, gehört sein Auto dir: seine Config, sein Lack, sein Kennzeichen, direkt in deiner Garage.</li>
+<li>Verlierst du, nimmt er dein Auto mit allen Umbauten mit und fährt es ab jetzt selbst, auf der Straße und an der PA. Du fährst mit deinem nächsten Auto zuhause weiter.</li>
+<li>Mit jedem Sieg gegen ihn holst du dein Auto zurück. Er steht dann besonders oft an den PAs.</li>
+<li>Im SP-HUD steht während des Rennens „PINK SLIP“.</li>
+<li>Neue Taste „Reden: Pink Slip“ (Standard G), auch im Tasten-Check.</li>
+</ul>
+</div>
+</details>
 <details class="cl">
 <summary><b>Alpha 0.4.1</b> <small>Stand 01.11.2026</small></summary>
 <div>
@@ -1647,7 +1716,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h2><span class="n">23</span> Spielstand</h2>
 <table>
 <tr><th>Datei in <span class="path">F:\BeamNG\current\settings\hashiriya_battle\</span></th><th>Inhalt</th></tr>
-<tr><td><code>save.json</code></td><td>Der Spielstand: Geld, Ruf, Siege, geschlagene Rivalen (<code>defeated</code>), Autos, Uhrzeit, Tag</td></tr>
+<tr><td><code>save.json</code></td><td>Der Spielstand: Geld, Ruf, Siege, geschlagene Rivalen (<code>defeated</code>), Autos, Uhrzeit, Tag, PA-Gespräche (<code>talk</code>), Pink Slip (<code>pinkHeld</code>, <code>pinkWon</code>)</td></tr>
 <tr><td><code>dev_places.json</code></td><td>Im Dev-Menü (Reiter „Orte“) gemerkte Orte mit Name, Typ und Notiz, je Map</td></tr>
 <tr><td><code>captured_positions.json</code></td><td>Alte Positionen aus „Position merken“ (bis Alpha 0.4); werden ins Dev-Menü übernommen</td></tr>
 <tr><td><code>title_camera.json</code></td><td>Titelbild-Kamera je Map</td></tr>
@@ -1700,6 +1769,8 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <tr><td><code>fuel.lua</code></td><td>Tanken, Spritpreis</td></tr>
 <tr><td><code>home.lua</code></td><td>Zuhause, Schlafen und Nickerchen (schwarzer Bildschirm mit Zeitraffer), Uhr, Lexikon</td></tr>
 <tr><td><code>parking.lua</code></td><td>Parkplätze erkennen, Reparatur, Abschleppen, Markierungen</td></tr>
+<tr><td><code>talk.lua</code></td><td>PA-Gespräche: Fahrer und Rivalen an den PAs aufstellen, Texte wählen, Battle an der PA verabreden</td></tr>
+<tr><td><code>pinkslip.lua</code></td><td>Pink Slip: wer um Autos fährt, Auto gewinnen, verlieren, zurückholen</td></tr>
 <tr><td><code>shop.lua</code></td><td>Teile-Terminal: Katalog, Lackierer, Warenkorb, Teilelager, Live-Vorschau-Kamera</td></tr>
 <tr><td><code>setup.lua</code></td><td>Fahrwerks-Einstellungen (Tuning-Werte)</td></tr>
 <tr><td><code>style.lua</code></td><td>Siegesserie und Combo</td></tr>

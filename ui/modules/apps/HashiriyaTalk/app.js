@@ -2,6 +2,7 @@
 // Der Rivale steht rechts neben der Blase (wie im SP-HUD rechts der Rivale), die Blase zeigt auf ihn.
 // Daten: Hook 'HashiriyaState' (battle.quote, quoteKind, portrait, rivalName, rivalNick, rivalTag).
 // PA-Gespräche (talk.lua): data.talk = { text, name, portrait, side: 'left', step, steps, key, next, hint, topic },
+// Bei Rivalen (Alpha 0.5): talk.alt = { key, text } (Pink Slip), talk.decline, talkPrompt.rival = Farbklasse.
 // data.talkPrompt = { name, key, text, again } = Hinweis "[T] Reden", wenn man zu Fuß vor einem Fahrer steht.
 angular.module('beamng.apps')
 .directive('hashiriyaTalk', [function () {
@@ -17,12 +18,14 @@ angular.module('beamng.apps')
               '<span class="hbk-hint" ng-if="line.hint">{{ line.hint }}</span>' +
               '<span class="hbk-topic" ng-if="line.topic && !line.hint">{{ line.topic }}</span>' +
               '<span class="hbk-dots" ng-if="line.steps > 1"><i ng-repeat="d in dots(line.steps) track by $index" ng-class="{on: $index < line.step}"></i></span>' +
+              '<span class="hbk-decline" ng-if="line.decline">{{ line.decline }}</span>' +
+              '<span class="hbk-key hbk-key-pink" ng-if="line.alt"><b>{{ line.alt.key }}</b>{{ line.alt.text }}</span>' +
               '<span class="hbk-key"><b>{{ line.key }}</b>{{ line.next }}</span>' +
             '</div>' +
           '</div>' +
           '<div class="hbk-pic" ng-if="line.side != \'left\'"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
         '</div>' +
-        '<div class="hbk-prompt" ng-if="!line && prompt"><b>{{ prompt.key }}</b><span>{{ prompt.text }}</span><em>{{ prompt.name }}</em></div>' +
+        '<div class="hbk-prompt" ng-if="!line && prompt" ng-class="prompt.rival ? \'hbk-p-\' + prompt.rival : \'\'"><b>{{ prompt.key }}</b><span>{{ prompt.text }}</span><em>{{ prompt.name }}</em></div>' +
         '<style>' +
           '.hbk-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;' +
             '--o:#ff6600;--o2:#ff9a3c;--w:#f4f4f4;--dim:rgba(244,244,244,.65);font-family:"Overpass","Noto Sans JP",sans-serif;}' +
@@ -62,6 +65,12 @@ angular.module('beamng.apps')
             'background:rgba(10,11,14,.82);border-left:3px solid var(--o);font-size:14px;color:var(--w);animation:hbkIn .25s ease-out;}' +
           '.hbk-prompt span{font-weight:800;letter-spacing:1px;text-transform:uppercase;}' +
           '.hbk-prompt em{font-style:italic;color:var(--dim);}' +
+          '.hbk-p-rival,.hbk-p-beaten,.hbk-p-lost{border-left-color:#ff6600;}' +
+          '.hbk-p-leader{border-left-color:#ffd23f;}' +
+          '.hbk-p-wanderer{border-left-color:#b77bff;}' +
+          '.hbk-decline{color:var(--dim);font-style:italic;}' +
+          '.hbk-key-pink{color:#ff7eb6;font-weight:800;}' +
+          '.hbk-key-pink b{border-color:#ff7eb6;color:#ff7eb6;}' +
           '@keyframes hbkIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}' +
         '</style>' +
       '</div>',

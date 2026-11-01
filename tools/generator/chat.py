@@ -233,12 +233,16 @@ PA = {
              'heardWeight = Gewicht für Sätze, die man schon kennt (1 = normal, 0 = nie wieder). excludeConfigs = Configs mit diesen Wörtern parken nie an der PA. '
              'portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg). '
              'loreChance = Chance auf Wissen (fact) statt Smalltalk, wenn kein Gerücht kommt. ownTopicWeight/otherTopicWeight = Gewicht für Wissen der eigenen Figur bzw. anderer Figuren. '
-             'placeWeight = Faktor für Wissen über genau diese PA. moreChance = Chance, beim zweiten Ansprechen noch Wissen zu bekommen statt "Hab dir schon alles erzählt".',
+             'placeWeight = Faktor für Wissen über genau diese PA. moreChance = Chance, beim zweiten Ansprechen noch Wissen zu bekommen statt "Hab dir schon alles erzählt". '
+             'rivalNight/rivalDay = wie viele Rivalen und Wanderer pro PA nachts/tagsüber neben ihrem Auto stehen (von, bis). rivalWaitDistance/rivalWaitSpeed = so weit weg (m) und so schnell (km/h) musst du sein, bis der verabredete Rivale vor dir auftaucht. '
+             'rivalWeightNew/rivalWeightBeaten/rivalWeightHolder = wie oft neue, geschlagene und Rivalen mit deinem Auto (Pink Slip) an der PA stehen.',
  'nightCount': [3, 6], 'dayCount': [1, 2],
  'spawnDistance': 230, 'despawnDistance': 330, 'spotRadius': 70,
  'talkDistance': 2.8, 'lookDistance': 9,
  'importantChance': 0.4, 'secondLineChance': 0.35, 'rankSlack': 1, 'heardWeight': 0.15,
  'loreChance': 0.6, 'ownTopicWeight': 3, 'otherTopicWeight': 0.5, 'placeWeight': 3, 'moreChance': 0.5,
+ 'rivalNight': [0, 2], 'rivalDay': [0, 0], 'rivalWaitDistance': 250, 'rivalWaitSpeed': 30,
+ 'rivalWeightNew': 3, 'rivalWeightBeaten': 1, 'rivalWeightHolder': 6,
  'portraitVariants': 3,
  'excludeConfigs': ['police', 'pursuit', 'interceptor', 'undercover', 'race', 'rally', 'drag', 'track', 'gymkhana', 'safety', 'baja', 'stunt', 'derby', 'prerunner', 'crawler', 'ambulance', 'fire'],
 }

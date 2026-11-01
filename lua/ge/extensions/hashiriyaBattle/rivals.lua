@@ -246,10 +246,26 @@ local function isOnRoad(id)
   for _, e in ipairs(onRoad) do if e.data.id == id then return true end end
   return false
 end
+M.isOnRoad = isOnRoad
+
+-- Rivalen, die gerade an einer PA stehen (talk.lua), tauchen nicht gleichzeitig auf der Straße auf
+local reserved = {}
+function M.setReserved(id, on) if id then reserved[id] = on and true or nil end end
+function M.isReserved(id) return id and reserved[id] or false end
+
+-- Auto eines Rivalen: sein eigenes, oder dein Auto, wenn er es dir im Pink Slip abgenommen hat.
+-- Rückgabe: model, config (Pfad oder Tabelle), paints, Kennzeichen-Text
+function M.carFor(rival)
+  local save = core().save
+  local held = save and save.pinkHeld and save.pinkHeld[rival.baseId or rival.id]
+  if held and held.model then return held.model, held.config, nil, held.plate end
+  local cfgOut, paints = spawnSetup(rival)
+  return rival.model, cfgOut, paints, rival.plate and rival.plate.text
+end
 
 local function isEligible(rival, save)
   local set = settings()
-  if isOnRoad(rival.id) then return false end
+  if isOnRoad(rival.id) or reserved[rival.id] then return false end
   -- Geschlagene Rivalen kommen als Revanche wieder (stärker, weniger Belohnung)
   if save.defeated[rival.id] and not (set.rematch and set.rematch.enabled) then return false end
   local night = home().nightId()
@@ -652,25 +668,25 @@ function M.spawnNext(force, forced)
     return
   end
 
-  local cfg, paints = spawnSetup(rival)
-  local plateText = rival.plate and rival.plate.text
+  local model, cfg, paints, plateText = M.carFor(rival)
   local opts = { config = cfg, pos = pos, rot = quatFromDir(dir, vec3(0, 0, 1)), autoEnterVehicle = false, licenseText = plateText }
   if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
-  local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, rival.model, opts)
+  local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
   if (not okSpawn or not veh) and type(cfg) == 'table' then
     -- Ersatz: Original-Config ohne Kennzeichen-Design und Lack
     log('W', logTag, 'Rivale mit eigener Config nicht gespawnt, nehme Original: ' .. tostring(rival.id) .. ' ' .. tostring(veh))
     opts.config, opts.paint, opts.paint2, opts.paint3 = rival.config, nil, nil, nil
-    okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, rival.model, opts)
+    okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
   end
   if not okSpawn then veh = nil end
   if veh and plateText then pcall(core_vehicles.setPlateText, plateText, veh:getID()) end
   if not veh then
-    log('E', logTag, 'Konnte Rivalen-Auto nicht spawnen: ' .. tostring(rival.model))
+    log('E', logTag, 'Konnte Rivalen-Auto nicht spawnen: ' .. tostring(model))
     return
   end
 
-  table.insert(onRoad, { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false })
+  local entry = { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false }
+  table.insert(onRoad, entry)
   setCruise(veh, rival)
   if force or dist > 0 then
     local nick = progress().loc(rival.nick)
@@ -679,6 +695,7 @@ function M.spawnNext(force, forced)
       .. (rival.rematch and core().t('msg.rematch') or '') .. (home().isWatched(rival.id) and core().t('msg.watched') or ''))
   end
   log('I', logTag, 'Rivale gespawnt: ' .. rival.id .. string.format(' (%d m, %d unterwegs)', math.floor(dist), #onRoad))
+  return entry
 end
 
 -- Farbklasse für Markierungen (Radar, HUD): Boss, Wanderer, Leader, Revanche, verloren, normal

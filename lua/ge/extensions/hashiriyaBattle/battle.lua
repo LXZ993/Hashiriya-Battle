@@ -210,11 +210,15 @@ local function startCountdown(rival, rivalVeh, playerAhead)
     quoteLeft = (type(rival.lines) == 'table' and extensions.hashiriyaBattle_progress.loc(rival.lines.challenge) ~= '') and cfg.challengeQuoteTime or 0,
     time = 0,
     rivalCar = vehicleDisplayName(rival.model),
+    pinkSlip = rival.pinkSlip or nil,
     playerAhead = playerAhead or nil,
   }
   local save = core().save
   local car = save and save.cars[save.activeCar or 1]
   battle.playerCar = car and car.name or ''
+  -- fährt er dein altes Auto (Pink Slip verloren), steht dessen Name da
+  local held = save and save.pinkHeld and save.pinkHeld[rival.baseId or rival.id]
+  if held then battle.rivalCar = held.name or vehicleDisplayName(held.model) end
   setWarnSignal(rivalVeh, true)
   local player = core().getPlayerVehicle()
   if player then
@@ -292,7 +296,8 @@ local function updateRivalChallenge(dt, player)
       tail[e.vehId] = (tail[e.vehId] or 0) + 0.5
       if offerPause <= 0 and tail[e.vehId] >= cfg.rivalChallengeTail then
         tail[e.vehId] = cfg.rivalChallengeTail - 2 -- nächster Versuch frühestens in 2 s
-        if math.random() < cfg.rivalChallengeChance then
+        -- an der PA verabredet: er fordert sicher heraus
+        if e.data.paChallenge or math.random() < cfg.rivalChallengeChance then
           local c = core()
           offer = { entry = e, vehId = e.vehId, timer = cfg.rivalChallengeOffer }
           flashLights(rivalVeh)
@@ -432,6 +437,10 @@ local function finishBattle(won)
   end
   core().onBattleResult(battle.rival, won, {
     time = battle.time, playerSp = battle.playerSp, playerMaxSp = cfg.playerMaxSp, damageSp = battle.damageTaken or 0 })
+  -- PA-Verabredung und Pink Slip gelten nur für dieses eine Battle
+  battle.rival.paChallenge, battle.rival.pinkSlip = nil, nil
+  local e = rivals().getActiveRival()
+  if e and e.data then e.data.paChallenge, e.data.pinkSlip = nil, nil end
 end
 
 local function damageSp(vehId, lastKey)
@@ -614,6 +623,7 @@ function M.getHudState()
     rivalCar = battle.rivalCar,
     rivalTag = battle.rival.boss and 'boss' or (battle.rival.leader and 'leader' or (battle.rival.wanderer and 'wanderer' or 'rival')),
     rivalNick = extensions.hashiriyaBattle_progress.loc(battle.rival.nick),
+    pinkSlip = battle.pinkSlip,
     playerTitle = extensions.hashiriyaBattle_progress.nickname() or extensions.hashiriyaBattle_progress.rankName(),
   }
 end

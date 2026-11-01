@@ -24,6 +24,15 @@
       "repFactor": 0.25,
       "aggressionBonus": 0.15,
       "spFactor": 1.2
+    },
+    "pinkSlip": {
+      "enabled": true,
+      "minRank": 3,
+      "share": 0.35,
+      "requireSpareCar": true,
+      "money": false,
+      "wanderers": true,
+      "leaders": true
     }
   },
   "ranks": [

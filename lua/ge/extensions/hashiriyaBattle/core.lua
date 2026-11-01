@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_release', 'hashiriyaBattle_talk' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -493,6 +493,7 @@ end
 
 function M.stopGame()
   pcall(function() extensions.hashiriyaBattle_talk.despawnAll() end)
+  pcall(function() extensions.hashiriyaBattle_talk.clearPending() end)
   if M.active then M.writeSave() end
   M.active = false
   extensions.hashiriyaBattle_battle.reset()
@@ -541,7 +542,15 @@ function M.onBattleResult(rival, won, result)
     tostring(rival and rival.id), tostring(rival and rival.config), streak, (pcall(jsonEncode, result) and jsonEncode(result)) or '?'))
   extensions.hashiriyaBattle_progress.onBattle(rival, won, result)
   if not won then style.resetStreak('loss') end
-  if won then
+  -- Pink Slip: Auto statt Preisgeld (rivals.json settings.pinkSlip.money = true: beides). Dein Auto zurückholen gibt es bei jedem Sieg.
+  local okP, pink = pcall(function() return extensions.hashiriyaBattle_pinkslip.onResult(rival, won) end)
+  if not okP then log('E', logTag, 'Pink Slip: ' .. tostring(pink)); pink = false end
+  local pinkNoMoney = pink and won and not extensions.hashiriyaBattle_pinkslip.settings().money
+  if won and pinkNoMoney then
+    M.save.defeated[rival.id] = true
+    M.save.wins = M.save.wins + 1
+    extensions.hashiriyaBattle_progress.leaderHint(rival)
+  elseif won then
     -- rivals.json settings.rewardScale: Preisgeld aller Rivalen auf einmal anpassen (1 = volle rewardUsd)
     local rs = extensions.hashiriyaBattle_rivals.getData()
     local scale = tonumber(rs and rs.settings and rs.settings.rewardScale) or 1
