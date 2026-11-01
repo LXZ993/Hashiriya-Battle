@@ -3,7 +3,7 @@
 #
 #   1  Release-Test AN   -> data\build.json "release": true  (Spiel neu starten, dann gelten die Release-Sperren)
 #   2  Release-Test AUS  -> data\build.json "release": false (Dev-Tools wieder da)
-#   3  Release-ZIP bauen -> dist\hashiriya_battle_<version>.zip zum Verschicken
+#   3  Release-ZIP bauen -> mods\hashiriya_battle_<version>.zip (neben unpacked\), mit Changelog und mod_info
 #
 # Ohne Menü:  release-werkzeug.ps1 -Aktion an | aus | zip [-Version "Alpha 0.4"]
 param(
@@ -89,6 +89,86 @@ function Convert-Layout($text) {
   return ($obj | ConvertTo-Json -Depth 20)
 }
 
+# Changelog-Abschnitt einer Version (ab "## <Version>" bis zur nächsten "## "-Zeile)
+function Get-ChangelogSection($text, $ver) {
+  $m = [regex]::Match($text, '(?ms)^## ' + [regex]::Escape($ver) + '(?=[ \t(]|\r?\n)[^\n]*\n(.*?)(?=^## |\z)')
+  if ($m.Success) { return $m.Groups[1].Value.Trim() }
+  return $null
+}
+
+# Fehlt der Abschnitt für die Version, wird er aus den Commits seit dem letzten Changelog-Stand angelegt
+function Add-ChangelogDraft($ver) {
+  $subjects = @()
+  $git = Get-Command git -ErrorAction SilentlyContinue
+  if ($git) {
+    Push-Location $Root
+    try {
+      $base = (& git log -1 --format=%H -- CHANGELOG.md 2>$null)
+      if ($base) { $subjects = @(& git log --no-merges --format=%s "$base..HEAD" 2>$null) }
+    } finally { Pop-Location }
+  }
+  $subjects = @($subjects | Where-Object { $_ -and $_.Trim() } | ForEach-Object { '- ' + $_.Trim() })
+  if ($subjects.Count -eq 0) { $subjects = @('- (bitte ergänzen / please fill in)') }
+  $today = Get-Date
+  $files = @(
+    @{ name = 'CHANGELOG.md'; head = '## ' + $ver + ' (Stand ' + $today.ToString('dd.MM.yyyy') + ')'; note = 'Automatisch aus der Commit-Liste erstellt. Schöne Texte: Claude sagen „das ist jetzt Release-Version ' + $ver + '“.' },
+    @{ name = 'CHANGELOG_EN.md'; head = '## ' + $ver + ' (as of ' + $today.ToString('yyyy-MM-dd') + ')'; note = 'Generated automatically from the commit list.' }
+  )
+  foreach ($f in $files) {
+    $path = Join-Path $Root $f.name
+    $text = Read-Text $path
+    if (Get-ChangelogSection $text $ver) { continue }
+    $block = $f.head + "`n`n" + $f.note + "`n`n" + ($subjects -join "`n") + "`n`n"
+    $idx = $text.IndexOf("`n## ")
+    if ($idx -ge 0) { $text = $text.Substring(0, $idx + 1) + $block + $text.Substring($idx + 1) }
+    else { $text = $text.TrimEnd() + "`n`n" + $block }
+    Write-Text $path $text
+    Write-Host "Changelog-Abschnitt für '$ver' in $($f.name) angelegt ($($subjects.Count) Einträge)." -ForegroundColor Yellow
+  }
+}
+
+# Markdown-Abschnitt (### Überschriften, - Punkte) als einfaches HTML für den Mod-Manager
+function Convert-ChangesToHtml($md) {
+  if (-not $md) { return '' }
+  $html = New-Object System.Text.StringBuilder
+  $inList = $false
+  foreach ($raw in ($md -split "`n")) {
+    $line = $raw.Trim()
+    $enc = [System.Net.WebUtility]::HtmlEncode(($line -replace '^(###|-)\s*', ''))
+    if ($line -like '- *') {
+      if (-not $inList) { [void]$html.Append('<ul>'); $inList = $true }
+      [void]$html.Append('<li>' + $enc + '</li>')
+      continue
+    }
+    if ($inList) { [void]$html.Append('</ul>'); $inList = $false }
+    if ($line -like '###*') { [void]$html.Append('<p><b>' + $enc + '</b></p>') }
+    elseif ($line) { [void]$html.Append('<p>' + $enc + '</p>') }
+  }
+  if ($inList) { [void]$html.Append('</ul>') }
+  return $html.ToString()
+}
+
+# mod_info/HASHIRIYABATTLE/info.json aus tools\mod_info\info.json (Titel, Bild, Beschreibung im Mod-Manager)
+function Get-ModInfoJson($ver) {
+  $tpl = Read-Text (Join-Path $PSScriptRoot 'mod_info\info.json')
+  $changes = Convert-ChangesToHtml (Get-ChangelogSection (Read-Text (Join-Path $Root 'CHANGELOG_EN.md')) $ver)
+  $obj = $tpl | ConvertFrom-Json
+  $obj.PSObject.Properties.Remove('_hinweis')
+  foreach ($p in $obj.PSObject.Properties) {
+    if ($p.Value -is [string]) {
+      $p.Value = $p.Value.Replace('{VERSION}', $ver).Replace('{DATE}', (Get-Date).ToString('yyyy-MM-dd')).Replace('{CHANGES}', $changes)
+    }
+  }
+  return ($obj | ConvertTo-Json -Depth 10)
+}
+
+# Wohin die ZIP kommt: liegt der Mod in mods\unpacked\, direkt in den mods-Ordner (dann zeigt der Mod-Manager sie an)
+function Get-OutputDir {
+  $parent = Split-Path -Parent $Root
+  if ((Split-Path -Leaf $parent) -eq 'unpacked') { return (Split-Path -Parent $parent) }
+  return (Join-Path $Root 'dist')
+}
+
 function Build-Zip {
   $ver = $Version
   if (-not $ver) {
@@ -98,18 +178,19 @@ function Build-Zip {
   }
   $ver = $ver.Trim()
   $slug = ($ver.ToLower() -replace '[^a-z0-9.]+', '_').Trim('_')
-  $dist = Join-Path $Root 'dist'
-  if (-not (Test-Path $dist)) { New-Item -ItemType Directory -Path $dist | Out-Null }
-  $zipPath = Join-Path $dist ("hashiriya_battle_" + $slug + ".zip")
-  if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
+  $outDir = Get-OutputDir
+  if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
+  $zipPath = Join-Path $outDir ("hashiriya_battle_" + $slug + ".zip")
+  if (Test-Path $zipPath) {
+    try { Remove-Item $zipPath -Force }
+    catch { throw "$zipPath ist gerade in Benutzung. BeamNG schließen und nochmal bauen." }
+  }
 
   foreach ($cl in @('CHANGELOG.md', 'CHANGELOG_EN.md')) {
-    $p = Join-Path $Root $cl
-    if (-not (Test-Path $p)) { throw "$cl fehlt im Mod-Ordner." }
-    if (-not ((Read-Text $p) -match [regex]::Escape($ver))) {
-      Write-Host "Hinweis: In $cl steht noch kein Abschnitt für '$ver'." -ForegroundColor Yellow
-    }
+    if (-not (Test-Path (Join-Path $Root $cl))) { throw "$cl fehlt im Mod-Ordner." }
   }
+  Add-ChangelogDraft $ver
+  $modInfo = Get-ModInfoJson $ver
 
   Add-Type -AssemblyName System.IO.Compression
   Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -144,13 +225,19 @@ function Build-Zip {
     Add-Entry 'CHANGELOG_DE.md' ([System.IO.File]::ReadAllBytes((Join-Path $Root 'CHANGELOG.md')))
     Add-Entry 'CHANGELOG_EN.md' ([System.IO.File]::ReadAllBytes((Join-Path $Root 'CHANGELOG_EN.md')))
     $script:count += 2
+    Add-Entry 'mod_info/HASHIRIYABATTLE/info.json' ($Utf8.GetBytes($modInfo))
+    foreach ($img in @('icon.jpg', 'banner.jpg')) {
+      Add-Entry ('mod_info/HASHIRIYABATTLE/' + $img) ([System.IO.File]::ReadAllBytes((Join-Path $PSScriptRoot ('mod_info\' + $img))))
+    }
+    $script:count += 3
   } finally {
     $zip.Dispose()
   }
   $kb = [math]::Round((Get-Item $zipPath).Length / 1024)
   Write-Host ''
   Write-Host "Fertig: $zipPath ($script:count Dateien, $kb KB)" -ForegroundColor Green
-  Write-Host 'In der ZIP ist release an und die Version gesetzt. Dein Mod-Ordner bleibt, wie er ist.'
+  Write-Host 'In der ZIP: release an, Version, beide Changelogs und mod_info (Logo + Beschreibung im Mod-Manager).'
+  Write-Host 'Im Mod-Manager entweder die ZIP oder den Entwicklungs-Ordner aktivieren, nie beide gleichzeitig.'
   if ($env:OS -eq 'Windows_NT') { Start-Process explorer.exe "/select,`"$zipPath`"" }
 }
 
@@ -165,7 +252,7 @@ function Show-Menu {
     Write-Host ''
     Write-Host '  1  Release-Test AN   (so testen, wie es die Tester bekommen)'
     Write-Host '  2  Release-Test AUS  (zurück zur Entwicklung)'
-    Write-Host '  3  Release-ZIP bauen (zum Verschicken)'
+    Write-Host '  3  Release-ZIP bauen (zum Verschicken und Testen im Mod-Manager)'
     Write-Host '  0  Beenden'
     $c = Read-Host 'Auswahl'
     switch ($c) {

@@ -872,10 +872,16 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><th>Taste</th><th>Was passiert</th></tr>
 <tr><td>1</td><td><b>Release-Test AN</b>: setzt in <code>build.json</code> <code>release</code> auf <code>true</code>. Danach BeamNG <b>komplett neu starten</b> und die Karriere laden. Du spielst dann genau so, wie es die Tester bekommen.</td></tr>
 <tr><td>2</td><td><b>Release-Test AUS</b>: zurück zur Entwicklung (<code>false</code>), alle Dev-Tools und der Builder sind wieder da. Auch hier BeamNG neu starten.</td></tr>
-<tr><td>3</td><td><b>Release-ZIP bauen</b>: fragt nach der Versionsnummer (Enter = <code>modVersion</code> aus <code>build.json</code>) und legt <span class="path">dist\hashiriya_battle_&lt;version&gt;.zip</span> an. Der Explorer zeigt die Datei danach an.</td></tr>
+<tr><td>3</td><td><b>Release-ZIP bauen</b>: fragt nach der Versionsnummer (Enter = <code>modVersion</code> aus <code>build.json</code>) und legt <span class="path">F:\BeamNG\current\mods\hashiriya_battle_&lt;version&gt;.zip</span> an, also direkt neben <span class="path">unpacked</span>. Der Explorer zeigt die Datei danach an.</td></tr>
 </table>
-<p>In der ZIP ist <code>release</code> immer an und die Version gesetzt, egal wie dein Mod-Ordner gerade steht. Dazu kommen <code>CHANGELOG_DE.md</code> (aus <code>CHANGELOG.md</code>) und <code>CHANGELOG_EN.md</code>. Nicht in die ZIP kommen: <code>tools</code>, <code>docs</code>, die README, der Builder (<code>builder.lua</code>, App <code>HashiriyaBuilder</code>) und die Taste Shift+Pos1 (Titelbild-Kamera merken). Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
-<div class="box"><b>Vor jedem Build</b>Beide Changelogs oben um einen Abschnitt für die neue Version ergänzen (deutsch in <code>CHANGELOG.md</code>, englisch in <code>CHANGELOG_EN.md</code>). Das Werkzeug warnt, wenn die Version dort noch fehlt.</div>
+<p>Die ZIP heißt nach der Version und taucht damit im Mod-Manager als eigener Mod auf. So testest du den Release-Build unabhängig vom Entwicklungs-Ordner: im Mod-Manager entweder die ZIP oder <b>Hashiriya-Battle</b> (unpacked) aktivieren, nie beide gleichzeitig.</p>
+<p>In der ZIP ist <code>release</code> immer an und die Version gesetzt, egal wie dein Mod-Ordner gerade steht. Außerdem drin:</p>
+<ul>
+<li><code>CHANGELOG_DE.md</code> (aus <code>CHANGELOG.md</code>) und <code>CHANGELOG_EN.md</code>.</li>
+<li><code>mod_info/HASHIRIYABATTLE/</code> mit <code>info.json</code>, Logo (<code>icon.jpg</code>) und Banner: Damit zeigt der Mod-Manager Titel, Kurzbeschreibung, Autor, Version und die Neuerungen dieser Version (aus <code>CHANGELOG_EN.md</code>). Texte und Bilder liegen in <span class="path">tools\mod_info\</span>, dort kannst du sie ändern.</li>
+</ul>
+<p>Nicht in die ZIP kommen: <code>tools</code>, <code>docs</code>, die README, der Builder (<code>builder.lua</code>, App <code>HashiriyaBuilder</code>) und die Taste Shift+Pos1 (Titelbild-Kamera merken). Der Tester legt die ZIP einfach in seinen <span class="path">mods</span>-Ordner.</p>
+<div class="box"><b>Changelog</b>Gibt es in <code>CHANGELOG.md</code> noch keinen Abschnitt <code>## &lt;Version&gt;</code>, legt das Werkzeug ihn in beiden Changelogs selbst an: mit den Commit-Titeln seit der letzten Changelog-Änderung (technisch und auf Deutsch). Schöner wird es, wenn du mir vorher sagst „das ist jetzt Release-Version &lt;Version&gt;“: Dann schreibe ich beide Abschnitte spielerfreundlich auf Deutsch und Englisch, und das Werkzeug übernimmt sie unverändert.</div>
 <div class="box warn"><b>Falls Windows das Fenster blockiert</b>Beim ersten Start fragt Windows evtl. nach („Trotzdem ausführen“). Die .bat startet nur das PowerShell-Skript <span class="path">tools\release-werkzeug.ps1</span> daneben.</div>
 
 <h3>Was im Release gesperrt ist</h3>
