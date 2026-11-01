@@ -270,22 +270,6 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 9
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00030",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
 "radius": 10
 }
 }
@@ -293,7 +277,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00031",
+"name": "fxds00032",
 "select": true
 }
 },
@@ -312,7 +296,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00034",
+"name": "fxblur00035",
 "select": true
 }
 },
@@ -328,7 +312,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00035",
+"name": "fxblur00036",
 "select": true
 }
 },
@@ -344,7 +328,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00036",
+"name": "fxblur00037",
 "select": true
 }
 },
@@ -360,7 +344,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00037",
+"name": "fxblur00038",
 "select": true
 }
 },
@@ -376,7 +360,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00038",
+"name": "fxds00039",
 "select": true
 }
 },
@@ -395,7 +379,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxglowled00040",
+"name": "fxglowled00041",
 "select": true
 }
 },
@@ -414,7 +398,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00044",
+"name": "fxds00045",
 "select": true
 }
 },
@@ -433,7 +417,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00047",
+"name": "fxblur00048",
 "select": true
 }
 },
@@ -449,7 +433,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00048",
+"name": "fxds00049",
 "select": true
 }
 },

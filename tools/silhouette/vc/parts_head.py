@@ -455,10 +455,10 @@ def hat_feld(doc, A, tone):
 
 def hat_stirnband(doc, A, tone):
     """Hachimaki: weißes Stirnband mit rotem Kreis, Knoten seitlich."""
-    band = "M212,168 C250,150 350,150 388,168 L386,188 C350,172 250,172 214,188 Z"
+    band = "M216,150 C252,130 348,130 384,150 L388,168 C350,152 250,152 212,168 Z"
     out = f'<path d="{band}" fill="{doc.lin([(0, "#ffffff", 1), (1, "#cfd3da", 1)])}" stroke="#000" stroke-opacity=".35" stroke-width="1.2"/>'
-    out += '<circle cx="300" cy="168" r="8" fill="#d8262e"/>'
-    out += '<path d="M386,170 l22,-6 l-6,14 z M388,180 l20,16 l-14,4 z" fill="#e9ecf0" stroke="#000" stroke-opacity=".3"/>'
+    out += f'<circle cx="300" cy="148" r="7" fill="{A}"/>'
+    out += '<path d="M386,152 l22,-6 l-6,14 z M388,162 l20,16 l-14,4 z" fill="#e9ecf0" stroke="#000" stroke-opacity=".3"/>'
     return doc.shadowed(out, 0, 3, 4, 35)
 
 
@@ -615,3 +615,26 @@ def mask(doc, A, tone=("#1b1d22", "#08090b")):
     out += line("M244,272 C270,282 330,282 356,272", "#ffffff", 1.4, .12) + line("M246,288 C272,298 328,298 354,288", "#ffffff", 1.4, .12)
     out += line("M232,250 C222,244 214,240 212,232 M368,250 C378,244 386,240 388,232", tone[0], 2.4)
     return doc.shadowed(out, 0, 3, 4, 35)
+
+
+# ---------------------------------------------------------------------------
+# Mund (unter dem Visier, rechte Seite)
+# ---------------------------------------------------------------------------
+
+
+def mo_zigarette(doc, A):
+    out = '<path d="M326,282 L366,272 L368,279 L328,289 Z" fill="#f4f1ea" stroke="#000" stroke-opacity=".35"/>'
+    out += '<path d="M326,282 L338,279 L340,286 L328,289 Z" fill="#d79a4a"/>'
+    out += '<path d="M362,273 L368,272 L369,279 L364,280 Z" fill="#ff7a2a"/>'
+    out += doc.soft("M370,268 C380,250 368,236 380,218 C384,232 392,246 378,270 Z", "#d9dde4", 6, .35)
+    return out
+
+
+def mo_zahnstocher(doc, A):
+    return line("M330,284 L362,276", "#d8b98a", 2.6) + line("M330,284 L362,276", "#000", .6, .3)
+
+
+MOUTHS = {
+    "zigarette": ("Zigarette", mo_zigarette, 2, 1),
+    "zahnstocher": ("Zahnstocher", mo_zahnstocher, 2, 0),
+}

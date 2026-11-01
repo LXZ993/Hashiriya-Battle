@@ -1,9 +1,8 @@
-"""Körperteile: Grundkörper, Oberteile, Halsteile, Aufnäher und Rangabzeichen.
+"""Körperteile: Grundkörper, Oberteile, Halsteile und Crew-Abzeichen.
 
 Koordinaten im Körper-System bei voller Breite (Männer). Frauen-Oberteile werden beim Ablegen
-in der Ebene um die Mitte auf k=0,86 verschmälert. Jedes Oberteil nennt feste Plätze (ANCHORS)
-für Crew-Abzeichen und Rang, passend zum Kleidungsstück: Stoffaufnäher, Anstecknadel,
-Aufdruck oder Stickerei. So landet nie ein Abzeichen auf Pelz, Schal oder Reißverschluss.
+in der Ebene um die Mitte auf k=0,86 verschmälert. Jedes Oberteil nennt höchstens einen festen
+Platz für das Crew-Abzeichen, passend zum Kleidungsstück (siehe GARMENTS).
 """
 import math
 import random
@@ -168,8 +167,8 @@ def g_militaer(doc, A, tone, ctx):
         out += stitch(f"M{x - 27},462 h54 M{x - 27},504 h54", "#d8d2b8", .25)
         out += line(f"M{300 + sd * 120},402 L{300 + sd * 168},426", tone[1], 14)
     out += buttons(300, (436, 520, 590), "#2a2e1c", 4)
-    out += '<rect x="336" y="428" width="70" height="14" rx="2" fill="#d8d2b8"/>'
-    out += f'<text x="371" y="439" text-anchor="middle" font-size="11" font-weight="700" font-family="Arial, sans-serif" fill="#2a2e1c">{ctx.get("tape", "HASHIRIYA")[:9]}</text>'
+    out += '<rect x="194" y="428" width="70" height="14" rx="2" fill="#d8d2b8"/>'
+    out += f'<text x="229" y="439" text-anchor="middle" font-size="11" font-weight="700" font-family="Arial, sans-serif" fill="#2a2e1c">{ctx.get("tape", "HASHIRIYA")[:9]}</text>'
     return finish(doc, d, out, False, ctx["female"])
 
 
@@ -222,7 +221,7 @@ def g_anzug(doc, A, tone, ctx, tie=True):
         out += f'<path d="{p}" fill="{doc.lin([(0, tone[0], 1), (1, tone[1], 1)])}" stroke="#000" stroke-opacity=".6" stroke-width="1.3"/>'
         out += doc.soft(p, "#ffffff", 4, .08)
     out += buttons(300, (500, 552), "#111", 4.5)
-    out += f'<path d="M222,452 l8,-8 l6,6 l6,-7 l4,9 z" fill="#ffffff" fill-opacity=".9"/>' + line("M216,454 L250,450", "#000", 2.4, .5)  # Einstecktuch
+    out += f'<path d="M358,452 l4,-9 l6,7 l6,-6 l8,8 z" fill="#ffffff" fill-opacity=".9"/>' + line("M350,454 L388,458", "#000", 2.4, .5)  # Einstecktuch (linke Brust des Trägers)
     out += line("M352,530 L408,530", "#000", 2.4, .45) + line("M192,530 L248,530", "#000", 2.4, .45)
     return out
 
@@ -242,7 +241,7 @@ def g_tokkou(doc, A, tone, ctx):
     out += stand_collar(doc, tone)
     out += line("M300,450 L300,640", "#000", 2.2, .45)
     gold = ctx.get("thread", "#e8c35a")
-    left = ctx.get("motto", "天上天下")
+    left = "総長" if ctx.get("leader") else ctx.get("motto", "天上天下")  # Leader: "Sōchō" (Anführer)
     right = (ctx.get("jp") or "走り屋連合")[:4]
     for x, txt in ((228, left), (372, right)):
         for i, ch in enumerate(txt[:4]):
@@ -400,48 +399,88 @@ def g_bluse(doc, A, tone, ctx):
     return finish(doc, d, out, True, ctx["female"])
 
 
-# Plätze: patch/rank -> (x, y, Art). Art: patch = Stoffaufnäher, pin = Anstecknadel,
-# print = Aufdruck, stick = Stickerei, None = kein Platz (z. B. Tokkou: Crew ist eingestickt)
+def g_warnweste(doc, A, tone, ctx):
+    """Warnweste über T-Shirt (Lkw-Fahrer, Parkwächter, Bauarbeiter)."""
+    tee = bean_n(4, 30, 22)
+    out = cloth(doc, tee, ctx.get("inner", ("#5a606b", "#25282e")), A, [ell(150, 560, 8, 60), ell(450, 560, 8, 60)], light=.3)
+    out += line("M270,370 Q300,416 330,370", "#000", 4, .3)
+    vest = "M168,640 L170,470 C174,420 214,394 258,382 L300,470 L342,382 C386,394 426,420 430,470 L432,640 Z"
+    out += f'<path d="{vest}" fill="{grad(doc, tone)}" stroke="#000" stroke-opacity=".45" stroke-width="1.5"/>'
+    cp = doc.clip(vest)
+    refl = doc.lin([(0, "#f4f6f8", 1), (1, "#9aa3ad", 1)])
+    out += f'<g {cp}><path d="M150,520 L450,520 L450,540 L150,540 Z M150,580 L450,580 L450,600 L150,600 Z" fill="{refl}"/>'
+    out += f'<path d="M228,392 L246,388 L262,640 L244,640 Z M372,392 L354,388 L338,640 L356,640 Z" fill="{refl}"/>'
+    out += doc.soft("M190,450 C210,420 240,404 260,400 L250,430 C230,436 210,452 200,480 Z", "#ffffff", 6, .3) + "</g>"
+    out += line("M300,470 L300,640", "#000", 1.6, .35)
+    return finish(doc, vest, out, False, ctx["female"])
+
+
+def g_mantel(doc, A, tone, ctx):
+    """Langer Trenchcoat, Kragen hoch, zweireihig, darunter Rollkragen."""
+    out = f'<path d="{bean_n(2, 26, 14)}" fill="{grad(doc, ("#2c2f36", "#0c0d10"))}"/>'
+    out += '<path d="M270,338 C270,332 330,332 330,338 L334,384 C318,394 282,394 266,384 Z" fill="#1c1e23" stroke="#000" stroke-opacity=".4"/>'
+    d = bean_n(14, 36, 96, v=True)
+    out += cloth(doc, d, tone, A, [ell(190, 580, 10, 70), ell(410, 580, 10, 70), ell(300, 600, 4, 50)], light=.4)
+    col = "M262,350 L214,392 L240,404 L212,440 L298,470 Z"
+    for pth in (col, mirror(col)):
+        out += f'<path d="{pth}" fill="{grad(doc, tone)}" stroke="#000" stroke-opacity=".6" stroke-width="1.3"/>'
+        out += doc.soft(pth, "#ffffff", 4, .08)
+    for x in (270, 330):
+        out += buttons(x, (500, 548), "#2a2018", 5)
+    out += line("M300,470 L322,640", "#000", 1.8, .45)
+    belt = "M150,604 L450,604 L450,620 L150,620 Z"
+    out += f'<g {doc.clip(d)}><path d="{belt}" fill="{grad(doc, tone)}" stroke="#000" stroke-opacity=".5"/><rect x="290" y="600" width="22" height="24" rx="2" fill="none" stroke="#2a2018" stroke-width="3"/></g>'
+    return out
+
+
+# Platz für das EINE Crew-Abzeichen: (x, y, Art), immer auf der linken Brust des Trägers (im Bild rechts),
+# wo man es im echten Leben trägt. Art: patch = Stoffaufnäher, pin = Anstecknadel am Revers/Weste,
+# print = Aufdruck, stick = Stickerei. None = kein Abzeichen (Pelzmantel, Bluse, Pullover; Tokkou hat
+# den Crewnamen schon eingestickt). Leader tragen dasselbe Abzeichen in Gold.
 # id: Name, Funktion, Halsausschnitt, Plätze, Gewicht m, Gewicht f, passende Farben
 GARMENTS = {
-    "hoodie": ("Hoodie", g_hoodie, "hood", {"patch": (372, 468, "patch"), "rank": (222, 468, "patch")}, 8, 5,
+    "hoodie": ("Hoodie", g_hoodie, "hood", {"patch": (372, 468, "patch")}, 8, 5,
                ["schwarz", "anthrazit", "marine", "grau", "weinrot", "oliv", "rosa", "lila"]),
-    "pelz": ("Mantel mit Pelzkragen", g_pelz, "fur", {"patch": (414, 548, "pin"), "rank": (186, 548, "pin")}, 1, 4,
+    "pelz": ("Mantel mit Pelzkragen", g_pelz, "fur", {"patch": None}, 1, 4,
              ["schwarz", "lila", "weinrot", "creme"]),
-    "militaer": ("Feldjacke", g_militaer, "collar_open", {"patch": (374, 488, "patch"), "rank": (226, 488, "patch")}, 3, 1,
+    "militaer": ("Feldjacke", g_militaer, "collar_open", {"patch": (374, 488, "patch")}, 3, 1,
                  ["oliv", "sand", "anthrazit"]),
-    "leder": ("Lederjacke", g_leder, "open", {"patch": (210, 548, "pin"), "rank": (394, 470, "pin")}, 7, 4,
+    "leder": ("Lederjacke", g_leder, "open", {"patch": (368, 424, "pin")}, 7, 4,
               ["schwarz", "weinrot", "braun_leder"]),
-    "bomber": ("Bomberjacke", g_bomber, "rib", {"patch": (368, 470, "patch"), "rank": (232, 470, "patch")}, 6, 3,
+    "bomber": ("Bomberjacke", g_bomber, "rib", {"patch": (368, 470, "patch")}, 6, 3,
                ["oliv", "schwarz", "marine", "weinrot"]),
-    "anzug": ("Anzug mit Krawatte", g_anzug, "tie", {"patch": (240, 424, "pin"), "rank": (360, 424, "pin")}, 5, 0,
+    "anzug": ("Anzug mit Krawatte", g_anzug, "tie", {"patch": (344, 422, "pin")}, 5, 0,
               ["schwarz", "anthrazit", "marine", "weiss", "weinrot"]),
-    "kostuem": ("Kostüm", g_kostuem, "v", {"patch": (240, 424, "pin"), "rank": (360, 424, "pin")}, 0, 5,
+    "kostuem": ("Kostüm", g_kostuem, "v", {"patch": (344, 422, "pin")}, 0, 5,
                 ["schwarz", "weiss", "creme", "weinrot", "marine", "rosa"]),
-    "tokkou": ("Tokkou-Mantel", g_tokkou, "stand", {"patch": None, "rank": (300, 424, "stick")}, 3, 2,
+    "tokkou": ("Tokkou-Mantel", g_tokkou, "stand", {"patch": None}, 3, 2,
                ["weiss", "schwarz", "lila", "royal", "rot"]),
-    "trainings": ("Trainingsjacke", g_trainings, "stand", {"patch": (370, 450, "patch"), "rank": (230, 450, "patch")}, 6, 5,
+    "trainings": ("Trainingsjacke", g_trainings, "stand", {"patch": (370, 450, "patch")}, 6, 5,
                   ["royal", "rot", "schwarz", "petrol", "lila", "weiss"]),
-    "rennanzug": ("Rennanzug", g_rennanzug, "stand", {"patch": (372, 454, "patch"), "rank": (228, 454, "patch")}, 4, 3,
+    "rennanzug": ("Rennanzug", g_rennanzug, "stand", {"patch": (372, 454, "patch")}, 4, 3,
                   ["weiss", "schwarz", "royal", "rot", "senf"]),
-    "jeans": ("Jeansjacke mit Fellkragen", g_jeans, "collar_open", {"patch": (370, 508, "patch"), "rank": (230, 508, "patch")}, 5, 4,
+    "jeans": ("Jeansjacke mit Fellkragen", g_jeans, "collar_open", {"patch": (370, 508, "patch")}, 5, 4,
               ["denim"]),
-    "tshirt": ("T-Shirt mit Aufdruck", g_tshirt, "open", {"patch": (300, 490, "print"), "rank": (230, 440, "print")}, 5, 4,
+    "tshirt": ("T-Shirt mit Aufdruck", g_tshirt, "open", {"patch": (300, 490, "print")}, 5, 4,
                ["weiss", "schwarz", "grau", "rot", "senf", "petrol", "rosa"]),
-    "rollkragen": ("Rollkragenpullover", g_rollkragen, "high", {"patch": (364, 456, "pin"), "rank": (236, 456, "pin")}, 3, 5,
+    "rollkragen": ("Rollkragenpullover", g_rollkragen, "high", {"patch": None}, 3, 5,
                    ["schwarz", "creme", "grau", "weinrot", "marine"]),
-    "overall": ("Mechaniker-Overall", g_overall, "collar_open", {"patch": (372, 500, "patch"), "rank": (228, 440, "patch")}, 4, 2,
+    "overall": ("Mechaniker-Overall", g_overall, "collar_open", {"patch": (372, 500, "patch")}, 4, 2,
                 ["grau", "marine", "oliv", "senf", "rot"]),
-    "sukajan": ("Sukajan", g_sukajan, "rib", {"patch": (230, 480, "stick"), "rank": (372, 470, "stick")}, 4, 4,
+    "sukajan": ("Sukajan", g_sukajan, "rib", {"patch": (370, 480, "stick")}, 4, 4,
                 ["schwarz", "marine", "weinrot", "lila", "petrol"]),
-    "parka": ("Parka mit Fellkapuze", g_parka, "fur", {"patch": (372, 470, "patch"), "rank": (228, 470, "patch")}, 3, 2,
+    "parka": ("Parka mit Fellkapuze", g_parka, "fur", {"patch": (372, 470, "patch")}, 3, 2,
               ["oliv", "marine", "schwarz"]),
-    "weste": ("Weste mit Fliege", g_weste, "tie", {"patch": (364, 452, "pin"), "rank": (240, 452, "pin")}, 3, 1,
+    "weste": ("Weste mit Fliege", g_weste, "tie", {"patch": (364, 452, "pin")}, 3, 1,
               ["schwarz", "anthrazit", "weinrot"]),
-    "bluse": ("Bluse mit Schleife", g_bluse, "tie", {"patch": (364, 468, "pin"), "rank": (236, 468, "pin")}, 0, 5,
+    "bluse": ("Bluse mit Schleife", g_bluse, "tie", {"patch": None}, 0, 5,
               ["creme", "weiss", "rosa", "schwarz"]),
+    "warnweste": ("Warnweste", g_warnweste, "open", {"patch": None}, 2, 1, ["neongelb", "neonorange"]),
+    "mantel": ("Trenchcoat", g_mantel, "high", {"patch": (344, 430, "pin")}, 3, 3, ["sand", "schwarz", "anthrazit", "oliv"]),
 }
 TONES["braun_leder"] = ("#6b4128", "#22120a")
+TONES["neongelb"] = ("#e8f53a", "#9aa80c")
+TONES["neonorange"] = ("#ff9a2e", "#b4500a")
 
 # ---------------------------------------------------------------------------
 # Halsteile (Körper-System). Erlaubt nur bei passendem Halsausschnitt.
@@ -503,14 +542,14 @@ def n_handtuch(doc, A):
 NECKS = {
     "kopfhoerer": ("Kopfhörer", n_kopfhoerer, {"hood", "rib", "open", "collar_open", "stand", "high"}, 4, 3),
     "hundemarken": ("Hundemarken", n_hundemarken, {"open", "collar_open"}, 3, 1),
-    "kette": ("Goldkette", n_kette, {"open", "collar_open", "v"}, 3, 2),
+    "kette": ("Goldkette", n_kette, {"open", "collar_open", "v", "stand"}, 3, 2),
     "schal": ("Schal", n_schal, {"open", "collar_open", "rib", "stand"}, 2, 3),
     "choker": ("Halsband", n_choker, {"open", "v", "collar_open"}, 0, 4),
     "handtuch": ("Handtuch", n_handtuch, {"open", "collar_open", "stand"}, 2, 1),
 }
 
 # ---------------------------------------------------------------------------
-# Crew-Abzeichen und Rang
+# Crew-Abzeichen
 # ---------------------------------------------------------------------------
 EMBLEMS = {
     "stern": "M0,-8 L2.4,-2.5 8,-2.5 3.5,1 5,7 0,3.5 -5,7 -3.5,1 -8,-2.5 -2.4,-2.5 Z",
@@ -522,37 +561,30 @@ EMBLEMS = {
 }
 
 
-def mark(x, y, kind, A, emblem, k=1.0):
-    """Crew-Abzeichen je nach Art des Platzes."""
+GOLD = "#e8c35a"
+
+
+def mark(x, y, kind, A, emblem, k=1.0, gold=False):
+    """Crew-Abzeichen je nach Art des Platzes. gold=True: Leader-Ausführung."""
     x = CX + (x - CX) * k
     e = EMBLEMS.get(emblem, EMBLEMS["stern"])
+    c = GOLD if gold else A
     if kind == "patch":
-        return (f'<circle cx="{f(x)}" cy="{y}" r="22" fill="#0b0d11" stroke="{A}" stroke-width="3"/>'
-                f'<path d="{e}" transform="translate({f(x)} {y}) scale(1.8)" fill="{A}" fill-rule="evenodd"/>'
-                + stitch(f"M{f(x - 18)},{y} a18,18 0 1 1 36,0 a18,18 0 1 1 -36,0", A, .5, 1))
+        out = (f'<circle cx="{f(x)}" cy="{y}" r="22" fill="#0b0d11" stroke="{c}" stroke-width="{4 if gold else 3}"/>'
+               f'<path d="{e}" transform="translate({f(x)} {y}) scale(1.8)" fill="{A}" fill-rule="evenodd"/>'
+               + stitch(f"M{f(x - 18)},{y} a18,18 0 1 1 36,0 a18,18 0 1 1 -36,0", c, .5, 1))
+        if gold:
+            out += f'<path d="{e}" transform="translate({f(x)} {y}) scale(1.8)" fill="none" stroke="{GOLD}" stroke-width=".6"/>'
+        return out
     if kind == "pin":
-        return (f'<circle cx="{f(x)}" cy="{y}" r="10" fill="#e8c35a" stroke="#6b4c0c" stroke-width="1.2"/>'
-                f'<circle cx="{f(x)}" cy="{y}" r="7.5" fill="{A}"/>'
+        r = 11 if gold else 9
+        return (f'<circle cx="{f(x)}" cy="{y}" r="{r}" fill="{GOLD if gold else "#c9ced6"}" stroke="#4a3a10" stroke-width="1.2"/>'
+                f'<circle cx="{f(x)}" cy="{y}" r="{r - 2.5}" fill="{A}"/>'
                 f'<path d="{e}" transform="translate({f(x)} {y}) scale(.7)" fill="#fff" fill-rule="evenodd"/>'
                 f'<circle cx="{f(x - 3)}" cy="{y - 4}" r="2" fill="#fff" fill-opacity=".6"/>')
     if kind == "print":
-        return (f'<circle cx="{f(x)}" cy="{y}" r="44" fill="none" stroke="{A}" stroke-width="4" stroke-opacity=".9"/>'
-                f'<path d="{e}" transform="translate({f(x)} {y}) scale(4)" fill="{A}" fill-opacity=".92" fill-rule="evenodd"/>')
+        return (f'<circle cx="{f(x)}" cy="{y}" r="44" fill="none" stroke="{c}" stroke-width="4" stroke-opacity=".9"/>'
+                f'<path d="{e}" transform="translate({f(x)} {y}) scale(4)" fill="{c}" fill-opacity=".92" fill-rule="evenodd"/>')
     if kind == "stick":
-        return (f'<path d="{e}" transform="translate({f(x)} {y}) scale(3.4)" fill="{A}" stroke="#e8c35a" stroke-width=".5" fill-rule="evenodd"/>')
-    return ""
-
-
-def rank_mark(x, y, kind, A, k=1.0):
-    x = CX + (x - CX) * k
-    chev = f"M{f(x - 13)},{y + 2} l13,-9 l13,9 v6 l-13,-9 l-13,9 z M{f(x - 13)},{y + 12} l13,-9 l13,9 v6 l-13,-9 l-13,9 z"
-    if kind == "patch":
-        return (f'<rect x="{f(x - 20)}" y="{y - 16}" width="40" height="36" rx="5" fill="#0b0d11" stroke="{A}" stroke-width="2"/>'
-                f'<path d="{chev}" transform="translate(0 -3)" fill="{A}"/>' + stitch(f"M{f(x - 17)},{y - 13} h34 v30 h-34 z", A, .45, 1))
-    if kind == "pin":
-        return (f'<path d="M{f(x - 9)},{y + 1} l9,-6 l9,6 v4 l-9,-6 l-9,6 z M{f(x - 9)},{y + 8} l9,-6 l9,6 v4 l-9,-6 l-9,6 z" fill="#e8c35a" stroke="#6b4c0c" stroke-width=".8"/>')
-    if kind == "print":
-        return f'<path d="{chev}" fill="{A}" fill-opacity=".9"/>'
-    if kind == "stick":
-        return f'<path d="{chev}" fill="#e8c35a" stroke="#000" stroke-opacity=".3" stroke-width=".6"/>'
+        return f'<path d="{e}" transform="translate({f(x)} {y}) scale(3.4)" fill="{A}" stroke="{c if gold else "#ffffff"}" stroke-width="{.7 if gold else .3}" fill-rule="evenodd"/>'
     return ""

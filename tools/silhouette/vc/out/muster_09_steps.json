@@ -254,14 +254,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 10
+"radius": 9
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00028",
+"name": "fxblur00027",
 "select": true
 }
 },
@@ -270,7 +270,7 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 12
+"radius": 10
 }
 }
 },
@@ -286,14 +286,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 14
+"radius": 3
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00031",
+"name": "fxblur00033",
 "select": true
 }
 },
@@ -302,33 +302,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 6
+"radius": 3
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxds00032",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 30,
-"x": 0,
-"y": 4,
-"blur": 6
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxds00033",
+"name": "fxds00036",
 "select": true
 }
 },
@@ -347,7 +328,26 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00036",
+"name": "fxds00038",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 40,
+"x": 0,
+"y": 3,
+"blur": 4
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00041",
 "select": true
 }
 },
@@ -363,7 +363,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00037",
+"name": "fxblur00042",
 "select": true
 }
 },
@@ -379,7 +379,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00038",
+"name": "fxblur00043",
 "select": true
 }
 },
@@ -395,7 +395,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00039",
+"name": "fxblur00044",
 "select": true
 }
 },
@@ -411,7 +411,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00040",
+"name": "fxds00045",
 "select": true
 }
 },
@@ -430,7 +430,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxglowled00042",
+"name": "fxglowled00047",
 "select": true
 }
 },
@@ -449,7 +449,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00046",
+"name": "fxblur00051",
 "select": true
 }
 },
@@ -465,7 +465,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00049",
+"name": "fxds00052",
 "select": true
 }
 },

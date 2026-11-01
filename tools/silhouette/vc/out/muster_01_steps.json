@@ -213,22 +213,6 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00026",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 10
-}
-}
-},
-{
-"command": "document.find",
-"params": {
 "name": "fxblur00027",
 "select": true
 }
@@ -238,7 +222,7 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 9
+"radius": 10
 }
 }
 },
@@ -270,6 +254,22 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
+"radius": 9
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00030",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
 "radius": 10
 }
 }
@@ -277,7 +277,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00033",
+"name": "fxblur00037",
 "select": true
 }
 },
@@ -293,7 +293,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00034",
+"name": "fxblur00038",
 "select": true
 }
 },
@@ -309,7 +309,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00035",
+"name": "fxblur00039",
 "select": true
 }
 },
@@ -325,7 +325,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00036",
+"name": "fxblur00040",
 "select": true
 }
 },
@@ -341,7 +341,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00037",
+"name": "fxds00041",
 "select": true
 }
 },
@@ -360,7 +360,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00040",
+"name": "fxblur00044",
 "select": true
 }
 },
@@ -376,7 +376,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00041",
+"name": "fxblur00045",
 "select": true
 }
 },
@@ -392,7 +392,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00042",
+"name": "fxblur00046",
 "select": true
 }
 },
@@ -408,7 +408,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00043",
+"name": "fxblur00047",
 "select": true
 }
 },
@@ -424,7 +424,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00044",
+"name": "fxds00048",
 "select": true
 }
 },
@@ -443,7 +443,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxglowled00046",
+"name": "fxglowled00050",
 "select": true
 }
 },

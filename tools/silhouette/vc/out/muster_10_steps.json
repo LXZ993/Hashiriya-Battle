@@ -328,26 +328,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00033",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "stylize.dropShadow",
-"params": {
-"opacity": 40,
-"x": 0,
-"y": 2,
-"blur": 3
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00036",
+"name": "fxblur00035",
 "select": true
 }
 },
@@ -363,7 +344,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00037",
+"name": "fxblur00036",
 "select": true
 }
 },
@@ -379,7 +360,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00038",
+"name": "fxblur00037",
 "select": true
 }
 },
@@ -395,7 +376,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00039",
+"name": "fxblur00038",
 "select": true
 }
 },
@@ -411,7 +392,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00040",
+"name": "fxds00039",
 "select": true
 }
 },
@@ -430,7 +411,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxglowled00042",
+"name": "fxglowled00041",
 "select": true
 }
 },
@@ -449,7 +430,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00046",
+"name": "fxds00045",
 "select": true
 }
 },
@@ -468,7 +449,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00049",
+"name": "fxds00048",
 "select": true
 }
 },

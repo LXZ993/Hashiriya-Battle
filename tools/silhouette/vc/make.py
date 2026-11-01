@@ -109,7 +109,7 @@ def compose(spec, preview):
     doc = Doc(preview)
     A = spec["A"]
     k = FEMALE_K if spec["female"] else 1.0
-    ctx = dict(female=spec["female"], jp=spec["jp"], nick=spec.get("nick", ""), tape=spec.get("tape", "").upper())
+    ctx = dict(female=spec["female"], leader=bool(spec.get("leader")), jp=spec["jp"], nick=spec.get("nick", ""), tape=spec.get("tape", "").upper())
     doc.layer("Hintergrund", background(doc, A, spec["jp"]))
     c = PH.HAIR_COLORS[spec["haircolor"]]
     back, front = PH.HAIRS[spec["hair"]][1](doc, A, c)
@@ -118,12 +118,9 @@ def compose(spec, preview):
     doc.layer("Koerper", PB.body_shell(doc, A), k=k)
     gname, gfn, neck, anchors = PB.GARMENTS[spec["garment"]][:4]
     doc.layer("Oberteil", gfn(doc, A, PB.TONES[spec["tone"]], ctx), k=k)
-    if spec.get("leader") and anchors.get("rank"):
-        x, y, kind = anchors["rank"]
-        doc.layer("Rang", PB.rank_mark(x, y, kind, A, k))
     if spec.get("crew") and anchors.get("patch"):
         x, y, kind = anchors["patch"]
-        doc.layer("Aufnaeher", doc.shadowed(PB.mark(x, y, kind, A, spec["emblem"], k), 0, 2, 3, 40))
+        doc.layer("Abzeichen", doc.shadowed(PB.mark(x, y, kind, A, spec["emblem"], k, gold=bool(spec.get("leader"))), 0, 2, 3, 40))
     if spec.get("neck"):
         doc.layer("Hals", PB.NECKS[spec["neck"]][1](doc, A), k=k)
     doc.layer("Kopf", PH.head_shell(doc, A), head=True)
@@ -131,6 +128,8 @@ def compose(spec, preview):
     doc.layer("Augen", PH.eyes_svg(doc, PH.EYES[spec["eyes"]][1], lashes=spec["female"]) + PH.visor_shine(doc), head=True)
     if spec.get("mask"):
         doc.layer("Maske", PH.mask(doc, A), head=True)
+    elif spec.get("mouth"):
+        doc.layer("Mund", PH.MOUTHS[spec["mouth"]][1](doc, A), head=True)
     if front:
         doc.layer("Haare", front, head=True)
     if spec.get("ear"):
@@ -149,7 +148,7 @@ def catalog(preview, hide=True):
     c = PH.HAIR_COLORS["braun"]
     ctx = dict(female=False, jp="首都高連合", nick="Kenta", tape="MORI")
     doc.layer("Hintergrund", background(doc, A, "首都高連合"))
-    show = {"Koerper_M", "Oberteil_M_hoodie", "Kopf", "Visier", "Augen_normal", "Haare_kurz", "Aufnaeher_Stoff"}
+    show = {"Koerper_M", "Oberteil_M_hoodie", "Kopf", "Visier", "Augen_normal", "Haare_kurz", "Abzeichen_Stoff"}
 
     def L(name, body, **kw):
         doc.layer(name, body, hidden=hide and name not in show, **kw)
@@ -167,8 +166,9 @@ def catalog(preview, hide=True):
         if g[5] > 0:
             L(f"Oberteil_W_{gid}", g[1](doc, A, tone, dict(ctx, female=True)), k=FEMALE_K)
     for kind, nm in (("patch", "Stoff"), ("pin", "Nadel"), ("print", "Aufdruck"), ("stick", "Stickerei")):
-        L(f"Rang_{nm}", PB.rank_mark(222, 468, kind, A))
-        L(f"Aufnaeher_{nm}", doc.shadowed(PB.mark(372, 468, kind, A, "stern"), 0, 2, 3, 40))
+        for gold in (False, True):
+            x, y = {"patch": (372, 468), "pin": (344, 422), "print": (300, 490), "stick": (370, 480)}[kind]
+            L(f"Abzeichen_{nm}{'_Leader' if gold else ''}", doc.shadowed(PB.mark(x, y, kind, A, "stern", gold=gold), 0, 2, 3, 40))
     for nid, n in PB.NECKS.items():
         L(f"Hals_{nid}", n[1](doc, A))
     L("Kopf", PH.head_shell(doc, A), head=True)
@@ -177,6 +177,8 @@ def catalog(preview, hide=True):
         L(f"Augen_{eid}", PH.eyes_svg(doc, fn), head=True)
     L("Augen_Wimpern_normal", PH.eyes_svg(doc, PH.EYES["normal"][1], lashes=True), head=True)
     L("Maske", PH.mask(doc, A), head=True)
+    for mid, (nm, fn, *_r) in PH.MOUTHS.items():
+        L(f"Mund_{mid}", fn(doc, A), head=True)
     for hid, (b, fr) in hairs.items():
         if fr:
             L(f"Haare_{hid}", fr, head=True)

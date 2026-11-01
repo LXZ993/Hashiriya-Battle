@@ -261,7 +261,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00030",
+"name": "fxblur00028",
 "select": true
 }
 },
@@ -270,14 +270,14 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 14
+"radius": 8
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00031",
+"name": "fxblur00029",
 "select": true
 }
 },
@@ -286,23 +286,7 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 14
-}
-}
-},
-{
-"command": "document.find",
-"params": {
-"name": "fxblur00032",
-"select": true
-}
-},
-{
-"command": "effect.apply",
-"params": {
-"effect": "blur.gaussian",
-"params": {
-"radius": 5
+"radius": 8
 }
 }
 },
@@ -318,6 +302,38 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
+"radius": 14
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00034",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 14
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00035",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
 "radius": 5
 }
 }
@@ -325,7 +341,23 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00034",
+"name": "fxblur00036",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 5
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds00037",
 "select": true
 }
 },
@@ -344,7 +376,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00037",
+"name": "fxblur00040",
 "select": true
 }
 },
@@ -360,7 +392,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00038",
+"name": "fxblur00041",
 "select": true
 }
 },
@@ -376,7 +408,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00039",
+"name": "fxblur00042",
 "select": true
 }
 },
@@ -392,7 +424,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00040",
+"name": "fxblur00043",
 "select": true
 }
 },
@@ -408,7 +440,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00041",
+"name": "fxds00044",
 "select": true
 }
 },
@@ -427,7 +459,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxglowled00043",
+"name": "fxglowled00046",
 "select": true
 }
 },
@@ -446,7 +478,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00047",
+"name": "fxds00050",
 "select": true
 }
 },
@@ -465,7 +497,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00050",
+"name": "fxblur00053",
 "select": true
 }
 },
@@ -481,7 +513,7 @@
 {
 "command": "document.find",
 "params": {
-"name": "fxds00052",
+"name": "fxds00054",
 "select": true
 }
 },
@@ -490,17 +522,17 @@
 "params": {
 "effect": "stylize.dropShadow",
 "params": {
-"opacity": 50,
+"opacity": 45,
 "x": 0,
-"y": 7,
-"blur": 9
+"y": 5,
+"blur": 7
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxds00057",
+"name": "fxds00059",
 "select": true
 }
 },

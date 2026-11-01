@@ -286,23 +286,26 @@
 "params": {
 "effect": "blur.gaussian",
 "params": {
-"radius": 9
+"radius": 10
 }
 }
 },
 {
 "command": "document.find",
 "params": {
-"name": "fxblur00032",
+"name": "fxds00033",
 "select": true
 }
 },
 {
 "command": "effect.apply",
 "params": {
-"effect": "blur.gaussian",
+"effect": "stylize.dropShadow",
 "params": {
-"radius": 10
+"opacity": 40,
+"x": 0,
+"y": 2,
+"blur": 3
 }
 }
 },
