@@ -160,7 +160,7 @@ ol.steps li, ul li { margin: 4px 0; }
 <tr><td class="path">lua\ge\extensions\hashiriyaBattle\data\</td><td>Alle Einstellungen und Inhalte als JSON: Gegner, Autos, Händler, Tuning, Zeit, Map-Orte, Texte</td><td>Ja, das ist dein Hauptort</td></tr>
 <tr><td class="path">lua\ge\extensions\hashiriyaBattle\*.lua</td><td>Die Spiellogik (Battle, Spawn, Shops, Karriere ...)</td><td>Nur die Zahlen oben in der Datei (Kapitel "Im Code")</td></tr>
 <tr><td class="path">lua\ge\extensions\core\input\actions\</td><td>Namen der Tastenaktionen</td><td>Nein</td></tr>
-<tr><td class="path">ui\modules\apps\Hashiriya*\</td><td>Die vier UI-Apps (Menü, SP-HUD, Status, Titel). Je App: <code>app.js</code> und <code>app.json</code></td><td>Nur Farben/Größen, wenn du dich traust</td></tr>
+<tr><td class="path">ui\modules\apps\Hashiriya*\</td><td>Die UI-Apps (Menü, SP-HUD, Status, Titel, Terminal, Sprechblase, Teile-Meldung …). Je App: <code>app.js</code> und <code>app.json</code></td><td>Nur Farben/Größen, wenn du dich traust</td></tr>
 <tr><td class="path">settings\ui_apps\originalLayouts\default\</td><td>Das HUD-Layout (wo welche App sitzt)</td><td>Lieber im Spiel verschieben</td></tr>
 <tr><td class="path">settings\inputmaps\keyboard_hashiriya.json</td><td>Tastenbelegung (Pos1 = Menü)</td><td>Ja, siehe <a href="#tasten">Tasten</a></td></tr>
 <tr><td class="path">art\</td><td>Bilder (z. B. <code>art\tutorial\page1.png</code>)</td><td>Ja, Bilder austauschen</td></tr>
@@ -656,6 +656,16 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
   {"level": 3, "unlock": {"minRank": 8}}
 ]</code></pre>
 <p><code>minRank</code> ist der Index in der Rangliste (0 = Neuling). Stufe 1 gibt es ab dem zweiten Rang (Index 1, Nachtgast), Stufe 2 ab Index 4, Stufe 3 ab Index 8. Als Neuling fährst du also nur mit Serienteilen und eigenen Teilen. Ändere die Zahlen, wenn Tuning früher oder später kommen soll (z. B. <code>"minRank": 2</code> für Stufe 1 erst ab dem dritten Rang). Statt <code>minRank</code> geht auch <code>minWins</code> (Anzahl Siege). Gesperrte Teile kannst du in den Warenkorb legen und ansehen, aber nicht kaufen.</p>
+<h3 id="freischalt-meldung">Meldung bei neuen Teilen (unlockNotice)</h3>
+<p>Wird eine Stufe frei (durch einen Rangaufstieg oder genug Siege), schiebt sich links am Bildschirmrand eine Karte herein (UI-App <code>HashiriyaUnlock</code>): <b>HashiNet · Neue Teile freigeschaltet</b>, die Stufe (LV1 grün, LV2 blau, LV3 rot wie im Terminal), der Grund (z. B. „Rang erreicht: Nachtgast“) und wie viele neue Teile es für dein <b>aktives Auto</b> gibt, nach Kategorie (die größten zuerst, der Rest als „+N in weiteren Kategorien“). Bist du gerade zu Fuß, steht dort „Gilt für alle deine Autos“. Ein Balken unten zeigt, wie lange die Karte noch steht, danach gleitet sie wieder hinaus.</p>
+<p>Die Meldung kommt <b>nach</b> dem Battle: erst wenn kein Battle läuft, das Terminal zu ist und ein paar Sekunden Ruhe war (Siegesspruch und „Neuer Rang“ sind dann durch). Werden mehrere Stufen auf einmal frei, kommen sie nacheinander. Jede Stufe meldet sich pro Spielstand nur einmal (gemerkt in <code>save.json</code> als <code>unlockSeen</code>). Alte Spielstände melden nichts nachträglich: Was beim ersten Laden schon frei ist, gilt als gesehen. Auch mit „+500 Ruf“ aus dem Entwickler-Menü kommt die Meldung, wenn dadurch eine Stufe frei wird.</p>
+<pre><code>"unlockNotice": { "enabled": true, "seconds": 9, "delay": 3, "maxCategories": 5 }</code></pre>
+<table><tr><th>Feld</th><th>Standard</th><th>Bedeutung</th></tr>
+<tr><td><code>enabled</code></td><td>true</td><td><code>false</code> = keine Meldung (Stufen werden still freigeschaltet)</td></tr>
+<tr><td><code>seconds</code></td><td>9</td><td>So lange steht die Karte</td></tr>
+<tr><td><code>delay</code></td><td>3</td><td>Sekunden Ruhe nach dem Battle, bevor sie kommt</td></tr>
+<tr><td><code>maxCategories</code></td><td>5</td><td>So viele Kategorien werden einzeln gezeigt</td></tr></table>
+<p>Texte: <code>unlock.*</code> in <span class="path">data\lang\de.json</span>/<code>en.json</code>. Sound: <code>unlock</code> in <span class="path">data\sounds.json</span>. Zum Ansehen ohne Freischalten: Entwickler-Menü → <b>Teile-Meldung testen (LV2)</b>.</p>
 <h3>Kategorien (categories)</h3>
 <pre><code>{"id": "induction", "group": "mech", "defaultLevel": 1,
  "match": ["intake", "turbo", "supercharger", "intercooler"]}</code></pre>
@@ -1044,12 +1054,19 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Tankstelle, Zuhause, Händler, Lexikon, Statistik, Werkzeuge/Dev-Tools</td></tr>
 <tr><td><code>HashiriyaTerminal</code></td><td>Teile-Terminal im Shop und Garagen-PC (eigenes Layout <code>hashiriyaShop.uilayout.json</code>, ganzer Bildschirm, Mitte frei für die Live-Vorschau). Siehe <a href="#tuning">Teile-Terminal</a>.</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
+<tr><td><code>HashiriyaUnlock</code></td><td>Karte links am Rand „Neue Teile freigeschaltet“, wenn eine Tuning-Stufe frei wird (Stufe, Grund, neue Teile pro Kategorie fürs aktive Auto). Siehe <a href="#freischalt-meldung">Meldung bei neuen Teilen</a>.</td></tr>
 <tr><td><code>HashiriyaTalk</code></td><td>Sprechblase unten mit Porträt: Spruch des Rivalen bei Herausforderung, Sieg und Niederlage. Der Rivale steht rechts neben der Blase. Oberer Rand: orange = Herausforderung, rot = er hat gewonnen, grau = er hat verloren. Rahmen ums Porträt: lila = Wanderer, gelb = Leader, rot = Boss. Später auch für die PA-Gespräche.</td></tr>
 <tr><td><code>HashiriyaStatus</code></td><td>Status oben rechts: Uhrzeit, Datum, darunter Rang und Spitzname, Geld, Serie, Combo, Radar</td></tr>
+<tr><td><code>HashiriyaUtility</code></td><td>Oben links, ersetzt die BeamNG-Utility-Apps (Messages, Tasks, Scoreboard). Untereinander: Rangliste (nur wenn ein Spielmodus sie einschaltet), Aufgaben (Titel, Ziele mit Rauten-Haken: grün erledigt, rot gescheitert, orange pulsierend = Achtung) und Meldungen als Karten. Meldungen der Mod sind orange („Hashiriya“), Meldungen vom Spiel grau-blau („BeamNG“), Schäden und Warnungen rot. Gleiche Kategorie ersetzt die alte Karte, höchstens 5 gleichzeitig. Ein Balken unten zeigt, wie lange die Meldung noch steht.</td></tr>
+<tr><td><code>HashiriyaMinimap</code></td><td>Unten links im Querformat, ersetzt die BeamNG-App Navigation. Die Karte zeichnet weiter BeamNG selbst in das freie Feld, die App liefert die schmale Kopfzeile (Navi, Ortsname, Abstand zum Ziel) und den Polizei-Hinweis. Rund oder eckig stellst du in den BeamNG-Optionen (Minimap-Form) ein. Wichtig: nie zusammen mit der BeamNG-App Navigation ins Layout legen, es gibt nur eine Karte.</td></tr>
+<tr><td><code>HashiriyaTacho</code></td><td>Unten rechts, eigener Drehzahlmesser (abgeleitet vom Advanced Tachometer): Drehzahl-Bogen aus Segmenten (weiß, ab 85 % der Höchstdrehzahl orange, darüber rot), Geschwindigkeit, Gang im schrägen Abzeichen (blinkt rot am Begrenzer), Blinker, Licht (grün Abblend-, blau Fernlicht), P = Handbremse, ABS, unten F = Tank (rot blinkend unter 10 %) und T = Wassertemperatur. Ohne Auto blendet er aus.</td></tr>
+<tr><td><code>HashiriyaBoost</code></td><td>Über dem Tacho, Ladedruck (abgeleitet von Forced Induction): Wert in deiner Spiel-Einheit (bar/psi/kPa), Balken von Unterdruck bis Höchstdruck, oranger Strich = 0, ab 80 % rot. Erscheint nur bei Autos mit Turbo oder Kompressor.</td></tr>
+<tr><td><code>HashiriyaPowertrain</code></td><td>Links neben dem Tacho, Antriebs-Steuerung (abgeleitet von Simple Powertrain Control): START/STOP gedrückt halten startet oder stellt den Motor ab (Strich oben orange = an, blinkend = nur Zündung). Daneben kleine Kacheln für das, was das Auto anbietet (Sperren, 4WD, ESC, N2O ...), Farbe/Strich unten = aktueller Zustand. Beim Drüberfahren mit der Maus steht der Name darüber.</td></tr>
 <tr><td><code>HashiriyaTitle</code></td><td>Titelbildschirm (Neues Spiel / Weiter / Credits). Kamera und Uhrzeit: Umschalt+Pos1. Der Verkehr läuft schon im Titelbildschirm. Beim Startauto zeigt er Leistung, Drehmoment und Gewicht als Kacheln und Zustand und Tank als Balken (grün/gelb/rot). Ein Farbwechsel lädt das Showroom-Auto kurz neu; es hat dabei den angezeigten Gebrauchtzustand.</td></tr>
 </table>
 <ul>
 <li><b>Apps verschieben:</b> im Spiel im Esc-Menü die UI-Apps-Bearbeitung öffnen, App ziehen, speichern. Das Standard-Layout der Mod liegt in <span class="path">settings\ui_apps\originalLayouts\default\hashiriyaBattle.uilayout.json</span> (Titelbildschirm: <code>hashiriyaTitle.uilayout.json</code>).</li>
+<li><b>Gemeinsamer Look:</b> Alle eigenen HUD-Apps nutzen eine schlanke Form der Teile-Meldung: dünne orange Kante links (<code>#ff6600</code>), dunkler Verlauf, der nach rechts ausläuft, kleine Kopfzeile in Großbuchstaben. Die BeamNG-Originale Navigation, Tacho2, Forced Induction, Simple Powertrain Control und topLeftApps sind im Mod-Layout durch diese Apps ersetzt.</li>
 <li><b>Farben:</b> In jeder <code>app.js</code> steht der Stil (CSS) als Text. Such nach Farbcodes mit <code>#</code> (z. B. <code>#ff7a1a</code>) und tausch nur den Code.</li>
 <li>Nach Änderungen an <code>app.js</code>: BeamNG neu starten.</li>
 <li><b>Neue App fehlt im Spiel?</b> BeamNG nimmt deine eigene Layout-Kopie in <span class="path">F:\BeamNG\current\settings\ui_apps\layouts\default\hashiriyaBattle.uilayout.json</span> vor dem Mod-Layout. Neue Apps trage ich dort mit ein. Fehlt eine trotzdem: Datei löschen, dann gilt wieder das Mod-Layout.</li>
@@ -1091,6 +1108,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>Als geschlagen markieren</td><td>Zählt ihn als besiegt (z. B. um eine Crew zu überspringen und den Leader zu testen)</td></tr>
 <tr><td>Alle Rivalen entfernen</td><td>Löscht alle Rivalen von der Straße</td></tr>
 <tr><td>+500 Ruf</td><td>Rang schneller erreichen</td></tr>
+<tr><td>Teile-Meldung testen (LV2)</td><td>Zeigt die Karte „Neue Teile freigeschaltet“ für LV2, ohne etwas freizuschalten</td></tr>
 <tr><td>Uhr +1 Stunde / Auf 22 Uhr</td><td>Zeit vorstellen (Wanderer mit Uhrzeit testen)</td></tr>
 <tr><td>Tag +1</td><td>Nächster Spieltag (neue Händler-Angebote, <code>minDay</code>)</td></tr>
 <tr><td>Gratis reparieren / volltanken</td><td>Auto heil und Tank voll, ohne Kosten</td></tr>

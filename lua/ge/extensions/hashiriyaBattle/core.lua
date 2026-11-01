@@ -740,6 +740,7 @@ local function buildUiState()
     st.radar = extensions.hashiriyaBattle_rivals.radarInfo(600)
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
     st.style = extensions.hashiriyaBattle_style.getHudState()
+    st.unlock = extensions.hashiriyaBattle_shop.unlockHud()
     local parking = extensions.hashiriyaBattle_parking
     local nav = parking.getNavInfo()
     if nav then
@@ -1098,6 +1099,9 @@ function M.uiAction(action, arg)
       M.save.rep = (M.save.rep or 0) + 500
       M.writeSave()
     end
+  elseif action == 'devUnlock' then
+    -- Entwickler-Werkzeug: Freischalt-Meldung (UI-App HashiriyaUnlock) ansehen, ohne etwas freizuschalten
+    extensions.hashiriyaBattle_shop.devShowUnlock(arg)
   elseif action == 'cheatHour' then
     local home = extensions.hashiriyaBattle_home
     local h = home.hour() or 0

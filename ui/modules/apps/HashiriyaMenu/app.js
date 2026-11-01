@@ -73,6 +73,7 @@ angular.module('beamng.apps')
             '</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'devClearRivals\')"><i class="hbm-ico" ng-bind-html="ico(\'xmark\')"></i>{{ s.t[\'menu.devClear\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatRep\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'menu.cheatRep\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'devUnlock\', 2)"><i class="hbm-ico" ng-bind-html="ico(\'wrench\')"></i>{{ s.t[\'menu.devUnlock\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatHour\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatHour\', \'night\')"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>{{ s.t[\'menu.cheatNight\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'cheatDay\')"><i class="hbm-ico" ng-bind-html="ico(\'house\')"></i>{{ s.t[\'menu.cheatDay\'] }}</div>' +

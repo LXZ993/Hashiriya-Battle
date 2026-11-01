@@ -1246,7 +1246,128 @@ end
 -- Alte Menü-Schnittstelle (Garagen-Reiter "Teile" öffnet jetzt den Garagen-PC)
 function M.getUiState() return nil end
 
+-- Freischalt-Meldung (UI-App HashiriyaUnlock) ---------------------------------------
+-- Sobald eine Teile-Stufe (tiers in tuning.json) freigeschaltet ist, kommt einmal pro Spielstand eine Meldung:
+-- welche Stufe, wodurch (Rang oder Siege) und wie viele neue Teile es fürs aktive Auto pro Kategorie gibt.
+-- Gemerkt in save.unlockSeen ("1" = true ...). Alte Spielstände ohne Liste: was schon frei ist, gilt als gesehen.
+-- Gezeigt wird erst, wenn kein Battle läuft, das Terminal zu ist und kein Karriere-Fenster offen ist.
+local un = { save = nil, checkTimer = 0, calm = 0, current = nil, timer = 0 }
+
+local function noticeCfg()
+  local n = (rules and rules.unlockNotice) or {}
+  return { enabled = n.enabled ~= false, seconds = tonumber(n.seconds) or 9, delay = tonumber(n.delay) or 3, maxCategories = tonumber(n.maxCategories) or 5 }
+end
+
+-- Neue Teile der Stufe fürs aktive Auto, nach Kategorie gezählt (nil, wenn kein Katalog da ist)
+local function newPartsOf(level)
+  local ok, cat = pcall(getCatalog)
+  if not ok or not cat then return nil end
+  local c = core()
+  local counts, total = {}, 0
+  for _, row in ipairs(cat.rows) do
+    if row.cat and row.cat ~= 'all' then
+      for _, o in ipairs(row.options) do
+        if o.level == level then
+          counts[row.cat] = (counts[row.cat] or 0) + 1
+          total = total + 1
+        end
+      end
+    end
+  end
+  local list = {}
+  for _, cd in ipairs(rules.categories or {}) do
+    if counts[cd.id] then table.insert(list, { id = cd.id, name = c.t('term.cat.' .. cd.id), count = counts[cd.id], group = cd.group }) end
+  end
+  table.sort(list, function(a, b) return a.count > b.count end)
+  local max, more = noticeCfg().maxCategories, 0
+  while #list > max do more = more + table.remove(list).count end
+  return { total = total, cats = list, more = more }
+end
+
+local function unlockedLevels()
+  local out = {}
+  if not (rules and core().save) then return out end
+  for _, t in ipairs(rules.tiers or {}) do
+    if isUnlocked(t.level) then table.insert(out, t.level) end
+  end
+  return out
+end
+M.unlockedLevels = unlockedLevels
+
+local function showUnlock(level)
+  local c = core()
+  local u = tierInfo(level).unlock or {}
+  local car = activeCar()
+  local n = { level = level, key = tostring(level) .. '|' .. os.time() }
+  if u.minRank and u.minRank > 0 then n.reason = c.t('unlock.byRank', rankName(u.minRank))
+  elseif u.minWins and u.minWins > 0 then n.reason = c.t('unlock.byWins', u.minWins) end
+  local parts = newPartsOf(level)
+  if parts and parts.total > 0 then
+    n.carName = car and car.name or ''
+    n.total = parts.total
+    n.cats = parts.cats
+    n.more = parts.more
+  end
+  un.current = n
+  un.timer = noticeCfg().seconds
+  c.sound('unlock')
+  log('I', logTag, string.format('Freischaltung: LV%d (%s neue Teile fürs aktive Auto)', level, tostring(parts and parts.total or '?')))
+end
+
+local function updateUnlocks(dtReal)
+  local c = core()
+  local save = c.save
+  if un.current then
+    un.timer = un.timer - dtReal
+    if un.timer <= 0 then un.current = nil end
+  end
+  if not (c.active and save and rules) then un.calm = 0 return end
+  -- neuer/geladener Spielstand: ohne Liste zählt alles schon Freie als gesehen (keine Meldungsflut)
+  if un.save ~= save then
+    un.save, un.current = save, nil
+    if not save.unlockSeen then
+      save.unlockSeen = {}
+      for _, lv in ipairs(unlockedLevels()) do save.unlockSeen[tostring(lv)] = true end
+    end
+  end
+  -- erst nach einer ruhigen Pause (Sieg-Spruch und Rang-Meldung sind dann durch)
+  local bh = extensions.hashiriyaBattle_battle.getHudState()
+  local career = extensions.hashiriyaBattle_career
+  local calm = not terminal and not (bh and bh.state ~= 'idle') and not (career and career.isOpen())
+  un.calm = calm and (un.calm + dtReal) or 0
+  un.checkTimer = un.checkTimer - dtReal
+  if un.checkTimer > 0 or un.current then return end
+  un.checkTimer = 1
+  local cfg = noticeCfg()
+  for _, lv in ipairs(unlockedLevels()) do
+    if not save.unlockSeen[tostring(lv)] then
+      if not cfg.enabled then
+        save.unlockSeen[tostring(lv)] = true
+      elseif un.calm >= cfg.delay then
+        save.unlockSeen[tostring(lv)] = true
+        showUnlock(lv)
+      end
+      return -- eine Stufe nach der anderen
+    end
+  end
+end
+
+-- Zustand für die UI-App (kommt mit HashiriyaState als st.unlock)
+function M.unlockHud()
+  local n = un.current
+  if not n then return nil end
+  return { level = n.level, key = n.key, reason = n.reason, carName = n.carName, total = n.total, cats = n.cats, more = n.more,
+    left = math.max(un.timer, 0), seconds = noticeCfg().seconds }
+end
+
+-- Entwickler-Werkzeug: Meldung für eine Stufe sofort zeigen (ohne etwas freizuschalten)
+function M.devShowUnlock(level)
+  showUnlock(tonumber(level) or 2)
+end
+
 local function onUpdate(dtReal)
+  local okU, errU = pcall(updateUnlocks, dtReal)
+  if not okU and not un.warned then un.warned = true log('E', logTag, 'Freischalt-Meldung: ' .. tostring(errU)) end
   if retryTimer > 0 then retryTimer = retryTimer - dtReal end
   -- im Shop/in der Garage die Fahrzeugwerte regelmäßig auffrischen (nach jedem Respawn neu)
   local p = extensions.hashiriyaBattle_parking
