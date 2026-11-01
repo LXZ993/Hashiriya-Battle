@@ -5,6 +5,8 @@
 -- geschlagen ist, Hinweise auf Wanderer und Bosse (schaltet den Hinweis im Lexikon frei), wartende Rivalen, Smalltalk.
 -- Dazu Wissen (kind fact, Alpha 0.4.1): echte Fakten über Japan, Tokio, den Shutoko und die Szene, oft als kleine
 -- Geschichte über mehrere Sätze. Gefiltert nach Karte (map) und PA (place), jede Figur hat ihre eigenen Themen.
+-- Alpha 0.5: Nachts stehen auch Rivalen und Wanderer neben ihrem eigenen Auto. Ansprechen = Spruch, dann Battle
+-- verabreden (Taste Reden) oder Pink Slip (Taste "Reden: Pink Slip", Standard G). Er fährt vor und wartet auf dem C1.
 -- Texte und Einstellungen: data/chat.json (speakers, talk, pa). Figuren = BeamNG-Fußgänger (Einrad mit Figur),
 -- Porträts: art/portraits/npc/<sprecher>_<n>.svg.
 local M = {}
@@ -28,6 +30,8 @@ local convo = nil       -- laufendes Gespräch { npc, lines, index }
 local checkTimer = 0
 local lookTimer = 0
 local pendingFace = {}  -- [figId] = { dir, tries }: Blickrichtung nach dem Spawnen setzen
+local pending = nil     -- an der PA verabredetes Battle { rival, pink, paPos, night, tries }
+local acceptBattle      -- weiter unten
 
 -- Einstellungen ---------------------------------------------------------------------
 
@@ -36,6 +40,8 @@ local defaults = {
   talkDistance = 2.8, lookDistance = 9, importantChance = 0.4, secondLineChance = 0.35, rankSlack = 1,
   heardWeight = 0.15, portraitVariants = 3, excludeConfigs = { 'police', 'race' },
   loreChance = 0.6, ownTopicWeight = 3, otherTopicWeight = 0.5, placeWeight = 3, moreChance = 0.5,
+  rivalNight = { 0, 2 }, rivalDay = { 0, 0 }, rivalWaitDistance = 250, rivalWaitSpeed = 30,
+  rivalWeightNew = 3, rivalWeightBeaten = 1, rivalWeightHolder = 6,
 }
 
 local function cfg()
@@ -191,6 +197,7 @@ local function despawnCrowd(i)
     if convo and convo.npc == n then convo = nil end
     deleteObj(n.figId)
     deleteObj(n.carId)
+    if n.rival then rivals().setReserved(n.rival.id, false) end
   end
   crowds[i] = nil
   nearest = nil
@@ -202,6 +209,12 @@ function M.despawnAll()
   crowds, nearest, convo = {}, nil, nil
 end
 
+-- Spiel beendet / Spielstand gewechselt: Verabredung verfällt
+function M.clearPending()
+  if pending then rivals().setReserved(pending.rival.id, false) end
+  pending = nil
+end
+
 -- Figur neben der Fahrertür (rechts, japanische Autos) oder frei auf dem Platz
 local function spawnFigure(n, pos, dir, rand)
   local s = speakerById[n.speaker] or {}
@@ -211,7 +224,7 @@ local function spawnFigure(n, pos, dir, rand)
   local okH, h = pcall(function() return be:getSurfaceHeightBelow(pos + vec3(0, 0, 2)) end)
   if okH and h and h > -1e6 and math.abs(h - pos.z) < 3 then pos = vec3(pos.x, pos.y, h) end
   local opts = { config = config, pos = pos + vec3(0, 0, 0.1), rot = quatFromDir(dir, up), autoEnterVehicle = false,
-    removeTraffic = false, canSpawnAnotherVehicleCheck = false, paint = paintFromColor(s.color) }
+    removeTraffic = false, canSpawnAnotherVehicleCheck = false, paint = paintFromColor(n.color or s.color) }
   local ok, fig = pcall(core_vehicles.spawnNewVehicle, 'unicycle', opts)
   if not ok or not fig then
     log('W', logTag, 'Figur nicht gespawnt: ' .. tostring(fig))
@@ -222,10 +235,11 @@ local function spawnFigure(n, pos, dir, rand)
   return fig:getID(), pos
 end
 
-local function spawnCar(model, config, ps, rand)
+local function spawnCar(model, config, ps, rand, paints, plate)
   local opts = { pos = ps.pos, rot = ps.rot, autoEnterVehicle = false, removeTraffic = false,
-    canSpawnAnotherVehicleCheck = false, licenseText = extensions.hashiriyaBattle_plates.random(rand) }
+    canSpawnAnotherVehicleCheck = false, licenseText = plate or extensions.hashiriyaBattle_plates.random(rand) }
   if config then opts.config = config end
+  if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
   local ok, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
   if not ok or not veh then
     log('W', logTag, 'PA-Auto nicht gespawnt: ' .. tostring(model) .. ' ' .. tostring(config) .. ' ' .. tostring(veh))
@@ -240,6 +254,55 @@ local function spawnCar(model, config, ps, rand)
   pcall(function() veh:queueLuaCommand('electrics.setIgnitionLevel(0)') end)
   core().freezeCar(veh, true)
   return id
+end
+
+-- Figur neben ihr Auto stellen: meist an die Fahrerseite (Rechtslenker), Blick vom Auto weg
+local function placeBeside(n, ps, rand)
+  local veh = be:getObjectByID(n.carId)
+  local fwd = veh and veh:getDirectionVector() or (ps.rot * vec3(0, 1, 0))
+  fwd = vec3(fwd.x, fwd.y, 0):normalized()
+  local right = fwd:cross(up):normalized()
+  local okB, ext = pcall(function() return veh.initialNodePosBB:getExtents() end)
+  local half = (okB and ext and ext.x or 1.8) / 2
+  local side = rand() < 0.75 and 1 or -1
+  local base = veh and veh:getPosition() or ps.pos
+  local okC, ctr = pcall(function() return veh:getSpawnWorldOOBB():getCenter() end)
+  if okC and ctr then base = vec3(ctr) end
+  local pos = base + right * side * (half + 0.9) + fwd * (rand() * 1.2 - 0.3)
+  -- schaut zur Seite vom Auto weg, leicht nach vorne (als würde er warten)
+  local dir = (right * side + fwd * (rand() - 0.5)):normalized()
+  n.figId, n.pos = spawnFigure(n, pos, dir, rand)
+  n.dir = dir
+end
+
+-- Rivalen, die an dieser PA stehen könnten: wer heute auf der Straße auftauchen dürfte (ohne Bosse).
+-- Wer dein Auto hat, steht am liebsten hier und zeigt es herum.
+local function paRivalPool(save)
+  local c = cfg()
+  local pool = {}
+  for _, r in ipairs((rivals().getData() or {}).rivals or {}) do
+    if not r.boss and not (pending and pending.rival.id == r.id) and rivals().isEligible(r, save) then
+      local w = save.defeated[r.id] and (c.rivalWeightBeaten or 1) or (c.rivalWeightNew or 3)
+      if save.pinkHeld and save.pinkHeld[r.id] then w = c.rivalWeightHolder or 6 end
+      table.insert(pool, { r = r, w = w })
+    end
+  end
+  return pool
+end
+
+local function spawnRivalNpc(r, ps, rand, pa)
+  local model, config, paints, plate = rivals().carFor(r)
+  local n = { rival = r, speaker = 'rival', variant = 1, heard = {}, place = pa.name,
+    color = type(r.paint) == 'table' and r.paint.color or nil }
+  n.carId = spawnCar(model, config, ps, rand, paints, plate)
+  if not n.carId then return nil end
+  placeBeside(n, ps, rand)
+  if not n.figId then
+    deleteObj(n.carId)
+    return nil
+  end
+  rivals().setReserved(r.id, true)
+  return n
 end
 
 local function spawnCrowd(i, pa)
@@ -261,6 +324,28 @@ local function spawnCrowd(i, pa)
   crowds[i] = cr
   local used = {}
   local spotIdx = 1
+  -- Rivalen und Wanderer zuerst (sie brauchen eine Bucht für ihr Auto)
+  local rr = night and c.rivalNight or c.rivalDay
+  local rcount = rr and math.floor(rr[1] + rand() * (rr[2] - rr[1] + 1)) or 0
+  if rcount > 0 and save then
+    local okPool, pool = pcall(paRivalPool, save)
+    if not okPool then log('E', logTag, 'Rivalen für die PA: ' .. tostring(pool)); pool = {} end
+    for _ = 1, rcount do
+      local e = spots[spotIdx] and pickWeighted(pool, function(x) return x.w end, rand)
+      if not e then break end
+      e.w = 0
+      local okR, n = pcall(spawnRivalNpc, e.r, spots[spotIdx], rand, pa)
+      if not okR then log('E', logTag, 'Rivale an der PA nicht aufgestellt: ' .. tostring(n)); n = nil end
+      if n then
+        spotIdx = spotIdx + 1
+        table.insert(cr.npcs, n)
+        log('I', logTag, 'Rivale an ' .. tostring(pa.name) .. ': ' .. tostring(e.r.id))
+      end
+      local co, isMain = coroutine.running()
+      if co and not isMain then coroutine.yield() end
+      if crowds[i] ~= cr then return end
+    end
+  end
   for _ = 1, count do
     local pool = {}
     for _, s in ipairs(chat.speakers or {}) do
@@ -278,23 +363,7 @@ local function spawnCrowd(i, pa)
       local config = pickConfig(car.model, car.match, rand)
       if not config and car.match then config = pickConfig(car.model, nil, rand) end
       n.carId = spawnCar(car.model, config, ps, rand)
-      if n.carId then
-        local veh = be:getObjectByID(n.carId)
-        local fwd = veh and veh:getDirectionVector() or (ps.rot * vec3(0, 1, 0))
-        fwd = vec3(fwd.x, fwd.y, 0):normalized()
-        local right = fwd:cross(up):normalized()
-        local okB, ext = pcall(function() return veh.initialNodePosBB:getExtents() end)
-        local half = (okB and ext and ext.x or 1.8) / 2
-        local side = rand() < 0.75 and 1 or -1 -- meist an der Fahrerseite (Rechtslenker)
-        local base = veh and veh:getPosition() or ps.pos
-        local okC, ctr = pcall(function() return veh:getSpawnWorldOOBB():getCenter() end)
-        if okC and ctr then base = vec3(ctr) end
-        local pos = base + right * side * (half + 0.9) + fwd * (rand() * 1.2 - 0.3)
-        -- schaut zur Seite vom Auto weg, leicht nach vorne (als würde er warten)
-        local dir = (right * side + fwd * (rand() - 0.5)):normalized()
-        n.figId, n.pos = spawnFigure(n, pos, dir, rand)
-        n.dir = dir
-      end
+      if n.carId then placeBeside(n, ps, rand) end
     end
     if not n.carId and (#cars == 0 or #spots == 0) then
       -- ohne Auto (z. B. Parkwächter): irgendwo am Rand der PA-Mitte
@@ -424,11 +493,26 @@ local function factCandidates(n, save, fresh)
 end
 
 local function speakerName(n)
+  if n.rival then
+    local nick = loc(n.rival.nick or '')
+    return n.rival.name .. (nick ~= '' and ('  "' .. nick .. '"') or '')
+  end
   local s = speakerById[n.speaker]
   return s and loc(s.name) or ''
 end
 
 local function portraitOf(n)
+  if n.rival then
+    if type(n.rival.portrait) == 'string' and n.rival.portrait ~= '' then
+      local p = '/' .. n.rival.portrait:gsub('^/', '')
+      if FS:fileExists(p) then return p end
+    end
+    for _, ext in ipairs({ 'png', 'jpg', 'svg' }) do
+      local p = '/art/portraits/' .. n.rival.id .. '.' .. ext
+      if FS:fileExists(p) then return p end
+    end
+    return nil
+  end
   local path = '/art/portraits/npc/' .. n.speaker .. '_' .. tostring(n.variant) .. '.svg'
   if FS:fileExists(path) then return path end
   path = '/art/portraits/npc/' .. n.speaker .. '_1.svg'
@@ -436,7 +520,37 @@ local function portraitOf(n)
 end
 
 -- Zeilen für ein Gespräch zusammenstellen
+local function rivalLines(n, save)
+  local co = core()
+  local r = n.rival
+  local lines = {}
+  local function say(text, extra)
+    local l = { id = 'rival_' .. r.id, kind = 'rival', text = text }
+    for k, v in pairs(extra or {}) do l[k] = v end
+    table.insert(lines, l)
+  end
+  if n.talked then
+    say(co.t('talk.rivalAgain'), { choice = true, pinkOk = n.pinkOk })
+    return lines
+  end
+  local challenge = type(r.lines) == 'table' and loc(r.lines.challenge) or ''
+  say(challenge ~= '' and challenge or co.t('talk.rivalHello'))
+  local pk = extensions.hashiriyaBattle_pinkslip
+  local held = pk.heldBy(r, save)
+  if held then say(co.t('talk.pinkHeld', held.name or held.model)) end
+  local pinkOk, why = pk.canOffer(r, save)
+  n.pinkOk = pinkOk
+  if pinkOk then
+    say(co.t(held and 'talk.rivalAskPinkBack' or 'talk.rivalAskPink'), { choice = true, pinkOk = true })
+  else
+    if why then say(co.t(why)) end
+    say(co.t(save.defeated[r.id] and 'talk.rivalAskRematch' or 'talk.rivalAsk'), { choice = true })
+  end
+  return lines
+end
+
 local function buildLines(n, save)
+  if n.rival then return rivalLines(n, save) end
   local c = cfg()
   local rand = math.random
   local lines = {}
@@ -564,11 +678,95 @@ function M.endTalk()
   core().sendUiState()
 end
 
+-- Battle an der PA verabreden: Figur und Auto verschwinden ("fährt schon mal vor"), er wartet auf dem C1
+acceptBattle = function(n, pink)
+  local c = core()
+  local r = n.rival
+  if not r then return end
+  local copy = {}
+  for k, v in pairs(r) do copy[k] = v end
+  copy.paChallenge = true
+  copy.pinkSlip = pink or nil
+  local paPos = n.pos
+  for _, cr in pairs(crowds) do
+    for k, x in ipairs(cr.npcs) do
+      if x == n then
+        table.remove(cr.npcs, k)
+        local pa = nil
+        for _, p in ipairs(paList()) do if p.name == cr.name then pa = p end end
+        if pa then paPos = toVec(pa.pos) end
+        break
+      end
+    end
+  end
+  convo = nil
+  nearest = nil
+  deleteObj(n.figId)
+  deleteObj(n.carId)
+  rivals().setReserved(r.id, true) -- bis er auf der Straße ist
+  pending = { rival = copy, pink = pink, paPos = paPos, night = home().nightId(), tries = 0, wait = 0 }
+  c.sound('challenge')
+  c.msg(c.t(pink and 'msg.paPinkAccepted' or 'msg.paBattleAccepted', r.name), 8)
+  log('I', logTag, 'Battle an der PA verabredet: ' .. tostring(r.id) .. (pink and ' (Pink Slip)' or ''))
+  c.writeSave()
+  c.sendUiState()
+end
+
+-- Zweite Taste im Gespräch mit einem Rivalen: Pink Slip annehmen
+function M.interactAlt()
+  local c = core()
+  if not c or not c.active or not convo then return end
+  local line = convo.lines[convo.index]
+  if line and line.choice and line.pinkOk then acceptBattle(convo.npc, true) end
+end
+
+function M.getPending() return pending end
+
+-- Verabredung einlösen: Bist du mit dem Auto weit genug von der PA weg und schnell genug, taucht er vor dir auf
+local function updatePending(dt, c, veh, wpos)
+  if not pending then return end
+  local h = home()
+  if pending.night ~= h.nightId() or not h.isNight() then
+    rivals().setReserved(pending.rival.id, false)
+    c.msg(c.t('msg.paBattleExpired', pending.rival.name), 5)
+    pending = nil
+    return
+  end
+  if wpos or not veh or extensions.hashiriyaBattle_battle.isBusy() then return end
+  pending.wait = pending.wait - dt
+  if pending.wait > 0 then return end
+  local conf = cfg()
+  local far = (veh:getPosition() - pending.paPos):length() > (conf.rivalWaitDistance or 250)
+  local fast = veh:getVelocity():length() * 3.6 > (conf.rivalWaitSpeed or 30)
+  if not far or not fast or extensions.hashiriyaBattle_parking.getCurrent() then return end
+  rivals().setReserved(pending.rival.id, false)
+  local ok, entry = pcall(rivals().spawnNext, true, pending.rival)
+  if ok and entry then
+    c.msg(c.t(pending.pink and 'msg.paPinkWaiting' or 'msg.paBattleWaiting', pending.rival.name), 8)
+    pending = nil
+    return
+  end
+  rivals().setReserved(pending.rival.id, true)
+  pending.tries = pending.tries + 1
+  pending.wait = 2
+  if pending.tries >= 15 then
+    log('W', logTag, 'Verabredeter Rivale fand keinen Platz auf der Straße: ' .. tostring(pending.rival.id))
+    rivals().setReserved(pending.rival.id, false)
+    c.msg(c.t('msg.paBattleExpired', pending.rival.name), 5)
+    pending = nil
+  end
+end
+
 -- Taste "Reden": ansprechen, nächster Satz, beenden
 function M.interact()
   local c = core()
   if not c or not c.active then return end
   if convo then
+    local line = convo.lines[convo.index]
+    if line and line.choice then
+      acceptBattle(convo.npc, false)
+      return
+    end
     convo.index = convo.index + 1
     if convo.index > #convo.lines then M.endTalk() else
       c.sound('talk')
@@ -589,28 +787,40 @@ function M.getHudState()
     local line = convo.lines[convo.index]
     if not line then return nil end
     local last = convo.index >= #convo.lines
+    local tag = line.hint and 'hint' or (line.kind == 'fact' and 'fact' or 'npc')
+    if convo.npc.rival then tag = rivals().markerKind(convo.npc.rival) end
+    local nextText = c.t(last and 'talk.end' or 'talk.next')
+    local alt = nil
+    if line.choice then
+      nextText = c.t('talk.accept')
+      if line.pinkOk then alt = { key = M.keyName('hashiriyaTalkAlt'), text = c.t('talk.acceptPink') } end
+    end
     return {
       talk = { text = line.text, name = speakerName(convo.npc), portrait = portraitOf(convo.npc), side = 'left', kind = 'pa',
-        tag = line.hint and 'hint' or (line.kind == 'fact' and 'fact' or 'npc'), step = convo.index, steps = #convo.lines,
+        tag = tag, step = convo.index, steps = #convo.lines,
         topic = line.topic and c.t('talk.topic.' .. line.topic) or nil,
-        key = M.keyName(), next = c.t(last and 'talk.end' or 'talk.next'), hint = line.hint and c.t('talk.hintLearned') or nil },
+        key = M.keyName(), next = nextText, alt = alt, decline = line.choice and c.t('talk.declineHint') or nil,
+        hint = line.hint and c.t('talk.hintLearned') or nil },
     }
   end
   if nearest then
-    return { prompt = { name = speakerName(nearest), key = M.keyName(), text = c.t('talk.prompt'), again = nearest.talked or nil } }
+    return { prompt = { name = speakerName(nearest), key = M.keyName(), text = c.t(nearest.rival and 'talk.promptRival' or 'talk.prompt'),
+      again = nearest.talked or nil, rival = nearest.rival and rivals().markerKind(nearest.rival) or nil } }
   end
   return nil
 end
 
 -- Name der Taste fürs Reden (aus der Tastenbelegung)
-local keyCache, keyCacheT = nil, -100
-function M.keyName()
-  if os.clock() - keyCacheT < 5 then return keyCache end
-  keyCacheT = os.clock()
-  keyCache = 'T'
-  local ok, name = pcall(function() return extensions.hashiriyaBattle_career.keyFor('hashiriyaTalk') end)
-  if ok and name then keyCache = name end
-  return keyCache
+local keyCache = {}
+function M.keyName(action)
+  action = action or 'hashiriyaTalk'
+  local kc = keyCache[action]
+  if kc and os.clock() - kc.t < 5 then return kc.name end
+  local name = action == 'hashiriyaTalk' and 'T' or 'G'
+  local ok, found = pcall(function() return extensions.hashiriyaBattle_career.keyFor(action) end)
+  if ok and found then name = found end
+  keyCache[action] = { name = name, t = os.clock() }
+  return name
 end
 
 -- Laufend ---------------------------------------------------------------------------
@@ -642,6 +852,8 @@ local function onUpdate(dtReal)
   local veh = c.getPlayerVehicle()
   local ppos = wpos or (veh and veh:getPosition()) or nil
   if not ppos then return end
+  local okU, errU = pcall(updatePending, 0.25, c, veh, wpos)
+  if not okU then log('E', logTag, 'PA-Verabredung: ' .. tostring(errU)) end
   local busy = extensions.hashiriyaBattle_battle.isBusy()
 
   -- Leute an den PAs auf- und abbauen

@@ -1,5 +1,21 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.5 (Stand 01.11.2026)
+
+### Neu: Rivalen an den Parkplätzen
+- Nachts stehen an Shibaura PA und Tatsumi PA jetzt auch Rivalen und Wanderer neben ihrem eigenen Auto, mit Porträt, Spitzname und ihrem Spruch. Bosse nicht.
+- Geh hin und sprich sie mit T an. Danach T = Battle, weggehen = nein.
+- Der Rivale fährt vor und wartet auf dem C1. Sobald du rausfährst, taucht er vor dir auf. Lichthupe, und das Battle läuft wie gewohnt.
+- Wer an einer PA steht, taucht so lange nicht auf der Straße auf.
+
+### Neu: Pink Slip
+- Etwa jeder dritte Rivale fährt auch um die Papiere. Das geht ab Rang 3 und mit mindestens zwei Autos in der Garage. Annehmen mit G.
+- Gewinnst du, gehört sein Auto dir: seine Config, sein Lack, sein Kennzeichen, direkt in deiner Garage.
+- Verlierst du, nimmt er dein Auto mit allen Umbauten mit und fährt es ab jetzt selbst, auf der Straße und an der PA. Du fährst mit deinem nächsten Auto zuhause weiter.
+- Mit jedem Sieg gegen ihn holst du dein Auto zurück. Er steht dann besonders oft an den PAs.
+- Im SP-HUD steht während des Rennens „PINK SLIP“.
+- Neue Taste „Reden: Pink Slip“ (Standard G), auch im Tasten-Check.
+
 ## Alpha 0.4.1 (Stand 01.11.2026)
 
 ### Neu: Mehr Gesprächsstoff an den PAs

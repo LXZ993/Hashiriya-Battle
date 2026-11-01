@@ -1,6 +1,7 @@
 {
     "hashiriyaToggleMenu" :{"cat":"debug", "order": 130, "ctx": "tlua", "onDown" :"extensions.hashiriyaBattle_core.toggleMenu()", "actionMap": "Global", "title": "Hashiriya Battle: Menü ein/aus", "desc": "Blendet das Hashiriya-Battle-Fenster ein oder aus" },
     "hashiriyaTalk" :{"cat":"debug", "order": 132, "ctx": "tlua", "onDown" :"extensions.hashiriyaBattle_talk.interact()", "actionMap": "Global", "title": "Hashiriya Battle: Reden (PA)", "desc": "Zu Fuß an einem Parkplatz mit einem Fahrer reden, nächster Satz, Gespräch beenden" },
+    "hashiriyaTalkAlt" :{"cat":"debug", "order": 134, "ctx": "tlua", "onDown" :"extensions.hashiriyaBattle_talk.interactAlt()", "actionMap": "Global", "title": "Hashiriya Battle: Reden, Pink Slip (PA)", "desc": "Im Gespräch mit einem Rivalen an der PA: um die Autos fahren (Pink Slip)" },
     "hashiriyaCaptureCamera" :{"cat":"debug", "order": 131, "ctx": "tlua", "onDown" :"extensions.hashiriyaBattle_core.captureTitleCamera()", "actionMap": "Global", "title": "Hashiriya Battle: Kamera für Titelbild merken", "desc": "Speichert Position und Blickrichtung der Kamera (z. B. Freecam) als Ansicht für den Titelbildschirm" },
     "hashiriyaDevMenu" :{"cat":"debug", "order": 133, "ctx": "tlua", "onDown" :"if extensions.hashiriyaBattle_core then extensions.hashiriyaBattle_core.toggleDevMenu() end", "actionMap": "Global", "title": "Hashiriya Battle: Dev-Menü ein/aus", "desc": "Öffnet das Entwickler-Fenster (Rang, Orte, Rivalen, Werkzeuge). Nicht im Release." }
 }

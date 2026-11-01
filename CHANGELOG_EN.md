@@ -1,5 +1,21 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.5 (as of 2026-11-01)
+
+### New: rivals at the parking areas
+- At night, rivals and wanderers now also stand next to their own cars at Shibaura PA and Tatsumi PA, with portrait, nickname and their line. Bosses don't.
+- Walk up and talk to them with T. Then T = battle, walk away = no.
+- The rival heads out first and waits on the C1. Once you drive out, they show up ahead of you. Flash your lights and the battle runs as usual.
+- A rival standing at a PA won't appear on the road at the same time.
+
+### New: pink slips
+- About every third rival also races for pink slips. You need rank 3 and at least two cars in your garage. Accept with G.
+- Win and their car is yours: their config, paint and plate, straight into your garage.
+- Lose and they take your car with all its upgrades and drive it from then on, on the road and at the PA. You carry on at home with your next car.
+- Every win against them brings your car back. They also show up at the PAs more often then.
+- The SP HUD shows "PINK SLIP" during the race.
+- New key "Talk: pink slip" (default G), also in the key check.
+
 ## Alpha 0.4.1 (as of 2026-11-01)
 
 ### New: more to talk about at the PAs

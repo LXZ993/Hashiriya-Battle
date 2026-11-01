@@ -1,7 +1,7 @@
 {
   "_hinweis": "PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader (wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet. fact = Wissen über Japan, Tokio, den Shutoko und die Szene (topic = Thema fürs Label, map = nur auf dieser Karte, place = nur an PAs, deren Name das enthält, text = erster Satz, lines = weitere Sätze der Geschichte). more = Überleitung, wenn man jemanden nochmal anspricht und er noch Wissen hat. Neue Wissens-Texte am besten in tools/generator/lore.py eintragen.",
   "pa": {
-    "_hinweis": "Fahrer an den PAs (napSpots der Kartendatei). nightCount/dayCount = wie viele Fahrer nachts/tagsüber (von, bis). spawnDistance = ab dieser Entfernung zur PA-Mitte erscheinen sie, despawnDistance = ab hier verschwinden sie wieder (m). spotRadius = in diesem Umkreis um die PA-Mitte werden Parkbuchten gesucht (m). talkDistance = so nah musst du zu Fuß ran (m), lookDistance = ab hier dreht sich der Fahrer zu dir. importantChance = Chance, dass ein Fahrer ein Gerücht oder einen Hinweis statt Smalltalk hat. secondLineChance = Chance auf einen zweiten Satz. rankSlack = so viele Ränge vor dem nötigen Rang hört man schon von Crews und Wanderern. heardWeight = Gewicht für Sätze, die man schon kennt (1 = normal, 0 = nie wieder). excludeConfigs = Configs mit diesen Wörtern parken nie an der PA. portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg). loreChance = Chance auf Wissen (fact) statt Smalltalk, wenn kein Gerücht kommt. ownTopicWeight/otherTopicWeight = Gewicht für Wissen der eigenen Figur bzw. anderer Figuren. placeWeight = Faktor für Wissen über genau diese PA. moreChance = Chance, beim zweiten Ansprechen noch Wissen zu bekommen statt \"Hab dir schon alles erzählt\".",
+    "_hinweis": "Fahrer an den PAs (napSpots der Kartendatei). nightCount/dayCount = wie viele Fahrer nachts/tagsüber (von, bis). spawnDistance = ab dieser Entfernung zur PA-Mitte erscheinen sie, despawnDistance = ab hier verschwinden sie wieder (m). spotRadius = in diesem Umkreis um die PA-Mitte werden Parkbuchten gesucht (m). talkDistance = so nah musst du zu Fuß ran (m), lookDistance = ab hier dreht sich der Fahrer zu dir. importantChance = Chance, dass ein Fahrer ein Gerücht oder einen Hinweis statt Smalltalk hat. secondLineChance = Chance auf einen zweiten Satz. rankSlack = so viele Ränge vor dem nötigen Rang hört man schon von Crews und Wanderern. heardWeight = Gewicht für Sätze, die man schon kennt (1 = normal, 0 = nie wieder). excludeConfigs = Configs mit diesen Wörtern parken nie an der PA. portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg). loreChance = Chance auf Wissen (fact) statt Smalltalk, wenn kein Gerücht kommt. ownTopicWeight/otherTopicWeight = Gewicht für Wissen der eigenen Figur bzw. anderer Figuren. placeWeight = Faktor für Wissen über genau diese PA. moreChance = Chance, beim zweiten Ansprechen noch Wissen zu bekommen statt \"Hab dir schon alles erzählt\". rivalNight/rivalDay = wie viele Rivalen und Wanderer pro PA nachts/tagsüber neben ihrem Auto stehen (von, bis). rivalWaitDistance/rivalWaitSpeed = so weit weg (m) und so schnell (km/h) musst du sein, bis der verabredete Rivale vor dir auftaucht. rivalWeightNew/rivalWeightBeaten/rivalWeightHolder = wie oft neue, geschlagene und Rivalen mit deinem Auto (Pink Slip) an der PA stehen.",
     "nightCount": [
       3,
       6
@@ -24,6 +24,19 @@
     "otherTopicWeight": 0.5,
     "placeWeight": 3,
     "moreChance": 0.5,
+    "rivalNight": [
+      0,
+      2
+    ],
+    "rivalDay": [
+      0,
+      0
+    ],
+    "rivalWaitDistance": 250,
+    "rivalWaitSpeed": 30,
+    "rivalWeightNew": 3,
+    "rivalWeightBeaten": 1,
+    "rivalWeightHolder": 6,
     "portraitVariants": 3,
     "excludeConfigs": [
       "police",

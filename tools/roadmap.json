@@ -4,7 +4,7 @@
     { "version": "Alpha 0.2", "titel": "Erster Testbuild: Battles, Rivalen-Radar, Startautos, Tag und Nacht", "fertig": true },
     { "version": "Alpha 0.3", "titel": "Großer Kader (26 Crews, 42 Wanderer), Ränge, eigene Rivalen-KI, Release-Build", "fertig": true },
     { "version": "Alpha 0.4", "titel": "Gespräche mit Fahrern an den Parkplätzen (PA)", "fertig": true },
-    { "version": "Alpha 0.5", "titel": "Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen", "fertig": false },
+    { "version": "Alpha 0.5", "titel": "Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen", "fertig": true },
     { "version": "Alpha 0.6", "titel": "Bosse und Story-Kapitel mit Zwischengeschichten", "fertig": false },
     { "version": "Alpha 0.7", "titel": "Nebenjobs am Tag und bezahlte Tipps zu seltenen Rivalen", "fertig": false },
     { "version": "Alpha 0.8", "titel": "Teile verkaufen und ausbauen in der Garage", "fertig": false },
