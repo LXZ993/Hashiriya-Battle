@@ -91,6 +91,12 @@ local defaults = {
   draftDist = 45,        -- m: so nah hinter dir hängt er sich in den Windschatten
   brakeCheckFairness = 0.35, -- unter dieser Fairness: Bremstests möglich
   brakeCheckCooldown = 25,   -- s zwischen zwei Bremstests
+  -- Psycho-Taktik: Blinker-Täuschung, Lichthupe, Hupe, Licht aus (Aggression hoch + Fairness niedrig = öfter)
+  tacticsRate = 3,       -- Taktiken pro Minute höchstens (Aggression 1, Fairness 0), nur in der Nähe des Gegners
+  tacticsDist = 50,      -- m: nur so nah am Gegner
+  tacticsLightsOffFairness = 0.5, -- unter dieser Fairness: Licht aus, damit du ihn nicht siehst
+  -- Start: Erfahrene schalten vor dem Ende des Countdowns runter (siehe driver.json launch)
+  launchHold = 3,        -- s nach dem Start bleiben die hohen Schaltpunkte aktiv
   -- Fehler (Stufe 4), pro Minute bei Können 0 / 1, unter Druck mit schwachen Nerven bis 2,5x so oft
   errorRateMax = 1.0,
   errorRateMin = 0.03,
@@ -138,6 +144,9 @@ local failedReported = false
 local duel = { blockTime = 0, blockCool = 0, blockLat = nil, blockMoves = 0, brakeCheck = 0, brakeCool = 10 }
 local mistake = { kind = nil, time = 0, cool = 0, scared = {} }
 local startDelay = 0
+local launchPrepped = false -- im Countdown schon runtergeschaltet (hohe Schaltpunkte)
+local launchHold = 0
+local tac = { kind = nil, time = 0, step = 0, cool = 15, lightsSaved = nil }
 -- Reibwert für die Planung: BeamNG meldet bei Sport-/Rennreifen bis ~1.7 (Reifen-Spitzenwert),
 -- ein Auto schafft auf der Straße aber kaum mehr als ~1 g. Gedeckelt (wie die BeamNG-KI mit aggression)
 local function muEff() return min(obj:getStaticFrictionCoef(), p.muMax or 1.05) end
@@ -1370,6 +1379,77 @@ local function learnSteering(dt)
   end
 end
 
+-- Psycho-Taktik: Gegner verwirren oder nervös machen --------------------------------------
+local function tacticsOff()
+  if not tac.kind then return end
+  pcall(function()
+    if tac.kind == 'blink' then electrics.set_left_signal(false) electrics.set_right_signal(false)
+    elseif tac.kind == 'flash' then electrics.light_flash_highbeams(false)
+    elseif tac.kind == 'horn' then electrics.horn(false)
+    elseif tac.kind == 'lightsOff' and tac.lightsSaved then electrics.setLightsState(tac.lightsSaved) end
+  end)
+  tac.kind, tac.lightsSaved = nil, nil
+end
+
+local function updateTactics(dt)
+  tac.cool = max(tac.cool - dt, 0)
+  if tac.kind then
+    tac.time = tac.time - dt
+    local prevStep = tac.step
+    if tac.kind == 'blink' then
+      tac.step = math.floor(tac.time / 0.55) -- links, rechts, links, rechts ...
+      if tac.step ~= prevStep then
+        if tac.step % 2 == 0 then electrics.set_left_signal(true) else electrics.set_right_signal(true) end
+      end
+    elseif tac.kind == 'flash' or tac.kind == 'horn' then
+      tac.step = math.floor(tac.time / 0.3) -- an, aus, an, aus ...
+      if tac.step ~= prevStep then
+        local on = tac.step % 2 == 1
+        if tac.kind == 'flash' then electrics.light_flash_highbeams(on) else electrics.horn(on) end
+      end
+    end
+    if tac.time <= 0 then tacticsOff() end
+    return
+  end
+  if tac.cool > 0 or not p.targetId or p.targetId < 0 or ego.speed < 15 then return end
+  local gap = race.gap or 0
+  if abs(gap) > p.tacticsDist or abs(gap) < 3 then return end
+  local mood = clamp(p.aggression * (1.2 - p.fairness), 0, 1)
+  if math.random() >= p.tacticsRate * mood / 60 * dt then return end
+  local kind
+  if gap > 0 then
+    -- vorne: Blinker-Täuschung, Fieslinge machen das Licht aus
+    local lights = electrics.values.lights_state or 0
+    if lights > 0 and p.fairness < p.tacticsLightsOffFairness and gap > 8 and math.random() < 0.5 then
+      kind = 'lightsOff'
+      tac.lightsSaved = lights
+      tac.time = lerp(4, 8, math.random())
+      electrics.setLightsState(0)
+    else
+      kind = 'blink'
+      tac.time = 0.55 * (4 + math.random(0, 4))
+    end
+  else
+    -- hinten: Lichthupe oder Hupe, um dich nervös zu machen
+    kind = math.random() < 0.6 and 'flash' or 'horn'
+    tac.time = 0.3 * 2 * math.random(2, 4)
+  end
+  tac.kind, tac.step = kind, -1
+  if kind == 'blink' then tac.step = math.floor(tac.time / 0.55) + 1 end
+  if kind == 'flash' or kind == 'horn' then tac.step = math.floor(tac.time / 0.3) + 1 end
+  tac.cool = lerp(30, 10, mood)
+  log('I', 'hashiriyaDriver', 'Taktik: ' .. kind .. string.format(' (Abstand %.0f m)', gap))
+end
+
+local function updateLaunch(dt)
+  if launchHold > 0 then
+    launchHold = launchHold - dt
+    if launchHold <= 0 and controller.mainController and controller.mainController.setAggressionOverride then
+      controller.mainController.setAggressionOverride(nil)
+    end
+  end
+end
+
 local function updateGFX(dt)
   if not active then return end
   simTime = simTime + dt
@@ -1422,6 +1502,9 @@ local function updateGFX(dt)
   end
 
   control(dt)
+  updateLaunch(dt)
+  local okT, errT = pcall(updateTactics, dt)
+  if not okT and simTime - errLogTime > 2 then errLogTime = simTime; log('E', 'hashiriyaDriver', 'Taktik: ' .. tostring(errT)) end
   if p.debug then debugDraw() end
 end
 
@@ -1471,6 +1554,10 @@ function M.start(params)
   mistake.kind, mistake.time, mistake.cool = nil, 0, 5
   table.clear(mistake.scared)
   startDelay = lerp(p.reactionMax, p.reactionMin, p.skill)
+  -- im Countdown schon runtergeschaltet: er wartet auf den Start, statt erst zu reagieren
+  if launchPrepped then startDelay = startDelay * 0.4; launchHold = p.launchHold end
+  launchPrepped = false
+  tac.kind, tac.time, tac.step, tac.cool, tac.lightsSaved = nil, 0, 0, lerp(20, 8, p.aggression), nil
   ego.width = obj:getInitialWidth()
   wheelBase = computeWheelBase()
   prevDir:set(obj:getDirectionVectorXYZ())
@@ -1486,17 +1573,46 @@ function M.start(params)
   status = 'start'
 end
 
+-- Start vorbereitet, aber kein Rennen (Frühstart/Abbruch): Getriebe wieder normal
+function M.cancelLaunch()
+  if active or not launchPrepped then return end
+  launchPrepped = false
+  if controller.mainController and controller.mainController.setAggressionOverride then
+    controller.mainController.setAggressionOverride(nil)
+  end
+  if savedGearbox and controller.mainController then controller.mainController.setGearboxMode(savedGearbox) end
+  savedGearbox = nil
+end
+
 function M.stop()
   if not active then return end
   active = false
   driveCar(0, 0, 0, 0)
   M.updateGFX = nop
+  tacticsOff()
+  launchHold, launchPrepped = 0, false
+  if controller.mainController and controller.mainController.setAggressionOverride then
+    controller.mainController.setAggressionOverride(nil)
+  end
   if savedGearbox and controller.mainController then
     controller.mainController.setGearboxMode(savedGearbox)
   end
   savedGearbox = nil
   plan = nil
   status = 'idle'
+end
+
+-- Countdown läuft noch (BeamNG-KI fährt): runterschalten wie vor einem Ampelstart.
+-- Hohe Schaltpunkte = das Getriebe schaltet runter, bis die Drehzahl oben ist.
+function M.prepareLaunch()
+  if not controller.mainController or not controller.mainController.setAggressionOverride then return end
+  if not savedGearbox then
+    savedGearbox = electrics.values.gearboxMode
+    controller.mainController.setGearboxMode('arcade')
+  end
+  controller.mainController.setAggressionOverride(1)
+  launchPrepped = true
+  log('I', 'hashiriyaDriver', string.format('Start vorbereitet: runtergeschaltet (Gang %s)', tostring(electrics.values.gearIndex)))
 end
 
 function M.setRace(info)
