@@ -406,7 +406,7 @@ def g_bluse(doc, A, tone, ctx):
 GARMENTS = {
     "hoodie": ("Hoodie", g_hoodie, "hood", {"patch": (372, 468, "patch"), "rank": (222, 468, "patch")}, 8, 5,
                ["schwarz", "anthrazit", "marine", "grau", "weinrot", "oliv", "rosa", "lila"]),
-    "pelz": ("Mantel mit Pelzkragen", g_pelz, "fur", {"patch": (404, 566, "pin"), "rank": (196, 566, "pin")}, 1, 4,
+    "pelz": ("Mantel mit Pelzkragen", g_pelz, "fur", {"patch": (414, 548, "pin"), "rank": (186, 548, "pin")}, 1, 4,
              ["schwarz", "lila", "weinrot", "creme"]),
     "militaer": ("Feldjacke", g_militaer, "collar_open", {"patch": (374, 488, "patch"), "rank": (226, 488, "patch")}, 3, 1,
                  ["oliv", "sand", "anthrazit"]),
