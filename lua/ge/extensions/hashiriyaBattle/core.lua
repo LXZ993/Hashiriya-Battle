@@ -218,7 +218,32 @@ local function loadData()
   M.levelName = getLevelName()
   M.hasSave = readSave() ~= nil
   M.mapData = M.levelName and jsonReadFile(dataDir .. 'maps/' .. M.levelName .. '.json') or nil
+  spotCache = {}
   log('I', logTag, 'Level: ' .. tostring(M.levelName) .. ', Map-Daten: ' .. tostring(M.mapData ~= nil))
+end
+
+-- Eigene Punkte: Kartendatei (maps/<level>.json) plus im Dev-Menü gemerkte Orte (dev_places.json) ------
+-- kind 'stand' = Stehplätze der PA-Fahrer (standSpots / Dev-Typ npc), 'photo' = Foto-Spots (photoSpots / Dev-Typ photo)
+local spotKinds = { stand = { list = 'standSpots', dev = 'npc' }, photo = { list = 'photoSpots', dev = 'photo' } }
+local spotCache = {}
+function M.resetSpotCache() spotCache = {} end
+function M.spots(kind)
+  local k = spotKinds[kind]
+  if not k then return {} end
+  if spotCache[kind] then return spotCache[kind] end
+  local out = {}
+  for _, e in ipairs((M.mapData or {})[k.list] or {}) do
+    if type(e.pos) == 'table' then table.insert(out, e) end
+  end
+  local dev = jsonReadFile(saveDir .. 'dev_places.json')
+  local L = type(dev) == 'table' and dev.levels and dev.levels[M.levelName or ''] or nil
+  for _, p in ipairs(L and L.places or {}) do
+    if p.type == k.dev and type(p.pos) == 'table' then
+      table.insert(out, { name = p.name, pos = p.pos, dir = p.dir, dev = true })
+    end
+  end
+  spotCache[kind] = out
+  return out
 end
 
 -- Auto des Spielers ---------------------------------------------------------

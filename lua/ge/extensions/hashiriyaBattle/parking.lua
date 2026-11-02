@@ -302,6 +302,8 @@ local colors = {
   shop   = { 0.3, 0.72, 1.0 },
   gas    = { 0.35, 0.9, 0.45 },
   home   = { 1.0, 0.82, 0.45 },
+  job    = { 1.0, 0.6, 0.24 },   -- Nebenjob: Abholen / Abgeben
+  photo  = { 0.31, 0.82, 0.55 }, -- Fotojob: hier das Auto abstellen
 }
 
 local footMarkerSize = { 1.6, 1.6 } -- m, kleine Markierung für Punkte zu Fuß
@@ -407,9 +409,35 @@ local function setOutline(m, alpha)
   obj:setScaleXYZ(m.w, m.l / 2.05, math.max(alpha * 0.2, 0.01)) -- 1 bis 20 cm hoch wie in der Karriere
 end
 
+-- Zusätzliche Markierungen von anderen Systemen (Nebenjobs: Abholen, Abgeben, Foto-Spot)
+-- list = { { id, type = 'job'|'photo', pos = {x,y,z}, dir = {x,y,z} (optional) } }
+local extraAreas = {}
+function M.setExtraMarkers(list)
+  local keep = {}
+  local new = {}
+  for _, e in ipairs(list or {}) do
+    if e.id and type(e.pos) == 'table' then
+      local id = 'x_' .. e.id
+      keep[id] = true
+      table.insert(new, { id = id, type = e.type or 'job', pos = e.pos, dir = e.dir or { 1, 0, 0 }, markerSize = e.size })
+    end
+  end
+  for _, a in ipairs(extraAreas) do
+    if not keep[a.id] then
+      local m = markers[a.id]
+      local obj = m and m.outlineId and scenetree.findObjectById(m.outlineId)
+      if obj then obj:delete() end
+      markers[a.id] = nil
+      groundZ[a.id] = nil
+    end
+  end
+  extraAreas = new
+end
+
 -- Alles, was markiert wird: Buchten für das Auto und Punkte zu Fuß (Zuhause, Shop-Eingang)
 local function markerAreas()
   local list = {}
+  for _, a in ipairs(extraAreas) do table.insert(list, a) end
   for _, a in ipairs(areas()) do
     if not a.footOnly then table.insert(list, a) end
     if a.footPos then

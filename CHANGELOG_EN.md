@@ -1,5 +1,24 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.9.1 (as of 2026-11-02)
+
+### Side jobs
+- Courier, express and fragile jobs: pick up the goods first, then deliver them. The timer starts at pickup.
+- Pickup point, destination and photo spot get a ground marker like the parking lots (orange, green for photo jobs), plus a navigation route on the minimap.
+- Photo job: with custom photo spots you park the car right there. The photo plays a shutter sound and a short flash.
+- Tips: only for wanderers and bosses you can already meet. They are much pricier (from 250,000 yen, bosses from 750,000 yen, 10 % more per rank). Genzō then sends you the hint as a phone message.
+
+### Garage and dealer
+- The car dealer is now right in the garage menu (Service tab).
+- A car's sell price now depends on its value, bought parts, condition and kilometres driven.
+- "Not installed" is now called "Removed".
+
+### Story and PAs
+- The chapter card now waits until the battle and the rival's line are over.
+- Genzō now has a portrait.
+- Dev menu, places: new types "PA driver stand spot" and "photo spot". PA drivers use saved stand spots instead of random places (no more standing inside cars).
+- PA drivers can get a fixed custom config (chat.json, cars[].config).
+
 ## Alpha 0.9 (as of 2026-11-02)
 
 ### New: Rival driving character
@@ -22,7 +41,7 @@
 ## Alpha 0.8 (as of 2026-11-02)
 
 ### New: Remove and sell parts
-- At the garage PC you can now remove almost every part ("Not installed"), including stock parts. Only mandatory parts the car can't exist without stay in.
+- At the garage PC you can now remove almost every part ("Removed"), including stock parts. Only mandatory parts the car can't exist without stay in.
 - In the parts storage every part that isn't installed has a "Sell" button with its price. Click twice and it's gone. A part brings 40 % of its price.
 - Sold stock parts can be bought again at the shop.
 

@@ -76,6 +76,7 @@ angular.module('beamng.apps')
                 '<span class="hbm-car-name">{{ s.t[\'menu.repair\'] }}</span><span class="hbm-price">{{ s.repairCost || s.t[\'menu.noDamage\'] }}</span></div>' +
               '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
               '<div class="hbm-item" ng-click="act(\'jobs\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i><span class="hbm-car-name">{{ s.t[\'jobs.menu\'] }}</span><span class="hbm-price" ng-if="s.job">{{ s.t[\'jobs.running\'] }}</span></div>' +
+              '<div class="hbm-item" ng-click="act(\'dealer\')"><i class="hbm-ico" ng-bind-html="ico(\'carDealer\')"></i>{{ s.t[\'dealer.menu\'] }}</div>' +
               '<div ng-if="s.garageCars.length > 1">' +
                 '<div class="hbm-note">{{ s.t[\'garage.sellNote\'] }}</div>' +
                 '<div class="hbm-section"><i class="hbm-ico hbm-ico-s" ng-bind-html="ico(\'cars\')"></i>{{ s.t[\'garage.cars\'] }}</div>' +

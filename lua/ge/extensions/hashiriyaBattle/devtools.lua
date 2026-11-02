@@ -37,6 +37,8 @@ local placeTypes = {
   { id = 'gas', name = 'Tankstelle' },
   { id = 'wanderer', name = 'Wanderer-Wartepunkt' },
   { id = 'job', name = 'Nebenjob-Ziel (jobSpots)' },
+  { id = 'npc', name = 'PA-Fahrer-Stehplatz' },
+  { id = 'photo', name = 'Foto-Spot (Auto abstellen)' },
   { id = 'police', name = 'Polizei / Messstelle' },
   { id = 'ramp_on', name = 'Auffahrt' },
   { id = 'ramp_off', name = 'Ausfahrt' },
@@ -52,7 +54,7 @@ for _, t in ipairs(placeTypes) do typeName[t.id] = t.name end
 local defaultColors = {
   garage = '#ff6600', home = '#ffffff', pa = '#3fa9ff', shop = '#ffd400', shop_mech = '#ff9a3c', shop_paint = '#ff4fd8',
   shop_body = '#b07bff', gas = '#3ddc84', wanderer = '#9b30ff', police = '#1e40ff', ramp_on = '#00e5d4', ramp_off = '#ff3b3b',
-  mapchange = '#c6ff00', job = '#ffb3e6', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
+  mapchange = '#c6ff00', job = '#ffb3e6', npc = '#7fffd4', photo = '#4fd18b', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
 }
 local markerDefaults = { on = true, showMap = true, height = 40, radius = 0.8, labels = true }
 local drawList = nil -- vorbereitete Säulen (wird bei jeder Änderung neu gebaut)
@@ -87,6 +89,7 @@ end
 local function savePlaces()
   drawList = nil
   if placesCache then jsonWriteFile(placesPath, placesCache, true) end
+  if core() and core().resetSpotCache then core().resetSpotCache() end
 end
 
 local function markerCfg() return loadPlaces().markers end

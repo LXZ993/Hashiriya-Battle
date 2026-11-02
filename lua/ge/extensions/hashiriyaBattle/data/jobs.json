@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Nebenjobs am Tag (Alpha 0.7). settings = Regeln, types = Lohn und Zeit pro Auftragsart (Yen, Sekunden pro km Luftlinie), cargo = Ladungen pro Art, photoSubjects = Motive der Fotojobs. Erklärung im Handbuch, Kapitel 'Nebenjobs'.",
+  "_hinweis": "Nebenjobs am Tag (Alpha 0.7). settings = Regeln, types = Lohn und Zeit pro Auftragsart (Yen, Sekunden pro km Luftlinie), cargo = Ladungen pro Art, photoSubjects = Motive der Fotojobs. Tipps: tipPriceWanderer/tipPriceBoss = Grundpreis, tipRankFactor = +10 % pro Rangstufe; angeboten werden nur Wanderer und Bosse, die vom Fortschritt her (Rang, Teams, Kapitel, Tag) schon kommen können. Erklärung im Handbuch, Kapitel 'Nebenjobs'.",
   "settings": {
     "enabled": true,
     "offersPerDay": 4,
@@ -10,8 +10,9 @@
     "rankBonus": 0.08,
     "photoRadius": 60,
     "photoWindowHours": 2,
-    "tipPriceWanderer": 15000,
-    "tipPriceBoss": 40000
+    "tipPriceWanderer": 250000,
+    "tipPriceBoss": 750000,
+    "tipRankFactor": 0.1
   },
   "types": {
     "courier": {

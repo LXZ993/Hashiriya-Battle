@@ -96,6 +96,12 @@ local function enqueue(scene, ch)
   table.insert(queue, { scene = scene, chapter = ch })
 end
 
+-- Freie Handy-Nachricht (z. B. gekaufter Tipp): kommt wie eine Story-Nachricht, auch beim Fahren
+function M.phoneMessage(id, speaker, lines)
+  if not state() or type(lines) ~= 'table' or #lines == 0 then return end
+  enqueue({ id = id, style = 'phone', speaker = speaker or 'genzo', lines = lines, ['repeat'] = true }, nil)
+end
+
 -- Ereignis aus dem Spiel: passende Szenen des aktuellen Kapitels (und Szenen ohne Kapitel) einreihen
 local function matches(scene, kind, info)
   local trig = scene.trigger or 'start'
@@ -133,8 +139,8 @@ local function startChapter(i, silent)
   st.chapter = i
   log('I', logTag, 'Kapitel ' .. tostring(ch.id) .. (silent and ' (übersprungen)' or ''))
   if silent then return end
-  if ch.title then card = { chapter = ch, t = 0 } end
-  core().sound('levelUp')
+  -- Die Karte wartet, solange ein Battle samt Ergebnis-Spruch läuft (sonst überlappt sie den Rivalentext)
+  if ch.title then card = { chapter = ch, t = 0, shown = false } else core().sound('levelUp') end
   for _, scene in ipairs(ch.scenes or {}) do
     if (scene.trigger or 'start') == 'start' and condOk(scene.conditions, core().save) then enqueue(scene, ch) end
   end
@@ -253,7 +259,7 @@ end
 
 -- Taste Reden: Karte schließen, nächster Satz
 function M.interact()
-  if card then
+  if card and card.shown then
     card = nil
     core().sendUiState()
     return true
@@ -266,7 +272,7 @@ function M.interact()
   return true
 end
 
-function M.isShowing() return card ~= nil or current ~= nil end
+function M.isShowing() return (card ~= nil and card.shown) or current ~= nil end
 
 -- Kapitelziel (HUD und Menü)
 function M.goal()
@@ -284,7 +290,7 @@ end
 
 function M.getHudState()
   local c = core()
-  if card then
+  if card and card.shown then
     local ch = card.chapter
     return { card = { label = loc(ch.label) ~= '' and loc(ch.label) or c.t('story.chapter', ch.number or chapterIndex(ch.id)),
       title = loc(ch.title), jp = ch.jp, text = loc(ch.intro), key = extensions.hashiriyaBattle_talk.keyName(), next = c.t('talk.next') } }
@@ -363,7 +369,12 @@ local function onUpdate(dtReal)
   if not cfg().enabled then return end
   local save = c.save
   -- Karte und Handy-Nachrichten laufen mit der Zeit weiter
-  if card then
+  if card and not card.shown and not extensions.hashiriyaBattle_battle.isBusy() then
+    card.shown = true
+    c.sound('levelUp')
+    c.sendUiState()
+  end
+  if card and card.shown then
     card.t = card.t + dtReal
     if card.t >= cfg().cardSeconds then card = nil c.sendUiState() end
   end

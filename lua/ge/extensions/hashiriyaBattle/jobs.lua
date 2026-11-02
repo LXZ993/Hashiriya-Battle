@@ -20,13 +20,15 @@ local function progress() return extensions.hashiriyaBattle_progress end
 local function parking() return extensions.hashiriyaBattle_parking end
 
 local data = nil
-local active = nil   -- laufender Auftrag { offer, left, startDamage, early }
+local active = nil   -- laufender Auftrag { offer, left, startDamage, early, stage = 'pickup'|'deliver' }
 local timer = 0
+local updateMarkers -- weiter unten (Markierungen und Navi-Route)
 
 local defaults = {
   enabled = true, offersPerDay = 4, maxPerDay = 4, minDistance = 800, arriveRadius = 25, arriveKmh = 8,
   rankBonus = 0.08, photoRadius = 60, photoWindowHours = 2, failMoney = 0,
-  tipPriceWanderer = 15000, tipPriceBoss = 40000,
+  pickup = true, pickupMaxDistance = 2500, photoSpotRadius = 7, photoStopKmh = 2, markers = true, navRoute = true,
+  tipPriceWanderer = 250000, tipPriceBoss = 750000, tipRankFactor = 0.1,
 }
 local typeDefaults = {
   courier = { payBase = 8000, payPerKm = 2500, secondsPerKm = 75, minSeconds = 150, damageFactor = 1, weight = 3 },
@@ -142,7 +144,13 @@ local function buildOffers(save)
     if d >= cfg().minDistance then table.insert(far, { spot = s, dist = d }) end
   end
   local paSpots = {}
-  for _, s in ipairs(list) do if s.kind == 'pa' then table.insert(paSpots, s) end end
+  -- Foto-Spots (Dev-Menü / photoSpots): dort wird das Auto abgestellt. Ohne eigene Spots: die PAs.
+  for _, e in ipairs(core().spots('photo')) do
+    table.insert(paSpots, { name = loc(e.name) ~= '' and loc(e.name) or 'Foto-Spot', pos = e.pos, dir = e.dir, photoSpot = true })
+  end
+  if #paSpots == 0 then
+    for _, s in ipairs(list) do if s.kind == 'pa' then table.insert(paSpots, s) end end
+  end
   local kinds = {}
   for _, k in ipairs({ 'courier', 'express', 'fragile', 'photo' }) do
     for _ = 1, math.max(0, tonumber(typeCfg(k).weight) or 0) do table.insert(kinds, k) end
@@ -159,7 +167,7 @@ local function buildOffers(save)
       local w = cfg().photoWindowHours
       -- Fenster tagsüber, frühestens eine Stunde nach jetzt
       local start = math.min(18 - w, math.max(math.floor(h) + 1, 7 + rand(0, 8)))
-      o.target = { name = s.name, pos = s.pos }
+      o.target = { name = s.name, pos = s.pos, dir = s.dir, photoSpot = s.photoSpot or nil }
       o.window = { start, start + w }
       o.pay = round100(t.payBase * rankFactor(save) * (0.85 + rand() * 0.3))
       local subj = data.photoSubjects or {}
@@ -168,6 +176,22 @@ local function buildOffers(save)
       local f = far[rand(1, #far)]
       local km = f.dist / 1000
       o.target = { name = f.spot.name, pos = f.spot.pos }
+      -- Ware erst abholen (Abholpunkt näher an der Garage), dann zum Ziel
+      if cfg().pickup then
+        local cands = {}
+        local tpos = toVec(f.spot.pos)
+        for _, s2 in ipairs(list) do
+          local sp = toVec(s2.pos)
+          if s2 ~= f.spot and (sp - origin):length() <= cfg().pickupMaxDistance and (sp - tpos):length() >= cfg().minDistance then
+            table.insert(cands, s2)
+          end
+        end
+        if #cands > 0 then
+          local pk = cands[rand(1, #cands)]
+          o.pickup = { name = pk.name, pos = pk.pos }
+          km = (toVec(pk.pos) - tpos):length() / 1000
+        end
+      end
       o.km = math.floor(km * 10 + 0.5) / 10
       o.seconds = math.max(t.minSeconds, math.floor(km * t.secondsPerKm / 5 + 0.5) * 5)
       o.pay = round100((t.payBase + t.payPerKm * km) * rankFactor(save) * (0.9 + rand() * 0.2))
@@ -209,10 +233,13 @@ function M.accept(id)
   for _, o in ipairs(buildOffers(save)) do
     if o.id == id and not j.done[o.id] then
       if o.kind == 'photo' and (home().hour() or 0) >= o.window[2] then c.msg(c.t('jobs.photoMissed'), 4) return end
-      active = { offer = o, left = o.seconds, startDamage = damageYen() }
+      active = { offer = o, left = o.seconds, startDamage = damageYen(), stage = o.pickup and 'pickup' or 'deliver' }
       j.done[o.id] = 'active'
       c.sound('challenge')
-      c.msg(c.t('jobs.accepted', loc(o.cargo and o.cargo.title or '') ~= '' and loc(o.cargo.title) or c.t('jobs.type.' .. o.kind), o.target.name), 6)
+      local what = loc(o.cargo and o.cargo.title or '') ~= '' and loc(o.cargo.title) or c.t('jobs.type.' .. o.kind)
+      if o.pickup then c.msg(c.t('jobs.acceptedPickup', what, o.pickup.name), 6)
+      else c.msg(c.t('jobs.accepted', what, o.target.name), 6) end
+      updateMarkers()
       log('I', logTag, 'Auftrag angenommen: ' .. o.id .. ' ' .. o.kind .. ' -> ' .. tostring(o.target.name))
       c.writeSave()
       return
@@ -251,14 +278,34 @@ end
 
 -- Tipps ---------------------------------------------------------------------------------
 
+-- Tipps nur zu Gegnern, die man vom Fortschritt her schon fordern könnte (Rang, Teams, Kapitel ...).
+-- Uhrzeit, Auto und Teile zählen nicht: genau das verrät ja der Tipp.
+local progressKeys = { minRank = true, minWins = true, minDay = true, speedTraps = true, beatenTeam = true,
+  beatenTeams = true, beatenRivals = true, requires = true, storyChapter = true }
+local function reachable(r, save)
+  local cond = {}
+  for k, v in pairs(r.conditions or {}) do if progressKeys[k] then cond[k] = v end end
+  local rv = extensions.hashiriyaBattle_rivals
+  local ok, met = pcall(rv.conditionsMet, cond, save)
+  return ok and met
+end
+
+-- Preis steigt mit dem Rang (tipRankFactor pro Rangstufe)
+local function tipPrice(r, save)
+  local base = r.boss and cfg().tipPriceBoss or cfg().tipPriceWanderer
+  local rank = 0
+  pcall(function() rank = progress().rankIndex(save) end)
+  return math.floor(base * (1 + (cfg().tipRankFactor or 0) * rank) / 1000 + 0.5) * 1000
+end
+
 local function tipList(save)
   local rv = extensions.hashiriyaBattle_rivals
   local out = {}
   for _, r in ipairs((rv.getData() or {}).rivals or {}) do
-    if (r.wanderer or r.boss) and r.hint and not (save.defeated or {})[r.id] then
+    if (r.wanderer or r.boss) and r.hint and not (save.defeated or {})[r.id] and reachable(r, save) then
       local known = save.knownHints and save.knownHints[r.id]
       table.insert(out, { id = r.id, boss = r.boss or false, known = known or false,
-        price = r.boss and cfg().tipPriceBoss or cfg().tipPriceWanderer, text = known and loc(r.hint) or nil })
+        price = tipPrice(r, save), name = r.name, hint = loc(r.hint), text = known and loc(r.hint) or nil })
     end
   end
   table.sort(out, function(a, b) if a.known ~= b.known then return not a.known end if a.boss ~= b.boss then return not a.boss end return a.id < b.id end)
@@ -275,8 +322,11 @@ function M.buyTip(id)
       save.money = save.money - t.price
       home().learnHint(id)
       progress().bump(save, 'tipsBought')
+      local st = extensions.hashiriyaBattle_story
+      if st and st.phoneMessage then
+        st.phoneMessage('tip_' .. id, 'genzo', { c.t('jobs.tipPhone1', t.name or ''), t.hint or '' })
+      end
       c.msg(c.t('msg.talkHint'), 5)
-      c.sound('talkHint')
       c.writeSave()
       return
     end
@@ -307,7 +357,9 @@ function M.getUiState()
         state = j.done[o.id], client = nil,
       }
       if o.kind == 'photo' and not e.state and (home().hour() or 0) >= o.window[2] then e.state = 'missed' end
-      if o.kind == 'photo' then e.info = c.t('jobs.window', string.format('%02d:00', o.window[1]), string.format('%02d:00', o.window[2]))
+      if o.kind == 'photo' then
+        e.info = c.t(o.target.photoSpot and 'jobs.windowSpot' or 'jobs.window', string.format('%02d:00', o.window[1]), string.format('%02d:00', o.window[2]))
+      elseif o.pickup then e.info = c.t('jobs.limitPickup', o.pickup.name, fmtTime(o.seconds), tostring(o.km))
       else e.info = c.t('jobs.limit', fmtTime(o.seconds), tostring(o.km)) end
       e.client = speakerNames[o.speaker] and loc(speakerNames[o.speaker]) or nil
       table.insert(st.offers, e)
@@ -327,11 +379,13 @@ function M.getHudState()
   local c = core()
   local o = active.offer
   local pos = playerPos()
-  local hud = { kind = o.kind, title = c.t('jobs.type.' .. o.kind), target = o.target.name }
+  local goal = (active.stage == 'pickup' and o.pickup) or o.target
+  local hud = { kind = o.kind, title = c.t('jobs.type.' .. o.kind), target = goal.name }
+  if active.stage == 'pickup' and o.pickup then hud.title = c.t('jobs.pickupHud') hud.pickup = true end
   if pos then
-    local to = toVec(o.target.pos) - pos
+    local to = toVec(goal.pos) - pos
     local d = to:length()
-    hud.distText = d < 1000 and string.format('%d m', d) or string.format('%.1f km', d / 1000)
+    hud.distText = d < 1000 and string.format('%d m', math.floor(d)) or string.format('%.1f km', d / 1000)
     local veh = c.getPlayerVehicle()
     if veh then
       local fwd = veh:getDirectionVector()
@@ -341,6 +395,8 @@ function M.getHudState()
   if o.kind == 'photo' then
     hud.timeText = string.format('%02d-%02d h', o.window[1], o.window[2])
     hud.early = active.early or nil
+  elseif active.stage == 'pickup' then
+    hud.timeText = fmtTime(active.left)
   else
     hud.timeText = fmtTime(active.left)
     hud.warn = active.left < 30 or nil
@@ -352,47 +408,119 @@ end
 
 -- Laufend -------------------------------------------------------------------------------
 
+-- Markierungen in der Welt (wie die Parkplätze) und Navi-Route zum aktuellen Ziel
+local shownGoal = nil
+local function clearRoute()
+  pcall(function() if core_groundMarkers then core_groundMarkers.setPath(nil) end end)
+end
+
+local function setRoute(pos)
+  if not cfg().navRoute then return end
+  local ok = pcall(function() core_groundMarkers.setPath(toVec(pos)) end)
+  if not ok then log('W', logTag, 'Navi-Route zum Auftrag konnte nicht gesetzt werden') end
+end
+
+updateMarkers = function()
+  local goal, kind = nil, 'job'
+  if active then
+    local o = active.offer
+    goal = (active.stage == 'pickup' and o.pickup) or o.target
+    if o.kind == 'photo' then kind = 'photo' end
+  end
+  local key = goal and (tostring(active.offer.id) .. ':' .. tostring(active.stage)) or nil
+  if key == shownGoal then return end
+  shownGoal = key
+  local pk = parking()
+  if pk and pk.setExtraMarkers then
+    pcall(pk.setExtraMarkers, (goal and cfg().markers) and { { id = 'job', type = kind, pos = goal.pos, dir = goal.dir } } or {})
+  end
+  clearRoute()
+  if goal then setRoute(goal.pos) end
+end
+M.updateMarkers = updateMarkers
+
+local function stoppedNear(veh, pos, radius, kmh)
+  if not veh then return false end
+  local d = (veh:getPosition() - toVec(pos)):length()
+  return d < radius and veh:getVelocity():length() * 3.6 < kmh
+end
+
+local function photoTaken(c, o)
+  c.sound('photo')
+  pcall(function() guihooks.trigger('HashiriyaFlash', { kind = 'photo' }) end)
+  finish(true, o.pay, 'jobs.photoDone')
+end
+
 local function onUpdate(dtReal, dtSim)
   local c = core()
-  if not c or not c.active or not c.save then active = nil return end
-  if not active then return end
+  if not c or not c.active or not c.save then
+    if active or shownGoal then active = nil updateMarkers() end
+    return
+  end
+  if not active then
+    if shownGoal then updateMarkers() end
+    return
+  end
   local o = active.offer
   local t = typeCfg(o.kind)
-  if o.kind ~= 'photo' then
+  if o.kind ~= 'photo' and active.stage == 'deliver' then
     if not extensions.hashiriyaBattle_home.isResting() then active.left = active.left - (dtSim or dtReal or 0) end
-    if active.left <= 0 then finish(false, 0, 'jobs.late') return end
+    if active.left <= 0 then finish(false, 0, 'jobs.late') updateMarkers() return end
   end
   timer = timer - (dtReal or 0)
   if timer > 0 then return end
   timer = 0.5
   local ok, err = pcall(function()
+    updateMarkers()
+    local veh = c.getPlayerVehicle()
     if o.kind == 'photo' then
       local h = home().hour() or 0
       if h >= o.window[2] then finish(false, 0, 'jobs.photoMissed') return end
-      local w = c.getWalkerPos()
-      if w and (w - toVec(o.target.pos)):length() < cfg().photoRadius then
-        if h >= o.window[1] then finish(true, o.pay, 'jobs.photoDone')
+      local there
+      if o.target.photoSpot then
+        -- eigener Foto-Spot: Auto genau dort abstellen (Fahrer darf drin bleiben oder aussteigen)
+        there = stoppedNear(veh, o.target.pos, cfg().photoSpotRadius, cfg().photoStopKmh)
+        if not there and not veh then
+          local okL, last = pcall(function() return c.carVehId and be:getObjectByID(c.carVehId) end)
+          there = okL and last and stoppedNear(last, o.target.pos, cfg().photoSpotRadius, cfg().photoStopKmh) or false
+        end
+      else
+        local w = c.getWalkerPos()
+        there = (w and (w - toVec(o.target.pos)):length() < cfg().photoRadius) or stoppedNear(veh, o.target.pos, cfg().photoRadius, cfg().photoStopKmh)
+      end
+      if there then
+        if h >= o.window[1] then photoTaken(c, o)
         elseif not active.early then active.early = true c.msg(c.t('jobs.photoEarly', string.format('%02d:00', o.window[1])), 5) end
       end
       return
     end
-    local veh = c.getPlayerVehicle()
     if not veh then return end
+    if active.stage == 'pickup' then
+      if stoppedNear(veh, o.pickup.pos, cfg().arriveRadius, cfg().arriveKmh) then
+        active.stage = 'deliver'
+        active.left = o.seconds
+        active.startDamage = damageYen()
+        c.sound('jobPickup')
+        c.msg(c.t('jobs.pickedUp', o.target.name, fmtTime(o.seconds)), 6)
+        log('I', logTag, 'Ware abgeholt: ' .. o.id)
+        updateMarkers()
+      end
+      return
+    end
     local dmg = math.max(0, damageYen() - active.startDamage) * (t.damageFactor or 1)
     if t.failDamageYen and dmg >= t.failDamageYen then finish(false, 0, 'jobs.broken') return end
-    local d = (veh:getPosition() - toVec(o.target.pos)):length()
-    local kmh = veh:getVelocity():length() * 3.6
-    if d < cfg().arriveRadius and kmh < cfg().arriveKmh then
+    if stoppedNear(veh, o.target.pos, cfg().arriveRadius, cfg().arriveKmh) then
       local pay = math.max(0, round100(o.pay - dmg))
       finish(true, pay, dmg > 0 and 'jobs.doneDamage' or 'jobs.done')
     end
   end)
   if not ok then log('E', logTag, 'Auftrag: ' .. tostring(err)) end
+  if not active then updateMarkers() end
 end
 
-function M.reset() active = nil end
+function M.reset() active = nil updateMarkers() end
 
 M.onUpdate = onUpdate
-M.onClientEndMission = function() active = nil end
+M.onClientEndMission = function() active = nil shownGoal = nil clearRoute() end
 
 return M
