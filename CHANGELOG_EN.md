@@ -16,6 +16,7 @@
 ### Bug fixes
 - The music was silent. It now plays through BeamNG's own music channel.
 - BeamNG's main menu music stops as soon as you start Hashiriya Battle and comes back in the regular main menu.
+- After the title screen, engine, tyre and other vehicle sounds stayed muted. They now return to the volume from your audio options.
 
 ## Alpha 0.8 (as of 2026-11-02)
 

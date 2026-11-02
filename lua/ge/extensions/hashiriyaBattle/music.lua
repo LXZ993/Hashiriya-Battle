@@ -68,15 +68,19 @@ local duckChannels = { 'AudioChannelPower', 'AudioChannelForcedInduction', 'Audi
 local duck = 1        -- aktueller Faktor (1 = normal)
 local duckTarget = 1
 
+-- Grundwert = die Lautstärke aus den BeamNG-Optionen (getChannelVolume(ch, false)).
+-- Gesetzt wird nur zur Laufzeit (drittes Argument true), wie BeamNGs eigener Audio-Fade.
+-- Ohne true würde BeamNG die Options-Lautstärke selbst überschreiben und das Dämpfen
+-- schaukelt sich bis 0 hoch (Fehler aus PR #48).
 local function savedChannelVolume(ch)
-  local ok, v = pcall(function() return VariableRegistry.get('$pref::SFX::' .. ch) end)
+  local ok, v = pcall(Engine.Audio.getChannelVolume, ch, false)
   v = ok and tonumber(v) or nil
   return v or 1
 end
 
 local function applyDuck()
   for _, ch in ipairs(duckChannels) do
-    pcall(Engine.Audio.setChannelVolume, ch, savedChannelVolume(ch) * duck)
+    pcall(Engine.Audio.setChannelVolume, ch, savedChannelVolume(ch) * duck, true)
   end
 end
 
