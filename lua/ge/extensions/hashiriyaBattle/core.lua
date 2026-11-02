@@ -656,7 +656,7 @@ local function capturePosition()
   msg(M.t('msg.posSaved', #list) .. string.format(' (%.0f / %.0f)', p.x, p.y))
 end
 
--- Titelbild-Kamera: aktuelle Kamera (z. B. Freecam) und Uhrzeit merken, Taste Shift+Pos1.
+-- Titelbild-Kamera: aktuelle Kamera (z. B. Freecam) und Uhrzeit merken, Taste Shift+Pos1 (zweimal drücken).
 -- Gespeichert in settings/hashiriya_battle/title_camera.json (je Level); der Titelbildschirm nutzt sie,
 -- sonst mapData.titleCamera, sonst die Ansicht auf die Garagenbucht.
 local titleCamPath = saveDir .. 'title_camera.json'
@@ -669,8 +669,22 @@ function M.getTitleCamera()
   return md and md.titleCamera or nil
 end
 
-function M.captureTitleCamera()
+-- Sicherheitsabfrage: die Taste muss innerhalb von titleCamConfirmSec zweimal gedrückt werden,
+-- sonst wird nichts überschrieben (versehentliches Drücken). Der Dev-Menü-Knopf speichert direkt.
+local titleCamConfirmSec = 3
+local titleCamArmedAt = nil
+
+function M.captureTitleCamera(confirmed)
   if M.isRelease() then return end
+  if not confirmed then
+    local now = os.clock()
+    if not titleCamArmedAt or now - titleCamArmedAt > titleCamConfirmSec then
+      titleCamArmedAt = now
+      msg(M.t('msg.titleCamConfirm', titleCamConfirmSec), titleCamConfirmSec)
+      return
+    end
+  end
+  titleCamArmedAt = nil
   local okP, p = pcall(core_camera.getPosition)
   local okQ, q = pcall(core_camera.getQuat)
   if not (okP and p and okQ and q) then
@@ -1070,7 +1084,7 @@ function M.uiAction(action, arg)
   elseif action == 'devMenu' then
     M.toggleDevMenu()
   elseif action == 'titleCamera' then
-    M.captureTitleCamera()
+    M.captureTitleCamera(true)
   elseif action == 'save' then
     M.writeSave()
     msg(M.t('msg.saved'))

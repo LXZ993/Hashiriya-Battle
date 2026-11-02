@@ -414,6 +414,7 @@
   "msg.rivalDeclined": "Abgelehnt. %s lässt dich vorerst in Ruhe.",
   "keys.bind": "Belegen",
   "msg.titleCamSaved": "Titelbild-Kamera und Uhrzeit gespeichert. Sie gelten ab dem nächsten Titelbildschirm.",
+  "msg.titleCamConfirm": "Titelbild-Kamera überschreiben? Zum Bestätigen innerhalb von %d s nochmal Umschalt+Pos1 drücken.",
   "menu.devRivalPh": "Rivale: ID oder Name",
   "menu.devSpawn": "Spawnen",
   "menu.devBeat": "Als geschlagen markieren",

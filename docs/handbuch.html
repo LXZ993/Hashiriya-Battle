@@ -1474,7 +1474,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>T</td><td>Zu Fuß an einer PA mit einem Fahrer reden, nächster Satz, Ende (<a href="#chat">PA-Gespräche</a>). Bei Rivalen: Battle annehmen</td></tr>
 <tr><td>G</td><td>Im Gespräch mit einem Rivalen an der PA: Pink Slip annehmen (<a href="#pinkslip">Pink Slip</a>). Steht auch im Tasten-Check; falls G bei dir schon belegt ist, in den BeamNG-Optionen unter „Hashiriya Battle: Reden, Pink Slip“ umlegen.</td></tr>
 <tr><td>Ende (<code>end</code>)</td><td>Musik überspringen: nächstes passendes Stück (<a href="#sounds">Musik</a>). Geht auch im Hashiriya-Menü unter Werkzeuge.</td></tr>
-<tr><td>Umschalt+Pos1</td><td>Aktuelle Kamera als Titelbild-Kamera merken</td></tr>
+<tr><td>Umschalt+Pos1 (2×)</td><td>Aktuelle Kamera als Titelbild-Kamera merken. Sicherheitsabfrage: der erste Druck zeigt nur einen Hinweis, erst ein zweiter Druck innerhalb von 3 Sekunden speichert. Die Wartezeit steht in <code>core.lua</code> als <code>titleCamConfirmSec</code>.</td></tr>
 <tr><td>Umschalt+Ende</td><td><a href="#dev">Dev-Menü</a> auf/zu (nicht im Release)</td></tr>
 </table>
 <p>Ändern geht am einfachsten im Spiel unter Optionen &gt; Steuerung, Kategorie Debug, Eintrag "Hashiriya Battle: Menü ein/aus". Oder hier <code>"control"</code> ändern, z. B. <code>"f6"</code> oder <code>"ctrl m"</code>. „Reden“ steht dort als „Hashiriya Battle: Reden (PA)“. Lichthupe, Warnblinker und Blinker sind die normalen BeamNG-Tasten.</p>
@@ -2010,7 +2010,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <tr><td><code>save.json</code></td><td>Der Spielstand: Geld, Ruf, Siege, geschlagene Rivalen (<code>defeated</code>), Autos, Uhrzeit, Tag, PA-Gespräche (<code>talk</code>), Pink Slip (<code>pinkHeld</code>, <code>pinkWon</code>), Story (<code>story</code>), Nebenjobs (<code>jobs</code>), <code>noCar</code>/<code>gameOver</code></td></tr>
 <tr><td><code>dev_places.json</code></td><td>Im Dev-Menü (Reiter „Orte“) gemerkte Orte mit Name, Typ und Notiz, je Map</td></tr>
 <tr><td><code>captured_positions.json</code></td><td>Alte Positionen aus „Position merken“ (bis Alpha 0.4); werden ins Dev-Menü übernommen</td></tr>
-<tr><td><code>title_camera.json</code></td><td>Titelbild-Kamera je Map</td></tr>
+<tr><td><code>title_camera.json</code></td><td>Titelbild-Kamera je Map (Position, Blickrichtung, Uhrzeit). Versehentlich überschrieben? Jede Speicherung steht mit allen Werten in <code>logs/hashiriya.log</code> (Suche nach „Titelbild-Kamera gespeichert“), die alten Werte kann man von dort zurückkopieren.</td></tr>
 <tr><td><code>config_dump.json</code></td><td>Export aller Configs</td></tr>
 <tr><td><code>logs\</code></td><td>Mod-Log und Fehlerbericht (siehe <a href="#log">Log-System</a>)</td></tr>
 </table>
