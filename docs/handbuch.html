@@ -121,6 +121,9 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
     <a href="#stil">Siegesserie und Combo</a>
     <a href="#chat">PA-Gespräche</a>
     <a href="#pinkslip">Rivalen an den PAs und Pink Slip</a>
+    <a href="#story">Story und Kapitel</a>
+    <a href="#jobs">Nebenjobs und Tipps</a>
+    <a href="#verkaufen">Verkaufen und Game Over</a>
     <a href="#tutorial">Tutorial-Seiten</a>
     <a href="#community">Community-Wanderer und Credits</a>
     <a href="#sounds">Sounds</a>
@@ -198,6 +201,8 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
 <tr><td><code>world.json</code></td><td>Tageslänge, Nacht, Schlaf, Öffnungszeiten, Verkehr je Stunde</td><td><a href="#zeit">Zeit</a></td></tr>
 <tr><td><code>maps\c1.json</code></td><td>Parkplätze, Zuhause, Tankstellen, Showroom auf der C1</td><td><a href="#map">Map</a></td></tr>
 <tr><td><code>style.json</code></td><td>Siegesserie und Fahrstil-Combo</td><td><a href="#stil">Combo</a></td></tr>
+<tr><td><code>story.json</code></td><td>Story: Kapitel, Szenen, Handy-Nachrichten</td><td><a href="#story">Story</a></td></tr>
+<tr><td><code>jobs.json</code></td><td>Nebenjobs am Tag und Tipp-Preise</td><td><a href="#jobs">Nebenjobs</a></td></tr>
 <tr><td><code>chat.json</code></td><td>PA-Gespräche: Fahrer, ihre Autos, Texte und Einstellungen</td><td><a href="#chat">PA-Gespräche</a></td></tr>
 <tr><td><code>credits.json</code></td><td>Credits im Titelbildschirm (feste Abschnitte + Community-Wanderer)</td><td><a href="#community">Community und Credits</a></td></tr>
 <tr><td><code>tutorial.json</code></td><td>Tutorial-Seiten für Neulinge</td><td><a href="#tutorial">Tutorial</a></td></tr>
@@ -486,6 +491,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>beatenTeam</code></td><td>Diese Crew muss komplett geschlagen sein</td><td><code>"beatenTeam": "t_neon"</code></td></tr>
 <tr><td><code>beatenTeams</code></td><td>Alle diese Crews geschlagen</td><td><code>"beatenTeams": ["t_lantern", "t_neon"]</code></td></tr>
 <tr><td><code>beatenRivals</code></td><td>Alle diese Fahrer geschlagen</td><td><code>"beatenRivals": ["w_ojisan", "t_neon_leader"]</code></td></tr>
+<tr><td><code>storyChapter</code></td><td>Erst ab diesem Story-Kapitel (ID aus <a href="#story">story.json</a>)</td><td><code>"storyChapter": "ch3"</code></td></tr>
 </table>
 <h4>Beispiele zum Kopieren</h4>
 <pre><code>// Kommt nur zwischen 2 und 4 Uhr nachts, ab Rang 6
@@ -995,13 +1001,104 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><td><code>enabled</code></td><td>true</td><td>Pink Slip überhaupt an</td></tr>
 <tr><td><code>minRank</code></td><td>3</td><td>Ab diesem Rang (Index wie bei den Crews)</td></tr>
 <tr><td><code>share</code></td><td>0.35</td><td>Anteil der Rivalen, die um Autos fahren (0 = keiner, 1 = alle außer Bosse)</td></tr>
-<tr><td><code>requireSpareCar</code></td><td>true</td><td>Nur mit mindestens zwei Autos (false = auch mit dem letzten Auto; dann kannst du ohne Auto dastehen, Game Over kommt später)</td></tr>
+<tr><td><code>requireSpareCar</code></td><td>true</td><td>Nur mit mindestens zwei Autos (false = auch mit dem letzten Auto; dann kannst du ohne Auto dastehen, siehe <a href="#verkaufen">Game Over</a>)</td></tr>
 <tr><td><code>money</code></td><td>false</td><td>true = beim Pink-Slip-Sieg auch Preisgeld</td></tr>
 <tr><td><code>wanderers</code> / <code>leaders</code></td><td>true / true</td><td>Ob Wanderer bzw. Leader um Autos fahren können</td></tr>
 </table>
 <div class="box tip"><b>Beispiele</b>Mehr Rivalen an den PAs: <code>"rivalNight": [1, 3]</code> in <code>chat.json</code>. Ein bestimmter Wanderer soll immer um Autos fahren: <code>"pinkSlip": true</code> bei ihm in <code>rivals.json</code>. Pink Slip erst später: <code>"minRank": 6</code>.</div>
 <div class="box"><b>Im Spielstand</b><code>pinkHeld</code> = Autos, die Rivalen dir abgenommen haben (Rivalen-ID → dein Auto), <code>pinkWon</code> = wie oft du wem das Auto abgenommen hast. Gewonnene Autos stehen ganz normal in <code>cars</code> (mit <code>pinkFrom</code>). In der Statistik zählen <code>pinkWins</code>, <code>pinkLosses</code>, <code>pinkBack</code>.</div>
 <div class="box warn"><b>Noch ungetestet im Spiel</b>Offline mit nachgebauten Spiel-Funktionen getestet: Aufstellen an der PA, Gespräch, Annehmen (T/G), Auftauchen auf dem C1, Pink Slip gewinnen, verlieren und zurückholen. Im echten Spiel noch nicht. Am wichtigsten beim ersten Test: Steht der Rivale wirklich neben seinem eigenen Auto, und taucht er nach dem Rausfahren vor dir auf?</div>
+</section>
+
+<section id="story">
+<h2><span class="n">12c</span> Story und Kapitel <span class="tag">story.lua</span> <span class="tag">data\story.json</span></h2>
+<p>Seit Alpha 0.6 hat die Karriere eine Geschichte: Prolog, fünf Kapitel, Epilog. Alles steht in <span class="path">data\story.json</span>: Kapitel, wann sie beginnen, Szenen und Texte auf Deutsch und Englisch. <b>Die Texte sind noch ein Entwurf</b> (siehe Story-Dokument), das System dahinter ist fertig.</p>
+<h3>So läuft es im Spiel</h3>
+<ol>
+<li><b>Kapitel beginnt:</b> Sind die Startbedingungen (<code>start</code>) erfüllt und die Szenen des alten Kapitels durch, kommt die <b>Kapitelkarte</b>: schwarzer Bildschirm mit Kapitelnummer, japanischem Titel, Titel und zwei, drei Sätzen. Weg mit T oder nach 8 Sekunden.</li>
+<li><b>Szenen:</b> laufen in der Sprechblase der PA-Gespräche, mit Name und Porträt. Weiter mit T. Gespräche kommen nur im Stand oder zu Fuß, nie im Battle.</li>
+<li><b>Handy-Nachrichten</b> (<code>"style": "phone"</code>): grüner Rand, kommen auch beim Fahren und laufen von selbst weiter (grüner Balken). T überspringt.</li>
+<li><b>Ziel:</b> Das Kapitelziel (<code>goal</code>) steht klein unter dem Geld und im Menü (Status).</li>
+<li><b>Nachlesen:</b> Im Rivalen-Lexikon steht ganz oben die Seite „Story“ mit allen erreichten Kapiteln und gesehenen Szenen.</li>
+<li><b>Alte Spielstände:</b> springen beim ersten Laden still in das Kapitel, das zum Fortschritt passt. Nur dessen Karte kommt.</li>
+</ol>
+<h3>Aufbau von story.json</h3>
+<table>
+<tr><th>Feld</th><th>Bedeutung</th></tr>
+<tr><td><code>settings</code></td><td><code>enabled</code>, <code>cardSeconds</code> 8 (Kapitelkarte), <code>phoneSeconds</code> 5 und <code>phoneCharsPerSecond</code> 22 (Lesezeit einer Nachricht), <code>paRadius</code> 60 (m um eine PA für den Auslöser <code>pa</code>), <code>stopKmh</code> 5 (darunter gilt das Auto als stehend)</td></tr>
+<tr><td><code>characters</code></td><td>Story-Figuren: <code>name</code>, <code>nick</code>, <code>portrait</code> (Pfad im Mod, z. B. <span class="path">art/portraits/story/genzo.svg</span>; fehlt das Bild, steht ein Fragezeichen da)</td></tr>
+<tr><td><code>chapters</code></td><td>Liste in Reihenfolge. Je Kapitel: <code>id</code>, <code>number</code>, <code>label</code> (statt „Kapitel N“, z. B. Prolog), <code>title</code>, <code>jp</code>, <code>intro</code> (Text der Kapitelkarte), <code>goal</code>, <code>start</code> (Bedingungen), <code>scenes</code></td></tr>
+<tr><td><code>scenes</code></td><td>Je Szene: <code>id</code> (einmalig!), <code>title</code> (fürs Lexikon), <code>trigger</code>, <code>speaker</code>, <code>style</code> (<code>"phone"</code> oder weglassen), <code>lines</code>, optional <code>conditions</code>, <code>rival</code>/<code>team</code>/<code>boss</code>/<code>place</code>/<code>area</code>/<code>rank</code> als Filter, <code>money</code>/<code>rep</code>/<code>hint</code> als Belohnung, <code>repeat</code>: true = immer wieder</td></tr>
+<tr><td><code>lines</code></td><td>Jede Zeile: <code>{"speaker": "genzo", "de": "…", "en": "…"}</code>. <code>speaker</code> = Figur aus <code>characters</code>, eine Rivalen-ID (z. B. <code>b_kokuryu</code>, dann mit seinem Porträt) oder <code>player</code> (du, rechts)</td></tr>
+</table>
+<table>
+<tr><th>Auslöser (trigger)</th><th>Wann</th></tr>
+<tr><td><code>start</code></td><td>gleich nach der Kapitelkarte</td></tr>
+<tr><td><code>garage</code>, <code>home</code>, <code>shop</code>, <code>gas</code></td><td>beim Ankommen an diesem Ort</td></tr>
+<tr><td><code>wake</code></td><td>beim Aufwachen zuhause (nach dem Schlafen)</td></tr>
+<tr><td><code>pa</code></td><td>zu Fuß an einer PA (mit <code>place</code> nur an dieser, z. B. <code>"Shibaura PA"</code>)</td></tr>
+<tr><td><code>win</code> / <code>lose</code></td><td>nach einem Battle (mit <code>rival</code>, <code>team</code> oder <code>boss</code> nur gegen diese)</td></tr>
+<tr><td><code>rank</code></td><td>beim Rangaufstieg (mit <code>rank</code>: ab diesem Rang)</td></tr>
+<tr><td><code>day</code></td><td>bei einem neuen Spieltag</td></tr>
+<tr><td><code>job</code></td><td>nach einem Nebenjob</td></tr>
+</table>
+<p>Bedingungen (<code>start</code>, <code>conditions</code>) sind dieselben wie bei Rivalen (<a href="#bedingungen">Bedingungen</a>), dazu <code>night</code> (true/false), <code>chapter</code> (Kapitel-ID schon erreicht) und <code>notChapter</code>. Umgekehrt können Rivalen jetzt <code>"storyChapter": "ch3"</code> als Bedingung haben: dann kommen sie erst ab diesem Kapitel.</p>
+<table>
+<tr><th>Kapitel (Entwurf)</th><th>Beginnt wenn</th><th>Ziel</th></tr>
+<tr><td>Prolog „Ankunft“</td><td>neue Karriere</td><td>erster Sieg</td></tr>
+<tr><td>1 „Erste Lichter“</td><td><code>minWins</code> 1</td><td>Takane Yama-Gumi schlagen</td></tr>
+<tr><td>2 „Der weiße Tiger“</td><td><code>beatenTeam</code> t_yamagumi</td><td>Shirotora schlagen</td></tr>
+<tr><td>3 „Unter Strom“</td><td><code>beatenRivals</code> b_shirotora</td><td>Kurogane-kai schlagen</td></tr>
+<tr><td>4 „Der schwarze Drache“</td><td><code>beatenTeam</code> t_kurogane</td><td>Kokuryū schlagen</td></tr>
+<tr><td>5 „Unendlich“</td><td><code>beatenRivals</code> b_kokuryu</td><td>Mugen zwischen 2 und 4 Uhr finden und schlagen</td></tr>
+<tr><td>Epilog „Neue Straßen“</td><td><code>beatenRivals</code> b_mugen</td><td>freies Spiel</td></tr>
+</table>
+<div class="box tip"><b>Beispiel: neue Handy-Nachricht nach dem Sieg gegen die Neon-Leaderin</b><pre><code>{"id": "ch2_neon", "trigger": "win", "rival": "t_neon_leader", "style": "phone", "speaker": "genzo",
+ "lines": [{"speaker": "genzo", "de": "Ginza ist geschafft.", "en": "Ginza is done."}]}</code></pre>in die <code>scenes</code> von Kapitel 2 einfügen. Die <code>id</code> darf es nur einmal geben, sonst gilt die Szene als schon gesehen.</div>
+<div class="box"><b>Im Spielstand</b><code>story</code> = <code>{ chapter, seen, log }</code>: Nummer des aktuellen Kapitels (1 = Prolog), gesehene Szenen. Zum Neu-Testen der Story <code>story</code> aus <code>save.json</code> löschen.</div>
+<div class="box warn"><b>Noch ungetestet im Spiel</b>Offline getestet: Kapitelkarte, Szenen, Handy-Nachricht beim Fahren, Kapitelwechsel nach Sieg, Story-Seite im Lexikon, alter Spielstand springt ins richtige Kapitel. Im Spiel noch nicht. Beim ersten Test wichtig: Erscheint die Kapitelkarte über den ganzen Bildschirm, und geht T weiter?</div>
+</section>
+
+<section id="jobs">
+<h2><span class="n">12d</span> Nebenjobs und Tipps <span class="tag">jobs.lua</span> <span class="tag">data\jobs.json</span></h2>
+<p>Seit Alpha 0.7 gibt es in der Garage und zuhause das <b>Jobbrett</b>. Tagsüber stehen dort jeden Tag vier Aufträge (gleich bleibend für den ganzen Tag), nachts ist es zu. Höchstens vier Aufträge pro Tag.</p>
+<table>
+<tr><th>Auftrag</th><th>Was du tust</th><th>Lohn</th></tr>
+<tr><td>Kurier</td><td>Ladung zum Ziel bringen, im Ziel anhalten, bevor die Zeit abläuft</td><td>Grundlohn + pro km; Schaden am Auto (in Yen Reparaturkosten) wird abgezogen</td></tr>
+<tr><td>Express</td><td>wie Kurier, knapperes Zeitlimit</td><td>mehr</td></tr>
+<tr><td>Zerbrechlich</td><td>wie Kurier, Schaden zählt dreifach, ab 40.000 Yen Schaden platzt der Auftrag</td><td>mehr</td></tr>
+<tr><td>Fotojob</td><td>zu Fuß an einer PA sein, solange das Zeitfenster offen ist (zu früh: warten)</td><td>fester Lohn</td></tr>
+</table>
+<ul>
+<li>Während eines Auftrags zeigt die Statusanzeige Art, Ziel, Restzeit, Entfernung und einen Pfeil. Schaden steht rot darunter.</li>
+<li>Der Lohn steigt mit dem Rang (<code>rankBonus</code> 0.08 = +8 % pro Rang).</li>
+<li><b>Ziele:</b> Tankstellen, Shop und PAs der Kartendatei, mindestens <code>minDistance</code> (800 m) von der Garage weg. Eigene Ziele: <code>"jobSpots": [{"name": "Ginza", "pos": [x, y, z]}]</code> in <span class="path">data\maps\c1.json</span>. Im Dev-Menü gibt es dafür den Ort-Typ „Nebenjob-Ziel“: Ort merken, dann die Koordinaten in <code>jobSpots</code> übernehmen (oder mir schicken).</li>
+<li><b>Tipps:</b> Unten am Jobbrett kannst du Hinweise zu noch nicht geschlagenen Wanderern (15.000 Yen) und Bossen (40.000 Yen) kaufen. Sie landen im Rivalen-Lexikon wie die Hinweise aus den PA-Gesprächen.</li>
+</ul>
+<table>
+<tr><th>Einstellung (jobs.json)</th><th>Standard</th><th>Bedeutung</th></tr>
+<tr><td><code>settings.offersPerDay</code> / <code>maxPerDay</code></td><td>4 / 4</td><td>Aufträge am Brett / höchstens erledigte pro Tag</td></tr>
+<tr><td><code>settings.arriveRadius</code> / <code>arriveKmh</code></td><td>25 / 8</td><td>Im Ziel: so nah (m) und so langsam (km/h)</td></tr>
+<tr><td><code>settings.photoRadius</code> / <code>photoWindowHours</code></td><td>60 / 2</td><td>Fotojob: so nah an der PA, Fenster so viele Stunden</td></tr>
+<tr><td><code>settings.tipPriceWanderer</code> / <code>tipPriceBoss</code></td><td>15000 / 40000</td><td>Preis eines Tipps</td></tr>
+<tr><td><code>types.&lt;art&gt;</code></td><td></td><td><code>payBase</code> (Yen), <code>payPerKm</code>, <code>secondsPerKm</code> (Luftlinie), <code>minSeconds</code>, <code>damageFactor</code>, <code>failDamageYen</code>, <code>weight</code> (wie oft), <code>speaker</code> (Auftraggeber aus chat.json)</td></tr>
+<tr><td><code>cargo</code> / <code>photoSubjects</code></td><td></td><td>Ladungen je Art und Fotomotive (Titel und Text, DE und EN)</td></tr>
+</table>
+<div class="box tip"><b>Beispiel</b>Kurierfahrten großzügiger: <code>"secondsPerKm": 90</code> bei <code>courier</code>. Mehr Fotojobs: <code>"weight": 3</code> bei <code>photo</code>. Neue Ladung: in <code>cargo.courier</code> einen Eintrag <code>{"title": {"de": "…", "en": "…"}, "text": {"de": "…", "en": "…"}}</code> anhängen.</div>
+<div class="box warn"><b>Auf der C1 gibt es nur zwei Ecken</b>Garage, Zuhause, Tatsumi PA und eine Tankstelle liegen beieinander, Shop, Shibaura PA und die andere Tankstelle auch. Kurierfahrten gehen darum immer von der Garage zur Shibaura-Seite. Mit <code>jobSpots</code> wird es abwechslungsreicher. Die Autoüberführung vom Händler ist noch nicht drin.</div>
+</section>
+
+<section id="verkaufen">
+<h2><span class="n">12e</span> Teile ausbauen, verkaufen, Autos verkaufen, Game Over <span class="tag">shop.lua</span> <span class="tag">dealer.lua</span></h2>
+<ul>
+<li><b>Ausbauen:</b> Am Garagen-PC gibt es jetzt bei fast jedem Slot „Nicht verbaut“, auch bei Serienteilen. Ausgenommen sind Pflicht-Slots, ohne die BeamNG das Auto nicht baut (in der jbeam als <code>coreSlot</code> markiert). Abschalten: <code>"allowRemove": false</code> in <span class="path">data\tuning.json</span>. Achtung: Ohne Räder oder Motor fährt das Auto natürlich nicht mehr, einbauen geht in der Garage jederzeit wieder.</li>
+<li><b>Teile verkaufen:</b> Garagen-PC, Reiter Teilelager. Jedes nicht verbaute Teil hat „Verkaufen · Preis“. Erst klicken, dann „Wirklich?“ nochmal klicken. Preis = <code>sellFactor</code> (0.4) × Ladenpreis. Verkaufte Serienteile gibt es im Shop wieder zu kaufen.</li>
+<li><b>Autos verkaufen:</b> Garage, Liste „Deine Autos“: jedes Auto außer dem aktiven hat „Verkaufen · Preis“ (zweimal klicken). Preis = <code>sellFactor</code> (0.5 in <span class="path">data\dealer.json</span>) × Wert. Wert = Kaufpreis beim Händler (ab Alpha 0.8 gemerkt), sonst der BeamNG-Wert der Config. Teile im Lager dieses Autos gehen mit.</li>
+<li><b>Kein Auto mehr</b> (letztes Auto im Pink Slip verloren, nur mit <code>requireSpareCar</code> false möglich): Du stehst zu Fuß an der Garage. Reicht dein Geld für das billigste heutige Angebot beim Händler, steht im Menü „Kauf dir beim Autohändler ein neues“. Das gekaufte Auto steht gleich in der Garage.</li>
+<li><b>Game Over:</b> Reicht das Geld nicht, ist die Karriere vorbei. Der Bildschirm zeigt Rang, Tage, Bilanz und Geld, dann „Neue Karriere“. Abschalten: <code>"gameOver": false</code> in <span class="path">data\dealer.json</span>.</li>
+</ul>
+<div class="box"><b>Im Spielstand</b>Bei jedem Auto: <code>soldStock</code> (verkaufte Serienteile je Slot), <code>price</code> und <code>baseKey</code> (Kaufpreis, Config). Dazu <code>noCar</code> und <code>gameOver</code>. Statistik: <code>partsSold</code>, <code>carsSold</code>.</div>
+<div class="box warn"><b>Noch ungetestet im Spiel</b>Autos verkaufen und Game Over sind offline getestet. Teile ausbauen und verkaufen nicht, weil das die echten Teile-Daten von BeamNG braucht. Beim ersten Test bitte prüfen: Erscheint im Teilelager „Verkaufen“, und kommt das Geld an?</div>
 </section>
 
 <section id="community">
@@ -1237,6 +1334,21 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 </table>
 <pre><code>// rivals.json, einzelner Rivale: Fiesling mit viel Mut
 "driver": { "fairness": 0.2, "courage": 0.95 },</code></pre>
+<h3 id="fahrcharakter">Fahrcharakter: sauber, Blocker, Rempler (Alpha 0.9)</h3>
+<p>Jeder Rivale hat einen Fahrstil. Er steht im Rivalen-Lexikon, sobald du den Rivalen kennst.</p>
+<table>
+<tr><th>character</th><th>Im Spiel</th><th>Werte (driver.json characters)</th></tr>
+<tr><td><code>clean</code> (Fährt sauber)</td><td>lässt dir Platz, blockt selten, keine Bremstests</td><td>Fairness 0.9, Aggression −0.15</td></tr>
+<tr><td><code>blocker</code></td><td>macht dir vorne öfter die Linie zu (alle 5 statt 8 Sekunden)</td><td>Aggression 0.85, Fairness 0.45, <code>blockCooldown</code> 5</td></tr>
+<tr><td><code>rammer</code> (Rempler)</td><td>zieht neben dir kurz rüber und sucht Kontakt, Bremstests, fährt dicht an dich ran</td><td>Aggression 0.95, Fairness 0.1, <code>ram</code> 0.8, <code>playerSideGap</code> 0.2</td></tr>
+</table>
+<ul>
+<li><b>Pro Rivale festlegen:</b> <code>"character": "rammer"</code> in <code>rivals.json</code>. Danach gelten noch die eigenen <code>driver</code>-Werte des Rivalen.</li>
+<li><b>Ohne Eintrag</b> (<code>characterAuto</code> in driver.json): ab Aggression 0.85 Blocker, ab 0.9 wird etwa jeder dritte ein Rempler (fest pro Rivale), sonst sauber. Bosse werden nie von selbst Rempler. Zurzeit: 11 Rempler, 44 Blocker, 244 sauber.</li>
+<li><b>Werte ändern:</b> In <code>characters</code> ersetzt eine Zahl den Wert, ein Text wie <code>"-0.15"</code> verschiebt ihn. Es gehen alle Fahrer-Werte und Feineinstellungen, dazu <code>ram</code> (0 bis 1, wie oft er rempelt), <code>ramCooldown</code> 12 (s), <code>ramTime</code> 0.7 (s), <code>ramMinSpeed</code> 15 (m/s).</li>
+<li>Im Log steht beim Battle-Start der Charakter mit: „Eigener Fahrer für t_vivace_leader (rammer): …“. Mit <code>debug</code> steht „rempelt“ im Log.</li>
+</ul>
+<div class="box warn"><b>Noch ungetestet im Spiel</b>Das Rempeln ist neu und nur im Code geprüft (die Simulation fährt ohne Gegner im Duell). Ist es zu heftig: <code>"ram": 0.4</code> beim Rempler oder <code>"ramCooldown": 20</code>.</div>
 <h3 id="fahrer-json">Einstellungen für alle <span class="path">data\driver.json</span></h3>
 <table>
 <tr><th>Feld</th><th>Jetzt</th><th>Bedeutung</th></tr>
@@ -1353,11 +1465,11 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td><b>Alpha 0.3</b></td><td>Großer Kader (26 Crews, 42 Wanderer), Ränge, eigene Rivalen-KI, Release-Build</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
 <tr><td><b>Alpha 0.4</b></td><td>Gespräche mit Fahrern an den Parkplätzen (PA)</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
 <tr><td><b>Alpha 0.5</b></td><td>Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
-<tr><td><b>Alpha 0.6</b></td><td>Bosse und Story-Kapitel mit Zwischengeschichten</td><td><span style="color:var(--accent)">▶ als Nächstes</span></td></tr>
-<tr><td><b>Alpha 0.7</b></td><td>Nebenjobs am Tag und bezahlte Tipps zu seltenen Rivalen</td><td><span style="color:var(--muted)">geplant</span></td></tr>
-<tr><td><b>Alpha 0.8</b></td><td>Teile verkaufen und ausbauen in der Garage</td><td><span style="color:var(--muted)">geplant</span></td></tr>
-<tr><td><b>Alpha 0.9</b></td><td>Rivalen mit eigenem Fahrcharakter (sauber, Blocker, Rempler)</td><td><span style="color:var(--muted)">geplant</span></td></tr>
-<tr><td><b>1.0</b></td><td>Komplette C1-Karriere</td><td><span style="color:var(--muted)">geplant</span></td></tr>
+<tr><td><b>Alpha 0.6</b></td><td>Bosse und Story-Kapitel mit Zwischengeschichten</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.7</b></td><td>Nebenjobs am Tag und bezahlte Tipps zu seltenen Rivalen</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.8</b></td><td>Teile verkaufen und ausbauen in der Garage</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>Alpha 0.9</b></td><td>Rivalen mit eigenem Fahrcharakter (sauber, Blocker, Rempler)</td><td><span style="color:var(--ok)">✓ fertig</span></td></tr>
+<tr><td><b>1.0</b></td><td>Komplette C1-Karriere</td><td><span style="color:var(--accent)">▶ als Nächstes</span></td></tr>
 </table>
 <!-- ROADMAP-ENDE -->
 
@@ -1384,11 +1496,11 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Im Gespräch Thema wählen („Erzähl mir was über …“: Gerüchte, Strecke, Geschichte, Autos).</td><td>noch keiner</td><td>Idee</td></tr>
 <tr><td>Rivalen und Wanderer stehen auch an den PAs (auf den Parkplätzen der geparkten Autos), ansprechen = Battle verabreden.</td><td>Alpha 0.5</td><td>gebaut (01.11.2026), im Spiel noch ungetestet</td></tr>
 <tr><td>Pink Slip gegen manche PA-Rivalen (ab bestimmtem Ruf): Verlierer verliert sein Auto, der Rivale fährt es, bis du es zurückgewinnst.</td><td>Alpha 0.5</td><td>gebaut (01.11.2026), im Spiel noch ungetestet</td></tr>
-<tr><td>Bosse und Story-Kapitel mit Zwischengeschichten (eigene Story).</td><td>Alpha 0.6</td><td>Bosse kommen von dir</td></tr>
-<tr><td>Nebenjobs am Tag: Autoüberführung Händler → Garage (Schaden kürzt Lohn), Kurierfahrten zwischen PAs, Taxi-Schicht, Foto-Jobs. Dazu bezahlte Tipps zu seltenen Rivalen.</td><td>Alpha 0.7</td><td>„Garage to Garage“ zahlt schon Yen</td></tr>
-<tr><td>Teile verkaufen, auch ausgebaute Serienteile; Teile in der Garage ausbauen.</td><td>Alpha 0.8</td><td>offen</td></tr>
-<tr><td>Fahrcharakter pro Rivale: sauber, Blocker, Rempler (nur passende Rivalen).</td><td>Alpha 0.9</td><td>eigene Gegner-KI läuft, Charakter-Feld fehlt</td></tr>
-<tr><td>Game Over, wenn du kein Auto mehr hast und kein Geld für einen Gebrauchten.</td><td>mit Pink Slip</td><td>offen</td></tr>
+<tr><td>Bosse und Story-Kapitel mit Zwischengeschichten (eigene Story).</td><td>Alpha 0.6</td><td>System gebaut (02.11.2026), Texte als Entwurf zum Abstimmen, Boss-Configs kommen von dir</td></tr>
+<tr><td>Nebenjobs am Tag: Autoüberführung Händler → Garage (Schaden kürzt Lohn), Kurierfahrten zwischen PAs, Taxi-Schicht, Foto-Jobs. Dazu bezahlte Tipps zu seltenen Rivalen.</td><td>Alpha 0.7</td><td>gebaut (02.11.2026): Kurier, Express, zerbrechlich, Foto, Tipps. Überführung und Taxi noch offen</td></tr>
+<tr><td>Teile verkaufen, auch ausgebaute Serienteile; Teile in der Garage ausbauen.</td><td>Alpha 0.8</td><td>gebaut (02.11.2026), dazu Autos verkaufen</td></tr>
+<tr><td>Fahrcharakter pro Rivale: sauber, Blocker, Rempler (nur passende Rivalen).</td><td>Alpha 0.9</td><td>gebaut (02.11.2026): Feld <code>character</code>, Rempel-Taktik</td></tr>
+<tr><td>Game Over, wenn du kein Auto mehr hast und kein Geld für einen Gebrauchten.</td><td>Alpha 0.8</td><td>gebaut (02.11.2026)</td></tr>
 <tr><td>Tägliche Straßen-Events: Baustelle mit Spursperrung für 1-2 Tage, Panne oder Unfall auf dem Seitenstreifen, Polizei, Stau, Wetter und Nebel. Infos über HashiNet und PA-Gespräche.</td><td>noch keiner</td><td>Brainstorm</td></tr>
 <tr><td>Map auskundschaften und neue Orte setzen: neue Shop-Standorte (Mechaniker, Lackierer, Bodyshop), neue Tankstellen, 1-2 neue PAs. Orte sammelt Alex im <a href="#dev">Dev-Menü</a>, ich übernehme sie in <code>c1.json</code>.</td><td>noch keiner</td><td>Werkzeug fertig (01.11.2026)</td></tr>
 <tr><td>Wanderer-Wartepunkte: manche Wanderer stehen an einem festen Ort und warten auf dich, statt herumzufahren.</td><td>noch keiner</td><td>Orte sammelbar (Typ „Wanderer-Wartepunkt“), Spiel-Logik offen</td></tr>
@@ -1431,8 +1543,82 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
 <details class="cl">
+<summary><b>Alpha 0.9</b> <small>Stand 02.11.2026</small></summary>
+<div>
+<h4>Neu: Fahrcharakter der Rivalen</h4>
+<ul>
+<li>Jeder Rivale hat jetzt einen Fahrstil: Fährt sauber, Blocker oder Rempler.</li>
+<li>Saubere Fahrer lassen dir Platz. Blocker machen dir vorne öfter die Linie zu. Rempler suchen neben dir kurz Kontakt und machen Bremstests.</li>
+<li>Wer keinen festen Stil hat, bekommt einen passend zu seiner Aggression. Bosse sind nie von selbst Rempler.</li>
+<li>Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst.</li>
+</ul>
+</div>
+</details>
+<details class="cl">
+<summary><b>Alpha 0.8</b> <small>Stand 02.11.2026</small></summary>
+<div>
+<h4>Neu: Teile ausbauen und verkaufen</h4>
+<ul>
+<li>Am Garagen-PC kannst du jetzt fast jedes Teil ausbauen („Nicht verbaut“), auch Serienteile. Nur Pflicht-Teile, ohne die das Auto nicht existiert, bleiben drin.</li>
+<li>Im Teilelager hat jedes nicht verbaute Teil einen Knopf „Verkaufen“ mit Preis. Zweimal klicken, dann ist es weg. Ein Teil bringt 40 % seines Preises.</li>
+<li>Verkaufte Serienteile kannst du im Shop wieder kaufen.</li>
+</ul>
+<h4>Neu: Autos verkaufen</h4>
+<ul>
+<li>In der Garage hat jedes Auto außer dem aktiven einen Knopf „Verkaufen“ mit Preis. Ein Auto bringt die Hälfte seines Werts. Teile im Lager dieses Autos gehen mit.</li>
+</ul>
+<h4>Neu: Game Over</h4>
+<ul>
+<li>Verlierst du dein letztes Auto im Pink Slip, stehst du zu Fuß an der Garage. Reicht dein Geld für das billigste Angebot beim Händler, kaufst du dort ein neues Auto, und es steht gleich in der Garage.</li>
+<li>Reicht das Geld nicht, ist die Karriere vorbei: Game Over mit Rang, Tagen und Bilanz, danach eine neue Karriere.</li>
+</ul>
+</div>
+</details>
+<details class="cl">
+<summary><b>Alpha 0.7</b> <small>Stand 02.11.2026</small></summary>
+<div>
+<h4>Neu: Nebenjobs am Tag</h4>
+<ul>
+<li>In der Garage und zuhause gibt es jetzt das Jobbrett. Jeden Tag stehen dort vier Aufträge, nur tagsüber.</li>
+<li>Kurier: Ladung zu einem Ziel bringen, mit Zeitlimit. Schaden am Auto wird vom Lohn abgezogen.</li>
+<li>Express: knapperes Zeitlimit, mehr Geld.</li>
+<li>Zerbrechlich: mehr Geld, aber Schaden zählt dreifach. Zu viel Schaden, und der Auftrag platzt.</li>
+<li>Fotojob: Sei zu Fuß an einer PA, solange das Zeitfenster der Fotografin offen ist.</li>
+<li>Während eines Auftrags zeigt die Statusanzeige Ziel, Richtung, Entfernung und Restzeit.</li>
+<li>Der Lohn steigt mit deinem Rang. Höchstens vier Aufträge pro Tag.</li>
+</ul>
+<h4>Neu: Tipps kaufen</h4>
+<ul>
+<li>Am Jobbrett kannst du Hinweise zu Wanderern und Bossen kaufen. Sie landen im Rivalen-Lexikon, genau wie die Hinweise aus den PA-Gesprächen.</li>
+</ul>
+</div>
+</details>
+<details class="cl">
+<summary><b>Alpha 0.6</b> <small>Stand 02.11.2026</small></summary>
+<div>
+<h4>Neu: Story und Kapitel</h4>
+<ul>
+<li>Die Karriere hat jetzt eine Geschichte: Prolog, fünf Kapitel und ein Epilog. Du kommst neu nach Tokio und willst wissen, wer Mugen ist.</li>
+<li>Jedes Kapitel beginnt mit einer Kapitelkarte (Titel auf Deutsch und Japanisch, kurzer Text).</li>
+<li>Szenen laufen in der Sprechblase: in der Garage, zuhause beim Aufwachen, an den PAs und nach wichtigen Battles. Weiter mit T.</li>
+<li>Kurze Handy-Nachrichten kommen auch beim Fahren und laufen von selbst weiter.</li>
+<li>Das aktuelle Kapitelziel steht unter dem Geld und im Menü.</li>
+<li>Im Rivalen-Lexikon gibt es oben die Seite „Story“ mit allen Kapiteln und gesehenen Szenen zum Nachlesen.</li>
+<li>Alte Spielstände springen direkt ins passende Kapitel.</li>
+<li>Die Story-Texte sind noch ein Entwurf und werden mit JDMArsch abgestimmt.</li>
+</ul>
+</div>
+</details>
+<details class="cl">
 <summary><b>Alpha 0.5.1</b> <small>Stand 02.11.2026</small></summary>
 <div>
+<h4>Neu: Musik</h4>
+<ul>
+<li>Eigene Musik je nach Situation: Titelbildschirm, Tagesfahrt, Nachtfahrt, Shops und Battles haben jeweils ihre eigene Playlist, mit weichem Überblenden.</li>
+<li>Titelmusik: „Daikoku“ von z3rdax, eigens für die Mod, danach läuft es als Schleife weiter.</li>
+<li>Die Lautstärke folgt den BeamNG-Reglern für Gesamt und Musik.</li>
+<li>In den Credits steht jetzt ein Abschnitt Musik mit allen Stücken und Lizenzhinweisen.</li>
+</ul>
 <h4>Fehler behoben</h4>
 <ul>
 <li>Unfallschaden wurde nicht gespeichert: Nach dem Neuladen war das Auto wieder heil, Beulen weg, abgefallene Teile wieder dran, Motor wie neu. Jetzt bleibt der Schaden im Spielstand (Beulen, gebrochene Teile, Motor- und Kühlerschaden) und der Reparaturpreis stimmt nach dem Laden. Erst eine Reparatur macht das Auto wieder heil.</li>
@@ -1440,7 +1626,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.5</b> <small>Stand 02.11.2026</small></summary>
+<summary><b>Alpha 0.5</b> <small>Stand 01.11.2026</small></summary>
 <div>
 <h4>Neu: Rivalen an den Parkplätzen</h4>
 <ul>
@@ -1461,7 +1647,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.4.1</b> <small>Stand 02.11.2026</small></summary>
+<summary><b>Alpha 0.4.1</b> <small>Stand 01.11.2026</small></summary>
 <div>
 <h4>Neu: Mehr Gesprächsstoff an den PAs</h4>
 <ul>
@@ -1478,7 +1664,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.4</b> <small>Stand 02.11.2026</small></summary>
+<summary><b>Alpha 0.4</b> <small>Stand 01.11.2026</small></summary>
 <div>
 <h4>Neu: Gespräche an den Parkplätzen (PA)</h4>
 <ul>
@@ -1493,7 +1679,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.3.5</b> <small>Stand 02.11.2026</small></summary>
+<summary><b>Alpha 0.3.5</b> <small>Stand 01.11.2026</small></summary>
 <div>
 <h4>Fehler behoben</h4>
 <ul>
@@ -1503,7 +1689,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.3.4</b> <small>Stand 02.11.2026</small></summary>
+<summary><b>Alpha 0.3.4</b> <small>Stand 01.11.2026</small></summary>
 <div>
 <h4>Fehler behoben</h4>
 <ul>
@@ -1512,7 +1698,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.3.3</b> <small>Stand 02.11.2026</small></summary>
+<summary><b>Alpha 0.3.3</b> <small>Stand 01.11.2026</small></summary>
 <div>
 <h4>Fehler behoben</h4>
 <ul>
@@ -1525,7 +1711,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.3.2</b> <small>Stand 02.11.2026</small></summary>
+<summary><b>Alpha 0.3.2</b> <small>Stand 01.11.2026</small></summary>
 <div>
 <p>Alle Änderungen seit Alpha 0.3 (die Test-ZIP Alpha 0.3.1 ist hier mit drin).</p>
 <h4>HUD</h4>
@@ -1751,7 +1937,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h2><span class="n">23</span> Spielstand</h2>
 <table>
 <tr><th>Datei in <span class="path">F:\BeamNG\current\settings\hashiriya_battle\</span></th><th>Inhalt</th></tr>
-<tr><td><code>save.json</code></td><td>Der Spielstand: Geld, Ruf, Siege, geschlagene Rivalen (<code>defeated</code>), Autos, Uhrzeit, Tag, PA-Gespräche (<code>talk</code>), Pink Slip (<code>pinkHeld</code>, <code>pinkWon</code>)</td></tr>
+<tr><td><code>save.json</code></td><td>Der Spielstand: Geld, Ruf, Siege, geschlagene Rivalen (<code>defeated</code>), Autos, Uhrzeit, Tag, PA-Gespräche (<code>talk</code>), Pink Slip (<code>pinkHeld</code>, <code>pinkWon</code>), Story (<code>story</code>), Nebenjobs (<code>jobs</code>), <code>noCar</code>/<code>gameOver</code></td></tr>
 <tr><td><code>dev_places.json</code></td><td>Im Dev-Menü (Reiter „Orte“) gemerkte Orte mit Name, Typ und Notiz, je Map</td></tr>
 <tr><td><code>captured_positions.json</code></td><td>Alte Positionen aus „Position merken“ (bis Alpha 0.4); werden ins Dev-Menü übernommen</td></tr>
 <tr><td><code>title_camera.json</code></td><td>Titelbild-Kamera je Map</td></tr>
@@ -1800,13 +1986,15 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <tr><td><code>progress.lua</code></td><td>Ruf, Ränge, Spitznamen, geschlagene Rivalen</td></tr>
 <tr><td><code>condition.lua</code></td><td>Gebrauchtzustand (Verschleiß, Kilometer)</td></tr>
 <tr><td><code>damage.lua</code></td><td>Unfallschaden (Beulen, gebrochene Teile, Motorschaden) im Spielstand sichern und nach dem Laden wieder aufspielen</td></tr>
-<tr><td><code>dealer.lua</code></td><td>Händlerangebote und Leistungsgrenze</td></tr>
+<tr><td><code>dealer.lua</code></td><td>Händlerangebote und Leistungsgrenze, Autos verkaufen, kein Auto mehr / Game Over</td></tr>
 <tr><td><code>economy.lua</code></td><td>Dollar-Yen-Umrechnung, Rundung</td></tr>
 <tr><td><code>fuel.lua</code></td><td>Tanken, Spritpreis</td></tr>
 <tr><td><code>home.lua</code></td><td>Zuhause, Schlafen und Nickerchen (schwarzer Bildschirm mit Zeitraffer), Uhr, Lexikon</td></tr>
 <tr><td><code>parking.lua</code></td><td>Parkplätze erkennen, Reparatur, Abschleppen, Markierungen</td></tr>
 <tr><td><code>talk.lua</code></td><td>PA-Gespräche: Fahrer und Rivalen an den PAs aufstellen, Texte wählen, Battle an der PA verabreden</td></tr>
 <tr><td><code>pinkslip.lua</code></td><td>Pink Slip: wer um Autos fährt, Auto gewinnen, verlieren, zurückholen</td></tr>
+<tr><td><code>story.lua</code></td><td>Story: Kapitel weiterschalten, Szenen und Handy-Nachrichten zeigen, Kapitelziel, Story-Seite im Lexikon</td></tr>
+<tr><td><code>jobs.lua</code></td><td>Nebenjobs am Tag (Kurier, Express, zerbrechlich, Foto) und Tipps kaufen</td></tr>
 <tr><td><code>shop.lua</code></td><td>Teile-Terminal: Katalog, Lackierer, Warenkorb, Teilelager, Live-Vorschau-Kamera</td></tr>
 <tr><td><code>setup.lua</code></td><td>Fahrwerks-Einstellungen (Tuning-Werte)</td></tr>
 <tr><td><code>style.lua</code></td><td>Siegesserie und Combo</td></tr>

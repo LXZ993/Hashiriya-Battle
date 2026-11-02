@@ -222,6 +222,8 @@ local function finishRest()
   local fs = fadeScreen()
   if fs and fs.stop then pcall(fs.stop, restFade) end
   if r.msg then c.msg(r.msg(), 5) end
+  -- Story (Alpha 0.6): Aufwachen zuhause
+  if r.kind == 'home' then pcall(function() extensions.hashiriyaBattle_story.onEvent('wake', {}) end) end
 end
 
 -- Zeitraffer: erst abblenden, dann die Uhr bis zur Aufwachzeit drehen (weich ein- und auslaufend)
@@ -398,6 +400,8 @@ local function lexicon()
       desc = hidden and hintText(r, save) or pr.loc(r.desc),
       quote = (not hidden and r.lines) and pr.loc(r.lines.challenge) or nil,
       leader = r.leader or false, boss = r.boss or false,
+      -- Alpha 0.9: Fahrstil (sauber, Blocker, Rempler), erst wenn man ihn kennt
+      style = (not hidden and extensions.hashiriyaBattle_driver) and c.t('char.' .. extensions.hashiriyaBattle_driver.character(r)) or nil,
       beaten = beaten,
       id = r.id, watched = M.isWatched(r.id),
     }
@@ -410,10 +414,15 @@ local function lexicon()
   end
   table.insert(groups, wanderers)
   table.insert(groups, bosses)
+  -- Story (Alpha 0.6): Seite mit Kapiteln und gesehenen Szenen ganz oben
+  local okS, sg = pcall(function() return extensions.hashiriyaBattle_story.lexiconGroup() end)
+  if okS and sg then table.insert(groups, 1, sg) end
   for _, g in ipairs(groups) do
-    local n = 0
-    for _, e in ipairs(g.list) do if e.beaten then n = n + 1 end end
-    g.count = n .. ' / ' .. #g.list
+    if not g.story then
+      local n = 0
+      for _, e in ipairs(g.list) do if e.beaten then n = n + 1 end end
+      g.count = n .. ' / ' .. #g.list
+    end
   end
   return groups
 end

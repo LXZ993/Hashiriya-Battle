@@ -1,5 +1,53 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.9 (as of 2026-11-02)
+
+### New: Rival driving character
+- Every rival now has a driving style: clean racer, blocker or rammer.
+- Clean racers leave you room. Blockers close the line in front of you more often. Rammers look for contact beside you and brake-check.
+- Rivals without a fixed style get one that matches their aggression. Bosses are never rammers on their own.
+- The style is shown in the rival lexicon once you know the rival.
+
+## Alpha 0.8 (as of 2026-11-02)
+
+### New: Remove and sell parts
+- At the garage PC you can now remove almost every part ("Not installed"), including stock parts. Only mandatory parts the car can't exist without stay in.
+- In the parts storage every part that isn't installed has a "Sell" button with its price. Click twice and it's gone. A part brings 40 % of its price.
+- Sold stock parts can be bought again at the shop.
+
+### New: Sell cars
+- In the garage every car except the active one has a "Sell" button with its price. A car brings half its value. Stored parts of that car go with it.
+
+### New: Game over
+- If you lose your last car in a pink slip, you stand on foot at the garage. If you can afford the cheapest dealer offer, buy a new car there and it's waiting in the garage.
+- If you can't, your career is over: game over with rank, days and record, then a new career.
+
+## Alpha 0.7 (as of 2026-11-02)
+
+### New: Daytime side jobs
+- The garage and your home now have a job board with four jobs every day, daytime only.
+- Courier: bring cargo to a destination within a time limit. Damage to your car is taken off the pay.
+- Express: tighter time limit, more money.
+- Fragile: more money, but damage counts three times. Too much damage and the job fails.
+- Photo job: be on foot at a parking area while the photographer's time window is open.
+- During a job the status display shows destination, direction, distance and time left.
+- Pay grows with your rank. At most four jobs per day.
+
+### New: Buy tips
+- At the job board you can buy hints about wanderers and bosses. They go into the rival lexicon, just like hints from parking area talks.
+
+## Alpha 0.6 (as of 2026-11-02)
+
+### New: Story and chapters
+- The career now has a story: prologue, five chapters and an epilogue. You arrive in Tokyo and want to find out who Mugen is.
+- Each chapter starts with a chapter card (title in English and Japanese, short text).
+- Scenes play in the speech bubble: in the garage, when waking up at home, at the parking areas and after important battles. Continue with T.
+- Short phone messages also arrive while driving and advance on their own.
+- The current chapter goal is shown below your money and in the menu.
+- The rival lexicon has a "Story" page at the top with all chapters and scenes you've seen.
+- Old saves jump straight into the matching chapter.
+- The story texts are still a draft and are being agreed with JDMArsch.
+
 ## Alpha 0.5.1 (as of 2026-11-02)
 
 ### New: Music

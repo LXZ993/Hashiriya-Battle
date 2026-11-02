@@ -128,8 +128,14 @@ local function onUpdate(dtReal)
   if pendingHome.t < 3 then return end
   pendingHome = nil
   if #c.save.cars == 0 then
+    -- Alpha 0.8: zu Fuß an der Garage, das verlorene Auto verschwindet; dann Händler oder Game Over
     c.msg(c.t('msg.pinkNoCar'), 10)
+    pcall(function() extensions.hashiriyaBattle_rivals.despawnActive() end)
+    local veh = c.getPlayerVehicle()
+    pcall(function() c.goOnFoot(nil) end)
+    if veh then pcall(function() veh:delete() end) end
     c.writeSave()
+    pcall(function() extensions.hashiriyaBattle_dealer.checkNoCar() end)
     return
   end
   pcall(function() extensions.hashiriyaBattle_rivals.despawnActive() end)

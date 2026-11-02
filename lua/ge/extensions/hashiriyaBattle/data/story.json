@@ -1,0 +1,446 @@
+{
+  "_hinweis": "Story und Kapitel (Alpha 0.6). ENTWURF: Texte sind Platzhalter, bis JDMArsch die Story abgenommen hat. Erklärung im Handbuch, Kapitel 'Story'.",
+  "settings": {
+    "enabled": true,
+    "cardSeconds": 8,
+    "phoneSeconds": 5,
+    "phoneCharsPerSecond": 22,
+    "paRadius": 60,
+    "stopKmh": 5
+  },
+  "characters": {
+    "genzo": {
+      "name": {
+        "de": "Genzō Morita",
+        "en": "Genzō Morita"
+      },
+      "nick": {
+        "de": "Vermieter deiner Garage",
+        "en": "Your garage landlord"
+      },
+      "portrait": "art/portraits/story/genzo.svg",
+      "tag": "story"
+    }
+  },
+  "chapters": [
+    {
+      "id": "prolog",
+      "number": 0,
+      "label": {
+        "de": "Prolog",
+        "en": "Prologue"
+      },
+      "title": {
+        "de": "Ankunft",
+        "en": "Arrival"
+      },
+      "jp": "到着",
+      "intro": {
+        "de": "Neue Stadt, gebrauchtes Auto, gemietete Garage. Und ein Name, den hier alle nur flüstern: Mugen.",
+        "en": "New city, used car, rented garage. And a name everyone here only whispers: Mugen."
+      },
+      "goal": {
+        "de": "Gewinne dein erstes Battle auf dem C1",
+        "en": "Win your first battle on the C1"
+      },
+      "start": {},
+      "scenes": [
+        {
+          "id": "prolog_garage",
+          "title": {
+            "de": "Die Garage",
+            "en": "The garage"
+          },
+          "trigger": "start",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Du bist also der neue Mieter. Die Garage ist alt, aber das Dach hält.",
+              "en": "So you're the new tenant. The garage is old, but the roof holds."
+            },
+            {
+              "speaker": "genzo",
+              "de": "Nachts fahren sie da oben auf dem Ring. Wer gewinnen will, braucht mehr als ein schnelles Auto.",
+              "en": "At night they race up there on the loop. If you want to win, you need more than a fast car."
+            },
+            {
+              "speaker": "genzo",
+              "de": "Fahr erst mal raus und lerne die Strecke. Wenn dir einer mit der Lichthupe winkt, weißt du, was er will.",
+              "en": "Go out and learn the road first. When someone flashes their lights at you, you'll know what they want."
+            }
+          ]
+        },
+        {
+          "id": "prolog_rumor",
+          "title": {
+            "de": "Ein Name",
+            "en": "A name"
+          },
+          "trigger": "pa",
+          "conditions": {
+            "night": true
+          },
+          "speaker": "genzo",
+          "style": "phone",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Hörst du an den PAs den Namen Mugen? Frag nicht zu laut danach.",
+              "en": "Hearing the name Mugen at the parking areas? Don't ask about it too loudly."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch1",
+      "number": 1,
+      "title": {
+        "de": "Erste Lichter",
+        "en": "First Lights"
+      },
+      "jp": "最初の光",
+      "intro": {
+        "de": "Dein erster Sieg hat sich herumgesprochen. Die kleinen Crews auf dem Ring wollen wissen, wer du bist.",
+        "en": "Word of your first win is out. The small crews on the loop want to know who you are."
+      },
+      "goal": {
+        "de": "Schlag die Takane Yama-Gumi (ihr Leader zählt)",
+        "en": "Beat the Takane Yama-Gumi (their leader counts)"
+      },
+      "start": {
+        "minWins": 1
+      },
+      "scenes": [
+        {
+          "id": "ch1_start",
+          "title": {
+            "de": "Erster Sieg",
+            "en": "First win"
+          },
+          "trigger": "garage",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Erster Sieg? Gut. Morgen erzählen sie es an jeder PA, und übermorgen hat es jeder vergessen.",
+              "en": "First win? Good. Tomorrow they'll talk about it at every parking area, the day after everyone will have forgotten."
+            },
+            {
+              "speaker": "genzo",
+              "de": "Die Yama-Gumi fahren hier schon lange. Wer die schlägt, wird nicht mehr vergessen.",
+              "en": "The Yama-Gumi have been racing here a long time. Beat them and nobody forgets you."
+            }
+          ]
+        },
+        {
+          "id": "ch1_done",
+          "title": {
+            "de": "Yama-Gumi geschlagen",
+            "en": "Yama-Gumi beaten"
+          },
+          "trigger": "win",
+          "rival": "t_yamagumi_leader",
+          "style": "phone",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Die Yama-Gumi? Respekt. Jetzt schauen auch die größeren Crews hin.",
+              "en": "The Yama-Gumi? Respect. Now the bigger crews are watching too."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch2",
+      "number": 2,
+      "title": {
+        "de": "Der weiße Tiger",
+        "en": "The White Tiger"
+      },
+      "jp": "白虎",
+      "intro": {
+        "de": "Wer zu schnell aufsteigt, bekommt Besuch. Shirotora prüft jeden, der den Einsteigern entwächst.",
+        "en": "Rise too fast and you get a visitor. Shirotora tests everyone who outgrows the newcomers."
+      },
+      "goal": {
+        "de": "Schlag Shirotora, den weißen Tiger",
+        "en": "Beat Shirotora, the White Tiger"
+      },
+      "start": {
+        "beatenTeam": "t_yamagumi"
+      },
+      "scenes": [
+        {
+          "id": "ch2_start",
+          "title": {
+            "de": "Früher",
+            "en": "Back then"
+          },
+          "trigger": "wake",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Ich bin früher selbst gefahren, weißt du. Achtziger. Andere Autos, gleiche Straße.",
+              "en": "I used to race myself, you know. The eighties. Different cars, same road."
+            },
+            {
+              "speaker": "genzo",
+              "de": "Shirotora hat nach dir gefragt. Er fährt nur gegen Leute, die die ersten Crews geschlagen haben.",
+              "en": "Shirotora asked about you. He only races people who beat the first crews."
+            }
+          ]
+        },
+        {
+          "id": "ch2_done",
+          "title": {
+            "de": "Der Tiger fällt",
+            "en": "The tiger falls"
+          },
+          "trigger": "win",
+          "rival": "b_shirotora",
+          "style": "phone",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Shirotora geschlagen. Jetzt kennen sie deinen Namen in der ganzen Stadt.",
+              "en": "Shirotora beaten. Now the whole city knows your name."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch3",
+      "number": 3,
+      "title": {
+        "de": "Unter Strom",
+        "en": "Live Wire"
+      },
+      "jp": "通電",
+      "intro": {
+        "de": "Nachts fährt jemand auf dem Ring, der fährt wie du früher. Die Leute an den PAs verwechseln euch schon.",
+        "en": "Someone on the loop drives the way you used to. People at the parking areas already mix you up."
+      },
+      "goal": {
+        "de": "Schlag die Kurogane-kai (ihr Leader zählt)",
+        "en": "Beat the Kurogane-kai (their leader counts)"
+      },
+      "start": {
+        "beatenRivals": [
+          "b_shirotora"
+        ]
+      },
+      "scenes": [
+        {
+          "id": "ch3_start",
+          "title": {
+            "de": "Doppelgänger",
+            "en": "Doppelganger"
+          },
+          "trigger": "garage",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Sie sagen, du warst letzte Nacht in Tatsumi. Warst du aber nicht, oder?",
+              "en": "They say you were at Tatsumi last night. But you weren't, were you?"
+            }
+          ]
+        },
+        {
+          "id": "ch3_done",
+          "title": {
+            "de": "Kurogane geschlagen",
+            "en": "Kurogane beaten"
+          },
+          "trigger": "win",
+          "rival": "t_kurogane_leader",
+          "style": "phone",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Die Kurogane-kai. Jetzt redet Kokuryū über dich.",
+              "en": "The Kurogane-kai. Now Kokuryū is talking about you."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch4",
+      "number": 4,
+      "title": {
+        "de": "Der schwarze Drache",
+        "en": "The Black Dragon"
+      },
+      "jp": "黒龍",
+      "intro": {
+        "de": "Kokuryū ist der Star des Rings. Er will dich in seiner Crew. Du lehnst ab.",
+        "en": "Kokuryū is the star of the loop. He wants you in his crew. You say no."
+      },
+      "goal": {
+        "de": "Schlag Kokuryū, den schwarzen Drachen",
+        "en": "Beat Kokuryū, the Black Dragon"
+      },
+      "start": {
+        "beatenTeam": "t_kurogane"
+      },
+      "scenes": [
+        {
+          "id": "ch4_start",
+          "title": {
+            "de": "Ein Angebot",
+            "en": "An offer"
+          },
+          "trigger": "pa",
+          "conditions": {
+            "night": true
+          },
+          "speaker": "b_kokuryu",
+          "style": "phone",
+          "lines": [
+            {
+              "speaker": "b_kokuryu",
+              "de": "Du fährst gut. Fahr für mich, dann musst du nie wieder allein raus.",
+              "en": "You drive well. Drive for me and you'll never have to go out alone again."
+            },
+            {
+              "speaker": "player",
+              "de": "Nein danke.",
+              "en": "No thanks."
+            },
+            {
+              "speaker": "b_kokuryu",
+              "de": "Dann sehen wir uns auf der Straße.",
+              "en": "Then I'll see you on the road."
+            }
+          ]
+        },
+        {
+          "id": "ch4_done",
+          "title": {
+            "de": "Der Drache fällt",
+            "en": "The dragon falls"
+          },
+          "trigger": "win",
+          "rival": "b_kokuryu",
+          "style": "phone",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Kokuryū... Komm morgen in die Garage. Ich muss dir etwas erzählen.",
+              "en": "Kokuryū... Come to the garage tomorrow. I have something to tell you."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ch5",
+      "number": 5,
+      "title": {
+        "de": "Unendlich",
+        "en": "Endless"
+      },
+      "jp": "無限",
+      "intro": {
+        "de": "Es gibt nur noch einen. Er fährt zwischen zwei und vier Uhr, und er wartet nur auf die, die alle anderen geschlagen haben.",
+        "en": "Only one is left. He drives between two and four in the morning, and he only waits for those who beat everyone else."
+      },
+      "goal": {
+        "de": "Finde Mugen zwischen 2 und 4 Uhr und schlag ihn",
+        "en": "Find Mugen between 2 and 4 a.m. and beat him"
+      },
+      "start": {
+        "beatenRivals": [
+          "b_kokuryu"
+        ]
+      },
+      "scenes": [
+        {
+          "id": "ch5_start",
+          "title": {
+            "de": "Die Regennacht",
+            "en": "The rainy night"
+          },
+          "trigger": "garage",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Mugen und ich waren ein Team. Zwei Autos, eine Garage. Diese hier.",
+              "en": "Mugen and I were a team. Two cars, one garage. This one."
+            },
+            {
+              "speaker": "genzo",
+              "de": "Dann kam eine Regennacht und ein Unfall. Seitdem fährt er allein, und ich gar nicht mehr.",
+              "en": "Then came a rainy night and a crash. Since then he drives alone, and I don't drive at all."
+            },
+            {
+              "speaker": "genzo",
+              "de": "Wenn du ihn schlägst, sag ihm, dass die Garage noch steht.",
+              "en": "If you beat him, tell him the garage is still standing."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "epilog",
+      "number": 6,
+      "label": {
+        "de": "Epilog",
+        "en": "Epilogue"
+      },
+      "title": {
+        "de": "Neue Straßen",
+        "en": "New Roads"
+      },
+      "jp": "新しい道",
+      "intro": {
+        "de": "Zwei alte Freunde an einem Tisch. Und hinter dem Ring warten noch viele andere Straßen.",
+        "en": "Two old friends at one table. And beyond the loop, many other roads are waiting."
+      },
+      "goal": {
+        "de": "Freies Spiel: Revanchen, Pink Slips und alle Wanderer",
+        "en": "Free play: rematches, pink slips and every wanderer"
+      },
+      "start": {
+        "beatenRivals": [
+          "b_mugen"
+        ]
+      },
+      "scenes": [
+        {
+          "id": "epilog_table",
+          "title": {
+            "de": "Am selben Tisch",
+            "en": "At the same table"
+          },
+          "trigger": "garage",
+          "speaker": "genzo",
+          "lines": [
+            {
+              "speaker": "genzo",
+              "de": "Er war hier. Nach all den Jahren stand er einfach vor dem Tor.",
+              "en": "He was here. After all these years he just stood at the gate."
+            },
+            {
+              "speaker": "genzo",
+              "de": "Danke. Und jetzt fahr. Der Ring ist nicht die einzige Straße in Japan.",
+              "en": "Thank you. Now go and drive. The loop isn't the only road in Japan."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

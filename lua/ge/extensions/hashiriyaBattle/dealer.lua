@@ -215,13 +215,21 @@ function M.buy(i)
   local entry = {
     model = offer.model, config = '/vehicles/' .. offer.model .. '/' .. offer.key .. '.pc',
     name = name, plate = plates.random(), plateDesign = plates.defaultDesign, km = offer.km,
+    price = offer.price, baseKey = offer.key, -- für den Wiederverkauf (Alpha 0.8)
   }
   -- Gebrauchtzustand: wird beim ersten Spawnen angewendet (wie beim Startauto)
   extensions.hashiriyaBattle_condition.initUsedCar(entry, offer.wear, nil)
   entry.freshWear, entry.wearFrom = true, 'dealer' -- wearFrom: nicht mit Startauto-Werten abgleichen
   table.insert(save.cars, entry)
+  local wasEmpty = #save.cars == 1
+  if wasEmpty then save.activeCar = 1 end
   c.writeSave()
   c.msg(c.t('msg.carBought', name, c.economy().formatYen(offer.price)), 6)
+  -- Ohne Auto gekauft: steht gleich in der Garagenbucht
+  if wasEmpty then
+    save.noCar = nil
+    pcall(function() c.spawnActiveCar() end)
+  end
   log('I', logTag, string.format('Autohändler: %s/%s für %d Yen', offer.model, offer.key, offer.price))
 end
 
@@ -272,13 +280,95 @@ end
 
 -- Eigene Autos (Garage) -----------------------------------------------------------
 
+-- Wert eines eigenen Autos: Kaufpreis, sonst BeamNG-Wert der Config (Value), sonst die billigste Config des Modells
+local function configKey(car)
+  if car.baseKey then return car.baseKey end
+  local path = type(car.config) == 'string' and car.config or (type(car.config) == 'table' and car.config.partConfigFilename) or nil
+  return path and tostring(path):match('([^/]+)%.pc$') or nil
+end
+
+function M.carValue(car)
+  if not car then return 0 end
+  if tonumber(car.price) and car.price > 0 then return car.price end
+  local okM, m = pcall(core_vehicles.getModel, car.model)
+  local configs = okM and m and m.configs or {}
+  local key = configKey(car)
+  local v = key and configs[key] and tonumber(configs[key].Value)
+  if not v then
+    for _, info in pairs(configs) do
+      local x = tonumber(info.Value)
+      if x and (not v or x < v) then v = x end
+    end
+  end
+  return v and core().economy().usdToPrice(v) or 300000
+end
+
+function M.sellPrice(car)
+  local f = tonumber(loadData().sellFactor) or 0.5
+  return math.max(0, math.floor(M.carValue(car) * f / 10000 + 0.5) * 10000)
+end
+
 function M.ownedCars()
-  local save = core().save
+  local c = core()
+  local save = c.save
   local list = {}
   for i, car in ipairs(save and save.cars or {}) do
-    table.insert(list, { index = i, name = car.name or car.model, plate = car.plate, active = i == (save.activeCar or 1) })
+    local active = i == (save.activeCar or 1)
+    table.insert(list, { index = i, name = car.name or car.model, plate = car.plate, active = active,
+      sell = (not active) and c.economy().formatYen(M.sellPrice(car)) or nil })
   end
   return list
+end
+
+-- Alpha 0.8: Auto verkaufen (nur in der Garage, nie das aktive). Teile im Lager dieses Autos gehen mit.
+function M.sellCar(i)
+  local c = core()
+  local save = c.save
+  if not save or not i or not save.cars[i] then return end
+  if i == (save.activeCar or 1) then c.msg(c.t('msg.sellActiveCar'), 4) return end
+  local car = save.cars[i]
+  local price = M.sellPrice(car)
+  table.remove(save.cars, i)
+  if i < (save.activeCar or 1) then save.activeCar = (save.activeCar or 1) - 1 end
+  save.money = save.money + price
+  extensions.hashiriyaBattle_progress.bump(save, 'carsSold')
+  c.writeSave()
+  c.msg(c.t('msg.carSold', car.name or car.model, c.economy().formatYen(price)), 6)
+  log('I', logTag, string.format('Auto verkauft: %s für %d Yen', tostring(car.name or car.model), price))
+end
+
+-- Kein Auto mehr (Pink Slip verloren): zu Fuß in der Garage. Reicht das Geld für das billigste Angebot,
+-- geht es mit dem Händler weiter, sonst ist die Karriere vorbei (dealer.json gameOver).
+function M.cheapestOffer()
+  local save = core().save
+  local best = nil
+  for i, o in ipairs(makeOffers()) do
+    local sold = save.dealerSold and save.dealerSold[soldKey(i)]
+    if not sold and (not best or o.price < best) then best = o.price end
+  end
+  return best
+end
+
+function M.checkNoCar()
+  local c = core()
+  local save = c.save
+  if not save or #(save.cars or {}) > 0 then return false end
+  local cheapest = M.cheapestOffer()
+  if loadData().gameOver ~= false and (not cheapest or save.money < cheapest) then
+    save.gameOver = true
+    c.writeSave()
+    c.sound('lose')
+    log('I', logTag, 'Game Over: kein Auto, ' .. tostring(save.money) .. ' Yen, billigstes Angebot ' .. tostring(cheapest))
+  else
+    save.noCar = true
+    c.msg(c.t('msg.noCarDealer'), 10)
+  end
+  return true
+end
+
+function M.clearGameOver()
+  local save = core().save
+  if save then save.gameOver = nil end
 end
 
 -- Anderes Auto aus der Garage holen (nur in der Garage)

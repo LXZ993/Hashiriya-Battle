@@ -63,7 +63,10 @@ angular.module('beamng.apps')
                 '<div class="hbt-row hbt-row-store" ng-repeat="p in storeList track by p.key" ng-mouseenter="focus(p.slot)">' +
                   '<span class="hbt-lv" ng-class="\'lv\' + p.level">{{ lvText(p.level) }}</span><span>{{ p.name }}</span><span class="hbt-dim">{{ p.rowName }}</span>' +
                   '<span ng-class="p.installed ? \'hbt-ok\' : \'hbt-warn\'">{{ p.installed ? t(\'term.mounted\') : t(\'term.stored\') }}</span>' +
-                  '<span class="hbt-right"><button class="hbt-btn hbt-btn-s" ng-if="!p.installed" ng-click="pick(p.row, p.opt)">{{ t(\'term.mount\') }}</button></span></div>' +
+                  '<span class="hbt-right"><button class="hbt-btn hbt-btn-s" ng-if="!p.installed" ng-click="pick(p.row, p.opt)">{{ t(\'term.mount\') }}</button>' +
+                    // Alpha 0.8: Teil aus dem Lager verkaufen (zweimal klicken)
+                    '<button class="hbt-btn hbt-btn-s hbt-btn-sell" ng-if="!p.installed && p.opt.sell" ng-class="{\'is-armed\': sellArm === p.key}" ng-click="sell(p)">' +
+                      '{{ sellArm === p.key ? t(\'term.sellConfirm\') : t(\'term.sell\') }} · {{ p.opt.sell }}</button></span></div>' +
               '</div>' +
               // Teile (Kategorie oder Suchergebnis)
               '<div ng-if="!(term.mode == \'garage\' && ui.gtab == \'store\')">' +
@@ -186,7 +189,7 @@ angular.module('beamng.apps')
         '.hbt-row.is-on{cursor:default;}' +
         '.hbt-row.is-prev{background:rgba(255,102,0,.16);box-shadow:inset 0 0 0 1px rgba(255,140,60,.55);}' +
         '.hbt-row.is-locked,.hbt-row.is-poor{opacity:.55;}' +
-        '.hbt-row-store{grid-template-columns:44px minmax(0,1fr) 30% 90px 90px;cursor:default;}' +
+        '.hbt-row-store{grid-template-columns:44px minmax(0,1fr) 24% 80px auto;cursor:default;}' +
         '.hbt-head{color:#8ea0b4;font-size:10px;text-transform:uppercase;letter-spacing:.05em;background:rgba(0,0,0,.25);}' +
         '.hbt-opt-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
         '.hbt-state{color:#ffb070;font-size:12px;}' +
@@ -225,6 +228,8 @@ angular.module('beamng.apps')
           'background:linear-gradient(180deg,#f4f6f9,#dde3ea 50%,#cdd5df 51%,#e3e8ee);}' +
         '.hbt-btn:hover{background:linear-gradient(180deg,#fff,#eaf2fb 50%,#d5e4f5 51%,#eef5fd);}' +
         '.hbt-btn-s{height:22px;padding:0 8px;}' +
+        '.hbt-btn-sell{margin-left:6px;}' +
+        '.hbt-btn-sell.is-armed{background:#c0392b;border-color:#e74c3c;color:#fff;}' +
         '.hbt-btn-on,.hbt-btn-main{border-color:#7a2e00;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.4);background:linear-gradient(180deg,#ffb27a,#ff7a1f 50%,#f06000 51%,#ff8a33);}' +
         '.hbt-btn-main{font-weight:700;}' +
         '.hbt-dis{opacity:.45;cursor:default;}' +
@@ -361,6 +366,12 @@ angular.module('beamng.apps')
         if (o.previewing) return scope.t('term.inCart')
         if (o.owned) return scope.t('term.stored')
         return ''
+      }
+      scope.sellArm = null
+      scope.sell = function (p) {
+        if (scope.sellArm !== p.key) { scope.sellArm = p.key; return }
+        scope.sellArm = null
+        scope.act('sellPart', p.slot + '|' + p.opt.part)
       }
       scope.pick = function (r, o) {
         if (o.installed && !o.previewing) return

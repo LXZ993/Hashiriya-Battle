@@ -761,6 +761,9 @@ end
 function M.interact()
   local c = core()
   if not c or not c.active then return end
+  -- Story-Szene oder Kapitelkarte (story.lua) geht vor
+  local st = extensions.hashiriyaBattle_story
+  if st and st.isShowing() and st.interact() then return end
   if convo then
     local line = convo.lines[convo.index]
     if line and line.choice then

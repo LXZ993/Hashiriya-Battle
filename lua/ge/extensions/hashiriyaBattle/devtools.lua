@@ -36,6 +36,7 @@ local placeTypes = {
   { id = 'shop_body', name = 'Bodyshop' },
   { id = 'gas', name = 'Tankstelle' },
   { id = 'wanderer', name = 'Wanderer-Wartepunkt' },
+  { id = 'job', name = 'Nebenjob-Ziel (jobSpots)' },
   { id = 'police', name = 'Polizei / Messstelle' },
   { id = 'ramp_on', name = 'Auffahrt' },
   { id = 'ramp_off', name = 'Ausfahrt' },
@@ -51,7 +52,7 @@ for _, t in ipairs(placeTypes) do typeName[t.id] = t.name end
 local defaultColors = {
   garage = '#ff6600', home = '#ffffff', pa = '#3fa9ff', shop = '#ffd400', shop_mech = '#ff9a3c', shop_paint = '#ff4fd8',
   shop_body = '#b07bff', gas = '#3ddc84', wanderer = '#9b30ff', police = '#1e40ff', ramp_on = '#00e5d4', ramp_off = '#ff3b3b',
-  mapchange = '#c6ff00', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
+  mapchange = '#c6ff00', job = '#ffb3e6', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
 }
 local markerDefaults = { on = true, showMap = true, height = 40, radius = 0.8, labels = true }
 local drawList = nil -- vorbereitete Säulen (wird bei jeder Änderung neu gebaut)
@@ -140,6 +141,12 @@ local function mapPlaces()
   for i, n in ipairs(md.napSpots or {}) do
     if type(n.pos) == 'table' then
       table.insert(out, { id = 'map:nap' .. i, name = n.name or ('PA ' .. i), type = 'pa', pos = n.pos, map = true, mapId = 'nap' .. i })
+    end
+  end
+  for i, j in ipairs(md.jobSpots or {}) do
+    if type(j.pos) == 'table' then
+      local nm = type(j.name) == 'table' and (j.name.de or j.name.en) or j.name
+      table.insert(out, { id = 'map:job' .. i, name = nm or ('Jobziel ' .. i), type = 'job', pos = j.pos, map = true, mapId = 'job' .. i })
     end
   end
   if md.playerSpawn and md.playerSpawn.pos then

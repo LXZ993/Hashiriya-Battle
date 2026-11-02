@@ -91,6 +91,11 @@ local defaults = {
   draftDist = 45,        -- m: so nah hinter dir hängt er sich in den Windschatten
   brakeCheckFairness = 0.35, -- unter dieser Fairness: Bremstests möglich
   brakeCheckCooldown = 25,   -- s zwischen zwei Bremstests
+  -- Rempler (Alpha 0.9, Fahrcharakter "rammer"): neben dir zieht er kurz rüber und sucht Kontakt
+  ram = 0,               -- 0 = nie, 1 = so oft wie möglich (kommt aus dem Fahrcharakter, driver.json characters)
+  ramCooldown = 12,      -- s zwischen zwei Remplern
+  ramTime = 0.7,         -- s, so lange drückt er rüber
+  ramMinSpeed = 15,      -- m/s: erst ab etwa 55 km/h
   -- Psycho-Taktik: Blinker-Täuschung, Lichthupe, Hupe, Licht aus (Aggression hoch + Fairness niedrig = öfter)
   tacticsRate = 3,       -- Taktiken pro Minute höchstens (Aggression 1, Fairness 0), nur in der Nähe des Gegners
   tacticsDist = 50,      -- m: nur so nah am Gegner
@@ -141,7 +146,7 @@ local savedGearbox
 local status = 'idle'
 local failedReported = false
 -- Duell und Fehler
-local duel = { blockTime = 0, blockCool = 0, blockLat = nil, blockMoves = 0, brakeCheck = 0, brakeCool = 10 }
+local duel = { blockTime = 0, blockCool = 0, blockLat = nil, blockMoves = 0, brakeCheck = 0, brakeCool = 10, ramTime = 0, ramCool = 8 }
 local mistake = { kind = nil, time = 0, cool = 0, scared = {} }
 local startDelay = 0
 local launchPrepped = false -- im Countdown schon runtergeschaltet (hohe Schaltpunkte)
@@ -557,6 +562,7 @@ planLattice = function(pl, courage, list, egoLat)
   for _, ob in ipairs(list) do
     local gap = sideGap
     if ob.target then gap = lerp(min(sideGap, 0.15), max(sideGap, p.playerSideGap), p.fairness) end
+    if ob.target and duel.ramTime > 0 then gap = -0.4 end -- Rempler: Kontakt gewollt
     ob.latNeed = (ob.wid + ego.width) * 0.5 + gap + reserve
     ob.lenHalf = (ob.len + ego.length) * 0.5
     ob.side = nil
@@ -1039,10 +1045,22 @@ local function planDuel(pl, egoLat, dt)
   duel.blockCool = max(duel.blockCool - dt, 0)
   duel.blockTime = max(duel.blockTime - dt, 0)
   duel.brakeCool = max(duel.brakeCool - dt, 0)
+  duel.ramTime = max(duel.ramTime - dt, 0)
+  duel.ramCool = max(duel.ramCool - dt, 0)
   if p.targetId == nil or p.targetId < 0 then return nil end
   local t = targetOnPlan(pl)
   if not t then return nil end
   local v0 = ego.speed
+  -- Rempler: Seite an Seite (Überlappung längs), dann kurz zu dir rüber
+  local sideBySide = abs(t.s) < (t.len + ego.length) * 0.45
+  if (p.ram or 0) > 0 and sideBySide and v0 > p.ramMinSpeed then
+    if duel.ramTime <= 0 and duel.ramCool <= 0 and math.random() < p.ram * 0.6 * dt then
+      duel.ramTime = p.ramTime
+      duel.ramCool = p.ramCooldown
+      dlog('rempelt')
+    end
+    if duel.ramTime > 0 then return t.d, 1, 30 end
+  end
   -- gerade Strecke voraus? (alte Planung: Krümmung der nächsten 60 m)
   local straight = true
   if plan and plan.kappa then
@@ -1592,6 +1610,7 @@ function M.start(params)
   failedReported = false
   race.gap, race.ownSp, race.otherSp = 0, 1, 1
   duel.blockTime, duel.blockCool, duel.blockLat, duel.blockMoves, duel.brakeCheck, duel.brakeCool = 0, 3, nil, 0, 0, 10
+  duel.ramTime, duel.ramCool = 0, 8
   mistake.kind, mistake.time, mistake.cool = nil, 0, 5
   table.clear(mistake.scared)
   startDelay = lerp(p.reactionMax, p.reactionMin, p.skill)

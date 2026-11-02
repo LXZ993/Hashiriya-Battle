@@ -239,8 +239,15 @@ local function conditionsMet(c, save)
   if c.beatenTeam and not teamBeaten(c.beatenTeam, save) then return false end
   for _, id in ipairs(c.beatenTeams or {}) do if not teamBeaten(id, save) then return false end end
   for _, id in ipairs(c.beatenRivals or c.requires or {}) do if not save.defeated[id] then return false end end
+  -- Story (Alpha 0.6): erst ab diesem Kapitel (ID aus story.json)
+  if c.storyChapter then
+    local st = extensions.hashiriyaBattle_story
+    if st and not st.reached(c.storyChapter, save) then return false end
+  end
   return true
 end
+M.conditionsMet = conditionsMet
+M.teamBeaten = teamBeaten
 
 local function isOnRoad(id)
   for _, e in ipairs(onRoad) do if e.data.id == id then return true end end

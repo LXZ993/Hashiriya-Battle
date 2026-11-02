@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -22,6 +22,7 @@ local showMenu = true
 local showDealer = false   -- Autohändler (aus dem Menü links)
 local showStats = false    -- Statistik (aus dem Menü links)
 local showLexicon = false  -- Rivalen-Lexikon (aus dem Menü links, überall)
+local showJobs = false     -- Jobbrett (Nebenjobs und Tipps, Alpha 0.7; Garage und Zuhause)
 local homeTab = 'main'     -- Zuhause: main | lexicon
 local showCarSelect = false
 local platePriceYen = 15000 -- Kennzeichen ummelden
@@ -410,6 +411,7 @@ end
 -- Neues Spiel aus dem Karriere-Assistenten (career.lua): Auto steht im Showroom oder schon in der Garagenbucht.
 function M.newCareer(data)
   M.save = newSave()
+  pcall(function() extensions.hashiriyaBattle_story.reset() end)
   M.save.playerName = data.playerName
   M.save.experience = data.experience
   -- Startkapital minus Kaufpreis des Starterautos
@@ -450,8 +452,17 @@ function M.continueCareer()
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
   extensions.hashiriyaBattle_shop.loadSettings(M.save)
   extensions.hashiriyaBattle_condition.syncStarterWear(M.save)
+  pcall(function() extensions.hashiriyaBattle_story.reset() end)
   local car = M.save.cars[M.save.activeCar or 1]
-  if not car then return end
+  if not car then
+    -- Alpha 0.8: Spielstand ohne Auto (Pink Slip verloren): zu Fuß an der Garage, Händler oder Game Over
+    M.active = true
+    showMenu = false
+    extensions.hashiriyaBattle_home.applyClock(M.save.hour or extensions.hashiriyaBattle_home.world().startHour)
+    M.goOnFoot(nil)
+    extensions.hashiriyaBattle_dealer.checkNoCar()
+    return
+  end
   local opts = { config = plateConfig(car), licenseText = car.plate, autoEnterVehicle = false }
   local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
   if pos then opts.pos, opts.rot = pos, rot end
@@ -495,6 +506,8 @@ local function continueGame()
 end
 
 function M.stopGame()
+  pcall(function() extensions.hashiriyaBattle_story.reset() end)
+  pcall(function() extensions.hashiriyaBattle_jobs.reset() end)
   pcall(function() extensions.hashiriyaBattle_talk.despawnAll() end)
   pcall(function() extensions.hashiriyaBattle_talk.clearPending() end)
   if M.active then M.writeSave() end
@@ -513,6 +526,8 @@ function M.onParkingArrived(area)
   if area.type == 'garage' then M.writeSave() end
   -- Shop zu Fuß: gleich das Teile-Terminal
   if area.type == 'shop' and extensions.hashiriyaBattle_parking.isFootShop() then extensions.hashiriyaBattle_shop.openTerminal('shop') end
+  -- Story (Alpha 0.6): Szenen in der Garage, zuhause, ...
+  pcall(function() extensions.hashiriyaBattle_story.onEvent(area.type, { area = area.type }) end)
   M.sendUiState()
 end
 
@@ -576,6 +591,8 @@ function M.onBattleResult(rival, won, result)
     msg(M.t('msg.lose', rival.name), 6)
   end
   M.writeSave()
+  -- Story (Alpha 0.6): Szenen nach einem Battle
+  pcall(function() extensions.hashiriyaBattle_story.onEvent(won and 'win' or 'lose', { rival = rival }) end)
 end
 
 -- Positionen sammeln (für Parkplätze und Spawnpunkte) -----------------------
@@ -756,6 +773,15 @@ local function buildUiState()
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
     local talkHud = extensions.hashiriyaBattle_talk.getHudState()
     if talkHud then st.talk, st.talkPrompt = talkHud.talk, talkHud.prompt end
+    -- Story (Alpha 0.6): Kapitelkarte und Szenen haben Vorrang vor PA-Gesprächen
+    local okS, storyHud = pcall(function() return extensions.hashiriyaBattle_story.getHudState() end)
+    if okS and storyHud then
+      st.storyCard = storyHud.card
+      if storyHud.talk then st.talk, st.talkPrompt = storyHud.talk, nil end
+      if storyHud.card then st.talk, st.talkPrompt = nil, nil end
+    end
+    local okG, goal = pcall(function() return extensions.hashiriyaBattle_story.goal() end)
+    if okG then st.storyGoal = goal end
     st.style = extensions.hashiriyaBattle_style.getHudState()
     st.unlock = extensions.hashiriyaBattle_shop.unlockHud()
     local parking = extensions.hashiriyaBattle_parking
@@ -783,7 +809,18 @@ local function buildUiState()
     st.night = extensions.hashiriyaBattle_home.isNight()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
     if st.night and left then st.battlesLeft = left end
-    if showLexicon then
+    st.job = extensions.hashiriyaBattle_jobs.getHudState()
+    st.noCar = M.save.noCar and #M.save.cars == 0 or nil
+    if M.save.gameOver then
+      -- Alpha 0.8: Karriere vorbei (kein Auto, kein Geld)
+      st.screen = 'gameOver'
+      st.menuVisible = true
+      st.gameOver = { days = M.save.day or 1, wins = M.save.wins or 0, losses = M.save.losses or 0, money = eco.formatYen(M.save.money or 0),
+        rank = extensions.hashiriyaBattle_progress.rankName(M.save) }
+    elseif showJobs then
+      st.screen = 'jobs'
+      st.jobs = extensions.hashiriyaBattle_jobs.getUiState()
+    elseif showLexicon then
       st.screen = 'lexicon'
       st.home = extensions.hashiriyaBattle_home.getUiState('lexicon')
     elseif showStats then
@@ -873,7 +910,7 @@ end
 -- Klick-Sounds der Menüs (Meldungen bringen ihren eigenen Sound mit)
 local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true, fuelHold = true, termHello = true, termCatalog = true, paintLive = true }
 local tabActions = { shopTab = true, garageTab = true, setupCat = true, paintSlot = true, termCat = true }
-local backActions = { back = true, hide = true, previewCancel = true, setupDiscard = true }
+local backActions = { jobsBack = true, back = true, hide = true, previewCancel = true, setupDiscard = true }
 
 local function actionSound(action, arg)
   if silentActions[action] then return end
@@ -939,6 +976,7 @@ function M.uiAction(action, arg)
     showDealer = false
     showStats = false
     showLexicon = false
+    showJobs = false
     extensions.hashiriyaBattle_parking.leaveFootShop()
   elseif action == 'dealer' then
     showDealer = true
@@ -959,6 +997,23 @@ function M.uiAction(action, arg)
     showMenu = true
   elseif action == 'lexiconBack' then
     showLexicon = false
+  elseif action == 'jobs' then
+    showJobs = true
+    showStats = false
+    showDealer = false
+    showLexicon = false
+    showMenu = true
+  elseif action == 'jobsBack' then
+    showJobs = false
+  elseif action == 'jobAccept' then
+    extensions.hashiriyaBattle_jobs.accept(tostring(arg))
+    showJobs = false
+  elseif action == 'jobCancel' then
+    extensions.hashiriyaBattle_jobs.cancel()
+  elseif action == 'buyTip' then
+    extensions.hashiriyaBattle_jobs.buyTip(tostring(arg))
+  elseif action == 'storyNext' then
+    extensions.hashiriyaBattle_story.interact()
   elseif action == 'watch' then
     extensions.hashiriyaBattle_home.toggleWatch(tostring(arg))
   elseif action == 'dealerBuy' then
@@ -1006,6 +1061,17 @@ function M.uiAction(action, arg)
     local area = arrivedArea()
     if slot and area and area.type == 'shop' then extensions.hashiriyaBattle_shop.select(slot, part) end
     if slot and area and area.type == 'garage' then extensions.hashiriyaBattle_shop.buy(slot, part, true) end
+  elseif action == 'sellPart' then
+    -- Alpha 0.8: Teil aus dem Lager verkaufen (Garagen-PC)
+    local slot, part = tostring(arg or ''):match('^([^|]+)|(.*)$')
+    local area = arrivedArea()
+    if slot and area and area.type == 'garage' then extensions.hashiriyaBattle_shop.sellPart(slot, part) end
+  elseif action == 'sellCar' then
+    local area = arrivedArea()
+    if area and area.type == 'garage' then extensions.hashiriyaBattle_dealer.sellCar(tonumber(arg)) end
+  elseif action == 'gameOverNew' then
+    extensions.hashiriyaBattle_dealer.clearGameOver()
+    extensions.hashiriyaBattle_career.openTitle()
   elseif action == 'buyPaint' then
     local area = arrivedArea()
     if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.selectPaint(tostring(arg)) end

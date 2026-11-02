@@ -28,6 +28,7 @@ local camTimer = 0
 
 local function core() return extensions.hashiriyaBattle_core end
 local function bump() catVersion = catVersion + 1 end
+local sellValue -- weiter unten (Verkaufen)
 
 function M.loadData()
   rules = jsonReadFile(rulesPath) or { tiers = {}, categories = {}, levelWords = {}, exclude = {}, overrides = {} }
@@ -236,10 +237,16 @@ end
 local function ownsPart(car, part)
   if not part or part == '' then return true end
   if car.owned and car.owned[part] then return true end
-  for _, v in pairs(car.stock or {}) do
-    if v == part then return true end
+  for slot, v in pairs(car.stock or {}) do
+    -- verkaufte Serienteile (Alpha 0.8: car.soldStock[slot] = Teil) gehören dir nicht mehr
+    if v == part and not (car.soldStock and car.soldStock[slot] == v) then return true end
   end
   return false
+end
+
+-- Serienteil dieses Slots verkauft und nicht zurückgekauft?
+local function stockSold(car, slot, part)
+  return part and part ~= '' and car.soldStock and car.soldStock[slot] == part and not (car.owned and car.owned[part]) or false
 end
 
 -- Slot -> Anzeigename: eigene Übersetzung (shop.slot.<slot ohne Modell>), sonst jbeam-Beschreibung
@@ -296,7 +303,7 @@ local function buildCatalog(vehOverride)
   end
 
   -- Slot-Beschreibungen und Eltern-Teil aus den verbauten Teilen (slots2)
-  local slotDesc, slotParent = {}, {}
+  local slotDesc, slotParent, slotCore = {}, {}, {}
   local installed = {}
   for _, p in pairs(cfg.parts) do if p ~= '' then installed[p] = true end end
   local okMain, mainPart = pcall(io.getMainPartName, vd.ioCtx)
@@ -307,6 +314,7 @@ local function buildCatalog(vehOverride)
       if name then
         slotDesc[name] = slotDesc[name] or s.description
         slotParent[name] = slotParent[name] or p
+        if s.coreSlot then slotCore[name] = true end
       end
     end
   end
@@ -345,8 +353,9 @@ local function buildCatalog(vehOverride)
           end
         end
       end
-      local emptyOk = part == '' or stockPart == ''
-      if #options > 0 or (stockPart ~= nil and stockPart ~= part) then
+      -- Ausbauen (Alpha 0.8): jeder Slot, der kein Pflicht-Slot (coreSlot) ist, darf leer bleiben (tuning.json allowRemove)
+      local emptyOk = part == '' or stockPart == '' or (rules.allowRemove ~= false and not slotCore[slot])
+      if #options > 0 or (stockPart ~= nil and stockPart ~= part) or (emptyOk and part ~= '') then
         table.sort(options, function(a, b)
           if a.level ~= b.level then return a.level < b.level end
           return a.price < b.price
@@ -818,6 +827,10 @@ local function findOption(slot, part)
   local row = cat and cat.bySlot[slot]
   if not row then return nil end
   if part == row.stockPart then
+    local car = activeCar()
+    if car and stockSold(car, slot, part) then
+      return { part = part, name = row.stockName or part, level = 1, price = yen(cat.partInfo(part).value), stockBack = true }, row
+    end
     return { part = part, name = part == '' and core().t('shop.notInstalled') or (row.stockName or part), level = 0, price = 0, stock = true }, row
   end
   if part == '' and row.emptyOk then
@@ -1206,6 +1219,47 @@ function M.setTab(tab) M.setCategory(tab) end
 
 -- Katalog für die UI (per Hook 'HashiriyaCatalog', nur auf Anfrage) ----------------------
 
+-- Verkaufen (Alpha 0.8): Teile im Lager bringen einen Teil ihres Preises (tuning.json sellFactor, Standard 0.4)
+sellValue = function(priceYen)
+  local f = tonumber(rules and rules.sellFactor) or 0.4
+  return math.floor((priceYen or 0) * f / 100 + 0.5) * 100
+end
+
+-- Garagen-PC, Teilelager: nicht verbautes eigenes Teil verkaufen (auch Serienteile)
+function M.sellPart(slot, part)
+  settleLivePaint()
+  local c = core()
+  local car = activeCar()
+  if terminal ~= 'garage' or not car or not part or part == '' then return end
+  if cart then c.msg(c.t('msg.sellCart')) return end
+  local cat = getCatalog()
+  local row = cat and cat.bySlot[slot]
+  if not row then return end
+  local live = currentConfig()
+  if live and slotValue(live, slot) == part then c.msg(c.t('msg.sellInstalled')) return end
+  if not ownsPart(car, part) then return end
+  local price
+  if car.owned and car.owned[part] then
+    local o = nil
+    for _, x in ipairs(row.options) do if x.part == part then o = x end end
+    price = sellValue(o and o.price or yen(cat.partInfo(part).value))
+    car.owned[part] = nil
+  elseif part == row.stockPart then
+    price = sellValue(yen(cat.partInfo(part).value))
+    car.soldStock = car.soldStock or {}
+    car.soldStock[slot] = part
+  else
+    return
+  end
+  c.save.money = c.save.money + price
+  extensions.hashiriyaBattle_progress.bump(c.save, 'partsSold')
+  bump()
+  c.writeSave()
+  c.msg(c.t('msg.partSold', cat.partInfo(part).display, c.economy().formatYen(price)), 5)
+  log('I', logTag, string.format('Shop: Teil verkauft %s -> %s für %d Yen', slot, part, price))
+  M.sendCatalog()
+end
+
 local function catalogPayload(cat)
   local c = core()
   local car = activeCar()
@@ -1229,8 +1283,16 @@ local function catalogPayload(cat)
       table.insert(r.options, o)
     end
     if row.stockPart ~= nil then
-      add({ part = row.stockPart, name = c.t('shop.stock') .. ' · ' .. (row.stockName or c.t('shop.notInstalled')), level = 0,
-        price = c.t('shop.free'), priceRaw = 0, owned = true, stock = true, free = true })
+      if stockSold(car, row.slot, row.stockPart) then
+        -- verkauftes Serienteil: im Shop wieder kaufbar
+        local pr = yen(cat.partInfo(row.stockPart).value)
+        add({ part = row.stockPart, name = c.t('shop.stock') .. ' · ' .. (row.stockName or row.stockPart), level = 1,
+          price = eco.formatYen(pr), priceRaw = pr, owned = false, stock = true, free = false })
+      else
+        local sv = row.stockPart ~= '' and sellValue(yen(cat.partInfo(row.stockPart).value)) or nil
+        add({ part = row.stockPart, name = c.t('shop.stock') .. ' · ' .. (row.stockName or c.t('shop.notInstalled')), level = 0,
+          price = c.t('shop.free'), priceRaw = 0, owned = true, stock = true, free = true, sell = sv and sv > 0 and eco.formatYen(sv) or nil })
+      end
     end
     if row.emptyOk and row.stockPart ~= '' then
       add({ part = '', name = c.t('shop.notInstalled'), level = -1, price = c.t('shop.free'), priceRaw = 0, owned = true, free = true })
@@ -1240,9 +1302,10 @@ local function catalogPayload(cat)
       local owned = ownsPart(car, o.part)
       local unlocked, need = true, nil
       if not owned then unlocked, need = isUnlocked(o.level) end
+      local sv = owned and o.part ~= '' and sellValue(o.price) or nil
       add({ part = o.part, name = o.name, level = o.level, size = o.size,
         price = owned and c.t('shop.owned') or eco.formatYen(o.price), priceRaw = owned and 0 or o.price,
-        owned = owned, free = owned, locked = not unlocked, lockText = need })
+        owned = owned, free = owned, locked = not unlocked, lockText = need, sell = sv and sv > 0 and eco.formatYen(sv) or nil })
       if o.size and not seen[o.size] then seen[o.size] = true; table.insert(sizes, o.size) end
     end
     table.sort(sizes, function(a, b) return (tonumber(a:match('%d+')) or 0) < (tonumber(b:match('%d+')) or 0) end)

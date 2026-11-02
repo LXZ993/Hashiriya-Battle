@@ -1,0 +1,181 @@
+{
+  "_hinweis": "Nebenjobs am Tag (Alpha 0.7). settings = Regeln, types = Lohn und Zeit pro Auftragsart (Yen, Sekunden pro km Luftlinie), cargo = Ladungen pro Art, photoSubjects = Motive der Fotojobs. Erklärung im Handbuch, Kapitel 'Nebenjobs'.",
+  "settings": {
+    "enabled": true,
+    "offersPerDay": 4,
+    "maxPerDay": 4,
+    "minDistance": 800,
+    "arriveRadius": 25,
+    "arriveKmh": 8,
+    "rankBonus": 0.08,
+    "photoRadius": 60,
+    "photoWindowHours": 2,
+    "tipPriceWanderer": 15000,
+    "tipPriceBoss": 40000
+  },
+  "types": {
+    "courier": {
+      "payBase": 8000,
+      "payPerKm": 2500,
+      "secondsPerKm": 75,
+      "minSeconds": 150,
+      "damageFactor": 1,
+      "weight": 3,
+      "speaker": "courier"
+    },
+    "express": {
+      "payBase": 12000,
+      "payPerKm": 3800,
+      "secondsPerKm": 52,
+      "minSeconds": 110,
+      "damageFactor": 1,
+      "weight": 2,
+      "speaker": "courier"
+    },
+    "fragile": {
+      "payBase": 15000,
+      "payPerKm": 3200,
+      "secondsPerKm": 95,
+      "minSeconds": 180,
+      "damageFactor": 3,
+      "failDamageYen": 40000,
+      "weight": 2,
+      "speaker": "trucker"
+    },
+    "photo": {
+      "payBase": 22000,
+      "weight": 1,
+      "speaker": "photo"
+    }
+  },
+  "cargo": {
+    "courier": [
+      {
+        "title": {
+          "de": "Ersatzteile",
+          "en": "Spare parts"
+        },
+        "text": {
+          "de": "Ein Karton Bremsbeläge für eine Werkstatt, die heute noch fertig werden will.",
+          "en": "A box of brake pads for a workshop that wants to finish today."
+        }
+      },
+      {
+        "title": {
+          "de": "Akten",
+          "en": "Documents"
+        },
+        "text": {
+          "de": "Ein Umschlag mit Verträgen. Pünktlich wäre nett.",
+          "en": "An envelope of contracts. On time would be nice."
+        }
+      },
+      {
+        "title": {
+          "de": "Bento-Lieferung",
+          "en": "Bento delivery"
+        },
+        "text": {
+          "de": "Mittagessen für ein Büro. Kalt schmeckt es auch, aber nicht so gut.",
+          "en": "Lunch for an office. It tastes fine cold, just not as good."
+        }
+      },
+      {
+        "title": {
+          "de": "Werkzeugkoffer",
+          "en": "Toolbox"
+        },
+        "text": {
+          "de": "Jemand aus der Werkstatt hat den Koffer vergessen.",
+          "en": "Someone from the workshop forgot their toolbox."
+        }
+      }
+    ],
+    "express": [
+      {
+        "title": {
+          "de": "Eilige Teile",
+          "en": "Rush parts"
+        },
+        "text": {
+          "de": "Ein Rennteam wartet auf eine Turbodichtung. Jede Minute zählt.",
+          "en": "A race team is waiting for a turbo gasket. Every minute counts."
+        }
+      },
+      {
+        "title": {
+          "de": "Vergessener Schlüssel",
+          "en": "Forgotten key"
+        },
+        "text": {
+          "de": "Jemand steht ausgesperrt vor seinem Auto.",
+          "en": "Someone is locked out of their car."
+        }
+      },
+      {
+        "title": {
+          "de": "Speicherkarte",
+          "en": "Memory card"
+        },
+        "text": {
+          "de": "Fotos für eine Redaktion, Abgabe in wenigen Minuten.",
+          "en": "Photos for a newsroom, deadline in a few minutes."
+        }
+      }
+    ],
+    "fragile": [
+      {
+        "title": {
+          "de": "Scheinwerfer",
+          "en": "Headlights"
+        },
+        "text": {
+          "de": "Ein Paar seltene Klarglas-Scheinwerfer. Bitte nicht rempeln.",
+          "en": "A pair of rare clear-glass headlights. Please don't bump anything."
+        }
+      },
+      {
+        "title": {
+          "de": "Aquarium",
+          "en": "Aquarium"
+        },
+        "text": {
+          "de": "Mit Wasser. Und Fischen. Sanft fahren.",
+          "en": "With water. And fish. Drive gently."
+        }
+      },
+      {
+        "title": {
+          "de": "Porzellan",
+          "en": "Porcelain"
+        },
+        "text": {
+          "de": "Geschirr für ein Restaurant. Jeder Kratzer im Auto ist auch einer im Teller.",
+          "en": "Dishes for a restaurant. Every scratch on the car is one on a plate."
+        }
+      }
+    ]
+  },
+  "photoSubjects": [
+    {
+      "title": {
+        "de": "Autos bei Tageslicht",
+        "en": "Cars in daylight"
+      },
+      "text": {
+        "de": "Die Fotografin will dein Auto an der PA ablichten, solange das Licht stimmt.",
+        "en": "The photographer wants to shoot your car at the parking area while the light is right."
+      }
+    },
+    {
+      "title": {
+        "de": "Für ein Magazin",
+        "en": "For a magazine"
+      },
+      "text": {
+        "de": "Ein Magazin sucht Bilder von Straßenautos an den PAs.",
+        "en": "A magazine wants pictures of street cars at the parking areas."
+      }
+    }
+  ]
+}

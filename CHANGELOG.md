@@ -1,5 +1,53 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.9 (Stand 02.11.2026)
+
+### Neu: Fahrcharakter der Rivalen
+- Jeder Rivale hat jetzt einen Fahrstil: Fährt sauber, Blocker oder Rempler.
+- Saubere Fahrer lassen dir Platz. Blocker machen dir vorne öfter die Linie zu. Rempler suchen neben dir kurz Kontakt und machen Bremstests.
+- Wer keinen festen Stil hat, bekommt einen passend zu seiner Aggression. Bosse sind nie von selbst Rempler.
+- Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst.
+
+## Alpha 0.8 (Stand 02.11.2026)
+
+### Neu: Teile ausbauen und verkaufen
+- Am Garagen-PC kannst du jetzt fast jedes Teil ausbauen („Nicht verbaut“), auch Serienteile. Nur Pflicht-Teile, ohne die das Auto nicht existiert, bleiben drin.
+- Im Teilelager hat jedes nicht verbaute Teil einen Knopf „Verkaufen“ mit Preis. Zweimal klicken, dann ist es weg. Ein Teil bringt 40 % seines Preises.
+- Verkaufte Serienteile kannst du im Shop wieder kaufen.
+
+### Neu: Autos verkaufen
+- In der Garage hat jedes Auto außer dem aktiven einen Knopf „Verkaufen“ mit Preis. Ein Auto bringt die Hälfte seines Werts. Teile im Lager dieses Autos gehen mit.
+
+### Neu: Game Over
+- Verlierst du dein letztes Auto im Pink Slip, stehst du zu Fuß an der Garage. Reicht dein Geld für das billigste Angebot beim Händler, kaufst du dort ein neues Auto, und es steht gleich in der Garage.
+- Reicht das Geld nicht, ist die Karriere vorbei: Game Over mit Rang, Tagen und Bilanz, danach eine neue Karriere.
+
+## Alpha 0.7 (Stand 02.11.2026)
+
+### Neu: Nebenjobs am Tag
+- In der Garage und zuhause gibt es jetzt das Jobbrett. Jeden Tag stehen dort vier Aufträge, nur tagsüber.
+- Kurier: Ladung zu einem Ziel bringen, mit Zeitlimit. Schaden am Auto wird vom Lohn abgezogen.
+- Express: knapperes Zeitlimit, mehr Geld.
+- Zerbrechlich: mehr Geld, aber Schaden zählt dreifach. Zu viel Schaden, und der Auftrag platzt.
+- Fotojob: Sei zu Fuß an einer PA, solange das Zeitfenster der Fotografin offen ist.
+- Während eines Auftrags zeigt die Statusanzeige Ziel, Richtung, Entfernung und Restzeit.
+- Der Lohn steigt mit deinem Rang. Höchstens vier Aufträge pro Tag.
+
+### Neu: Tipps kaufen
+- Am Jobbrett kannst du Hinweise zu Wanderern und Bossen kaufen. Sie landen im Rivalen-Lexikon, genau wie die Hinweise aus den PA-Gesprächen.
+
+## Alpha 0.6 (Stand 02.11.2026)
+
+### Neu: Story und Kapitel
+- Die Karriere hat jetzt eine Geschichte: Prolog, fünf Kapitel und ein Epilog. Du kommst neu nach Tokio und willst wissen, wer Mugen ist.
+- Jedes Kapitel beginnt mit einer Kapitelkarte (Titel auf Deutsch und Japanisch, kurzer Text).
+- Szenen laufen in der Sprechblase: in der Garage, zuhause beim Aufwachen, an den PAs und nach wichtigen Battles. Weiter mit T.
+- Kurze Handy-Nachrichten kommen auch beim Fahren und laufen von selbst weiter.
+- Das aktuelle Kapitelziel steht unter dem Geld und im Menü.
+- Im Rivalen-Lexikon gibt es oben die Seite „Story“ mit allen Kapiteln und gesehenen Szenen zum Nachlesen.
+- Alte Spielstände springen direkt ins passende Kapitel.
+- Die Story-Texte sind noch ein Entwurf und werden mit JDMArsch abgestimmt.
+
 ## Alpha 0.5.1 (Stand 02.11.2026)
 
 ### Neu: Musik

@@ -37,6 +37,8 @@ angular.module('beamng.apps')
               '<div class="hbm-fuelbar hbm-repbar"><i ng-style="{width: s.progress.progress + \'%\'}"></i></div>' +
               '<div class="hbm-rank-sub">{{ s.t[\'rank.rep\'] }} {{ s.progress.rep }}<span ng-if="s.progress.next"> · {{ s.t[\'rank.next\'] }}: {{ s.progress.next }} ({{ s.progress.repNext }})</span></div>' +
             '</div>' +
+            '<div class="hbm-note hbm-warn" ng-if="s.noCar">{{ s.t[\'msg.noCarDealer\'] }}</div>' +
+            '<div class="hbm-goal" ng-if="s.storyGoal"><span class="hbm-label">{{ s.storyGoal.chapter }} · {{ s.storyGoal.title }}</span><b>{{ s.storyGoal.text }}</b></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.night ? s.t[\'menu.night\'] : s.t[\'menu.dayTime\'] }}</span><b>{{ s.day }}</b></div>' +
             '<div class="hbm-stat" ng-if="s.battlesLeft != null"><span class="hbm-label">{{ s.t[\'menu.battlesLeft\'] }}</span><b>{{ s.battlesLeft }}</b></div>' +
             '<div class="hbm-note" ng-if="!s.night">{{ s.t[\'menu.dayNote\'] }}</div>' +
@@ -71,10 +73,15 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-class="{\'hbm-off\': !s.repairCost || !s.canAffordRepair}" ng-click="s.repairCost && s.canAffordRepair && act(\'repair\')"><i class="hbm-ico" ng-bind-html="ico(\'wrench\')"></i>' +
                 '<span class="hbm-car-name">{{ s.t[\'menu.repair\'] }}</span><span class="hbm-price">{{ s.repairCost || s.t[\'menu.noDamage\'] }}</span></div>' +
               '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
+              '<div class="hbm-item" ng-click="act(\'jobs\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i><span class="hbm-car-name">{{ s.t[\'jobs.menu\'] }}</span><span class="hbm-price" ng-if="s.job">{{ s.t[\'jobs.running\'] }}</span></div>' +
               '<div ng-if="s.garageCars.length > 1">' +
+                '<div class="hbm-note">{{ s.t[\'garage.sellNote\'] }}</div>' +
                 '<div class="hbm-section"><i class="hbm-ico hbm-ico-s" ng-bind-html="ico(\'cars\')"></i>{{ s.t[\'garage.cars\'] }}</div>' +
                 '<div class="hbm-item hbm-sub" ng-repeat="gc in s.garageCars track by gc.index" ng-class="{\'hbm-off\': gc.active}" ng-click="!gc.active && act(\'switchCar\', gc.index)"><i class="hbm-ico" ng-bind-html="ico(\'carsChange\')"></i>' +
-                  '<span class="hbm-car-name">{{ gc.name }}</span><span class="hbm-price">{{ gc.active ? s.t[\'garage.active\'] : gc.plate }}</span></div>' +
+                  '<span class="hbm-car-name">{{ gc.name }}</span><span class="hbm-price">{{ gc.active ? s.t[\'garage.active\'] : gc.plate }}</span>' +
+                  // Alpha 0.8: Auto verkaufen (zweimal klicken)
+                  '<span class="hbm-sell" ng-if="gc.sell" ng-class="{\'is-armed\': sellCarArm === gc.index}" ng-click="$event.stopPropagation(); sellCar(gc)">' +
+                    '{{ sellCarArm === gc.index ? s.t[\'garage.sellConfirm\'] : s.t[\'garage.sell\'] }} · {{ gc.sell }}</span></div>' +
               '</div>' +
               '<div class="hbm-section"><i class="hbm-ico hbm-ico-s" ng-bind-html="ico(\'rename\')"></i>{{ s.t[\'garage.plate\'] }}</div>' +
               '<div class="hbm-plate">' +
@@ -214,9 +221,52 @@ angular.module('beamng.apps')
                 '<span class="hbm-car-name">{{ s.home.sleep.can ? s.t[\'home.sleepUntil\'] : s.t[\'home.sleepFrom\'] }} {{ s.home.sleep.wake }}</span></div>' +
               '<div class="hbm-note">{{ s.home.sleep.can ? s.t[\'home.sleepNote\'] : (s.home.sleep.note || s.t[\'home.sleepEarlyNote\']) }}</div>' +
               '<div class="hbm-item" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
+              '<div class="hbm-item" ng-click="act(\'jobs\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i><span class="hbm-car-name">{{ s.t[\'jobs.menu\'] }}</span><span class="hbm-price" ng-if="s.job">{{ s.t[\'jobs.running\'] }}</span></div>' +
               '<div class="hbm-item" ng-click="act(\'tutorial\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i>{{ s.t[\'home.tutorial\'] }}</div>' +
               '<div class="hbm-item hbm-off"><i class="hbm-ico" ng-bind-html="ico(\'fastTravel\')"></i>{{ s.t[\'home.travel\'] }}</div>' +
               '<div class="hbm-note">{{ s.t[\'home.travelSoon\'] }}</div>' +
+            '</div>' +
+          '</div>' +
+
+          // Game Over (Alpha 0.8) ------------------------------------------------------------
+          '<div class="hbm-body hbm-gameover" ng-if="s.screen == \'gameOver\' && s.gameOver">' +
+            '<div class="hbm-go-title">GAME OVER</div>' +
+            '<div class="hbm-go-sub">{{ s.t[\'gameOver.text\'] }}</div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gameOver.rank\'] }}</span><b>{{ s.gameOver.rank }}</b></div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gameOver.days\'] }}</span><b>{{ s.gameOver.days }}</b></div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.record\'] }}</span><b>{{ s.gameOver.wins }} <i>/</i> {{ s.gameOver.losses }}</b></div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><b>{{ s.gameOver.money }}</b></div>' +
+            '<div class="hbm-item" ng-click="act(\'gameOverNew\')"><i class="hbm-ico" ng-bind-html="ico(\'playRound\')"></i>{{ s.t[\'gameOver.new\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
+          '</div>' +
+
+          // Jobbrett (Alpha 0.7): Nebenjobs am Tag und Tipps ------------------------------------
+          '<div class="hbm-body" ng-if="s.screen == \'jobs\' && s.jobs">' +
+            '<div class="hbm-area"><span class="hbm-area-tag" ng-bind-html="ico(\'location1\')"></span>{{ s.t[\'jobs.menu\'] }}<span class="hbm-day">{{ s.day }}</span></div>' +
+            '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
+            '<div class="hbm-scroll">' +
+              '<div ng-if="s.jobs.active">' +
+                '<div class="hbm-section">{{ s.t[\'jobs.running\'] }}</div>' +
+                '<div class="hbm-stat"><span class="hbm-label">{{ s.jobs.active.title }}</span><b>{{ s.jobs.active.target }}</b></div>' +
+                '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'jobs.time\'] }}</span><b>{{ s.jobs.active.timeText }}</b></div>' +
+                '<div class="hbm-item hbm-sub" ng-click="act(\'jobCancel\')"><i class="hbm-ico" ng-bind-html="ico(\'xmark\')"></i>{{ s.t[\'jobs.cancel\'] }}</div>' +
+              '</div>' +
+              '<div class="hbm-section">{{ s.t[\'jobs.offers\'] }}</div>' +
+              '<div class="hbm-note" ng-if="s.jobs.reason">{{ s.jobs.reason }}</div>' +
+              '<div class="hbm-job" ng-repeat="o in s.jobs.offers track by o.id" ng-class="[\'hbm-job-\' + o.kind, {\'is-done\': o.state, \'hbm-off\': !s.jobs.can || o.state}]" ng-click="s.jobs.can && !o.state && act(\'jobAccept\', o.id)">' +
+                '<div class="hbm-job-top"><span class="hbm-job-kind">{{ o.kindText }}</span><span class="hbm-job-title">{{ o.title }}</span><span class="hbm-price">{{ o.pay }}</span></div>' +
+                '<div class="hbm-job-sub">{{ s.t[\'jobs.to\'] }} <b>{{ o.target }}</b> · {{ o.info }}<span ng-if="o.client"> · {{ o.client }}</span></div>' +
+                '<div class="hbm-job-text" ng-if="o.text">{{ o.text }}</div>' +
+                '<div class="hbm-job-state" ng-if="o.state">{{ s.t[\'jobs.state.\' + o.state] }}</div>' +
+              '</div>' +
+              '<div class="hbm-note">{{ s.t[\'jobs.note\'] }} {{ s.t[\'jobs.earned\'] }}: <b>{{ s.jobs.earned }}</b></div>' +
+              '<div class="hbm-section">{{ s.t[\'jobs.tips\'] }}</div>' +
+              '<div class="hbm-note">{{ s.t[\'jobs.tipsNote\'] }}</div>' +
+              '<div class="hbm-note" ng-if="!s.jobs.tips.length">{{ s.t[\'jobs.noTips\'] }}</div>' +
+              '<div class="hbm-job" ng-repeat="tp in s.jobs.tips track by tp.id" ng-class="{\'is-done\': tp.known, \'hbm-off\': !tp.known && !tp.afford}" ng-click="!tp.known && tp.afford && act(\'buyTip\', tp.id)">' +
+                '<div class="hbm-job-top"><span class="hbm-job-kind">{{ tp.label }}</span><span class="hbm-job-title">{{ tp.known ? s.t[\'jobs.tipKnown\'] : \'???\' }}</span><span class="hbm-price" ng-if="!tp.known">{{ tp.price }}</span></div>' +
+                '<div class="hbm-job-text" ng-if="tp.text">{{ tp.text }}</div>' +
+              '</div>' +
             '</div>' +
           '</div>' +
 
@@ -231,11 +281,11 @@ angular.module('beamng.apps')
                   '<div ng-if="lexOpen == $index">' +
                     '<div class="hbm-lex-desc" ng-if="g.desc">{{ g.desc }}</div>' +
                     '<div class="hbm-lex" ng-repeat="r in g.list" ng-class="{\'is-beaten\': r.beaten}">' +
-                      '<div class="hbm-lex-top"><span class="hbm-lex-check" ng-class="{\'is-on\': r.watched}" ng-click="act(\'watch\', r.id)"></span><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
+                      '<div class="hbm-lex-top"><span class="hbm-lex-check" ng-if="r.id" ng-class="{\'is-on\': r.watched}" ng-click="act(\'watch\', r.id)"></span><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
                         '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
                         '<span class="hbm-lex-tag hbm-lex-boss" ng-if="r.boss">{{ s.t[\'home.boss\'] }}</span>' +
-                        '<span class="hbm-lex-state">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
-                      '<div class="hbm-lex-sub">{{ r.car }}</div>' +
+                        '<span class="hbm-lex-state" ng-if="!r.scene && !r.chapter">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
+                      '<div class="hbm-lex-sub" ng-if="r.car">{{ r.car }}<span class="hbm-lex-style" ng-if="r.style"> · {{ r.style }}</span></div>' +
                       '<div class="hbm-lex-status" ng-if="r.status">{{ r.status }}</div>' +
                       '<div class="hbm-lex-text" ng-if="r.desc">{{ r.desc }}</div>' +
                       '<div class="hbm-lex-quote" ng-if="r.quote">„{{ r.quote }}“</div>' +
@@ -346,6 +396,31 @@ angular.module('beamng.apps')
           '.hbm-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
           '.hbm-money{padding:8px 18px 6px;}' +
           '.hbm-yen{display:block;font-size:28px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;color:var(--w);}' +
+          '.hbm-sell{margin-left:8px;padding:1px 7px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;' +
+            'border:1px solid rgba(255,255,255,.3);color:rgba(244,244,244,.8);cursor:pointer;}' +
+          '.hbm-sell:hover{border-color:#ff9a3c;color:#ff9a3c;}' +
+          '.hbm-sell.is-armed{background:#c0392b;border-color:#e74c3c;color:#fff;}' +
+          '.hbm-warn{color:#ff8a7a;}' +
+          '.hbm-gameover{text-align:center;}' +
+          '.hbm-go-title{margin:18px 0 4px;font-size:34px;font-weight:900;font-style:italic;letter-spacing:4px;color:#e2453c;}' +
+          '.hbm-go-sub{margin:0 18px 12px;font-size:12px;color:rgba(244,244,244,.7);}' +
+          '.hbm-job{margin:3px 12px;padding:7px 10px;border-left:3px solid #ff6600;background:rgba(255,255,255,.04);cursor:pointer;}' +
+          '.hbm-job:hover{background:rgba(255,102,0,.12);}' +
+          '.hbm-job.hbm-off{cursor:default;opacity:.55;}' +
+          '.hbm-job.hbm-off:hover{background:rgba(255,255,255,.04);}' +
+          '.hbm-job-express{border-left-color:#ff3b30;}' +
+          '.hbm-job-fragile{border-left-color:#ffd23f;}' +
+          '.hbm-job-photo{border-left-color:#4fd18b;}' +
+          '.hbm-job-top{display:flex;align-items:baseline;gap:8px;}' +
+          '.hbm-job-kind{font-size:9.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ff9a3c;white-space:nowrap;}' +
+          '.hbm-job-title{flex:1;font-size:13px;font-weight:700;color:#f4f4f4;}' +
+          '.hbm-job-sub{font-size:11px;color:rgba(244,244,244,.65);margin-top:2px;}' +
+          '.hbm-job-sub b{color:#f4f4f4;font-weight:700;}' +
+          '.hbm-job-text{font-size:11px;line-height:1.4;color:rgba(244,244,244,.55);margin-top:2px;font-style:italic;}' +
+          '.hbm-job-state{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#4fd18b;margin-top:2px;}' +
+          '.hbm-goal{margin:4px 18px 6px;padding:6px 10px;border-left:3px solid #ff6600;background:rgba(255,102,0,.08);}' +
+          '.hbm-goal .hbm-label{display:block;font-size:10px;}' +
+          '.hbm-goal b{display:block;font-size:13px;font-weight:700;color:#f4f4f4;}' +
           '.hbm-stat{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:3px 18px;}' +
           '.hbm-stat .hbm-label{display:inline;flex:none;}' +
           '.hbm-stat b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
@@ -506,7 +581,7 @@ angular.module('beamng.apps')
           '.hbm-lex-desc{padding:0 18px 6px 30px;font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);font-style:italic;}' +
           '.hbm-lex-name em{font-weight:400;font-size:11px;color:var(--o2);}' +
           '.hbm-lex-boss{background:#ff5a36;}' +
-          '.hbm-lex-text{font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);margin-top:2px;}' +
+          '.hbm-lex-text{font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);margin-top:2px;white-space:pre-line;}' +
           '.hbm-lex-quote{margin-top:3px;font-size:11px;font-style:italic;opacity:.75;border-left:2px solid var(--tc,#ff6600);padding-left:6px;}' +
           '.hbm-lex{padding:6px 18px;border-bottom:1px solid rgba(255,255,255,.05);}' +
           '.hbm-lex-top{display:flex;align-items:baseline;gap:8px;}' +
@@ -707,19 +782,27 @@ angular.module('beamng.apps')
         if (s.screen == 'dealer') return scope.act('dealerBack')
         if (s.screen == 'stats') return scope.act('statsBack')
         if (s.screen == 'lexicon') return scope.act('lexiconBack')
+        if (s.screen == 'jobs') return scope.act('jobsBack')
         if (s.screen == 'home' && s.home && s.home.tab != 'main') return scope.act('homeTab', 'main')
         if (scope.open && scope.open.slot) { scope.open.slot = null; scope.act('focusSlot', ''); return }
         scope.act('hide')
       }
       scope.isTopLevel = function () {
         var s = scope.s || {}
-        return !(s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || (s.screen == 'home' && s.home && s.home.tab != 'main') || (scope.open && scope.open.slot))
+        return !(s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') || (scope.open && scope.open.slot))
       }
       scope.backLabel = function () {
         var s = scope.s || {}, t = s.t || {}
-        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
+        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
           (scope.open && scope.open.slot)
         return sub ? t['menu.back'] : t['menu.hide']
+      }
+
+      scope.sellCarArm = null
+      scope.sellCar = function (gc) {
+        if (scope.sellCarArm !== gc.index) { scope.sellCarArm = gc.index; return }
+        scope.sellCarArm = null
+        scope.act('sellCar', gc.index)
       }
 
       scope.act = function (action, arg) {
