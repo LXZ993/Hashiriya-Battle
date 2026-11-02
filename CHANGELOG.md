@@ -16,6 +16,7 @@
 ### Fehler behoben
 - Die Musik war stumm. Sie läuft jetzt über BeamNGs eigenen Musik-Kanal.
 - Die BeamNG-Hauptmenü-Musik ist aus, sobald du Hashiriya Battle startest. Zurück im normalen Hauptmenü läuft sie wieder.
+- Nach dem Titelbildschirm blieben Motor, Reifen und andere Fahrzeuggeräusche stumm. Sie kommen jetzt wieder auf die Lautstärke aus deinen Audio-Optionen.
 
 ## Alpha 0.8 (Stand 02.11.2026)
 
