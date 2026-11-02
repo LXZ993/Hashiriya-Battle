@@ -696,5 +696,8 @@
   "jobs.pickedUp": "Ware geladen. Jetzt nach %s, du hast %s.",
   "jobs.acceptedPickup": "Auftrag angenommen: %s. Erst abholen bei %s.",
   "jobs.limitPickup": "Abholen: %s · %s Min · %s km",
-  "jobs.windowSpot": "Auto dort abstellen zwischen %s und %s"
+  "jobs.windowSpot": "Auto dort abstellen zwischen %s und %s",
+  "title.betaTag": "Early Access · Balancing läuft",
+  "title.betaText": "Hashiriya Battle wird mit eurer Hilfe ausbalanciert. Ist ein Rivale, ein Teil, ein Preis oder ein Job zu stark, zu schwach oder passt gar nicht? Schreib es in den Thread „Hashiriya Battle“ im BeamNG-Forum. Bei Fehlern hilft ein Fehlerbericht aus dem Hashiriya-Menü.",
+  "new.balanceNote": "Preise, Gegnerstärke und Belohnungen werden mit der Zeit nach dem Feedback der Community angepasst. Ein Spielstand kann sich nach einem Update darum etwas anders anfühlen. Danke fürs Mitspielen und Mittesten!"
 }

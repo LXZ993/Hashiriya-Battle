@@ -18,6 +18,7 @@
 - Genzō hat jetzt ein Porträt.
 - Dev-Menü, Orte: neue Typen „PA-Fahrer-Stehplatz“ und „Foto-Spot“. Gemerkte Stehplätze nutzen die PA-Fahrer statt zufälliger Plätze (kein Stehen mehr in Autos).
 - Fahrer an den PAs können eine feste eigene Config bekommen (chat.json, cars[].config).
+- Startmenü und neuer Spielstand: Hinweis, dass die Mod mit Hilfe der Community ausbalanciert wird, mit Bitte um Feedback im Forum-Thread.
 
 ## Alpha 0.9 (Stand 02.11.2026)
 
