@@ -339,7 +339,7 @@ function M.getHudState()
     end
   end
   if o.kind == 'photo' then
-    hud.timeText = string.format('%02d:00 - %02d:00', o.window[1], o.window[2])
+    hud.timeText = string.format('%02d-%02d h', o.window[1], o.window[2])
     hud.early = active.early or nil
   else
     hud.timeText = fmtTime(active.left)
