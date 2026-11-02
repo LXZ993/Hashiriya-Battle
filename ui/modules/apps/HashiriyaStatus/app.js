@@ -39,6 +39,14 @@ angular.module('beamng.apps')
             '<div class="hbt-watch-row" ng-repeat="w in s.watch track by w.id" ng-class="[\'k-\' + w.kind, {\'is-near\': w.near}]">' +
               '<span class="hbt-watch-name">{{ w.name }}</span><i></i></div>' +
           '</div>' +
+          // Nebenjob (Alpha 0.7): Ziel, Restzeit, Entfernung, Richtung
+          '<div class="hbt-job" ng-if="s.job" ng-class="[\'k-\' + s.job.kind, {\'is-warn\': s.job.warn}]">' +
+            '<span class="hbt-job-tag">{{ s.job.title }}</span><span class="hbt-job-name">{{ s.job.target }}</span>' +
+            '<span class="hbt-job-time">{{ s.job.timeText }}</span><span class="hbt-pa-dist" ng-if="s.job.distText">{{ s.job.distText }}</span>' +
+            '<span class="hbt-pa-dir" ng-if="s.job.angle != null"><svg viewBox="0 0 12 12" ng-style="{transform: \'rotate(\' + s.job.angle + \'deg)\'}">' +
+              '<path d="M6 1 L10.5 10 L6 7.6 L1.5 10 Z"/></svg></span>' +
+          '</div>' +
+          '<div class="hbt-job-dmg" ng-if="s.job && s.job.damage">{{ s.t[\'jobs.damageHud\'] }} -{{ s.job.damage }}</div>' +
           '<div class="hbt-pa" ng-if="s.nav && !s.nav.arrived && !(s.battle && s.battle.state !== \'idle\')" ng-class="\'hbt-pa-\' + s.nav.type">' +
             '<span class="hbt-pa-tag">PA</span>' +
             '<span class="hbt-pa-name">{{ s.nav.name }}</span>' +
@@ -53,6 +61,15 @@ angular.module('beamng.apps')
           '.hbt{float:right;font-family:"Overpass","Noto Sans","Segoe UI",sans-serif;color:#f4f4f4;text-align:right;' +
             'padding:6px 14px 6px 22px;background:linear-gradient(270deg,rgba(18,18,20,.85),rgba(18,18,20,.55) 70%,rgba(18,18,20,0));' +
             'border-right:3px solid #ff6600;text-shadow:0 1px 2px rgba(0,0,0,.8);}' +
+          '.hbt-job{--c:#ff9a3c;display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-top:5px;padding-top:5px;' +
+            'border-top:1px solid rgba(255,255,255,.12);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;}' +
+          '.hbt-job.k-express{--c:#ff3b30;}.hbt-job.k-fragile{--c:#ffd23f;}.hbt-job.k-photo{--c:#4fd18b;}' +
+          '.hbt-job-tag{padding:0 5px;background:var(--c);color:#111;font-weight:900;font-size:9.5px;}' +
+          '.hbt-job-name{font-weight:700;}' +
+          '.hbt-job-time{font-variant-numeric:tabular-nums;font-weight:900;color:var(--c);}' +
+          '.hbt-job.is-warn .hbt-job-time{color:#ff3b30;animation:hbtPing .5s ease-in-out infinite alternate;}' +
+          '.hbt-job .hbt-pa-dir svg{fill:var(--c);}' +
+          '.hbt-job-dmg{font-size:10px;color:#ff6b5e;margin-top:1px;}' +
           '.hbt-goal{max-width:260px;margin-top:2px;font-size:10.5px;line-height:14px;color:rgba(244,244,244,.72);font-style:italic;}' +
           '.hbt-goal span{margin-right:6px;font-style:normal;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ff9a3c;}' +
           '.hbt-money{font-size:20px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;letter-spacing:.5px;}' +

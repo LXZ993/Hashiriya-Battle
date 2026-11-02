@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -22,6 +22,7 @@ local showMenu = true
 local showDealer = false   -- Autohändler (aus dem Menü links)
 local showStats = false    -- Statistik (aus dem Menü links)
 local showLexicon = false  -- Rivalen-Lexikon (aus dem Menü links, überall)
+local showJobs = false     -- Jobbrett (Nebenjobs und Tipps, Alpha 0.7; Garage und Zuhause)
 local homeTab = 'main'     -- Zuhause: main | lexicon
 local showCarSelect = false
 local platePriceYen = 15000 -- Kennzeichen ummelden
@@ -498,6 +499,7 @@ end
 
 function M.stopGame()
   pcall(function() extensions.hashiriyaBattle_story.reset() end)
+  pcall(function() extensions.hashiriyaBattle_jobs.reset() end)
   pcall(function() extensions.hashiriyaBattle_talk.despawnAll() end)
   pcall(function() extensions.hashiriyaBattle_talk.clearPending() end)
   if M.active then M.writeSave() end
@@ -799,7 +801,11 @@ local function buildUiState()
     st.night = extensions.hashiriyaBattle_home.isNight()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
     if st.night and left then st.battlesLeft = left end
-    if showLexicon then
+    st.job = extensions.hashiriyaBattle_jobs.getHudState()
+    if showJobs then
+      st.screen = 'jobs'
+      st.jobs = extensions.hashiriyaBattle_jobs.getUiState()
+    elseif showLexicon then
       st.screen = 'lexicon'
       st.home = extensions.hashiriyaBattle_home.getUiState('lexicon')
     elseif showStats then
@@ -889,7 +895,7 @@ end
 -- Klick-Sounds der Menüs (Meldungen bringen ihren eigenen Sound mit)
 local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true, fuelHold = true, termHello = true, termCatalog = true, paintLive = true }
 local tabActions = { shopTab = true, garageTab = true, setupCat = true, paintSlot = true, termCat = true }
-local backActions = { back = true, hide = true, previewCancel = true, setupDiscard = true }
+local backActions = { jobsBack = true, back = true, hide = true, previewCancel = true, setupDiscard = true }
 
 local function actionSound(action, arg)
   if silentActions[action] then return end
@@ -955,6 +961,7 @@ function M.uiAction(action, arg)
     showDealer = false
     showStats = false
     showLexicon = false
+    showJobs = false
     extensions.hashiriyaBattle_parking.leaveFootShop()
   elseif action == 'dealer' then
     showDealer = true
@@ -975,6 +982,21 @@ function M.uiAction(action, arg)
     showMenu = true
   elseif action == 'lexiconBack' then
     showLexicon = false
+  elseif action == 'jobs' then
+    showJobs = true
+    showStats = false
+    showDealer = false
+    showLexicon = false
+    showMenu = true
+  elseif action == 'jobsBack' then
+    showJobs = false
+  elseif action == 'jobAccept' then
+    extensions.hashiriyaBattle_jobs.accept(tostring(arg))
+    showJobs = false
+  elseif action == 'jobCancel' then
+    extensions.hashiriyaBattle_jobs.cancel()
+  elseif action == 'buyTip' then
+    extensions.hashiriyaBattle_jobs.buyTip(tostring(arg))
   elseif action == 'storyNext' then
     extensions.hashiriyaBattle_story.interact()
   elseif action == 'watch' then
