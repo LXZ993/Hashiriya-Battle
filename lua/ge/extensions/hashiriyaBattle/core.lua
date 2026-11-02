@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -229,6 +229,7 @@ function M.engineOffAfterSpawn()
   engineOffTimer = 3
   extensions.hashiriyaBattle_fuel.keepAfterRespawn()
   extensions.hashiriyaBattle_condition.keepAfterRespawn()
+  extensions.hashiriyaBattle_damage.restoreAfterSpawn()
 end
 
 local function onVehicleSpawned(vehId)
@@ -1127,6 +1128,7 @@ function M.uiAction(action, arg)
     local veh = M.getPlayerVehicle()
     if veh then
       extensions.hashiriyaBattle_fuel.keepAfterRespawn()
+      extensions.hashiriyaBattle_damage.clear()
       veh:queueLuaCommand('obj:requestReset(RESET_PHYSICS)')
     end
   elseif action == 'cheatFuel' then

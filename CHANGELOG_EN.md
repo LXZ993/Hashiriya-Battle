@@ -1,5 +1,10 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.5.1 (as of 2026-11-02)
+
+### Bug fixes
+- Crash damage was not saved: after reloading, the car was fixed again, dents gone, lost parts back on, engine like new. Damage is now kept in the save (dents, broken parts, engine and radiator damage), and the repair price is correct after loading. Only a repair fixes the car.
+
 ## Alpha 0.5 (as of 2026-11-01)
 
 ### New: rivals at the parking areas
