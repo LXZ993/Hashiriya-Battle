@@ -630,6 +630,16 @@ local function creditsList()
     end
   end
   if #community > 0 then table.insert(out, { title = c.t('credits.community'), entries = community }) end
+  -- Musik: jedes Stück aus data/music.json mit Titel, Künstler und Lizenzhinweis (CC BY verlangt die Nennung)
+  local music = {}
+  local mu = extensions.hashiriyaBattle_music
+  for _, e in ipairs(mu and mu.creditEntries() or {}) do
+    if e.artist and e.artist ~= '' and not e.artist:match('^%[') then
+      local lic = e.license == 'CC BY 4.0' and 'Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/' or (e.license or '')
+      table.insert(music, { name = '"' .. tostring(e.title) .. '" ' .. e.artist, what = lic })
+    end
+  end
+  if #music > 0 then table.insert(out, { title = c.t('credits.music'), entries = music }) end
   return out, pr.loc(d.thanks)
 end
 

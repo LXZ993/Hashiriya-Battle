@@ -1,0 +1,3 @@
+out/**/*.wav
+out/**/*_stems/
+__pycache__/

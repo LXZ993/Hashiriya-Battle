@@ -229,7 +229,7 @@ end
 
 -- Datencheck: kaputte JSON-Dateien und fehlende Autos/Configs gleich beim Start melden
 function M.checkData()
-  for _, f in ipairs({ 'rivals', 'cars', 'dealer', 'tuning', 'world', 'style', 'sounds', 'tutorial', 'build', 'chat', 'lang/de', 'lang/en' }) do
+  for _, f in ipairs({ 'rivals', 'cars', 'dealer', 'tuning', 'world', 'style', 'sounds', 'music', 'tutorial', 'build', 'chat', 'lang/de', 'lang/en' }) do
     local path = dataDir .. f .. '.json'
     if not FS:fileExists(path) then
       M.log('W', logTag, 'Datencheck: Datei fehlt: data/' .. f .. '.json')

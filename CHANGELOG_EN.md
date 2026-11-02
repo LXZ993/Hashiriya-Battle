@@ -2,6 +2,12 @@
 
 ## Alpha 0.5.1 (as of 2026-11-02)
 
+### New: Music
+- Own music depending on the situation: title screen, day driving, night driving, shops and battles each have their own playlist, with smooth crossfades.
+- Title music: "Daikoku", which then keeps running as a loop.
+- Volume follows the BeamNG master and music sliders.
+- The credits now have a Music section listing every track with its license notice.
+
 ### Bug fixes
 - Crash damage was not saved: after reloading, the car was fixed again, dents gone, lost parts back on, engine like new. Damage is now kept in the save (dents, broken parts, engine and radiator damage), and the repair price is correct after loading. Only a repair fixes the car.
 
