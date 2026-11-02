@@ -685,5 +685,8 @@
   "gameOver.text": "Kein Auto und nicht genug Geld für ein gebrauchtes. Deine Zeit auf dem Ring ist vorbei.",
   "gameOver.rank": "Rang",
   "gameOver.days": "Tage",
-  "gameOver.new": "Neue Karriere"
+  "gameOver.new": "Neue Karriere",
+  "char.clean": "Fährt sauber",
+  "char.blocker": "Blocker",
+  "char.rammer": "Rempler"
 }

@@ -400,6 +400,8 @@ local function lexicon()
       desc = hidden and hintText(r, save) or pr.loc(r.desc),
       quote = (not hidden and r.lines) and pr.loc(r.lines.challenge) or nil,
       leader = r.leader or false, boss = r.boss or false,
+      -- Alpha 0.9: Fahrstil (sauber, Blocker, Rempler), erst wenn man ihn kennt
+      style = (not hidden and extensions.hashiriyaBattle_driver) and c.t('char.' .. extensions.hashiriyaBattle_driver.character(r)) or nil,
       beaten = beaten,
       id = r.id, watched = M.isWatched(r.id),
     }

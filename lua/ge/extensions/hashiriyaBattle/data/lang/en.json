@@ -629,5 +629,8 @@
   "gameOver.text": "No car and not enough money for a used one. Your time on the loop is over.",
   "gameOver.rank": "Rank",
   "gameOver.days": "Days",
-  "gameOver.new": "New career"
+  "gameOver.new": "New career",
+  "char.clean": "Clean racer",
+  "char.blocker": "Blocker",
+  "char.rammer": "Rammer"
 }

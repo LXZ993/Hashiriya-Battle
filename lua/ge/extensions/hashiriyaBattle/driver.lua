@@ -23,6 +23,7 @@ local function settings()
   if not data then M.loadData() end
   return data
 end
+local function autoCfg() return settings().characterAuto end
 
 -- fester Zufall pro Rivale (immer gleich für dieselbe ID), -1..1
 local function jitter(id, salt)
@@ -74,12 +75,36 @@ function M.profile(rival)
   if type(t) == 'table' then
     for k, v in pairs(t) do if type(v) == 'number' then p[k] = (p[k] or 0) + v end end
   end
+  -- Fahrcharakter (Alpha 0.9): rivals.json "character" = clean | blocker | rammer (ohne Angabe: aus Aggression,
+  -- siehe driver.json characterAuto). Die Werte stehen in driver.json "characters": Zahlen ersetzen den Wert,
+  -- "+0.1"/"-0.1" als Text verschieben ihn.
+  local ch = M.character(rival)
+  p.character = ch
+  local preset = (st.characters or {})[ch]
+  if type(preset) == 'table' then
+    for k, v in pairs(preset) do
+      if type(v) == 'number' then p[k] = v
+      elseif type(v) == 'string' and tonumber(v) then p[k] = (p[k] or 0) + tonumber(v) end
+    end
+  end
   -- Feste Werte pro Rivale aus rivals.json ("driver": { "fairness": 0.2, ... })
   if type(rival.driver) == 'table' then
     for k, v in pairs(rival.driver) do p[k] = v end
   end
-  for _, k in ipairs({ 'skill', 'courage', 'aggression', 'nerves', 'fairness' }) do p[k] = clamp(p[k], 0, 1) end
+  for _, k in ipairs({ 'skill', 'courage', 'aggression', 'nerves', 'fairness', 'ram' }) do if p[k] then p[k] = clamp(p[k], 0, 1) end end
   return p
+end
+
+-- Fahrcharakter eines Rivalen: aus rivals.json, sonst automatisch (driver.json characterAuto:
+-- { "rammerMinAggression": 0.9, "rammerShare": 0.3, "blockerMinAggression": 0.85 }; Bosse nie Rempler, außer eingetragen)
+function M.character(rival)
+  if type(rival.character) == 'string' and rival.character ~= '' then return rival.character end
+  local a = autoCfg() or {}
+  local aggr = rival.aggression or 0.6
+  local id = rival.id or rival.name or '?'
+  if not rival.boss and aggr >= (a.rammerMinAggression or 0.9) and (jitter(id, 'r') + 1) / 2 < (a.rammerShare or 0.3) then return 'rammer' end
+  if aggr >= (a.blockerMinAggression or 0.85) then return 'blocker' end
+  return 'clean'
 end
 
 local function luaTable(t)
@@ -110,8 +135,8 @@ function M.start(veh, rival, playerId)
   veh:queueLuaCommand("ai.setMode('disabled') extensions.load('hashiriyaDriver') if hashiriyaDriver then hashiriyaDriver.start(" .. luaTable(p) .. ") end")
   running[id] = true
   sendTimer = 0
-  log('I', logTag, string.format('Eigener Fahrer für %s: Können %.2f, Mut %.2f, Aggression %.2f, Nerven %.2f, Fairness %.2f',
-    tostring(rival.id), p.skill, p.courage, p.aggression, p.nerves, p.fairness))
+  log('I', logTag, string.format('Eigener Fahrer für %s (%s): Können %.2f, Mut %.2f, Aggression %.2f, Nerven %.2f, Fairness %.2f, Rempeln %.2f',
+    tostring(rival.id), tostring(p.character), p.skill, p.courage, p.aggression, p.nerves, p.fairness, p.ram or 0))
 end
 
 -- Rennstand schicken (2x pro Sekunde): gap > 0 = Rivale vorne, SP-Anteile 0..1

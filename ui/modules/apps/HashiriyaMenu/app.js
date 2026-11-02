@@ -285,7 +285,7 @@ angular.module('beamng.apps')
                         '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
                         '<span class="hbm-lex-tag hbm-lex-boss" ng-if="r.boss">{{ s.t[\'home.boss\'] }}</span>' +
                         '<span class="hbm-lex-state" ng-if="!r.scene && !r.chapter">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
-                      '<div class="hbm-lex-sub" ng-if="r.car">{{ r.car }}</div>' +
+                      '<div class="hbm-lex-sub" ng-if="r.car">{{ r.car }}<span class="hbm-lex-style" ng-if="r.style"> · {{ r.style }}</span></div>' +
                       '<div class="hbm-lex-status" ng-if="r.status">{{ r.status }}</div>' +
                       '<div class="hbm-lex-text" ng-if="r.desc">{{ r.desc }}</div>' +
                       '<div class="hbm-lex-quote" ng-if="r.quote">„{{ r.quote }}“</div>' +
