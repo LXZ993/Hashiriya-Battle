@@ -19,6 +19,7 @@
 - Dev menu, places: new types "PA driver stand spot" and "photo spot". PA drivers use saved stand spots instead of random places (no more standing inside cars).
 - PA drivers can get a fixed custom config (chat.json, cars[].config).
 - Title menu and new save: a note that the mod is balanced with community help, asking for feedback in the forum thread.
+- PA Bobs now use the outfit color from their portrait (before, e.g. a yellow taxi driver had a wine-red vest in the portrait).
 
 ## Alpha 0.9 (as of 2026-11-02)
 

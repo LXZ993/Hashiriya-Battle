@@ -19,6 +19,7 @@
 - Dev-Menü, Orte: neue Typen „PA-Fahrer-Stehplatz“ und „Foto-Spot“. Gemerkte Stehplätze nutzen die PA-Fahrer statt zufälliger Plätze (kein Stehen mehr in Autos).
 - Fahrer an den PAs können eine feste eigene Config bekommen (chat.json, cars[].config).
 - Startmenü und neuer Spielstand: Hinweis, dass die Mod mit Hilfe der Community ausbalanciert wird, mit Bitte um Feedback im Forum-Thread.
+- Die Bobs an den PAs haben jetzt die Farbe des Oberteils aus ihrem Porträt (vorher z. B. gelber Taxifahrer mit weinroter Weste im Porträt).
 
 ## Alpha 0.9 (Stand 02.11.2026)
 
