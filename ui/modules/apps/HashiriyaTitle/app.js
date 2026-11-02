@@ -29,6 +29,8 @@ angular.module('beamng.apps')
               '<div class="hbt-mi hbt-mi-sub" ng-click="cmd(\'changelog\')"><span class="hbt-mi-n">04</span><i class="hbt-ico" ng-bind-html="ico(\'list\')"></i>{{ t(\'title.changelog\') }}</div>' +
               '<div class="hbt-mi hbt-mi-sub" ng-click="cmd(\'quit\')"><span class="hbt-mi-n">05</span><i class="hbt-ico" ng-bind-html="ico(\'exit\')"></i>{{ t(\'title.quit\') }}</div>' +
             '</div>' +
+            // Hinweis für den öffentlichen Release: Balancing mit Hilfe der Community
+            '<div class="hbt-beta"><span class="hbt-beta-tag">{{ t(\'title.betaTag\') }}</span>{{ t(\'title.betaText\') }}</div>' +
             '<div class="hbt-foot">{{ t(\'title.hint\') }}</div>' +
           '</div>' +
 
@@ -124,6 +126,7 @@ angular.module('beamng.apps')
               '<div class="hbt-spec" ng-if="f.summary.carPrice"><span>{{ t(\'new.carPrice\') }}</span><b>− {{ f.summary.carPrice }}</b></div>' +
               '<div class="hbt-money"><span>{{ t(\'new.restMoney\') }}</span><b>{{ f.summary.rest }}</b></div>' +
               '<div class="hbt-note">{{ t(\'new.confirmNote\') }}</div>' +
+              '<div class="hbt-beta hbt-beta-wiz"><span class="hbt-beta-tag">{{ t(\'title.betaTag\') }}</span>{{ t(\'new.balanceNote\') }}</div>' +
             '</div>' +
 
             '<div class="hbt-busy" ng-if="f.busy">{{ t(\'new.loading\') }}</div>' +
@@ -229,6 +232,9 @@ angular.module('beamng.apps')
           '.hbt-mi.is-off{opacity:.35;cursor:default;} .hbt-mi.is-off:hover{padding-left:18px;background:none;} .hbt-mi.is-off:hover:before{display:none;}' +
           '.hbt-save{display:flex;gap:14px;align-items:baseline;margin:-4px 0 6px 60px;font-size:12px;color:var(--dim);letter-spacing:1px;}' +
           '.hbt-yen{color:var(--o2);font-weight:800;}' +
+          '.hbt-beta{width:440px;margin-top:4vh;padding:10px 14px;border-left:3px solid var(--o);background:rgba(18,18,20,.55);font-size:12px;line-height:1.55;color:rgba(244,244,244,.8);}' +
+          '.hbt-beta-tag{display:block;margin-bottom:4px;font-size:10.5px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--o2);}' +
+          '.hbt-beta-wiz{width:auto;margin-top:0;}' +
           '.hbt-foot{margin-top:auto;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
           '.hbt-wiz{left:0;top:0;bottom:0;width:560px;padding:7vh 48px 6vh 56px;box-sizing:border-box;display:flex;flex-direction:column;animation:hbtIn .35s ease-out;}' +
           '.hbt-kicker{font-size:12px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--o2);}' +
