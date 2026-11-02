@@ -1,7 +1,7 @@
 Musik in diesem Ordner
 
 daikoku.ogg, daikoku_loop.ogg
-  "Daikoku" - für Hashiriya Battle komponiert, Nutzung mit Erlaubnis.
+  "Daikoku" von z3rdax (https://open.spotify.com/artist/2vyVqSAFL3msB5ll2p2VEd), für Hashiriya Battle, Nutzung mit Erlaubnis.
 
 km_*.ogg
   Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License

@@ -13,8 +13,8 @@
     "battle": { "tracks": ["km_raving_energy.ogg", "km_rhinoceros.ogg", "km_volatile_reaction.ogg", "km_cut_and_run.ogg"], "shuffle": true }
   },
   "tracks": {
-    "daikoku.ogg":              { "title": "Daikoku", "artist": "[KÜNSTLER]", "license": "" },
-    "daikoku_loop.ogg":         { "title": "Daikoku (Loop)", "artist": "[KÜNSTLER]", "license": "", "hideInCredits": true },
+    "daikoku.ogg":              { "title": "Daikoku", "artist": "z3rdax", "license": "Original track for Hashiriya Battle, used with permission", "link": "https://open.spotify.com/artist/2vyVqSAFL3msB5ll2p2VEd" },
+    "daikoku_loop.ogg":         { "title": "Daikoku (Loop)", "artist": "z3rdax", "license": "Original track for Hashiriya Battle, used with permission", "hideInCredits": true },
     "km_airport_lounge.ogg":    { "title": "Airport Lounge", "artist": "Kevin MacLeod (incompetech.com)", "license": "CC BY 4.0" },
     "km_bossa_antigua.ogg":     { "title": "Bossa Antigua", "artist": "Kevin MacLeod (incompetech.com)", "license": "CC BY 4.0" },
     "km_cool_vibes.ogg":        { "title": "Cool Vibes", "artist": "Kevin MacLeod (incompetech.com)", "license": "CC BY 4.0" },

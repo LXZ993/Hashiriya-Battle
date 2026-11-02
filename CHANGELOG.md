@@ -4,7 +4,7 @@
 
 ### Neu: Musik
 - Eigene Musik je nach Situation: Titelbildschirm, Tagesfahrt, Nachtfahrt, Shops und Battles haben jeweils ihre eigene Playlist, mit weichem Überblenden.
-- Titelmusik: „Daikoku“, danach läuft es als Schleife weiter.
+- Titelmusik: „Daikoku“ von z3rdax, eigens für die Mod, danach läuft es als Schleife weiter.
 - Die Lautstärke folgt den BeamNG-Reglern für Gesamt und Musik.
 - In den Credits steht jetzt ein Abschnitt Musik mit allen Stücken und Lizenzhinweisen.
 
