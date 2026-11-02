@@ -1,5 +1,10 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.5.1 (Stand 02.11.2026)
+
+### Fehler behoben
+- Unfallschaden wurde nicht gespeichert: Nach dem Neuladen war das Auto wieder heil, Beulen weg, abgefallene Teile wieder dran, Motor wie neu. Jetzt bleibt der Schaden im Spielstand (Beulen, gebrochene Teile, Motor- und Kühlerschaden) und der Reparaturpreis stimmt nach dem Laden. Erst eine Reparatur macht das Auto wieder heil.
+
 ## Alpha 0.5 (Stand 01.11.2026)
 
 ### Neu: Rivalen an den Parkplätzen

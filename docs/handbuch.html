@@ -1256,6 +1256,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td class="path">parking.lua</td><td><code>triggerRadius</code> / <code>footRadius</code></td><td>4 / 2.5</td><td>Standard-Auslösebereiche (wenn die Map-Datei keinen <code>radius</code> hat)</td></tr>
 <tr><td class="path">core.lua</td><td><code>platePriceYen</code></td><td>15000</td><td>Kennzeichen ummelden</td></tr>
 </table>
+<div class="box"><b>Schaden bleibt im Spielstand</b>BeamNG selbst speichert keinen Unfallschaden. Das macht <span class="path">damage.lua</span>: Sobald sich der Schaden am Auto ändert und 3 Sekunden gleich bleibt, sichert es Beulen (alle Knoten), gebrochene und verformte Balken, Motorschaden (Reibung, Zündaussetzer, Zylinderkopfdichtung usw.) und Kühlerschaden in eine Datei je Auto: <span class="path">settings\hashiriya_battle\damage\&lt;uid&gt;.json</span> (die <code>uid</code> steht beim Auto in <span class="path">save.json</span>). Beim Weiterspielen und beim Autowechsel in der Garage wird der Schaden ca. 2,5 Sekunden nach dem Spawn wieder aufgespielt: Das Auto ist verbeult wie vorher, abgefallene Teile fallen wieder ab und der Reparaturpreis stimmt. Nach einer Reparatur (Menü oder Dev-Reparatur) wird die Datei gelöscht. Passt die Datei nicht mehr zum Auto (andere Teile verbaut), wird sie ignoriert und das Auto bleibt heil. Einstellbar oben in <span class="path">damage.lua</span>: <code>minDamage</code> (5, darunter gilt das Auto als heil), <code>settleTime</code> (3 s), <code>restoreDelay</code> (2,5 s). Zum Zurücksetzen eines Autos einfach seine Datei im Ordner <span class="path">damage</span> löschen.</div>
 <div class="box"><b>Schaden und Teile-Shop</b>Teile anprobieren, umbauen, Kennzeichen-Design wechseln und das Garagen-Setup übernehmen bauen das Auto in BeamNG neu auf. Dabei würden alle Verformungen verschwinden (BeamNG kann den Schaden nach einem Teiletausch nicht zurückspielen, weil das Auto dann andere Knoten hat). Darum gilt wie in der BeamNG-Karriere: <b>Ist das Auto beschädigt, erst reparieren.</b> Im HashiNet-Terminal und am Garagen-PC steht dann oben ein roter Balken mit dem Knopf <b>Reparieren</b> und dem Preis; ohne Reparatur kommt beim Anprobieren die Meldung „Auto ist beschädigt. Erst reparieren …“. Lackieren geht weiter (der Lack wird live gefärbt, ohne Neuaufbau). Als „beschädigt“ zählt alles ab einem Reparaturpreis über 0 Yen. Geprüft in <span class="path">shop.lua</span> (<code>blockedByDamage</code>, auch von <span class="path">setup.lua</span> genutzt). Verschleiß und Laufleistung je Teil bleiben beim Neuaufbau jetzt ebenfalls erhalten.</div>
 <p>Preisgeld und Ruf pro Rivale: <code>rewardUsd</code> und <code>rep</code> in <code>rivals.json</code>. Startgeld: <code>cars.json</code>.</p>
 </section>
@@ -1404,6 +1405,15 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h2><span class="n">★</span> Changelog <span class="tag">CHANGELOG.md</span></h2>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
+<details class="cl">
+<summary><b>Alpha 0.5.1</b> <small>Stand 02.11.2026</small></summary>
+<div>
+<h4>Fehler behoben</h4>
+<ul>
+<li>Unfallschaden wurde nicht gespeichert: Nach dem Neuladen war das Auto wieder heil, Beulen weg, abgefallene Teile wieder dran, Motor wie neu. Jetzt bleibt der Schaden im Spielstand (Beulen, gebrochene Teile, Motor- und Kühlerschaden) und der Reparaturpreis stimmt nach dem Laden. Erst eine Reparatur macht das Auto wieder heil.</li>
+</ul>
+</div>
+</details>
 <details class="cl">
 <summary><b>Alpha 0.5</b> <small>Stand 01.11.2026</small></summary>
 <div>
@@ -1764,6 +1774,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <tr><td><code>rivals.lua</code></td><td>Welcher Rivale kommt, Spawn mit Kennzeichen und Lack, KI-Fahrt</td></tr>
 <tr><td><code>progress.lua</code></td><td>Ruf, Ränge, Spitznamen, geschlagene Rivalen</td></tr>
 <tr><td><code>condition.lua</code></td><td>Gebrauchtzustand (Verschleiß, Kilometer)</td></tr>
+<tr><td><code>damage.lua</code></td><td>Unfallschaden (Beulen, gebrochene Teile, Motorschaden) im Spielstand sichern und nach dem Laden wieder aufspielen</td></tr>
 <tr><td><code>dealer.lua</code></td><td>Händlerangebote und Leistungsgrenze</td></tr>
 <tr><td><code>economy.lua</code></td><td>Dollar-Yen-Umrechnung, Rundung</td></tr>
 <tr><td><code>fuel.lua</code></td><td>Tanken, Spritpreis</td></tr>

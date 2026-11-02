@@ -177,6 +177,7 @@ function M.repair()
   end
   c.save.money = c.save.money - cost
   extensions.hashiriyaBattle_progress.bump(c.save, 'repairs')
+  extensions.hashiriyaBattle_damage.clear() -- gesicherten Unfallschaden verwerfen (damage.lua)
   veh:queueLuaCommand('obj:requestReset(RESET_PHYSICS)')
   c.writeSave()
   c.msg(c.t('msg.repaired', c.economy().formatYen(cost)))
