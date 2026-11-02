@@ -1162,10 +1162,10 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><td><code>shop</code></td><td>Shop-Parkplatz, Teile-Terminal (auch Garagen-PC), Autohändler. Welche Parkplätze noch dazugehören, steht in <code>areaContexts</code></td></tr>
 <tr><td><code>battle</code></td><td>vom Annehmen der Herausforderung bis zum Ergebnis</td></tr>
 </table>
-<p>Lautstärke: <code>volume</code> in music.json mal die BeamNG-Regler <b>Gesamt</b> und <b>Musik</b> (Optionen, Audio). Überblenden: <code>fadeSeconds</code>. Ganz aus: <code>"enabled": false</code>.</p>
+<p>Gespielt wird über BeamNGs eigenen Audio-Kanal <b>Musik</b>. Lautstärke: <code>volume</code> in music.json (0 bis 1), dazu wirken die BeamNG-Regler <b>Gesamt</b> und <b>Musik</b> (Optionen, Audio). Überblenden: <code>fadeSeconds</code>. Ganz aus: <code>"enabled": false</code>. Sobald du Hashiriya Battle im Hauptmenü startest, ist die BeamNG-Hauptmenü-Musik aus; zurück im normalen Hauptmenü läuft sie wieder.</p>
 <p>Beispiel, ein eigenes Stück für die Nacht dazunehmen: die Datei als <span class="path">art\sound\hashiriya\music\mein_song.ogg</span> ablegen, in <code>contexts.night.tracks</code> <code>"mein_song.ogg"</code> eintragen und unter <code>tracks</code> Titel und Künstler angeben (erscheint dann in den Credits). Fehlt eine Datei, wird sie übersprungen.</p>
 <p>Lizenz: Die Stücke von Kevin MacLeod stehen unter <b>CC BY 4.0</b>. Sie dürfen in die Mod, aber Titel, Name und Lizenz müssen genannt werden. Das macht der Abschnitt <b>Musik</b> in den Credits automatisch aus <code>tracks</code>. Steht beim Künstler noch <code>[...]</code>, wird das Stück in den Credits ausgeblendet.</p>
-<p>Wenn keine Musik kommt: in <span class="path">hashiriya.log</span> nach <code>hashiriya.music</code> suchen. "Musik-Player im UI hat sich nicht gemeldet" heißt, der Player in <span class="path">ui\ui-vue\mods\hashiriyaBattle\index.js</span> läuft nicht.</p>
+<p>Wenn keine Musik kommt: in <span class="path">hashiriya.log</span> nach <code>hashiriya.music</code> suchen. Dort steht bei jedem Wechsel die Situation ("Musik: night (4 Stücke)") und jedes gestartete Stück ("Spielt: ..."). "konnte nicht geladen werden" heißt, BeamNG kann die Datei nicht öffnen.</p>
 <h3>Eigene Sounds und Musik erzeugen <span class="tag">tools\audio\</span> <span class="tag">noch nicht im Spiel</span></h3>
 <p>Alle eigenen Sounds und Songs entstehen per Code (Synthese, keine Samples, keine KI-Audio). Du brauchst Python mit <code>pip install numpy scipy mido</code> und ffmpeg für .ogg.</p>
 <table>

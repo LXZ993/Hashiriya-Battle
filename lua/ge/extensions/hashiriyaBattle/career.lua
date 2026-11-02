@@ -288,6 +288,8 @@ end
 function M.startFromMainMenu()
   local level = (core().carsData and core().carsData.careerLevel) or 'c1'
   pendingTitle = true
+  -- BeamNG-Hauptmenü-Musik sofort anhalten, die eigene Titelmusik kommt mit dem Titelbildschirm
+  if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.pauseMenuMusic(true) end
   local ff = rawget(_G, 'freeroam_freeroam') or (extensions.load('freeroam_freeroam') and freeroam_freeroam)
   local ok = ff and ff.startFreeroamByName and ff.startFreeroamByName(level, nil, nil, false)
   if not ok then

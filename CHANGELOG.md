@@ -8,6 +8,10 @@
 - Wer keinen festen Stil hat, bekommt einen passend zu seiner Aggression. Bosse sind nie von selbst Rempler.
 - Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst.
 
+### Fehler behoben
+- Die Musik war stumm. Sie läuft jetzt über BeamNGs eigenen Musik-Kanal.
+- Die BeamNG-Hauptmenü-Musik ist aus, sobald du Hashiriya Battle startest. Zurück im normalen Hauptmenü läuft sie wieder.
+
 ## Alpha 0.8 (Stand 02.11.2026)
 
 ### Neu: Teile ausbauen und verkaufen

@@ -1,7 +1,9 @@
 -- Hashiriya Battle: Musik.
--- Lua entscheidet, welche Situation gerade ist (Titel, Tag, Nacht, Shop, Battle), und schickt die passende
--- Playlist an den Player im UI (ui/ui-vue/mods/hashiriyaBattle/index.js, HTML5-Audio mit Überblenden).
--- Einstellungen und Playlists: data/music.json. Lautstärke folgt den BeamNG-Reglern Gesamt und Musik.
+-- Lua entscheidet, welche Situation gerade ist (Titel, Tag, Nacht, Shop, Battle), und spielt die passende
+-- Playlist über BeamNGs eigenes Audio (Kanal AudioMusic, folgt damit den Reglern Gesamt und Musik).
+-- HTML5-Audio im UI geht in BeamNG nicht zuverlässig (OGG wird nicht gestreamt, bleibt stumm).
+-- Solange Hashiriya läuft, wird die Hauptmenü-Musik von BeamNG angehalten.
+-- Einstellungen und Playlists: data/music.json.
 local M = {}
 
 local logTag = 'hashiriya.music'
@@ -9,14 +11,15 @@ local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logge
 
 local dataPath = '/lua/ge/extensions/hashiriyaBattle/data/music.json'
 local data = nil
-local context = nil      -- zuletzt gesendete Situation
-local volume = nil       -- zuletzt gesendete Lautstärke
+local context = nil       -- aktuelle Situation
 local checkTimer = 0
-local volTimer = 0
 local pendingCtx, pendingTime = nil, 0 -- Tag/Nacht erst nach kurzer Bestätigung wechseln
-local playerReady = false
-local warnedNoPlayer = false
-local uptime = 0
+
+-- Wiedergabe: cur = läuft/blendet ein, old = blendet aus
+local cur = nil           -- { id, vol, target, age, loop, file }
+local fading = {}         -- Liste ausblendender Quellen
+local playlist, plIndex, introPending = {}, 0, nil
+local menuPaused = false
 
 local function core() return extensions.hashiriyaBattle_core end
 
@@ -27,18 +30,11 @@ end
 
 local function cfg() return data or M.loadData() end
 
-local function settingValue(key, default)
-  local ok, v = pcall(function() return settings.getValue(key) end)
-  v = ok and tonumber(v) or nil
-  return v or default
-end
+local function targetVolume() return cfg().volume or 0.8 end
 
-local function currentVolume()
-  local c = cfg()
-  return (c.volume or 0.8) * settingValue('AudioMasterVol', 1) * settingValue('AudioMusicVol', 0.8)
-end
+local function fadeTime() return math.max(0.05, cfg().fadeSeconds or 2) end
 
-local function fileUrl(file)
+local function filePath(file)
   local path = (cfg().folder or '/art/sound/hashiriya/music/') .. file
   return FS:fileExists(path) and path or nil
 end
@@ -53,6 +49,74 @@ local function shuffled(list)
   return out
 end
 
+-- BeamNG-Hauptmenü-Musik anhalten, solange Hashiriya läuft (main.lua: setMainMenuMusicPauseRequest)
+local function pauseMenuMusic(on)
+  on = on and true or false
+  if menuPaused == on then return end
+  local fn = rawget(_G, 'setMainMenuMusicPauseRequest')
+  if fn then
+    pcall(fn, 'hashiriyaBattle', on)
+    menuPaused = on
+  end
+end
+M.pauseMenuMusic = pauseMenuMusic
+
+-- Audio-Quellen -----------------------------------------------------------------
+local function sourceObj(id) return id and scenetree.findObjectById(id) or nil end
+
+local function setVol(s, v)
+  local o = sourceObj(s.id)
+  if o then pcall(function() o:setVolume(math.max(0, v)) end) end
+end
+
+local function destroy(s)
+  local o = sourceObj(s.id)
+  if not o then return end
+  pcall(function() o:stop(-1) end)
+  pcall(function() o:delete() end)
+end
+
+local function isPlaying(s)
+  local o = sourceObj(s.id)
+  if not o then return false end
+  local ok, res = pcall(function() return o:isPlaying() end)
+  if not ok then return true end -- unbekannt: weiterlaufen lassen
+  return res and true or false
+end
+
+local function startFile(path, loop)
+  local ok, id = pcall(Engine.Audio.createSource, 'AudioMusic', path)
+  if not ok or not id or id == 0 then
+    log('W', logTag, 'Musik konnte nicht geladen werden: ' .. tostring(path))
+    return nil
+  end
+  local s = { id = id, vol = 0, target = targetVolume(), age = 0, loop = loop, file = path }
+  setVol(s, 0)
+  local o = sourceObj(id)
+  if o then pcall(function() o:play(-1) end) end
+  log('I', logTag, 'Spielt: ' .. path)
+  return s
+end
+
+local function fadeOutCurrent()
+  if cur then
+    table.insert(fading, cur)
+    cur = nil
+  end
+end
+
+local function nextTrack()
+  if introPending then
+    local p = introPending
+    introPending = nil
+    cur = startFile(p, #playlist == 0)
+    if cur then return end
+  end
+  if #playlist == 0 then return end
+  plIndex = plIndex % #playlist + 1
+  cur = startFile(playlist[plIndex], #playlist == 1)
+end
+
 -- Welche Situation gerade ist ---------------------------------------------------
 local function wantedContext()
   local c = cfg()
@@ -62,7 +126,7 @@ local function wantedContext()
   local co = core()
   if not (co and co.active and co.save) then return 'off' end
   local battle = extensions.hashiriyaBattle_battle
-  if battle and battle.isBusy() and battle.getState() ~= 'idle' then
+  if battle then
     local st = battle.getState()
     if st == 'sync' or st == 'countdown' or st == 'battle' or st == 'result' then return 'battle' end
   end
@@ -79,44 +143,77 @@ local function wantedContext()
   return (home and home.isNight()) and 'night' or 'day'
 end
 
-local function send(ctx)
-  local c = cfg()
-  local msg = { context = ctx, volume = currentVolume(), fade = c.fadeSeconds or 2, tracks = {} }
-  local def = (c.contexts or {})[ctx]
-  if def then
-    msg.intro = def.intro and fileUrl(def.intro) or nil
+local function switchTo(ctx)
+  context = ctx
+  fadeOutCurrent()
+  playlist, plIndex, introPending = {}, 0, nil
+  local def = (cfg().contexts or {})[ctx]
+  if ctx ~= 'off' and def then
+    introPending = def.intro and filePath(def.intro) or nil
     local list = def.shuffle and shuffled(def.tracks or {}) or (def.tracks or {})
     for _, f in ipairs(list) do
-      local url = fileUrl(f)
-      if url then table.insert(msg.tracks, url) else log('W', logTag, 'Musikdatei fehlt: ' .. f) end
+      local p = filePath(f)
+      if p then table.insert(playlist, p) else log('W', logTag, 'Musikdatei fehlt: ' .. f) end
     end
+    nextTrack()
   end
-  if ctx ~= 'off' and not msg.intro and #msg.tracks == 0 then msg.context = 'off' end
-  guihooks.trigger('HashiriyaMusic', msg)
-  context, volume = ctx, msg.volume
-  log('I', logTag, 'Musik: ' .. ctx .. ' (' .. #msg.tracks .. ' Stücke)')
+  log('I', logTag, 'Musik: ' .. ctx .. ' (' .. #playlist .. ' Stücke)')
 end
-
--- Der Player meldet sich beim Laden der UI; dann aktuelle Situation erneut schicken
-function M.playerReady()
-  playerReady = true
-  if context then send(context) end
-end
-
-function M.resend() if context then send(context) end end
 
 function M.stop()
-  if context and context ~= 'off' then send('off') end
+  if context and context ~= 'off' then switchTo('off') end
+end
+
+-- vom alten UI-Player, falls noch eine alte index.js geladen ist
+function M.playerReady() end
+function M.resend() end
+
+local function updatePlayback(dt)
+  local step = targetVolume() * dt / fadeTime()
+  -- ausblenden
+  for i = #fading, 1, -1 do
+    local s = fading[i]
+    s.vol = s.vol - step
+    if s.vol <= 0 then
+      destroy(s)
+      table.remove(fading, i)
+    else
+      setVol(s, s.vol)
+    end
+  end
+  if not cur then return end
+  cur.age = cur.age + dt
+  cur.target = targetVolume()
+  if cur.vol < cur.target then
+    cur.vol = math.min(cur.target, cur.vol + step)
+    setVol(cur, cur.vol)
+  elseif cur.vol > cur.target then
+    cur.vol = cur.target
+    setVol(cur, cur.vol)
+  end
+  -- Stück zu Ende: nächstes (eine einzelne Datei läuft als Schleife neu an)
+  if cur.age > 1.5 and not isPlaying(cur) then
+    local s = cur
+    cur = nil
+    destroy(s)
+    if s.loop then
+      cur = startFile(s.file, true)
+      if cur then cur.vol = cur.target; setVol(cur, cur.vol) end
+    else
+      nextTrack()
+    end
+  end
 end
 
 local function onUpdate(dtReal)
-  uptime = uptime + dtReal
+  updatePlayback(dtReal)
   checkTimer = checkTimer - dtReal
   if checkTimer > 0 then return end
   checkTimer = 0.25
   local ctx = wantedContext()
+  local career = extensions.hashiriyaBattle_career
+  pauseMenuMusic(ctx ~= 'off' or (career and career.isPending and career.isPending()))
   if ctx ~= context then
-    -- Tag <-> Nacht und kurzes Wackeln (z. B. Parkplatz-Rand) erst nach 2 s übernehmen, alles andere sofort
     local slow = (ctx == 'day' or ctx == 'night') and (context == 'day' or context == 'night')
     if slow then
       if pendingCtx ~= ctx then pendingCtx, pendingTime = ctx, 0 end
@@ -124,23 +221,9 @@ local function onUpdate(dtReal)
       if pendingTime < 2 then return end
     end
     pendingCtx = nil
-    send(ctx)
+    switchTo(ctx)
   else
     pendingCtx = nil
-  end
-  -- Lautstärke-Regler von BeamNG mitnehmen
-  volTimer = volTimer - 0.25
-  if volTimer <= 0 then
-    volTimer = 1
-    local v = currentVolume()
-    if context and context ~= 'off' and volume and math.abs(v - volume) > 0.005 then
-      volume = v
-      guihooks.trigger('HashiriyaMusicVolume', { volume = v })
-    end
-  end
-  if context and context ~= 'off' and not playerReady and not warnedNoPlayer and uptime > 30 then
-    warnedNoPlayer = true
-    log('W', logTag, 'Musik-Player im UI hat sich nicht gemeldet (ui/ui-vue/mods/hashiriyaBattle/index.js)')
   end
 end
 
@@ -155,7 +238,7 @@ function M.creditEntries()
     for _, f in ipairs(def.tracks or {}) do table.insert(files, f) end
     for _, f in ipairs(files) do
       local t = (cfg().tracks or {})[f]
-      if t and not t.hideInCredits and not seen[f] and fileUrl(f) then
+      if t and not t.hideInCredits and not seen[f] and filePath(f) then
         seen[f] = true
         table.insert(out, { title = t.title, artist = t.artist, license = t.license, context = ctxName })
       end
@@ -164,9 +247,19 @@ function M.creditEntries()
   return out
 end
 
-local function onClientEndMission() M.stop() end
+local function onClientEndMission()
+  for _, s in ipairs(fading) do destroy(s) end
+  fading = {}
+  if cur then destroy(cur) cur = nil end
+  context = nil
+  playlist, plIndex, introPending = {}, 0, nil
+  pauseMenuMusic(false)
+end
+
+local function onExtensionUnloaded() onClientEndMission() end
 
 M.onUpdate = onUpdate
 M.onClientEndMission = onClientEndMission
+M.onExtensionUnloaded = onExtensionUnloaded
 
 return M
