@@ -1,5 +1,5 @@
 // Hashiriya Battle: kleine Statusanzeige (Geld, Rivale in der Nähe, nächster Parkplatz), sichtbar solange der Modus läuft.
-// Daten: Hook 'HashiriyaState'.
+// Daten: Hook 'HashiriyaState'. Story-Ziel: data.storyGoal = { chapter, title, text } (story.lua).
 angular.module('beamng.apps')
 .directive('hashiriyaStatus', [function () {
   return {
@@ -14,6 +14,8 @@ angular.module('beamng.apps')
             '<span class="hbt-rank-nick" ng-if="s.progress.nick">{{ s.progress.nick }}</span>' +
           '</div>' +
           '<div class="hbt-money">{{ s.money }}</div>' +
+          // Story (Alpha 0.6): aktuelles Kapitelziel, unauffällig unter dem Geld
+          '<div class="hbt-goal" ng-if="s.storyGoal && !(s.battle && s.battle.state !== \'idle\')"><span>{{ s.storyGoal.chapter }}</span>{{ s.storyGoal.text }}</div>' +
           '<div class="hbt-streak" ng-if="s.style && s.style.streak >= 2">{{ s.t[\'hud.streak\'] }} <b>{{ s.style.streak }}</b></div>' +
           '<div class="hbt-combo" ng-if="s.style && s.style.combo">' +
             '<div class="hbt-combo-label" ng-if="s.style.combo.label">{{ s.style.combo.label }} <span>+{{ s.style.combo.labelPts }}</span></div>' +
@@ -51,6 +53,8 @@ angular.module('beamng.apps')
           '.hbt{float:right;font-family:"Overpass","Noto Sans","Segoe UI",sans-serif;color:#f4f4f4;text-align:right;' +
             'padding:6px 14px 6px 22px;background:linear-gradient(270deg,rgba(18,18,20,.85),rgba(18,18,20,.55) 70%,rgba(18,18,20,0));' +
             'border-right:3px solid #ff6600;text-shadow:0 1px 2px rgba(0,0,0,.8);}' +
+          '.hbt-goal{max-width:260px;margin-top:2px;font-size:10.5px;line-height:14px;color:rgba(244,244,244,.72);font-style:italic;}' +
+          '.hbt-goal span{margin-right:6px;font-style:normal;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ff9a3c;}' +
           '.hbt-money{font-size:20px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;letter-spacing:.5px;}' +
           '.hbt-rival{font-size:11px;letter-spacing:1px;color:rgba(244,244,244,.7);margin-top:1px;}' +
           '.hbt-rival b{color:#ff9a3c;font-weight:700;}' +

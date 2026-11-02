@@ -626,5 +626,11 @@
   "msg.talkHint": "Neuer Hinweis im Rivalen-Lexikon",
   "msg.devTalkRespawn": "PA-Fahrer werden neu aufgestellt",
   "menu.devTalk": "PA-Fahrer neu aufstellen",
-  "menu.devMenu": "Dev-Menü öffnen (Shift+Ende)"
+  "menu.devMenu": "Dev-Menü öffnen (Shift+Ende)",
+  "story.chapter": "Kapitel %d",
+  "story.phone": "Nachricht",
+  "story.lexicon": "Story",
+  "story.goal": "Ziel",
+  "story.menu": "Story",
+  "msg.storyMoney": "%s erhalten"
 }

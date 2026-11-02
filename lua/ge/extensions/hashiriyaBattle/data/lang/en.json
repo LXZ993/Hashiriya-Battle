@@ -570,5 +570,11 @@
   "msg.talkHint": "New hint in the rival lexicon",
   "msg.devTalkRespawn": "Parking area drivers are being placed again",
   "menu.devTalk": "Re-place PA drivers",
-  "menu.devMenu": "Open dev menu (Shift+End)"
+  "menu.devMenu": "Open dev menu (Shift+End)",
+  "story.chapter": "Chapter %d",
+  "story.phone": "Message",
+  "story.lexicon": "Story",
+  "story.goal": "Goal",
+  "story.menu": "Story",
+  "msg.storyMoney": "Received %s"
 }

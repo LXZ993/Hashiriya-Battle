@@ -37,6 +37,7 @@ angular.module('beamng.apps')
               '<div class="hbm-fuelbar hbm-repbar"><i ng-style="{width: s.progress.progress + \'%\'}"></i></div>' +
               '<div class="hbm-rank-sub">{{ s.t[\'rank.rep\'] }} {{ s.progress.rep }}<span ng-if="s.progress.next"> · {{ s.t[\'rank.next\'] }}: {{ s.progress.next }} ({{ s.progress.repNext }})</span></div>' +
             '</div>' +
+            '<div class="hbm-goal" ng-if="s.storyGoal"><span class="hbm-label">{{ s.storyGoal.chapter }} · {{ s.storyGoal.title }}</span><b>{{ s.storyGoal.text }}</b></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.night ? s.t[\'menu.night\'] : s.t[\'menu.dayTime\'] }}</span><b>{{ s.day }}</b></div>' +
             '<div class="hbm-stat" ng-if="s.battlesLeft != null"><span class="hbm-label">{{ s.t[\'menu.battlesLeft\'] }}</span><b>{{ s.battlesLeft }}</b></div>' +
             '<div class="hbm-note" ng-if="!s.night">{{ s.t[\'menu.dayNote\'] }}</div>' +
@@ -231,11 +232,11 @@ angular.module('beamng.apps')
                   '<div ng-if="lexOpen == $index">' +
                     '<div class="hbm-lex-desc" ng-if="g.desc">{{ g.desc }}</div>' +
                     '<div class="hbm-lex" ng-repeat="r in g.list" ng-class="{\'is-beaten\': r.beaten}">' +
-                      '<div class="hbm-lex-top"><span class="hbm-lex-check" ng-class="{\'is-on\': r.watched}" ng-click="act(\'watch\', r.id)"></span><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
+                      '<div class="hbm-lex-top"><span class="hbm-lex-check" ng-if="r.id" ng-class="{\'is-on\': r.watched}" ng-click="act(\'watch\', r.id)"></span><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
                         '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
                         '<span class="hbm-lex-tag hbm-lex-boss" ng-if="r.boss">{{ s.t[\'home.boss\'] }}</span>' +
-                        '<span class="hbm-lex-state">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
-                      '<div class="hbm-lex-sub">{{ r.car }}</div>' +
+                        '<span class="hbm-lex-state" ng-if="!r.scene && !r.chapter">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
+                      '<div class="hbm-lex-sub" ng-if="r.car">{{ r.car }}</div>' +
                       '<div class="hbm-lex-status" ng-if="r.status">{{ r.status }}</div>' +
                       '<div class="hbm-lex-text" ng-if="r.desc">{{ r.desc }}</div>' +
                       '<div class="hbm-lex-quote" ng-if="r.quote">„{{ r.quote }}“</div>' +
@@ -346,6 +347,9 @@ angular.module('beamng.apps')
           '.hbm-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
           '.hbm-money{padding:8px 18px 6px;}' +
           '.hbm-yen{display:block;font-size:28px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;color:var(--w);}' +
+          '.hbm-goal{margin:4px 18px 6px;padding:6px 10px;border-left:3px solid #ff6600;background:rgba(255,102,0,.08);}' +
+          '.hbm-goal .hbm-label{display:block;font-size:10px;}' +
+          '.hbm-goal b{display:block;font-size:13px;font-weight:700;color:#f4f4f4;}' +
           '.hbm-stat{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:3px 18px;}' +
           '.hbm-stat .hbm-label{display:inline;flex:none;}' +
           '.hbm-stat b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
@@ -506,7 +510,7 @@ angular.module('beamng.apps')
           '.hbm-lex-desc{padding:0 18px 6px 30px;font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);font-style:italic;}' +
           '.hbm-lex-name em{font-weight:400;font-size:11px;color:var(--o2);}' +
           '.hbm-lex-boss{background:#ff5a36;}' +
-          '.hbm-lex-text{font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);margin-top:2px;}' +
+          '.hbm-lex-text{font-size:11px;line-height:1.4;color:rgba(244,244,244,.7);margin-top:2px;white-space:pre-line;}' +
           '.hbm-lex-quote{margin-top:3px;font-size:11px;font-style:italic;opacity:.75;border-left:2px solid var(--tc,#ff6600);padding-left:6px;}' +
           '.hbm-lex{padding:6px 18px;border-bottom:1px solid rgba(255,255,255,.05);}' +
           '.hbm-lex-top{display:flex;align-items:baseline;gap:8px;}' +

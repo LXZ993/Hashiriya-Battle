@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -410,6 +410,7 @@ end
 -- Neues Spiel aus dem Karriere-Assistenten (career.lua): Auto steht im Showroom oder schon in der Garagenbucht.
 function M.newCareer(data)
   M.save = newSave()
+  pcall(function() extensions.hashiriyaBattle_story.reset() end)
   M.save.playerName = data.playerName
   M.save.experience = data.experience
   -- Startkapital minus Kaufpreis des Starterautos
@@ -450,6 +451,7 @@ function M.continueCareer()
   extensions.hashiriyaBattle_parking.loadSettings(M.save)
   extensions.hashiriyaBattle_shop.loadSettings(M.save)
   extensions.hashiriyaBattle_condition.syncStarterWear(M.save)
+  pcall(function() extensions.hashiriyaBattle_story.reset() end)
   local car = M.save.cars[M.save.activeCar or 1]
   if not car then return end
   local opts = { config = plateConfig(car), licenseText = car.plate, autoEnterVehicle = false }
@@ -495,6 +497,7 @@ local function continueGame()
 end
 
 function M.stopGame()
+  pcall(function() extensions.hashiriyaBattle_story.reset() end)
   pcall(function() extensions.hashiriyaBattle_talk.despawnAll() end)
   pcall(function() extensions.hashiriyaBattle_talk.clearPending() end)
   if M.active then M.writeSave() end
@@ -513,6 +516,8 @@ function M.onParkingArrived(area)
   if area.type == 'garage' then M.writeSave() end
   -- Shop zu Fuß: gleich das Teile-Terminal
   if area.type == 'shop' and extensions.hashiriyaBattle_parking.isFootShop() then extensions.hashiriyaBattle_shop.openTerminal('shop') end
+  -- Story (Alpha 0.6): Szenen in der Garage, zuhause, ...
+  pcall(function() extensions.hashiriyaBattle_story.onEvent(area.type, { area = area.type }) end)
   M.sendUiState()
 end
 
@@ -576,6 +581,8 @@ function M.onBattleResult(rival, won, result)
     msg(M.t('msg.lose', rival.name), 6)
   end
   M.writeSave()
+  -- Story (Alpha 0.6): Szenen nach einem Battle
+  pcall(function() extensions.hashiriyaBattle_story.onEvent(won and 'win' or 'lose', { rival = rival }) end)
 end
 
 -- Positionen sammeln (für Parkplätze und Spawnpunkte) -----------------------
@@ -756,6 +763,15 @@ local function buildUiState()
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
     local talkHud = extensions.hashiriyaBattle_talk.getHudState()
     if talkHud then st.talk, st.talkPrompt = talkHud.talk, talkHud.prompt end
+    -- Story (Alpha 0.6): Kapitelkarte und Szenen haben Vorrang vor PA-Gesprächen
+    local okS, storyHud = pcall(function() return extensions.hashiriyaBattle_story.getHudState() end)
+    if okS and storyHud then
+      st.storyCard = storyHud.card
+      if storyHud.talk then st.talk, st.talkPrompt = storyHud.talk, nil end
+      if storyHud.card then st.talk, st.talkPrompt = nil, nil end
+    end
+    local okG, goal = pcall(function() return extensions.hashiriyaBattle_story.goal() end)
+    if okG then st.storyGoal = goal end
     st.style = extensions.hashiriyaBattle_style.getHudState()
     st.unlock = extensions.hashiriyaBattle_shop.unlockHud()
     local parking = extensions.hashiriyaBattle_parking
@@ -959,6 +975,8 @@ function M.uiAction(action, arg)
     showMenu = true
   elseif action == 'lexiconBack' then
     showLexicon = false
+  elseif action == 'storyNext' then
+    extensions.hashiriyaBattle_story.interact()
   elseif action == 'watch' then
     extensions.hashiriyaBattle_home.toggleWatch(tostring(arg))
   elseif action == 'dealerBuy' then

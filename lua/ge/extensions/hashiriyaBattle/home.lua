@@ -222,6 +222,8 @@ local function finishRest()
   local fs = fadeScreen()
   if fs and fs.stop then pcall(fs.stop, restFade) end
   if r.msg then c.msg(r.msg(), 5) end
+  -- Story (Alpha 0.6): Aufwachen zuhause
+  if r.kind == 'home' then pcall(function() extensions.hashiriyaBattle_story.onEvent('wake', {}) end) end
 end
 
 -- Zeitraffer: erst abblenden, dann die Uhr bis zur Aufwachzeit drehen (weich ein- und auslaufend)
@@ -410,10 +412,15 @@ local function lexicon()
   end
   table.insert(groups, wanderers)
   table.insert(groups, bosses)
+  -- Story (Alpha 0.6): Seite mit Kapiteln und gesehenen Szenen ganz oben
+  local okS, sg = pcall(function() return extensions.hashiriyaBattle_story.lexiconGroup() end)
+  if okS and sg then table.insert(groups, 1, sg) end
   for _, g in ipairs(groups) do
-    local n = 0
-    for _, e in ipairs(g.list) do if e.beaten then n = n + 1 end end
-    g.count = n .. ' / ' .. #g.list
+    if not g.story then
+      local n = 0
+      for _, e in ipairs(g.list) do if e.beaten then n = n + 1 end end
+      g.count = n .. ' / ' .. #g.list
+    end
   end
   return groups
 end
