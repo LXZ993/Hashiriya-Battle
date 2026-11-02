@@ -414,6 +414,7 @@
   "msg.rivalDeclined": "Declined. %s leaves you alone for now.",
   "keys.bind": "Bind",
   "msg.titleCamSaved": "Title screen camera and time of day saved. They are used from the next title screen on.",
+  "msg.titleCamConfirm": "Overwrite title screen camera? Press Shift+Home again within %d s to confirm.",
   "menu.devRivalPh": "Rival: ID or name",
   "menu.devSpawn": "Spawn",
   "menu.devBeat": "Mark as beaten",
