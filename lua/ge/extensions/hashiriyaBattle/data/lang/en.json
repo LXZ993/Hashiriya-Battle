@@ -98,6 +98,8 @@
   "shop.item.spoiler": "Spoiler",
   "shop.loading": "Loading parts …",
   "menu.cheatMoney": "+¥1,000,000 (test)",
+  "menu.musicSkip": "Skip music",
+  "menu.musicNow": "Playing",
   "menu.markers": "Parking markers",
   "menu.on": "on",
   "menu.off": "off",

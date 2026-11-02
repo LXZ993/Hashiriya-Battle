@@ -857,6 +857,12 @@ local function buildUiState()
   st.terminal = M.active and M.save and extensions.hashiriyaBattle_shop.terminalState() or nil
   st.release = M.isRelease()
   st.devMenu = (not st.release) and extensions.hashiriyaBattle_devtools ~= nil or nil
+  local mu = extensions.hashiriyaBattle_music
+  st.music = mu and mu.nowPlaying() or nil
+  if st.music and extensions.hashiriyaBattle_career.keyFor then
+    local ok, k = pcall(extensions.hashiriyaBattle_career.keyFor, 'hashiriyaMusicSkip')
+    st.music.key = ok and k or nil
+  end
   return st
 end
 
@@ -997,6 +1003,8 @@ function M.uiAction(action, arg)
     showMenu = true
   elseif action == 'lexiconBack' then
     showLexicon = false
+  elseif action == 'musicSkip' then
+    if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.skip() end
   elseif action == 'jobs' then
     showJobs = true
     showStats = false
@@ -1231,6 +1239,10 @@ function M.toggleDevMenu()
   if M.isRelease() then return end
   if extensions.hashiriyaBattle_devtools then extensions.hashiriyaBattle_devtools.toggle()
   else msg('Dev-Menü fehlt (devtools.lua nicht im Mod)', 4) end
+end
+
+function M.skipMusic()
+  if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.skip() end
 end
 
 function M.toggleMenu()

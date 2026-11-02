@@ -1164,6 +1164,22 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 </table>
 <p>Gespielt wird über BeamNGs eigenen Audio-Kanal <b>Musik</b>. Lautstärke: <code>volume</code> in music.json (0 bis 1), dazu wirken die BeamNG-Regler <b>Gesamt</b> und <b>Musik</b> (Optionen, Audio). Überblenden: <code>fadeSeconds</code>. Ganz aus: <code>"enabled": false</code>. Sobald du Hashiriya Battle im Hauptmenü startest, ist die BeamNG-Hauptmenü-Musik aus; zurück im normalen Hauptmenü läuft sie wieder.</p>
 <p>Beispiel, ein eigenes Stück für die Nacht dazunehmen: die Datei als <span class="path">art\sound\hashiriya\music\mein_song.ogg</span> ablegen, in <code>contexts.night.tracks</code> <code>"mein_song.ogg"</code> eintragen und unter <code>tracks</code> Titel und Künstler angeben (erscheint dann in den Credits). Fehlt eine Datei, wird sie übersprungen.</p>
+<p><b>Welches Stück wann kommt</b>: Jedes Stück kann unter <code>tracks</code> ein Feld <code>when</code> bekommen. Dann läuft es nur, wenn alle Bedingungen darin passen. Stücke ohne <code>when</code> laufen immer.</p>
+<table>
+<tr><th>Bedingung</th><th>Bedeutung</th></tr>
+<tr><td><code>"hours": [22, 4]</code></td><td>nur zwischen 22 und 4 Uhr Spielzeit (über Mitternacht geht)</td></tr>
+<tr><td><code>"rival": ["leader", "boss"]</code></td><td>nur gegen diese Gegnerart: <code>normal</code>, <code>leader</code>, <code>wanderer</code>, <code>boss</code> (für <code>battle</code>)</td></tr>
+<tr><td><code>"pinkSlip": true</code></td><td>nur bei einem Pink-Slip-Battle (<code>false</code> = nur bei normalen)</td></tr>
+<tr><td><code>"minRank": 3</code>, <code>"maxRank": 5</code></td><td>nur ab bzw. bis zu diesem Rang (Index wie in rivals.json, 0 = erster Rang)</td></tr>
+<tr><td><code>"area": ["shop"]</code></td><td>nur an diesem Parkplatz-Typ (<code>shop</code>, <code>garage</code>, <code>gas</code>, <code>home</code>)</td></tr>
+<tr><td><code>"level": ["c1"]</code></td><td>nur auf dieser Karte</td></tr>
+</table>
+<p>Beispiel, ein Boss-Song nur gegen Leader und Bosse:</p>
+<pre><code>"km_rhinoceros.ogg": { "title": "Rhinoceros", "artist": "...", "license": "CC BY 4.0",
+                       "when": { "rival": ["leader", "boss"] } }</code></pre>
+<p>Passt in einer Situation gerade kein Stück, laufen alle Stücke dieser Situation wie gewohnt reihum. Ein Stück darf auch in mehreren Situationen stehen.</p>
+<p><b>Überspringen</b>: Taste Ende oder im Hashiriya-Menü unter Werkzeuge „Musik überspringen“ (dort steht auch, was gerade läuft).</p>
+<p><b>Verkehr im Titelbildschirm</b>: Solange der Titelbildschirm offen ist, sind Motoren, Reifen und Wind auf <code>trafficVolumeInTitle</code> gedrosselt (0.1 = 10 %, 1 = normal). Deine BeamNG-Audio-Einstellungen bleiben dabei unverändert.</p>
 <p>Lizenz: Die Stücke von Kevin MacLeod stehen unter <b>CC BY 4.0</b>. Sie dürfen in die Mod, aber Titel, Name und Lizenz müssen genannt werden. Das macht der Abschnitt <b>Musik</b> in den Credits automatisch aus <code>tracks</code>. Steht beim Künstler noch <code>[...]</code>, wird das Stück in den Credits ausgeblendet.</p>
 <p>Wenn keine Musik kommt: in <span class="path">hashiriya.log</span> nach <code>hashiriya.music</code> suchen. Dort steht bei jedem Wechsel die Situation ("Musik: night (4 Stücke)") und jedes gestartete Stück ("Spielt: ..."). "konnte nicht geladen werden" heißt, BeamNG kann die Datei nicht öffnen.</p>
 <h3>Eigene Sounds und Musik erzeugen <span class="tag">tools\audio\</span> <span class="tag">noch nicht im Spiel</span></h3>
@@ -1447,6 +1463,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Pos1 (<code>home</code>)</td><td>Hashiriya-Menü auf/zu</td></tr>
 <tr><td>T</td><td>Zu Fuß an einer PA mit einem Fahrer reden, nächster Satz, Ende (<a href="#chat">PA-Gespräche</a>). Bei Rivalen: Battle annehmen</td></tr>
 <tr><td>G</td><td>Im Gespräch mit einem Rivalen an der PA: Pink Slip annehmen (<a href="#pinkslip">Pink Slip</a>). Steht auch im Tasten-Check; falls G bei dir schon belegt ist, in den BeamNG-Optionen unter „Hashiriya Battle: Reden, Pink Slip“ umlegen.</td></tr>
+<tr><td>Ende (<code>end</code>)</td><td>Musik überspringen: nächstes passendes Stück (<a href="#sounds">Musik</a>). Geht auch im Hashiriya-Menü unter Werkzeuge.</td></tr>
 <tr><td>Umschalt+Pos1</td><td>Aktuelle Kamera als Titelbild-Kamera merken</td></tr>
 <tr><td>Umschalt+Ende</td><td><a href="#dev">Dev-Menü</a> auf/zu (nicht im Release)</td></tr>
 </table>
