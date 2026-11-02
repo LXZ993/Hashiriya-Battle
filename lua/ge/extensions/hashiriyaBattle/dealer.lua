@@ -303,9 +303,34 @@ function M.carValue(car)
   return v and core().economy().usdToPrice(v) or 300000
 end
 
+-- Verkaufspreis: Wagenwert und gekaufte Teile, dann Zustand und gefahrene Kilometer (dealer.json sell)
+-- Wert = (Wagenwert × sellFactor + Teile × sell.partsFactor) × Zustand × Kilometer
+local function conditionFactor(car, s)
+  local sumI, sumV, n = 0, 0, 0
+  for _, p in pairs(car.parts or {}) do
+    sumI = sumI + (tonumber(p.i) or 1); sumV = sumV + (tonumber(p.v) or 1); n = n + 1
+  end
+  local wear = car.wear or {}
+  local i = n > 0 and sumI / n or (tonumber(wear.integrity) or 1)
+  local v = n > 0 and sumV / n or (tonumber(wear.visual) or 1)
+  local cond = 0.75 * i + 0.25 * v
+  local minF = tonumber(s.conditionMin) or 0.5
+  return minF + (1 - minF) * math.max(0, math.min(1, cond))
+end
+
+local function kmFactor(car, s)
+  local driven = math.max(0, (tonumber(car.odometerKm) or 0) - (tonumber((car.wear or {}).odometerKm) or 0))
+  local per = tonumber(s.lossPer10000Km) or 0.05
+  return math.max(tonumber(s.kmMin) or 0.6, 1 - driven / 10000 * per)
+end
+
 function M.sellPrice(car)
-  local f = tonumber(loadData().sellFactor) or 0.5
-  return math.max(0, math.floor(M.carValue(car) * f / 10000 + 0.5) * 10000)
+  local d = loadData()
+  local s = type(d.sell) == 'table' and d.sell or {}
+  local f = tonumber(d.sellFactor) or 0.5
+  local partsF = tonumber(s.partsFactor) or 0.3
+  local v = (M.carValue(car) * f + (tonumber(car.partsValue) or 0) * partsF) * conditionFactor(car, s) * kmFactor(car, s)
+  return math.max(0, math.floor(v / 10000 + 0.5) * 10000)
 end
 
 function M.ownedCars()

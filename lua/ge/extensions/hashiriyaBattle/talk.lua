@@ -257,8 +257,50 @@ local function spawnCar(model, config, ps, rand, paints, plate)
 end
 
 -- Figur neben ihr Auto stellen: meist an die Fahrerseite (Rechtslenker), Blick vom Auto weg
+-- Eigene Stehplätze (Dev-Menü Typ "PA-Fahrer-Stehplatz" bzw. standSpots in der Kartendatei), je PA
+local standsFor = {}
+local function buildStands(pa, center, radius)
+  local list = {}
+  for _, e in ipairs(core().spots('stand')) do
+    local p = toVec(e.pos)
+    if (p - center):length() <= radius + 20 then
+      local d = type(e.dir) == 'table' and toVec(e.dir) or nil
+      if d then d = vec3(d.x, d.y, 0) if d:length() > 0.01 then d = d:normalized() else d = nil end end
+      table.insert(list, { pos = p, dir = d })
+    end
+  end
+  standsFor[pa.name or ''] = list
+  return list
+end
+
+-- freier Stehplatz: am nächsten zu pos (höchstens maxDist m weg), nil wenn keiner
+local function takeStand(place, pos, maxDist)
+  local best, bestD = nil, maxDist or math.huge
+  for _, st in ipairs(standsFor[place or ''] or {}) do
+    if not st.used then
+      local d = pos and (st.pos - pos):length() or 0
+      if d <= bestD then best, bestD = st, d end
+    end
+  end
+  if best then best.used = true end
+  return best
+end
+
+local function placeOnStand(n, st, rand, lookAt)
+  local dir = st.dir
+  if not dir and lookAt then dir = vec3(lookAt.x - st.pos.x, lookAt.y - st.pos.y, 0) end
+  if not dir or dir:length() < 0.01 then dir = vec3(1, 0, 0) end
+  dir = dir:normalized()
+  n.figId, n.pos = spawnFigure(n, st.pos, dir, rand)
+  n.dir = dir
+end
+
 local function placeBeside(n, ps, rand)
   local veh = be:getObjectByID(n.carId)
+  -- gibt es gemerkte Stehplätze an dieser PA: den nächsten freien beim Auto nehmen
+  local carPos = veh and vec3(veh:getPosition()) or ps.pos
+  local st = takeStand(n.place, carPos, cfg().standMaxDistance or 15)
+  if st then placeOnStand(n, st, rand, carPos) return end
   local fwd = veh and veh:getDirectionVector() or (ps.rot * vec3(0, 1, 0))
   fwd = vec3(fwd.x, fwd.y, 0):normalized()
   local right = fwd:cross(up):normalized()
@@ -315,6 +357,7 @@ local function spawnCrowd(i, pa)
   local count = math.floor(range[1] + rand() * (range[2] - range[1] + 1))
   local center = toVec(pa.pos)
   local spots = freeSpots(center, math.min(pa.radius or c.spotRadius, c.spotRadius))
+  buildStands(pa, center, math.min(pa.radius or c.spotRadius, c.spotRadius))
   -- Buchten mischen (fest pro Nacht)
   for k = #spots, 2, -1 do
     local j = math.floor(rand() * k) + 1
@@ -360,12 +403,22 @@ local function spawnCrowd(i, pa)
       local ps = spots[spotIdx]
       spotIdx = spotIdx + 1
       local car = cars[math.floor(rand() * #cars) + 1]
-      local config = pickConfig(car.model, car.match, rand)
+      -- eigene Config (chat.json cars[].config = Name der .pc ohne Endung) geht vor, wenn es sie gibt
+      local config = nil
+      if car.config then
+        local okM, m = pcall(function() return core_vehicles.getModel(car.model) end)
+        if okM and m and type(m.configs) == 'table' and m.configs[car.config] then config = car.config end
+      end
+      config = config or pickConfig(car.model, car.match, rand)
       if not config and car.match then config = pickConfig(car.model, nil, rand) end
       n.carId = spawnCar(car.model, config, ps, rand)
       if n.carId then placeBeside(n, ps, rand) end
     end
-    if not n.carId and (#cars == 0 or #spots == 0) then
+    local free = (not n.carId and (#cars == 0 or #spots == 0)) and takeStand(pa.name, nil) or nil
+    if free then
+      -- ohne Auto: auf einen freien gemerkten Stehplatz
+      placeOnStand(n, free, rand, center)
+    elseif not n.carId and (#cars == 0 or #spots == 0) then
       -- ohne Auto (z. B. Parkwächter): irgendwo am Rand der PA-Mitte
       local a = rand() * math.pi * 2
       local pos = center + vec3(math.cos(a), math.sin(a), 0) * (4 + rand() * 6)

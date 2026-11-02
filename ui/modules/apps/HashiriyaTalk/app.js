@@ -11,6 +11,7 @@ angular.module('beamng.apps')
   return {
     template:
       '<div class="bngApp hbk-root">' +
+        '<div class="hbk-flash" ng-if="flash"></div>' +
         '<div class="hbk" ng-if="line" ng-class="[\'hbk-\' + line.side, \'hbk-k-\' + line.kind, \'hbk-t-\' + line.tag]">' +
           '<div class="hbk-pic" ng-if="line.side == \'left\'"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
           '<div class="hbk-bubble">' +
@@ -91,6 +92,8 @@ angular.module('beamng.apps')
           '.hbk-t-player .hbk-pic{box-shadow:0 0 0 2px #f4f4f4;}' +
           '.hbk-timer{position:absolute;left:164px;right:0;bottom:22px;height:2px;background:rgba(255,255,255,.08);}' +
           '.hbk-timer i{display:block;height:100%;background:#4fd18b;transition:width .4s linear;}' +
+          '.hbk-flash{position:fixed;left:0;top:0;right:0;bottom:0;z-index:60;background:#fff;pointer-events:none;animation:hbkFlash .45s ease-out forwards;}' +
+          '@keyframes hbkFlash{0%{opacity:.85}100%{opacity:0}}' +
           '.hbk-card{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:50;' +
             'background:radial-gradient(ellipse at center,rgba(8,8,10,.92) 0,rgba(0,0,0,.97) 70%);animation:hbkFade .8s ease-out;}' +
           '.hbk-card-in{max-width:760px;padding:0 40px;text-align:center;color:var(--w);}' +
@@ -115,6 +118,15 @@ angular.module('beamng.apps')
       scope.card = null
       scope.dots = function (n) { return new Array(n) }
       var lastKey = null, lastPrompt = null, lastCard = null
+      // Fotojob: kurzer weißer Blitz (Hook HashiriyaFlash aus jobs.lua)
+      scope.flash = false
+      var flashTimer = null
+      scope.$on('HashiriyaFlash', function () {
+        scope.$evalAsync(function () { scope.flash = false })
+        setTimeout(function () { scope.$evalAsync(function () { scope.flash = true }) }, 20)
+        if (flashTimer) clearTimeout(flashTimer)
+        flashTimer = setTimeout(function () { scope.$evalAsync(function () { scope.flash = false }) }, 600)
+      })
       scope.$on('HashiriyaState', function (event, data) {
         var b = data && data.battle
         var line = null

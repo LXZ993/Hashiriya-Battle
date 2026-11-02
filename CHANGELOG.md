@@ -1,5 +1,24 @@
 # Changelog Hashiriya Battle
 
+## Alpha 0.9.1 (Stand 02.11.2026)
+
+### Nebenjobs
+- Kurier, Express und Zerbrechlich: Die Ware wird erst abgeholt, dann geliefert. Die Zeit läuft ab dem Abholen.
+- Abholpunkt, Ziel und Foto-Spot haben eine Bodenmarkierung wie die Parkplätze (orange, beim Fotojob grün). Dazu kommt eine Navi-Route auf der Minimap.
+- Fotojob: Mit eigenen Foto-Spots stellst du das Auto genau dort ab. Beim Foto gibt es einen Verschluss-Sound und einen kurzen Blitz.
+- Tipps: Es gibt nur noch Tipps zu Wanderern und Bossen, die du vom Fortschritt her schon treffen kannst. Sie sind viel teurer (ab 250.000 Yen, Bosse ab 750.000 Yen, je Rang 10 % mehr). Danach schickt Genzō dir den Hinweis als Handy-Nachricht.
+
+### Garage und Händler
+- In der Garage (Reiter Service) gibt es jetzt den Autohändler direkt im Menü.
+- Der Verkaufspreis eines Autos hängt jetzt vom Wagenwert, den gekauften Teilen, dem Zustand und den gefahrenen Kilometern ab.
+- „Nicht verbaut“ heißt jetzt „Ausgebaut“.
+
+### Story und PAs
+- Die Kapitelkarte wartet, bis das Battle und der Spruch des Gegners vorbei sind.
+- Genzō hat jetzt ein Porträt.
+- Dev-Menü, Orte: neue Typen „PA-Fahrer-Stehplatz“ und „Foto-Spot“. Gemerkte Stehplätze nutzen die PA-Fahrer statt zufälliger Plätze (kein Stehen mehr in Autos).
+- Fahrer an den PAs können eine feste eigene Config bekommen (chat.json, cars[].config).
+
 ## Alpha 0.9 (Stand 02.11.2026)
 
 ### Neu: Fahrcharakter der Rivalen
@@ -22,7 +41,7 @@
 ## Alpha 0.8 (Stand 02.11.2026)
 
 ### Neu: Teile ausbauen und verkaufen
-- Am Garagen-PC kannst du jetzt fast jedes Teil ausbauen („Nicht verbaut“), auch Serienteile. Nur Pflicht-Teile, ohne die das Auto nicht existiert, bleiben drin.
+- Am Garagen-PC kannst du jetzt fast jedes Teil ausbauen („Ausgebaut“), auch Serienteile. Nur Pflicht-Teile, ohne die das Auto nicht existiert, bleiben drin.
 - Im Teilelager hat jedes nicht verbaute Teil einen Knopf „Verkaufen“ mit Preis. Zweimal klicken, dann ist es weg. Ein Teil bringt 40 % seines Preises.
 - Verkaufte Serienteile kannst du im Shop wieder kaufen.
 

@@ -969,6 +969,8 @@ function M.confirmPreview()
   local origVals = {}
   for _, v in pairs(cart.original.parts) do origVals[v] = true end
   c.save.money = c.save.money - total
+  -- Wert der Umbauten fürs Auto (Verkaufspreis beim Händler, dealer.sellPrice)
+  car.partsValue = (car.partsValue or 0) + total
   car.owned = car.owned or {}
   local bought = 0
   for _, it in ipairs(cart.items) do
@@ -1242,8 +1244,10 @@ function M.sellPart(slot, part)
   if car.owned and car.owned[part] then
     local o = nil
     for _, x in ipairs(row.options) do if x.part == part then o = x end end
-    price = sellValue(o and o.price or yen(cat.partInfo(part).value))
+    local full = o and o.price or yen(cat.partInfo(part).value)
+    price = sellValue(full)
     car.owned[part] = nil
+    car.partsValue = math.max(0, (car.partsValue or 0) - (full or 0))
   elseif part == row.stockPart then
     price = sellValue(yen(cat.partInfo(part).value))
     car.soldStock = car.soldStock or {}

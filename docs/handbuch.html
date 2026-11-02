@@ -885,6 +885,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <li><b>Wer:</b> Pro Nacht (bzw. Tag) und PA fest ausgewürfelt aus Spielstand + Nacht. Kommst du in derselben Nacht wieder, stehen dieselben Leute da. In der nächsten Nacht andere, aber nie vor deinen Augen: gewechselt wird erst, wenn du weg bist.</li>
 <li><b>Autos:</b> in freien Parkbuchten der Map (dieselben, die der BeamNG-Parkverkehr nutzt), Motor aus, festgebremst, nicht einsteigbar. Kennzeichen zufällig. Die Config wird zufällig aus dem Modell gewählt, ohne Polizei, Rennwagen usw. (<code>excludeConfigs</code>). Findet die Mod keine freien Buchten, stehen die Fahrer ohne Auto auf dem Platz (steht dann als Warnung im Mod-Log).</li>
 <li><b>Figuren:</b> die BeamNG-Fußgängerfigur (dieselbe wie du zu Fuß), mit zufälligem Gesicht und eigener Farbe je Sprecher. Meist an der Fahrerseite. Kommst du näher als <code>lookDistance</code>, drehen sie sich zu dir.</li>
+<li><b>Eigene Stehplätze (Alpha 0.9.1):</b> Dev-Menü, Orte, Typ „PA-Fahrer-Stehplatz“: hinstellen, in die Blickrichtung schauen, Ort merken. Gibt es an einer PA Stehplätze, stellt sich jeder Fahrer auf den freien Platz, der seinem Auto am nächsten ist (höchstens <code>standMaxDistance</code> 15 m weg), Fahrer ohne Auto auf irgendeinen freien. Erst wenn alle belegt sind, gilt wieder „neben dem Auto“. Für die Release kommen sie als <code>"standSpots"</code> in die Kartendatei (dev_places.json an mich schicken).</li>
 <li><b>Porträts:</b> <span class="path">art\portraits\npc\&lt;sprecher&gt;_&lt;1-3&gt;.svg</span>, drei Varianten je Sprecher (36 Bilder).</li>
 </ul>
 <h3>Was sie sagen</h3>
@@ -927,7 +928,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><th>Feld (speakers)</th><th>Bedeutung</th></tr>
 <tr><td><code>figur</code></td><td><code>m</code> oder <code>f</code> (fürs Porträt)</td></tr>
 <tr><td><code>night</code> / <code>day</code></td><td>Wie oft dieser Sprecher nachts/tagsüber an einer PA steht (Gewicht, 0 = nie). Beispiel: der Drift-Fan steht nur nachts da (<code>"day": 0</code>).</td></tr>
-<tr><td><code>cars</code></td><td>Autos, neben denen er steht. <code>match</code> = Teil des Config-Namens (z. B. <code>taxi</code>); passt keine, nimmt die Mod eine normale Config. Leere Liste = steht ohne Auto (Parkwächter).</td></tr>
+<tr><td><code>cars</code></td><td>Autos, neben denen er steht. <code>config</code> = genau diese eigene Config (Dateiname ohne .pc, z. B. <code>"config": "hb_taxi"</code>), geht vor. <code>match</code> = Teil des Config-Namens (z. B. <code>taxi</code>); passt keine, nimmt die Mod eine normale Config. Leere Liste = steht ohne Auto (Parkwächter).</td></tr>
 <tr><td><code>color</code></td><td>Lackfarbe der Figur und Hintergrundfarbe im Porträt (Rot, Grün, Blau 0 bis 1)</td></tr>
 <tr><td><code>look</code></td><td>Porträt-Teile je Variante (Namen wie im Silhouetten-Tool). Nach einer Änderung neu erzeugen, siehe unten.</td></tr>
 </table>
@@ -1015,7 +1016,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <p>Seit Alpha 0.6 hat die Karriere eine Geschichte: Prolog, fünf Kapitel, Epilog. Alles steht in <span class="path">data\story.json</span>: Kapitel, wann sie beginnen, Szenen und Texte auf Deutsch und Englisch. <b>Die Texte sind noch ein Entwurf</b> (siehe Story-Dokument), das System dahinter ist fertig.</p>
 <h3>So läuft es im Spiel</h3>
 <ol>
-<li><b>Kapitel beginnt:</b> Sind die Startbedingungen (<code>start</code>) erfüllt und die Szenen des alten Kapitels durch, kommt die <b>Kapitelkarte</b>: schwarzer Bildschirm mit Kapitelnummer, japanischem Titel, Titel und zwei, drei Sätzen. Weg mit T oder nach 8 Sekunden.</li>
+<li><b>Kapitel beginnt:</b> Sind die Startbedingungen (<code>start</code>) erfüllt und die Szenen des alten Kapitels durch, kommt die <b>Kapitelkarte</b>: schwarzer Bildschirm mit Kapitelnummer, japanischem Titel, Titel und zwei, drei Sätzen. Weg mit T oder nach 8 Sekunden. Läuft gerade ein Battle oder steht noch der Spruch des Gegners da, wartet die Karte, bis das vorbei ist.</li>
 <li><b>Szenen:</b> laufen in der Sprechblase der PA-Gespräche, mit Name und Porträt. Weiter mit T. Gespräche kommen nur im Stand oder zu Fuß, nie im Battle.</li>
 <li><b>Handy-Nachrichten</b> (<code>"style": "phone"</code>): grüner Rand, kommen auch beim Fahren und laufen von selbst weiter (grüner Balken). T überspringt.</li>
 <li><b>Ziel:</b> Das Kapitelziel (<code>goal</code>) steht klein unter dem Geld und im Menü (Status).</li>
@@ -1026,7 +1027,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <table>
 <tr><th>Feld</th><th>Bedeutung</th></tr>
 <tr><td><code>settings</code></td><td><code>enabled</code>, <code>cardSeconds</code> 8 (Kapitelkarte), <code>phoneSeconds</code> 5 und <code>phoneCharsPerSecond</code> 22 (Lesezeit einer Nachricht), <code>paRadius</code> 60 (m um eine PA für den Auslöser <code>pa</code>), <code>stopKmh</code> 5 (darunter gilt das Auto als stehend)</td></tr>
-<tr><td><code>characters</code></td><td>Story-Figuren: <code>name</code>, <code>nick</code>, <code>portrait</code> (Pfad im Mod, z. B. <span class="path">art/portraits/story/genzo.svg</span>; fehlt das Bild, steht ein Fragezeichen da)</td></tr>
+<tr><td><code>characters</code></td><td>Story-Figuren: <code>name</code>, <code>nick</code>, <code>portrait</code> (Pfad im Mod, z. B. <span class="path">art/portraits/story/genzo.svg</span>; fehlt das Bild, steht ein Fragezeichen da. Genzō hat seit Alpha 0.9.1 ein Porträt im Stil der Gegner-Porträts)</td></tr>
 <tr><td><code>chapters</code></td><td>Liste in Reihenfolge. Je Kapitel: <code>id</code>, <code>number</code>, <code>label</code> (statt „Kapitel N“, z. B. Prolog), <code>title</code>, <code>jp</code>, <code>intro</code> (Text der Kapitelkarte), <code>goal</code>, <code>start</code> (Bedingungen), <code>scenes</code></td></tr>
 <tr><td><code>scenes</code></td><td>Je Szene: <code>id</code> (einmalig!), <code>title</code> (fürs Lexikon), <code>trigger</code>, <code>speaker</code>, <code>style</code> (<code>"phone"</code> oder weglassen), <code>lines</code>, optional <code>conditions</code>, <code>rival</code>/<code>team</code>/<code>boss</code>/<code>place</code>/<code>area</code>/<code>rank</code> als Filter, <code>money</code>/<code>rep</code>/<code>hint</code> als Belohnung, <code>repeat</code>: true = immer wieder</td></tr>
 <tr><td><code>lines</code></td><td>Jede Zeile: <code>{"speaker": "genzo", "de": "…", "en": "…"}</code>. <code>speaker</code> = Figur aus <code>characters</code>, eine Rivalen-ID (z. B. <code>b_kokuryu</code>, dann mit seinem Porträt) oder <code>player</code> (du, rechts)</td></tr>
@@ -1064,23 +1065,29 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <p>Seit Alpha 0.7 gibt es in der Garage und zuhause das <b>Jobbrett</b>. Tagsüber stehen dort jeden Tag vier Aufträge (gleich bleibend für den ganzen Tag), nachts ist es zu. Höchstens vier Aufträge pro Tag.</p>
 <table>
 <tr><th>Auftrag</th><th>Was du tust</th><th>Lohn</th></tr>
-<tr><td>Kurier</td><td>Ladung zum Ziel bringen, im Ziel anhalten, bevor die Zeit abläuft</td><td>Grundlohn + pro km; Schaden am Auto (in Yen Reparaturkosten) wird abgezogen</td></tr>
+<tr><td>Kurier</td><td>Ware am Abholpunkt holen (dort kurz anhalten), dann zum Ziel bringen und dort anhalten, bevor die Zeit abläuft. Die Zeit läuft erst ab dem Abholen.</td><td>Grundlohn + pro km; Schaden am Auto (in Yen Reparaturkosten) wird abgezogen</td></tr>
 <tr><td>Express</td><td>wie Kurier, knapperes Zeitlimit</td><td>mehr</td></tr>
 <tr><td>Zerbrechlich</td><td>wie Kurier, Schaden zählt dreifach, ab 40.000 Yen Schaden platzt der Auftrag</td><td>mehr</td></tr>
-<tr><td>Fotojob</td><td>zu Fuß an einer PA sein, solange das Zeitfenster offen ist (zu früh: warten)</td><td>fester Lohn</td></tr>
+<tr><td>Fotojob</td><td>Mit eigenen Foto-Spots: das Auto genau auf dem Spot abstellen (grüne Markierung), solange das Zeitfenster offen ist. Ohne Foto-Spots: an einer PA sein (zu Fuß oder stehend im Auto). Zu früh: warten. Beim Foto gibt es Verschluss-Sound und kurzen Blitz.</td><td>fester Lohn</td></tr>
 </table>
 <ul>
-<li>Während eines Auftrags zeigt die Statusanzeige Art, Ziel, Restzeit, Entfernung und einen Pfeil. Schaden steht rot darunter.</li>
+<li>Während eines Auftrags zeigt die Statusanzeige Art (bzw. „Abholen“), Ziel, Restzeit, Entfernung und einen Pfeil. Schaden steht rot darunter.</li>
+<li><b>Markierungen (Alpha 0.9.1):</b> Abholpunkt und Ziel haben eine flache Bodenmarkierung wie die Parkplätze (orange, Foto-Spot grün), dazu setzt die Mod eine Navi-Route (zeigt die Minimap). Abschalten: <code>"markers": false</code> bzw. <code>"navRoute": false</code> in den settings. Die Route nutzt die BeamNG-Navigation; ob sie in deiner Version erscheint, steht im Log, falls nicht.</li>
 <li>Der Lohn steigt mit dem Rang (<code>rankBonus</code> 0.08 = +8 % pro Rang).</li>
 <li><b>Ziele:</b> Tankstellen, Shop und PAs der Kartendatei, mindestens <code>minDistance</code> (800 m) von der Garage weg. Eigene Ziele: <code>"jobSpots": [{"name": "Ginza", "pos": [x, y, z]}]</code> in <span class="path">data\maps\c1.json</span>. Im Dev-Menü gibt es dafür den Ort-Typ „Nebenjob-Ziel“: Ort merken, dann die Koordinaten in <code>jobSpots</code> übernehmen (oder mir schicken).</li>
-<li><b>Tipps:</b> Unten am Jobbrett kannst du Hinweise zu noch nicht geschlagenen Wanderern (15.000 Yen) und Bossen (40.000 Yen) kaufen. Sie landen im Rivalen-Lexikon wie die Hinweise aus den PA-Gesprächen.</li>
+<li><b>Abholpunkt:</b> ein anderer Ort aus derselben Liste, höchstens <code>pickupMaxDistance</code> (2500 m) von der Garage und mindestens <code>minDistance</code> vom Ziel. Lohn und Zeit rechnen ab dem Abholpunkt. <code>"pickup": false</code> schaltet das Abholen ab.</li>
+<li><b>Foto-Spots:</b> Dev-Menü, Orte, Typ „Foto-Spot (Auto abstellen)“: Auto so hinstellen, wie es fotografiert werden soll, dann Ort merken. Gibt es Foto-Spots, gehen Fotojobs nur noch dorthin. Für die Release kommen sie als <code>"photoSpots": [{"name": "…", "pos": [x, y, z], "dir": [x, y, z]}]</code> in die Kartendatei (schick mir dafür einfach deine <span class="path">settings\hashiriya_battle\dev_places.json</span>).</li>
+<li><b>Tipps:</b> Unten am Jobbrett kannst du Hinweise zu noch nicht geschlagenen Wanderern und Bossen kaufen. Angeboten werden nur Gegner, die du vom Fortschritt her schon treffen kannst (Rang, geschlagene Teams und Gegner, Kapitel, Tag; Uhrzeit, Auto und Teile zählen nicht, die verrät ja der Tipp). Preis: 250.000 Yen (Bosse 750.000 Yen), je Rangstufe 10 % mehr. Nach dem Kauf schickt Genzō dir den Hinweis als Handy-Nachricht, und er steht im Rivalen-Lexikon.</li>
 </ul>
 <table>
 <tr><th>Einstellung (jobs.json)</th><th>Standard</th><th>Bedeutung</th></tr>
 <tr><td><code>settings.offersPerDay</code> / <code>maxPerDay</code></td><td>4 / 4</td><td>Aufträge am Brett / höchstens erledigte pro Tag</td></tr>
 <tr><td><code>settings.arriveRadius</code> / <code>arriveKmh</code></td><td>25 / 8</td><td>Im Ziel: so nah (m) und so langsam (km/h)</td></tr>
-<tr><td><code>settings.photoRadius</code> / <code>photoWindowHours</code></td><td>60 / 2</td><td>Fotojob: so nah an der PA, Fenster so viele Stunden</td></tr>
-<tr><td><code>settings.tipPriceWanderer</code> / <code>tipPriceBoss</code></td><td>15000 / 40000</td><td>Preis eines Tipps</td></tr>
+<tr><td><code>settings.photoRadius</code> / <code>photoWindowHours</code></td><td>60 / 2</td><td>Fotojob ohne Foto-Spots: so nah an der PA, Fenster so viele Stunden</td></tr>
+<tr><td><code>settings.photoSpotRadius</code> / <code>photoStopKmh</code></td><td>7 / 2</td><td>Foto-Spot: so nah (m) und so langsam (km/h) muss das Auto stehen</td></tr>
+<tr><td><code>settings.pickup</code> / <code>pickupMaxDistance</code></td><td>true / 2500</td><td>Erst abholen; Abholpunkt höchstens so weit (m) von der Garage</td></tr>
+<tr><td><code>settings.markers</code> / <code>navRoute</code></td><td>true / true</td><td>Bodenmarkierung und Navi-Route zum aktuellen Ziel</td></tr>
+<tr><td><code>settings.tipPriceWanderer</code> / <code>tipPriceBoss</code> / <code>tipRankFactor</code></td><td>250000 / 750000 / 0.1</td><td>Preis eines Tipps, +10 % pro Rangstufe</td></tr>
 <tr><td><code>types.&lt;art&gt;</code></td><td></td><td><code>payBase</code> (Yen), <code>payPerKm</code>, <code>secondsPerKm</code> (Luftlinie), <code>minSeconds</code>, <code>damageFactor</code>, <code>failDamageYen</code>, <code>weight</code> (wie oft), <code>speaker</code> (Auftraggeber aus chat.json)</td></tr>
 <tr><td><code>cargo</code> / <code>photoSubjects</code></td><td></td><td>Ladungen je Art und Fotomotive (Titel und Text, DE und EN)</td></tr>
 </table>
@@ -1091,9 +1098,10 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <section id="verkaufen">
 <h2><span class="n">12e</span> Teile ausbauen, verkaufen, Autos verkaufen, Game Over <span class="tag">shop.lua</span> <span class="tag">dealer.lua</span></h2>
 <ul>
-<li><b>Ausbauen:</b> Am Garagen-PC gibt es jetzt bei fast jedem Slot „Nicht verbaut“, auch bei Serienteilen. Ausgenommen sind Pflicht-Slots, ohne die BeamNG das Auto nicht baut (in der jbeam als <code>coreSlot</code> markiert). Abschalten: <code>"allowRemove": false</code> in <span class="path">data\tuning.json</span>. Achtung: Ohne Räder oder Motor fährt das Auto natürlich nicht mehr, einbauen geht in der Garage jederzeit wieder.</li>
-<li><b>Teile verkaufen:</b> Garagen-PC, Reiter Teilelager. Jedes nicht verbaute Teil hat „Verkaufen · Preis“. Erst klicken, dann „Wirklich?“ nochmal klicken. Preis = <code>sellFactor</code> (0.4) × Ladenpreis. Verkaufte Serienteile gibt es im Shop wieder zu kaufen.</li>
-<li><b>Autos verkaufen:</b> Garage, Liste „Deine Autos“: jedes Auto außer dem aktiven hat „Verkaufen · Preis“ (zweimal klicken). Preis = <code>sellFactor</code> (0.5 in <span class="path">data\dealer.json</span>) × Wert. Wert = Kaufpreis beim Händler (ab Alpha 0.8 gemerkt), sonst der BeamNG-Wert der Config. Teile im Lager dieses Autos gehen mit.</li>
+<li><b>Ausbauen:</b> Am Garagen-PC gibt es jetzt bei fast jedem Slot „Ausgebaut“, auch bei Serienteilen. Ausgenommen sind Pflicht-Slots, ohne die BeamNG das Auto nicht baut (in der jbeam als <code>coreSlot</code> markiert). Abschalten: <code>"allowRemove": false</code> in <span class="path">data\tuning.json</span>. Achtung: Ohne Räder oder Motor fährt das Auto natürlich nicht mehr, einbauen geht in der Garage jederzeit wieder.</li>
+<li><b>Teile verkaufen:</b> Garagen-PC, Reiter Teilelager. Jedes ausgebaute Teil hat „Verkaufen · Preis“. Erst klicken, dann „Wirklich?“ nochmal klicken. Preis = <code>sellFactor</code> (0.4) × Ladenpreis. Verkaufte Serienteile gibt es im Shop wieder zu kaufen.</li>
+<li><b>Autos verkaufen:</b> Garage, Liste „Deine Autos“: jedes Auto außer dem aktiven hat „Verkaufen · Preis“ (zweimal klicken). Preis = (<code>sellFactor</code> 0.5 × Wagenwert + <code>sell.partsFactor</code> 0.3 × Kaufpreis aller gekauften Teile) × Zustand × Kilometer. Wagenwert = Kaufpreis beim Händler (ab Alpha 0.8 gemerkt), sonst der BeamNG-Wert der Config. Zustand: Mittel aus Haltbarkeit und Optik aller Teile, kaputtes Auto = Faktor <code>conditionMin</code> 0.5, neuwertig = 1. Kilometer: je 10.000 km seit dem Kauf 5 % weniger (<code>lossPer10000Km</code>), nie unter <code>kmMin</code> 0.6. Alles in <span class="path">data\dealer.json</span> unter <code>sell</code>. Teile zählen erst ab Alpha 0.9.1 (vorher gekaufte nicht). Teile im Lager dieses Autos gehen mit.</li>
+<li><b>Autos kaufen in der Garage:</b> Reiter Service, Menüpunkt Autohändler. Du musst dafür nicht mehr aus der Bucht fahren.</li>
 <li><b>Kein Auto mehr</b> (letztes Auto im Pink Slip verloren, nur mit <code>requireSpareCar</code> false möglich): Du stehst zu Fuß an der Garage. Reicht dein Geld für das billigste heutige Angebot beim Händler, steht im Menü „Kauf dir beim Autohändler ein neues“. Das gekaufte Auto steht gleich in der Garage.</li>
 <li><b>Game Over:</b> Reicht das Geld nicht, ist die Karriere vorbei. Der Bildschirm zeigt Rang, Tage, Bilanz und Geld, dann „Neue Karriere“. Abschalten: <code>"gameOver": false</code> in <span class="path">data\dealer.json</span>.</li>
 </ul>
@@ -1152,7 +1160,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <p><code>events</code> ordnet einem Namen einen BeamNG-Sound zu, <code>messages</code> spielt beim Anzeigen einer Meldung einen Sound.</p>
 <pre><code>"events":   {"buy": "event:>UI>Career>Buy_01", ...},
 "messages": {"msg.carBought": "buy", "msg.noMoney": "denied", ...}</code></pre>
-<p>Eigene Sounds später: Pfad zu einer .ogg-Datei statt des <code>event:</code>-Namens eintragen.</p>
+<p>Eigene Sounds: Pfad zu einer .ogg-Datei statt des <code>event:</code>-Namens eintragen. Erstes Beispiel (Alpha 0.9.1): <code>"photo": "/art/sound/hashiriya/sfx/photo.ogg"</code>, der Kamera-Verschluss beim Fotojob (erzeugt mit <span class="path">tools\audio\sfx.py photo</span>). <code>jobPickup</code> = Ware abgeholt.</p>
 <h3>Musik im Spiel <span class="tag">data\music.json</span> <span class="tag">music.lua</span></h3>
 <p>Die Mod spielt je nach Situation eine eigene Playlist. Die Dateien (OGG) liegen in <span class="path">art\sound\hashiriya\music\</span>.</p>
 <table>
@@ -1565,6 +1573,31 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
 <details class="cl">
+<summary><b>Alpha 0.9.1</b> <small>Stand 02.11.2026</small></summary>
+<div>
+<h4>Nebenjobs</h4>
+<ul>
+<li>Kurier, Express und Zerbrechlich: Die Ware wird erst abgeholt, dann geliefert. Die Zeit läuft ab dem Abholen.</li>
+<li>Abholpunkt, Ziel und Foto-Spot haben eine Bodenmarkierung wie die Parkplätze (orange, beim Fotojob grün). Dazu kommt eine Navi-Route auf der Minimap.</li>
+<li>Fotojob: Mit eigenen Foto-Spots stellst du das Auto genau dort ab. Beim Foto gibt es einen Verschluss-Sound und einen kurzen Blitz.</li>
+<li>Tipps: Es gibt nur noch Tipps zu Wanderern und Bossen, die du vom Fortschritt her schon treffen kannst. Sie sind viel teurer (ab 250.000 Yen, Bosse ab 750.000 Yen, je Rang 10 % mehr). Danach schickt Genzō dir den Hinweis als Handy-Nachricht.</li>
+</ul>
+<h4>Garage und Händler</h4>
+<ul>
+<li>In der Garage (Reiter Service) gibt es jetzt den Autohändler direkt im Menü.</li>
+<li>Der Verkaufspreis eines Autos hängt jetzt vom Wagenwert, den gekauften Teilen, dem Zustand und den gefahrenen Kilometern ab.</li>
+<li>„Nicht verbaut“ heißt jetzt „Ausgebaut“.</li>
+</ul>
+<h4>Story und PAs</h4>
+<ul>
+<li>Die Kapitelkarte wartet, bis das Battle und der Spruch des Gegners vorbei sind.</li>
+<li>Genzō hat jetzt ein Porträt.</li>
+<li>Dev-Menü, Orte: neue Typen „PA-Fahrer-Stehplatz“ und „Foto-Spot“. Gemerkte Stehplätze nutzen die PA-Fahrer statt zufälliger Plätze (kein Stehen mehr in Autos).</li>
+<li>Fahrer an den PAs können eine feste eigene Config bekommen (chat.json, cars[].config).</li>
+</ul>
+</div>
+</details>
+<details class="cl">
 <summary><b>Alpha 0.9</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <h4>Neu: Fahrcharakter der Rivalen</h4>
@@ -1594,7 +1627,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <div>
 <h4>Neu: Teile ausbauen und verkaufen</h4>
 <ul>
-<li>Am Garagen-PC kannst du jetzt fast jedes Teil ausbauen („Nicht verbaut“), auch Serienteile. Nur Pflicht-Teile, ohne die das Auto nicht existiert, bleiben drin.</li>
+<li>Am Garagen-PC kannst du jetzt fast jedes Teil ausbauen („Ausgebaut“), auch Serienteile. Nur Pflicht-Teile, ohne die das Auto nicht existiert, bleiben drin.</li>
 <li>Im Teilelager hat jedes nicht verbaute Teil einen Knopf „Verkaufen“ mit Preis. Zweimal klicken, dann ist es weg. Ein Teil bringt 40 % seines Preises.</li>
 <li>Verkaufte Serienteile kannst du im Shop wieder kaufen.</li>
 </ul>
@@ -1946,7 +1979,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </ol>
 <table>
 <tr><th>Teil</th><th>Was er macht</th></tr>
-<tr><td>Typen</td><td>Garage / HQ, Zuhause, Parkplatz (PA), Shop (allgemein), Mechaniker, Lackierer, Bodyshop, Tankstelle, Wanderer-Wartepunkt, Polizei / Messstelle, Auffahrt, Ausfahrt, Map-Wechsel, Spawnpunkt, Showroom, Sonstiges</td></tr>
+<tr><td>Typen</td><td>Garage / HQ, Zuhause, Parkplatz (PA), Shop (allgemein), Mechaniker, Lackierer, Bodyshop, Tankstelle, Wanderer-Wartepunkt, Nebenjob-Ziel, PA-Fahrer-Stehplatz (Fahrer an den PAs stehen dort, wirkt sofort), Foto-Spot (Ziel der Fotojobs, wirkt sofort), Polizei / Messstelle, Auffahrt, Ausfahrt, Map-Wechsel, Spawnpunkt, Showroom, Sonstiges</td></tr>
 <tr><td>Liste</td><td>Alle Orte der Map: die aus der Kartendatei (<code>c1.json</code>, orange Linie links, „Kartendatei“) und deine eigenen. Mit Typ, Entfernung zu dir und Notiz. Suchfeld und Typ-Filter oben, „Nach Nähe“ sortiert die nächsten nach oben.</td></tr>
 <tr><td>Hin</td><td>Teleportiert dich hin (Auto oder zu Fuß, Schaden bleibt). Mit aktiver Freecam fliegt auch die Kamera mit.</td></tr>
 <tr><td>Bearb.</td><td>Name, Typ und Notiz ändern, <b>Auf aktuelle Stelle setzen</b> (Ort neu setzen) oder <b>Löschen</b> (zweimal klicken). Ganz unten stehen die Koordinaten. Bei Orten aus der Kartendatei lässt sich nur der Anzeigename ändern; die Kartendatei bleibt, wie sie ist.</td></tr>

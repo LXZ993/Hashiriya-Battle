@@ -1,5 +1,5 @@
 {
-  "_hinweis": "Platzhalter-Sounds aus BeamNG (FMOD-Events, kein Download nötig). events = Name -> BeamNG-Event; eigene Sounds später hier eintragen (z. B. Pfad zu einer .ogg). messages = Meldung -> Sound-Name, wird beim Anzeigen der Meldung abgespielt.",
+  "_hinweis": "Platzhalter-Sounds aus BeamNG (FMOD-Events, kein Download nötig). events = Name -> BeamNG-Event; eigene Sounds hier eintragen (Pfad zu einer .ogg, z. B. photo = Kamera-Verschluss beim Fotojob aus tools/audio/sfx.py). messages = Meldung -> Sound-Name, wird beim Anzeigen der Meldung abgespielt.",
   "events": {
     "click": "event:>UI>Main>click_01",
     "hover": "event:>UI>Main>hover_01",
@@ -26,7 +26,9 @@
     "comboBank": "event:>UI>Career>EndScreen_Receive_Money",
     "unlock": "event:>UI>Career>Progress_LevelUp",
     "talk": "event:>UI>Missions>Info_Open",
-    "talkHint": "event:>UI>Career>Progress_LevelUp"
+    "talkHint": "event:>UI>Career>Progress_LevelUp",
+    "photo": "/art/sound/hashiriya/sfx/photo.ogg",
+    "jobPickup": "event:>UI>Career>Buy_01"
   },
   "messages": {
     "msg.partInstalled": "buy",

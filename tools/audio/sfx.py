@@ -272,12 +272,23 @@ def s_levelup():  # Rang / Stufe aufgestiegen
     return delay(mix(*parts, pad), 0.14, fb=0.3, mix=0.2)
 
 
+def s_photo():  # Fotojob: Kamera-Verschluss - zwei kurze mechanische Klacks (Spiegel hoch/runter) + leises Aufziehen
+    def clack(dur, cut_lo, cut_hi, tau, vol):
+        x = highpass(lowpass(noise(dur), cut_hi), cut_lo) * expdecay(dur, tau)
+        body = tone(note(40), dur, 'tri', d=0.02, vol=0.35) * expdecay(dur, tau * 0.8)
+        return (x + body) * vol
+    first = clack(0.05, 900, 7000, 0.006, 1.0)
+    second = clack(0.06, 600, 5000, 0.009, 0.8)
+    wind = highpass(lowpass(noise(0.16), 3500), 1200) * env(0.16, a=0.03, d=0.1, s=0.0, r=0.03) * 0.18
+    return finish(mix(at(first, 0.0), at(second, 0.075), at(wind, 0.15)), peak_db=-3.0)
+
+
 SOUNDS = {
     'click': s_click, 'hover': s_hover, 'back': s_back, 'tab': s_tab, 'denied': s_denied,
     'challenge': s_challenge, 'countdown': s_countdown, 'go': s_go,
     'sp_hit': s_sp_hit, 'sp_low': s_sp_low, 'win': s_win, 'lose': s_lose,
     'info': s_info, 'unlock': s_unlock, 'buy': s_buy, 'money': s_money,
-    'terminal': s_terminal, 'talk': s_talk, 'levelUp': s_levelup,
+    'terminal': s_terminal, 'talk': s_talk, 'levelUp': s_levelup, 'photo': s_photo,
 }
 
 
