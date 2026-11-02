@@ -670,5 +670,20 @@
   "jobs.photoEarly": "Zu früh. Die Fotografin kommt erst um %s.",
   "jobs.photoMissed": "Das Zeitfenster für die Fotos ist vorbei.",
   "jobs.damageHud": "Schaden",
-  "jobs.state.missed": "Verpasst"
+  "jobs.state.missed": "Verpasst",
+  "term.sell": "Verkaufen",
+  "term.sellConfirm": "Wirklich?",
+  "msg.partSold": "%s verkauft für %s",
+  "msg.sellCart": "Erst den Warenkorb leeren.",
+  "msg.sellInstalled": "Das Teil ist verbaut. Erst ausbauen, dann verkaufen.",
+  "garage.sell": "Verkaufen",
+  "garage.sellConfirm": "Wirklich?",
+  "garage.sellNote": "Verkaufte Autos nehmen ihre Teile im Lager mit.",
+  "msg.carSold": "%s verkauft für %s",
+  "msg.sellActiveCar": "Das Auto, das du gerade fährst, kannst du nicht verkaufen.",
+  "msg.noCarDealer": "Du hast kein Auto mehr. Kauf dir beim Autohändler ein neues (Menü).",
+  "gameOver.text": "Kein Auto und nicht genug Geld für ein gebrauchtes. Deine Zeit auf dem Ring ist vorbei.",
+  "gameOver.rank": "Rang",
+  "gameOver.days": "Tage",
+  "gameOver.new": "Neue Karriere"
 }

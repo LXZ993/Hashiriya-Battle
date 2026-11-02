@@ -37,6 +37,7 @@ angular.module('beamng.apps')
               '<div class="hbm-fuelbar hbm-repbar"><i ng-style="{width: s.progress.progress + \'%\'}"></i></div>' +
               '<div class="hbm-rank-sub">{{ s.t[\'rank.rep\'] }} {{ s.progress.rep }}<span ng-if="s.progress.next"> · {{ s.t[\'rank.next\'] }}: {{ s.progress.next }} ({{ s.progress.repNext }})</span></div>' +
             '</div>' +
+            '<div class="hbm-note hbm-warn" ng-if="s.noCar">{{ s.t[\'msg.noCarDealer\'] }}</div>' +
             '<div class="hbm-goal" ng-if="s.storyGoal"><span class="hbm-label">{{ s.storyGoal.chapter }} · {{ s.storyGoal.title }}</span><b>{{ s.storyGoal.text }}</b></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.night ? s.t[\'menu.night\'] : s.t[\'menu.dayTime\'] }}</span><b>{{ s.day }}</b></div>' +
             '<div class="hbm-stat" ng-if="s.battlesLeft != null"><span class="hbm-label">{{ s.t[\'menu.battlesLeft\'] }}</span><b>{{ s.battlesLeft }}</b></div>' +
@@ -74,9 +75,13 @@ angular.module('beamng.apps')
               '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
               '<div class="hbm-item" ng-click="act(\'jobs\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i><span class="hbm-car-name">{{ s.t[\'jobs.menu\'] }}</span><span class="hbm-price" ng-if="s.job">{{ s.t[\'jobs.running\'] }}</span></div>' +
               '<div ng-if="s.garageCars.length > 1">' +
+                '<div class="hbm-note">{{ s.t[\'garage.sellNote\'] }}</div>' +
                 '<div class="hbm-section"><i class="hbm-ico hbm-ico-s" ng-bind-html="ico(\'cars\')"></i>{{ s.t[\'garage.cars\'] }}</div>' +
                 '<div class="hbm-item hbm-sub" ng-repeat="gc in s.garageCars track by gc.index" ng-class="{\'hbm-off\': gc.active}" ng-click="!gc.active && act(\'switchCar\', gc.index)"><i class="hbm-ico" ng-bind-html="ico(\'carsChange\')"></i>' +
-                  '<span class="hbm-car-name">{{ gc.name }}</span><span class="hbm-price">{{ gc.active ? s.t[\'garage.active\'] : gc.plate }}</span></div>' +
+                  '<span class="hbm-car-name">{{ gc.name }}</span><span class="hbm-price">{{ gc.active ? s.t[\'garage.active\'] : gc.plate }}</span>' +
+                  // Alpha 0.8: Auto verkaufen (zweimal klicken)
+                  '<span class="hbm-sell" ng-if="gc.sell" ng-class="{\'is-armed\': sellCarArm === gc.index}" ng-click="$event.stopPropagation(); sellCar(gc)">' +
+                    '{{ sellCarArm === gc.index ? s.t[\'garage.sellConfirm\'] : s.t[\'garage.sell\'] }} · {{ gc.sell }}</span></div>' +
               '</div>' +
               '<div class="hbm-section"><i class="hbm-ico hbm-ico-s" ng-bind-html="ico(\'rename\')"></i>{{ s.t[\'garage.plate\'] }}</div>' +
               '<div class="hbm-plate">' +
@@ -221,6 +226,18 @@ angular.module('beamng.apps')
               '<div class="hbm-item hbm-off"><i class="hbm-ico" ng-bind-html="ico(\'fastTravel\')"></i>{{ s.t[\'home.travel\'] }}</div>' +
               '<div class="hbm-note">{{ s.t[\'home.travelSoon\'] }}</div>' +
             '</div>' +
+          '</div>' +
+
+          // Game Over (Alpha 0.8) ------------------------------------------------------------
+          '<div class="hbm-body hbm-gameover" ng-if="s.screen == \'gameOver\' && s.gameOver">' +
+            '<div class="hbm-go-title">GAME OVER</div>' +
+            '<div class="hbm-go-sub">{{ s.t[\'gameOver.text\'] }}</div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gameOver.rank\'] }}</span><b>{{ s.gameOver.rank }}</b></div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gameOver.days\'] }}</span><b>{{ s.gameOver.days }}</b></div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.record\'] }}</span><b>{{ s.gameOver.wins }} <i>/</i> {{ s.gameOver.losses }}</b></div>' +
+            '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><b>{{ s.gameOver.money }}</b></div>' +
+            '<div class="hbm-item" ng-click="act(\'gameOverNew\')"><i class="hbm-ico" ng-bind-html="ico(\'playRound\')"></i>{{ s.t[\'gameOver.new\'] }}</div>' +
+            '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
           '</div>' +
 
           // Jobbrett (Alpha 0.7): Nebenjobs am Tag und Tipps ------------------------------------
@@ -379,6 +396,14 @@ angular.module('beamng.apps')
           '.hbm-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
           '.hbm-money{padding:8px 18px 6px;}' +
           '.hbm-yen{display:block;font-size:28px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;color:var(--w);}' +
+          '.hbm-sell{margin-left:8px;padding:1px 7px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;' +
+            'border:1px solid rgba(255,255,255,.3);color:rgba(244,244,244,.8);cursor:pointer;}' +
+          '.hbm-sell:hover{border-color:#ff9a3c;color:#ff9a3c;}' +
+          '.hbm-sell.is-armed{background:#c0392b;border-color:#e74c3c;color:#fff;}' +
+          '.hbm-warn{color:#ff8a7a;}' +
+          '.hbm-gameover{text-align:center;}' +
+          '.hbm-go-title{margin:18px 0 4px;font-size:34px;font-weight:900;font-style:italic;letter-spacing:4px;color:#e2453c;}' +
+          '.hbm-go-sub{margin:0 18px 12px;font-size:12px;color:rgba(244,244,244,.7);}' +
           '.hbm-job{margin:3px 12px;padding:7px 10px;border-left:3px solid #ff6600;background:rgba(255,255,255,.04);cursor:pointer;}' +
           '.hbm-job:hover{background:rgba(255,102,0,.12);}' +
           '.hbm-job.hbm-off{cursor:default;opacity:.55;}' +
@@ -771,6 +796,13 @@ angular.module('beamng.apps')
         var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
           (scope.open && scope.open.slot)
         return sub ? t['menu.back'] : t['menu.hide']
+      }
+
+      scope.sellCarArm = null
+      scope.sellCar = function (gc) {
+        if (scope.sellCarArm !== gc.index) { scope.sellCarArm = gc.index; return }
+        scope.sellCarArm = null
+        scope.act('sellCar', gc.index)
       }
 
       scope.act = function (action, arg) {

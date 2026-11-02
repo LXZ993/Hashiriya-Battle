@@ -614,5 +614,20 @@
   "jobs.photoEarly": "Too early. The photographer only arrives at %s.",
   "jobs.photoMissed": "The photo window is over.",
   "jobs.damageHud": "Damage",
-  "jobs.state.missed": "Missed"
+  "jobs.state.missed": "Missed",
+  "term.sell": "Sell",
+  "term.sellConfirm": "Sure?",
+  "msg.partSold": "%s sold for %s",
+  "msg.sellCart": "Empty the cart first.",
+  "msg.sellInstalled": "That part is installed. Remove it first, then sell it.",
+  "garage.sell": "Sell",
+  "garage.sellConfirm": "Sure?",
+  "garage.sellNote": "Sold cars take their stored parts with them.",
+  "msg.carSold": "%s sold for %s",
+  "msg.sellActiveCar": "You can't sell the car you're driving.",
+  "msg.noCarDealer": "You have no car left. Buy a new one at the car dealer (menu).",
+  "gameOver.text": "No car and not enough money for a used one. Your time on the loop is over.",
+  "gameOver.rank": "Rank",
+  "gameOver.days": "Days",
+  "gameOver.new": "New career"
 }

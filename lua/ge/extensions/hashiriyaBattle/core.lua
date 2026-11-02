@@ -454,7 +454,15 @@ function M.continueCareer()
   extensions.hashiriyaBattle_condition.syncStarterWear(M.save)
   pcall(function() extensions.hashiriyaBattle_story.reset() end)
   local car = M.save.cars[M.save.activeCar or 1]
-  if not car then return end
+  if not car then
+    -- Alpha 0.8: Spielstand ohne Auto (Pink Slip verloren): zu Fuß an der Garage, Händler oder Game Over
+    M.active = true
+    showMenu = false
+    extensions.hashiriyaBattle_home.applyClock(M.save.hour or extensions.hashiriyaBattle_home.world().startHour)
+    M.goOnFoot(nil)
+    extensions.hashiriyaBattle_dealer.checkNoCar()
+    return
+  end
   local opts = { config = plateConfig(car), licenseText = car.plate, autoEnterVehicle = false }
   local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
   if pos then opts.pos, opts.rot = pos, rot end
@@ -802,7 +810,14 @@ local function buildUiState()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
     if st.night and left then st.battlesLeft = left end
     st.job = extensions.hashiriyaBattle_jobs.getHudState()
-    if showJobs then
+    st.noCar = M.save.noCar and #M.save.cars == 0 or nil
+    if M.save.gameOver then
+      -- Alpha 0.8: Karriere vorbei (kein Auto, kein Geld)
+      st.screen = 'gameOver'
+      st.menuVisible = true
+      st.gameOver = { days = M.save.day or 1, wins = M.save.wins or 0, losses = M.save.losses or 0, money = eco.formatYen(M.save.money or 0),
+        rank = extensions.hashiriyaBattle_progress.rankName(M.save) }
+    elseif showJobs then
       st.screen = 'jobs'
       st.jobs = extensions.hashiriyaBattle_jobs.getUiState()
     elseif showLexicon then
@@ -1046,6 +1061,17 @@ function M.uiAction(action, arg)
     local area = arrivedArea()
     if slot and area and area.type == 'shop' then extensions.hashiriyaBattle_shop.select(slot, part) end
     if slot and area and area.type == 'garage' then extensions.hashiriyaBattle_shop.buy(slot, part, true) end
+  elseif action == 'sellPart' then
+    -- Alpha 0.8: Teil aus dem Lager verkaufen (Garagen-PC)
+    local slot, part = tostring(arg or ''):match('^([^|]+)|(.*)$')
+    local area = arrivedArea()
+    if slot and area and area.type == 'garage' then extensions.hashiriyaBattle_shop.sellPart(slot, part) end
+  elseif action == 'sellCar' then
+    local area = arrivedArea()
+    if area and area.type == 'garage' then extensions.hashiriyaBattle_dealer.sellCar(tonumber(arg)) end
+  elseif action == 'gameOverNew' then
+    extensions.hashiriyaBattle_dealer.clearGameOver()
+    extensions.hashiriyaBattle_career.openTitle()
   elseif action == 'buyPaint' then
     local area = arrivedArea()
     if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.selectPaint(tostring(arg)) end
