@@ -8,6 +8,11 @@
 - Wer keinen festen Stil hat, bekommt einen passend zu seiner Aggression. Bosse sind nie von selbst Rempler.
 - Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst.
 
+### Neu: Musik steuern
+- Musik überspringen: Taste Ende oder im Hashiriya-Menü unter Werkzeuge. Dort steht auch, welches Stück gerade läuft.
+- Für jedes Stück lässt sich festlegen, wann es kommt: Uhrzeit, Gegnerart (normal, Leader, Wanderer, Boss), Pink Slip, Rang, Parkplatz oder Karte (data/music.json, siehe Handbuch).
+- Im Titelbildschirm ist der Verkehr jetzt leise, damit die Titelmusik zu hören ist.
+
 ### Fehler behoben
 - Die Musik war stumm. Sie läuft jetzt über BeamNGs eigenen Musik-Kanal.
 - Die BeamNG-Hauptmenü-Musik ist aus, sobald du Hashiriya Battle startest. Zurück im normalen Hauptmenü läuft sie wieder.

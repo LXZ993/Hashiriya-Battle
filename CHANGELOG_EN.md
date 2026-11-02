@@ -8,6 +8,11 @@
 - Rivals without a fixed style get one that matches their aggression. Bosses are never rammers on their own.
 - The style is shown in the rival lexicon once you know the rival.
 
+### New: Music controls
+- Skip music: End key or in the Hashiriya menu under Tools. It also shows which track is playing.
+- Each track can be limited to certain situations: time of day, rival type (normal, leader, wanderer, boss), pink slip, rank, parking area or map (data/music.json, see handbook).
+- Traffic is now quiet on the title screen so the title music can be heard.
+
 ### Bug fixes
 - The music was silent. It now plays through BeamNG's own music channel.
 - BeamNG's main menu music stops as soon as you start Hashiriya Battle and comes back in the regular main menu.

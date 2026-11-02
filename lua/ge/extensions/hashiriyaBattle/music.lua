@@ -61,6 +61,32 @@ local function pauseMenuMusic(on)
 end
 M.pauseMenuMusic = pauseMenuMusic
 
+-- Fahrzeug-Geräusche (Verkehr) im Titelbildschirm leiser ----------------------------
+-- Nur zur Laufzeit über Engine.Audio.setChannelVolume, die gespeicherten BeamNG-Einstellungen bleiben unberührt.
+local duckChannels = { 'AudioChannelPower', 'AudioChannelForcedInduction', 'AudioChannelTransmission',
+  'AudioChannelSuspension', 'AudioChannelSurface', 'AudioChannelAero', 'AudioChannelCollision' }
+local duck = 1        -- aktueller Faktor (1 = normal)
+local duckTarget = 1
+
+local function savedChannelVolume(ch)
+  local ok, v = pcall(function() return VariableRegistry.get('$pref::SFX::' .. ch) end)
+  v = ok and tonumber(v) or nil
+  return v or 1
+end
+
+local function applyDuck()
+  for _, ch in ipairs(duckChannels) do
+    pcall(Engine.Audio.setChannelVolume, ch, savedChannelVolume(ch) * duck)
+  end
+end
+
+local function updateDuck(dt)
+  if duck == duckTarget then return end
+  local speed = dt / 1.5 -- 1,5 s Übergang
+  if duck < duckTarget then duck = math.min(duckTarget, duck + speed) else duck = math.max(duckTarget, duck - speed) end
+  applyDuck()
+end
+
 -- Audio-Quellen -----------------------------------------------------------------
 local function sourceObj(id) return id and scenetree.findObjectById(id) or nil end
 
@@ -105,16 +131,90 @@ local function fadeOutCurrent()
   end
 end
 
+-- Bedingungen pro Stück (music.json tracks.<datei>.when) ---------------------------
+local function hourIn(h, range)
+  local a, b = range[1] or 0, range[2] or 24
+  if a <= b then return h >= a and h < b end
+  return h >= a or h < b -- über Mitternacht, z. B. [22, 4]
+end
+
+local function inList(v, list)
+  if type(list) ~= 'table' then return list == v end
+  for _, x in ipairs(list) do if x == v then return true end end
+  return false
+end
+
+-- Art des Gegners im Battle: normal, leader, wanderer, boss
+local function rivalKind()
+  local r = extensions.hashiriyaBattle_rivals
+  local e = r and r.getActiveRival and r.getActiveRival()
+  local d = e and e.data
+  if not d then return nil end
+  if d.boss then return 'boss' end
+  if d.wanderer then return 'wanderer' end
+  if d.leader then return 'leader' end
+  return 'normal'
+end
+
+local function trackAllowed(file)
+  local t = (cfg().tracks or {})[file]
+  local w = t and t.when
+  if type(w) ~= 'table' then return true end
+  local home = extensions.hashiriyaBattle_home
+  if w.hours then
+    local h = home and home.hour()
+    if h and not hourIn(h, w.hours) then return false end
+  end
+  if w.rival then
+    local k = rivalKind()
+    if not k or not inList(k, w.rival) then return false end
+  end
+  if w.pinkSlip ~= nil then
+    local b = extensions.hashiriyaBattle_battle
+    local hud = b and b.getHudState and b.getHudState()
+    if (hud and hud.pinkSlip and true or false) ~= w.pinkSlip then return false end
+  end
+  if w.minRank or w.maxRank then
+    local pr = extensions.hashiriyaBattle_progress
+    local idx = pr and pr.rankIndex() or 0
+    if w.minRank and idx < w.minRank then return false end
+    if w.maxRank and idx > w.maxRank then return false end
+  end
+  if w.area then
+    local parking = extensions.hashiriyaBattle_parking
+    local area = parking and parking.isArrived() and parking.getCurrent()
+    if not area or not inList(area.type, w.area) then return false end
+  end
+  if w.level then
+    local lvl = core() and core().levelName
+    if not inList(lvl, w.level) then return false end
+  end
+  return true
+end
+
+local function pathOf(file) return file and filePath(file) or nil end
+
 local function nextTrack()
   if introPending then
-    local p = introPending
+    local f = introPending
     introPending = nil
-    cur = startFile(p, #playlist == 0)
-    if cur then return end
+    if trackAllowed(f) and pathOf(f) then
+      cur = startFile(pathOf(f), #playlist == 0)
+      if cur then return end
+    end
   end
   if #playlist == 0 then return end
-  plIndex = plIndex % #playlist + 1
-  cur = startFile(playlist[plIndex], #playlist == 1)
+  -- nächstes Stück, dessen Bedingungen gerade passen; passt keins, ganz normal reihum
+  local pick = nil
+  for k = 1, #playlist do
+    local i = (plIndex + k - 1) % #playlist + 1
+    if trackAllowed(playlist[i]) then pick = i break end
+  end
+  if not pick then pick = plIndex % #playlist + 1 end
+  plIndex = pick
+  local allowedCount = 0
+  for _, f in ipairs(playlist) do if trackAllowed(f) then allowedCount = allowedCount + 1 end end
+  cur = startFile(pathOf(playlist[pick]), #playlist == 1 or allowedCount == 1)
 end
 
 -- Welche Situation gerade ist ---------------------------------------------------
@@ -149,15 +249,38 @@ local function switchTo(ctx)
   playlist, plIndex, introPending = {}, 0, nil
   local def = (cfg().contexts or {})[ctx]
   if ctx ~= 'off' and def then
-    introPending = def.intro and filePath(def.intro) or nil
+    introPending = (def.intro and filePath(def.intro)) and def.intro or nil
     local list = def.shuffle and shuffled(def.tracks or {}) or (def.tracks or {})
     for _, f in ipairs(list) do
-      local p = filePath(f)
-      if p then table.insert(playlist, p) else log('W', logTag, 'Musikdatei fehlt: ' .. f) end
+      if filePath(f) then table.insert(playlist, f) else log('W', logTag, 'Musikdatei fehlt: ' .. f) end
     end
     nextTrack()
   end
   log('I', logTag, 'Musik: ' .. ctx .. ' (' .. #playlist .. ' Stücke)')
+end
+
+-- Überspringen (Menü-Knopf, Taste): aktuelles Stück schnell ausblenden, nächstes passendes starten
+function M.skip()
+  if not context or context == 'off' then return end
+  introPending = nil
+  if cur then
+    local s = cur
+    cur = nil
+    s.fast = true
+    table.insert(fading, s)
+  end
+  nextTrack()
+  if cur then cur.vol = cur.target * 0.5; setVol(cur, cur.vol) end
+end
+
+-- Für das Menü: Titel und Künstler des laufenden Stücks
+function M.nowPlaying()
+  if not cur or not context or context == 'off' then return nil end
+  local file = cur.file:match('([^/]+)$')
+  local t = (cfg().tracks or {})[file] or {}
+  local artist = t.artist
+  if artist and artist:match('^%[') then artist = nil end
+  return { title = t.title or file, artist = artist }
 end
 
 function M.stop()
@@ -173,7 +296,7 @@ local function updatePlayback(dt)
   -- ausblenden
   for i = #fading, 1, -1 do
     local s = fading[i]
-    s.vol = s.vol - step
+    s.vol = s.vol - (s.fast and step * 4 or step)
     if s.vol <= 0 then
       destroy(s)
       table.remove(fading, i)
@@ -207,6 +330,7 @@ end
 
 local function onUpdate(dtReal)
   updatePlayback(dtReal)
+  updateDuck(dtReal)
   checkTimer = checkTimer - dtReal
   if checkTimer > 0 then return end
   checkTimer = 0.25
@@ -222,6 +346,8 @@ local function onUpdate(dtReal)
     end
     pendingCtx = nil
     switchTo(ctx)
+    local t = (cfg().trafficVolumeInTitle or 0)
+    duckTarget = (ctx == 'title') and math.max(0, math.min(1, t)) or 1
   else
     pendingCtx = nil
   end
@@ -254,6 +380,7 @@ local function onClientEndMission()
   context = nil
   playlist, plIndex, introPending = {}, 0, nil
   pauseMenuMusic(false)
+  if duck ~= 1 then duck, duckTarget = 1, 1; applyDuck() end
 end
 
 local function onExtensionUnloaded() onClientEndMission() end
