@@ -1,0 +1,4010 @@
+{
+  "_hinweis": "PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader (wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet. fact = Wissen über Japan, Tokio, den Shutoko und die Szene (topic = Thema fürs Label, map = nur auf dieser Karte, place = nur an PAs, deren Name das enthält, text = erster Satz, lines = weitere Sätze der Geschichte). more = Überleitung, wenn man jemanden nochmal anspricht und er noch Wissen hat. Neue Wissens-Texte am besten in tools/generator/lore.py eintragen.",
+  "pa": {
+    "_hinweis": "Fahrer an den PAs (napSpots der Kartendatei). nightCount/dayCount = wie viele Fahrer nachts/tagsüber (von, bis). spawnDistance = ab dieser Entfernung zur PA-Mitte erscheinen sie, despawnDistance = ab hier verschwinden sie wieder (m). spotRadius = in diesem Umkreis um die PA-Mitte werden Parkbuchten gesucht (m). talkDistance = so nah musst du zu Fuß ran (m), lookDistance = ab hier dreht sich der Fahrer zu dir. importantChance = Chance, dass ein Fahrer ein Gerücht oder einen Hinweis statt Smalltalk hat. secondLineChance = Chance auf einen zweiten Satz. rankSlack = so viele Ränge vor dem nötigen Rang hört man schon von Crews und Wanderern. heardWeight = Gewicht für Sätze, die man schon kennt (1 = normal, 0 = nie wieder). excludeConfigs = Configs mit diesen Wörtern parken nie an der PA. portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg). loreChance = Chance auf Wissen (fact) statt Smalltalk, wenn kein Gerücht kommt. ownTopicWeight/otherTopicWeight = Gewicht für Wissen der eigenen Figur bzw. anderer Figuren. placeWeight = Faktor für Wissen über genau diese PA. moreChance = Chance, beim zweiten Ansprechen noch Wissen zu bekommen statt \"Hab dir schon alles erzählt\". rivalNight/rivalDay = wie viele Rivalen und Wanderer pro PA nachts/tagsüber neben ihrem Auto stehen (von, bis). rivalWaitDistance/rivalWaitSpeed = so weit weg (m) und so schnell (km/h) musst du sein, bis der verabredete Rivale vor dir auftaucht. rivalWeightNew/rivalWeightBeaten/rivalWeightHolder = wie oft neue, geschlagene und Rivalen mit deinem Auto (Pink Slip) an der PA stehen.",
+    "nightCount": [
+      3,
+      6
+    ],
+    "dayCount": [
+      1,
+      2
+    ],
+    "spawnDistance": 230,
+    "despawnDistance": 330,
+    "spotRadius": 70,
+    "talkDistance": 2.8,
+    "lookDistance": 9,
+    "importantChance": 0.4,
+    "secondLineChance": 0.35,
+    "rankSlack": 1,
+    "heardWeight": 0.15,
+    "loreChance": 0.6,
+    "ownTopicWeight": 3,
+    "otherTopicWeight": 0.5,
+    "placeWeight": 3,
+    "moreChance": 0.5,
+    "rivalNight": [
+      0,
+      2
+    ],
+    "rivalDay": [
+      0,
+      0
+    ],
+    "rivalWaitDistance": 250,
+    "rivalWaitSpeed": 30,
+    "rivalWeightNew": 3,
+    "rivalWeightBeaten": 1,
+    "rivalWeightHolder": 6,
+    "portraitVariants": 3,
+    "excludeConfigs": [
+      "police",
+      "pursuit",
+      "interceptor",
+      "undercover",
+      "race",
+      "rally",
+      "drag",
+      "track",
+      "gymkhana",
+      "safety",
+      "baja",
+      "stunt",
+      "derby",
+      "prerunner",
+      "crawler",
+      "ambulance",
+      "fire"
+    ]
+  },
+  "speakers": [
+    {
+      "id": "fan",
+      "name": {
+        "de": "Ring-Fan",
+        "en": "Loop fan"
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 1,
+      "cars": [
+        {
+          "model": "sunburst2"
+        },
+        {
+          "model": "covet"
+        },
+        {
+          "model": "pessima"
+        }
+      ],
+      "color": [
+        0.9,
+        0.45,
+        0.1
+      ],
+      "look": [
+        {
+          "jacke": "hoodie",
+          "haare": "capback"
+        },
+        {
+          "jacke": "tshirt",
+          "haare": "stachel",
+          "hals": "kopfhoerer"
+        },
+        {
+          "jacke": "sukajan",
+          "haare": "kurz"
+        }
+      ]
+    },
+    {
+      "id": "mechanic",
+      "name": {
+        "de": "Mechaniker",
+        "en": "Mechanic"
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 2,
+      "cars": [
+        {
+          "model": "pickup"
+        },
+        {
+          "model": "van"
+        }
+      ],
+      "color": [
+        0.25,
+        0.35,
+        0.55
+      ],
+      "look": [
+        {
+          "jacke": "overall",
+          "haare": "cap",
+          "hals": "handtuch"
+        },
+        {
+          "jacke": "overall",
+          "haare": "bandana"
+        },
+        {
+          "jacke": "overall",
+          "haare": "kahl",
+          "brille": "goggles"
+        }
+      ]
+    },
+    {
+      "id": "trucker",
+      "name": {
+        "de": "Lkw-Fahrer",
+        "en": "Trucker"
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 3,
+      "cars": [
+        {
+          "model": "van"
+        },
+        {
+          "model": "pickup"
+        }
+      ],
+      "color": [
+        0.7,
+        0.6,
+        0.2
+      ],
+      "look": [
+        {
+          "jacke": "warnweste",
+          "haare": "cap",
+          "hals": "handtuch"
+        },
+        {
+          "jacke": "warnweste",
+          "haare": "muetze"
+        },
+        {
+          "jacke": "jeans",
+          "haare": "kurz",
+          "extra": "zahnstocher"
+        }
+      ]
+    },
+    {
+      "id": "taxi",
+      "name": {
+        "de": "Taxifahrer",
+        "en": "Taxi driver"
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 2,
+      "cars": [
+        {
+          "model": "fullsize",
+          "match": "taxi"
+        },
+        {
+          "model": "midsize",
+          "match": "taxi"
+        },
+        {
+          "model": "fullsize"
+        }
+      ],
+      "color": [
+        0.85,
+        0.75,
+        0.2
+      ],
+      "look": [
+        {
+          "jacke": "weste",
+          "haare": "scheitel",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "anzug",
+          "haare": "kurz",
+          "brille": "halb"
+        },
+        {
+          "jacke": "weste",
+          "haare": "kahl",
+          "extra": "maske"
+        }
+      ]
+    },
+    {
+      "id": "photo",
+      "name": {
+        "de": "Fotografin",
+        "en": "Photographer"
+      },
+      "figur": "f",
+      "night": 2,
+      "day": 1,
+      "cars": [
+        {
+          "model": "covet"
+        },
+        {
+          "model": "etkc"
+        }
+      ],
+      "color": [
+        0.75,
+        0.3,
+        0.6
+      ],
+      "look": [
+        {
+          "jacke": "jeans",
+          "haare": "bobcut",
+          "hals": "kette"
+        },
+        {
+          "jacke": "bomber",
+          "haare": "zopf",
+          "brille": "rund"
+        },
+        {
+          "jacke": "windbreaker",
+          "haare": "capback"
+        }
+      ]
+    },
+    {
+      "id": "veteran",
+      "name": {
+        "de": "Alter Hase",
+        "en": "Old hand"
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 1,
+      "cars": [
+        {
+          "model": "moonhawk"
+        },
+        {
+          "model": "bluebuck"
+        },
+        {
+          "model": "miramar"
+        },
+        {
+          "model": "sbr"
+        }
+      ],
+      "color": [
+        0.55,
+        0.55,
+        0.6
+      ],
+      "look": [
+        {
+          "jacke": "leder",
+          "haare": "tolle",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "mantel",
+          "haare": "kahl",
+          "brille": "sonne"
+        },
+        {
+          "jacke": "strick",
+          "haare": "scheitel",
+          "haarfarbe": "silber",
+          "brille": "rund"
+        }
+      ]
+    },
+    {
+      "id": "rookie",
+      "name": {
+        "de": "Neuling",
+        "en": "Rookie"
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 1,
+      "cars": [
+        {
+          "model": "covet"
+        },
+        {
+          "model": "pessima"
+        },
+        {
+          "model": "bx"
+        }
+      ],
+      "color": [
+        0.3,
+        0.75,
+        0.4
+      ],
+      "look": [
+        {
+          "jacke": "hoodie",
+          "haare": "stachel"
+        },
+        {
+          "jacke": "tshirt",
+          "haare": "kurz"
+        },
+        {
+          "jacke": "training",
+          "haare": "capback"
+        }
+      ]
+    },
+    {
+      "id": "guard",
+      "name": {
+        "de": "Parkwächter",
+        "en": "Car park attendant"
+      },
+      "figur": "m",
+      "night": 1,
+      "day": 2,
+      "cars": [],
+      "color": [
+        0.2,
+        0.3,
+        0.25
+      ],
+      "look": [
+        {
+          "jacke": "warnweste",
+          "haare": "muetze"
+        },
+        {
+          "jacke": "warnweste",
+          "haare": "cap",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "militaer",
+          "haare": "muetze",
+          "extra": "maske"
+        }
+      ]
+    },
+    {
+      "id": "courier",
+      "name": {
+        "de": "Kurier",
+        "en": "Courier"
+      },
+      "figur": "m",
+      "night": 1,
+      "day": 3,
+      "cars": [
+        {
+          "model": "van"
+        },
+        {
+          "model": "pickup"
+        }
+      ],
+      "color": [
+        0.2,
+        0.5,
+        0.8
+      ],
+      "look": [
+        {
+          "jacke": "windbreaker",
+          "haare": "capback",
+          "extra": "headset"
+        },
+        {
+          "jacke": "polo",
+          "haare": "cap"
+        },
+        {
+          "jacke": "windbreaker",
+          "haare": "kurz",
+          "hals": "kopfhoerer"
+        }
+      ]
+    },
+    {
+      "id": "student",
+      "name": {
+        "de": "Studentin",
+        "en": "Student"
+      },
+      "figur": "f",
+      "night": 2,
+      "day": 1,
+      "cars": [
+        {
+          "model": "covet"
+        },
+        {
+          "model": "pessima"
+        }
+      ],
+      "color": [
+        0.6,
+        0.7,
+        0.95
+      ],
+      "look": [
+        {
+          "jacke": "strick",
+          "haare": "hime",
+          "hals": "schal"
+        },
+        {
+          "jacke": "bluse",
+          "haare": "zoepfe",
+          "brille": "rund"
+        },
+        {
+          "jacke": "hoodie",
+          "haare": "dutt"
+        }
+      ]
+    },
+    {
+      "id": "salaryman",
+      "name": {
+        "de": "Angestellter",
+        "en": "Office worker"
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 2,
+      "cars": [
+        {
+          "model": "midsize"
+        },
+        {
+          "model": "etki"
+        },
+        {
+          "model": "legran"
+        }
+      ],
+      "color": [
+        0.35,
+        0.35,
+        0.4
+      ],
+      "look": [
+        {
+          "jacke": "anzug",
+          "haare": "scheitel",
+          "brille": "halb"
+        },
+        {
+          "jacke": "anzug",
+          "haare": "kurz"
+        },
+        {
+          "jacke": "mantel",
+          "haare": "scheitel",
+          "brille": "rund"
+        }
+      ]
+    },
+    {
+      "id": "drifter",
+      "name": {
+        "de": "Drift-Fan",
+        "en": "Drift fan"
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 0,
+      "cars": [
+        {
+          "model": "sunburst2",
+          "match": "drift"
+        },
+        {
+          "model": "bx"
+        },
+        {
+          "model": "sunburst2"
+        }
+      ],
+      "color": [
+        0.85,
+        0.15,
+        0.2
+      ],
+      "look": [
+        {
+          "jacke": "sukajan",
+          "haare": "stachel",
+          "extra": "zahnstocher"
+        },
+        {
+          "jacke": "tokko",
+          "haare": "irokese"
+        },
+        {
+          "jacke": "bomber",
+          "haare": "bandana",
+          "brille": "sonne"
+        }
+      ]
+    }
+  ],
+  "talk": [
+    {
+      "id": "small_1",
+      "kind": "small",
+      "speaker": "trucker",
+      "text": {
+        "de": "Ich fahr seit 20 Jahren nachts. Die Autos werden schneller, der Kaffee hier nicht besser.",
+        "en": "Been driving nights for 20 years. The cars get faster, the coffee here doesn't get better."
+      }
+    },
+    {
+      "id": "small_2",
+      "kind": "small",
+      "speaker": "trucker",
+      "text": {
+        "de": "Wenn ihr Jungs mich überholt, dann bitte nicht rechts. Mein Spiegel hat schon genug gesehen.",
+        "en": "When you lot overtake me, please not on the right. My mirror has seen enough."
+      }
+    },
+    {
+      "id": "small_3",
+      "kind": "small",
+      "speaker": "taxi",
+      "text": {
+        "de": "Mein Fahrgast hat mich gefragt, ob ich auch so schnell fahren kann. Ich hab gesagt, nur ohne Taxameter.",
+        "en": "My fare asked if I could drive that fast too. I said only with the meter off."
+      }
+    },
+    {
+      "id": "small_4",
+      "kind": "small",
+      "speaker": "taxi",
+      "text": {
+        "de": "Die beste Zeit zum Fahren? Zwei Uhr. Da schlafen sogar die Ampeln.",
+        "en": "Best time to drive? Two am. Even the traffic lights are asleep."
+      }
+    },
+    {
+      "id": "small_5",
+      "kind": "small",
+      "speaker": "photo",
+      "text": {
+        "de": "Ich warte auf den perfekten Moment: Neonlicht, nasser Asphalt, ein Auto, das quer kommt.",
+        "en": "I'm waiting for the perfect shot: neon, wet asphalt, a car coming sideways."
+      }
+    },
+    {
+      "id": "small_6",
+      "kind": "small",
+      "speaker": "photo",
+      "text": {
+        "de": "Dein Auto sieht im Laternenlicht gut aus. Darf ich ein Foto machen? Nur eins. Okay, fünf.",
+        "en": "Your car looks good under the street lights. Can I take a photo? Just one. Okay, five."
+      }
+    },
+    {
+      "id": "small_7",
+      "kind": "small",
+      "speaker": "fan",
+      "text": {
+        "de": "Ich hab kein Auto, aber ich kenne jedes Auto, das hier jemals stand.",
+        "en": "I don't own a car, but I know every car that has ever parked here."
+      }
+    },
+    {
+      "id": "small_8",
+      "kind": "small",
+      "speaker": "fan",
+      "text": {
+        "de": "Hast du schon mal einen Sonnenaufgang von der Brücke gesehen? Lohnt sich. Wenn du so lange durchhältst.",
+        "en": "Ever seen a sunrise from the bridge? Worth it. If you last that long."
+      }
+    },
+    {
+      "id": "small_9",
+      "kind": "small",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Hörst du das Klackern? Nein? Dann ist ja gut. Ich höre es trotzdem.",
+        "en": "Hear that rattle? No? Good. I still hear it."
+      }
+    },
+    {
+      "id": "small_10",
+      "kind": "small",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Die meisten Unfälle passieren nicht in der Kurve, sondern beim Ausparken. Glaub mir.",
+        "en": "Most crashes don't happen in corners, they happen pulling out of a parking space. Trust me."
+      }
+    },
+    {
+      "id": "small_11",
+      "kind": "small",
+      "speaker": "veteran",
+      "text": {
+        "de": "Früher gab es hier nur Automaten und Benzingeruch. Heute gibt es Automaten, Benzingeruch und Handys.",
+        "en": "Back in the day there were only vending machines and petrol fumes. Now it's vending machines, petrol fumes and phones."
+      }
+    },
+    {
+      "id": "small_12",
+      "kind": "small",
+      "speaker": "veteran",
+      "text": {
+        "de": "Ich bin hier schon gefahren, als die Leitplanken noch neu waren. Die Hälfte der Dellen sind von mir.",
+        "en": "I raced here when the guardrails were new. Half the dents are mine."
+      }
+    },
+    {
+      "id": "small_13",
+      "kind": "small",
+      "speaker": "rookie",
+      "text": {
+        "de": "Ich hab heute zum ersten Mal Lichthupe gegeben. Der andere hat einfach weitergefahren. War das ein Taxi?",
+        "en": "I flashed my lights for the first time tonight. The other car just kept going. Was it a taxi?"
+      }
+    },
+    {
+      "id": "small_14",
+      "kind": "small",
+      "speaker": "rookie",
+      "text": {
+        "de": "Ist das hier immer so voll? Ich dachte, nachts schlafen alle.",
+        "en": "Is it always this busy here? I thought everyone sleeps at night."
+      }
+    },
+    {
+      "id": "small_15",
+      "kind": "small",
+      "speaker": "guard",
+      "text": {
+        "de": "Parken ja, Burnouts nein. Ich hab das Schild selbst gemalt.",
+        "en": "Parking yes, burnouts no. I painted the sign myself."
+      }
+    },
+    {
+      "id": "small_16",
+      "kind": "small",
+      "speaker": "guard",
+      "text": {
+        "de": "Nachts ist es hier ruhig. Bis um elf. Dann kommen die mit den lauten Auspuffen.",
+        "en": "It's quiet here at night. Until eleven. Then the loud exhausts arrive."
+      }
+    },
+    {
+      "id": "small_17",
+      "kind": "small",
+      "speaker": "courier",
+      "text": {
+        "de": "Ich hab noch zwölf Pakete. Wenn du schneller bist als ich, nimmst du drei?",
+        "en": "I've got twelve parcels left. If you're faster than me, will you take three?"
+      }
+    },
+    {
+      "id": "small_18",
+      "kind": "small",
+      "speaker": "courier",
+      "text": {
+        "de": "Mein Navi sagt, ich soll wenden. Mein Navi sagt das seit drei Stunden.",
+        "en": "My sat-nav says turn around. It's been saying that for three hours."
+      }
+    },
+    {
+      "id": "small_19",
+      "kind": "small",
+      "speaker": "student",
+      "text": {
+        "de": "Morgen ist Prüfung. Ich lerne hier, weil das Licht am Automaten besser ist als zu Hause.",
+        "en": "Exam tomorrow. I study here because the vending machine light is better than at home."
+      }
+    },
+    {
+      "id": "small_20",
+      "kind": "small",
+      "speaker": "student",
+      "text": {
+        "de": "Mein Freund fährt Rennen. Ich warte hier und tue so, als wäre das romantisch.",
+        "en": "My boyfriend races. I wait here and pretend it's romantic."
+      }
+    },
+    {
+      "id": "small_21",
+      "kind": "small",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Ich bin nur kurz hier, um nicht nach Hause zu müssen. Sag es nicht meiner Frau.",
+        "en": "I'm only here so I don't have to go home yet. Don't tell my wife."
+      }
+    },
+    {
+      "id": "small_22",
+      "kind": "small",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Mein Chef hat heute gesagt, ich soll mehr Gas geben. Ich glaube, er meinte die Arbeit.",
+        "en": "My boss told me today to step on it. I think he meant work."
+      }
+    },
+    {
+      "id": "small_23",
+      "kind": "small",
+      "speaker": "drifter",
+      "text": {
+        "de": "Siehst du die schwarzen Streifen dort? Das war ich. Und dort. Und da auch.",
+        "en": "See those black marks over there? That was me. And there. And there too."
+      }
+    },
+    {
+      "id": "small_24",
+      "kind": "small",
+      "speaker": "drifter",
+      "text": {
+        "de": "Grip ist für Leute, die Angst haben.",
+        "en": "Grip is for people who are scared."
+      }
+    },
+    {
+      "id": "small_25",
+      "kind": "small",
+      "speaker": "fan",
+      "text": {
+        "de": "Die Melonenbrot-Taste am Automaten ist seit Wochen leer. Das ist das wahre Drama hier.",
+        "en": "The melon bread button on the vending machine has been empty for weeks. That's the real drama here."
+      }
+    },
+    {
+      "id": "small_26",
+      "kind": "small",
+      "speaker": "trucker",
+      "text": {
+        "de": "Mein Lkw hat 500 PS. Leider auch 40 Tonnen.",
+        "en": "My truck has 500 hp. Sadly it also weighs 40 tonnes."
+      }
+    },
+    {
+      "id": "small_27",
+      "kind": "small",
+      "speaker": "veteran",
+      "text": {
+        "de": "Ein gutes Auto verzeiht Fehler. Ein schnelles nicht.",
+        "en": "A good car forgives mistakes. A fast one doesn't."
+      }
+    },
+    {
+      "id": "small_28",
+      "kind": "small",
+      "speaker": "photo",
+      "text": {
+        "de": "Wenn du heute gewinnst, schick mir deine Rundenzeit. Ich schreib was dazu.",
+        "en": "If you win tonight, send me your time. I'll write something about it."
+      }
+    },
+    {
+      "id": "small_29",
+      "kind": "small",
+      "speaker": "taxi",
+      "text": {
+        "de": "Ich hab heute einen Fahrgast gehabt, der wollte unbedingt zum Ring. Ich hab ihn hierher gebracht. Er war glücklich.",
+        "en": "Had a fare tonight who wanted the loop, no matter what. I brought him here. He was happy."
+      }
+    },
+    {
+      "id": "small_30",
+      "kind": "small",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Neue Reifen fühlen sich am besten an, bis du die Rechnung siehst.",
+        "en": "New tyres feel best until you see the bill."
+      }
+    },
+    {
+      "id": "small_31",
+      "kind": "small",
+      "speaker": "rookie",
+      "text": {
+        "de": "Mein Onkel sagt, früher gab es hier echte Legenden. Gibt es die noch?",
+        "en": "My uncle says there used to be real legends here. Are there still?"
+      }
+    },
+    {
+      "id": "small_32",
+      "kind": "small",
+      "speaker": "guard",
+      "text": {
+        "de": "Ich hab hier schon alles gesehen. Ein Auto mit Lichterkette, einen Mann im Pelzmantel, einen Bus mit Babyschale.",
+        "en": "I've seen it all here. A car with fairy lights, a man in a fur coat, a van with a baby seat."
+      }
+    },
+    {
+      "id": "small_33",
+      "kind": "small",
+      "speaker": "courier",
+      "text": {
+        "de": "Weißt du, wie man ohne Rückspiegel fährt? Ich auch nicht. Meiner ist gestern abgefallen.",
+        "en": "Do you know how to drive without a mirror? Me neither. Mine fell off yesterday."
+      }
+    },
+    {
+      "id": "small_34",
+      "kind": "small",
+      "speaker": "student",
+      "text": {
+        "de": "Ich schreib meine Abschlussarbeit über Verkehrsfluss. Hier lerne ich mehr als in der Uni.",
+        "en": "I'm writing my thesis on traffic flow. I learn more here than at uni."
+      }
+    },
+    {
+      "id": "small_35",
+      "kind": "small",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Wer hier um vier Uhr morgens noch steht, hat entweder keinen Schlaf oder keinen Grund zu schlafen.",
+        "en": "Anyone still here at four in the morning either has no sleep or no reason to sleep."
+      }
+    },
+    {
+      "id": "small_36",
+      "kind": "small",
+      "speaker": "drifter",
+      "text": {
+        "de": "Ich hab meine Reifen nach meinen Exfreundinnen benannt. Sie halten alle nicht lange.",
+        "en": "I named my tyres after my exes. None of them last long."
+      }
+    },
+    {
+      "id": "small_37",
+      "kind": "small",
+      "speaker": "trucker",
+      "text": {
+        "de": "Nachts gehört die Stadtautobahn uns Lkw-Fahrern und euch Verrückten. Die Pendler schlafen noch.",
+        "en": "At night the city expressway belongs to us truckers and you lunatics. The commuters are still asleep."
+      }
+    },
+    {
+      "id": "small_38",
+      "kind": "small",
+      "speaker": "trucker",
+      "text": {
+        "de": "Ich hab hinten 20 Tonnen Klopapier. Wenn ich bremse, hört man es rascheln.",
+        "en": "I've got 20 tonnes of toilet paper in the back. When I brake you can hear it rustle."
+      }
+    },
+    {
+      "id": "small_39",
+      "kind": "small",
+      "speaker": "trucker",
+      "text": {
+        "de": "Mein Rücken kennt jede Fuge in der Fahrbahn zwischen Hamazakibashi und Edobashi.",
+        "en": "My back knows every joint in the road between Hamazakibashi and Edobashi."
+      }
+    },
+    {
+      "id": "small_40",
+      "kind": "small",
+      "speaker": "trucker",
+      "text": {
+        "de": "Wenn du in der Kurve neben mir bist, bleib nicht im toten Winkel. Ich seh dich da nicht, auch wenn du noch so laut bist.",
+        "en": "If you're next to me in a corner, don't sit in my blind spot. I can't see you there, however loud you are."
+      }
+    },
+    {
+      "id": "small_41",
+      "kind": "small",
+      "speaker": "taxi",
+      "text": {
+        "de": "Ein Fahrgast wollte, dass ich \"schnell\" fahre. Ich bin 62 gefahren. Er hat sich angeschnallt.",
+        "en": "A fare asked me to go \"fast\". I did 62. He put his seatbelt on."
+      }
+    },
+    {
+      "id": "small_42",
+      "kind": "small",
+      "speaker": "taxi",
+      "text": {
+        "de": "Weiße Handschuhe, gebügeltes Hemd, Spitzendeckchen auf den Sitzen. Taxi fahren ist hier eine Kunst.",
+        "en": "White gloves, ironed shirt, lace covers on the seats. Driving a taxi here is an art."
+      }
+    },
+    {
+      "id": "small_43",
+      "kind": "small",
+      "speaker": "taxi",
+      "text": {
+        "de": "Ich kenne jede Abkürzung in Minato. Leider kennt die das Navi meines Fahrgasts auch.",
+        "en": "I know every shortcut in Minato. Unfortunately so does my fare's phone."
+      }
+    },
+    {
+      "id": "small_44",
+      "kind": "small",
+      "speaker": "taxi",
+      "text": {
+        "de": "Die Lichter der Stadt sind schön, bis du sie zwölf Stunden am Stück siehst.",
+        "en": "The city lights are beautiful until you've looked at them for twelve hours straight."
+      }
+    },
+    {
+      "id": "small_45",
+      "kind": "small",
+      "speaker": "photo",
+      "text": {
+        "de": "Lange Belichtung, und dein Auto wird ein roter Strich über die Brücke. Mehr braucht ein gutes Foto nicht.",
+        "en": "Long exposure, and your car becomes a red streak across the bridge. A good photo needs nothing more."
+      }
+    },
+    {
+      "id": "small_46",
+      "kind": "small",
+      "speaker": "photo",
+      "text": {
+        "de": "Ich fotografiere Autos, nicht Leute. Autos blinzeln nie.",
+        "en": "I photograph cars, not people. Cars never blink."
+      }
+    },
+    {
+      "id": "small_47",
+      "kind": "small",
+      "speaker": "photo",
+      "text": {
+        "de": "Regen ist mein Lieblingswetter. Nasse Straße spiegelt alles doppelt.",
+        "en": "Rain is my favourite weather. A wet road reflects everything twice."
+      }
+    },
+    {
+      "id": "small_48",
+      "kind": "small",
+      "speaker": "photo",
+      "text": {
+        "de": "Wenn du nachher gewinnst, fahr bitte langsam an mir vorbei. Ich will den Moment haben.",
+        "en": "If you win later, please drive past me slowly. I want the moment."
+      }
+    },
+    {
+      "id": "small_49",
+      "kind": "small",
+      "speaker": "fan",
+      "text": {
+        "de": "Ich höre am Auspuff, welcher Motor kommt, bevor ich das Auto sehe. Das ist mein einziges Talent.",
+        "en": "I can tell which engine is coming from the exhaust before I see the car. It's my only talent."
+      }
+    },
+    {
+      "id": "small_50",
+      "kind": "small",
+      "speaker": "fan",
+      "text": {
+        "de": "Ich hab eine Liste aller Autos, die ich hier je gesehen habe. Sie ist länger als meine Kontaktliste.",
+        "en": "I keep a list of every car I've ever seen here. It's longer than my contacts list."
+      }
+    },
+    {
+      "id": "small_51",
+      "kind": "small",
+      "speaker": "fan",
+      "text": {
+        "de": "Ich fahre selbst Bahn. Aber ich komme jede Nacht mit dem letzten Zug hierher und gehe mit dem ersten zurück.",
+        "en": "I take the train myself. But I come here on the last train every night and leave on the first."
+      }
+    },
+    {
+      "id": "small_52",
+      "kind": "small",
+      "speaker": "fan",
+      "text": {
+        "de": "Sag mal, was hast du unter der Haube? Nein, sag nichts. Lass mich raten. Ich liege eh falsch.",
+        "en": "So what's under the bonnet? No, don't tell me. Let me guess. I'll be wrong anyway."
+      }
+    },
+    {
+      "id": "small_53",
+      "kind": "small",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Leute bauen 500 PS ein und sparen bei den Bremsen. Dann landen sie bei mir. Oder in der Wand.",
+        "en": "People fit 500 PS and save money on the brakes. Then they end up with me. Or in the wall."
+      }
+    },
+    {
+      "id": "small_54",
+      "kind": "small",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Ich hab Öl unter den Fingernägeln, seit ich zwölf bin. Meine Frau hat es aufgegeben.",
+        "en": "I've had oil under my fingernails since I was twelve. My wife gave up."
+      }
+    },
+    {
+      "id": "small_55",
+      "kind": "small",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Wenn dein Motor im Leerlauf so klingt wie meiner gerade, fahr heute lieber nicht mehr.",
+        "en": "If your engine idles the way mine sounds right now, better not drive any more tonight."
+      }
+    },
+    {
+      "id": "small_56",
+      "kind": "small",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Reifendruck prüfen kostet nichts. Trotzdem macht es keiner.",
+        "en": "Checking tyre pressure costs nothing. And still nobody does it."
+      }
+    },
+    {
+      "id": "small_57",
+      "kind": "small",
+      "speaker": "veteran",
+      "text": {
+        "de": "Früher hatten wir keine Navis. Wir hatten Karten und Instinkt. Und meistens nur Instinkt.",
+        "en": "We didn't have sat-navs. We had maps and instinct. Mostly just instinct."
+      }
+    },
+    {
+      "id": "small_58",
+      "kind": "small",
+      "speaker": "veteran",
+      "text": {
+        "de": "Junge Leute fragen mich nach Tipps. Mein Tipp: Erst bremsen, dann lenken, dann Gas. In dieser Reihenfolge.",
+        "en": "Young people ask me for tips. My tip: brake first, then steer, then throttle. In that order."
+      }
+    },
+    {
+      "id": "small_59",
+      "kind": "small",
+      "speaker": "veteran",
+      "text": {
+        "de": "Ich bin nicht mehr der Schnellste. Aber ich bin noch da. Das schaffen nicht alle.",
+        "en": "I'm not the fastest any more. But I'm still here. Not everyone manages that."
+      }
+    },
+    {
+      "id": "small_60",
+      "kind": "small",
+      "speaker": "veteran",
+      "text": {
+        "de": "Die Nacht ist das Einzige hier, was sich in dreißig Jahren nicht verändert hat.",
+        "en": "The night is the only thing here that hasn't changed in thirty years."
+      }
+    },
+    {
+      "id": "small_61",
+      "kind": "small",
+      "speaker": "rookie",
+      "text": {
+        "de": "Ich habe heute zum ersten Mal den ganzen Ring geschafft, ohne mich zu verfahren. Ich bin richtig stolz.",
+        "en": "Today I made it round the whole loop for the first time without getting lost. I'm really proud."
+      }
+    },
+    {
+      "id": "small_62",
+      "kind": "small",
+      "speaker": "rookie",
+      "text": {
+        "de": "Mein Auto ist eigentlich das Auto meiner Mutter. Sie denkt, ich bin in der Bibliothek.",
+        "en": "My car is actually my mum's car. She thinks I'm at the library."
+      }
+    },
+    {
+      "id": "small_63",
+      "kind": "small",
+      "speaker": "rookie",
+      "text": {
+        "de": "Wie kommt man eigentlich in eine Crew? Gibt es da ein Formular?",
+        "en": "How do you actually get into a crew? Is there a form?"
+      }
+    },
+    {
+      "id": "small_64",
+      "kind": "small",
+      "speaker": "rookie",
+      "text": {
+        "de": "Ich habe gespart, um mir einen Spoiler zu kaufen. Jetzt habe ich kein Geld mehr für Benzin.",
+        "en": "I saved up to buy a spoiler. Now I have no money left for petrol."
+      }
+    },
+    {
+      "id": "small_65",
+      "kind": "small",
+      "speaker": "guard",
+      "text": {
+        "de": "Ich zähle jede Nacht die Autos. Gestern waren es 47. Heute sind es mehr, und die Nacht ist noch jung.",
+        "en": "I count the cars every night. Yesterday it was 47. Tonight it's more, and the night is young."
+      }
+    },
+    {
+      "id": "small_66",
+      "kind": "small",
+      "speaker": "guard",
+      "text": {
+        "de": "Mein Lieblingsplatz ist da hinten am Automaten. Der summt so schön.",
+        "en": "My favourite spot is over there by the vending machine. It hums so nicely."
+      }
+    },
+    {
+      "id": "small_67",
+      "kind": "small",
+      "speaker": "guard",
+      "text": {
+        "de": "Wer hier Müll liegen lässt, den finde ich. Ich habe Zeit.",
+        "en": "If you leave rubbish here, I will find you. I have time."
+      }
+    },
+    {
+      "id": "small_68",
+      "kind": "small",
+      "speaker": "guard",
+      "text": {
+        "de": "Bitte Motor aus, wenn ihr hier steht. Die Anwohner hinter der Schallschutzwand schlafen.",
+        "en": "Engines off while you're parked, please. The neighbours behind the noise barrier are asleep."
+      }
+    },
+    {
+      "id": "small_69",
+      "kind": "small",
+      "speaker": "courier",
+      "text": {
+        "de": "Mein Rekord: 64 Pakete in einer Schicht. Danach habe ich zwei Tage nicht mehr geredet.",
+        "en": "My record: 64 parcels in one shift. Afterwards I didn't speak for two days."
+      }
+    },
+    {
+      "id": "small_70",
+      "kind": "small",
+      "speaker": "courier",
+      "text": {
+        "de": "Die schlimmsten Adressen sind die im zwölften Stock ohne Aufzug. Und immer ist es Wasser in Kisten.",
+        "en": "The worst addresses are twelfth floor, no lift. And it's always crates of water."
+      }
+    },
+    {
+      "id": "small_71",
+      "kind": "small",
+      "speaker": "courier",
+      "text": {
+        "de": "Ich kenne die Ampelphasen in Kōtō auswendig. Grüne Welle ab 2 Uhr, wenn du 48 fährst.",
+        "en": "I know the light cycles in Koto by heart. Green wave from 2 am if you do 48."
+      }
+    },
+    {
+      "id": "small_72",
+      "kind": "small",
+      "speaker": "courier",
+      "text": {
+        "de": "Kaffee Nummer vier für heute. Der Automat kennt mich schon.",
+        "en": "Coffee number four tonight. The machine knows me already."
+      }
+    },
+    {
+      "id": "small_73",
+      "kind": "small",
+      "speaker": "student",
+      "text": {
+        "de": "Ich lerne gerade für Geschichte. Das hier ist besser als jedes Buch, die Fahrer erzählen mehr.",
+        "en": "I'm studying history right now. This is better than any book, the drivers tell you more."
+      }
+    },
+    {
+      "id": "small_74",
+      "kind": "small",
+      "speaker": "student",
+      "text": {
+        "de": "Meine Freundinnen gehen in Clubs. Ich sitze nachts auf einem Autobahnparkplatz. Ich glaube, ich habe gewonnen.",
+        "en": "My friends go to clubs. I sit in an expressway parking area at night. I think I won."
+      }
+    },
+    {
+      "id": "small_75",
+      "kind": "small",
+      "speaker": "student",
+      "text": {
+        "de": "Wusstest du, dass man hier mehr Sterne sieht als in der Stadt? Zwei. Statt keinem.",
+        "en": "Did you know you can see more stars here than in the city? Two. Instead of none."
+      }
+    },
+    {
+      "id": "small_76",
+      "kind": "small",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Morgen um neun habe ich eine Präsentation. Ich kenne die Folien nicht, aber ich kenne jede Kurve vom C1.",
+        "en": "I have a presentation at nine tomorrow. I don't know the slides, but I know every corner of the C1."
+      }
+    },
+    {
+      "id": "small_77",
+      "kind": "small",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Mein Kollege fährt einen Kombi und hält ihn für einen Sportwagen. Ich habe ihm nie widersprochen.",
+        "en": "My colleague drives an estate and thinks it's a sports car. I've never contradicted him."
+      }
+    },
+    {
+      "id": "small_78",
+      "kind": "small",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Überstunden bis elf, dann eine Runde auf dem Ring. Das ist mein Ausgleichssport.",
+        "en": "Overtime till eleven, then a lap of the loop. That's my way of unwinding."
+      }
+    },
+    {
+      "id": "small_79",
+      "kind": "small",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Mein Chef hat gefragt, warum ich morgens so müde bin. Ich habe gesagt: Familie. Das stimmt nicht ganz.",
+        "en": "My boss asked why I'm so tired in the mornings. I said: family. That's not quite true."
+      }
+    },
+    {
+      "id": "small_80",
+      "kind": "small",
+      "speaker": "drifter",
+      "text": {
+        "de": "Auf dem C1 driften? Nein. Viel zu viele Wände. Ich übe hier nur das Aussteigen mit Stil.",
+        "en": "Drifting on the C1? No. Far too many walls. I just practise getting out of the car with style."
+      }
+    },
+    {
+      "id": "small_81",
+      "kind": "small",
+      "speaker": "drifter",
+      "text": {
+        "de": "Meine Reifen sind wieder fertig. Ich nehme jetzt nur noch gebrauchte, die halten genauso kurz.",
+        "en": "My tyres are done again. I only buy used ones now, they last just as short."
+      }
+    },
+    {
+      "id": "small_82",
+      "kind": "small",
+      "speaker": "drifter",
+      "text": {
+        "de": "Ein guter Drift ist wie ein guter Witz. Timing ist alles, und meistens lacht keiner.",
+        "en": "A good drift is like a good joke. Timing is everything, and usually nobody laughs."
+      }
+    },
+    {
+      "id": "small_83",
+      "kind": "small",
+      "speaker": "drifter",
+      "text": {
+        "de": "Siehst du die Delle hinten links? Da war eine Leitplanke schneller als ich.",
+        "en": "See the dent at the back left? A guardrail was quicker than me."
+      }
+    },
+    {
+      "id": "tip_1",
+      "kind": "tip",
+      "speaker": "veteran",
+      "text": {
+        "de": "Wer vorne fährt, verliert keine SP. Klingt einfach, ist es aber nicht.",
+        "en": "Whoever is in front loses no SP. Sounds easy. It isn't."
+      }
+    },
+    {
+      "id": "tip_2",
+      "kind": "tip",
+      "speaker": "veteran",
+      "text": {
+        "de": "Jede Berührung mit der Wand kostet dich SP. Die Wand gewinnt immer.",
+        "en": "Every touch of the wall costs you SP. The wall always wins."
+      }
+    },
+    {
+      "id": "tip_3",
+      "kind": "tip",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Bessere Teile gibt es erst, wenn du dir einen Namen gemacht hast. Ruf ist hier die Währung.",
+        "en": "Better parts only come once you've made a name. Reputation is the currency here."
+      }
+    },
+    {
+      "id": "tip_4",
+      "kind": "tip",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Fahr nicht mit kaputtem Auto los. Eine Reparatur ist billiger als eine Niederlage.",
+        "en": "Don't head out with a broken car. A repair is cheaper than a defeat."
+      }
+    },
+    {
+      "id": "tip_5",
+      "kind": "tip",
+      "speaker": "fan",
+      "text": {
+        "de": "Fährst du mehrere Siege am Stück, gibt es mehr Geld. Aber zurück in die Garage, und die Serie ist weg.",
+        "en": "Win several in a row and the money goes up. Head back to the garage and the streak is gone."
+      }
+    },
+    {
+      "id": "tip_6",
+      "kind": "tip",
+      "speaker": "fan",
+      "text": {
+        "de": "Hab gehört, die Leader kommen erst, wenn du ihre ganze Crew geschlagen hast. Manche lassen dich eine Nacht warten.",
+        "en": "Heard the leaders only show up once you've beaten their whole crew. Some make you wait a night."
+      }
+    },
+    {
+      "id": "tip_7",
+      "kind": "tip",
+      "speaker": "taxi",
+      "text": {
+        "de": "Wenn dich einer von hinten anblinkt, will er ein Rennen. Warnblinker heißt ja, Blinker heißt nein.",
+        "en": "If someone flashes you from behind, they want a race. Hazards mean yes, indicators mean no."
+      }
+    },
+    {
+      "id": "tip_8",
+      "kind": "tip",
+      "speaker": "rookie",
+      "text": {
+        "de": "Mir hat jemand gesagt: nicht vor dem Countdown losfahren. Ich hab es trotzdem gemacht. Er hatte recht.",
+        "en": "Someone told me: don't go before the countdown. I did anyway. He was right."
+      }
+    },
+    {
+      "id": "tip_9",
+      "kind": "tip",
+      "speaker": "photo",
+      "text": {
+        "de": "Knapp an Autos vorbei bringt Combo-Punkte. Ein Crash nimmt dir alles wieder weg. Gute Bilder gibt es trotzdem.",
+        "en": "Passing close to cars earns combo points. A crash takes it all away. Still makes good pictures."
+      }
+    },
+    {
+      "id": "tip_10",
+      "kind": "tip",
+      "speaker": "guard",
+      "text": {
+        "de": "Tagsüber sind die Läden offen, nachts die Straßen. Plan deinen Tag.",
+        "en": "By day the shops are open, by night the roads. Plan your day."
+      }
+    },
+    {
+      "id": "tip_11",
+      "kind": "tip",
+      "speaker": "trucker",
+      "text": {
+        "de": "Tank lieber voll, bevor du losfährst. Ein leerer Tank um drei Uhr ist kein Spaß.",
+        "en": "Fill up before you go. An empty tank at three am is no fun."
+      }
+    },
+    {
+      "id": "tip_12",
+      "kind": "tip",
+      "speaker": "courier",
+      "text": {
+        "de": "Beim Autohändler gibt es jeden Tag andere Angebote. Importe sieht man da fast nie. Wenn doch, schlag zu.",
+        "en": "The dealer has different offers every day. You almost never see imports there. If you do, grab it."
+      }
+    },
+    {
+      "id": "tip_13",
+      "kind": "tip",
+      "speaker": "veteran",
+      "text": {
+        "de": "Die alten Importe sind die seltensten. Je älter und teurer, desto seltener taucht so einer beim Händler auf.",
+        "en": "Old imports are the rarest. The older and pricier, the less often one turns up at the dealer."
+      }
+    },
+    {
+      "id": "tip_14",
+      "kind": "tip",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Wer zu lange wach bleibt, fährt schlechter. Zu Hause kann man ab zehn Uhr schlafen.",
+        "en": "Stay up too long and you drive worse. At home you can sleep from ten."
+      }
+    },
+    {
+      "id": "tip_15",
+      "kind": "tip",
+      "speaker": "drifter",
+      "text": {
+        "de": "Drift bringt Combo-Punkte. Bremst dich aber auch aus. Such dir aus, was dir wichtiger ist.",
+        "en": "Drifting earns combo points. It also slows you down. Pick what matters more."
+      }
+    },
+    {
+      "id": "tip_16",
+      "kind": "tip",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Ein Gegner, der dich schlägt, kommt wieder. Und beim zweiten Mal ist er stärker.",
+        "en": "A rival who beats you comes back. And the second time he's stronger."
+      }
+    },
+    {
+      "id": "tip_17",
+      "kind": "tip",
+      "speaker": "fan",
+      "text": {
+        "de": "Manche Fahrer tauchen nur zu bestimmten Uhrzeiten auf. Achte auf die Uhr.",
+        "en": "Some drivers only show up at certain times. Watch the clock."
+      }
+    },
+    {
+      "id": "tip_18",
+      "kind": "tip",
+      "speaker": "photo",
+      "text": {
+        "de": "Im Rivalen-Lexikon zu Hause kannst du Gegner markieren. Dann sagt dir das Radar, wenn sie in der Nähe sind.",
+        "en": "In the rival lexicon at home you can mark rivals. The radar then tells you when they're near."
+      }
+    },
+    {
+      "id": "crew_1",
+      "kind": "crew",
+      "speaker": "student",
+      "text": {
+        "de": "Die Mayonaka Lanterns sind Studenten aus Shibuya. Laut, aber harmlos. Mit denen fängt jeder an.",
+        "en": "The Mayonaka Lanterns are students from Shibuya. Loud, but harmless. Everyone starts with them."
+      },
+      "about": "t_lantern"
+    },
+    {
+      "id": "crew_2",
+      "kind": "crew",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Die vom Zangyō Express fahren nach der Überstunde. Wenn du einen mit Krawatte siehst, ist er einer von ihnen.",
+        "en": "The Zangyō Express guys race after overtime. If you see one in a tie, he's one of them."
+      },
+      "about": "t_zangyo"
+    },
+    {
+      "id": "crew_3",
+      "kind": "crew",
+      "speaker": "veteran",
+      "text": {
+        "de": "Der Shōwa Retro Club fährt alte Miramar und Italiener. Langsam, aber unterschätz die Oma im Autobello nicht.",
+        "en": "The Shōwa Retro Club drives old Miramars and Italians. Slow, but don't underestimate the grandma in the Autobello."
+      },
+      "about": "t_showa"
+    },
+    {
+      "id": "crew_4",
+      "kind": "crew",
+      "speaker": "fan",
+      "text": {
+        "de": "Die Diana Sisters halten zusammen. Schlägst du eine, wollen die anderen fünf Rache.",
+        "en": "The Diana Sisters stick together. Beat one and the other five want revenge."
+      },
+      "about": "t_diana"
+    },
+    {
+      "id": "crew_5",
+      "kind": "crew",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Die Nihyaku Boys fahren nur 200BX und streiten über Klappscheinwerfer. Ihr Chef kommt aus Hokkaido.",
+        "en": "The Nihyaku Boys only drive 200BX and argue about pop-ups. Their boss is from Hokkaido."
+      },
+      "about": "t_bxboys"
+    },
+    {
+      "id": "crew_6",
+      "kind": "crew",
+      "speaker": "trucker",
+      "text": {
+        "de": "Die Yama-Gumi kommen aus den Bergen. Hohe Kisten, aber die kennen keine Angst vor Kurven.",
+        "en": "The Yama-Gumi come down from the mountains. Tall boxes, but they have no fear of corners."
+      },
+      "about": "t_yamagumi"
+    },
+    {
+      "id": "crew_7",
+      "kind": "crew",
+      "speaker": "photo",
+      "text": {
+        "de": "Der Ginza Neon Club glänzt mehr, als er fährt. Aber ihre Chefin, die mit dem leuchtenden Moonhawk, ist eine andere Liga.",
+        "en": "The Ginza Neon Club shines more than it drives. But their queen, the one in the glowing Moonhawk, is another league."
+      },
+      "about": "t_neon"
+    },
+    {
+      "id": "crew_8",
+      "kind": "crew",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Die Kombi Papas fahren, wenn die Familie schläft. Unterschätz nie einen Vater mit 40 Minuten Zeit.",
+        "en": "The Kombi Papas race while the family sleeps. Never underestimate a dad with 40 minutes to spare."
+      },
+      "about": "t_kombi"
+    },
+    {
+      "id": "crew_9",
+      "kind": "crew",
+      "speaker": "taxi",
+      "text": {
+        "de": "Die Kōsoku Kitsune sehen aus wie Opas Limousine. Bis sie an dir vorbei sind.",
+        "en": "The Kōsoku Kitsune look like grandpa's sedan. Until they're past you."
+      },
+      "about": "t_kitsune"
+    },
+    {
+      "id": "crew_10",
+      "kind": "crew",
+      "speaker": "rookie",
+      "text": {
+        "de": "Die Pocket Rockets aus Kōchi sind winzig. Und sie bremsen später als du.",
+        "en": "The Pocket Rockets from Kōchi are tiny. And they brake later than you."
+      },
+      "about": "t_pocket"
+    },
+    {
+      "id": "crew_11",
+      "kind": "crew",
+      "speaker": "trucker",
+      "text": {
+        "de": "Die Hoshikuzu Rally-dan springen über jede Fuge. Wenn du Allrad hörst, sind sie es.",
+        "en": "The Hoshikuzu Rally-dan jump every joint. If you hear all-wheel drive, it's them."
+      },
+      "about": "t_hoshikuzu"
+    },
+    {
+      "id": "crew_12",
+      "kind": "crew",
+      "speaker": "courier",
+      "text": {
+        "de": "Die Sleeper Agents fahren amerikanische Familienlimousinen mit viel zu großen Motoren. Sehen aus wie Mietwagen.",
+        "en": "The Sleeper Agents drive American family sedans with far too much engine. They look like rentals."
+      },
+      "about": "t_sleeper"
+    },
+    {
+      "id": "crew_13",
+      "kind": "crew",
+      "speaker": "drifter",
+      "text": {
+        "de": "Die Kasumi Drift Union fährt lieber quer als schnell. Du siehst sie am Rauch.",
+        "en": "The Kasumi Drift Union would rather go sideways than fast. You spot them by the smoke."
+      },
+      "about": "t_kasumi"
+    },
+    {
+      "id": "crew_14",
+      "kind": "crew",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Bayern Kaze lieben alte deutsche Limousinen. Lederhandschuhe, Ersatzteile aus Übersee und sehr viele Meinungen.",
+        "en": "Bayern Kaze love old German saloons. Leather gloves, spare parts from overseas and a lot of opinions."
+      },
+      "about": "t_etkklassik"
+    },
+    {
+      "id": "crew_15",
+      "kind": "crew",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Hirochi Blood sind Werksleute. Nur SBR. Manche fahren elektrisch und reden mit den anderen nicht mehr.",
+        "en": "Hirochi Blood are factory people. SBR only. Some drive electric and don't talk to the others anymore."
+      },
+      "about": "t_sbr"
+    },
+    {
+      "id": "crew_16",
+      "kind": "crew",
+      "speaker": "guard",
+      "text": {
+        "de": "Die Night Patrol 16 sind Soldaten vom Stützpunkt. Laut, freundlich, und sie teilen ihre Pizza, wenn sie gewinnen.",
+        "en": "Night Patrol 16 are soldiers from the base. Loud, friendly, and they share their pizza when they win."
+      },
+      "about": "t_yokota"
+    },
+    {
+      "id": "crew_17",
+      "kind": "crew",
+      "speaker": "veteran",
+      "text": {
+        "de": "Die Kurogane-kai fahren nur schwarz. Sie reden nicht. Wenn du einen siehst, ist er schon hinter dir.",
+        "en": "The Kurogane-kai only drive black. They don't talk. If you see one, he's already behind you."
+      },
+      "about": "t_kurogane"
+    },
+    {
+      "id": "crew_18",
+      "kind": "crew",
+      "speaker": "fan",
+      "text": {
+        "de": "Shōwa 48 Muscle fahren amerikanische V8 wie aus alten Filmen. Auf der Geraden sind sie gefährlich.",
+        "en": "Shōwa 48 Muscle drive American V8s straight out of old movies. On the straights they're dangerous."
+      },
+      "about": "t_muscle73"
+    },
+    {
+      "id": "crew_19",
+      "kind": "crew",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Die Raijin Garage sitzt unter den Gleisen. Ihre Turbos hörst du, bevor du sie siehst.",
+        "en": "Raijin Garage is under the railway tracks. You hear their turbos before you see them."
+      },
+      "about": "t_raijin"
+    },
+    {
+      "id": "crew_20",
+      "kind": "crew",
+      "speaker": "photo",
+      "text": {
+        "de": "Die Kōenji Greasers fahren Autos, die älter sind als ihre Großeltern. Mit Motoren, die viel zu stark sind.",
+        "en": "The Kōenji Greasers drive cars older than their grandparents. With engines that are far too strong."
+      },
+      "about": "t_hotrod"
+    },
+    {
+      "id": "crew_21",
+      "kind": "crew",
+      "speaker": "photo",
+      "text": {
+        "de": "Rosso Ottantuno sammeln italienische Exoten aus den Achtzigern. Wenn einer davon hier parkt, mach ein Foto.",
+        "en": "Rosso Ottantuno collect eighties Italian exotics. If one of them parks here, take a picture."
+      },
+      "about": "t_bolide"
+    },
+    {
+      "id": "crew_22",
+      "kind": "crew",
+      "speaker": "courier",
+      "text": {
+        "de": "Périph Tokyo hupen mehr als jeder Taxifahrer. Ihr Chef backt die besten Croissants der Stadt.",
+        "en": "Périph Tokyo honk more than any taxi driver. Their boss bakes the best croissants in town."
+      },
+      "about": "t_vivace"
+    },
+    {
+      "id": "crew_23",
+      "kind": "crew",
+      "speaker": "veteran",
+      "text": {
+        "de": "Akatsuki Racing war mal ein Werksteam. Ihre Autos dürften eigentlich gar nicht auf die Straße.",
+        "en": "Akatsuki Racing used to be a works team. Their cars shouldn't really be on the road."
+      },
+      "about": "t_akatsuki"
+    },
+    {
+      "id": "crew_24",
+      "kind": "crew",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Der Rennspecht Kai sind Unternehmer aus Roppongi. Sie reden über Allrad wie andere über Aktien.",
+        "en": "The Rennspecht Kai are entrepreneurs from Roppongi. They talk about AWD like others talk about stocks."
+      },
+      "about": "t_etkmodern"
+    },
+    {
+      "id": "crew_25",
+      "kind": "crew",
+      "speaker": "guard",
+      "text": {
+        "de": "Die Bastion Brotherhood fährt Muscle Cars mit Kompressor. Ihr Anführer war mal Kampfpilot.",
+        "en": "The Bastion Brotherhood drive supercharged muscle cars. Their leader used to be a fighter pilot."
+      },
+      "about": "t_bastion"
+    },
+    {
+      "id": "crew_26",
+      "kind": "crew",
+      "speaker": "taxi",
+      "text": {
+        "de": "Der Scintilla Salon sind die Reichsten der Stadt. Die fahren gegen dich, weil ihnen langweilig ist.",
+        "en": "The Scintilla Salon are the richest in town. They race you because they're bored."
+      },
+      "about": "t_scintilla"
+    },
+    {
+      "id": "leader_1",
+      "kind": "leader",
+      "speaker": "student",
+      "text": {
+        "de": "Riku, der Gründer der Lanterns, will jeden Neuling persönlich sehen. Er vergibt sogar Noten.",
+        "en": "Riku, founder of the Lanterns, wants to see every rookie in person. He even hands out grades."
+      },
+      "about": "t_lantern"
+    },
+    {
+      "id": "leader_2",
+      "kind": "leader",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Der Abteilungsleiter vom Zangyō Express hat seit 1996 keinen Urlaub genommen. Er nimmt Rennen sehr ernst.",
+        "en": "The section chief of Zangyō Express hasn't taken a holiday since 1996. He takes races very seriously."
+      },
+      "about": "t_zangyo"
+    },
+    {
+      "id": "leader_3",
+      "kind": "leader",
+      "speaker": "veteran",
+      "text": {
+        "de": "Der Chrom-Kaiser fährt einen Autobello aus Neapel. Frag ihn nicht nach der Geschichte, sonst stehst du morgen noch da.",
+        "en": "The Chrome Emperor drives an Autobello from Naples. Don't ask him about it or you'll still be here tomorrow."
+      },
+      "about": "t_showa"
+    },
+    {
+      "id": "leader_4",
+      "kind": "leader",
+      "speaker": "fan",
+      "text": {
+        "de": "Aiko, die große Schwester der Diana Sisters, nimmt es persönlich, wenn jemand ihre Mädels schlägt.",
+        "en": "Aiko, big sister of the Diana Sisters, takes it personally when someone beats her girls."
+      },
+      "about": "t_diana"
+    },
+    {
+      "id": "leader_5",
+      "kind": "leader",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Der Chef der Nihyaku Boys fährt mit Winterreifen. Er sagt, das sei Taktik. Bisher stimmt es.",
+        "en": "The Nihyaku Boys' boss drives on winter tyres. He says it's tactics. So far he's right."
+      },
+      "about": "t_bxboys"
+    },
+    {
+      "id": "leader_6",
+      "kind": "leader",
+      "speaker": "trucker",
+      "text": {
+        "de": "Der Bergkönig der Yama-Gumi fährt einen Bus. Er kam damit über drei Pässe, ohne einmal zu schalten.",
+        "en": "The Mountain King of the Yama-Gumi drives a van. He came over three passes in it without changing gear."
+      },
+      "about": "t_yamagumi"
+    },
+    {
+      "id": "leader_7",
+      "kind": "leader",
+      "speaker": "photo",
+      "text": {
+        "de": "Reika, die Königin der Lichter, kennt jede Ampel in Ginza. Ihr Moonhawk leuchtet wie ein Flughafen.",
+        "en": "Reika, the Queen of Lights, knows every light in Ginza. Her Moonhawk glows like an airport."
+      },
+      "about": "t_neon"
+    },
+    {
+      "id": "leader_8",
+      "kind": "leader",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Super-Papa hat fünf Kinder und einen getunten Van. Er fährt mit Babyschale als Ballast.",
+        "en": "Super Dad has five kids and a tuned van. He races with a baby seat as ballast."
+      },
+      "about": "t_kombi"
+    },
+    {
+      "id": "leader_9",
+      "kind": "leader",
+      "speaker": "taxi",
+      "text": {
+        "de": "Die Chefin der Kitsune heißt Neunschwanz. Niemand hat sie zweimal hintereinander geschlagen.",
+        "en": "The Kitsune boss is called Nine Tails. Nobody has beaten her twice in a row."
+      },
+      "about": "t_kitsune"
+    },
+    {
+      "id": "leader_10",
+      "kind": "leader",
+      "speaker": "rookie",
+      "text": {
+        "de": "Der Raketenmann der Pocket Rockets hat sich ein deutsches Auto geholt und redet seitdem mit Akzent.",
+        "en": "The Pocket Rockets' Rocket Man got himself a German car and has spoken with an accent ever since."
+      },
+      "about": "t_pocket"
+    },
+    {
+      "id": "leader_11",
+      "kind": "leader",
+      "speaker": "trucker",
+      "text": {
+        "de": "Der Chef der Rally-dan hat in Europa Rallyes gefahren. Sein Beifahrer ist angeblich noch dort.",
+        "en": "The Rally-dan boss raced rallies in Europe. His co-driver is supposedly still there."
+      },
+      "about": "t_hoshikuzu"
+    },
+    {
+      "id": "leader_12",
+      "kind": "leader",
+      "speaker": "courier",
+      "text": {
+        "de": "Der Chef der Sleeper Agents fährt einen Mietwagen, den er nie zurückgegeben hat. Behauptet er.",
+        "en": "The Sleeper Agents' boss drives a rental he never returned. So he claims."
+      },
+      "about": "t_sleeper"
+    },
+    {
+      "id": "leader_13",
+      "kind": "leader",
+      "speaker": "drifter",
+      "text": {
+        "de": "Weißer Nebel, der Chef der Kasumi, ist nur in seinem eigenen Rauch zu sehen. Halte Abstand.",
+        "en": "White Mist, the Kasumi boss, can only be seen in his own smoke. Keep your distance."
+      },
+      "about": "t_kasumi"
+    },
+    {
+      "id": "leader_14",
+      "kind": "leader",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Der Knallharte von Bayern Kaze ist für seine Frau aus Deutschland hergezogen. Fahren kann er trotzdem.",
+        "en": "The Hard Case of Bayern Kaze moved here from Germany for his wife. He can still drive."
+      },
+      "about": "t_etkklassik"
+    },
+    {
+      "id": "leader_15",
+      "kind": "leader",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Der Chef von Hirochi Blood hat den eSBR 800 mitentwickelt. Du hörst ihn nicht kommen.",
+        "en": "The Hirochi Blood boss co-developed the eSBR 800. You won't hear him coming."
+      },
+      "about": "t_sbr"
+    },
+    {
+      "id": "leader_16",
+      "kind": "leader",
+      "speaker": "guard",
+      "text": {
+        "de": "Der Sergeant der Night Patrol hat seinen Roamer im Frachtflugzeug mitgebracht. Offiziell als Ersatzteil.",
+        "en": "The Night Patrol sergeant brought his Roamer over in a cargo plane. Officially as a spare part."
+      },
+      "about": "t_yokota"
+    },
+    {
+      "id": "leader_17",
+      "kind": "leader",
+      "speaker": "veteran",
+      "text": {
+        "de": "Das Oberhaupt der Kurogane fährt einen schwarzen Bolide namens Notte. Ich hab ihn nie kommen sehen.",
+        "en": "The Kurogane patriarch drives a black Bolide called Notte. I never saw him coming."
+      },
+      "about": "t_kurogane"
+    },
+    {
+      "id": "leader_18",
+      "kind": "leader",
+      "speaker": "fan",
+      "text": {
+        "de": "Der Chef von Shōwa 48 Muscle redet nur in Filmzitaten. Sein Barstow riecht nach Popcorn.",
+        "en": "The Shōwa 48 Muscle boss only talks in movie quotes. His Barstow smells of popcorn."
+      },
+      "about": "t_muscle73"
+    },
+    {
+      "id": "leader_19",
+      "kind": "leader",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Der Donnergott der Raijin Garage hat jedes Auto dort selbst gebaut. Sein eigenes ist das lauteste.",
+        "en": "The Thunder God of Raijin Garage built every car there himself. His own is the loudest."
+      },
+      "about": "t_raijin"
+    },
+    {
+      "id": "leader_20",
+      "kind": "leader",
+      "speaker": "photo",
+      "text": {
+        "de": "Der King der Greasers kämmt sich vor jedem Rennen die Tolle. Wer ihn schlägt, ist der neue King.",
+        "en": "The Greasers' King combs his quiff before every race. Whoever beats him is the new King."
+      },
+      "about": "t_hotrod"
+    },
+    {
+      "id": "leader_21",
+      "kind": "leader",
+      "speaker": "photo",
+      "text": {
+        "de": "Der Chef von Rosso Ottantuno hat den Rückspiegel abgebaut. Er schaut nie zurück.",
+        "en": "The Rosso Ottantuno boss removed his mirror. He never looks back."
+      },
+      "about": "t_bolide"
+    },
+    {
+      "id": "leader_22",
+      "kind": "leader",
+      "speaker": "courier",
+      "text": {
+        "de": "Le Patron von Périph Tokyo liefert nachts Croissants aus. Mit 500 PS, damit sie warm bleiben.",
+        "en": "Le Patron of Périph Tokyo delivers croissants at night. With 500 hp so they stay warm."
+      },
+      "about": "t_vivace"
+    },
+    {
+      "id": "leader_23",
+      "kind": "leader",
+      "speaker": "veteran",
+      "text": {
+        "de": "Der Teamchef von Akatsuki war Werksfahrer. Er trägt eine Stoppuhr um den Hals, auch beim Einkaufen.",
+        "en": "The Akatsuki team boss was a works driver. He wears a stopwatch around his neck, even shopping."
+      },
+      "about": "t_akatsuki"
+    },
+    {
+      "id": "leader_24",
+      "kind": "leader",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Der Vorstand vom Rennspecht Kai leitet ein Start-up, das keiner versteht. Sein ETK versteht jeder.",
+        "en": "The Rennspecht Kai chairman runs a start-up nobody understands. Everyone understands his ETK."
+      },
+      "about": "t_etkmodern"
+    },
+    {
+      "id": "leader_25",
+      "kind": "leader",
+      "speaker": "guard",
+      "text": {
+        "de": "Redtail, der Chef der Bastion Brotherhood, fährt, als hätte er noch Nachbrenner.",
+        "en": "Redtail, the Bastion Brotherhood boss, drives like he still has afterburners."
+      },
+      "about": "t_bastion"
+    },
+    {
+      "id": "leader_26",
+      "kind": "leader",
+      "speaker": "taxi",
+      "text": {
+        "de": "Die Gräfin vom Scintilla Salon hat den Salon gegründet, weil ihr der Golfclub zu laut war. Ihr Auto ist es nicht.",
+        "en": "The Countess of the Scintilla Salon founded it because the golf club was too loud. Her car isn't quiet either."
+      },
+      "about": "t_scintilla"
+    },
+    {
+      "id": "wanderer_1",
+      "kind": "wanderer",
+      "speaker": "veteran",
+      "text": {
+        "de": "Es gibt einen alten Herrn im Bluebuck. Er fährt nur gegen Leute, die einen Miramar lieben.",
+        "en": "There's an old gentleman in a Bluebuck. He only races people who love a Miramar."
+      },
+      "about": "w_ojisan"
+    },
+    {
+      "id": "wanderer_2",
+      "kind": "wanderer",
+      "speaker": "guard",
+      "text": {
+        "de": "Ein Texaner vom Stützpunkt treibt seinen Pick-up am frühen Abend quer durch die Kurven. Ruft dabei Yeehaw.",
+        "en": "A Texan from the base herds his pickup sideways through corners in the early evening. Yells yeehaw."
+      },
+      "about": "w_rodeo"
+    },
+    {
+      "id": "wanderer_3",
+      "kind": "wanderer",
+      "speaker": "drifter",
+      "text": {
+        "de": "Kemuri driftet den alten Bluebuck seines Großvaters. Er zeigt sich erst, wenn die Kasumi geschlagen sind.",
+        "en": "Kemuri drifts his grandfather's old Bluebuck. He only shows himself once the Kasumi are beaten."
+      },
+      "about": "w_kemuri"
+    },
+    {
+      "id": "wanderer_4",
+      "kind": "wanderer",
+      "speaker": "trucker",
+      "text": {
+        "de": "Ein alter Kapitän fährt einen Wendover-Rennwagen. Der kommt erst, wenn du schon viele Nächte hier bist.",
+        "en": "An old captain drives a Wendover race car. He only turns up once you've spent many nights here."
+      },
+      "about": "w_rentner"
+    },
+    {
+      "id": "wanderer_5",
+      "kind": "wanderer",
+      "speaker": "fan",
+      "text": {
+        "de": "Kurz vor der Dämmerung, nach vielen Nächten, leuchtet manchmal ein BX auf. Dann ist er weg.",
+        "en": "Just before dawn, after many nights, a BX sometimes lights up. Then it's gone."
+      },
+      "about": "w_shinkiro"
+    },
+    {
+      "id": "wanderer_6",
+      "kind": "wanderer",
+      "speaker": "courier",
+      "text": {
+        "de": "Eine Französin fährt mit ihrem Rennauto zum Bäcker. Sie sucht Gegner, die Périph Tokyo geschlagen haben.",
+        "en": "A Frenchwoman drives her race car to the bakery. She looks for people who beat Périph Tokyo."
+      },
+      "about": "w_rallye"
+    },
+    {
+      "id": "wanderer_7",
+      "kind": "wanderer",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Ein alter Tourenwagenfahrer fährt nur gegen Leute im ETK. Sein Team sucht ihn seit den Achtzigern.",
+        "en": "An old touring car driver only races people in an ETK. His team has been looking for him since the eighties."
+      },
+      "about": "w_dtm"
+    },
+    {
+      "id": "wanderer_8",
+      "kind": "wanderer",
+      "speaker": "taxi",
+      "text": {
+        "de": "Zwischen eins und drei Uhr kreuzt manchmal eine schwarze Katze deinen Weg. Eine mit vier Rädern.",
+        "en": "Between one and three am a black cat sometimes crosses your path. One with four wheels."
+      },
+      "about": "w_noir"
+    },
+    {
+      "id": "wanderer_9",
+      "kind": "wanderer",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Tetsujin hört am Pfeifen deines Laders, ob du würdig bist. Ohne Turbo brauchst du gar nicht erst zu kommen.",
+        "en": "Tetsujin can tell from your turbo's whistle if you're worthy. Without a turbo, don't bother."
+      },
+      "about": "w_tetsujin"
+    },
+    {
+      "id": "wanderer_10",
+      "kind": "wanderer",
+      "speaker": "guard",
+      "text": {
+        "de": "Eine Amerikanerin schiebt einen Fullsize quer durch C1. Sie will Leute, die die Night Patrol geschlagen haben.",
+        "en": "An American woman pushes a full-size sideways through C1. She wants people who beat Night Patrol."
+      },
+      "about": "w_slider"
+    },
+    {
+      "id": "wanderer_11",
+      "kind": "wanderer",
+      "speaker": "photo",
+      "text": {
+        "de": "Hotaru war früher beim Neon Club. Seit sie geschlagen sind, leuchtet am frühen Abend ein Burnside auf.",
+        "en": "Hotaru used to be in the Neon Club. Since they were beaten, a Burnside glows in the early evening."
+      },
+      "about": "w_hotaru"
+    },
+    {
+      "id": "wanderer_12",
+      "kind": "wanderer",
+      "speaker": "taxi",
+      "text": {
+        "de": "Kazekiri fährt nur gegen jemanden, der jede Radarfalle der Stadt kennt. Jede einzelne.",
+        "en": "Kazekiri only races someone who knows every speed trap in the city. Every single one."
+      },
+      "about": "w_kazekiri"
+    },
+    {
+      "id": "wanderer_13",
+      "kind": "wanderer",
+      "speaker": "trucker",
+      "text": {
+        "de": "Ein Prediger aus Alabama segnet am frühen Morgen Reifen. Danach fährt er gegen dich.",
+        "en": "A preacher from Alabama blesses tyres in the early morning. Then he races you."
+      },
+      "about": "w_pastor"
+    },
+    {
+      "id": "wanderer_14",
+      "kind": "wanderer",
+      "speaker": "fan",
+      "text": {
+        "de": "Ein Stockcar-Fahrer aus Florida sucht nur Gegner, die schon richtig viele Siege haben.",
+        "en": "A stock car driver from Florida only looks for rivals who already have a lot of wins."
+      },
+      "about": "w_oval"
+    },
+    {
+      "id": "wanderer_15",
+      "kind": "wanderer",
+      "speaker": "guard",
+      "text": {
+        "de": "Ein Ex-Polizist aus Nevada wartet auf den, der Shōwa 48 Muscle geschlagen hat.",
+        "en": "An ex cop from Nevada is waiting for whoever beat Shōwa 48 Muscle."
+      },
+      "about": "w_marshal"
+    },
+    {
+      "id": "wanderer_16",
+      "kind": "wanderer",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Ein Vertreter mit Reklame auf dem Auto taucht auf, wenn der Zangyō Express geschlagen ist. Er verkauft Waschmaschinen.",
+        "en": "A salesman with ads on his car shows up once Zangyō Express is beaten. He sells washing machines."
+      },
+      "about": "w_fink"
+    },
+    {
+      "id": "wanderer_17",
+      "kind": "wanderer",
+      "speaker": "veteran",
+      "text": {
+        "de": "Tsukiyomi fährt nur zwischen Mitternacht und drei. Niemand kennt sein Gesicht.",
+        "en": "Tsukiyomi only drives between midnight and three. Nobody knows his face."
+      },
+      "about": "w_tsukiyomi"
+    },
+    {
+      "id": "wanderer_18",
+      "kind": "wanderer",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Eine deutsche Langstreckenfahrerin sucht dich, wenn du Bayern Kaze geschlagen hast.",
+        "en": "A German endurance driver comes looking once you've beaten Bayern Kaze."
+      },
+      "about": "w_nurburg"
+    },
+    {
+      "id": "wanderer_19",
+      "kind": "wanderer",
+      "speaker": "taxi",
+      "text": {
+        "de": "Um zwei Uhr nachts, nach vielen Nächten, fährt ein leuchtender Wagen von 1933. Ohne Fahrer.",
+        "en": "At two in the morning, after many nights, a glowing car from 1933 drives by. No driver."
+      },
+      "about": "w_yurei"
+    },
+    {
+      "id": "wanderer_20",
+      "kind": "wanderer",
+      "speaker": "photo",
+      "text": {
+        "de": "Ein reicher Erbe mit einer seltenen Heritage Edition wartet auf den, der den Rennspecht Kai schlägt.",
+        "en": "A rich heir with a rare Heritage Edition waits for whoever beats the Rennspecht Kai."
+      },
+      "about": "w_erbstueck"
+    },
+    {
+      "id": "wanderer_21",
+      "kind": "wanderer",
+      "speaker": "trucker",
+      "text": {
+        "de": "Ein Ramen-Koch mit einem Gasser riecht nach Nitro. Er will gegen den, der die Greasers geschlagen hat.",
+        "en": "A ramen chef with a gasser smells of nitro. He wants whoever beat the Greasers."
+      },
+      "about": "w_noodle"
+    },
+    {
+      "id": "wanderer_22",
+      "kind": "wanderer",
+      "speaker": "veteran",
+      "text": {
+        "de": "Ein Gruppe-5-Bolide verschwand 1984 in Fuji. Seit Rosso Ottantuno geschlagen ist, sieht man ihn wieder.",
+        "en": "A Group 5 Bolide vanished at Fuji in 1984. Since Rosso Ottantuno were beaten, people see it again."
+      },
+      "about": "w_gruppe5"
+    },
+    {
+      "id": "wanderer_23",
+      "kind": "wanderer",
+      "speaker": "trucker",
+      "text": {
+        "de": "Ein Opa aus Hakone sucht jemanden, der die Yama-Gumi und die Rally-dan geschlagen hat.",
+        "en": "A grandpa from Hakone is looking for someone who beat the Yama-Gumi and the Rally-dan."
+      },
+      "about": "w_hakone"
+    },
+    {
+      "id": "wanderer_24",
+      "kind": "wanderer",
+      "speaker": "student",
+      "text": {
+        "de": "Ein Junge im Cola-Hot-Rod fährt nur am frühen Abend. Er trinkt nur sein eigenes Produkt.",
+        "en": "A kid in a cola-coloured hot rod only drives in the early evening. He only drinks his own product."
+      },
+      "about": "w_tasti"
+    },
+    {
+      "id": "wanderer_25",
+      "kind": "wanderer",
+      "speaker": "fan",
+      "text": {
+        "de": "Ein Schweizer Konditor fährt erst gegen jemanden mit sehr vielen Siegen. Er sagt, sonst lohnt es die Sahne nicht.",
+        "en": "A Swiss pastry chef only races someone with a great many wins. Otherwise it's not worth the cream, he says."
+      },
+      "about": "w_mont"
+    },
+    {
+      "id": "wanderer_26",
+      "kind": "wanderer",
+      "speaker": "drifter",
+      "text": {
+        "de": "Wer Kemuri schlägt, bekommt Besuch von einem deutschen Drift-Profi. Mit noch mehr Rauch.",
+        "en": "Whoever beats Kemuri gets a visit from a German pro drifter. With even more smoke."
+      },
+      "about": "w_kemuri2"
+    },
+    {
+      "id": "wanderer_27",
+      "kind": "wanderer",
+      "speaker": "photo",
+      "text": {
+        "de": "Zwischen eins und vier fährt ein Filmauto, das nie zurückgegeben wurde. Die Eule.",
+        "en": "Between one and four a film car that was never returned drives the loop. The Owl."
+      },
+      "about": "w_fukurou"
+    },
+    {
+      "id": "wanderer_28",
+      "kind": "wanderer",
+      "speaker": "veteran",
+      "text": {
+        "de": "Eine italienische Werksfahrerin fährt jede Nacht mit ihrem Rennauto ins Hotel. Sie wartet auf den, der den Salon schlägt.",
+        "en": "An Italian works driver takes her race car to the hotel every night. She waits for whoever beats the Salon."
+      },
+      "about": "w_corsa"
+    },
+    {
+      "id": "wanderer_29",
+      "kind": "wanderer",
+      "speaker": "trucker",
+      "text": {
+        "de": "Die Schwester des Bergkönigs hat einen Hopper für die Viertelmeile gebaut. Sie kommt, wenn die Yama-Gumi fallen.",
+        "en": "The Mountain King's sister built a quarter-mile Hopper. She comes once the Yama-Gumi fall."
+      },
+      "about": "w_benikaze"
+    },
+    {
+      "id": "wanderer_30",
+      "kind": "wanderer",
+      "speaker": "guard",
+      "text": {
+        "de": "Ein Farmer aus Iowa mit einem Drag-Pick-up wartet auf den, der die Bastion Brotherhood schlägt.",
+        "en": "An Iowa farmer with a drag pickup waits for whoever beats the Bastion Brotherhood."
+      },
+      "about": "w_tractor"
+    },
+    {
+      "id": "wanderer_31",
+      "kind": "wanderer",
+      "speaker": "courier",
+      "text": {
+        "de": "Ein Mann aus Detroit misst alles in Viertelmeilen. Er fährt nur zwischen zehn und Mitternacht.",
+        "en": "A man from Detroit measures everything in quarter miles. He only drives between ten and midnight."
+      },
+      "about": "w_viper"
+    },
+    {
+      "id": "wanderer_32",
+      "kind": "wanderer",
+      "speaker": "fan",
+      "text": {
+        "de": "Wheelie Wanda steht beim Start auf den Hinterrädern. Sie sucht Leute mit vielen Siegen, die Shōwa 48 Muscle geschlagen haben.",
+        "en": "Wheelie Wanda launches on her rear wheels. She looks for people with lots of wins who beat Shōwa 48 Muscle."
+      },
+      "about": "w_wheelie"
+    },
+    {
+      "id": "wanderer_33",
+      "kind": "wanderer",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Big Block Barry fährt nur gegen Autos mit Kompressor. Sein Motor stammt angeblich aus einem Flugzeugschlepper.",
+        "en": "Big Block Barry only races supercharged cars. His engine supposedly came out of an aircraft tug."
+      },
+      "about": "w_bigblock"
+    },
+    {
+      "id": "wanderer_34",
+      "kind": "wanderer",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Eine Familie mit 1100 PS fährt zum Einkaufen. Sie wollen den, der die Angestellten und die Papas geschlagen hat.",
+        "en": "A family with 1100 hp goes grocery shopping. They want whoever beat the office workers and the dads."
+      },
+      "about": "w_familie"
+    },
+    {
+      "id": "wanderer_35",
+      "kind": "wanderer",
+      "speaker": "student",
+      "text": {
+        "de": "Ein Archäologe hat einen Covet mit über 1000 PS. Er fährt nur gegen andere Covet-Fahrer.",
+        "en": "An archaeologist has a Covet with over 1000 hp. He only races other Covet drivers."
+      },
+      "about": "w_kofun"
+    },
+    {
+      "id": "wanderer_36",
+      "kind": "wanderer",
+      "speaker": "guard",
+      "text": {
+        "de": "Ein Zahnarzt vom Stützpunkt wartet auf den, der die Sleeper Agents geschlagen hat. Es wird kurz wehtun.",
+        "en": "A dentist from the base waits for whoever beat the Sleeper Agents. It will hurt for a second."
+      },
+      "about": "w_doc"
+    },
+    {
+      "id": "wanderer_37",
+      "kind": "wanderer",
+      "speaker": "trucker",
+      "text": {
+        "de": "Eine Oma aus Georgia fährt mit 1000 PS zum Bingo. Sie will den, der Ōji-san geschlagen hat.",
+        "en": "A grandma from Georgia drives 1000 hp to bingo. She wants whoever beat Ōji-san."
+      },
+      "about": "w_hellcat"
+    },
+    {
+      "id": "wanderer_38",
+      "kind": "wanderer",
+      "speaker": "courier",
+      "text": {
+        "de": "Zwischen fünf und sechs Uhr morgens fährt ein Lieferwagen von 1933 mit 1300 PS. Die Pakete tun mir leid.",
+        "en": "Between five and six am a 1933 delivery van with 1300 hp drives by. I feel sorry for the parcels."
+      },
+      "about": "w_dragvan"
+    },
+    {
+      "id": "wanderer_39",
+      "kind": "wanderer",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Bakuon fährt einen BX mit 1300 PS. Er fährt nur gegen andere BX-Fahrer.",
+        "en": "Bakuon drives a BX with 1300 hp. He only races other BX drivers."
+      },
+      "about": "w_bakuon"
+    },
+    {
+      "id": "wanderer_40",
+      "kind": "wanderer",
+      "speaker": "photo",
+      "text": {
+        "de": "Ein Mann ohne Augenbrauen fährt einen Burnside mit fast 1500 PS. Er will den, der die Greasers und Noodle geschlagen hat.",
+        "en": "A man with no eyebrows drives a Burnside with almost 1500 hp. He wants whoever beat the Greasers and Noodle."
+      },
+      "about": "w_nitro"
+    },
+    {
+      "id": "wanderer_41",
+      "kind": "wanderer",
+      "speaker": "guard",
+      "text": {
+        "de": "Seit Redtail geschlagen ist, fährt ein Bastion ohne erkennbaren Fahrer. Manche sagen, es ist sein alter Flügelmann.",
+        "en": "Since Redtail was beaten, a Bastion with no visible driver roams the loop. Some say it's his old wingman."
+      },
+      "about": "w_afterburner"
+    },
+    {
+      "id": "wanderer_42",
+      "kind": "wanderer",
+      "speaker": "veteran",
+      "text": {
+        "de": "Zwischen drei und vier Uhr, nach der Eule und der Signora, kommt der Blitz. Mehr weiß niemand.",
+        "en": "Between three and four am, after the Owl and the Signora, comes the Lightning. Nobody knows more."
+      },
+      "about": "w_kaminari"
+    },
+    {
+      "id": "wanderer_43",
+      "kind": "wanderer",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Ein Amerikaner in einem deutschen I-Series fährt erst, wenn der Ginza Neon Club gefallen ist. Spät, zwischen elf und vier.",
+        "en": "An American in a German I-Series only shows up once the Ginza Neon Club has fallen. Late, between eleven and four."
+      },
+      "about": "w_henry"
+    },
+    {
+      "id": "wanderer_44",
+      "kind": "wanderer",
+      "speaker": "drifter",
+      "text": {
+        "de": "Da fährt einer im BX, der glaubt, er wäre der Schnellste. Er kommt angeblich erst, wenn dich sieben Blitzer erwischt haben.",
+        "en": "There's a guy in a BX who thinks he's the fastest. Supposedly he only comes once seven speed cameras have caught you."
+      },
+      "about": "w_alex_zockt"
+    },
+    {
+      "id": "boss_1",
+      "kind": "boss",
+      "speaker": "veteran",
+      "text": {
+        "de": "Der Weiße Tiger bewacht den Inneren Ring. Er zeigt sich erst, wenn die Lanterns, der Neon Club, die Yama-Gumi und die Kitsune gefallen sind.",
+        "en": "The White Tiger guards the inner loop. He only shows himself once the Lanterns, the Neon Club, the Yama-Gumi and the Kitsune have fallen."
+      },
+      "about": "b_shirotora"
+    },
+    {
+      "id": "boss_2",
+      "kind": "boss",
+      "speaker": "veteran",
+      "text": {
+        "de": "Den Schwarzen Drachen kennt jeder. Er fährt nur gegen den, der Kasumi, Akatsuki, Raijin und Kurogane geschlagen hat.",
+        "en": "Everyone knows the Black Dragon. He only races whoever beat Kasumi, Akatsuki, Raijin and Kurogane."
+      },
+      "about": "b_kokuryu"
+    },
+    {
+      "id": "boss_3",
+      "kind": "boss",
+      "speaker": "veteran",
+      "text": {
+        "de": "Mugen gab es schon, als der Ring eröffnet wurde. Wer Tiger und Drache schlägt, trifft ihn vielleicht zwischen zwei und vier.",
+        "en": "Mugen was here when the loop opened. Whoever beats the Tiger and the Dragon might meet him between two and four."
+      },
+      "about": "b_mugen"
+    },
+    {
+      "id": "waiting_1",
+      "kind": "waiting",
+      "speaker": "fan",
+      "text": {
+        "de": "Ich hab gehört, {name} sucht dich. Heute Nacht auf dem Ring.",
+        "en": "I heard {name} is looking for you. Out on the loop tonight."
+      }
+    },
+    {
+      "id": "waiting_2",
+      "kind": "waiting",
+      "speaker": "taxi",
+      "text": {
+        "de": "{name} ist vorhin an mir vorbei und hat nach dir gefragt.",
+        "en": "{name} passed me earlier and asked about you."
+      }
+    },
+    {
+      "id": "waiting_3",
+      "kind": "waiting",
+      "speaker": "guard",
+      "text": {
+        "de": "{name} war vorhin hier und hat nach deinem Auto gefragt.",
+        "en": "{name} was here earlier asking about your car."
+      }
+    },
+    {
+      "id": "waiting_4",
+      "kind": "waiting",
+      "speaker": "photo",
+      "text": {
+        "de": "Ich hab heute {name} fotografiert. Sah aus, als würde jemand gesucht. Vielleicht du.",
+        "en": "I took a picture of {name} tonight. Looked like they were waiting for someone. Maybe you."
+      }
+    },
+    {
+      "id": "waiting_5",
+      "kind": "waiting",
+      "speaker": "trucker",
+      "text": {
+        "de": "{name} fährt heute Nacht auf dem Ring. Pass gut auf.",
+        "en": "{name} is out on the loop tonight. Watch yourself."
+      }
+    },
+    {
+      "id": "waiting_6",
+      "kind": "waiting",
+      "speaker": "veteran",
+      "text": {
+        "de": "Seit deinem Sieg gegen {name} redet hier jeder von einer Revanche.",
+        "en": "Since you beat {name}, everyone here is talking about a rematch."
+      }
+    },
+    {
+      "id": "again_1",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Hab dir doch schon alles erzählt. Fahr los, die Nacht wartet nicht.",
+        "en": "I already told you everything. Get going, the night won't wait."
+      }
+    },
+    {
+      "id": "again_2",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Mehr weiß ich gerade auch nicht. Frag mal die anderen hier.",
+        "en": "That's all I know right now. Ask the others around here."
+      }
+    },
+    {
+      "id": "again_3",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Du schon wieder? Wenn ich was Neues höre, sag ich Bescheid.",
+        "en": "You again? If I hear anything new, I'll let you know."
+      }
+    },
+    {
+      "id": "again_4",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Komm morgen wieder. Bis dahin hat sich bestimmt was rumgesprochen.",
+        "en": "Come back tomorrow. Word gets around by then."
+      }
+    },
+    {
+      "id": "again_5",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Ich trink nur noch meinen Kaffee aus. Dann bin ich auch weg.",
+        "en": "Just finishing my coffee. Then I'm off too."
+      }
+    },
+    {
+      "id": "again_6",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Wenn du so viel redest wie du fährst, wird das heute nichts mehr.",
+        "en": "If you talk as much as you drive, nothing's happening tonight."
+      }
+    },
+    {
+      "id": "again_7",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Mehr gibt es nicht zu erzählen. Ehrlich.",
+        "en": "There's nothing more to tell. Honestly."
+      }
+    },
+    {
+      "id": "again_8",
+      "kind": "again",
+      "speaker": "",
+      "text": {
+        "de": "Schau dich lieber auf dem Ring um als hier auf dem Parkplatz.",
+        "en": "Better look around on the loop than here in the car park."
+      }
+    },
+    {
+      "id": "more_1",
+      "kind": "more",
+      "speaker": "",
+      "text": {
+        "de": "Ach, wo du schon mal da bist, eins noch.",
+        "en": "Oh, since you're here, one more thing."
+      }
+    },
+    {
+      "id": "more_2",
+      "kind": "more",
+      "speaker": "",
+      "text": {
+        "de": "Warte, mir ist noch was eingefallen.",
+        "en": "Wait, something else just came to mind."
+      }
+    },
+    {
+      "id": "more_3",
+      "kind": "more",
+      "speaker": "",
+      "text": {
+        "de": "Du bist ja neugierig. Na gut, hör zu.",
+        "en": "Curious one, aren't you? Fine, listen."
+      }
+    },
+    {
+      "id": "more_4",
+      "kind": "more",
+      "speaker": "",
+      "text": {
+        "de": "Hast du kurz Zeit? Das hier weiß kaum einer.",
+        "en": "Got a second? Hardly anyone knows this."
+      }
+    },
+    {
+      "id": "more_5",
+      "kind": "more",
+      "speaker": "",
+      "text": {
+        "de": "Eine Sache noch, dann lass ich dich in Ruhe.",
+        "en": "One more thing, then I'll leave you alone."
+      }
+    },
+    {
+      "id": "more_6",
+      "kind": "more",
+      "speaker": "",
+      "text": {
+        "de": "Schon wieder du? Dann erzähl ich dir was Neues.",
+        "en": "You again? Then I'll tell you something new."
+      }
+    },
+    {
+      "id": "fact_1",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Weißt du, wann hier alles angefangen hat? Am 20. Dezember 1962. Das erste Stück Shutoko ging von Kyōbashi bis Shibaura, gerade mal 4,5 Kilometer.",
+        "en": "Know when all this started? 20 December 1962. The first piece of the Shutoko ran from Kyobashi to Shibaura, just 4.5 kilometres."
+      },
+      "topic": "shutoko",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Die Maut kostete damals 50 Yen. Heute kriegst du dafür nicht mal einen Kaffee aus dem Automaten.",
+          "en": "The toll back then was 50 yen. Today that won't even buy you a vending machine coffee."
+        }
+      ]
+    },
+    {
+      "id": "fact_2",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Der Shutoko wurde für die Olympischen Spiele 1964 gebaut. Tokio hatte nur ein paar Jahre Zeit.",
+        "en": "The Shutoko was built for the 1964 Olympics. Tokyo had only a few years."
+      },
+      "topic": "shutoko",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Land in der Innenstadt war unbezahlbar. Also haben sie die Straße über Flüsse, Kanäle und die alten Burggräben gelegt. Darum fährst du auf dem C1 dauernd über Wasser.",
+          "en": "Land in the centre was unaffordable. So they put the road over rivers, canals and the old castle moats. That's why you keep driving over water on the C1."
+        }
+      ]
+    },
+    {
+      "id": "fact_3",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Der erste Plan für eine Stadtautobahn in Tokio stammt von 1953. Gebaut wurde der Ring dann zwischen 1962 und 1967.",
+        "en": "The first plan for an urban expressway in Tokyo dates from 1953. The loop itself was built between 1962 and 1967."
+      },
+      "topic": "shutoko",
+      "map": "c1"
+    },
+    {
+      "id": "fact_4",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Bei Ginza liegt der C1 halb unter der Erde. Dort waren früher zwei Flüsse, der Kaede und der Tsukiji. Man hat sie zugeschüttet und die Straße hineingebaut.",
+        "en": "Near Ginza the C1 sits half below ground. Two rivers used to run there, the Kaede and the Tsukiji. They were filled in and the road was built into them."
+      },
+      "topic": "c1",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Ein paar der alten Brücken stehen heute noch. Sie führen jetzt nicht mehr über Wasser, sondern über die Autobahn.",
+          "en": "A few of the old bridges still stand. Now they don't cross water any more, they cross the expressway."
+        }
+      ]
+    },
+    {
+      "id": "fact_5",
+      "kind": "fact",
+      "speaker": "photo",
+      "text": {
+        "de": "Kennst du die Nihonbashi? Die Steinbrücke von 1911 steht direkt unter dem C1. Fotografen hassen die Autobahn darüber seit Jahrzehnten.",
+        "en": "Know Nihonbashi? The 1911 stone bridge sits right under the C1. Photographers have hated the expressway above it for decades."
+      },
+      "topic": "c1",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Dabei ist das der Kilometer null von Japan. Alle Nationalstraßen messen ihre Entfernung von dieser Brücke aus.",
+          "en": "And it's Japan's kilometre zero. Every national road measures its distance from that bridge."
+        },
+        {
+          "de": "Schon in der Edo-Zeit begannen dort die fünf großen Handelsstraßen. Nihonbashi war immer der Anfang von allem.",
+          "en": "Back in the Edo period the five great trade roads started there too. Nihonbashi was always where everything began."
+        }
+      ]
+    },
+    {
+      "id": "fact_6",
+      "kind": "fact",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Die Autobahn über der Nihonbashi kommt weg. Das Stück zwischen Kandabashi und Edobashi wird in einen Tunnel verlegt.",
+        "en": "The expressway over Nihonbashi is going away. The stretch between Kandabashi and Edobashi is being moved into a tunnel."
+      },
+      "topic": "c1",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Die Auffahrten Edobashi und Gofukubashi sind schon seit Mai 2021 zu. Der Tunnel soll um 2035 fertig sein, die Brücke oben bis 2040 abgerissen werden.",
+          "en": "The Edobashi and Gofukubashi ramps have been shut since May 2021. The tunnel should be done around 2035, the elevated road torn down by 2040."
+        }
+      ]
+    },
+    {
+      "id": "fact_7",
+      "kind": "fact",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Nach über 50 Jahren hat der Beton gelitten. Bei Prüfungen fand man Risse in den Fahrbahnplatten und Ermüdungsrisse an den Lagern. Auch deshalb wird umgebaut.",
+        "en": "After more than 50 years the concrete has suffered. Inspections found cracked deck slabs and fatigue cracks in the bearings. That's another reason for the rebuild."
+      },
+      "topic": "c1",
+      "map": "c1"
+    },
+    {
+      "id": "fact_8",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Der C1 ist nur 14,8 Kilometer lang. Wenn frei ist, bist du in einer Viertelstunde einmal rum.",
+        "en": "The C1 is only 14.8 kilometres long. When it's clear, you're round in a quarter of an hour."
+      },
+      "topic": "c1",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Er läuft durch drei Bezirke: Chiyoda, Chūō und Minato. Regierung, Banken und Hafen, alles an einem Ring.",
+          "en": "It runs through three wards: Chiyoda, Chuo and Minato. Government, banks and harbour, all on one loop."
+        }
+      ]
+    },
+    {
+      "id": "fact_9",
+      "kind": "fact",
+      "speaker": "taxi",
+      "text": {
+        "de": "Merk dir: Außenring heißt soto-mawari und fährt im Uhrzeigersinn. Innenring heißt uchi-mawari, gegen den Uhrzeigersinn. Jeder Taxifahrer muss das im Schlaf können.",
+        "en": "Remember: the outer loop is soto-mawari and runs clockwise. The inner loop is uchi-mawari, anticlockwise. Every taxi driver knows that in their sleep."
+      },
+      "topic": "c1",
+      "map": "c1"
+    },
+    {
+      "id": "fact_10",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "Auf dem C1 gilt offiziell Tempo 50. Fast überall sonst auf dem Shutoko 60, nur auf dem Wangan 80.",
+        "en": "Officially the C1 limit is 50. Almost everywhere else on the Shutoko it's 60, only the Wangan allows 80."
+      },
+      "topic": "shutoko",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Eine Untersuchung von 2007 hat gezeigt, dass im Schnitt 30 bis 50 Prozent zu schnell gefahren wird. Überrascht dich das?",
+          "en": "A 2007 survey found people averaged 30 to 50 percent over the limit. Does that surprise you?"
+        }
+      ]
+    },
+    {
+      "id": "fact_11",
+      "kind": "fact",
+      "speaker": "guard",
+      "text": {
+        "de": "Lustig: Einen \"C1\" gibt es im Gesetz gar nicht. Offiziell besteht der Ring aus sechs verschiedenen Strecken mit eigenen Nummern.",
+        "en": "Funny thing: legally there is no \"C1\". Officially the loop is made of six different routes with their own numbers."
+      },
+      "topic": "c1",
+      "map": "c1"
+    },
+    {
+      "id": "fact_12",
+      "kind": "fact",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Wo die Pfeiler zwischen den Spuren stehen, darfst du nicht die Spur wechseln. Achte auf die durchgezogenen Linien, besonders bei Ginza und in den engen Kurven.",
+        "en": "Where the pillars stand between the lanes, you can't change lanes. Watch the solid lines, especially around Ginza and in the tight corners."
+      },
+      "topic": "c1",
+      "map": "c1"
+    },
+    {
+      "id": "fact_13",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Die Polizei hat einen eigenen Namen für die Leute, die hier Runden auf Zeit fahren: Roulette-zoku. Weil sie im Kreis fahren wie die Kugel im Roulette.",
+        "en": "The police have their own name for people who race laps here: roulette-zoku. Because they go round and round like the ball in a roulette wheel."
+      },
+      "topic": "racing",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Darum werden Parkplätze, an denen sich zu viele treffen, nachts gesperrt, und überall hängen Kameras. Die Autobahnpolizei kennt jede Kurve.",
+          "en": "That's why parking areas where too many gather get closed at night, and there are cameras everywhere. The expressway police know every corner."
+        }
+      ]
+    },
+    {
+      "id": "fact_14",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "2008 hat die Polizei eine ganze Motorradgruppe festgenommen, die auf dem Ring Rennen fuhr. Die nannten sich nach den Schleifen, die sie gedreht haben.",
+        "en": "In 2008 the police arrested an entire motorcycle crew that raced on the loop. They named themselves after the laps they ran."
+      },
+      "topic": "racing",
+      "map": "c1"
+    },
+    {
+      "id": "fact_15",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Früher war der C1 jeden Tag dicht, schon 1980 gab es ständig Stau. Darum hat man außen herum einen zweiten Ring gebaut, den C2.",
+        "en": "The C1 used to be jammed every day, there were constant traffic jams as early as 1980. So they built a second ring further out, the C2."
+      },
+      "topic": "shutoko",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Der C2 ist seit dem 7. März 2015 komplett. Seitdem fahren zwischen Tanimachi und Kasumigaseki etwa 20.000 Autos weniger am Tag.",
+          "en": "The C2 has been complete since 7 March 2015. Since then about 20,000 fewer cars a day use the stretch between Tanimachi and Kasumigaseki."
+        }
+      ]
+    },
+    {
+      "id": "fact_16",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Im C2 steckt der Yamate-Tunnel, über 18 Kilometer lang. Das ist der längste Straßentunnel Japans.",
+        "en": "The C2 contains the Yamate Tunnel, over 18 kilometres long. That's the longest road tunnel in Japan."
+      },
+      "topic": "shutoko",
+      "map": "c1"
+    },
+    {
+      "id": "fact_17",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Über eine Million Fahrzeuge am Tag benutzen den Shutoko. Und gefühlt fahren die Hälfte davon gerade vor mir.",
+        "en": "Over a million vehicles a day use the Shutoko. And it feels like half of them are right in front of me."
+      },
+      "topic": "shutoko",
+      "map": "c1"
+    },
+    {
+      "id": "fact_18",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "Früher hat jede Fahrt auf dem Shutoko gleich viel gekostet. Seit 2012 zahlst du nach Strecke, mit dem ETC-Kästchen wird es automatisch abgebucht.",
+        "en": "Every trip on the Shutoko used to cost the same. Since 2012 you pay by distance, and the ETC box deducts it automatically."
+      },
+      "topic": "shutoko",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Seit 2022 kommst du an vielen Auffahrten nur noch mit ETC rauf. Und Maut kassieren dürfen sie laut Gesetz bis 2065.",
+          "en": "Since 2022 many on-ramps only let you in with ETC. And by law they can keep collecting tolls until 2065."
+        }
+      ]
+    },
+    {
+      "id": "fact_19",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Das ganze Netz ist inzwischen über 300 Kilometer lang. Und es gehört einer Firma, an der der Staat, Tokio und die Nachbarpräfekturen beteiligt sind.",
+        "en": "The whole network is over 300 kilometres long now. And it belongs to a company owned by the state, Tokyo and the neighbouring prefectures."
+      },
+      "topic": "shutoko",
+      "map": "c1"
+    },
+    {
+      "id": "fact_20",
+      "kind": "fact",
+      "speaker": "guard",
+      "text": {
+        "de": "Der Shutoko hat ungefähr zwanzig Parkplätze wie diesen. Sie sind viel kleiner als die großen Raststätten an den Fernautobahnen.",
+        "en": "The Shutoko has about twenty parking areas like this one. They're much smaller than the big service areas on the intercity expressways."
+      },
+      "topic": "shutoko",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Wird gebaut, mache ich hier abends zu. Dann steht ein Schild an der Einfahrt, und ihr müsst weiterfahren.",
+          "en": "When there's construction, I close up here in the evening. Then there's a sign at the entrance and you lot have to keep driving."
+        }
+      ]
+    },
+    {
+      "id": "fact_21",
+      "kind": "fact",
+      "speaker": "taxi",
+      "text": {
+        "de": "Auf dem C1 dürfen Motorräder keinen Sozius mitnehmen. Mit Beiwagen ist es erlaubt. Frag mich nicht, warum.",
+        "en": "Motorcycles can't carry a pillion passenger on the C1. With a sidecar it's allowed. Don't ask me why."
+      },
+      "topic": "shutoko",
+      "map": "c1"
+    },
+    {
+      "id": "fact_22",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Am Kreuz Edobashi beginnt der Asian Highway 1. Er führt von hier bis an die Grenze zwischen der Türkei und Bulgarien.",
+        "en": "Asian Highway 1 starts at Edobashi junction. It runs from here all the way to the border between Turkey and Bulgaria."
+      },
+      "topic": "c1",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Theoretisch könntest du also vom C1 bis nach Europa fahren. Praktisch ist da ein Meer im Weg.",
+          "en": "So in theory you could drive from the C1 to Europe. In practice there's a sea in the way."
+        }
+      ]
+    },
+    {
+      "id": "fact_23",
+      "kind": "fact",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Der Ring führt an Kasumigaseki vorbei, wo die Ministerien sitzen, und an Nagatachō, wo das Parlament ist. Wenn du schnell fährst, fährst du an der Regierung vorbei.",
+        "en": "The loop passes Kasumigaseki, where the ministries are, and Nagatacho, where parliament sits. Drive fast and you're driving right past the government."
+      },
+      "topic": "c1",
+      "map": "c1"
+    },
+    {
+      "id": "fact_24",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Der Kaiserpalast steht dort, wo früher die Burg von Edo war. Der Ring läuft an den alten Burggräben entlang.",
+        "en": "The Imperial Palace stands where Edo Castle used to be. The loop runs along the old castle moats."
+      },
+      "topic": "c1",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Um den Palast führt eine Laufstrecke von rund fünf Kilometern. Tagsüber joggen dort Tausende. Nachts fahren wir hier oben unsere Runden.",
+          "en": "There's a jogging route of about five kilometres around the palace. Thousands run there by day. At night we run our laps up here."
+        }
+      ]
+    },
+    {
+      "id": "fact_25",
+      "kind": "fact",
+      "speaker": "photo",
+      "text": {
+        "de": "Die Rainbow Bridge da drüben wurde am 26. August 1993 eröffnet. 798 Meter lang, die Türme 126 Meter hoch.",
+        "en": "The Rainbow Bridge over there opened on 26 August 1993. 798 metres long, the towers 126 metres tall."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "shibaura",
+      "lines": [
+        {
+          "de": "Den Namen haben die Leute ausgesucht, offiziell heißt sie ganz nüchtern Hafen-Verbindungsbrücke. Die Lampen an den Seilen laden sich tagsüber mit Sonnenstrom auf.",
+          "en": "The public picked the name, officially it's just called the harbour connector bridge. The lamps on the cables charge up from solar power during the day."
+        }
+      ]
+    },
+    {
+      "id": "fact_26",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Auf der Shibaura-Seite fährt man in einer großen Schleife zur Brücke hoch. Mit dem Lkw fühlt sich das an wie ein Karussell.",
+        "en": "On the Shibaura side you climb to the bridge in a big loop. In a truck it feels like a merry-go-round."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "shibaura"
+    },
+    {
+      "id": "fact_27",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Odaiba heißt so wegen der \"Daiba\", das sind Kanonenbatterien. Die wurden 1853 und 1854 ins Meer gebaut, nachdem die schwarzen Schiffe der Amerikaner aufgetaucht waren.",
+        "en": "Odaiba is named after the \"daiba\", cannon batteries. They were built out in the bay in 1853 and 1854, after the American black ships showed up."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "shibaura",
+      "lines": [
+        {
+          "de": "Zwei davon gibt es heute noch, kleine Inseln mit Bäumen. Von der Brücke aus kannst du sie sehen.",
+          "en": "Two of them are still there, little islands with trees. You can see them from the bridge."
+        }
+      ]
+    },
+    {
+      "id": "fact_28",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Shibaura war früher ein Strand. Heute ist alles aufgeschüttetes Land mit Hafenmolen. Wir stehen sozusagen im Meer.",
+        "en": "Shibaura used to be a beach. Now it's all reclaimed land and piers. We're basically standing in the sea."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "shibaura",
+      "lines": [
+        {
+          "de": "Diese PA ist klein, aber hier haben sich in den Neunzigern und Zweitausendern die besten Autos der Stadt getroffen.",
+          "en": "This PA is small, but back in the nineties and two-thousands the best cars in town met right here."
+        }
+      ]
+    },
+    {
+      "id": "fact_29",
+      "kind": "fact",
+      "speaker": "guard",
+      "text": {
+        "de": "Diese PA liegt auf der Strecke über die Rainbow Bridge. Wenn dort gebaut wird, sperre ich abends ab fünf zu.",
+        "en": "This PA sits on the route over the Rainbow Bridge. When there's work on it, I close up from five in the evening."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "shibaura"
+    },
+    {
+      "id": "fact_30",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Das allererste Stück Shutoko endete hier in Shibaura. 1963 ging es dann weiter Richtung Flughafen Haneda.",
+        "en": "The very first stretch of the Shutoko ended right here in Shibaura. In 1963 it was extended towards Haneda airport."
+      },
+      "topic": "shutoko",
+      "map": "c1",
+      "place": "shibaura"
+    },
+    {
+      "id": "fact_31",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Tatsumi bedeutet \"Drache und Schlange\". Auf dem alten japanischen Kompass mit den Tierkreiszeichen ist das die Richtung Südosten.",
+        "en": "Tatsumi means \"dragon and snake\". On the old Japanese compass using the zodiac animals, that's the south-east."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "tatsumi",
+      "lines": [
+        {
+          "de": "Von der alten Stadt Edo aus lag das hier im Südosten. Die Namen sind geblieben, auch wenn das Land erst später aus dem Meer gewonnen wurde.",
+          "en": "Seen from old Edo, this was the south-east. The names stuck, even though the land was only reclaimed from the sea later."
+        }
+      ]
+    },
+    {
+      "id": "fact_32",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Tatsumi hat zwei Parkplätze, einen pro Richtung. Dieser hier ist seit Jahren ein Treffpunkt für Leute mit besonderen Autos.",
+        "en": "Tatsumi has two parking areas, one per direction. This one has been a meeting spot for people with special cars for years."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "tatsumi",
+      "lines": [
+        {
+          "de": "Wenn es zu voll wird, macht die Autobahngesellschaft am Wochenende einfach zu. Darum fahren alle hier hin, bevor es sich herumspricht.",
+          "en": "When it gets too busy, the expressway company just closes it on weekends. So everyone comes here before word gets out."
+        }
+      ]
+    },
+    {
+      "id": "fact_33",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "Tatsumi liegt in Kōtō, auf aufgeschüttetem Land in der Bucht. Ringsum nur Lagerhallen, Kanäle und Autobahnkreuze.",
+        "en": "Tatsumi is in Koto, on reclaimed land in the bay. All around it: warehouses, canals and interchanges."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "tatsumi"
+    },
+    {
+      "id": "fact_34",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Von hier bist du schnell auf dem Wangan. Breit, gerade, 80 erlaubt. Darum war der Wangan früher die Strecke für Höchstgeschwindigkeit.",
+        "en": "From here you're on the Wangan in no time. Wide, straight, 80 allowed. That's why the Wangan used to be the top-speed course."
+      },
+      "topic": "place",
+      "map": "c1",
+      "place": "tatsumi"
+    },
+    {
+      "id": "fact_35",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Es gab mal einen Club, der nur nachts auf dem Wangan fuhr. Gegründet Ende der Achtziger. Reinkommen war fast unmöglich.",
+        "en": "There was once a club that only drove the Wangan at night. Founded in the late eighties. Getting in was almost impossible."
+      },
+      "topic": "racing",
+      "lines": [
+        {
+          "de": "Ihre Regel: Wer schnell fährt, gefährdet niemanden. Bei viel Verkehr wurde langsam gemacht. Wer sich nicht dran hielt, flog raus.",
+          "en": "Their rule: drive fast, but never endanger anyone. In heavy traffic you slowed down. Break the rule and you were out."
+        },
+        {
+          "de": "1999 wollte sich eine Motorradgang bei einer Fahrt anhängen. Es kam zu einem schweren Unfall, zwei Motorradfahrer starben. Der Club hat sich noch am selben Tag aufgelöst.",
+          "en": "In 1999 a motorcycle gang tried to tag along on a run. There was a terrible crash and two riders died. The club dissolved the same day."
+        }
+      ]
+    },
+    {
+      "id": "fact_36",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Die Bōsōzoku, die Motorradgangs, gibt es seit den Fünfzigern. 1982 waren es über 42.000 Mitglieder in ganz Japan.",
+        "en": "The bosozoku, the biker gangs, have been around since the fifties. In 1982 there were over 42,000 members across Japan."
+      },
+      "topic": "racing",
+      "lines": [
+        {
+          "de": "2004 wurde das Verkehrsgesetz verschärft, gemeinsames gefährliches Fahren kann seitdem viel leichter bestraft werden. Heute sind es nur noch ein paar Tausend.",
+          "en": "In 2004 the traffic law was tightened, and dangerous group riding became much easier to punish. Today there are only a few thousand left."
+        }
+      ]
+    },
+    {
+      "id": "fact_37",
+      "kind": "fact",
+      "speaker": "drifter",
+      "text": {
+        "de": "Weißt du, wo Drift herkommt? Von den Bergpässen, den Touge. In den Siebzigern und Achtzigern sind die Leute nachts die Pässe hoch und quer wieder runter.",
+        "en": "Know where drifting comes from? The mountain passes, the touge. In the seventies and eighties people drove up the passes at night and came back down sideways."
+      },
+      "topic": "racing",
+      "lines": [
+        {
+          "de": "Aus der Straße wurde später ein Sport mit eigener Profiserie. Die gibt es seit 2001.",
+          "en": "Later the street thing became a sport with its own pro series. That has existed since 2001."
+        }
+      ]
+    },
+    {
+      "id": "fact_38",
+      "kind": "fact",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Von 1989 bis 2004 hatten die japanischen Hersteller eine Abmachung: Kein Auto wird mit mehr als 280 PS verkauft.",
+        "en": "From 1989 to 2004 Japanese makers had an agreement: no car would be sold with more than 280 PS."
+      },
+      "topic": "racing",
+      "lines": [
+        {
+          "de": "Auf dem Papier hielten sich alle dran. Auf dem Prüfstand hatten manche Autos deutlich mehr. Du verstehst schon.",
+          "en": "On paper everyone stuck to it. On the dyno some cars had a lot more. You get the idea."
+        }
+      ]
+    },
+    {
+      "id": "fact_39",
+      "kind": "fact",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Japanische Autos regeln bei 180 km/h ab, so ist es bei den Herstellern üblich. Wer schneller will, muss etwas umbauen.",
+        "en": "Japanese cars are limited to 180 km/h, that's the makers' custom. If you want more, you have to modify something."
+      },
+      "topic": "cars"
+    },
+    {
+      "id": "fact_40",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "In den Achtzigern gab es die Kaidō-Racer: tiefe Autos, riesige Spoiler, Auspuffrohre, die senkrecht in den Himmel zeigten. Sie haben die Rennwagen der Siebziger nachgebaut.",
+        "en": "In the eighties there were the kaido racers: slammed cars, huge spoilers, exhaust pipes pointing straight up at the sky. They copied the race cars of the seventies."
+      },
+      "topic": "racing"
+    },
+    {
+      "id": "fact_41",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "In Osaka gab es Leute, die auf dem Stadtring Rennen fuhren, mit kleinen, lauten Kompaktwagen. Man nannte sie Kanjō-zoku, \"Ring-Gang\".",
+        "en": "In Osaka there were people racing the city loop in small, loud hatchbacks. They were called kanjo-zoku, the \"loop gang\"."
+      },
+      "topic": "racing",
+      "lines": [
+        {
+          "de": "Nach einer großen Razzia sind fast alle Gruppen verschwunden. Tokio hat seinen eigenen Ring, und du stehst gerade an seinem Rand.",
+          "en": "After a big crackdown almost all of the groups disappeared. Tokyo has its own loop, and you're standing right next to it."
+        }
+      ]
+    },
+    {
+      "id": "fact_42",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "In den Achtzigern und Neunzigern war \"Zero-Yon\" groß: 0 auf 400 Meter, Beschleunigungsrennen. Die Automagazine haben jede Woche Zeiten veröffentlicht.",
+        "en": "In the eighties and nineties \"zero-yon\" was huge: zero to 400 metres, drag racing. The car magazines published times every week."
+      },
+      "topic": "racing"
+    },
+    {
+      "id": "fact_43",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "Vor den Blitzern auf der Autobahn steht immer ein Warnschild. Die Kästen heißen hier Orbis. Wer das Schild übersieht, ist selbst schuld.",
+        "en": "There's always a warning sign before the speed cameras on the expressway. The boxes are called Orbis here. Miss the sign and it's your own fault."
+      },
+      "topic": "racing"
+    },
+    {
+      "id": "fact_44",
+      "kind": "fact",
+      "speaker": "taxi",
+      "text": {
+        "de": "Die Autobahnpolizei fährt auch Zivilwagen, ganz normale Limousinen. Wenn hinter dir plötzlich ein rotes Licht aus dem Dach kommt, ist der Spaß vorbei.",
+        "en": "The expressway police drive unmarked cars too, ordinary saloons. If a red light suddenly pops out of a roof behind you, the fun is over."
+      },
+      "topic": "racing"
+    },
+    {
+      "id": "fact_45",
+      "kind": "fact",
+      "speaker": "photo",
+      "text": {
+        "de": "Der berühmteste Parkplatz Japans ist der Daikoku in Yokohama. Eine Insel, um die sich die Rampen schrauben wie ein Korkenzieher.",
+        "en": "The most famous parking area in Japan is Daikoku in Yokohama. An island with ramps spiralling around it like a corkscrew."
+      },
+      "topic": "racing",
+      "lines": [
+        {
+          "de": "Inzwischen kommen Touristen sogar zu Fuß über den Zaun. Die Polizei sperrt ihn deshalb immer öfter. Fahr hin, solange es noch geht.",
+          "en": "Now tourists even climb the fence to get in on foot. That's why the police close it more and more often. Go while you still can."
+        }
+      ]
+    },
+    {
+      "id": "fact_46",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Früher gab es viel mehr junge Leute mit schnellen Autos. Heute haben viele gar keinen Führerschein. Teure Prüfungen, teure Parkplätze, und die Bahn fährt überall hin.",
+        "en": "There used to be many more young people with fast cars. Today plenty don't even have a licence. Expensive inspections, expensive parking, and the trains go everywhere."
+      },
+      "topic": "racing"
+    },
+    {
+      "id": "fact_47",
+      "kind": "fact",
+      "speaker": "mechanic",
+      "text": {
+        "de": "In Japan muss dein Auto alle zwei Jahre zur großen Prüfung, dem Shaken. Ein neues Auto erst nach drei Jahren.",
+        "en": "In Japan your car goes for the big inspection, the shaken, every two years. A new car after its first three."
+      },
+      "topic": "cars",
+      "lines": [
+        {
+          "de": "Das kostet richtig Geld. Darum verkaufen viele ihr Auto lieber, bevor es fällig wird. Deshalb gibt es so viele gute Gebrauchte aus Japan.",
+          "en": "It costs real money. So many people sell their car before it's due. That's why there are so many good used cars from Japan."
+        }
+      ]
+    },
+    {
+      "id": "fact_48",
+      "kind": "fact",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Bevor du in Tokio ein Auto anmelden kannst, musst du beweisen, dass du einen Stellplatz hast. Ohne Parkplatz-Bescheinigung kein Auto.",
+        "en": "Before you can register a car in Tokyo, you have to prove you have a parking space. No parking certificate, no car."
+      },
+      "topic": "cars",
+      "lines": [
+        {
+          "de": "Mein Stellplatz kostet im Monat mehr als die Rate für das Auto. Und er ist so eng, dass ich auf der Beifahrerseite aussteigen muss.",
+          "en": "My parking space costs more per month than the car payment. And it's so tight I have to get out on the passenger side."
+        }
+      ]
+    },
+    {
+      "id": "fact_49",
+      "kind": "fact",
+      "speaker": "rookie",
+      "text": {
+        "de": "Im ersten Jahr nach dem Führerschein muss ich das grün-gelbe Blatt aufs Auto kleben, das Wakaba-Zeichen. Alle sehen sofort, dass ich neu bin.",
+        "en": "For the first year after getting my licence I have to stick the green and yellow leaf on my car, the wakaba mark. Everyone can tell I'm new."
+      },
+      "topic": "cars",
+      "lines": [
+        {
+          "de": "Ältere Fahrer haben auch ein eigenes Zeichen, ein Blatt mit vier Farben. Mein Opa fährt damit schneller als ich.",
+          "en": "Older drivers have their own mark too, a four-coloured leaf. My grandpa drives faster with his than I do."
+        }
+      ]
+    },
+    {
+      "id": "fact_50",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "Siehst du die gelben Nummernschilder? Das sind Kei-Cars. Höchstens 660 Kubik, und die Hersteller bauen sie mit maximal 64 PS.",
+        "en": "See the yellow number plates? Those are kei cars. 660 cc at most, and the makers build them with no more than 64 PS."
+      },
+      "topic": "cars",
+      "lines": [
+        {
+          "de": "Billiger in Steuer und Versicherung. Mein Lieferwagen ist einer. Bergauf hasse ich ihn, im Gassengewirr liebe ich ihn.",
+          "en": "Cheaper tax and insurance. My delivery van is one. I hate it uphill, I love it in the back alleys."
+        }
+      ]
+    },
+    {
+      "id": "fact_51",
+      "kind": "fact",
+      "speaker": "taxi",
+      "text": {
+        "de": "Wenn dich jemand reinlässt, sag kurz mit dem Warnblinker danke. Zweimal blinken reicht. So macht man das hier.",
+        "en": "When someone lets you in, say thanks with your hazards. Two blinks is enough. That's how it's done here."
+      },
+      "topic": "cars"
+    },
+    {
+      "id": "fact_52",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Auf den Nummernschildern kommt nie das Zeichen \"shi\" vor. Das klingt wie das Wort für Tod.",
+        "en": "You'll never see the character \"shi\" on a number plate. It sounds like the word for death."
+      },
+      "topic": "cars",
+      "lines": [
+        {
+          "de": "Und steht \"wa\" oder \"re\" drauf, ist es ein Mietwagen. Dann weißt du, der Fahrer kennt die Strecke vielleicht nicht.",
+          "en": "And if it says \"wa\" or \"re\", it's a rental. Then you know the driver might not know the road."
+        }
+      ]
+    },
+    {
+      "id": "fact_53",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "In Japan fährt man links. Auf Okinawa fuhr man nach dem Krieg rechts, wie die Amerikaner. Am 30. Juli 1978 wurde über Nacht umgestellt.",
+        "en": "Japan drives on the left. After the war Okinawa drove on the right, like the Americans. On 30 July 1978 they switched overnight."
+      },
+      "topic": "cars",
+      "lines": [
+        {
+          "de": "Den Tag nennen sie dort heute noch \"730\", nach dem Datum.",
+          "en": "They still call that day \"730\" there, after the date."
+        }
+      ]
+    },
+    {
+      "id": "fact_54",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Auf den Fernautobahnen sind meist 100 erlaubt, auf ein paar neuen Strecken seit einigen Jahren sogar 120. Ich fahr trotzdem 80. Mein Lkw ist da ehrlich.",
+        "en": "Most intercity expressways allow 100, and a few newer sections have allowed 120 for some years now. I still do 80. My truck is honest about that."
+      },
+      "topic": "cars"
+    },
+    {
+      "id": "fact_55",
+      "kind": "fact",
+      "speaker": "mechanic",
+      "text": {
+        "de": "An der Tankstelle: rot ist Normal, gelb ist Super, grün ist Diesel. Wer grün in einen Benziner tankt, ruft danach mich an.",
+        "en": "At the pump: red is regular, yellow is high octane, green is diesel. Put green in a petrol car and you'll be calling me afterwards."
+      },
+      "topic": "cars"
+    },
+    {
+      "id": "fact_56",
+      "kind": "fact",
+      "speaker": "taxi",
+      "text": {
+        "de": "Viele Taxis in Japan fahren mit Autogas statt Benzin. Und die hintere Tür geht von selbst auf, ich mache das mit einem Hebel.",
+        "en": "Lots of taxis in Japan run on LPG instead of petrol. And the rear door opens by itself, I work it with a lever."
+      },
+      "topic": "cars",
+      "lines": [
+        {
+          "de": "Nach Mitternacht, wenn die letzten Bahnen weg sind, ist meine beste Zeit. Dann winkt die ganze Stadt.",
+          "en": "After midnight, when the last trains are gone, is my best time. Then the whole city is waving."
+        }
+      ]
+    },
+    {
+      "id": "fact_57",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "Das ETC-System gibt es in Japan seit 2001. Seitdem rollst du mit 20 durch die Mautstelle, statt anzuhalten.",
+        "en": "Japan has had the ETC system since 2001. Since then you roll through the toll gate at 20 instead of stopping."
+      },
+      "topic": "shutoko"
+    },
+    {
+      "id": "fact_58",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Tokio hieß früher Edo. Erst 1868, als der Kaiser hierher zog, wurde daraus Tokio, die \"östliche Hauptstadt\".",
+        "en": "Tokyo used to be called Edo. Only in 1868, when the emperor moved here, did it become Tokyo, the \"eastern capital\"."
+      },
+      "topic": "tokyo"
+    },
+    {
+      "id": "fact_59",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Der Großraum Tokio hat ungefähr 37 Millionen Einwohner. Das ist die größte Metropolregion der Welt.",
+        "en": "Greater Tokyo has around 37 million people. That's the biggest metropolitan area in the world."
+      },
+      "topic": "tokyo"
+    },
+    {
+      "id": "fact_60",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "1923 hat das große Kantō-Erdbeben halb Tokio zerstört, 1945 kamen die Bomben. Die Stadt wurde zweimal fast komplett neu gebaut.",
+        "en": "In 1923 the Great Kanto earthquake destroyed half of Tokyo, and in 1945 came the bombs. The city was rebuilt almost completely, twice."
+      },
+      "topic": "tokyo"
+    },
+    {
+      "id": "fact_61",
+      "kind": "fact",
+      "speaker": "photo",
+      "text": {
+        "de": "Der Tokyo Tower ist von 1958 und 333 Meter hoch. Der Skytree kam 2012 und ist 634 Meter hoch.",
+        "en": "Tokyo Tower dates from 1958 and is 333 metres tall. The Skytree came in 2012 and is 634 metres tall."
+      },
+      "topic": "tokyo",
+      "lines": [
+        {
+          "de": "Die 634 haben sie mit Absicht gewählt. Man kann die Zahl als \"Musashi\" lesen, so hieß die alte Provinz hier.",
+          "en": "They picked 634 on purpose. You can read the number as \"Musashi\", the name of the old province here."
+        }
+      ]
+    },
+    {
+      "id": "fact_62",
+      "kind": "fact",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Ginza heißt eigentlich \"Silbermünze\". In der Edo-Zeit wurden dort die Silbermünzen geprägt. Heute ist das Geld immer noch da, nur in den Läden.",
+        "en": "Ginza actually means \"silver mint\". In the Edo period the silver coins were struck there. The money is still there today, just in the shops."
+      },
+      "topic": "tokyo",
+      "map": "c1"
+    },
+    {
+      "id": "fact_63",
+      "kind": "fact",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Shinbashi ist das Viertel der Angestellten. Nach Feierabend sitzen alle unter den Bahnbögen und trinken.",
+        "en": "Shinbashi is the office workers' district. After work everyone sits under the railway arches and drinks."
+      },
+      "topic": "tokyo",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Von dort fuhr 1872 die erste Eisenbahn Japans nach Yokohama. Wir trinken also an einem historischen Ort.",
+          "en": "In 1872 Japan's first railway ran from there to Yokohama. So we're drinking at a historic site."
+        }
+      ]
+    },
+    {
+      "id": "fact_64",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Den alten Fischmarkt von Tsukiji gibt es nicht mehr. Seit Oktober 2018 ist der Großmarkt in Toyosu, gleich hier in der Bucht.",
+        "en": "The old Tsukiji fish market is gone. Since October 2018 the wholesale market has been in Toyosu, just across the bay."
+      },
+      "topic": "tokyo",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Um vier Uhr morgens ist da mehr los als hier. Thunfisch wartet auf niemanden.",
+          "en": "At four in the morning it's busier there than here. Tuna waits for no one."
+        }
+      ]
+    },
+    {
+      "id": "fact_65",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Der rote Backsteinbau vom Bahnhof Tokio ist von 1914. Im Krieg wurde das Dach zerstört, erst 2012 hat man ihn wieder so aufgebaut, wie er war.",
+        "en": "Tokyo Station's red brick building is from 1914. The roof was destroyed in the war, and it was only restored to its original look in 2012."
+      },
+      "topic": "tokyo"
+    },
+    {
+      "id": "fact_66",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Die Aqua-Line über die Bucht ist von 1997: erst ein Tunnel unter dem Meer, dann eine lange Brücke. In der Mitte ist ein Parkplatz auf einer künstlichen Insel.",
+        "en": "The Aqua-Line across the bay dates from 1997: first a tunnel under the sea, then a long bridge. In the middle there's a parking area on an artificial island."
+      },
+      "topic": "tokyo"
+    },
+    {
+      "id": "fact_67",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Die Bay Bridge in Yokohama ist von 1989. Unter der Autobahn hängt noch eine zweite Fahrbahn. Zwei Brücken in einer.",
+        "en": "Yokohama's Bay Bridge is from 1989. Under the expressway hangs a second roadway. Two bridges in one."
+      },
+      "topic": "tokyo"
+    },
+    {
+      "id": "fact_68",
+      "kind": "fact",
+      "speaker": "drifter",
+      "text": {
+        "de": "Weißt du, warum es in Tokio kaum Parkplätze gibt? Weil jeder Quadratmeter so viel kostet wie bei dir zu Hause ein Gebrauchtwagen.",
+        "en": "Know why there's hardly any parking in Tokyo? Because every square metre costs as much as a used car back home."
+      },
+      "topic": "tokyo"
+    },
+    {
+      "id": "fact_69",
+      "kind": "fact",
+      "speaker": "rookie",
+      "text": {
+        "de": "In Japan gibt es über zwei Millionen Getränkeautomaten. Ich glaube, die Hälfte davon steht an Parkplätzen wie diesem.",
+        "en": "Japan has over two million drink vending machines. I think half of them are at parking areas like this one."
+      },
+      "topic": "japan",
+      "lines": [
+        {
+          "de": "Trick: Rot unter dem Knopf heißt heiß, blau heißt kalt. Im Winter gibt es heißen Kaffee aus der Dose.",
+          "en": "Tip: red under the button means hot, blue means cold. In winter you get hot coffee in a can."
+        }
+      ]
+    },
+    {
+      "id": "fact_70",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "In Japan gibt es über 50.000 Konbinis, kleine Läden, die rund um die Uhr offen haben. Für Nachtfahrer sind die überlebenswichtig.",
+        "en": "Japan has over 50,000 konbini, small stores open round the clock. For night drivers they're essential."
+      },
+      "topic": "japan"
+    },
+    {
+      "id": "fact_71",
+      "kind": "fact",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Japan hat 47 Präfekturen. Tokio ist eine davon, auch wenn sich Tokio wie ein eigenes Land anfühlt.",
+        "en": "Japan has 47 prefectures. Tokyo is one of them, even though Tokyo feels like a country of its own."
+      },
+      "topic": "japan"
+    },
+    {
+      "id": "fact_72",
+      "kind": "fact",
+      "speaker": "guard",
+      "text": {
+        "de": "Fundsachen kommen in Japan fast immer zurück. Letzte Woche hat jemand hier sein Portemonnaie liegen lassen. Am nächsten Tag lag es bei mir, mit allem Geld drin.",
+        "en": "Lost things almost always come back in Japan. Last week someone left their wallet here. The next day it was with me, every yen still inside."
+      },
+      "topic": "japan"
+    },
+    {
+      "id": "fact_73",
+      "kind": "fact",
+      "speaker": "photo",
+      "text": {
+        "de": "Im Frühling blühen die Kirschbäume nur ein, zwei Wochen. Die Wetterdienste sagen die Blüte voraus wie ein Unwetter.",
+        "en": "In spring the cherry trees only bloom for a week or two. The weather services forecast the blossom like a storm."
+      },
+      "topic": "japan"
+    },
+    {
+      "id": "fact_74",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Japan bebt jeden Tag irgendwo ein bisschen. Darum stehen die Autobahnstützen hier auf besonderen Lagern. Nach dem großen Beben 1995 in Kōbe wurden viele verstärkt.",
+        "en": "Somewhere in Japan the ground shakes a little every day. That's why the expressway pillars sit on special bearings. After the big 1995 Kobe earthquake many were reinforced."
+      },
+      "topic": "japan"
+    },
+    {
+      "id": "fact_75",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "In Japan gibt es kaum Straßennamen, nur Blöcke mit Nummern. Ohne Navi findest du hier keine Adresse. Mit Navi übrigens auch nicht immer.",
+        "en": "Japan barely uses street names, just numbered blocks. You can't find an address without sat-nav. And not always with it either."
+      },
+      "topic": "japan"
+    },
+    {
+      "id": "fact_76",
+      "kind": "fact",
+      "speaker": "drifter",
+      "text": {
+        "de": "Der Fuji ist 3.776 Meter hoch. Bei klarer Sicht siehst du ihn sogar von Tokio aus, meistens im Winter, früh am Morgen.",
+        "en": "Mount Fuji is 3,776 metres high. On a clear day you can even see it from Tokyo, mostly in winter, early in the morning."
+      },
+      "topic": "japan"
+    },
+    {
+      "id": "fact_77",
+      "kind": "fact",
+      "speaker": "rookie",
+      "text": {
+        "de": "Hier mit 18 den Führerschein zu machen, kostet in der Fahrschule locker 300.000 Yen. Darum fahre ich so vorsichtig. Das Auto war billiger als der Schein.",
+        "en": "Getting a licence at 18 here easily costs 300,000 yen at driving school. That's why I drive so carefully. The car was cheaper than the licence."
+      },
+      "topic": "japan"
+    },
+    {
+      "id": "fact_78",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Weißt du, woher unsere Welt kommt? Aus Bremen, in Deutschland. Dort sitzt die Firma, die alles hier gebaut hat.",
+        "en": "Know where our world comes from? Bremen, in Germany. That's where the company that built all this is based."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Angefangen hat es 2011 mit ein paar Leuten aus der Szene um Rigs of Rods, einem freien Physik-Spiel. Sie wollten einen besseren Nachfolger bauen.",
+          "en": "It started in 2011 with a few people from the Rigs of Rods scene, a free physics game. They wanted to build a better successor."
+        },
+        {
+          "de": "Darum heißt es auch \"NG\". Das steht für Next Generation. Die nächste Generation.",
+          "en": "That's why it's called \"NG\". It stands for Next Generation."
+        }
+      ]
+    },
+    {
+      "id": "fact_79",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Die Webseite unserer Welt ging am 8. Mai 2012 online. Drei Wochen später kam ein Video, in dem sich Autos echt verformen.",
+        "en": "Our world's website went online on 8 May 2012. Three weeks later came a video of cars deforming for real."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Über Nacht hatte es über eine Million Aufrufe. Danach wollte jeder wissen, was das ist.",
+          "en": "It got over a million views overnight. After that everyone wanted to know what it was."
+        }
+      ]
+    },
+    {
+      "id": "fact_80",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Am 3. August 2013 gab es die erste spielbare Demo. Ein Auto, eine Karte. Mehr nicht.",
+        "en": "The first playable demo came out on 3 August 2013. One car, one map. That's it."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Wer früh bezahlt hat, bekam fünf Autos und sechs Karten. Und am 10. September 2013 kam das sechste Auto dazu: der Moonhawk.",
+          "en": "Those who paid early got five cars and six maps. And on 10 September 2013 the sixth car arrived: the Moonhawk."
+        }
+      ]
+    },
+    {
+      "id": "fact_81",
+      "kind": "fact",
+      "speaker": "rookie",
+      "text": {
+        "de": "Seit dem 29. Mai 2015 kann jeder im Vorabzugang mitspielen. Und es ist immer noch nicht \"fertig\". Version 0.40, über zehn Jahre später.",
+        "en": "Since 29 May 2015 anyone can play in early access. And it still isn't \"finished\". Version 0.40, more than ten years later."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_82",
+      "kind": "fact",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Bei uns ist nichts aus einem Stück. Jedes Auto besteht aus Knoten mit Gewicht und Balken dazwischen. Die Balken wirken wie Federn.",
+        "en": "Nothing here is made of one piece. Every car is made of nodes with mass and beams between them. The beams act like springs."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Jeder Balken hat eine Kraft, ab der er sich verbiegt, und eine, ab der er bricht. Bricht er, hängen die Knoten nicht mehr zusammen. So entsteht jede Delle.",
+          "en": "Every beam has a force where it bends and one where it breaks. When it breaks, the nodes are no longer connected. That's where every dent comes from."
+        }
+      ]
+    },
+    {
+      "id": "fact_83",
+      "kind": "fact",
+      "speaker": "mechanic",
+      "text": {
+        "de": "Weiche Physik heißt das. Darum fühlt sich ein Unfall hier so echt an. Motor kaputt, Türen weg, Scheiben zersprungen, Reifen geplatzt. Alles gerechnet, nichts vorgespielt.",
+        "en": "Soft-body physics, they call it. That's why a crash feels so real here. Engine wrecked, doors off, windows shattered, tyres burst. All calculated, nothing faked."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_84",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Die Baupläne unserer Autos heißen JBeam. Das ist eine Textdatei, die wie JSON aufgebaut ist. Da steht jeder Knoten und jeder Balken drin.",
+        "en": "The blueprints of our cars are called JBeam. It's a text file laid out like JSON. Every node and every beam is listed in it."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Und alles, was dabei passiert, Rennen, Verkehr, sogar diese Gespräche, ist in einer Sprache namens Lua geschrieben.",
+          "en": "And everything that happens around it, races, traffic, even this conversation, is written in a language called Lua."
+        }
+      ]
+    },
+    {
+      "id": "fact_85",
+      "kind": "fact",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Wusstest du, dass es unsere Welt auch für die Forschung gibt? BeamNG.tech heißt das. Ein Ableger für Lehre, Industrie und Forschung an Universitäten.",
+        "en": "Did you know our world is also used for research? It's called BeamNG.tech. A spin-off for education, industry and university research."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_86",
+      "kind": "fact",
+      "speaker": "photo",
+      "text": {
+        "de": "Sogar die Filmbranche hat sich für unsere Welt interessiert. Man kann Stunts damit vorher ausprobieren, ohne ein echtes Auto zu zerlegen.",
+        "en": "Even the film industry got interested in our world. You can try out stunts first without wrecking a real car."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_87",
+      "kind": "fact",
+      "speaker": "guard",
+      "text": {
+        "de": "Wir Bobs sind noch nicht lange da. Erst seit Version 0.40, die kam am 19. Oktober 2026 raus.",
+        "en": "We Bobs haven't been around long. Only since version 0.40, which came out on 19 October 2026."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Die Ankündigung hieß \"Behold, the Coming of Bob\". Und es stand dabei: Jeder liebt Bob.",
+          "en": "The announcement was called \"Behold, the Coming of Bob\". And it said: everyone loves Bob."
+        }
+      ]
+    },
+    {
+      "id": "fact_88",
+      "kind": "fact",
+      "speaker": "taxi",
+      "text": {
+        "de": "Jeder von uns wiegt 89 Kilo. Wenn ich einen Fahrgast hinten habe, fährt mein Taxi wirklich anders.",
+        "en": "Each of us weighs 89 kilos. With a fare in the back, my taxi really does drive differently."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Wir sitzen richtig im Auto und sind selbst aus Knoten und Balken. Darum wackeln wir mit, wenn du hart fährst.",
+          "en": "We actually sit in the car and are made of nodes and beams ourselves. That's why we wobble along when you drive hard."
+        }
+      ]
+    },
+    {
+      "id": "fact_89",
+      "kind": "fact",
+      "speaker": "drifter",
+      "text": {
+        "de": "Seit es uns Bobs gibt, sind Rallyeautos schwerer. Mit Fahrer und Beifahrer drin stimmt die Gewichtsverteilung endlich.",
+        "en": "Since we Bobs arrived, rally cars are heavier. With a driver and co-driver inside, the weight balance is finally right."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_90",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Die Entwickler sagen, wir Bobs sind nur für den Realismus da. Dass wir etwas albern aussehen, sei ein glücklicher Zufall. Ehrlich, haben sie geschworen.",
+        "en": "The developers say we Bobs are only here for realism. Looking a bit silly is a happy coincidence. They swore, honestly."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_91",
+      "kind": "fact",
+      "speaker": "rookie",
+      "text": {
+        "de": "Seit 0.40 kannst du dich zu Fuß im Spiegel sehen. Ich hab eine halbe Stunde vor dem Seitenspiegel gestanden.",
+        "en": "Since 0.40 you can see yourself in the mirror on foot. I stood in front of a wing mirror for half an hour."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Und unsere Farbe bleibt, wenn wir einsteigen. So weiß man immer, wer in welchem Auto sitzt.",
+          "en": "And our colour stays when we get in. So you always know who's in which car."
+        }
+      ]
+    },
+    {
+      "id": "fact_92",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "Es gibt ein Dino-Maskottchen namens Tyrannos. Das wiegt 86 Kilo, drei weniger als ich. Ich finde das beleidigend.",
+        "en": "There's a dinosaur mascot called Tyrannos. It weighs 86 kilos, three less than me. I find that offensive."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_93",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "In unserer Welt kommen Ibishu und Hirochi aus Japan. Gavril und Bruckell aus Amerika, ETK aus Deutschland, Civetta aus Italien, Cherrier aus Frankreich.",
+        "en": "In our world Ibishu and Hirochi are from Japan. Gavril and Bruckell from America, ETK from Germany, Civetta from Italy, Cherrier from France."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Hier auf dem Shutoko siehst du natürlich am meisten Ibishu und Hirochi. Heimvorteil.",
+          "en": "Here on the Shutoko you naturally see the most Ibishu and Hirochi. Home advantage."
+        }
+      ]
+    },
+    {
+      "id": "fact_94",
+      "kind": "fact",
+      "speaker": "fan",
+      "text": {
+        "de": "Die BX-Reihe von Ibishu wurde von 1990 bis 1994 gebaut. Es gibt eine Version namens Runner. Laut Beschreibung gebaut für Japans Expressways. Also genau für hier.",
+        "en": "Ibishu built the BX series from 1990 to 1994. There's a version called the Runner. The description says it's built for Japan's expressways. So exactly for here."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_95",
+      "kind": "fact",
+      "speaker": "rookie",
+      "text": {
+        "de": "Der Covet von Ibishu lief von 1986 bis 1992. Es gibt sogar eine Version mit Mittelmotor und Turbo, eine Homologation von 1986 bis 1989.",
+        "en": "The Ibishu Covet ran from 1986 to 1992. There's even a mid-engined turbo version, a homologation special from 1986 to 1989."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Und eine, bei der statt Hinterreifen Metallplatten drauf sind. Zum Driften auf Parkplätzen. Bitte nicht hier.",
+          "en": "And one with metal plates instead of rear tyres. For drifting in car parks. Please not here."
+        }
+      ]
+    },
+    {
+      "id": "fact_96",
+      "kind": "fact",
+      "speaker": "veteran",
+      "text": {
+        "de": "Der Miramar von Ibishu ist von 1963 bis 1968. Im Export gab es ihn noch bis 1994. Es gibt sogar eine Version, die \"Canyon King\" heißt, für enge Bergstraßen.",
+        "en": "The Ibishu Miramar dates from 1963 to 1968. Export versions ran until 1994. There's even one called the \"Canyon King\", for narrow mountain roads."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_97",
+      "kind": "fact",
+      "speaker": "drifter",
+      "text": {
+        "de": "Der Sunburst von Hirochi ist von 2009 bis 2014. Es gibt ihn als Itasha, mit Anime-Folie. Und als Kombi mit Hinterradantrieb zum Driften lernen.",
+        "en": "The Hirochi Sunburst dates from 2009 to 2014. There's an itasha version with an anime wrap. And a rear-drive estate for learning to drift."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_98",
+      "kind": "fact",
+      "speaker": "salaryman",
+      "text": {
+        "de": "Der SBR4 von Hirochi ist ein Shooting Brake, von 2013 bis 2020. Es gibt ihn auch elektrisch, als eSBR 300, 500 und 800.",
+        "en": "The Hirochi SBR4 is a shooting brake, from 2013 to 2020. There's an electric one too, the eSBR 300, 500 and 800."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_99",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Hirochi baut nicht nur Autos. Auch Muldenkipper und Radlader. Der HT-55 trägt 55 Tonnen. Es gibt sogar eine Version, die Autos zerquetscht.",
+        "en": "Hirochi doesn't just build cars. Also dump trucks and wheel loaders. The HT-55 carries 55 tonnes. There's even a version that crushes cars."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_100",
+      "kind": "fact",
+      "speaker": "trucker",
+      "text": {
+        "de": "Der neueste Lkw ist der Cherrier Percheron, aus Frankreich. Ein 12,8-Liter-Sechszylinder mit Turbo, 310 bis 500 PS, bis zu fünf Achsen.",
+        "en": "The newest truck is the Cherrier Percheron, from France. A 12.8-litre turbo six, 310 to 500 hp, up to five axles."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_101",
+      "kind": "fact",
+      "speaker": "student",
+      "text": {
+        "de": "Eine Rennstrecke heißt Hirochi Raceway. Witzig: Die Firma ist japanisch, aber die Strecke liegt an der Ostküste der USA.",
+        "en": "One race track is called Hirochi Raceway. Funny: the company is Japanese, but the track is on the east coast of the USA."
+      },
+      "topic": "beamng"
+    },
+    {
+      "id": "fact_102",
+      "kind": "fact",
+      "speaker": "photo",
+      "text": {
+        "de": "Die anderen Gegenden unserer Welt sind fast alle weit weg: Westküste und Ostküste der USA, die Canyons von Utah, eine kleine Insel in Italien, eine Dschungelinsel im Pazifik.",
+        "en": "The other regions of our world are almost all far away: the US west and east coasts, the canyons of Utah, a small island in Italy, a jungle island in the Pacific."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Und ein Fahrtrainingszentrum von ETK in Deutschland. Eine Stadtautobahn wie diese hier gibt es da nirgends.",
+          "en": "And an ETK driver training centre in Germany. There's no city expressway like this one anywhere there."
+        }
+      ]
+    },
+    {
+      "id": "fact_103",
+      "kind": "fact",
+      "speaker": "courier",
+      "text": {
+        "de": "Seit 0.40 können bis zu 64 Leute an einem Rechner gleichzeitig spielen, mit geteiltem Bild. Auf der Konsole sind es vier.",
+        "en": "Since 0.40 up to 64 people can play on one computer at once, split screen. On console it's four."
+      },
+      "topic": "beamng",
+      "lines": [
+        {
+          "de": "Online geht es übrigens nur mit einer Mod aus der Community. Die Gemeinschaft hier baut viel selbst. Auch diese Strecke.",
+          "en": "Online play, by the way, only works with a community mod. The community here builds a lot itself. This track too."
+        }
+      ]
+    },
+    {
+      "id": "fact_104",
+      "kind": "fact",
+      "speaker": "guard",
+      "text": {
+        "de": "Unsere Welt gibt es seit dem 19. Oktober 2026 auch auf Konsole. Seitdem ist hier auf dem Parkplatz mehr los.",
+        "en": "Our world has been on console too since 19 October 2026. It's busier in this car park since then."
+      },
+      "topic": "beamng"
+    }
+  ]
+}

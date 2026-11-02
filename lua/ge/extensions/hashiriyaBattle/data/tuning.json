@@ -1,0 +1,343 @@
+{
+  "_hinweis": "Regeln für das Teile-Terminal (Tuning-Shop). Die Teile selbst kommen zur Laufzeit aus BeamNG: jeder Slot des Autos mit Auswahl wird eine Zeile. categories = Kategorien links im Terminal, in dieser Reihenfolge; group = Überschrift (mech = Mechaniker, body = Bodyshop, more = Weiteres). match = Lua-Muster auf den Slot-Namen (klein geschrieben, z. B. 'turbo' trifft covet_turbo, '^tire_' trifft tire_F_15x7); die erste passende Kategorie gewinnt, 'other' sammelt den Rest. 'paint' = Lackierer, 'all' = Alle Teile (jeder Slot mit Auswahl, auch was slotExclude ausblendet, außer Kennzeichen/Lack). defaultLevel = Klasse für Teile ohne Stufenwort. groupBySize = Größen-Knöpfe (Felgen/Reifen nach Zoll). engineSwap trifft den Motor-Slot selbst (z. B. covet_engine). Klasse eines Teils (1-3): Wörter im Teilenamen (levelWords, höchste zuerst); exclude blendet Teile mit diesen Wörtern aus; overrides setzt die Klasse einzelner Teile (0 = ausblenden). Aus Klasse und Preis macht levelSpread die Stufe LV1-6. slotExclude = Slots, die nicht in den Kategorien erscheinen. tiers = ab welchem Rang (Index, 0 = Neuling) eine Stufe gekauft werden darf. Felgen werden ohne Reifen verkauft (tireWithRim false): passende eigene Reifen werden automatisch aufgezogen, sonst bleibt der Reifen-Slot leer. preview = Live-Vorschau: distance = Kameraabstand zum Auto in m, pitch = Blickwinkel von oben, yawStep = Grad pro Klick auf Drehen, focusOffsetUp = Teile-Kamera etwas höher. paintPriceYen = Preis eines Werkslacks, customPaintPriceYen = eigene Farbe.",
+  "tiers": [
+    { "level": 1, "unlock": { "minRank": 1 } },
+    { "level": 2, "unlock": { "minRank": 3 } },
+    { "level": 3, "unlock": { "minRank": 5 } },
+    { "level": 4, "unlock": { "minRank": 7 } },
+    { "level": 5, "unlock": { "minRank": 9 } },
+    { "level": 6, "unlock": { "minRank": 11 } }
+  ],
+  "levelSpread": {
+    "_hinweis": "Verteilt die Teile jedes Slots nach Klasse (levelWords) und Preis gleichmäßig auf LV1 bis levels. bands = erlaubter Bereich je Klasse [von, bis]. Ganz entfernen = alte Regel (Stufe = Klasse 1-3).",
+    "levels": 6,
+    "bands": { "1": [1, 3], "2": [2, 5], "3": [4, 6] }
+  },
+  "levelWords": {
+    "3": [
+      "race",
+      "stage2",
+      "stage3",
+      "ultra",
+      "sequential",
+      "sq",
+      "cf",
+      "carbon",
+      "bigwing",
+      "bigsplitter",
+      "adjustable",
+      "stiffening",
+      "slick",
+      "semislick"
+    ],
+    "2": [
+      "stage1",
+      "gtz",
+      "rs",
+      "turbors",
+      "lsd",
+      "hlsd",
+      "vlsd",
+      "evolution",
+      "fiberglass",
+      "kit",
+      "bodykit",
+      "okudai",
+      "wide",
+      "widebody",
+      "gt",
+      "turbo",
+      "semi",
+      "performance",
+      "lightweight",
+      "stripped"
+    ],
+    "1": [
+      "sport",
+      "s",
+      "light",
+      "lightened",
+      "tubular",
+      "custom",
+      "ss",
+      "scooped",
+      "vented",
+      "heavy",
+      "zxi",
+      "stock_turbo"
+    ]
+  },
+  "exclude": [
+    "rally",
+    "derby",
+    "drift",
+    "driftgear",
+    "proD",
+    "offroad",
+    "lifted",
+    "police",
+    "midengine",
+    "3wheel",
+    "boxutility",
+    "unpainted",
+    "welded",
+    "tubularbumper",
+    "hillclimb",
+    "carb",
+    "itb",
+    "partition",
+    "stock",
+    "snow",
+    "winter",
+    "mud",
+    "allterrain",
+    "spare",
+    "steelie",
+    "hubcap",
+    "prodrift",
+    "cargo",
+    "flashers",
+    "fartcan",
+    "fuelcell",
+    "trim"
+  ],
+  "overrides": {
+    "covet_turbo_stock": 2,
+    "covet_turbo_1,3_stock": 2,
+    "pessima_turbo": 2,
+    "sunburst2_engine_1_6_intake_turbo": 1,
+    "sunburst2_engine_2_0_intake_turbo": 1,
+    "sunburst2_engine_2_5_intake_turbo": 1,
+    "sunburst2_engine_1_6_ecu_turbo": 1,
+    "sunburst2_engine_2_0_ecu_turbo": 1,
+    "sunburst2_engine_2_5_ecu_turbo": 1
+  },
+  "paintPriceYen": 29800,
+  "slotExclude": [
+    "licenseplate",
+    "_mod$",
+    "^paint_design$",
+    "enginemounts",
+    "oilpan",
+    "n2o_",
+    "_fueltank",
+    "_battery",
+    "skin",
+    "_body$",
+    "_transfer",
+    "_converter",
+    "_driveshaft",
+    "_halfshaft",
+    "_hub",
+    "_axle",
+    "_spindle",
+    "police",
+    "radar"
+  ],
+  "customPaintPriceYen": 98000,
+  "categories": [
+    {
+      "id": "engineSwap",
+      "group": "mech",
+      "defaultLevel": 2,
+      "match": [
+        "^[%w]+_engine$"
+      ],
+      "hint": "swap"
+    },
+    {
+      "id": "induction",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "intake",
+        "turbo",
+        "supercharger",
+        "intercooler",
+        "airbox",
+        "downpipe",
+        "throttle",
+        "blowoff",
+        "wastegate"
+      ]
+    },
+    {
+      "id": "engine",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "engine_ecu",
+        "_ecu",
+        "internals",
+        "header",
+        "exhaust",
+        "muffler",
+        "radiator",
+        "oilcooler",
+        "fuelinjector",
+        "ignition",
+        "camshaft",
+        "n2o"
+      ]
+    },
+    {
+      "id": "drivetrain",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "transmission",
+        "transaxle",
+        "flywheel",
+        "clutch",
+        "differential",
+        "finaldrive",
+        "transfercase",
+        "shifter"
+      ]
+    },
+    {
+      "id": "suspension",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "coilover",
+        "strut",
+        "spring",
+        "shock",
+        "damper",
+        "swaybar",
+        "sway",
+        "camber",
+        "steering",
+        "suspension",
+        "stiffening",
+        "subframe",
+        "rideheight",
+        "toe",
+        "knuckle",
+        "arm_"
+      ]
+    },
+    {
+      "id": "brakes",
+      "group": "mech",
+      "defaultLevel": 1,
+      "match": [
+        "brake",
+        "abs"
+      ]
+    },
+    {
+      "id": "wheels",
+      "group": "body",
+      "defaultLevel": 1,
+      "groupBySize": true,
+      "match": [
+        "^wheel_",
+        "^tire_",
+        "spacer",
+        "hubcap",
+        "wheeloffset"
+      ]
+    },
+    {
+      "id": "body",
+      "group": "body",
+      "defaultLevel": 1,
+      "match": [
+        "bumper",
+        "lip",
+        "skirt",
+        "sideskirt",
+        "hood",
+        "spoiler",
+        "wing",
+        "fender",
+        "quarter",
+        "grille",
+        "trunk",
+        "tailgate",
+        "hatch",
+        "mirror",
+        "diffuser",
+        "flare",
+        "door",
+        "roof",
+        "headlight",
+        "taillight",
+        "fascia",
+        "splitter",
+        "canard",
+        "bodykit",
+        "valance",
+        "cowl",
+        "rearpanel",
+        "bed",
+        "body_"
+      ]
+    },
+    {
+      "id": "interior",
+      "group": "body",
+      "defaultLevel": 1,
+      "match": [
+        "seat",
+        "steer",
+        "shiftknob",
+        "rollcage",
+        "interior",
+        "dash",
+        "gauge",
+        "harness",
+        "pedal",
+        "cluster",
+        "radio"
+      ]
+    },
+    {
+      "id": "extras",
+      "group": "body",
+      "defaultLevel": 1,
+      "match": [
+        "underglow",
+        "mudflap",
+        "glass",
+        "windshield",
+        "backlight",
+        "accessory",
+        "light",
+        "horn",
+        "antenna",
+        "sticker",
+        "decal",
+        "plate_frame",
+        "towhitch",
+        "roofrack",
+        "bullbar"
+      ]
+    },
+    {
+      "id": "other",
+      "group": "more",
+      "defaultLevel": 1,
+      "match": []
+    },
+    {
+      "id": "paint",
+      "group": "more"
+    },
+    {
+      "id": "all",
+      "group": "more"
+    }
+  ],
+  "preview": {
+    "distance": 7.0,
+    "pitch": -10,
+    "yawStep": 45,
+    "focusOffsetUp": 0.1
+  },
+  "tireWithRim": false,
+  "unlockNotice": { "_hinweis": "Meldung, wenn eine Stufe frei wird (UI-App HashiriyaUnlock). enabled = an/aus, seconds = wie lange sie steht, delay = Sekunden Ruhe nach dem Battle, bevor sie kommt, maxCategories = so viele Kategorien werden einzeln gezeigt.", "enabled": true, "seconds": 9, "delay": 3, "maxCategories": 5 },
+  "liveryMinPriceYen": 19800
+}

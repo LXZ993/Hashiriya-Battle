@@ -1,0 +1,6 @@
+{
+  "_hinweis": "Pro Map eine Datei mit dem Level-Namen, z.B. maps/<levelname>.json. Positionen sammelst du im Spiel mit dem Knopf 'Position merken' im Hashiriya-Fenster.",
+  "parkingAreas": [
+    { "id": "pa_1", "name": "Parkplatz 1", "pos": [0, 0, 0], "dir": [0, 1, 0], "radius": 40 }
+  ]
+}

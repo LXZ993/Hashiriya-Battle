@@ -1,0 +1,14 @@
+{
+  "_hinweis": "Roadmap bis 1.0 (komplette C1-Karriere), Reihenfolge wie im Forum-Post. Das Release-Werkzeug richtet die Versionsnummer danach: Zwischen-Builds heißen <letzter fertiger Meilenstein>.1, .2 usw. Erst wenn ein Meilenstein auf \"fertig\": true steht, bekommt die nächste ZIP seine Nummer (z. B. Alpha 0.4). Reihenfolge und Titel darfst du ändern; \"fertig\" setzt Claude, wenn das Feature drin ist.",
+  "meilensteine": [
+    { "version": "Alpha 0.2", "titel": "Erster Testbuild: Battles, Rivalen-Radar, Startautos, Tag und Nacht", "fertig": true },
+    { "version": "Alpha 0.3", "titel": "Großer Kader (26 Crews, 42 Wanderer), Ränge, eigene Rivalen-KI, Release-Build", "fertig": true },
+    { "version": "Alpha 0.4", "titel": "Gespräche mit Fahrern an den Parkplätzen (PA)", "fertig": true },
+    { "version": "Alpha 0.5", "titel": "Rivalen und Wanderer warten an den PAs, Pink-Slip-Rennen", "fertig": true },
+    { "version": "Alpha 0.6", "titel": "Bosse und Story-Kapitel mit Zwischengeschichten", "fertig": false },
+    { "version": "Alpha 0.7", "titel": "Nebenjobs am Tag und bezahlte Tipps zu seltenen Rivalen", "fertig": false },
+    { "version": "Alpha 0.8", "titel": "Teile verkaufen und ausbauen in der Garage", "fertig": false },
+    { "version": "Alpha 0.9", "titel": "Rivalen mit eigenem Fahrcharakter (sauber, Blocker, Rempler)", "fertig": false },
+    { "version": "1.0", "titel": "Komplette C1-Karriere", "fertig": false }
+  ]
+}

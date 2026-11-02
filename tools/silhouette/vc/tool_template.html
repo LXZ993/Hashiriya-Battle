@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hashiriya Silhouetten</title>
+<!-- Automatisch erzeugt von tools/silhouette/vc/build_tool.py. Nicht von Hand bearbeiten: Vorlage ist vc/tool_template.html -->
+<style>
+:root{--bg:#0d0f14;--panel:#161a22;--line:#262c38;--txt:#e6e8ee;--dim:#8a93a6;--acc:#ff7a1a;--ok:#5fd38d;--warn:#ffcf5a}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font:14px/1.4 "Segoe UI",Arial,sans-serif}
+header{display:flex;align-items:center;gap:14px;padding:10px 16px;border-bottom:1px solid var(--line);background:#11141b}
+header h1{font-size:17px;margin:0;letter-spacing:.5px}
+header h1 b{color:var(--acc)}
+header .sp{flex:1}
+button,select,input[type=text]{font:inherit;color:var(--txt);background:#1d222c;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+button{cursor:pointer}
+button:hover{border-color:var(--acc)}
+button.primary{background:var(--acc);border-color:var(--acc);color:#111;font-weight:600}
+main{display:grid;grid-template-columns:330px 1fr;height:calc(100% - 53px)}
+#side{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+#filters{padding:10px;display:grid;gap:8px;border-bottom:1px solid var(--line)}
+#list{overflow:auto;flex:1;padding:6px}
+.item{display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:8px;cursor:pointer}
+.item:hover{background:#1a1f29}
+.item.sel{background:#2a1d12;outline:1px solid var(--acc)}
+.item img{width:46px;height:46px;border-radius:6px;background:#07080b;flex:none}
+.item .n{font-weight:600}
+.item .t{color:var(--dim);font-size:12px}
+.item .dot{margin-left:auto;width:9px;height:9px;border-radius:50%;background:var(--acc);flex:none}
+#edit{overflow:auto;padding:18px;display:grid;grid-template-columns:minmax(280px,520px) minmax(300px,1fr);gap:22px;align-content:start}
+#stage{position:sticky;top:0}
+#big{width:100%;aspect-ratio:1;border-radius:12px;background:#07080b;display:block;border:1px solid var(--line)}
+#who{margin:10px 0 2px;font-size:18px;font-weight:700}
+#whosub{color:var(--dim)}
+#btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.grid{display:grid;grid-template-columns:130px 1fr;gap:8px 12px;align-items:center}
+.grid label{color:var(--dim)}
+.grid select{width:100%}
+.grid .chg{color:var(--acc)}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:18px 0 8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+h2:first-child{margin-top:0}
+#note{min-height:20px;color:var(--warn);margin-top:10px}
+.help{color:var(--dim);font-size:13px;margin-top:16px;line-height:1.55}
+.help code{background:#1d222c;padding:1px 5px;border-radius:4px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#1d222c;border:1px solid var(--acc);padding:10px 16px;border-radius:8px;display:none}
+@media (max-width:900px){main{grid-template-columns:1fr;height:auto}#side{max-height:45vh}#edit{grid-template-columns:1fr}#stage{position:static}}
+</style>
+</head>
+<body>
+<header>
+  <h1><b>走</b> Hashiriya Silhouetten</h1>
+  <span id="count" style="color:var(--dim)"></span>
+  <span class="sp"></span>
+  <button id="imp">Laden…</button>
+  <button id="exp" class="primary">silhouetten.json speichern</button>
+  <input type="file" id="file" accept=".json,application/json" hidden>
+</header>
+<main>
+  <aside id="side">
+    <div id="filters">
+      <input type="text" id="q" placeholder="Suchen: Name, ID, Crew…">
+      <select id="crew"></select>
+      <label style="color:var(--dim)"><input type="checkbox" id="onlychg"> nur geänderte</label>
+    </div>
+    <div id="list"></div>
+  </aside>
+  <section id="edit">
+    <div id="stage">
+      <img id="big" alt="Porträt">
+      <div id="who"></div>
+      <div id="whosub"></div>
+      <div id="btns">
+        <button id="rnd">Zufall</button>
+        <button id="reset">Zurück auf Spiel-Stand</button>
+        <button id="png">PNG speichern</button>
+      </div>
+      <div id="note"></div>
+    </div>
+    <div>
+      <h2>Figur</h2>
+      <div class="grid" id="g1"></div>
+      <h2>Kopf</h2>
+      <div class="grid" id="g2"></div>
+      <h2>Extras</h2>
+      <div class="grid" id="g3"></div>
+      <div class="help">
+        <b>So geht's:</b> Gegner links wählen, Teile rechts ändern. Ausgegraute Teile passen nicht zur Figur
+        (zum Beispiel keine Cap zum Anzug, Feldmütze nur zur Feldjacke, Brille im Haar nur ohne Kopfbedeckung).
+        Geänderte Gegner haben einen orangen Punkt. Deine Änderungen bleiben im Browser gespeichert.<br><br>
+        Fertig? <b>silhouetten.json speichern</b> klicken und die Datei nach
+        <code>tools\silhouette\silhouetten.json</code> legen (oder Claude schicken). Dann
+        <code>python tools/silhouette/vc/rivals_v2.py</code> erzeugt die Spielbilder genau so, wie du sie hier siehst.
+      </div>
+    </div>
+  </section>
+</main>
+<div id="toast"></div>
+<script src="rivals_data.js"></script>
+<script>
+const DATA=/*__DATA__*/null;
+const M=DATA.meta, F=DATA.frags, BASE=DATA.specs;
+const KEYS=["female","garment","tone","hair","haircolor","hat","hattone","glasses","ear","neck","mask","mouth","eyes","emblem","crew"];
+const LS="hb_silhouetten_v2";
+let OV={};
+try{OV=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch(e){OV={}}
+function save(){try{localStorage.setItem(LS,JSON.stringify(OV))}catch(e){}}
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const TEAM={};(DATA.teams||[]).forEach(t=>TEAM[t.id]=t);
+// Neue Gegner aus dem Builder (rivals_data.js daneben) dazunehmen: die haben noch kein Spielbild
+const NEW=new Set();
+let RIV=[];
+function addNew(){if(window.HB_RIVALS&&Array.isArray(HB_RIVALS.rivals)){
+  (HB_RIVALS.teams||[]).forEach(t=>{if(!TEAM[t.id])TEAM[t.id]=t});
+  const have=new Set(DATA.rivals.map(r=>r.id));
+  for(const r of HB_RIVALS.rivals){
+    const known=DATA.rivals.find(x=>x.id===r.id);
+    if(known){if(r.name)known.name=r.name;continue}
+    const t=TEAM[r.team]||null, fem=r.figur==="w";
+    DATA.rivals.push({id:r.id,name:r.name,team:r.team,leader:!!r.leader,wanderer:!!r.wanderer});
+    BASE[r.id]={female:fem,garment:fem?"bluse":"hoodie",tone:fem?"weiss":"schwarz",hair:fem?"bob":"kurz",haircolor:"schwarz",hat:null,hattone:"schwarz",
+      glasses:null,ear:null,neck:null,mask:false,mouth:null,eyes:"normal",emblem:"stern",crew:!!t,leader:!!r.leader,
+      A:t?t.color:"#8fa3b8",jp:t?t.jp:"パーキング",nick:String((r.nick&&r.nick.en)||r.name||"").slice(0,9),tape:String(r.name||"").split(" ").pop().toUpperCase().slice(0,9)};
+    for(const k of ["garment","hair","tone"])if(why(BASE[r.id],k,BASE[r.id][k]))BASE[r.id][k]=opts_of(k).map(o=>o[0]).find(v=>!why(BASE[r.id],k,v));
+    NEW.add(r.id);
+  }
+}RIV=DATA.rivals.filter(r=>BASE[r.id]);}
+function rname(r){return typeof r.name==="object"?(r.name.de||r.name.en||r.id):(r.name||r.id)}
+
+function spec(id){return Object.assign({},BASE[id],OV[id]||{})}
+
+// ---------- Zeichnen: gleiche Reihenfolge wie make.compose() ----------
+const TF_HEAD=`translate(0,${M.HEAD_DY})`;
+const TF_FEM=`matrix(${M.FEMALE_K} 0 0 1 ${+(M.CX*(1-M.FEMALE_K)).toFixed(2)} 0)`;
+function compose(s){
+  const defs=[],layers=[],used=new Set();
+  const fem=!!s.female, lead=!!s.leader;
+  function L(name,keys,head,k){
+    let body="";
+    for(const key of keys){const f=F[key];if(!f)continue;if(!used.has(key)){used.add(key);defs.push(f.defs)}body+=f.body}
+    if(!body)return;
+    const tf=[];if(head)tf.push(TF_HEAD);if(k&&fem)tf.push(TF_FEM);
+    layers.push(`<g id="${name}"${tf.length?` transform="${tf.join(" ")}"`:""}>${body}</g>`);
+  }
+  L("Hintergrund",["bg"]);
+  if(F["hairb:"+s.hair].body)L("Haare_hinten",["hairb:"+s.hair],true);
+  else{used.add("hairb:"+s.hair);defs.push(F["hairb:"+s.hair].defs)}
+  L("Koerper",["body"],false,true);
+  const gk=`${s.garment}:${fem?1:0}:${lead?1:0}`;
+  L("Oberteil",["g:"+gk],false,true);
+  if(s.crew&&M.garments[s.garment].patch)L("Abzeichen",["mark:"+gk]);
+  if(s.neck)L("Hals",["neck:"+s.neck],false,true);
+  L("Kopf",["head"],true);
+  L("Visier",["visor"],true);
+  L("Augen",[`eyes:${s.eyes}:${fem?1:0}`,"shine"],true);
+  if(s.mask)L("Maske",["mask"],true);
+  else if(s.mouth)L("Mund",["mouth:"+s.mouth],true);
+  L("Haare",["hairf:"+s.hair],true);
+  if(s.ear)L("Ohren",["ear:"+s.ear],true);
+  if(s.hat)L("Kopfbedeckung",["hat:"+s.hat],true);
+  if(s.glasses)L("Brille",["gl:"+s.glasses],true);
+  let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${M.W} ${M.H}" width="${M.W}" height="${M.H}"><defs>${defs.join("")}</defs>${layers.join("")}</svg>`;
+  const T=M.tones[s.tone]||M.tones.schwarz, K=M.tones[s.hattone]||T, H=M.haircolors[s.haircolor]||M.haircolors.schwarz;
+  const jp=[...(s.jp||"")];
+  const rep={"@A@":s.A,"@T0@":T[0],"@T1@":T[1],"@K0@":K[0],"@K1@":K[1],"@H0@":H[0],"@H1@":H[1],"@E@":M.emblems[s.emblem]||M.emblems.stern,
+    "@NICK@":esc(String(s.nick||"").slice(0,9)),"@TAPE@":esc(String(s.tape||"").toUpperCase().slice(0,9))};
+  for(let i=0;i<8;i++)rep[`@J${i}@`]=esc(jp[i]||"");
+  return svg.replace(/@(?:A|T0|T1|K0|K1|H0|H1|E|NICK|TAPE|J\d)@/g,m=>rep[m]);
+}
+function url(s){return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(compose(s))}
+
+// ---------- Regeln (wie make.allowed_*) ----------
+const FORMAL=new Set(M.formal);
+function why(s,key,v){ // Grund, warum v nicht geht, sonst ""
+  const g=M.garments[s.garment], h=M.hairs[s.hair];
+  switch(key){
+    case "garment":{const w=M.garments[v][s.female?"wf":"wm"];return w>0?"":(s.female?"nur für Männer":"nur für Frauen")}
+    case "hair":{const w=M.hairs[v][s.female?"wf":"wm"];return w>0?"":(s.female?"nur für Männer":"nur für Frauen")}
+    case "tone":return g.tones.includes(v)?"":"passt nicht zu diesem Oberteil";
+    case "hat":{if(!v)return "";
+      if(!M.hats[v].vols.includes(h.vol))return "passt nicht auf diese Frisur";
+      if(v==="feldmuetze"&&s.garment!=="militaer")return "nur zur Feldjacke";
+      if(v==="hut"&&!FORMAL.has(s.garment))return "nur zu eleganter Kleidung";
+      if(["cap","cap_rueck","bandana"].includes(v)&&FORMAL.has(s.garment))return "nicht zu eleganter Kleidung";return ""}
+    case "glasses":{if(!v||!M.glasses[v].top)return "";
+      if(s.hat)return "im Haar nur ohne Kopfbedeckung";if(h.vol==="none")return "braucht Haare";return ""}
+    case "neck":{if(!v)return "";return M.necks[v].ok.includes(g.neck)?"":"passt nicht zum Kragen"}
+    case "emblem":return s.crew?"":"";
+  }
+  return "";
+}
+function fix(s){ // macht eine ungültige Kombination wieder gültig, gibt Liste der Korrekturen zurück
+  const out=[];
+  const first=(key,list)=>list.find(v=>!why(s,key,v));
+  for(const key of ["garment","hair","tone","hat","glasses","neck"]){
+    if(why(s,key,s[key])){
+      const opts=opts_of(key).map(o=>o[0]);
+      const nv=["hat","glasses","neck"].includes(key)?null:first(key,opts);
+      out.push(`${LABEL[key]}: ${nameOf(key,s[key])} → ${nameOf(key,nv)}`);
+      s[key]=nv;
+    }
+  }
+  return out;
+}
+
+// ---------- Auswahlfelder ----------
+const LABEL={female:"Figur",garment:"Oberteil",tone:"Stofffarbe",hair:"Frisur",haircolor:"Haarfarbe",eyes:"Augen",hat:"Kopfbedeckung",
+  hattone:"Farbe Kopfbedeckung",glasses:"Brille",ear:"Ohren",neck:"Hals",mund:"Mund",emblem:"Crew-Zeichen",crew:"Crew-Abzeichen"};
+const pretty=s=>s.replace(/_/g," ").replace(/ae/g,"ä").replace(/oe/g,"ö").replace(/ue/g,"ü").replace(/^./,c=>c.toUpperCase());
+function opts_of(key){
+  const o=d=>Object.entries(d).map(([k,v])=>[k,typeof v==="object"&&!Array.isArray(v)&&v.name?v.name:pretty(k)]);
+  switch(key){
+    case "female":return [["0","Mann"],["1","Frau"]];
+    case "garment":return o(M.garments);case "hair":return o(M.hairs);
+    case "tone":case "hattone":return Object.keys(M.tones).map(k=>[k,pretty(k)]);
+    case "haircolor":return Object.keys(M.haircolors).map(k=>[k,pretty(k)]);
+    case "eyes":return Object.entries(M.eyes).map(([k,v])=>[k,v]);
+    case "hat":return [[null,"keine"],...o(M.hats)];case "glasses":return [[null,"keine"],...o(M.glasses)];
+    case "ear":return [[null,"nichts"],...o(M.ears)];case "neck":return [[null,"nichts"],...o(M.necks)];
+    case "mund":return [["","nichts"],["@mask","Maske"],...o(M.mouths)];
+    case "emblem":return Object.keys(M.emblems).map(k=>[k,pretty(k)]);
+    case "crew":return [["1","ja (Abzeichen am Oberteil)"],["0","nein"]];
+  }
+}
+function nameOf(key,v){const f=opts_of(key).find(o=>o[0]===v);return f?f[1]:(v==null?"keine":String(v))}
+const GROUPS={g1:["female","garment","tone","neck","crew","emblem"],g2:["hair","haircolor","eyes","hat","hattone","glasses"],g3:["ear","mund"]};
+function getv(s,key){
+  if(key==="female"||key==="crew")return s[key]?"1":"0";
+  if(key==="mund")return s.mask?"@mask":(s.mouth||"");
+  return s[key];
+}
+function setv(s,key,v){
+  if(key==="female"||key==="crew")s[key]=v==="1";
+  else if(key==="mund"){s.mask=v==="@mask";s.mouth=(v&&v!=="@mask")?v:null}
+  else s[key]=v===""?null:v;
+}
+
+let cur=null;
+function renderEditor(){
+  const s=spec(cur), b=BASE[cur];
+  for(const [gid,keys] of Object.entries(GROUPS)){
+    const el=$(gid);el.innerHTML="";
+    for(const key of keys){
+      const lab=document.createElement("label");lab.textContent=LABEL[key];
+      const changed=JSON.stringify(getv(s,key))!==JSON.stringify(getv(b,key));
+      if(changed)lab.className="chg";
+      const sel=document.createElement("select");
+      for(const [v,n] of opts_of(key)){
+        const op=document.createElement("option");op.value=v==null?"":v;
+        const w=why(s,key,v);op.textContent=n+(w?`  (${w})`:"");op.disabled=!!w;sel.appendChild(op);
+      }
+      const gv=getv(s,key);sel.value=gv==null?"":gv;
+      if(key==="emblem"&&!s.crew)sel.disabled=true;
+      if(key==="hattone"&&!s.hat)sel.disabled=true;
+      sel.onchange=()=>change(key,sel.value);
+      el.append(lab,sel);
+    }
+  }
+  $("big").src=url(s);
+  const r=RIV.find(x=>x.id===cur), t=TEAM[r.team];
+  $("who").textContent=rname(r)+(s.leader?"  ★ Leader":"");
+  $("whosub").textContent=(t?t.name:(r.team?r.team:"Wanderer / Boss"))+"  ·  "+cur+(NEW.has(cur)?"  ·  NEU: noch kein Spielbild, kommt mit dem nächsten Porträt-Lauf":"");
+}
+function change(key,v){
+  const s=spec(cur);setv(s,key,v);
+  const fixes=fix(s);
+  store(cur,s);
+  $("note").textContent=fixes.length?"Angepasst, damit es zusammenpasst: "+fixes.join(", "):"";
+  renderEditor();refreshItem(cur);
+}
+function store(id,s){
+  const b=BASE[id],d={};
+  for(const k of KEYS)if(NEW.has(id)||JSON.stringify(s[k]??null)!==JSON.stringify(b[k]??null))d[k]=s[k]??null;
+  if(NEW.has(id)?JSON.stringify(s)!==JSON.stringify(b):Object.keys(d).length)OV[id]=d;else delete OV[id];
+  save();updCount();
+}
+
+// ---------- Zufall ----------
+function pickw(list){const tot=list.reduce((a,x)=>a+x[1],0);let r=Math.random()*tot;for(const x of list){r-=x[1];if(r<=0)return x[0]}return list[list.length-1][0]}
+function randomize(){
+  const s=spec(cur);const wk=s.female?"wf":"wm";
+  s.garment=pickw(Object.entries(M.garments).map(([k,v])=>[k,v[wk]]).filter(x=>x[1]>0));
+  const g=M.garments[s.garment];s.tone=g.tones[Math.floor(Math.random()*g.tones.length)];
+  s.hair=pickw(Object.entries(M.hairs).map(([k,v])=>[k,v[wk]]).filter(x=>x[1]>0));
+  const hk=Object.keys(M.haircolors);s.haircolor=hk[Math.floor(Math.random()*hk.length)];
+  const ek=Object.keys(M.eyes);s.eyes=ek[Math.floor(Math.random()*ek.length)];
+  const any=(key,p)=>{const ok=opts_of(key).map(o=>o[0]).filter(v=>v!=null&&!why(s,key,v));return ok.length&&Math.random()<p?ok[Math.floor(Math.random()*ok.length)]:null};
+  s.hat=any("hat",.35);s.glasses=any("glasses",.3);s.neck=any("neck",.3);s.ear=any("ear",.25);
+  const tk=Object.keys(M.tones);s.hattone=tk[Math.floor(Math.random()*tk.length)];
+  s.mask=Math.random()<.1;s.mouth=!s.mask&&Math.random()<.12?Object.keys(M.mouths)[Math.floor(Math.random()*Object.keys(M.mouths).length)]:null;
+  fix(s);store(cur,s);$("note").textContent="";renderEditor();refreshItem(cur);
+}
+
+// ---------- Liste ----------
+const thumbs=new Map();
+const io=new IntersectionObserver(es=>{for(const e of es)if(e.isIntersecting){const img=e.target;if(!img.src)img.src=url(spec(img.dataset.id));io.unobserve(img)}},{root:$("list"),rootMargin:"200px"});
+function crews(){
+  const sel=$("crew");sel.innerHTML='<option value="">Alle Crews</option><option value="@none">Wanderer / Bosse</option>';
+  const seen=new Set();
+  for(const r of RIV)if(r.team&&!seen.has(r.team)){seen.add(r.team);const o=document.createElement("option");o.value=r.team;o.textContent=TEAM[r.team]?TEAM[r.team].name:r.team;sel.appendChild(o)}
+}
+function buildList(){
+  const q=$("q").value.trim().toLowerCase(), c=$("crew").value, oc=$("onlychg").checked;
+  const el=$("list");el.innerHTML="";thumbs.clear();
+  for(const r of RIV){
+    const t=TEAM[r.team];
+    const hay=(rname(r)+" "+r.id+" "+(t?t.name+" "+t.jp:"")).toLowerCase();
+    if(q&&!hay.includes(q))continue;
+    if(c==="@none"&&r.team)continue;
+    if(c&&c!=="@none"&&r.team!==c)continue;
+    if(oc&&!OV[r.id])continue;
+    const it=document.createElement("div");it.className="item"+(r.id===cur?" sel":"");it.dataset.id=r.id;
+    const img=document.createElement("img");img.dataset.id=r.id;img.alt="";io.observe(img);
+    const tx=document.createElement("div");tx.innerHTML=`<div class="n">${esc(rname(r))}</div><div class="t">${esc(t?t.name:"Wanderer / Boss")}${BASE[r.id].leader?" · Leader":""}</div>`;
+    it.append(img,tx);
+    if(OV[r.id]){const d=document.createElement("span");d.className="dot";d.title="geändert";it.appendChild(d)}
+    it.onclick=()=>select(r.id);
+    el.appendChild(it);thumbs.set(r.id,it);
+  }
+}
+function refreshItem(id){
+  const it=thumbs.get(id);if(!it)return;
+  it.querySelector("img").src=url(spec(id));
+  const d=it.querySelector(".dot");
+  if(OV[id]&&!d){const n=document.createElement("span");n.className="dot";n.title="geändert";it.appendChild(n)}
+  if(!OV[id]&&d)d.remove();
+}
+function select(id){
+  cur=id;$("note").textContent="";
+  document.querySelectorAll(".item.sel").forEach(e=>e.classList.remove("sel"));
+  const it=thumbs.get(id);if(it)it.classList.add("sel");
+  renderEditor();
+}
+function updCount(){const n=Object.keys(OV).length;$("count").textContent=`${RIV.length} Fahrer · ${n} geändert`}
+
+// ---------- Speichern / Laden ----------
+function toast(t){const e=$("toast");e.textContent=t;e.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.display="none",3500)}
+function download(name,blob){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+$("exp").onclick=()=>{
+  const out={v2:OV};
+  download("silhouetten.json",new Blob([JSON.stringify(out,null,2)],{type:"application/json"}));
+  toast(`${Object.keys(OV).length} geänderte Fahrer gespeichert. Datei nach tools\\silhouette\\ legen.`);
+};
+$("imp").onclick=()=>$("file").click();
+$("file").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const j=JSON.parse(await f.text());const v=j.v2||{};let n=0;
+    for(const [id,d] of Object.entries(v)){if(!BASE[id])continue;const s=Object.assign(spec(id),d);fix(s);store(id,s);n++}
+    toast(`${n} Fahrer geladen.`);buildList();if(cur)renderEditor();
+  }catch(err){toast("Datei konnte nicht gelesen werden: "+err.message)}
+  e.target.value="";
+};
+$("png").onclick=()=>{
+  const img=new Image();img.onload=()=>{
+    const c=document.createElement("canvas");c.width=c.height=1024;
+    c.getContext("2d").drawImage(img,0,0,1024,1024);
+    c.toBlob(b=>download(cur+".png",b),"image/png");
+  };img.src=url(spec(cur));
+};
+$("rnd").onclick=randomize;
+$("reset").onclick=()=>{delete OV[cur];save();updCount();$("note").textContent="";renderEditor();refreshItem(cur)};
+$("q").oninput=buildList;$("crew").onchange=buildList;$("onlychg").onchange=buildList;
+
+addNew();crews();updCount();buildList();
+select(new URLSearchParams(location.search).get("id")||RIV[0].id);
+window.HB={compose,spec,why,fix};
+</script>
+</body>
+</html>
