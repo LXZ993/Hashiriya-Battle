@@ -14,6 +14,7 @@
 - Im Titelbildschirm ist der Verkehr jetzt leise, damit die Titelmusik zu hören ist.
 
 ### Fehler behoben
+- Status-Anzeige oben rechts: Bei einem Foto-Auftrag (z. B. nach "zu früh") wurde der Text links abgeschnitten, auch die Kapitelzeile. Lange Zeilen brechen jetzt um, das Zeitfenster ist kürzer (07-09 h).
 - Die Musik war stumm. Sie läuft jetzt über BeamNGs eigenen Musik-Kanal.
 - Die BeamNG-Hauptmenü-Musik ist aus, sobald du Hashiriya Battle startest. Zurück im normalen Hauptmenü läuft sie wieder.
 - Nach dem Titelbildschirm blieben Motor, Reifen und andere Fahrzeuggeräusche stumm. Sie kommen jetzt wieder auf die Lautstärke aus deinen Audio-Optionen.

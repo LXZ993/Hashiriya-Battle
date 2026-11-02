@@ -14,6 +14,7 @@
 - Traffic is now quiet on the title screen so the title music can be heard.
 
 ### Bug fixes
+- Status display top right: during a photo job (e.g. after "too early") the text was cut off on the left, including the chapter line. Long lines now wrap and the time window is shorter (07-09 h).
 - The music was silent. It now plays through BeamNG's own music channel.
 - BeamNG's main menu music stops as soon as you start Hashiriya Battle and comes back in the regular main menu.
 - After the title screen, engine, tyre and other vehicle sounds stayed muted. They now return to the volume from your audio options.
