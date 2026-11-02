@@ -2,6 +2,12 @@
 
 ## Alpha 0.5.1 (Stand 02.11.2026)
 
+### Neu: Musik
+- Eigene Musik je nach Situation: Titelbildschirm, Tagesfahrt, Nachtfahrt, Shops und Battles haben jeweils ihre eigene Playlist, mit weichem Überblenden.
+- Titelmusik: „Daikoku“, danach läuft es als Schleife weiter.
+- Die Lautstärke folgt den BeamNG-Reglern für Gesamt und Musik.
+- In den Credits steht jetzt ein Abschnitt Musik mit allen Stücken und Lizenzhinweisen.
+
 ### Fehler behoben
 - Unfallschaden wurde nicht gespeichert: Nach dem Neuladen war das Auto wieder heil, Beulen weg, abgefallene Teile wieder dran, Motor wie neu. Jetzt bleibt der Schaden im Spielstand (Beulen, gebrochene Teile, Motor- und Kühlerschaden) und der Reparaturpreis stimmt nach dem Laden. Erst eine Reparatur macht das Auto wieder heil.
 

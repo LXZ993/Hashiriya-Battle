@@ -86,7 +86,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 01.11.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 02.11.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -1056,6 +1056,19 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <pre><code>"events":   {"buy": "event:>UI>Career>Buy_01", ...},
 "messages": {"msg.carBought": "buy", "msg.noMoney": "denied", ...}</code></pre>
 <p>Eigene Sounds später: Pfad zu einer .ogg-Datei statt des <code>event:</code>-Namens eintragen.</p>
+<h3>Musik im Spiel <span class="tag">data\music.json</span> <span class="tag">music.lua</span></h3>
+<p>Die Mod spielt je nach Situation eine eigene Playlist. Die Dateien (OGG) liegen in <span class="path">art\sound\hashiriya\music\</span>.</p>
+<table>
+<tr><td><code>title</code></td><td>Titelbildschirm, Neues Spiel, Credits: erst <b>Daikoku</b> einmal komplett, danach <b>Daikoku (Loop)</b> als Schleife</td></tr>
+<tr><td><code>day</code></td><td>Tagesfahrt, entspannt (Uhrzeit außerhalb von world.json <code>nightFrom</code>/<code>nightTo</code>)</td></tr>
+<tr><td><code>night</code></td><td>Nachtfahrt, mehr Druck</td></tr>
+<tr><td><code>shop</code></td><td>Shop-Parkplatz, Teile-Terminal (auch Garagen-PC), Autohändler. Welche Parkplätze noch dazugehören, steht in <code>areaContexts</code></td></tr>
+<tr><td><code>battle</code></td><td>vom Annehmen der Herausforderung bis zum Ergebnis</td></tr>
+</table>
+<p>Lautstärke: <code>volume</code> in music.json mal die BeamNG-Regler <b>Gesamt</b> und <b>Musik</b> (Optionen, Audio). Überblenden: <code>fadeSeconds</code>. Ganz aus: <code>"enabled": false</code>.</p>
+<p>Beispiel, ein eigenes Stück für die Nacht dazunehmen: die Datei als <span class="path">art\sound\hashiriya\music\mein_song.ogg</span> ablegen, in <code>contexts.night.tracks</code> <code>"mein_song.ogg"</code> eintragen und unter <code>tracks</code> Titel und Künstler angeben (erscheint dann in den Credits). Fehlt eine Datei, wird sie übersprungen.</p>
+<p>Lizenz: Die Stücke von Kevin MacLeod stehen unter <b>CC BY 4.0</b>. Sie dürfen in die Mod, aber Titel, Name und Lizenz müssen genannt werden. Das macht der Abschnitt <b>Musik</b> in den Credits automatisch aus <code>tracks</code>. Steht beim Künstler noch <code>[...]</code>, wird das Stück in den Credits ausgeblendet.</p>
+<p>Wenn keine Musik kommt: in <span class="path">hashiriya.log</span> nach <code>hashiriya.music</code> suchen. "Musik-Player im UI hat sich nicht gemeldet" heißt, der Player in <span class="path">ui\ui-vue\mods\hashiriyaBattle\index.js</span> läuft nicht.</p>
 <h3>Eigene Sounds und Musik erzeugen <span class="tag">tools\audio\</span> <span class="tag">noch nicht im Spiel</span></h3>
 <p>Alle eigenen Sounds und Songs entstehen per Code (Synthese, keine Samples, keine KI-Audio). Du brauchst Python mit <code>pip install numpy scipy mido</code> und ffmpeg für .ogg.</p>
 <table>
@@ -1427,7 +1440,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.5</b> <small>Stand 01.11.2026</small></summary>
+<summary><b>Alpha 0.5</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <h4>Neu: Rivalen an den Parkplätzen</h4>
 <ul>
@@ -1448,7 +1461,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.4.1</b> <small>Stand 01.11.2026</small></summary>
+<summary><b>Alpha 0.4.1</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <h4>Neu: Mehr Gesprächsstoff an den PAs</h4>
 <ul>
@@ -1465,7 +1478,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.4</b> <small>Stand 01.11.2026</small></summary>
+<summary><b>Alpha 0.4</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <h4>Neu: Gespräche an den Parkplätzen (PA)</h4>
 <ul>
@@ -1480,7 +1493,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.3.5</b> <small>Stand 01.11.2026</small></summary>
+<summary><b>Alpha 0.3.5</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <h4>Fehler behoben</h4>
 <ul>
@@ -1490,7 +1503,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.3.4</b> <small>Stand 01.11.2026</small></summary>
+<summary><b>Alpha 0.3.4</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <h4>Fehler behoben</h4>
 <ul>
@@ -1499,7 +1512,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.3.3</b> <small>Stand 01.11.2026</small></summary>
+<summary><b>Alpha 0.3.3</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <h4>Fehler behoben</h4>
 <ul>
@@ -1512,7 +1525,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </div>
 </details>
 <details class="cl">
-<summary><b>Alpha 0.3.2</b> <small>Stand 01.11.2026</small></summary>
+<summary><b>Alpha 0.3.2</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <p>Alle Änderungen seit Alpha 0.3 (die Test-ZIP Alpha 0.3.1 ist hier mit drin).</p>
 <h4>HUD</h4>
