@@ -4,7 +4,7 @@
 
 ### New: Music
 - Own music depending on the situation: title screen, day driving, night driving, shops and battles each have their own playlist, with smooth crossfades.
-- Title music: "Daikoku", which then keeps running as a loop.
+- Title music: "Daikoku" by z3rdax, made for the mod, which then keeps running as a loop.
 - Volume follows the BeamNG master and music sliders.
 - The credits now have a Music section listing every track with its license notice.
 
