@@ -252,6 +252,19 @@ def npc_specs(chat):
     return out
 
 
+def write_colors(specs, npcs, outdir):
+    """Farbe des Oberteils je Porträt (0..1) für die 3D-Figur im Spiel (talk.lua), damit Bob und Porträt zusammenpassen."""
+    def rgb(h):
+        h = h.lstrip("#")
+        return [round(int(h[i:i + 2], 16) / 255, 3) for i in (0, 2, 4)]
+    out = {"_hinweis": "Automatisch aus tools/silhouette/vc/rivals_v2.py: Oberteil-Farbe je Porträt (0..1). Die 3D-Figuren an den PAs bekommen diese Farbe."}
+    for pid, spec in list(specs.items()) + list(npcs.items()):
+        tone = PB.TONES.get(spec.get("tone"))
+        if tone:
+            out[pid] = rgb(tone[0])
+    json.dump(out, open(os.path.join(outdir, "colors.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+
+
 def load_js(path):
     t = open(path, encoding="utf-8").read()
     return json.loads(t[t.index("{"):t.rindex("}") + 1])
@@ -280,4 +293,5 @@ if __name__ == "__main__":
     for nid, spec in npcs.items():
         open(os.path.join(outdir, "npc", nid + ".svg"), "w", encoding="utf-8").write(compose(spec, True).svg())
     json.dump({"rivals": specs, "npc": npcs}, open(os.path.join(HERE, "out", "portrait_specs.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+    write_colors(specs, npcs, outdir)
     print(f"{len(specs)} Gegner-Porträts und {len(npcs)} PA-Porträts geschrieben")

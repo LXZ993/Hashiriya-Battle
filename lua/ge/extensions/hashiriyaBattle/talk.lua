@@ -216,6 +216,24 @@ function M.clearPending()
 end
 
 -- Figur neben der Fahrertür (rechts, japanische Autos) oder frei auf dem Platz
+-- Farbe der 3D-Figur = Oberteil-Farbe ihres Porträts (art/portraits/colors.json aus dem Porträt-Tool),
+-- damit Bob und Porträt zusammenpassen. Ohne Eintrag: Farbe des Sprechers bzw. des Rivalen-Autos.
+local portraitColors = nil
+local function portraitColor(n)
+  if portraitColors == nil then portraitColors = jsonReadFile('/art/portraits/colors.json') or false end
+  if not portraitColors then return nil end
+  local key
+  if n.rival then
+    if type(n.rival.portrait) == 'string' and n.rival.portrait ~= '' then return nil end -- eigenes Bild
+    key = n.rival.baseId or n.rival.id
+    if FS:fileExists('/art/portraits/' .. key .. '.png') or FS:fileExists('/art/portraits/' .. key .. '.jpg') then return nil end
+  else
+    key = tostring(n.speaker) .. '_' .. tostring(n.variant or 1)
+  end
+  local c = portraitColors[key]
+  return type(c) == 'table' and c or nil
+end
+
 local function spawnFigure(n, pos, dir, rand)
   local s = speakerById[n.speaker] or {}
   local config = { model = 'unicycle', format = 2, parts = { unicycle_meshes = 'unicycle_character' } }
@@ -224,7 +242,7 @@ local function spawnFigure(n, pos, dir, rand)
   local okH, h = pcall(function() return be:getSurfaceHeightBelow(pos + vec3(0, 0, 2)) end)
   if okH and h and h > -1e6 and math.abs(h - pos.z) < 3 then pos = vec3(pos.x, pos.y, h) end
   local opts = { config = config, pos = pos + vec3(0, 0, 0.1), rot = quatFromDir(dir, up), autoEnterVehicle = false,
-    removeTraffic = false, canSpawnAnotherVehicleCheck = false, paint = paintFromColor(n.color or s.color) }
+    removeTraffic = false, canSpawnAnotherVehicleCheck = false, paint = paintFromColor(portraitColor(n) or n.color or s.color) }
   local ok, fig = pcall(core_vehicles.spawnNewVehicle, 'unicycle', opts)
   if not ok or not fig then
     log('W', logTag, 'Figur nicht gespawnt: ' .. tostring(fig))
