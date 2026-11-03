@@ -57,6 +57,7 @@
 
 ### Neu: Musik steuern
 - Eigene Musik: Lege deine Lieder in den Ordner hashiriya_musik im BeamNG-Benutzerordner, sortiert nach Situation (Titel, Tag, Nacht, Parkplatz, Garage, Shop, Battle, Boss, Wanderer, Pink Slip).
+- Startmenü und neuer Spielstand zeigen einen Tipp, dass eigene Musik das beste Erlebnis bringt.
 - Im Hashiriya-Menü unter Werkzeuge > Musik einstellen wählst du pro Situation: Mod-Musik, eigene Musik, beides oder aus.
 - Neue Musik-Situationen: Parkplatz (PA), Garage und Zuhause, Battle gegen Leader und Bosse, gegen Wanderer und Pink Slip.
 - Neuer Kamera-Sound beim Fotojob (camera_digital_shutter).

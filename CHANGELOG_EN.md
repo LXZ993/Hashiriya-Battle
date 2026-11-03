@@ -57,6 +57,7 @@
 
 ### New: Music controls
 - Your own music: put your songs into the hashiriya_musik folder in the BeamNG user folder, sorted by situation (title, day, night, parking area, garage, shop, battle, boss, wanderer, pink slip).
+- The title menu and the new save screen show a tip that your own music gives the best experience.
 - In the Hashiriya menu under Tools > Music settings you choose per situation: mod music, your own music, both or off.
 - New music situations: parking area (PA), garage and home, battles against leaders and bosses, against wanderers and pink slip.
 - New camera shutter sound for the photo job (camera_digital_shutter).
