@@ -2,6 +2,12 @@
 
 ## Alpha 0.9.2 (Stand 03.11.2026)
 
+### Verkehr und PA-Fahrer
+- Der Verkehr nutzt jetzt wirklich alle 152 japanischen Fahrzeuge der Agent-Traffic-Mod. Vorher kamen immer nur die ersten paar Autos aus Agents Liste. Jetzt wird die Liste nach Häufigkeit gemischt, schon gezogene Autos werden seltener, und zusätzliche versteckte Autos wechseln sich mit den fahrenden ab. Auch die geparkten Autos sind jetzt viel bunter gemischt.
+- Mechaniker, Lkw-Fahrer, Kurier, Taxifahrer, Studentin und Angestellter fahren an den PAs passende Autos aus Agent Traffic JP (Kei-Laster, Dutro, JPN Taxi, Crown usw.) mit Agents Lackierungen. Ohne die Agent-Mod kommen die alten Autos.
+- 10 neue Leute an den PAs: Postbote, Müllwerker, Straßenarbeiter, Elektriker, Wachmann, Reinigungskraft, Familienvater, Rentner im Camper, Otaku und Kartenfahrer, jeder mit eigenem Auto, Porträt, Smalltalk und meist einer Wissens-Geschichte.
+- Die Taxi-Configs (Shinonome, Gekko) und die Polizei-Configs (Pessima Mk2, Sunburst) sind jetzt Teil der Mod. Die Taxis stehen bei den Taxifahrern an den PAs.
+
 ### Liveries
 - Neue japanische Lackierungen (eigene, erfundene Firmen) als Lackdesign im Konfigurator: zwei Taxis auf der Pessima Mk1 (Shinonome Kotsu, Gekko), Polizei 首都警察 auf Pessima Mk2 und Sunburst, sowie Werkstatt, Spedition, Kurier und Krankenwagen auf Gavril D-Series und H-Series. Die Configs für die Fahrer an den PAs folgen.
 

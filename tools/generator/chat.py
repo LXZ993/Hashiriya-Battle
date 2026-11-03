@@ -6,6 +6,11 @@ SPEAKERS = [
  ('taxi', 'Taxifahrer', 'Taxi driver'), ('photo', 'Fotografin', 'Photographer'), ('veteran', 'Alter Hase', 'Old hand'),
  ('rookie', 'Neuling', 'Rookie'), ('guard', 'Parkwächter', 'Car park attendant'), ('courier', 'Kurier', 'Courier'),
  ('student', 'Studentin', 'Student'), ('salaryman', 'Angestellter', 'Office worker'), ('drifter', 'Drift-Fan', 'Drift fan'),
+ # seit 03.11.2026: Arbeiter mit Autos aus Agent Traffic JP
+ ('postman', 'Postbote', 'Postman'), ('garbage', 'Müllwerker', 'Refuse collector'), ('roadworker', 'Straßenarbeiter', 'Road worker'),
+ ('electrician', 'Elektriker', 'Electrician'), ('security', 'Wachmann', 'Security guard'), ('cleaner', 'Reinigungskraft', 'Cleaner'),
+ ('family', 'Familienvater', 'Family man'), ('camper', 'Rentner im Camper', 'Retired camper'), ('otaku', 'Otaku', 'Otaku'),
+ ('mapper', 'Kartenfahrer', 'Map car driver'),
 ]
 
 # Belangloses (kind small): (speaker, de, en)
@@ -189,6 +194,36 @@ WAITING = [
  ('photo', 'Ich hab heute {name} fotografiert. Sah aus, als würde jemand gesucht. Vielleicht du.', 'I took a picture of {name} tonight. Looked like they were waiting for someone. Maybe you.'),
  ('trucker', '{name} fährt heute Nacht auf dem Ring. Pass gut auf.', '{name} is out on the loop tonight. Watch yourself.'),
  ('veteran', 'Seit deinem Sieg gegen {name} redet hier jeder von einer Revanche.', 'Since you beat {name}, everyone here is talking about a rematch.'),
+ # neue Arbeiter (03.11.2026)
+ ('postman', 'Dreihundert Briefkästen am Tag. Und jeder zweite klemmt.', 'Three hundred letterboxes a day. And every second one sticks.'),
+ ('postman', 'Mein Kleintransporter hat 50 PS. Auf dem Ring fühlt sich das an wie Zeitlupe. Ich mag Zeitlupe.', 'My little van has 50 PS. On the loop it feels like slow motion. I like slow motion.'),
+ ('postman', 'Wenn du mal einen Brief schreiben willst: Die Adresse kommt in Japan vom Großen zum Kleinen. Erst die Präfektur, dann der Name.', 'If you ever write a letter: in Japan the address goes from big to small. Prefecture first, name last.'),
+ ('garbage', 'Brennbar, nicht brennbar, Flaschen, Dosen, Papier. Wer falsch trennt, kriegt seinen Sack mit einem gelben Zettel zurück.', 'Burnable, non-burnable, bottles, cans, paper. Sort it wrong and your bag comes back with a yellow note.'),
+ ('garbage', 'Wir fangen um sechs an. Ihr hört um sechs auf. Wir sehen uns jeden Morgen und grüßen uns nie.', 'We start at six. You lot stop at six. We see each other every morning and never say hello.'),
+ ('garbage', 'Das Laute am Morgen? Das ist die Presse hinten im Wagen. Nicht mein Auspuff, keine Sorge.', 'That noise in the morning? That\'s the compactor at the back. Not my exhaust, don\'t worry.'),
+ ('roadworker', 'Nachts sperren wir eine Spur, tagsüber fahrt ihr drüber. So bleibt die Stadt am Laufen.', 'At night we close a lane, by day you drive over it. That keeps the city moving.'),
+ ('roadworker', 'Wenn du an einer Baustelle vorbeifährst, geh vom Gas. Hinter den Kegeln stehe ich.', 'When you pass a roadworks site, ease off. I\'m standing behind those cones.'),
+ ('roadworker', 'Jede Fuge, über die es bei dir rumpelt, hat einer von uns irgendwann mal eingebaut.', 'Every joint that thumps under your car was put there by one of us at some point.'),
+ ('electrician', 'Ich hänge nachts an Masten und repariere Leitungen. Von da oben sieht der Ring aus wie ein Lichtband.', 'At night I hang off poles fixing lines. From up there the loop looks like a ribbon of light.'),
+ ('electrician', 'Die Hebebühne hinten auf dem Wagen fährt zehn Meter hoch. Schneller als zwanzig fahr ich damit nicht.', 'The platform on the back goes up ten metres. I don\'t drive faster than twenty with it.'),
+ ('electrician', 'Wenn bei dir die Laterne flackert, ruf nicht mich an. Ich hab Feierabend.', 'If your street lamp flickers, don\'t call me. I\'m off duty.'),
+ ('security', 'Ich mache hier meine Runde. Parken ja, Rennen nein. Offiziell jedenfalls.', 'I\'m doing my rounds. Parking yes, racing no. Officially, anyway.'),
+ ('security', 'Siehst du die Leute mit dem Leuchtstab an Baustellen? Kollegen. Bei uns winkt man Autos durch, auch um drei Uhr nachts.', 'See the people with light sticks at roadworks? Colleagues. We wave cars through, even at three in the morning.'),
+ ('security', 'Mein Funkgerät hat mehr Rauschen als dein Radio. Aber es weckt mich zuverlässig.', 'My radio has more static than yours. But it wakes me up every time.'),
+ ('cleaner', 'Die Toiletten an den PAs gehören zu den saubersten der Welt. Das ist kein Zufall, das bin ich.', 'The toilets at the PAs are some of the cleanest in the world. That\'s no accident, that\'s me.'),
+ ('cleaner', 'Wir putzen nachts, wenn keiner da ist. Nur ihr seid immer da.', 'We clean at night when nobody\'s around. Except you lot, you\'re always around.'),
+ ('cleaner', 'Wenn du schon Reifenabrieb auf dem Parkplatz hinterlässt, dann wenigstens in gerader Linie.', 'If you\'re going to leave rubber on the car park, at least do it in a straight line.'),
+ ('family', 'Schiebetüren sind das Beste, was Eltern passieren kann. Kein Kind haut damit mehr den Nachbarn an.', 'Sliding doors are the best thing that can happen to parents. No kid dents the neighbour\'s car anymore.'),
+ ('family', 'Früher war ich auch nachts unterwegs. Heute fahre ich am Wochenende zum Zoo. Das ist auch eine Strecke.', 'I used to be out at night too. Now I drive to the zoo at weekends. That\'s a route too.'),
+ ('family', 'Die Kinder wollten unbedingt hier halten. Wegen der Eiscreme. Und wegen deinem Auto.', 'The kids insisted on stopping here. For the ice cream. And for your car.'),
+ ('camper', 'Meine Frau und ich fahren durchs ganze Land. Ein Kleinlaster, ein Bett hinten drauf, mehr braucht man nicht.', 'My wife and I drive all over the country. A little truck, a bed on the back, that\'s all you need.'),
+ ('camper', 'Mit 64 PS über die Berge? Dauert eben. Wir haben Zeit, wir sind in Rente.', 'Over the mountains with 64 PS? Takes a while. We\'ve got time, we\'re retired.'),
+ ('camper', 'In deinem Alter bin ich auch gerast. Dann hab ich geheiratet und angefangen, Aussichtspunkte zu zählen.', 'At your age I raced too. Then I got married and started counting viewpoints.'),
+ ('otaku', 'Ja, das ist ein Itasha. Ja, die Folie hat mehr gekostet als das Auto. Nein, ich bereue nichts.', 'Yes, it\'s an itasha. Yes, the wrap cost more than the car. No, I regret nothing.'),
+ ('otaku', 'Morgen ist eine Veranstaltung in Akihabara. Ich parke hier, damit ich als Erster da bin.', 'There\'s an event in Akihabara tomorrow. I\'m parked here so I\'m first in line.'),
+ ('otaku', 'Du schaust auf mein Auto? Alle schauen auf mein Auto. Deswegen hab ich es so gemacht.', 'Looking at my car? Everyone looks at my car. That\'s why I did it.'),
+ ('mapper', 'Ich fahre mit einer Kamera auf dem Dach jede Straße ab. Falls du irgendwann im Internet auftauchst: Ich war\'s.', 'I drive every street with a camera on the roof. If you ever turn up online: that was me.'),
+ ('mapper', 'Den Ring hab ich schon dreimal fotografiert. Jedes Mal hat mich einer von euch überholt. Ihr seid jetzt alle verpixelt.', 'I\'ve photographed the loop three times. Each time one of you overtook me. You\'re all blurred now.'),
 ]
 
 # Wie die Figuren an den PAs aussehen und was sie fahren (talk.lua).
@@ -196,19 +231,34 @@ WAITING = [
 # cars = Automodelle neben denen sie stehen (leer = steht ohne Auto, z. B. der Parkwächter),
 # match = Teil des Config-Namens, der passen muss (z. B. taxi), look = Teile fürs Porträt (Silhouetten-Tool),
 # color = Lackfarbe der Figur (0..1).
+# Autos aus der Agent-Traffic-Mod (Fahrzeug agent_traffic_jp2, Config-Name ohne .pc). Fehlt die Mod, kommen die Ersatzautos (fallback).
+def A(*configs): return [{'model': 'agent_traffic_jp2', 'config': c} for c in configs]
+def V(*models, match=''): return [dict({'model': m, 'fallback': True}, **({'match': match} if match else {})) for m in models]
+def own(model, *configs): return [{'model': model, 'config': c} for c in configs]
+
 SPEAKER_STYLE = {
  'fan':       dict(figur='m', night=3, day=1, cars=[('sunburst2', ''), ('covet', ''), ('pessima', '')], color=[0.9, 0.45, 0.1], look=[dict(jacke='hoodie', haare='capback'), dict(jacke='tshirt', haare='stachel', hals='kopfhoerer'), dict(jacke='sukajan', haare='kurz')]),
- 'mechanic':  dict(figur='m', night=2, day=2, cars=[('pickup', ''), ('van', '')], color=[0.25, 0.35, 0.55], look=[dict(jacke='overall', haare='cap', hals='handtuch'), dict(jacke='overall', haare='bandana'), dict(jacke='overall', haare='kahl', brille='goggles')]),
- 'trucker':   dict(figur='m', night=2, day=3, cars=[('van', ''), ('pickup', '')], color=[0.7, 0.6, 0.2], look=[dict(jacke='warnweste', haare='cap', hals='handtuch'), dict(jacke='warnweste', haare='muetze'), dict(jacke='jeans', haare='kurz', extra='zahnstocher')]),
- 'taxi':      dict(figur='m', night=2, day=2, cars=[('fullsize', 'taxi'), ('midsize', 'taxi'), ('fullsize', '')], color=[0.85, 0.75, 0.2], look=[dict(jacke='weste', haare='scheitel', haarfarbe='silber'), dict(jacke='anzug', haare='kurz', brille='halb'), dict(jacke='weste', haare='kahl', extra='maske')]),
+ 'mechanic':  dict(figur='m', night=2, day=2, cars=A('am5carry63_stock', 'am5carry63_tarp', 'am5hijet500_stock', 'am5hijet500_high', 'am5hijet500_subaru', 'am5hijet500_toyota', 'am5ad12_nissan_facelift', 'am5ad12_nissan_pre', 'am5ad12_mazda_facelift', 'am5minicab60_pre_nissan', 'am5caravan26_facelift_base') + V('pickup', 'van'), color=[0.25, 0.35, 0.55], look=[dict(jacke='overall', haare='cap', hals='handtuch'), dict(jacke='overall', haare='bandana'), dict(jacke='overall', haare='kahl', brille='goggles')]),
+ 'trucker':   dict(figur='m', night=2, day=3, cars=A('am5dutro2_aluminium_facelift', 'am5dutro2_aluminium_pre', 'am5dutro2_aluminium_seino', 'am5dutro2_bed_facelift', 'am5dutro2_bed_pre', 'am5dutro2_fridge_facelift', 'am5dutro2_fridge_pre') + V('van', 'pickup'), color=[0.7, 0.6, 0.2], look=[dict(jacke='warnweste', haare='cap', hals='handtuch'), dict(jacke='warnweste', haare='muetze'), dict(jacke='jeans', haare='kurz', extra='zahnstocher')]),
+ 'taxi':      dict(figur='m', night=2, day=2, cars=A('am5jpntaxi_daiwa_base', 'am5jpntaxi_daiwa_high', 'am5jpntaxi_greencab', 'am5jpntaxi_hinomaru_black', 'am5jpntaxi_hinomaru_white', 'am5jpntaxi_km', 'am5jpntaxi_nihonkotsu', 'am5jpntaxi_olympic', 'am5crown220_taxi', 'am5crew30_musen') + own('pessima', 'hashiriya_taxi_shinonome', 'hashiriya_taxi_gekko') + V('fullsize', 'midsize', match='taxi'), color=[0.85, 0.75, 0.2], look=[dict(jacke='weste', haare='scheitel', haarfarbe='silber'), dict(jacke='anzug', haare='kurz', brille='halb'), dict(jacke='weste', haare='kahl', extra='maske')]),
  'photo':     dict(figur='f', night=2, day=1, cars=[('covet', ''), ('etkc', '')], color=[0.75, 0.3, 0.6], look=[dict(jacke='jeans', haare='bobcut', hals='kette'), dict(jacke='bomber', haare='zopf', brille='rund'), dict(jacke='windbreaker', haare='capback')]),
  'veteran':   dict(figur='m', night=3, day=1, cars=[('moonhawk', ''), ('bluebuck', ''), ('miramar', ''), ('sbr', '')], color=[0.55, 0.55, 0.6], look=[dict(jacke='leder', haare='tolle', haarfarbe='silber'), dict(jacke='mantel', haare='kahl', brille='sonne'), dict(jacke='strick', haare='scheitel', haarfarbe='silber', brille='rund')]),
  'rookie':    dict(figur='m', night=3, day=1, cars=[('covet', ''), ('pessima', ''), ('bx', '')], color=[0.3, 0.75, 0.4], look=[dict(jacke='hoodie', haare='stachel'), dict(jacke='tshirt', haare='kurz'), dict(jacke='training', haare='capback')]),
  'guard':     dict(figur='m', night=1, day=2, cars=[], color=[0.2, 0.3, 0.25], look=[dict(jacke='warnweste', haare='muetze'), dict(jacke='warnweste', haare='cap', haarfarbe='silber'), dict(jacke='militaer', haare='muetze', extra='maske')]),
- 'courier':   dict(figur='m', night=1, day=3, cars=[('van', ''), ('pickup', '')], color=[0.2, 0.5, 0.8], look=[dict(jacke='windbreaker', haare='capback', extra='headset'), dict(jacke='polo', haare='cap'), dict(jacke='windbreaker', haare='kurz', hals='kopfhoerer')]),
- 'student':   dict(figur='f', night=2, day=1, cars=[('covet', ''), ('pessima', '')], color=[0.6, 0.7, 0.95], look=[dict(jacke='strick', haare='hime', hals='schal'), dict(jacke='bluse', haare='zoepfe', brille='rund'), dict(jacke='hoodie', haare='dutt')]),
- 'salaryman': dict(figur='m', night=2, day=2, cars=[('midsize', ''), ('etki', ''), ('legran', '')], color=[0.35, 0.35, 0.4], look=[dict(jacke='anzug', haare='scheitel', brille='halb'), dict(jacke='anzug', haare='kurz'), dict(jacke='mantel', haare='scheitel', brille='rund')]),
+ 'courier':   dict(figur='m', night=1, day=3, cars=A('am5dutro2_yamato_facelift', 'am5dutro2_yamato_pre', 'am5caravan26_facelift_fedex', 'am5every64_suzuki_pa', 'am5every64_nissan_dx', 'am5every64_mitsubishi_m', 'am5minicab60_facelift_mitsubishi') + V('van', 'pickup'), color=[0.2, 0.5, 0.8], look=[dict(jacke='windbreaker', haare='capback', extra='headset'), dict(jacke='polo', haare='cap'), dict(jacke='windbreaker', haare='kurz', hals='kopfhoerer')]),
+ 'student':   dict(figur='f', night=2, day=1, cars=A('am5lapin33_mode', 'am5lapin33_stock', 'ezocanbus_stock', 'am5alto36_stock', 'am5nwgn12_pre', 'spicylatte_stock', 'am5mira350_daihatsu_stock', 'am5xbee_pre') + [{'model': 'covet'}, {'model': 'pessima'}], color=[0.6, 0.7, 0.95], look=[dict(jacke='strick', haare='hime', hals='schal'), dict(jacke='bluse', haare='zoepfe', brille='rund'), dict(jacke='hoodie', haare='dutt')]),
+ 'salaryman': dict(figur='m', night=2, day=2, cars=A('am5crown220_base', 'am5crown220_standard', 'am5cx5_base', 'am5cx5_standard', 'am5aqua210_stock', 'am5cx30_stock', 'am5alphard30_alphard_standard') + V('midsize', 'etki', 'legran'), color=[0.35, 0.35, 0.4], look=[dict(jacke='anzug', haare='scheitel', brille='halb'), dict(jacke='anzug', haare='kurz'), dict(jacke='mantel', haare='scheitel', brille='rund')]),
  'drifter':   dict(figur='m', night=3, day=0, cars=[('sunburst2', 'drift'), ('bx', ''), ('sunburst2', '')], color=[0.85, 0.15, 0.2], look=[dict(jacke='sukajan', haare='stachel', extra='zahnstocher'), dict(jacke='tokko', haare='irokese'), dict(jacke='bomber', haare='bandana', brille='sonne')]),
+ 'postman':   dict(figur='m', night=0, day=2, cars=A('am5every64_suzuki_post', 'am5every64_suzuki_postold') + V('van'), color=[0.8, 0.15, 0.15], look=[dict(jacke='polo', haare='cap'), dict(jacke='windbreaker', haare='cap', haarfarbe='silber'), dict(jacke='polo', haare='kurz', brille='halb')]),
+ 'garbage':   dict(figur='m', night=1, day=2, cars=A('am5dutro2_packer_tokyo23', 'am5dutro2_packer_facelift', 'am5dutro2_packer_pre') + V('van'), color=[0.3, 0.6, 0.35], look=[dict(jacke='warnweste', haare='muetze', hals='handtuch'), dict(jacke='overall', haare='cap'), dict(jacke='warnweste', haare='kahl', extra='maske')]),
+ 'roadworker': dict(figur='m', night=3, day=1, cars=A('am5hijet500_roadwork', 'am5hijet500_stock', 'am5dutro2_bed_pre') + V('pickup'), color=[0.95, 0.6, 0.1], look=[dict(jacke='warnweste', haare='muetze', hals='handtuch'), dict(jacke='warnweste', haare='stirnband'), dict(jacke='warnweste', haare='cap', extra='zahnstocher')]),
+ 'electrician': dict(figur='m', night=1, day=2, cars=A('am5carry63_panasonic', 'am5dutro2_platform_facelift', 'am5dutro2_platform_pre') + V('pickup'), color=[0.2, 0.4, 0.75], look=[dict(jacke='overall', haare='cap'), dict(jacke='overall', haare='kurz', brille='halb'), dict(jacke='warnweste', haare='muetze')]),
+ 'security':  dict(figur='m', night=3, day=1, cars=A('am5caravan26_como_alsok', 'am5caravan26_como') + V('van'), color=[0.15, 0.2, 0.4], look=[dict(jacke='militaer', haare='cap'), dict(jacke='militaer', haare='muetze', haarfarbe='silber'), dict(jacke='weste', haare='scheitel', extra='headset')]),
+ 'cleaner':   dict(figur='f', night=1, day=2, cars=A('am5minicab60_honpo', 'am5carry63_shitter') + V('van'), color=[0.4, 0.75, 0.8], look=[dict(jacke='overall', haare='bandana'), dict(jacke='polo', haare='dutt'), dict(jacke='overall', haare='zopf', extra='maske')]),
+ 'family':    dict(figur='m', night=0, day=3, cars=A('am5alphard30_alphard_base', 'am5alphard30_vellfire_base', 'am5stepwgnrp_pre_base', 'am5stepwgnrp_spada', 'am5freed2_facelift_base', 'am5freed2_pre_base_hybrid', 'am5solio7s_standard_suzuki', 'am5solio7s_bandit_suzuki') + V('midsize'), color=[0.5, 0.65, 0.4], look=[dict(jacke='polo', haare='kurz'), dict(jacke='strick', haare='scheitel', brille='rund'), dict(jacke='tshirt', haare='kurz', hals='kette')]),
+ 'camper':    dict(figur='m', night=1, day=2, cars=A('am5hijet500_camper_blue', 'am5hijet500_camper_red', 'am5hijet500_camper_steel', 'am5hijet500_camper_white') + V('van'), color=[0.6, 0.5, 0.35], look=[dict(jacke='strick', haare='kahl', haarfarbe='silber', brille='rund'), dict(jacke='windbreaker', haare='cap', haarfarbe='silber'), dict(jacke='weste', haare='scheitel', haarfarbe='silber', brille='halb')]),
+ 'otaku':     dict(figur='m', night=2, day=1, cars=A('ezocanbus_miku', 'am5every64_mitsubishi_jashin', 'am5every64_french') + V('covet'), color=[0.3, 0.8, 0.8], look=[dict(jacke='hoodie', haare='kurz', brille='rund', hals='kopfhoerer'), dict(jacke='tshirt', haare='lang', brille='halb'), dict(jacke='bomber', haare='capback', brille='rund')]),
+ 'mapper':    dict(figur='m', night=0, day=1, cars=A('am5alto36_streetview') + V('covet'), color=[0.45, 0.55, 0.85], look=[dict(jacke='windbreaker', haare='cap'), dict(jacke='polo', haare='kurz', brille='halb'), dict(jacke='hoodie', haare='capback')]),
 }
 
 # Wenn man denselben Fahrer in derselben Nacht (oder am selben Tag) nochmal anspricht (kind again)
@@ -244,7 +294,7 @@ PA = {
  'rivalNight': [0, 2], 'rivalDay': [0, 0], 'rivalWaitDistance': 250, 'rivalWaitSpeed': 30,
  'rivalWeightNew': 3, 'rivalWeightBeaten': 1, 'rivalWeightHolder': 6,
  'portraitVariants': 3,
- 'excludeConfigs': ['police', 'pursuit', 'interceptor', 'undercover', 'race', 'rally', 'drag', 'track', 'gymkhana', 'safety', 'baja', 'stunt', 'derby', 'prerunner', 'crawler', 'ambulance', 'fire'],
+ 'excludeConfigs': ['police', 'pursuit', 'interceptor', 'undercover', 'race', 'rally', 'drag', 'track', 'gymkhana', 'safety', 'baja', 'stunt', 'derby', 'prerunner', 'crawler', 'ambulance', 'fire', 'taxi', 'hashiriya_'],
 }
 
 # Überleitung, wenn man denselben Fahrer nochmal anspricht und er noch etwas Wissenswertes kennt (kind more)
@@ -279,7 +329,7 @@ def build():
         if len(lines) > 1: extra['lines'] = [{'de': de, 'en': en} for de, en in lines[1:]]
         add('fact', s, lines[0][0], lines[0][1], **extra)
     return {
-     '_hinweis': 'PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), '
+     '_hinweis': 'PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, config = genau diese Config (Dateiname ohne .pc, z. B. aus Agent Traffic JP: model agent_traffic_jp2), fallback = Ersatzauto, nur wenn keins der anderen installiert ist, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), '
                  'crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader '
                  '(wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), '
                  'waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet. '
@@ -288,7 +338,7 @@ def build():
                  'Neue Wissens-Texte am besten in tools/generator/lore.py eintragen.',
      'pa': PA,
      'speakers': [dict({'id': i, 'name': {'de': de, 'en': en}}, figur=SPEAKER_STYLE[i]['figur'], night=SPEAKER_STYLE[i]['night'], day=SPEAKER_STYLE[i]['day'],
-                       cars=[{'model': m, 'match': mt} if mt else {'model': m} for m, mt in SPEAKER_STYLE[i]['cars']],
+                       cars=[c if isinstance(c, dict) else ({'model': c[0], 'match': c[1]} if c[1] else {'model': c[0]}) for c in SPEAKER_STYLE[i]['cars']],
                        color=SPEAKER_STYLE[i]['color'], look=SPEAKER_STYLE[i]['look']) for i, de, en in SPEAKERS],
      'talk': talk,
     }

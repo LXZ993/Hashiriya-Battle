@@ -436,6 +436,43 @@ LORE = [
  ('guard', 'beamng', None, None, [
   ('Unsere Welt gibt es seit dem 19. Oktober 2026 auch auf Konsole. Seitdem ist hier auf dem Parkplatz mehr los.',
    'Our world has been on console too since 19 October 2026. It\'s busier in this car park since then.')]),
+ # --- Arbeiter an den PAs (03.11.2026) ----------------------------------------------------------------
+ ('postman', 'japan', None, None, [
+  ('Das Postzeichen 〒 kennst du? Das kommt vom alten Ministerium für Post und Verkehr, dem Teishinsho. Es ist aus dem Zeichen テ entstanden, für Teishin.',
+   'Know the postal mark 〒? It comes from the old Ministry of Communications, the Teishinsho. It grew out of the character テ, for Teishin.'),
+  ('Seit 1887 steht es für die Post. Du findest es heute noch auf jedem Briefkasten und vor jeder Postleitzahl.',
+   'It has stood for the post since 1887. You still find it on every letterbox and in front of every postcode.')]),
+ ('garbage', 'tokyo', None, None, [
+  ('Weißt du, worauf ein Teil der Bucht steht? Auf Müll. Yumenoshima, die Trauminsel, war von 1957 bis 1967 eine Deponie.',
+   'Know what part of the bay stands on? Rubbish. Yumenoshima, Dream Island, was a landfill from 1957 to 1967.'),
+  ('Heute sind da ein Park und ein Sportplatz. Die Möwen erinnern sich trotzdem.',
+   'Today there\'s a park and a sports ground. The seagulls still remember.')]),
+ ('roadworker', 'c1', 'c1', None, [
+  ('Bei Nihonbashi bauen sie den Ring gerade unter die Erde. Die alte Hochstraße über der Brücke soll danach ganz verschwinden.',
+   'At Nihonbashi they\'re moving the loop underground. The old elevated road over the bridge is meant to disappear completely afterwards.'),
+  ('Die Brücke von 1911 hat dann zum ersten Mal seit den Sechzigern wieder freien Himmel über sich. Das dauert aber noch bis in die 2030er.',
+   'The 1911 bridge will then have open sky above it for the first time since the sixties. But that will take until the 2030s.')]),
+ ('electrician', 'japan', None, None, [
+  ('Wusstest du, dass Japan zwei Stromnetze hat? Im Osten, also hier in Tokio, laufen 50 Hertz, im Westen um Osaka 60 Hertz.',
+   'Did you know Japan has two power grids? In the east, here in Tokyo, it runs at 50 hertz, in the west around Osaka at 60 hertz.'),
+  ('Das liegt daran, dass man im 19. Jahrhundert in Tokio deutsche und in Osaka amerikanische Generatoren gekauft hat. Bis heute ist das so geblieben.',
+   'That\'s because in the 19th century Tokyo bought German generators and Osaka bought American ones. It has stayed that way ever since.')]),
+ ('camper', 'japan', None, None, [
+  ('Wenn du mal aufs Land fährst: Halt an einem Michi-no-Eki. Das sind Raststationen an normalen Landstraßen, mit Toiletten, Markt und Essen aus der Gegend.',
+   'If you ever drive out to the countryside: stop at a michi-no-eki. Those are roadside stations on ordinary roads, with toilets, a market and local food.'),
+  ('Die gibt es seit 1993, inzwischen über tausend Stück. Wir haben schon über zweihundert gesehen. Meine Frau führt Buch.',
+   'They have existed since 1993, there are over a thousand now. We\'ve seen over two hundred. My wife keeps a log.')]),
+ ('otaku', 'cars', None, None, [
+  ('Itasha heißt wörtlich schmerzhaftes Auto. Weil es wehtut, so etwas anzusehen. Oder dem Geldbeutel.',
+   'Itasha literally means painful car. Because it hurts to look at. Or to your wallet.'),
+  ('Es ist auch ein Wortspiel: Ita-sha klingt wie Italia-sha, also italienisches Auto. Unsere sind halt eher aus Akihabara als aus Italien.',
+   'It\'s also a pun: ita-sha sounds like Italia-sha, an Italian car. Ours just come from Akihabara rather than Italy.')]),
+ ('security', 'japan', None, None, [
+  ('An fast jeder Baustelle in Japan steht jemand in Uniform und winkt die Autos vorbei. Das sind Wachleute, keine Bauarbeiter.',
+   'At almost every roadworks in Japan there\'s someone in uniform waving cars past. Those are security guards, not builders.'),
+  ('Groß geworden ist die Branche mit den Olympischen Spielen 1964 in Tokio. Seitdem gehören wir zum Straßenbild.',
+   'The trade grew big with the 1964 Tokyo Olympics. Since then we\'ve been part of the street scene.')]),
+
 ]
 
 # Mehr Smalltalk (kind small): (speaker, de, en)

@@ -299,6 +299,22 @@ local function withPlateDesign(model, config, design, rand)
   return config
 end
 
+-- Autos eines PA-Fahrers, die es gerade gibt: Einträge mit config nur, wenn Modell und Config installiert sind
+-- (z. B. Agent Traffic JP). fallback = true sind Ersatzautos, die nur kommen, wenn keins der anderen da ist.
+local carCache = {}
+local function speakerCars(s)
+  if carCache[s.id] then return carCache[s.id] end
+  local main, spare = {}, {}
+  for _, car in ipairs(s.cars or {}) do
+    local okM, m = pcall(function() return core_vehicles.getModel(car.model) end)
+    local ok = okM and m and m.model ~= nil
+    if ok and car.config then ok = type(m.configs) == 'table' and m.configs[car.config] ~= nil end
+    if ok then table.insert(car.fallback and spare or main, car) end
+  end
+  carCache[s.id] = #main > 0 and main or spare
+  return carCache[s.id]
+end
+
 local function spawnCar(model, config, ps, rand, paints, plate, design)
   config = withPlateDesign(model, config, design, rand)
   if not paints and type(config) == 'table' and type(config.paints) == 'table' and config.paints[1] then paints = config.paints end
@@ -467,17 +483,13 @@ local function spawnCrowd(i, pa)
     if not s then break end
     used[s.id] = true
     local n = { speaker = s.id, variant = math.floor(rand() * (c.portraitVariants or 3)) + 1, heard = {}, place = pa.name }
-    local cars = s.cars or {}
+    local cars = speakerCars(s)
     if #cars > 0 and spots[spotIdx] then
       local ps = spots[spotIdx]
       spotIdx = spotIdx + 1
       local car = cars[math.floor(rand() * #cars) + 1]
       -- eigene Config (chat.json cars[].config = Name der .pc ohne Endung) geht vor, wenn es sie gibt
-      local config = nil
-      if car.config then
-        local okM, m = pcall(function() return core_vehicles.getModel(car.model) end)
-        if okM and m and type(m.configs) == 'table' and m.configs[car.config] then config = car.config end
-      end
+      local config = car.config
       config = config or pickConfig(car.model, car.match, rand)
       if not config and car.match then config = pickConfig(car.model, nil, rand) end
       n.carId = spawnCar(car.model, config, ps, rand)
@@ -1068,7 +1080,7 @@ local function onUpdate(dtReal)
   end
 end
 
-local function onClientEndMission() M.despawnAll() end
+local function onClientEndMission() M.despawnAll(); carCache = {} end
 local function onExtensionUnloaded() M.despawnAll() end
 
 -- Entwickler: Leute neu aufstellen

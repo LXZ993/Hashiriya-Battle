@@ -1,0 +1,14 @@
+{
+  "Config Type":"Police",
+  "Configuration":"hashiriya_police",
+  "InsuranceClass":"dailyDriver",
+  "Population":50,
+  "Value":28000,
+  "defaultMultiPaintSetup":{
+    "name":"hashiriya_police Multi Paint Setup",
+    "paint1":"Palladium Gray",
+    "paint2":"Palladium Gray",
+    "paint3":"Palladium Gray"
+  },
+  "vehicleSelectorSubGroup":"vehiclesData.autobello.150_rally.vehicleSelectorSubGroup"
+}
