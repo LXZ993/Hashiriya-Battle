@@ -707,6 +707,19 @@ function M.spawnNext(force, forced)
   return entry
 end
 
+-- Ein schon vorhandenes Auto als Rivalen auf die Straße übernehmen (PA-Rivale, der selbst aus der PA gefahren ist).
+-- Er fährt schon (KI läuft), also kein Anschieben und kein Umdrehen. Zählt nicht gegen maxOnRoad.
+function M.adoptVehicle(rival, vehId)
+  local veh = vehId and be:getObjectByID(vehId)
+  if not veh or not rival or isOnRoad(rival.id) then return nil end
+  local dir = veh:getDirectionVector()
+  local entry = { data = rival, vehId = vehId, spawnDir = dir, spawnPos = vec3(veh:getPosition()), age = 0,
+    rotChecked = true, launched = true, fromPa = true }
+  table.insert(onRoad, entry)
+  log('I', logTag, 'Rivale aus der PA auf der Straße: ' .. tostring(rival.id) .. string.format(' (%d unterwegs)', #onRoad))
+  return entry
+end
+
 -- Farbklasse für Markierungen (Radar, HUD): Boss, Wanderer, Leader, Revanche, verloren, normal
 function M.markerKind(rival)
   local save = core().save

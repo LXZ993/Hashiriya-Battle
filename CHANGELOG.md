@@ -8,6 +8,9 @@
 - 10 neue Leute an den PAs: Postbote, Müllwerker, Straßenarbeiter, Elektriker, Wachmann, Reinigungskraft, Familienvater, Rentner im Camper, Otaku und Kartenfahrer, jeder mit eigenem Auto, Porträt, Smalltalk und meist einer Wissens-Geschichte.
 - Die Taxi-Configs (Shinonome, Gekko) und die Polizei-Configs (Pessima Mk2, Sunburst) sind jetzt Teil der Mod. Die Taxis stehen bei den Taxifahrern an den PAs.
 
+### PA-Rivalen
+- Rivalen an den PAs fahren jetzt sichtbar los: Nach dem Annehmen steigt der Rivale in sein Auto, startet den Motor, macht nachts das Licht an und rollt langsam aus der PA auf den C1. Dort ist er ein ganz normaler Rivale auf dem Radar. Er bummelt erst etwas, damit du hinterherkommst. Kommt er aus der PA nicht heraus, wartet er wie früher vor dir.
+
 ### Liveries
 - Neue japanische Lackierungen (eigene, erfundene Firmen) als Lackdesign im Konfigurator: zwei Taxis auf der Pessima Mk1 (Shinonome Kotsu, Gekko), Polizei 首都警察 auf Pessima Mk2 und Sunburst, sowie Werkstatt, Spedition, Kurier und Krankenwagen auf Gavril D-Series und H-Series. Die Configs für die Fahrer an den PAs folgen.
 
