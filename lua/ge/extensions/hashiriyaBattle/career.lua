@@ -635,6 +635,10 @@ local function creditsList()
   -- Musik: jedes Stück aus data/music.json mit Titel, Künstler und Lizenzhinweis (CC BY verlangt die Nennung)
   local music = {}
   local mu = extensions.hashiriyaBattle_music
+  local hasAi = false
+  for _, e in ipairs(mu and mu.creditEntries() or {}) do if e.ai then hasAi = true end end
+  -- KI-Platzhalter offen kennzeichnen (Alex 2026-11-03)
+  if hasAi then table.insert(music, { name = c.t('credits.musicAi'), what = c.t('credits.musicAiNote') }) end
   for _, e in ipairs(mu and mu.creditEntries() or {}) do
     if e.artist and e.artist ~= '' and not e.artist:match('^%[') then
       local lic = e.license == 'CC BY 4.0' and 'Licensed under Creative Commons: By Attribution 4.0 License, http://creativecommons.org/licenses/by/4.0/' or (e.license or '')

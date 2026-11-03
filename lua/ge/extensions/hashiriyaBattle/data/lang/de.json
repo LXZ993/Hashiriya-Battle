@@ -175,6 +175,8 @@
   "title.continue": "Weiterspielen",
   "title.credits": "Credits",
   "credits.music": "Musik",
+  "credits.musicAi": "Hinweis zu den KI-Platzhaltern",
+  "credits.musicAiNote": "Passende copyrightfreie Songs im Stil der späten 90er und 2000er, die man in einer Mod weitergeben darf, sind kaum zu finden. Darum sind einige Stücke (mit „AI“ im Namen) mit KI (ACE-Step) erstellte Platzhalter. Sie sollen zeigen, wie die Musik in den einzelnen Situationen wirken soll, und werden durch echte Tracks ersetzt, sobald es welche gibt. Im Hashiriya-Menü unter Werkzeuge > Musik einstellen kannst du sie pro Situation abschalten und eigene Musik nehmen. Jeder darf diese Stücke frei nutzen.",
   "credits.community": "Community-Wanderer",
   "credits.wanderer": "als %s",
   "credits.role.Testing": "Tests",
