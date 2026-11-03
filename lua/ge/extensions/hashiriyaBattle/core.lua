@@ -239,7 +239,12 @@ function M.spots(kind)
   local L = type(dev) == 'table' and dev.levels and dev.levels[M.levelName or ''] or nil
   for _, p in ipairs(L and L.places or {}) do
     if p.type == k.dev and type(p.pos) == 'table' then
-      table.insert(out, { name = p.name, pos = p.pos, dir = p.dir, dev = true })
+      -- schon in die Kartendatei übernommen? Dann nicht doppelt
+      local dup = false
+      for _, e in ipairs(out) do
+        if not e.dev and math.abs(e.pos[1] - p.pos[1]) < 0.5 and math.abs(e.pos[2] - p.pos[2]) < 0.5 then dup = true break end
+      end
+      if not dup then table.insert(out, { name = p.name, pos = p.pos, dir = p.dir, dev = true }) end
     end
   end
   spotCache[kind] = out

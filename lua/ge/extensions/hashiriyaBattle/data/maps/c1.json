@@ -2,21 +2,931 @@
   "speedTrapsTotal": 45,
   "_hinweisRadar": "speedTrapsTotal = Anzahl Radarfallen auf der Map (laut Alex 45 auf der C1; im Spiel noch prüfen).",
   "_hinweis": "Orte auf der C1-Map, mit 'Position merken' gesammelt (27./28.10.2026). type: garage | shop | home | gas. pos/dir/radius = Bucht für das Auto (Auslösebereich in m um die Buchtmitte). footPos/footRadius = Punkt zu Fuß. footOnly = nur zu Fuß (keine Bucht). Beim Shop (footEntry) parkt man das Auto in der Bucht und geht zu Fuß zum Eingang; dort öffnet sich das Menü, die Kamera zeigt vom Eingang aufs Auto. Ohne footEntry öffnet Reinfahren und Anhalten den Shop. Optional: markerPos/markerDir/markerSize für die exakte Bucht. napSpots = Parkplätze für ein Nickerchen im Auto (Mitte und Radius in m; aus den Spawnpunkten der Map). playerSpawn = Startpunkt zu Fuß nach Neues Spiel/Weiterspielen (Zuhause). showroom = Präsentationsplatz für Autokauf/Neues Spiel (C1: Parkplatz garage1spot der Werkstatt 'Garage' am Kartenursprung, aus facilities.sites.json der Map; nach dem Kauf kommt das Auto in die Garagenbucht).",
-  "disabledMissionTypes": ["timeTrial", "generatedTimeTrial"],
-  "_hinweisMissionen": "disabledMissionTypes = BeamNG-Missionstypen, die auf dieser Map ausgeblendet werden (Map-Dateien bleiben unverändert). Tagsüber nichts Illegales, darum keine Time Trials. Welche Typen es gibt, steht beim Laden im Mod-Log (Zeile 'Missionen auf c1: ...').",
-  "showroom": { "pos": [-0.269, 1.742, -0.015], "dir": [0, -1, 0] },
-  "napSpots": [
-    { "name": "Shibaura PA", "pos": [1102.37, 4709.02, 874.106], "radius": 80 },
-    { "name": "Tatsumi 1st PA", "pos": [5932.339, 4667.843, 874.491], "radius": 80 }
+  "disabledMissionTypes": [
+    "timeTrial",
+    "generatedTimeTrial"
   ],
-  "playerSpawn": { "pos": [5848.501, 4637.323, 873.831], "dir": [0.93426, 0.35659, 0] },
+  "_hinweisMissionen": "disabledMissionTypes = BeamNG-Missionstypen, die auf dieser Map ausgeblendet werden (Map-Dateien bleiben unverändert). Tagsüber nichts Illegales, darum keine Time Trials. Welche Typen es gibt, steht beim Laden im Mod-Log (Zeile 'Missionen auf c1: ...').",
+  "showroom": {
+    "pos": [
+      -0.269,
+      1.742,
+      -0.015
+    ],
+    "dir": [
+      0,
+      -1,
+      0
+    ]
+  },
+  "napSpots": [
+    {
+      "name": "Shibaura PA",
+      "pos": [
+        1102.37,
+        4709.02,
+        874.106
+      ],
+      "radius": 80
+    },
+    {
+      "name": "Tatsumi 1st PA",
+      "pos": [
+        5932.339,
+        4667.843,
+        874.491
+      ],
+      "radius": 80
+    }
+  ],
+  "playerSpawn": {
+    "pos": [
+      5848.501,
+      4637.323,
+      873.831
+    ],
+    "dir": [
+      0.93426,
+      0.35659,
+      0
+    ]
+  },
   "parkingAreas": [
-    { "id": "pa_garage", "type": "garage", "pos": [5897.693, 4643.223, 873.129], "dir": [-0.93625, -0.34953, -0.03555], "radius": 4 },
-    { "id": "pa_shop", "type": "shop", "pos": [1099.163, 4758.111, 874.214], "dir": [0.99977, 0.01182, -0.01766], "radius": 4,
-      "footEntry": true, "footPos": [1093.108, 4770.120, 876.557], "footDir": [0.01247, 0.99992, 0], "footRadius": 2 },
-    { "id": "home", "type": "home", "footOnly": true, "pos": [5848.501, 4637.323, 873.831], "dir": [0.93426, 0.35659, 0],
-      "footPos": [5848.501, 4637.323, 873.831], "footRadius": 2 },
-    { "id": "gas_1", "type": "gas", "pos": [5945.668, 4678.466, 875.306], "dir": [0.36348, -0.93160, 0], "radius": 5 },
-    { "id": "gas_2", "type": "gas", "pos": [1109.094, 4753.936, 874.555], "dir": [-0.01590, 0.99987, 0], "radius": 5 }
+    {
+      "id": "pa_garage",
+      "type": "garage",
+      "pos": [
+        5897.693,
+        4643.223,
+        873.129
+      ],
+      "dir": [
+        -0.93625,
+        -0.34953,
+        -0.03555
+      ],
+      "radius": 4
+    },
+    {
+      "id": "pa_shop",
+      "type": "shop",
+      "pos": [
+        1099.163,
+        4758.111,
+        874.214
+      ],
+      "dir": [
+        0.99977,
+        0.01182,
+        -0.01766
+      ],
+      "radius": 4,
+      "footEntry": true,
+      "footPos": [
+        1093.108,
+        4770.12,
+        876.557
+      ],
+      "footDir": [
+        0.01247,
+        0.99992,
+        0
+      ],
+      "footRadius": 2
+    },
+    {
+      "id": "home",
+      "type": "home",
+      "footOnly": true,
+      "pos": [
+        5848.501,
+        4637.323,
+        873.831
+      ],
+      "dir": [
+        0.93426,
+        0.35659,
+        0
+      ],
+      "footPos": [
+        5848.501,
+        4637.323,
+        873.831
+      ],
+      "footRadius": 2
+    },
+    {
+      "id": "gas_1",
+      "type": "gas",
+      "pos": [
+        5945.668,
+        4678.466,
+        875.306
+      ],
+      "dir": [
+        0.36348,
+        -0.9316,
+        0
+      ],
+      "radius": 5
+    },
+    {
+      "id": "gas_2",
+      "type": "gas",
+      "pos": [
+        1109.094,
+        4753.936,
+        874.555
+      ],
+      "dir": [
+        -0.0159,
+        0.99987,
+        0
+      ],
+      "radius": 5
+    }
+  ],
+  "_hinweisStehplaetze": "standSpots = Stehplätze der PA-Fahrer (pos = Füße, dir = Blickrichtung). Von Alex im Dev-Menü gesetzt (03.11.2026: Tatsumi PA 1 und Shibaura PA) und fest übernommen. Neue Plätze im Dev-Menü mit Typ 'PA-Fahrer-Stehplatz' merken; gleiche Positionen werden nicht doppelt genommen.",
+  "standSpots": [
+    {
+      "name": "Tatsumi PA 1 Stehplatz 1",
+      "pos": [
+        5916.047,
+        4666.097,
+        874.727
+      ],
+      "dir": [
+        0.35,
+        -0.937,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 2",
+      "pos": [
+        5913.453,
+        4665.643,
+        874.665
+      ],
+      "dir": [
+        0.324,
+        -0.946,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 3",
+      "pos": [
+        5911.021,
+        4664.784,
+        874.583
+      ],
+      "dir": [
+        0.345,
+        -0.938,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 4",
+      "pos": [
+        5908.721,
+        4663.503,
+        874.51
+      ],
+      "dir": [
+        0.37,
+        -0.929,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 5",
+      "pos": [
+        5906.48,
+        4662.511,
+        874.443
+      ],
+      "dir": [
+        0.383,
+        -0.924,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 6",
+      "pos": [
+        5904.259,
+        4661.606,
+        874.373
+      ],
+      "dir": [
+        0.35,
+        -0.937,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 7",
+      "pos": [
+        5901.765,
+        4660.696,
+        874.293
+      ],
+      "dir": [
+        0.372,
+        -0.928,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 8",
+      "pos": [
+        5899.204,
+        4659.821,
+        874.222
+      ],
+      "dir": [
+        0.368,
+        -0.93,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 9",
+      "pos": [
+        5896.849,
+        4658.57,
+        874.128
+      ],
+      "dir": [
+        0.364,
+        -0.932,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 10",
+      "pos": [
+        5894.627,
+        4657.594,
+        874.061
+      ],
+      "dir": [
+        0.309,
+        -0.951,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 11",
+      "pos": [
+        5892.139,
+        4656.724,
+        873.983
+      ],
+      "dir": [
+        0.316,
+        -0.949,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 12",
+      "pos": [
+        5889.858,
+        4655.735,
+        873.908
+      ],
+      "dir": [
+        0.365,
+        -0.931,
+        0
+      ]
+    },
+    {
+      "name": "Tatsumi PA 1 Stehplatz 13",
+      "pos": [
+        5887.559,
+        4654.636,
+        873.823
+      ],
+      "dir": [
+        0.244,
+        -0.97,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 14",
+      "pos": [
+        1094.736,
+        4753.472,
+        874.943
+      ],
+      "dir": [
+        0.999,
+        -0.052,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 15",
+      "pos": [
+        1094.633,
+        4750.95,
+        874.954
+      ],
+      "dir": [
+        0.997,
+        -0.079,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 16",
+      "pos": [
+        1094.881,
+        4748.375,
+        874.952
+      ],
+      "dir": [
+        0.999,
+        -0.037,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 17",
+      "pos": [
+        1095.188,
+        4745.945,
+        874.945
+      ],
+      "dir": [
+        0.998,
+        -0.055,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 18",
+      "pos": [
+        1094.949,
+        4743.362,
+        874.954
+      ],
+      "dir": [
+        1,
+        -0.015,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 19",
+      "pos": [
+        1095.081,
+        4740.91,
+        874.951
+      ],
+      "dir": [
+        0.996,
+        -0.089,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 20",
+      "pos": [
+        1094.978,
+        4738.352,
+        874.942
+      ],
+      "dir": [
+        0.995,
+        -0.097,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 21",
+      "pos": [
+        1095.364,
+        4735.849,
+        874.943
+      ],
+      "dir": [
+        0.997,
+        -0.071,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 22",
+      "pos": [
+        1095.098,
+        4733.153,
+        874.942
+      ],
+      "dir": [
+        1,
+        -0.012,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 23",
+      "pos": [
+        1094.973,
+        4730.716,
+        874.942
+      ],
+      "dir": [
+        0.999,
+        -0.052,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 24",
+      "pos": [
+        1094.888,
+        4728.253,
+        874.941
+      ],
+      "dir": [
+        0.998,
+        -0.068,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 25",
+      "pos": [
+        1094.887,
+        4725.656,
+        874.951
+      ],
+      "dir": [
+        1,
+        -0.031,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 26",
+      "pos": [
+        1095.07,
+        4723.171,
+        874.942
+      ],
+      "dir": [
+        0.999,
+        -0.04,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 27",
+      "pos": [
+        1094.996,
+        4720.545,
+        874.948
+      ],
+      "dir": [
+        1,
+        -0.007,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 28",
+      "pos": [
+        1095.067,
+        4718.212,
+        874.957
+      ],
+      "dir": [
+        0.999,
+        -0.04,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 29",
+      "pos": [
+        1095.092,
+        4715.755,
+        874.943
+      ],
+      "dir": [
+        0.999,
+        -0.037,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 30",
+      "pos": [
+        1095.118,
+        4713.187,
+        874.944
+      ],
+      "dir": [
+        1,
+        -0.025,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 31",
+      "pos": [
+        1095.243,
+        4710.577,
+        874.956
+      ],
+      "dir": [
+        0.999,
+        -0.034,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 32",
+      "pos": [
+        1094.941,
+        4708.095,
+        874.946
+      ],
+      "dir": [
+        0.997,
+        -0.082,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 33",
+      "pos": [
+        1095.142,
+        4705.699,
+        874.942
+      ],
+      "dir": [
+        0.997,
+        -0.073,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 34",
+      "pos": [
+        1095.128,
+        4703.115,
+        874.943
+      ],
+      "dir": [
+        0.994,
+        -0.11,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 35",
+      "pos": [
+        1095.214,
+        4700.542,
+        874.955
+      ],
+      "dir": [
+        1,
+        -0.001,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 36",
+      "pos": [
+        1095.242,
+        4697.715,
+        874.946
+      ],
+      "dir": [
+        0.997,
+        -0.071,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 37",
+      "pos": [
+        1095.102,
+        4695.434,
+        874.954
+      ],
+      "dir": [
+        0.999,
+        -0.046,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 38",
+      "pos": [
+        1095.26,
+        4692.834,
+        874.945
+      ],
+      "dir": [
+        0.999,
+        -0.047,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 39",
+      "pos": [
+        1095.157,
+        4690.323,
+        874.951
+      ],
+      "dir": [
+        0.999,
+        -0.039,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 40",
+      "pos": [
+        1095.401,
+        4687.815,
+        874.941
+      ],
+      "dir": [
+        1,
+        -0.027,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 41",
+      "pos": [
+        1095.374,
+        4685.198,
+        874.941
+      ],
+      "dir": [
+        0.998,
+        -0.059,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 42",
+      "pos": [
+        1095.435,
+        4682.769,
+        874.942
+      ],
+      "dir": [
+        0.999,
+        -0.036,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 43",
+      "pos": [
+        1095.498,
+        4680.337,
+        874.943
+      ],
+      "dir": [
+        0.999,
+        -0.044,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 44",
+      "pos": [
+        1095.429,
+        4677.662,
+        874.955
+      ],
+      "dir": [
+        1,
+        0.015,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 45",
+      "pos": [
+        1095.388,
+        4675.15,
+        874.942
+      ],
+      "dir": [
+        0.996,
+        -0.086,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 46",
+      "pos": [
+        1095.16,
+        4672.723,
+        874.951
+      ],
+      "dir": [
+        0.996,
+        -0.092,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 47",
+      "pos": [
+        1095.252,
+        4669.802,
+        874.948
+      ],
+      "dir": [
+        1,
+        -0.001,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 48",
+      "pos": [
+        1095.267,
+        4667.386,
+        874.949
+      ],
+      "dir": [
+        1,
+        0.011,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 49",
+      "pos": [
+        1095.468,
+        4664.972,
+        874.954
+      ],
+      "dir": [
+        1,
+        -0.022,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 50",
+      "pos": [
+        1095.395,
+        4662.53,
+        874.953
+      ],
+      "dir": [
+        0.995,
+        -0.095,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 51",
+      "pos": [
+        1095.123,
+        4659.927,
+        874.943
+      ],
+      "dir": [
+        0.999,
+        -0.036,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 52",
+      "pos": [
+        1095.496,
+        4657.486,
+        874.954
+      ],
+      "dir": [
+        1,
+        0.002,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 53",
+      "pos": [
+        1095.306,
+        4654.895,
+        874.952
+      ],
+      "dir": [
+        0.998,
+        -0.058,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 54",
+      "pos": [
+        1095.616,
+        4652.297,
+        874.94
+      ],
+      "dir": [
+        0.991,
+        0.133,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 55",
+      "pos": [
+        1095.556,
+        4649.734,
+        874.935
+      ],
+      "dir": [
+        0.999,
+        -0.033,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 56",
+      "pos": [
+        1095.52,
+        4647.394,
+        874.945
+      ],
+      "dir": [
+        0.998,
+        -0.058,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 57",
+      "pos": [
+        1095.516,
+        4644.625,
+        874.945
+      ],
+      "dir": [
+        1,
+        -0.001,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 58",
+      "pos": [
+        1095.724,
+        4642.053,
+        874.953
+      ],
+      "dir": [
+        1,
+        -0.007,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 59",
+      "pos": [
+        1100.307,
+        4639.446,
+        874.695
+      ],
+      "dir": [
+        0.622,
+        0.783,
+        0
+      ]
+    },
+    {
+      "name": "Shibaura PA Stehplatz 60",
+      "pos": [
+        1108.189,
+        4638.701,
+        874.675
+      ],
+      "dir": [
+        -0.344,
+        0.939,
+        0
+      ]
+    }
   ]
 }

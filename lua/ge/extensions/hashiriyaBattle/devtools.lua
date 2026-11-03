@@ -56,7 +56,7 @@ local defaultColors = {
   shop_body = '#b07bff', gas = '#3ddc84', wanderer = '#9b30ff', police = '#1e40ff', ramp_on = '#00e5d4', ramp_off = '#ff3b3b',
   mapchange = '#c6ff00', job = '#ffb3e6', npc = '#7fffd4', photo = '#4fd18b', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
 }
-local markerDefaults = { on = true, showMap = true, height = 40, radius = 0.8, labels = true }
+local markerDefaults = { on = true, showMap = true, height = 40, radius = 0.8, labels = true, parkSpots = false }
 local drawList = nil -- vorbereitete Säulen (wird bei jeder Änderung neu gebaut)
 
 function M.isAllowed()
@@ -82,6 +82,8 @@ local function loadPlaces()
   d.markers = d.markers or {}
   for k, v in pairs(markerDefaults) do if d.markers[k] == nil then d.markers[k] = v end end
   d.markers.colors = d.markers.colors or {}
+  d.markers.hidden = d.markers.hidden or {}         -- einzelne Säulen aus (id = true)
+  d.markers.hiddenTypes = d.markers.hiddenTypes or {} -- ganze Typen aus (type = true)
   placesCache = d
   return d
 end
@@ -101,7 +103,7 @@ end
 local function typesWithColors()
   local out = {}
   for _, t in ipairs(placeTypes) do
-    table.insert(out, { id = t.id, name = t.name, color = typeColor(t.id), custom = markerCfg().colors[t.id] ~= nil })
+    table.insert(out, { id = t.id, name = t.name, color = typeColor(t.id), custom = markerCfg().colors[t.id] ~= nil, hidden = markerCfg().hiddenTypes[t.id] or nil })
   end
   return out
 end
@@ -195,15 +197,18 @@ local function allPlaces()
   local L = levelPlaces()
   importLegacy(L)
   local out = {}
+  local mk = loadPlaces().markers
   for _, m in ipairs(mapPlaces()) do
     m.name = L.mapNames[m.mapId] or m.name
     m.typeName = typeName[m.type] or m.type
+    m.hidden = mk.hidden[m.id] or nil
     table.insert(out, m)
   end
   for _, p in ipairs(L.places) do
     local e = {}
     for k, v in pairs(p) do e[k] = v end
     e.typeName = typeName[p.type] or p.type
+    e.hidden = mk.hidden[p.id] or nil
     table.insert(out, e)
   end
   return out
@@ -538,6 +543,16 @@ function actions.setMarkers(a)
   if a.showMap ~= nil then m.showMap = a.showMap and true or false end
   if a.labels ~= nil then m.labels = a.labels and true or false end
   if tonumber(a.height) then m.height = math.max(5, math.min(200, tonumber(a.height))) end
+  if a.parkSpots ~= nil then m.parkSpots = a.parkSpots and true or false end
+  savePlaces()
+end
+
+-- Einzelne Säule oder ganzen Typ aus-/einblenden (nur die Markierung, der Ort bleibt)
+function actions.toggleHidden(a)
+  local m = markerCfg()
+  if a.id then m.hidden[a.id] = (not m.hidden[a.id]) or nil end
+  if a.type then m.hiddenTypes[a.type] = (not m.hiddenTypes[a.type]) or nil end
+  if a.showAll then m.hidden, m.hiddenTypes = {}, {} end
   savePlaces()
 end
 
@@ -594,7 +609,7 @@ local function buildDrawList()
   local m = markerCfg()
   local list = {}
   for _, p in ipairs(allPlaces()) do
-    if type(p.pos) == 'table' and (m.showMap or not p.map) then
+    if type(p.pos) == 'table' and (m.showMap or not p.map) and not m.hidden[p.id] and not m.hiddenTypes[p.type] then
       local r, g, b = hexColor(typeColor(p.type))
       table.insert(list, { pos = v3(p.pos), name = p.name, r = r, g = g, b = b, map = p.map })
     end
@@ -626,8 +641,44 @@ local function drawMarkers()
   end
 end
 
+-- Parkbuchten der Map (dieselben, die der BeamNG-Parkverkehr und die PA-Fahrer nutzen), im Umkreis der Kamera
+local parkCache, parkTimer = nil, 0
+local function drawParkSpots(dtReal)
+  local m = markerCfg()
+  if not m.on or not m.parkSpots or not debugDrawer then return end
+  local okC, cam = pcall(core_camera.getPosition)
+  if not okC or not cam then return end
+  cam = vec3(cam)
+  parkTimer = parkTimer - (dtReal or 0)
+  if not parkCache or parkTimer <= 0 then
+    parkTimer = 2
+    parkCache = {}
+    local park = extensions.gameplay_parking
+    if not park then extensions.load('gameplay_parking') park = extensions.gameplay_parking end
+    if park then
+      if not extensions.gameplay_city then extensions.load('gameplay_city') end
+      pcall(park.getParkingSpots)
+      local ok, list = pcall(park.findParkingSpots, cam, 0, 250)
+      if ok and type(list) == 'table' then
+        for _, e in ipairs(list) do
+          local ps = e.ps
+          if ps and ps.pos then table.insert(parkCache, { pos = vec3(ps.pos), used = ps.vehicle ~= nil }) end
+        end
+      end
+    end
+  end
+  for i, e in ipairs(parkCache) do
+    local col = e.used and ColorF(1, 0.35, 0.35, 0.6) or ColorF(1, 1, 1, 0.6)
+    debugDrawer:drawCylinder(e.pos, e.pos + vec3(0, 0, 2.5), 0.25, col)
+    if m.labels and (e.pos - cam):length() < 80 then
+      debugDrawer:drawTextAdvanced(e.pos + vec3(0, 0, 2.8), String('Bucht ' .. i .. (e.used and ' (belegt)' or '')), ColorF(1, 1, 1, 1), true, false, ColorI(40, 40, 40, 200))
+    end
+  end
+end
+
 local function onUpdate(dtReal)
   if not isOpen then return end
+  pcall(drawParkSpots, dtReal)
   local okD, errD = pcall(drawMarkers)
   if not okD and not M._drawWarned then M._drawWarned = true log('E', logTag, 'Markierungen: ' .. tostring(errD)) end
   tickTimer = tickTimer - dtReal
