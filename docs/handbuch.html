@@ -735,10 +735,12 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>Ibishu Covet</td><td><code>covet</code></td><td>13s_M, 15se_M, 15se_A, 15ee_m, 15le_M, 15le_A, type_L_M, type_L_A</td></tr>
 <tr><td>Ibishu Miramar</td><td><code>miramar</code></td><td>base_M, base_facelift_M, base_ute_plucky_M, base_ute_M, base_ute_facelift_M, luxe_A, luxe_facelift_A</td></tr>
 <tr><td>Hirochi Sunburst</td><td><code>sunburst2</code></td><td>base_EU_M, base_EU_CVT, base_CVT, base_EU_wagon_M, base_EU_wagon_CVT, base_wagon_CVT</td></tr>
-<tr><td>Ibishu 200BX / Diana</td><td><code>bx</code></td><td>200bx_base_M, 200bx_base_A, diana_base_M, diana_base_A (eigener Zustandsbereich, damit sie nicht zu kaputt sind)</td></tr>
+<tr><td>Ibishu 200BX / Diana</td><td><code>bx</code></td><td>200bx_base_M, 200bx_base_A, diana_base_M, diana_base_A</td></tr>
 <tr><td>Ibishu Pessima Mk2</td><td><code>midsize</code></td><td>DX_A, DX_M, LX_A, LX_M</td></tr>
 <tr><td>Ibishu Pessima Mk1</td><td><code>pessima</code></td><td>DX_A, DX_M, LX_A, LX_M, HX_M</td></tr>
 </table>
+<p>200BX/Diana, Sunburst, Pessima Mk1 und Pessima Mk2 haben einen eigenen Zustandsbereich (<code>"conditionRange": {"odometerKm": [180000, 290000], "integrity": [0.83, 0.9]}</code>): mehr Kilometer und mehr Motorverschleiß als die übrigen Startautos.</p>
+<p>Welche 3 Autos angeboten werden und wie ihr Zustand ist, würfelt der Seed aus Fahrername und Kennzeichen. Danach werden nur diese 3 zur Anzeige nach Preis sortiert (günstigstes links).</p>
 <p>Achtung: Der neue Sunburst heißt im Spiel <code>sunburst2</code> (Pfad <span class="path nolink">vehicles/sunburst2/...</span>), und beim Covet ist <code>15ee_m</code> wirklich klein geschrieben. Modelle mit mehr Configs kommen etwas öfter ins Angebot, weil der Zufall pro Config zieht.</p>
 <h3>Ein Startauto hinzufügen</h3>
 <pre><code>{"id": "starter_bx_coupe", "name": "Ibishu 200BX Coupé", "model": "bx",
@@ -1666,6 +1668,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h4>Startautos</h4>
 <ul>
 <li>Der Pool der Startautos ist jetzt fest: 34 Serien-Configs von Ibishu Covet, Ibishu Miramar, Hirochi Sunburst, Ibishu 200BX/Diana, Pessima Mk1 und Pessima Mk2 (Schalter und Automatik). Andere Autos gibt es zum Start nicht mehr (z. B. Covet DX und Miramar Export fallen weg).</li>
+<li>Sunburst, Pessima Mk1 und Pessima Mk2 haben jetzt denselben Zustandsbereich wie 200BX und Diana: 180.000 bis 290.000 km und mehr Motorverschleiß.</li>
 <li>Die angebotenen Startautos sind jetzt nach ihrem echten Kaufpreis sortiert, günstigstes zuerst.</li>
 </ul>
 <h4>Handbuch</h4>

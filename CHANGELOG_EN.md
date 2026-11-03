@@ -7,6 +7,7 @@
 
 ### Starter cars
 - The starter car pool is now final: 34 stock configs of the Ibishu Covet, Ibishu Miramar, Hirochi Sunburst, Ibishu 200BX/Diana, Pessima Mk1 and Pessima Mk2 (manual and automatic). No other cars are offered at the start any more (e.g. the Covet DX and Miramar Export are gone).
+- Sunburst, Pessima Mk1 and Pessima Mk2 now use the same condition range as the 200BX and Diana: 180,000 to 290,000 km and more engine wear.
 - The offered starter cars are now sorted by their actual price, cheapest first.
 
 ### Handbook

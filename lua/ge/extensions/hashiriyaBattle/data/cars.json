@@ -99,37 +99,97 @@
       "id": "starter_sunburst2_base_eu_m",
       "name": "Hirochi Sunburst EU",
       "model": "sunburst2",
-      "config": "vehicles/sunburst2/base_EU_M.pc"
+      "config": "vehicles/sunburst2/base_EU_M.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_sunburst2_base_eu_cvt",
       "name": "Hirochi Sunburst EU CVT",
       "model": "sunburst2",
-      "config": "vehicles/sunburst2/base_EU_CVT.pc"
+      "config": "vehicles/sunburst2/base_EU_CVT.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_sunburst2_base_cvt",
       "name": "Hirochi Sunburst CVT",
       "model": "sunburst2",
-      "config": "vehicles/sunburst2/base_CVT.pc"
+      "config": "vehicles/sunburst2/base_CVT.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_sunburst2_base_eu_wagon_m",
       "name": "Hirochi Sunburst EU Kombi",
       "model": "sunburst2",
-      "config": "vehicles/sunburst2/base_EU_wagon_M.pc"
+      "config": "vehicles/sunburst2/base_EU_wagon_M.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_sunburst2_base_eu_wagon_cvt",
       "name": "Hirochi Sunburst EU Kombi CVT",
       "model": "sunburst2",
-      "config": "vehicles/sunburst2/base_EU_wagon_CVT.pc"
+      "config": "vehicles/sunburst2/base_EU_wagon_CVT.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_sunburst2_base_wagon_cvt",
       "name": "Hirochi Sunburst Kombi CVT",
       "model": "sunburst2",
-      "config": "vehicles/sunburst2/base_wagon_CVT.pc"
+      "config": "vehicles/sunburst2/base_wagon_CVT.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_bx_200bx_base_m",
@@ -200,58 +260,148 @@
       "id": "starter_midsize_dx_a",
       "name": "Ibishu Pessima Mk2 DX Automatik",
       "model": "midsize",
-      "config": "vehicles/midsize/DX_A.pc"
+      "config": "vehicles/midsize/DX_A.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_midsize_dx_m",
       "name": "Ibishu Pessima Mk2 DX",
       "model": "midsize",
       "config": "vehicles/midsize/DX_M.pc",
-      "priceUsd": 25000
+      "priceUsd": 25000,
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_midsize_lx_a",
       "name": "Ibishu Pessima Mk2 LX Automatik",
       "model": "midsize",
-      "config": "vehicles/midsize/LX_A.pc"
+      "config": "vehicles/midsize/LX_A.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_midsize_lx_m",
       "name": "Ibishu Pessima Mk2 LX",
       "model": "midsize",
-      "config": "vehicles/midsize/LX_M.pc"
+      "config": "vehicles/midsize/LX_M.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_pessima_dx_a",
       "name": "Ibishu Pessima DX Automatik",
       "model": "pessima",
-      "config": "vehicles/pessima/DX_A.pc"
+      "config": "vehicles/pessima/DX_A.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_pessima_dx_m",
       "name": "Ibishu Pessima DX",
       "model": "pessima",
       "config": "vehicles/pessima/DX_M.pc",
-      "priceUsd": 25000
+      "priceUsd": 25000,
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_pessima_lx_a",
       "name": "Ibishu Pessima LX Automatik",
       "model": "pessima",
-      "config": "vehicles/pessima/LX_A.pc"
+      "config": "vehicles/pessima/LX_A.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_pessima_lx_m",
       "name": "Ibishu Pessima LX",
       "model": "pessima",
       "config": "vehicles/pessima/LX_M.pc",
-      "priceUsd": 27700
+      "priceUsd": 27700,
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     },
     {
       "id": "starter_pessima_hx_m",
       "name": "Ibishu Pessima HX",
       "model": "pessima",
-      "config": "vehicles/pessima/HX_M.pc"
+      "config": "vehicles/pessima/HX_M.pc",
+      "conditionRange": {
+        "odometerKm": [
+          180000,
+          290000
+        ],
+        "integrity": [
+          0.83,
+          0.9
+        ]
+      }
     }
   ],
   "starterOffer": 3,

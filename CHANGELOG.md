@@ -7,6 +7,7 @@
 
 ### Startautos
 - Der Pool der Startautos ist jetzt fest: 34 Serien-Configs von Ibishu Covet, Ibishu Miramar, Hirochi Sunburst, Ibishu 200BX/Diana, Pessima Mk1 und Pessima Mk2 (Schalter und Automatik). Andere Autos gibt es zum Start nicht mehr (z. B. Covet DX und Miramar Export fallen weg).
+- Sunburst, Pessima Mk1 und Pessima Mk2 haben jetzt denselben Zustandsbereich wie 200BX und Diana: 180.000 bis 290.000 km und mehr Motorverschleiß.
 - Die angebotenen Startautos sind jetzt nach ihrem echten Kaufpreis sortiert, günstigstes zuerst.
 
 ### Handbuch
