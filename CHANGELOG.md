@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (Stand 03.11.2026)
 
+### Porträts: Bärte
+- Die Bob-Porträts können jetzt Bärte tragen (Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart und Ziegenbart, in vielen Farben (Haarfarben plus Grau, Weiß, Rotblond, Pfeffer-Salz).
+- 45 Gegner und 20 PA-Fahrer haben jetzt einen Bart, darunter einige Wanderer. Boss Mugen trägt einen silbernen Spitzbart, Boss Shirotora einen platinblonden Kinnbart. Alle anderen Figuren sehen aus wie vorher.
+- Im Silhouetten-Tool gibt es unter „Extras“ die Felder „Bart“ und „Bartfarbe“.
+
 ### Speichern am Standort
 - Laden bringt dich nicht mehr immer nach Hause. Du startest dort, wo du ordentlich gespeichert hast: zu Hause (Speichern oder Schlafen) und in der Garage wie bisher in der Garage, unterwegs genau an der Stelle, mit derselben Richtung, Uhrzeit, Tank und Schaden.
 - Unterwegs geht Speichern nur, wenn das Auto steht und der Motor aus ist: an den Fahrbahnrand oder in eine PA fahren, anhalten, Zündung aus, im Menü „Hier parken & speichern“. Wer mitten auf der Strecke parkt, startet auch dort. Ein Nickerchen im Auto zählt als geparkt.

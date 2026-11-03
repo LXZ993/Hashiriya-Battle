@@ -1,7 +1,7 @@
 """Baut das Silhouetten-Tool (tools/silhouette/silhouetten.html) aus den Teilen des Porträt-Generators.
 
 Jedes Teil wird einmal mit Platzhaltern für Farben und Texte gezeichnet (@A@ Crewfarbe, @T0@/@T1@ Stoff,
-@H0@/@H1@ Haare, @K0@/@K1@ Kopfbedeckung, @E@ Crewzeichen, @J0@..@J7@ Crewname, @NICK@, @TAPE@).
+@H0@/@H1@ Haare, @K0@/@K1@ Kopfbedeckung, @B0@/@B1@ Bart, @E@ Crewzeichen, @J0@..@J7@ Crewname, @NICK@, @TAPE@).
 Das Tool setzt die Teile im Browser genauso zusammen wie make.compose() und tauscht die Platzhalter aus.
 So sieht man im Tool exakt das Bild, das im Spiel landet.
 
@@ -22,6 +22,7 @@ A = "@A@"
 T = ("@T0@", "@T1@")
 HC = ("@H0@", "@H1@")
 KT = ("@K0@", "@K1@")
+BC = ("@B0@", "@B1@")
 JP = [f"@J{i}@" for i in range(8)]
 PB.EMBLEMS["@E@"] = "@E@"
 
@@ -74,6 +75,8 @@ for hid, h in PH.HATS.items():
     frag(f"hat:{hid}", lambda d, h=h: h[1](d, A, KT))
 for gid, g in PH.GLASSES.items():
     frag(f"gl:{gid}", lambda d, g=g: g[1](d, A))
+for bid, b in PH.BEARDS.items():
+    frag(f"beard:{bid}", lambda d, b=b: b[1](d, A, BC))
 
 meta = {
     "W": W, "H": H, "CX": CX, "HEAD_DY": HEAD_DY, "FEMALE_K": MK.FEMALE_K,
@@ -86,6 +89,8 @@ meta = {
     "ears": {k: {"name": v[0]} for k, v in PH.EARS.items()},
     "necks": {k: {"name": v[0], "ok": sorted(v[2])} for k, v in PB.NECKS.items()},
     "mouths": {k: {"name": v[0]} for k, v in PH.MOUTHS.items()},
+    "beards": {k: {"name": v[0], "wm": v[2]} for k, v in PH.BEARDS.items()},
+    "beardcolors": PH.BEARD_COLORS,
     "eyes": {k: v[0] for k, v in PH.EYES.items()},
     "emblems": PB.EMBLEMS_PUBLIC if hasattr(PB, "EMBLEMS_PUBLIC") else {k: v for k, v in PB.EMBLEMS.items() if k != "@E@"},
     "formal": sorted(MK.FORMAL),

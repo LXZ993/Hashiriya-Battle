@@ -86,7 +86,7 @@ h2:first-child{margin-top:0}
       <div class="grid" id="g3"></div>
       <div class="help">
         <b>So geht's:</b> Gegner links wählen, Teile rechts ändern. Ausgegraute Teile passen nicht zur Figur
-        (zum Beispiel keine Cap zum Anzug, Feldmütze nur zur Feldjacke, Brille im Haar nur ohne Kopfbedeckung).
+        (zum Beispiel keine Cap zum Anzug, Feldmütze nur zur Feldjacke, Brille im Haar nur ohne Kopfbedeckung, kein Bart unter der Maske).
         Geänderte Gegner haben einen orangen Punkt. Deine Änderungen bleiben im Browser gespeichert.<br><br>
         Fertig? <b>silhouetten.json speichern</b> klicken und die Datei nach
         <code>tools\silhouette\silhouetten.json</code> legen (oder Claude schicken). Dann
@@ -100,7 +100,7 @@ h2:first-child{margin-top:0}
 <script>
 const DATA=/*__DATA__*/null;
 const M=DATA.meta, F=DATA.frags, BASE=DATA.specs;
-const KEYS=["female","garment","tone","hair","haircolor","hat","hattone","glasses","ear","neck","mask","mouth","eyes","emblem","crew"];
+const KEYS=["female","garment","tone","hair","haircolor","hat","hattone","glasses","ear","neck","mask","mouth","eyes","emblem","crew","beard","beardcolor"];
 const LS="hb_silhouetten_v2";
 let OV={};
 try{OV=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch(e){OV={}}
@@ -152,6 +152,7 @@ function compose(s){
   if(s.crew&&M.garments[s.garment].patch)L("Abzeichen",["mark:"+gk]);
   if(s.neck)L("Hals",["neck:"+s.neck],false,true);
   L("Kopf",["head"],true);
+  if(s.beard&&!fem&&F["beard:"+s.beard])L("Bart",["beard:"+s.beard],true);
   L("Visier",["visor"],true);
   L("Augen",[`eyes:${s.eyes}:${fem?1:0}`,"shine"],true);
   if(s.mask)L("Maske",["mask"],true);
@@ -162,11 +163,12 @@ function compose(s){
   if(s.glasses)L("Brille",["gl:"+s.glasses],true);
   let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${M.W} ${M.H}" width="${M.W}" height="${M.H}"><defs>${defs.join("")}</defs>${layers.join("")}</svg>`;
   const T=M.tones[s.tone]||M.tones.schwarz, K=M.tones[s.hattone]||T, H=M.haircolors[s.haircolor]||M.haircolors.schwarz;
+  const B=M.beardcolors[s.beardcolor||s.haircolor]||M.beardcolors.schwarz;
   const jp=[...(s.jp||"")];
-  const rep={"@A@":s.A,"@T0@":T[0],"@T1@":T[1],"@K0@":K[0],"@K1@":K[1],"@H0@":H[0],"@H1@":H[1],"@E@":M.emblems[s.emblem]||M.emblems.stern,
+  const rep={"@A@":s.A,"@T0@":T[0],"@T1@":T[1],"@K0@":K[0],"@K1@":K[1],"@H0@":H[0],"@H1@":H[1],"@B0@":B[0],"@B1@":B[1],"@E@":M.emblems[s.emblem]||M.emblems.stern,
     "@NICK@":esc(String(s.nick||"").slice(0,9)),"@TAPE@":esc(String(s.tape||"").toUpperCase().slice(0,9))};
   for(let i=0;i<8;i++)rep[`@J${i}@`]=esc(jp[i]||"");
-  return svg.replace(/@(?:A|T0|T1|K0|K1|H0|H1|E|NICK|TAPE|J\d)@/g,m=>rep[m]);
+  return svg.replace(/@(?:A|T0|T1|K0|K1|H0|H1|B0|B1|E|NICK|TAPE|J\d)@/g,m=>rep[m]);
 }
 function url(s){return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(compose(s))}
 
@@ -187,16 +189,17 @@ function why(s,key,v){ // Grund, warum v nicht geht, sonst ""
       if(s.hat)return "im Haar nur ohne Kopfbedeckung";if(h.vol==="none")return "braucht Haare";return ""}
     case "neck":{if(!v)return "";return M.necks[v].ok.includes(g.neck)?"":"passt nicht zum Kragen"}
     case "emblem":return s.crew?"":"";
+    case "beard":{if(!v)return "";if(s.female)return "nur für Männer";if(s.mask)return "nicht unter der Maske";return ""}
   }
   return "";
 }
 function fix(s){ // macht eine ungültige Kombination wieder gültig, gibt Liste der Korrekturen zurück
   const out=[];
   const first=(key,list)=>list.find(v=>!why(s,key,v));
-  for(const key of ["garment","hair","tone","hat","glasses","neck"]){
+  for(const key of ["garment","hair","tone","hat","glasses","neck","beard"]){
     if(why(s,key,s[key])){
       const opts=opts_of(key).map(o=>o[0]);
-      const nv=["hat","glasses","neck"].includes(key)?null:first(key,opts);
+      const nv=["hat","glasses","neck","beard"].includes(key)?null:first(key,opts);
       out.push(`${LABEL[key]}: ${nameOf(key,s[key])} → ${nameOf(key,nv)}`);
       s[key]=nv;
     }
@@ -206,7 +209,7 @@ function fix(s){ // macht eine ungültige Kombination wieder gültig, gibt Liste
 
 // ---------- Auswahlfelder ----------
 const LABEL={female:"Figur",garment:"Oberteil",tone:"Stofffarbe",hair:"Frisur",haircolor:"Haarfarbe",eyes:"Augen",hat:"Kopfbedeckung",
-  hattone:"Farbe Kopfbedeckung",glasses:"Brille",ear:"Ohren",neck:"Hals",mund:"Mund",emblem:"Crew-Zeichen",crew:"Crew-Abzeichen"};
+  hattone:"Farbe Kopfbedeckung",beard:"Bart",beardcolor:"Bartfarbe",glasses:"Brille",ear:"Ohren",neck:"Hals",mund:"Mund",emblem:"Crew-Zeichen",crew:"Crew-Abzeichen"};
 const pretty=s=>s.replace(/_/g," ").replace(/ae/g,"ä").replace(/oe/g,"ö").replace(/ue/g,"ü").replace(/^./,c=>c.toUpperCase());
 function opts_of(key){
   const o=d=>Object.entries(d).map(([k,v])=>[k,typeof v==="object"&&!Array.isArray(v)&&v.name?v.name:pretty(k)]);
@@ -221,10 +224,12 @@ function opts_of(key){
     case "mund":return [["","nichts"],["@mask","Maske"],...o(M.mouths)];
     case "emblem":return Object.keys(M.emblems).map(k=>[k,pretty(k)]);
     case "crew":return [["1","ja (Abzeichen am Oberteil)"],["0","nein"]];
+    case "beard":return [[null,"keiner"],...o(M.beards)];
+    case "beardcolor":return [[null,"wie die Haare"],...Object.keys(M.beardcolors).map(k=>[k,pretty(k)])];
   }
 }
 function nameOf(key,v){const f=opts_of(key).find(o=>o[0]===v);return f?f[1]:(v==null?"keine":String(v))}
-const GROUPS={g1:["female","garment","tone","neck","crew","emblem"],g2:["hair","haircolor","eyes","hat","hattone","glasses"],g3:["ear","mund"]};
+const GROUPS={g1:["female","garment","tone","neck","crew","emblem"],g2:["hair","haircolor","eyes","hat","hattone","glasses"],g3:["beard","beardcolor","ear","mund"]};
 function getv(s,key){
   if(key==="female"||key==="crew")return s[key]?"1":"0";
   if(key==="mund")return s.mask?"@mask":(s.mouth||"");
@@ -253,6 +258,7 @@ function renderEditor(){
       const gv=getv(s,key);sel.value=gv==null?"":gv;
       if(key==="emblem"&&!s.crew)sel.disabled=true;
       if(key==="hattone"&&!s.hat)sel.disabled=true;
+      if(key==="beardcolor"&&!s.beard)sel.disabled=true;
       sel.onchange=()=>change(key,sel.value);
       el.append(lab,sel);
     }
@@ -288,7 +294,11 @@ function randomize(){
   const any=(key,p)=>{const ok=opts_of(key).map(o=>o[0]).filter(v=>v!=null&&!why(s,key,v));return ok.length&&Math.random()<p?ok[Math.floor(Math.random()*ok.length)]:null};
   s.hat=any("hat",.35);s.glasses=any("glasses",.3);s.neck=any("neck",.3);s.ear=any("ear",.25);
   const tk=Object.keys(M.tones);s.hattone=tk[Math.floor(Math.random()*tk.length)];
-  s.mask=Math.random()<.1;s.mouth=!s.mask&&Math.random()<.12?Object.keys(M.mouths)[Math.floor(Math.random()*Object.keys(M.mouths).length)]:null;
+  s.mask=Math.random()<.1;
+  const bk=Object.keys(M.beards),bc=Object.keys(M.beardcolors);
+  s.beard=!s.female&&!s.mask&&Math.random()<.3?bk[Math.floor(Math.random()*bk.length)]:null;
+  s.beardcolor=s.beard&&Math.random()<.5?bc[Math.floor(Math.random()*bc.length)]:null;
+  s.mouth=!s.mask&&Math.random()<.12?Object.keys(M.mouths)[Math.floor(Math.random()*Object.keys(M.mouths).length)]:null;
   fix(s);store(cur,s);$("note").textContent="";renderEditor();refreshItem(cur);
 }
 

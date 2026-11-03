@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (as of 2026-11-03)
 
+### Portraits: beards
+- The Bob portraits can now wear beards (Henry's idea): stubble, moustache, chin beard, goatee, sideburns, full beard and long goatee, in many colours (all hair colours plus grey, white, ginger and salt-and-pepper).
+- 45 rivals and 20 PA drivers now have a beard, including some wanderers. Boss Mugen wears a silver goatee, Boss Shirotora a platinum chin beard. All other figures look the same as before.
+- The silhouette tool has new "Beard" and "Beard colour" fields under "Extras".
+
 ### Save where you park
 - Loading no longer always takes you home. You start where you properly saved: at home (save or sleep) and in the garage like before, out on the road exactly at that spot, same heading, time, fuel and damage.
 - On the road you can only save when the car is standing still with the engine off: pull over to the shoulder or into a PA, stop, ignition off, then "Park & save here" in the menu. Park in the middle of the expressway and that is where you start. A nap in the car counts as parked.
