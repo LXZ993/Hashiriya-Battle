@@ -384,6 +384,7 @@ function M.startTraffic()
     spawnN = n + math.max(0, tonumber(M.carsData.trafficPoolExtra) or 0)
     local list, kinds = buildTrafficList(pool, spawnN)
     tOpts.vehGroup = list
+    tOpts.activeAmount = n -- setupTraffic: nur n sichtbar, der Rest wartet versteckt im Pool
     local pp = trafficPool(true) or pool
     local pn = parked
     if pn < 0 then pn = tonumber(M.carsData.parkedListSize) or 60 end
