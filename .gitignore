@@ -1,3 +1,4 @@
 dist/
 
 tools/release-stand.json
+__pycache__/
