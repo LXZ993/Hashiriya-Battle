@@ -16,6 +16,9 @@
 - Sunburst, Pessima Mk1 und Pessima Mk2 haben jetzt denselben Zustandsbereich wie 200BX und Diana: 180.000 bis 290.000 km und mehr Motorverschleiß.
 - Die angebotenen Startautos sind jetzt nach ihrem echten Kaufpreis sortiert, günstigstes zuerst.
 
+### HUD
+- Rivalen auf der Minimap unten links haben jetzt dieselben Farben wie im Radar oben rechts: orange Rivale, gelb Leader, lila Wanderer, rot Boss, grau besiegt, blau verloren. Der Rivale im laufenden Battle pulsiert leicht.
+
 ### Handbuch
 - Jeder Datei- und Ordnername im Handbuch ist jetzt ein Link: Klick öffnet die Datei, das Ordner-Symbol dahinter den Ordner. Neu im Kapitel „Ordner und Dateien“: Schnellzugriff auf die wichtigsten Dateien und Ordner.
 - Links wahlweise im Browser, im Explorer oder direkt im Editor öffnen (Explorer/Editor einmal mit tools\Handbuch-Links-einrichten.bat einrichten).

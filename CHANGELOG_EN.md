@@ -16,6 +16,9 @@
 - Sunburst, Pessima Mk1 and Pessima Mk2 now use the same condition range as the 200BX and Diana: 180,000 to 290,000 km and more engine wear.
 - The offered starter cars are now sorted by their actual price, cheapest first.
 
+### HUD
+- Rivals on the minimap (bottom left) now use the same colors as in the radar (top right): orange rival, yellow leader, purple wanderer, red boss, grey beaten, blue lost. The rival in the current battle pulses slightly.
+
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.
 - Links open in the browser, in Explorer or directly in the editor (set up Explorer/editor once with tools\Handbuch-Links-einrichten.bat).

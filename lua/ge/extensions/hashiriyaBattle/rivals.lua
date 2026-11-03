@@ -771,6 +771,52 @@ function M.despawnAll()
   onRoad, engaged = {}, nil
 end
 
+-- Minimap (unten links): Rivalen in denselben Farben wie im Radar oben rechts -----------
+-- BeamNG zeichnet alle fremden Autos auf der Minimap gleich (gedämpftes Orange, Ebene 90).
+-- Über den Hook onDrawOnMinimap(td) malen wir Rivalen eine Ebene höher (95) und etwas größer
+-- darüber, damit ihr Pfeil die Farbe der Radar-Klasse bekommt (siehe M.markerKind).
+-- Farben = CSS-Variablen --k-* in ui/modules/apps/HashiriyaStatus/app.js (beide Stellen gleich halten!)
+local minimapKindColors = {
+  rival    = { 255, 102,   0 }, -- #ff6600
+  leader   = { 255, 210,  63 }, -- #ffd23f
+  wanderer = { 185, 140, 255 }, -- #b98cff
+  boss     = { 255,  59,  48 }, -- #ff3b30
+  beaten   = { 158, 158, 158 }, -- #9e9e9e
+  lost     = {  63, 169, 255 }, -- #3fa9ff
+}
+local minimapLayer = 95 -- über VEHICLES_USABLE (90), unter dem Spieler (100) und der Rand-Maske (110)
+local mmPos, mmFwd = vec3(), vec3()
+
+local function onDrawOnMinimap(td)
+  if not td or #onRoad == 0 then return end
+  local c = core()
+  if not c or not c.active then return end
+  local utils, minimap = ui_apps_minimap_utils, ui_apps_minimap_minimap
+  if not utils or not minimap or not utils.getWorldToMapTransform then return end
+  local scale = minimap.getScale and minimap.getScale()
+  if not scale then return end
+  local style = utils.getCurrentStyleColors and utils.getCurrentStyleColors() or utils.colors
+  local bg = style and (style.navBg or style.navBgBlack)
+  local dpi = (utils.dpi or 1) * (globalDpi or 1)
+  local xx, xy, yx, yy, xo, yo = utils.getWorldToMapTransform()
+  local pulse = math.sin(os.clock() * 8)
+  for _, e in ipairs(onRoad) do
+    local veh = entryVeh(e)
+    if veh then
+      local rgb = minimapKindColors[M.markerKind(e.data)] or minimapKindColors.rival
+      mmPos:set(veh:getPositionXYZ())
+      mmFwd:set(veh:getDirectionVectorXYZ()); mmFwd.z = 0
+      if mmFwd:length() > 0.001 then
+        mmFwd:normalize()
+        -- Rivale im laufenden Battle pulsiert leicht (wie der Punkt im Radar)
+        local size = (e == engaged) and (1.0 + 0.12 * pulse) or 0.95
+        td:vehicleMarker(mmPos.x, mmPos.y, mmFwd.x, mmFwd.y, color(rgb[1], rgb[2], rgb[3], 255), bg,
+          size, false, scale, dpi, xx, xy, yx, yy, xo, yo, minimapLayer)
+      end
+    end
+  end
+end
+
 -- Update -------------------------------------------------------------------------
 
 local function onUpdate(dtReal, dtSim)
@@ -870,5 +916,6 @@ function M.leaderOf(teamId) return leaderOf(teamId) end
 
 M.onExtensionLoaded = onExtensionLoaded
 M.onUpdate = onUpdate
+M.onDrawOnMinimap = onDrawOnMinimap
 
 return M
