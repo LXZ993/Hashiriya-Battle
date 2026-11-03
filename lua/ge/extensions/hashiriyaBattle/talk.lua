@@ -934,6 +934,7 @@ function M.getHudState()
     end
     return {
       talk = { text = line.text, name = speakerName(convo.npc), portrait = portraitOf(convo.npc), side = 'left', kind = 'pa',
+        logo = convo.npc.rival and extensions.hashiriyaBattle_rivals.logoOf and extensions.hashiriyaBattle_rivals.logoOf(convo.npc.rival) or nil,
         tag = tag, step = convo.index, steps = #convo.lines,
         topic = line.topic and c.t('talk.topic.' .. line.topic) or nil,
         key = M.keyName(), next = nextText, alt = alt, decline = line.choice and c.t('talk.declineHint') or nil,

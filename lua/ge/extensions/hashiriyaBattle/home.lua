@@ -383,6 +383,7 @@ local function lexicon()
   local byTeam = {}
   for _, tm in ipairs(data.teams or {}) do
     local g = { name = tm.name, jp = tm.jp, color = tm.color, desc = pr.loc(tm.desc), list = {},
+      logo = rv.teamLogo and rv.teamLogo(tm.id) or nil,
       locked = pr.rankIndex(save) < (tm.minRank or 0) }
     if g.locked then g.lockText = c.t('home.needRank', pr.loc((data.ranks or {})[(tm.minRank or 0) + 1] and data.ranks[(tm.minRank or 0) + 1].name)) end
     byTeam[tm.id] = g
@@ -404,6 +405,8 @@ local function lexicon()
       style = (not hidden and extensions.hashiriyaBattle_driver) and c.t('char.' .. extensions.hashiriyaBattle_driver.character(r)) or nil,
       beaten = beaten,
       id = r.id, watched = M.isWatched(r.id),
+      -- Siegel/Emblem erst nach dem Sieg (wie die Aufkleber in TXR), Leader zeigen das goldene Crew-Logo
+      logo = ((r.wanderer or r.boss) and beaten or r.leader) and rv.logoOf and rv.logoOf(r) or nil,
     }
     if r.leader and not beaten and rv.leaderStatus then
       local ls = rv.leaderStatus(r, save)

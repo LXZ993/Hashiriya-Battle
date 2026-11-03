@@ -295,12 +295,12 @@ angular.module('beamng.apps')
               '<div class="hbm-scroll">' +
                 '<div class="hbm-lex-group" ng-repeat="g in s.home.lexicon" ng-style="{\'--tc\': g.color}" ng-class="{\'is-open\': lexOpen == $index, \'is-locked\': g.locked}">' +
                   '<div class="hbm-lex-head" ng-click="lexToggle($index)">' +
-                    '<span class="hbm-lex-bar"></span><span class="hbm-lex-team">{{ g.name }}<small ng-if="g.jp">{{ g.jp }}</small></span>' +
+                    '<span class="hbm-lex-bar" ng-if="!g.logo"></span><img class="hbm-lex-logo" ng-if="g.logo" ng-src="{{ g.logo }}" alt=""><span class="hbm-lex-team">{{ g.name }}<small ng-if="g.jp">{{ g.jp }}</small></span>' +
                     '<span class="hbm-lex-count">{{ g.locked ? g.lockText : g.count }}</span></div>' +
                   '<div ng-if="lexOpen == $index">' +
                     '<div class="hbm-lex-desc" ng-if="g.desc">{{ g.desc }}</div>' +
                     '<div class="hbm-lex" ng-repeat="r in g.list" ng-class="{\'is-beaten\': r.beaten}">' +
-                      '<div class="hbm-lex-top"><span class="hbm-lex-check" ng-if="r.id" ng-class="{\'is-on\': r.watched}" ng-click="act(\'watch\', r.id)"></span><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
+                      '<div class="hbm-lex-top"><span class="hbm-lex-check" ng-if="r.id" ng-class="{\'is-on\': r.watched}" ng-click="act(\'watch\', r.id)"></span><img class="hbm-lex-seal" ng-if="r.logo" ng-src="{{ r.logo }}" alt=""><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> „{{ r.nick }}“</em></span>' +
                         '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
                         '<span class="hbm-lex-tag hbm-lex-boss" ng-if="r.boss">{{ s.t[\'home.boss\'] }}</span>' +
                         '<span class="hbm-lex-state" ng-if="!r.scene && !r.chapter">{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}</span></div>' +
@@ -600,6 +600,9 @@ angular.module('beamng.apps')
           '.hbm-lex-head{display:flex;align-items:center;gap:8px;padding:7px 18px;cursor:pointer;}' +
           '.hbm-lex-head:hover{background:rgba(255,255,255,.05);}' +
           '.hbm-lex-bar{width:4px;height:16px;background:var(--tc,var(--o));transform:skewX(-12deg);}' +
+          '.hbm-lex-logo{flex:none;width:34px;height:34px;margin:-6px 0;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));}' +
+          '.hbm-lex-group.is-locked .hbm-lex-logo{filter:grayscale(1) brightness(.55);}' +
+          '.hbm-lex-seal{flex:none;align-self:center;width:24px;height:24px;margin:-4px 0;object-fit:contain;}' +
           '.hbm-lex-team{flex:1;font-size:13px;font-weight:800;}' +
           '.hbm-lex-team small{margin-left:6px;font-size:10px;font-weight:400;color:var(--dim);}' +
           '.hbm-lex-count{font-size:11px;font-weight:700;color:var(--dim);}' +

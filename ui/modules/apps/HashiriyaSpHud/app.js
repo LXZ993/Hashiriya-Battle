@@ -45,7 +45,8 @@ angular.module('beamng.apps')
             '<div class="hbh-title">{{ b.playerTitle }}</div>' +
             '<div class="hbh-gap" ng-show="b.state == \'battle\'" ng-class="{\'hbh-gap-lead\': b.gap < 0}">' +
               '{{ b.gap < 0 ? t[\'hud.lead\'] : t[\'hud.behind\'] }}<b>{{ abs(b.gap) }}</b><i>m</i></div>' +
-            '<div class="hbh-title hbh-title-r">{{ b.rivalName }}</div>' +
+            '<div class="hbh-title hbh-title-r"><span class="hbh-rname">{{ b.rivalName }}<small ng-if="b.rivalTeam"> · {{ b.rivalTeam }}</small></span>' +
+              '<img class="hbh-logo" ng-if="b.rivalLogo" ng-src="{{ b.rivalLogo }}" alt=""></div>' +
           '</div>' +
 
           '<div class="hbh-sync" ng-if="b.state == \'sync\'">{{ t[\'hud.sync\'] }}</div>' +
@@ -102,7 +103,11 @@ angular.module('beamng.apps')
           /* Fußzeile */
           '.hbh-foot{justify-content:space-between;margin-top:3px;height:20px;font-size:12px;}' +
           '.hbh-title{width:40%;color:var(--dim);font-style:italic;letter-spacing:.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
-          '.hbh-title-r{text-align:right;}' +
+          '.hbh-title-r{text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:7px;overflow:visible;}' +
+          '.hbh-rname{min-width:0;overflow:hidden;text-overflow:ellipsis;}' +
+          '.hbh-rname small{font-size:10px;letter-spacing:.8px;opacity:.8;}' +
+          /* Team-Logo / Wanderer-Siegel: dezent, ragt etwas über die Zeile, leichter Schatten wie ein Aufkleber */
+          '.hbh-logo{flex:none;width:38px;height:38px;margin:-10px 0 -8px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,.8));}' +
           '.hbh-gap{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--o2);padding:1px 10px 0;' +
             'background:rgba(0,0,0,.45);border-radius:2px;}' +
           '.hbh-gap b{font-size:14px;margin-left:8px;letter-spacing:0;color:var(--w);}' +
