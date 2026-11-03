@@ -5,6 +5,10 @@
 ### Liveries
 - New Japanese liveries (own, made-up companies) as paint designs in the configurator: two taxis on the Pessima Mk1 (Shinonome Kotsu, Gekko), police on the Pessima Mk2 and Sunburst, plus mechanic, freight, courier and ambulance on the Gavril D-Series and H-Series. Configs for the PA drivers follow.
 
+### Starter cars
+- The starter car pool is now final: 34 stock configs of the Ibishu Covet, Ibishu Miramar, Hirochi Sunburst, Ibishu 200BX/Diana, Pessima Mk1 and Pessima Mk2 (manual and automatic). No other cars are offered at the start any more (e.g. the Covet DX and Miramar Export are gone).
+- The offered starter cars are now sorted by their actual price, cheapest first.
+
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.
 - Links open in the browser, in Explorer or directly in the editor (set up Explorer/editor once with tools\Handbuch-Links-einrichten.bat).
