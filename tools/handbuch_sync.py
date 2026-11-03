@@ -5,6 +5,8 @@ Aufruf (im Mod-Ordner):  python3 tools/handbuch_sync.py
 - CHANGELOG.md -> zwischen <!-- CHANGELOG-START --> und <!-- CHANGELOG-ENDE -->:
   jede "## <Version>"-Überschrift wird ein eigener Spoiler (<details>), neueste oben.
 - tools/roadmap.json -> zwischen <!-- ROADMAP-START --> und <!-- ROADMAP-ENDE -->: Meilenstein-Tabelle.
+- Dateiliste des Mod-Ordners -> zwischen <!-- DATEILISTE-START --> und <!-- DATEILISTE-ENDE -->.
+  Daraus macht das Handbuch beim Öffnen jeden Datei- und Ordnernamen zu einem Link.
 Die Ideen-Liste im Handbuch ist Handarbeit (steht direkt in docs/handbuch.html).
 """
 import html
@@ -75,6 +77,21 @@ def roadmap_html():
     return rows
 
 
+SKIP_DIRS = {'.git', 'dist', '__pycache__', 'node_modules', '.vscode', '.idea'}
+
+
+def file_index():
+    """Alle Dateien im Mod-Ordner (relativ, mit /), für die Datei-Links im Handbuch."""
+    files = []
+    for path in sorted(ROOT.rglob('*')):
+        rel = path.relative_to(ROOT)
+        if any(part in SKIP_DIRS for part in rel.parts) or not path.is_file():
+            continue
+        files.append(rel.as_posix())
+    data = json.dumps(files, ensure_ascii=False, separators=(',', ':')).replace('</', '<\\/')
+    return ['<script id="hb-files" type="application/json">' + data + '</script>'], len(files)
+
+
 def replace_block(hb, name, lines):
     start, ende = '<!-- ' + name + '-START -->', '<!-- ' + name + '-ENDE -->'
     if start not in hb or ende not in hb:
@@ -89,8 +106,10 @@ def main():
     cl = changelog_html()
     hb = replace_block(hb, 'CHANGELOG', cl)
     hb = replace_block(hb, 'ROADMAP', roadmap_html())
+    idx, n = file_index()
+    hb = replace_block(hb, 'DATEILISTE', idx)
     hb_path.write_text(hb, encoding='utf-8')
-    print(f'Handbuch aktualisiert: {len(cl)} Changelog-Versionen, Roadmap')
+    print(f'Handbuch aktualisiert: {len(cl)} Changelog-Versionen, Roadmap, {n} Dateien für Links')
 
 
 if __name__ == '__main__':

@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (as of 2026-11-03)
 
+### Handbook
+- Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.
+- Links open in the browser, in Explorer or directly in the editor (set up Explorer/editor once with tools\Handbuch-Links-einrichten.bat).
+
 ### Bug fixes
 - Cars of the drivers at the PAs (rivals and info drivers) sometimes overlapped with a parked traffic car. Their bay is now reserved against parked traffic, and a car that still ends up in it is moved elsewhere right away.
 - PA drivers' cars had the default plate instead of a Japanese one. They now get a Japanese plate design (taxis and vans green), rivals their own.
