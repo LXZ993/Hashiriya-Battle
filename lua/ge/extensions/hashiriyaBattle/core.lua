@@ -965,7 +965,7 @@ local function buildUiState()
   st.devMenu = (not st.release) and extensions.hashiriyaBattle_devtools ~= nil or nil
   local mu = extensions.hashiriyaBattle_music
   st.music = mu and mu.nowPlaying() or nil
-  st.musicCfg = (M.active and mu and mu.uiSettings) and mu.uiSettings() or nil
+  st.musicCfg = nil -- Musik-Einstellungen sind jetzt im Pausenmenü (Esc > Mods > Hashiriya Battle)
   if st.music and extensions.hashiriyaBattle_career.keyFor then
     local ok, k = pcall(extensions.hashiriyaBattle_career.keyFor, 'hashiriyaMusicSkip')
     st.music.key = ok and k or nil

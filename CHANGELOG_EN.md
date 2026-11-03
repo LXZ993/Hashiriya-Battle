@@ -12,6 +12,9 @@
 - 10 new people at the PAs: postman, refuse collector, road worker, electrician, security guard, cleaner, family man, retired camper, otaku and map car driver, each with their own car, portrait, small talk and mostly a knowledge story.
 - The taxi configs (Shinonome, Gekko) and police configs (Pessima Mk2, Sunburst) are now part of the mod. The taxis park next to the taxi drivers at the PAs.
 
+### PA rivals
+- Rivals at the PAs now visibly leave: after you accept, the rival gets into their car, starts the engine, turns the lights on at night and rolls slowly out of the PA onto the C1. There they are a normal rival on the radar. They cruise slowly at first so you can catch up. If they can't get out of the PA, they wait ahead of you like before.
+
 ### Liveries
 - New Japanese liveries (own, made-up companies) as paint designs in the configurator: two taxis on the Pessima Mk1 (Shinonome Kotsu, Gekko), police on the Pessima Mk2 and Sunburst, plus mechanic, freight, courier and ambulance on the Gavril D-Series and H-Series. Configs for the PA drivers follow.
 
@@ -22,6 +25,7 @@
 
 ### HUD
 - Rivals on the minimap (bottom left) now use the same colors as in the radar (top right): orange rival, yellow leader, purple wanderer, red boss, grey beaten, blue lost. The rival in the current battle pulses slightly.
+- Your own arrow on the minimap is now white (like your dot in the middle of the radar), so it stands out from orange rivals.
 
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.
@@ -66,7 +70,8 @@
 - New music: four AI placeholder songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) play in all situations for now. They are marked as AI in the credits, can be switched off per situation and will be replaced by real tracks. The old Kevin MacLeod tracks are gone.
 - Your own music: put your songs into the hashiriya_musik folder in the BeamNG user folder, sorted by situation (title, day, night, parking area, garage, shop, battle, boss, wanderer, pink slip).
 - The title menu and the new save screen show a tip that your own music gives the best experience.
-- In the Hashiriya menu under Tools > Music settings you choose per situation: mod music, your own music, both or off.
+- In the pause menu under Esc > Mods > Hashiriya Battle you pick for every situation which songs play, mod songs and your own.
+- Music selection in the pause menu: every song, including the AI songs and your own, can be switched on and off per situation. Also per situation the source (both, mod, own, off), next song, open folder, rescan and reset to default.
 - New music situations: parking area (PA), garage and home, battles against leaders and bosses, against wanderers and pink slip.
 - New camera shutter sound for the photo job (camera_digital_shutter).
 - Music can now also play as WAV in full quality: if a WAV with the same name sits next to the OGG, the WAV is played. The title song Daikoku now runs this way in its new version V3.

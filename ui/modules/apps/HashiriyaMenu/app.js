@@ -59,22 +59,7 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-if="s.devMenu" ng-click="act(\'devMenu\')"><i class="hbm-ico" ng-bind-html="ico(\'adjust\')"></i>{{ s.t[\'menu.devMenu\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-if="s.music" ng-click="act(\'musicSkip\')" title="{{ s.t[\'menu.musicNow\'] }}: {{ s.music.title }}{{ s.music.artist ? \' \u2013 \' + s.music.artist : \'\' }}"><i class="hbm-ico" ng-bind-html="ico(\'next\')"></i>' +
               '<span class="hbm-car-name">{{ s.t[\'menu.musicSkip\'] }}<small class="hbm-music-now">{{ s.music.title }}</small></span><span class="hbm-price" ng-if="s.music.key">{{ s.music.key }}</span></div>' +
-            '<div class="hbm-item hbm-sub" ng-if="s.musicCfg" ng-click="toggleMusic()"><i class="hbm-ico" ng-bind-html="ico(\'adjust\')"></i>' +
-              '<span class="hbm-car-name">{{ s.t[\'music.settings\'] }}</span><span class="hbm-price">{{ musicOpen ? \'\u25b4\' : \'\u25be\' }}</span></div>' +
-            '<div class="hbm-musiccfg" ng-if="s.musicCfg && musicOpen">' +
-              '<div class="hbm-note">{{ s.t[\'music.hint\'] }}</div>' +
-              '<div class="hbm-mrow" ng-repeat="r in s.musicCfg.rows track by r.id" ng-class="{\'is-now\': r.id == s.musicCfg.current}">' +
-                '<span class="hbm-mname">{{ s.t[\'music.sit.\' + r.id] }}<small>{{ r.folder }} \u00b7 {{ s.t[\'music.ownCount\'].replace(\'%d\', r.own) }}</small></span>' +
-                '<span class="hbm-cycle-btn" ng-click="act(\'musicSource\', r.id + \'|-1\')">\u2039</span>' +
-                '<span class="hbm-cycle-val">{{ s.t[\'music.mode.\' + r.mode] }}</span>' +
-                '<span class="hbm-cycle-btn" ng-click="act(\'musicSource\', r.id + \'|1\')">\u203a</span>' +
-              '</div>' +
-              '<div class="hbm-note hbm-mfolder">{{ s.t[\'music.folder\'] }}: {{ s.musicCfg.folder }}</div>' +
-              '<div class="hbm-actions">' +
-                '<span class="hbm-btn" ng-click="act(\'musicFolder\')">{{ s.t[\'music.openFolder\'] }}</span>' +
-                '<span class="hbm-btn" ng-click="act(\'musicRescan\')">{{ s.t[\'music.rescan\'] }}</span>' +
-              '</div>' +
-            '</div>' +
+            '<div class="hbm-note" ng-if="s.t[\'pause.mainMenuHint\']"><i class="hbm-ico" ng-bind-html="ico(\'adjust\')"></i>{{ s.t[\'pause.mainMenuHint\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
               '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
           '</div>' +

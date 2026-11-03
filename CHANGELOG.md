@@ -12,6 +12,9 @@
 - 10 neue Leute an den PAs: Postbote, Müllwerker, Straßenarbeiter, Elektriker, Wachmann, Reinigungskraft, Familienvater, Rentner im Camper, Otaku und Kartenfahrer, jeder mit eigenem Auto, Porträt, Smalltalk und meist einer Wissens-Geschichte.
 - Die Taxi-Configs (Shinonome, Gekko) und die Polizei-Configs (Pessima Mk2, Sunburst) sind jetzt Teil der Mod. Die Taxis stehen bei den Taxifahrern an den PAs.
 
+### PA-Rivalen
+- Rivalen an den PAs fahren jetzt sichtbar los: Nach dem Annehmen steigt der Rivale in sein Auto, startet den Motor, macht nachts das Licht an und rollt langsam aus der PA auf den C1. Dort ist er ein ganz normaler Rivale auf dem Radar. Er bummelt erst etwas, damit du hinterherkommst. Kommt er aus der PA nicht heraus, wartet er wie früher vor dir.
+
 ### Liveries
 - Neue japanische Lackierungen (eigene, erfundene Firmen) als Lackdesign im Konfigurator: zwei Taxis auf der Pessima Mk1 (Shinonome Kotsu, Gekko), Polizei 首都警察 auf Pessima Mk2 und Sunburst, sowie Werkstatt, Spedition, Kurier und Krankenwagen auf Gavril D-Series und H-Series. Die Configs für die Fahrer an den PAs folgen.
 
@@ -22,6 +25,7 @@
 
 ### HUD
 - Rivalen auf der Minimap unten links haben jetzt dieselben Farben wie im Radar oben rechts: orange Rivale, gelb Leader, lila Wanderer, rot Boss, grau besiegt, blau verloren. Der Rivale im laufenden Battle pulsiert leicht.
+- Dein eigener Pfeil auf der Minimap ist jetzt weiß (wie dein Punkt in der Radar-Mitte) und hebt sich so von orangen Rivalen ab.
 
 ### Handbuch
 - Jeder Datei- und Ordnername im Handbuch ist jetzt ein Link: Klick öffnet die Datei, das Ordner-Symbol dahinter den Ordner. Neu im Kapitel „Ordner und Dateien“: Schnellzugriff auf die wichtigsten Dateien und Ordner.
@@ -66,7 +70,8 @@
 - Neue Musik: vier KI-Platzhalter-Songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) laufen vorerst in allen Situationen. Sie sind in den Credits als KI gekennzeichnet, lassen sich pro Situation abschalten und werden durch echte Tracks ersetzt. Die alten Kevin-MacLeod-Stücke sind raus.
 - Eigene Musik: Lege deine Lieder in den Ordner hashiriya_musik im BeamNG-Benutzerordner, sortiert nach Situation (Titel, Tag, Nacht, Parkplatz, Garage, Shop, Battle, Boss, Wanderer, Pink Slip).
 - Startmenü und neuer Spielstand zeigen einen Tipp, dass eigene Musik das beste Erlebnis bringt.
-- Im Hashiriya-Menü unter Werkzeuge > Musik einstellen wählst du pro Situation: Mod-Musik, eigene Musik, beides oder aus.
+- Im Pausenmenü unter Esc > Mods > Hashiriya Battle wählst du für jede Situation, welche Songs laufen, Mod-Songs und eigene.
+- Musik-Auswahl im Pausenmenü: Jeder Song, auch die KI-Songs und deine eigenen, lässt sich pro Situation an- und ausschalten. Dazu pro Situation die Quelle (Beides, Mod, Eigene, Aus), Nächster Song, Ordner öffnen, Neu einlesen und Alles auf Standard.
 - Neue Musik-Situationen: Parkplatz (PA), Garage und Zuhause, Battle gegen Leader und Bosse, gegen Wanderer und Pink Slip.
 - Neuer Kamera-Sound beim Fotojob (camera_digital_shutter).
 - Musik kann jetzt auch als WAV in voller Qualität laufen: Liegt eine WAV mit gleichem Namen neben der OGG, wird die WAV gespielt. Der Titelsong Daikoku läuft so in der neuen Version V3.

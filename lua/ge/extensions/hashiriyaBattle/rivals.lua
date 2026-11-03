@@ -753,6 +753,19 @@ function M.logoOf(rival)
   return nil
 end
 
+-- Ein schon vorhandenes Auto als Rivalen auf die Straße übernehmen (PA-Rivale, der selbst aus der PA gefahren ist).
+-- Er fährt schon (KI läuft), also kein Anschieben und kein Umdrehen. Zählt nicht gegen maxOnRoad.
+function M.adoptVehicle(rival, vehId)
+  local veh = vehId and be:getObjectByID(vehId)
+  if not veh or not rival or isOnRoad(rival.id) then return nil end
+  local dir = veh:getDirectionVector()
+  local entry = { data = rival, vehId = vehId, spawnDir = dir, spawnPos = vec3(veh:getPosition()), age = 0,
+    rotChecked = true, launched = true, fromPa = true }
+  table.insert(onRoad, entry)
+  log('I', logTag, 'Rivale aus der PA auf der Straße: ' .. tostring(rival.id) .. string.format(' (%d unterwegs)', #onRoad))
+  return entry
+end
+
 -- Farbklasse für Markierungen (Radar, HUD): Boss, Wanderer, Leader, Revanche, verloren, normal
 function M.markerKind(rival)
   local save = core().save
@@ -833,10 +846,40 @@ local minimapKindColors = {
 local minimapLayer = 95 -- über VEHICLES_USABLE (90), unter dem Spieler (100) und der Rand-Maske (110)
 local mmPos, mmFwd = vec3(), vec3()
 
+-- Eigener Pfeil (Spieler): weiß wie der Punkt in der Radar-Mitte (.hbt-radar-me), damit er sich
+-- vom orangen Rivalen abhebt. BeamNG malt ihn in drawPlayer mit der Stilfarbe clrFocus (orange).
+-- Wir hüllen drawPlayer ein und tauschen clrFocus nur für diesen einen Aufruf.
+local minimapPlayerColor = { 244, 244, 244 } -- #f4f4f4
+local playerColorObj = nil
+
+local function wrapMinimapPlayer()
+  local vehs = ui_apps_minimap_vehicles
+  if not vehs or not vehs.drawPlayer or vehs.hbPlayerWrapped then return end
+  local original = vehs.drawPlayer
+  vehs.drawPlayer = function(...)
+    local c = core()
+    local utils = ui_apps_minimap_utils
+    local style = c and c.active and utils and utils.getCurrentStyleColors and utils.getCurrentStyleColors()
+    if type(style) ~= 'table' or not style.clrFocus then return original(...) end
+    if not playerColorObj then
+      playerColorObj = color(minimapPlayerColor[1], minimapPlayerColor[2], minimapPlayerColor[3], 255)
+    end
+    local keep = style.clrFocus
+    style.clrFocus = playerColorObj
+    local ok, res = pcall(original, ...)
+    style.clrFocus = keep
+    if not ok then error(res) end
+    return res
+  end
+  vehs.hbPlayerWrapped = true
+end
+
 local function onDrawOnMinimap(td)
-  if not td or #onRoad == 0 then return end
+  if not td then return end
   local c = core()
   if not c or not c.active then return end
+  wrapMinimapPlayer()
+  if #onRoad == 0 then return end
   local utils, minimap = ui_apps_minimap_utils, ui_apps_minimap_minimap
   if not utils or not minimap or not utils.getWorldToMapTransform then return end
   local scale = minimap.getScale and minimap.getScale()
