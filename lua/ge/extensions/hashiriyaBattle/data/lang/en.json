@@ -175,6 +175,8 @@
   "title.continue": "Continue",
   "title.credits": "Credits",
   "credits.music": "Music",
+  "credits.musicAi": "About the AI placeholders",
+  "credits.musicAiNote": "Fitting copyright-free songs in a late-90s and 2000s style that may be shared in a mod are very hard to find. So some tracks (with \"AI\" in their name) are placeholders made with AI (ACE-Step). They show how the music is meant to feel in each situation and will be replaced by real tracks as soon as there are some. In the Hashiriya menu under Tools > Music settings you can switch them off per situation and use your own music. Everyone is free to use these tracks.",
   "credits.community": "Community Wanderers",
   "credits.wanderer": "as %s",
   "credits.role.Testing": "Testing",

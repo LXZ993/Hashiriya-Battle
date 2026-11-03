@@ -629,7 +629,7 @@ function M.creditEntries()
       local t = (cfg().tracks or {})[f]
       if t and not t.hideInCredits and not seen[f] and filePath(f) then
         seen[f] = true
-        table.insert(out, { title = t.title, artist = t.artist, license = t.license, context = ctxName })
+        table.insert(out, { title = t.title, artist = t.artist, license = t.license, context = ctxName, ai = t.ai and true or nil })
       end
     end
   end

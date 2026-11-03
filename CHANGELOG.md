@@ -56,6 +56,7 @@
 - Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst.
 
 ### Neu: Musik steuern
+- Neue Musik: vier KI-Platzhalter-Songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) laufen vorerst in allen Situationen. Sie sind in den Credits als KI gekennzeichnet, lassen sich pro Situation abschalten und werden durch echte Tracks ersetzt. Die alten Kevin-MacLeod-Stücke sind raus.
 - Eigene Musik: Lege deine Lieder in den Ordner hashiriya_musik im BeamNG-Benutzerordner, sortiert nach Situation (Titel, Tag, Nacht, Parkplatz, Garage, Shop, Battle, Boss, Wanderer, Pink Slip).
 - Startmenü und neuer Spielstand zeigen einen Tipp, dass eigene Musik das beste Erlebnis bringt.
 - Im Hashiriya-Menü unter Werkzeuge > Musik einstellen wählst du pro Situation: Mod-Musik, eigene Musik, beides oder aus.

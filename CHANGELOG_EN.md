@@ -56,6 +56,7 @@
 - The style is shown in the rival lexicon once you know the rival.
 
 ### New: Music controls
+- New music: four AI placeholder songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) play in all situations for now. They are marked as AI in the credits, can be switched off per situation and will be replaced by real tracks. The old Kevin MacLeod tracks are gone.
 - Your own music: put your songs into the hashiriya_musik folder in the BeamNG user folder, sorted by situation (title, day, night, parking area, garage, shop, battle, boss, wanderer, pink slip).
 - The title menu and the new save screen show a tip that your own music gives the best experience.
 - In the Hashiriya menu under Tools > Music settings you choose per situation: mod music, your own music, both or off.

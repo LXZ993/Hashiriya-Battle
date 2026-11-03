@@ -1,13 +1,11 @@
 Musik in diesem Ordner
 
-daikoku.ogg, daikoku_loop.ogg
+daikoku.ogg, daikoku_loop.ogg (daikoku.wav = Version V3, hat Vorrang)
   "Daikoku" von z3rdax (https://open.spotify.com/artist/2vyVqSAFL3msB5ll2p2VEd), für Hashiriya Battle, Nutzung mit Erlaubnis.
 
-km_*.ogg
-  Kevin MacLeod (incompetech.com), Licensed under Creative Commons: By Attribution 4.0 License
-  http://creativecommons.org/licenses/by/4.0/
-  Quelle: https://incompetech.com (MP3), für die Mod in OGG umgewandelt und in der Lautstärke angeglichen (EBU R128, -16 LUFS), sonst unverändert.
-  "Airport Lounge", "Bossa Antigua", "Cool Vibes", "Lobby Time", "Local Forecast - Elevator",
-  "Movement Proposition", "Ouroboros", "Exit the Premises", "Exhilarate",
-  "Funkorama", "Funky Chunk", "Groove Grove", "Easy Lemon", "Hep Cats",
-  "Raving Energy", "Rhinoceros", "Volatile Reaction", "Cut and Run"
+*(AI).wav, *(AI) [Loop].wav
+  KI-Platzhalter von JDMArsch, erstellt mit ACE-Step (lokales Open-Source-Modell, MIT-Lizenz).
+  "Full Throttle Soul", "Kaze ni Nare", "Midnight King", "Moeagare".
+  Passende copyrightfreie Songs für diesen Zweck sind kaum zu finden, darum dienen diese Stücke als Platzhalter,
+  bis echte Tracks kommen. Im Spiel pro Situation abschaltbar (Werkzeuge > Musik einstellen).
+  Jeder darf diese Stücke frei nutzen.
