@@ -34,8 +34,16 @@ local function targetVolume() return cfg().volume or 0.8 end
 
 local function fadeTime() return math.max(0.05, cfg().fadeSeconds or 2) end
 
+-- Liegt neben einer Datei eine WAV mit gleichem Namen (z. B. daikoku.wav neben daikoku.ogg),
+-- wird die WAV genommen (volle Qualität, ohne OGG-Umwandlung). Sonst die eingetragene Datei.
 local function filePath(file)
-  local path = (cfg().folder or '/art/sound/hashiriya/music/') .. file
+  local folder = cfg().folder or '/art/sound/hashiriya/music/'
+  local base = file:match('^(.*)%.[^.]+$')
+  if base and not file:lower():match('%.wav$') then
+    local wav = folder .. base .. '.wav'
+    if FS:fileExists(wav) then return wav end
+  end
+  local path = folder .. file
   return FS:fileExists(path) and path or nil
 end
 
