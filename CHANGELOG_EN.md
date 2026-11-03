@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (as of 2026-11-03)
 
+### Liveries
+- New Japanese liveries (own, made-up companies) as paint designs in the configurator: two taxis on the Pessima Mk1 (Shinonome Kotsu, Gekko), police on the Pessima Mk2 and Sunburst, plus mechanic, freight, courier and ambulance on the Gavril D-Series and H-Series. Configs for the PA drivers follow.
+
 ### Bug fixes
 - Cars of the drivers at the PAs (rivals and info drivers) sometimes overlapped with a parked traffic car. Their bay is now reserved against parked traffic, and a car that still ends up in it is moved elsewhere right away.
 - PA drivers' cars had the default plate instead of a Japanese one. They now get a Japanese plate design (taxis and vans green), rivals their own.

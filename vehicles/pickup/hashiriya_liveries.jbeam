@@ -1,0 +1,38 @@
+{
+  "pickup_skin_hb_mechanic": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Tesshin Motors road service",
+      "value": 2500
+    },
+    "slotType": "paint_design",
+    "globalSkin": "hb_mechanic"
+  },
+  "pickup_skin_hb_freight": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Tsubame Unyu freight",
+      "value": 2500
+    },
+    "slotType": "paint_design",
+    "globalSkin": "hb_freight"
+  },
+  "pickup_skin_hb_courier": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Kitsune Express courier",
+      "value": 2500
+    },
+    "slotType": "paint_design",
+    "globalSkin": "hb_courier"
+  },
+  "pickup_skin_hb_ambulance": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Ambulance (Shuto Fire Dept.)",
+      "value": 2500
+    },
+    "slotType": "paint_design",
+    "globalSkin": "hb_ambulance"
+  }
+}

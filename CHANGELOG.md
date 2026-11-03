@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (Stand 03.11.2026)
 
+### Liveries
+- Neue japanische Lackierungen (eigene, erfundene Firmen) als Lackdesign im Konfigurator: zwei Taxis auf der Pessima Mk1 (Shinonome Kotsu, Gekko), Polizei 首都警察 auf Pessima Mk2 und Sunburst, sowie Werkstatt, Spedition, Kurier und Krankenwagen auf Gavril D-Series und H-Series. Die Configs für die Fahrer an den PAs folgen.
+
 ### Fehler behoben
 - Autos der Fahrer an den PAs (Rivalen und Info-Fahrer) steckten manchmal in einem Auto vom Parkverkehr. Ihre Parkbucht ist jetzt für den Parkverkehr reserviert, und ein Auto, das trotzdem darin landet, wird sofort woandershin gestellt.
 - Die Autos der PA-Fahrer hatten das Standard-Kennzeichen statt eines japanischen Kennzeichens. Jetzt bekommen sie ein japanisches Kennzeichen-Design (Taxis und Lieferwagen grün), Rivalen ihr eigenes.
