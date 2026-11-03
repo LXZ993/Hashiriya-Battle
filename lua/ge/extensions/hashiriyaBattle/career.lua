@@ -133,7 +133,7 @@ local function buildOffer(name, plate)
     for i, c in ipairs(byPower) do c.condition[key] = vals[i] end
   end
   -- günstigstes zuerst
-  table.sort(offer, function(a, b) return (a.priceUsd or 30000) < (b.priceUsd or 30000) end)
+  table.sort(offer, function(a, b) return starterPriceYen(a) < starterPriceYen(b) end)
   return offer
 end
 
