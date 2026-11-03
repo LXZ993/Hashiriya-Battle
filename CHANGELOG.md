@@ -62,7 +62,8 @@
 - Neue Musik: vier KI-Platzhalter-Songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) laufen vorerst in allen Situationen. Sie sind in den Credits als KI gekennzeichnet, lassen sich pro Situation abschalten und werden durch echte Tracks ersetzt. Die alten Kevin-MacLeod-Stücke sind raus.
 - Eigene Musik: Lege deine Lieder in den Ordner hashiriya_musik im BeamNG-Benutzerordner, sortiert nach Situation (Titel, Tag, Nacht, Parkplatz, Garage, Shop, Battle, Boss, Wanderer, Pink Slip).
 - Startmenü und neuer Spielstand zeigen einen Tipp, dass eigene Musik das beste Erlebnis bringt.
-- Im Hashiriya-Menü unter Werkzeuge > Musik einstellen wählst du pro Situation: Mod-Musik, eigene Musik, beides oder aus.
+- Im Pausenmenü unter Esc > Mods > Hashiriya Battle wählst du für jede Situation, welche Songs laufen, Mod-Songs und eigene.
+- Musik-Auswahl im Pausenmenü: Jeder Song, auch die KI-Songs und deine eigenen, lässt sich pro Situation an- und ausschalten. Dazu pro Situation die Quelle (Beides, Mod, Eigene, Aus), Nächster Song, Ordner öffnen, Neu einlesen und Alles auf Standard.
 - Neue Musik-Situationen: Parkplatz (PA), Garage und Zuhause, Battle gegen Leader und Bosse, gegen Wanderer und Pink Slip.
 - Neuer Kamera-Sound beim Fotojob (camera_digital_shutter).
 - Musik kann jetzt auch als WAV in voller Qualität laufen: Liegt eine WAV mit gleichem Namen neben der OGG, wird die WAV gespielt. Der Titelsong Daikoku läuft so in der neuen Version V3.
