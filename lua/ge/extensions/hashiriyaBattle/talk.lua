@@ -7,6 +7,8 @@
 -- Geschichte über mehrere Sätze. Gefiltert nach Karte (map) und PA (place), jede Figur hat ihre eigenen Themen.
 -- Alpha 0.5: Nachts stehen auch Rivalen und Wanderer neben ihrem eigenen Auto. Ansprechen = Spruch, dann Battle
 -- verabreden (Taste Reden) oder Pink Slip (Taste "Reden: Pink Slip", Standard G). Er fährt vor und wartet auf dem C1.
+-- Alpha 0.5.x: Er steigt sichtbar in sein Auto, startet den Motor, fährt langsam aus der PA und ist auf der Straße
+-- ein normaler Rivale (Radar, Lichthupe). Klappt das nicht (kein Weg, hängt fest), wartet er wie früher vor dir.
 -- Texte und Einstellungen: data/chat.json (speakers, talk, pa). Figuren = BeamNG-Fußgänger (Einrad mit Figur),
 -- Porträts: art/portraits/npc/<sprecher>_<n>.svg.
 local M = {}
@@ -30,7 +32,9 @@ local convo = nil       -- laufendes Gespräch { npc, lines, index }
 local checkTimer = 0
 local lookTimer = 0
 local pendingFace = {}  -- [figId] = { dir, tries }: Blickrichtung nach dem Spawnen setzen
-local pending = nil     -- an der PA verabredetes Battle { rival, pink, paPos, night, tries }
+local pending = nil     -- an der PA verabredetes Battle { rival, pink, paPos, night, tries, phase, carId, figId, entry }
+-- phase: 'board' (geht zum Auto, steigt ein) -> 'start' (Motor an) -> 'leave' (fährt aus der PA)
+--        -> 'road' (normaler Rivale auf der Straße) ; 'stuck' (wartet, bis du weg bist) ; 'wait' (alte Art: taucht vor dir auf)
 local acceptBattle      -- weiter unten
 
 -- Einstellungen ---------------------------------------------------------------------
@@ -42,6 +46,8 @@ local defaults = {
   loreChance = 0.6, ownTopicWeight = 3, otherTopicWeight = 0.5, placeWeight = 3, moreChance = 0.5,
   rivalNight = { 0, 2 }, rivalDay = { 0, 0 }, rivalWaitDistance = 250, rivalWaitSpeed = 30,
   rivalWeightNew = 3, rivalWeightBeaten = 1, rivalWeightHolder = 6,
+  rivalLeave = true, rivalBoardSeconds = 2.5, rivalLeaveKmh = 25, rivalExitDistance = 110, rivalLeaveTimeout = 90,
+  rivalWaitCruiseKmh = 70, rivalCatchUpDistance = 250,
 }
 
 local function cfg()
@@ -222,10 +228,18 @@ function M.despawnAll()
 end
 
 -- Spiel beendet / Spielstand gewechselt: Verabredung verfällt
-function M.clearPending()
-  if pending then rivals().setReserved(pending.rival.id, false) end
+local function dropPending()
+  if not pending then return end
+  -- Auto noch nicht als Rivale auf der Straße: mit wegräumen
+  if pending.phase ~= 'road' then
+    deleteObj(pending.figId)
+    deleteObj(pending.carId)
+  end
+  rivals().setReserved(pending.rival.id, false)
   pending = nil
 end
+
+function M.clearPending() dropPending() end
 
 -- Figur neben der Fahrertür (rechts, japanische Autos) oder frei auf dem Platz
 -- Farbe der 3D-Figur = Oberteil-Farbe ihres Porträts (art/portraits/colors.json aus dem Porträt-Tool),
@@ -835,10 +849,20 @@ acceptBattle = function(n, pink)
   end
   convo = nil
   nearest = nil
-  deleteObj(n.figId)
-  deleteObj(n.carId)
   rivals().setReserved(r.id, true) -- bis er auf der Straße ist
   pending = { rival = copy, pink = pink, paPos = paPos, night = home().nightId(), tries = 0, wait = 0 }
+  local car = n.carId and be:getObjectByID(n.carId)
+  if cfg().rivalLeave and car and n.figId then
+    -- sichtbar einsteigen und losfahren
+    pending.phase, pending.carId, pending.figId, pending.timer = 'board', n.carId, n.figId, cfg().rivalBoardSeconds
+    pendingFace[n.figId] = nil
+    local door = M.doorPoint(car)
+    if door and n.pos then setFacing(n.figId, door - n.pos) end
+  else
+    deleteObj(n.figId)
+    deleteObj(n.carId)
+    pending.phase = 'wait'
+  end
   c.sound('challenge')
   c.msg(c.t(pink and 'msg.paPinkAccepted' or 'msg.paBattleAccepted', r.name), 8)
   log('I', logTag, 'Battle an der PA verabredet: ' .. tostring(r.id) .. (pink and ' (Pink Slip)' or ''))
@@ -856,20 +880,161 @@ end
 
 function M.getPending() return pending end
 
--- Verabredung einlösen: Bist du mit dem Auto weit genug von der PA weg und schnell genug, taucht er vor dir auf
+-- Wo steigt er ein? Seite des Autos, auf der die Figur steht (meist rechts, Rechtslenker), auf Höhe der Tür
+function M.doorPoint(car, figPos)
+  if not car then return nil end
+  local okC, ctr = pcall(function() return vec3(car:getSpawnWorldOOBB():getCenter()) end)
+  local base = okC and ctr or vec3(car:getPosition())
+  local fwd = car:getDirectionVector()
+  fwd = vec3(fwd.x, fwd.y, 0)
+  if fwd:length() < 0.01 then return base end
+  fwd = fwd:normalized()
+  local right = fwd:cross(up):normalized()
+  local side = 1
+  if figPos and (figPos - base):dot(right) < 0 then side = -1 end
+  return base + right * side * 0.9 + fwd * 0.2
+end
+
+local function vehCmd(veh, cmd) pcall(function() veh:queueLuaCommand(cmd) end) end
+
+-- Motor an, Licht nach Uhrzeit, Bremse los, BeamNG-KI fährt langsam (Verkehrsmodus) aus der PA
+local function startEngine(car, r)
+  vehCmd(car, 'electrics.setIgnitionLevel(3)')
+  local lights = (r.lights == 'off' or not home().isNight()) and 0 or 1
+  if r.lights == 'on' then lights = 1 end
+  vehCmd(car, string.format('electrics.setLightsState(%d)', lights))
+end
+
+local function driveOut(car)
+  vehCmd(car, 'electrics.setIgnitionLevel(2)')
+  core().freezeCar(car, false)
+  vehCmd(car, 'if input and input.event then input.event("parkingbrake", 0, 1) end')
+  vehCmd(car, string.format(
+    "ai.setMode('traffic') ai.setAggressionMode('off') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(0.2) ai.driveInLane('on')",
+    (cfg().rivalLeaveKmh or 25) / 3.6))
+end
+
+-- Bucht freigeben, sobald er losfährt (sonst hält guardSpots sie weiter fest)
+local function releaseSpot(id)
+  local ps = id and ourSpots[id]
+  if ps and ps.vehicle == id then ps.vehicle = nil end
+  if id then ourSpots[id] = nil end
+end
+
+-- Auf die alte Art weitermachen: Auto weg (falls noch da), er taucht später vor dir auf
+local function toWait(reason)
+  if reason then log('I', logTag, 'PA-Rivale fährt nicht selbst raus (' .. reason .. '), wartet stattdessen vor dir: ' .. tostring(pending.rival.id)) end
+  deleteObj(pending.figId)
+  deleteObj(pending.carId)
+  pending.figId, pending.carId, pending.entry = nil, nil, nil
+  pending.phase, pending.wait, pending.tries = 'wait', 0, 0
+  rivals().setReserved(pending.rival.id, true)
+end
+
+-- Verabredung einlösen
 local function updatePending(dt, c, veh, wpos)
   if not pending then return end
   local h = home()
-  if pending.night ~= h.nightId() or not h.isNight() then
+  local conf = cfg()
+  local battleBusy = extensions.hashiriyaBattle_battle.isBusy()
+  -- Battle gelaufen (battle.finishBattle löscht paChallenge auf genau dieser Kopie): erledigt
+  if not pending.rival.paChallenge then
+    if pending.phase ~= 'road' then deleteObj(pending.figId); deleteObj(pending.carId) end
     rivals().setReserved(pending.rival.id, false)
-    c.msg(c.t('msg.paBattleExpired', pending.rival.name), 5)
     pending = nil
     return
   end
-  if wpos or not veh or extensions.hashiriyaBattle_battle.isBusy() then return end
+  if (pending.night ~= h.nightId() or not h.isNight()) and not battleBusy then
+    c.msg(c.t('msg.paBattleExpired', pending.rival.name), 5)
+    dropPending()
+    return
+  end
+  local ppos = wpos or (veh and veh:getPosition()) or nil
+  local phase = pending.phase or 'wait'
+
+  if phase == 'board' or phase == 'start' or phase == 'leave' or phase == 'stuck' then
+    local car = pending.carId and be:getObjectByID(pending.carId)
+    if not car then toWait('Auto weg') return end
+    local carPos = vec3(car:getPosition())
+    if phase == 'board' then
+      pending.timer = pending.timer - dt
+      local fig = pending.figId and be:getObjectByID(pending.figId)
+      if fig then setFacing(pending.figId, carPos - vec3(fig:getPosition())) end
+      if pending.timer <= 0 then
+        -- eingestiegen: Figur weg, Zündung
+        deleteObj(pending.figId)
+        pending.figId = nil
+        startEngine(car, pending.rival)
+        pending.phase, pending.timer = 'start', 1.5
+      end
+    elseif phase == 'start' then
+      pending.timer = pending.timer - dt
+      if pending.timer <= 0 then
+        releaseSpot(pending.carId)
+        driveOut(car)
+        pending.phase, pending.timer, pending.still, pending.startPos = 'leave', conf.rivalLeaveTimeout or 90, 0, carPos
+        log('I', logTag, 'PA-Rivale fährt aus der PA: ' .. tostring(pending.rival.id))
+      end
+    elseif phase == 'leave' then
+      pending.timer = pending.timer - dt
+      local v = vec3(car:getVelocity()):length()
+      if v < 1 then pending.still = pending.still + dt else pending.still = 0 end
+      local out = (carPos - pending.paPos):length() > (conf.rivalExitDistance or 110)
+      if out then
+        local entry = rivals().adoptVehicle(pending.rival, pending.carId)
+        if entry then
+          pending.phase, pending.entry, pending.catchUp = 'road', entry, nil
+          rivals().setReserved(pending.rival.id, false)
+          -- erstmal gemütlich, damit du hinterherkommst
+          vehCmd(car, string.format('ai.setSpeed(%f)', (conf.rivalWaitCruiseKmh or 70) / 3.6))
+          log('I', logTag, 'PA-Rivale ist auf der Straße: ' .. tostring(pending.rival.id))
+        else
+          toWait('Übergabe an die Straße fehlgeschlagen')
+        end
+        return
+      end
+      if pending.still > 12 or pending.timer <= 0 then
+        pending.phase = 'stuck'
+        vehCmd(car, "ai.setMode('disabled')")
+        log('W', logTag, 'PA-Rivale kommt nicht aus der PA (kein Weg?): ' .. tostring(pending.rival.id))
+      end
+    elseif phase == 'stuck' then
+      -- erst verschwinden lassen, wenn du ihn nicht mehr siehst
+      if not ppos or (ppos - carPos):length() > 120 then toWait('hing fest') end
+    end
+    return
+  end
+
+  if phase == 'road' then
+    local e = pending.entry
+    -- Revanchen bekommen fürs Battle eine neue Datenkopie (rivals.challengeData): deren Flag zählt auch
+    if e and e.data and not e.data.paChallenge then
+      rivals().setReserved(pending.rival.id, false)
+      pending = nil
+      return
+    end
+    local car = e and be:getObjectByID(e.vehId)
+    local still = false
+    for _, x in ipairs(rivals().getOnRoad()) do if x == e then still = true end end
+    if not car or not still then
+      -- zu weit weg verschwunden o. ä., bevor ihr gefahren seid: wartet dann vor dir
+      if battleBusy then return end
+      pending.carId = nil
+      toWait('auf der Straße verloren')
+      return
+    end
+    -- Du bist nah genug dran: normales Reisetempo
+    if not pending.catchUp and veh and not wpos and (vec3(car:getPosition()) - veh:getPosition()):length() < (conf.rivalCatchUpDistance or 250) then
+      pending.catchUp = true
+      rivals().setCruise(car, e.data)
+    end
+    return
+  end
+
+  -- phase 'wait': Bist du mit dem Auto weit genug von der PA weg und schnell genug, taucht er vor dir auf
+  if wpos or not veh or battleBusy then return end
   pending.wait = pending.wait - dt
   if pending.wait > 0 then return end
-  local conf = cfg()
   local far = (veh:getPosition() - pending.paPos):length() > (conf.rivalWaitDistance or 250)
   local fast = veh:getVelocity():length() * 3.6 > (conf.rivalWaitSpeed or 30)
   if not far or not fast or extensions.hashiriyaBattle_parking.getCurrent() then return end
@@ -877,7 +1042,7 @@ local function updatePending(dt, c, veh, wpos)
   local ok, entry = pcall(rivals().spawnNext, true, pending.rival)
   if ok and entry then
     c.msg(c.t(pending.pink and 'msg.paPinkWaiting' or 'msg.paBattleWaiting', pending.rival.name), 8)
-    pending = nil
+    pending.phase, pending.entry, pending.catchUp = 'road', entry, true
     return
   end
   rivals().setReserved(pending.rival.id, true)
@@ -885,9 +1050,8 @@ local function updatePending(dt, c, veh, wpos)
   pending.wait = 2
   if pending.tries >= 15 then
     log('W', logTag, 'Verabredeter Rivale fand keinen Platz auf der Straße: ' .. tostring(pending.rival.id))
-    rivals().setReserved(pending.rival.id, false)
     c.msg(c.t('msg.paBattleExpired', pending.rival.name), 5)
-    pending = nil
+    dropPending()
   end
 end
 
@@ -984,7 +1148,8 @@ local function guardSpots(dtReal)
       if ok and any then
         for _, other in ipairs(ids or {}) do
           local o = be:getObjectByID(other)
-          if other ~= playerId and not ourSpots[other] and o and o:getJBeamFilename() ~= 'unicycle' then
+          local leaving = pending and pending.carId == other
+          if other ~= playerId and not leaving and not ourSpots[other] and o and o:getJBeamFilename() ~= 'unicycle' then
             if parked[other] and park.forceTeleport then
               pcall(park.forceTeleport, other, nil, 80, 400)
               log('I', logTag, 'Parkverkehr aus einer PA-Bucht weggestellt: ' .. tostring(other))
@@ -1080,7 +1245,7 @@ local function onUpdate(dtReal)
   end
 end
 
-local function onClientEndMission() M.despawnAll(); carCache = {} end
+local function onClientEndMission() M.despawnAll(); pending = nil; carCache = {} end
 local function onExtensionUnloaded() M.despawnAll() end
 
 -- Entwickler: Leute neu aufstellen
