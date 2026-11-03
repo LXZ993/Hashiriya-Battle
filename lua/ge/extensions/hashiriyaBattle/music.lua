@@ -130,14 +130,16 @@ local readme = [[
 Hashiriya Battle - eigene Musik / own music
 
 DE: Lege deine Musik (OGG, WAV, MP3, FLAC) in den passenden Unterordner.
-Im Hashiriya-Menü unter Werkzeuge > Musik stellst du pro Situation ein,
-ob Mod-Musik, eigene Musik, beides oder nichts läuft.
-Ist ein Unterordner leer, wird der Ordner in Klammern genommen.
+Im Pausenmenü unter Esc > Mods > Hashiriya Battle wählst du für jeden
+Song, in welchen Situationen er läuft (Mod-Songs und eigene).
+Ein Song startet in der Situation seines Unterordners. Ist eine Situation
+leer, läuft die Musik der Situation in Klammern.
 
 EN: Put your music (OGG, WAV, MP3, FLAC) into the matching subfolder.
-In the Hashiriya menu under Tools > Music you choose per situation
-whether mod music, your own music, both or nothing plays.
-An empty subfolder falls back to the one in brackets.
+In the pause menu under Esc > Mods > Hashiriya Battle you choose for
+every song in which situations it plays (mod songs and your own).
+A song starts in the situation of its subfolder. An empty situation
+plays the music of the one in brackets.
 
 titel      Titelbildschirm / title screen
 tag        Freie Fahrt am Tag / free roam by day
@@ -164,26 +166,6 @@ local function ensureFolders()
     end
     if not FS:fileExists(root .. 'LIESMICH_README.txt') then writeFile(root .. 'LIESMICH_README.txt', readme) end
   end)
-end
-
--- eigene Stücke einer Situation, leerer Ordner -> Ordner der Ersatz-Situation
-local function ownTracksFor(id, depth)
-  local sdef = SIT[id]
-  if not sdef then return {} end
-  local list = scanOwn(sdef.folder)
-  if #list == 0 and sdef.fallback and (depth or 0) < 3 then
-    return ownTracksFor(resolveFallback(sdef.fallback), (depth or 0) + 1)
-  end
-  return list
-end
-
--- Mod-Playlist einer Situation (music.json contexts), fehlt sie -> Ersatz-Situation
-local function modDefFor(id, depth)
-  local def = (cfg().contexts or {})[id]
-  if def then return def end
-  local sdef = SIT[id]
-  if sdef and sdef.fallback and (depth or 0) < 3 then return modDefFor(resolveFallback(sdef.fallback), (depth or 0) + 1) end
-  return nil
 end
 
 -- BeamNG-Hauptmenü-Musik anhalten, solange Hashiriya läuft (main.lua: setMainMenuMusicPauseRequest)
@@ -425,48 +407,135 @@ local function wantedContext()
   return isNight() and 'night' or 'day'
 end
 
-local function modEntries(def)
-  local out, intro = {}, nil
-  if def.intro and filePath(def.intro) then intro = { path = filePath(def.intro), key = def.intro } end
-  local list = def.shuffle and shuffled(def.tracks or {}) or (def.tracks or {})
-  for _, f in ipairs(list) do
+-- Song-Auswahl pro Situation ------------------------------------------------------
+-- Bibliothek = alle Mod-Stücke (music.json tracks, Datei vorhanden) + alle eigenen Dateien aus allen
+-- Unterordnern. Vorgabe: Mod-Stücke laufen in den Situationen, in deren contexts-Liste sie stehen,
+-- eigene Dateien in der Situation ihres Ordners. Im Pausenmenü (Esc > Mods > Hashiriya Battle) kann jeder
+-- Spieler pro Song ankreuzen, in welchen Situationen er läuft (settings: assign[songId] = { situationen }).
+-- Hat eine Situation keinen Song, kommt die Musik der Ersatz-Situation (pa/garage -> Tag/Nacht, Boss usw. -> battle).
+local function modSongId(file) return 'mod:' .. file end
+local function ownSongId(path) return 'own:' .. path end
+
+local function library()
+  local out, seen = {}, {}
+  local contexts = cfg().contexts or {}
+  local tracks = cfg().tracks or {}
+  local function addMod(f)
+    if seen[f] or not f then return end
+    seen[f] = true
     local p = filePath(f)
-    if p then table.insert(out, { path = p, key = f }) else log('W', logTag, 'Musikdatei fehlt: ' .. f) end
+    if not p then return end
+    local t = tracks[f] or {}
+    local artist = t.artist
+    if artist and artist:match('^%[') then artist = nil end
+    local d = {}
+    for _, sdef in ipairs(SITUATIONS) do
+      local def = contexts[sdef.id]
+      if def then
+        if def.intro == f then d[sdef.id] = true end
+        for _, x in ipairs(def.tracks or {}) do if x == f then d[sdef.id] = true end end
+      end
+    end
+    table.insert(out, { id = modSongId(f), key = f, path = p, title = t.title or f:gsub('%.[^.]+$', ''),
+      artist = artist, ai = t.ai and true or nil, defaults = d })
   end
-  return out, intro
+  -- Reihenfolge wie in music.json (wichtig für Situationen ohne shuffle, z. B. Titel)
+  for _, sdef in ipairs(SITUATIONS) do
+    local def = contexts[sdef.id]
+    if def then
+      addMod(def.intro)
+      for _, f in ipairs(def.tracks or {}) do addMod(f) end
+    end
+  end
+  local rest = {}
+  for f in pairs(tracks) do if not seen[f] then table.insert(rest, f) end end
+  table.sort(rest)
+  for _, f in ipairs(rest) do addMod(f) end
+  for _, sdef in ipairs(SITUATIONS) do
+    for _, p in ipairs(scanOwn(sdef.folder)) do
+      if not seen[p] then
+        seen[p] = true
+        table.insert(out, { id = ownSongId(p), key = p:match('([^/]+)$'), path = p, own = true,
+          title = (p:match('([^/]+)$') or p):gsub('%.[^.]+$', ''), folder = sdef.folder, defaults = { [sdef.id] = true } })
+      end
+    end
+  end
+  return out
+end
+
+local function assignOf(song)
+  local a = (settings().assign or {})[song.id]
+  if type(a) ~= 'table' then return song.defaults, false end
+  local set = {}
+  for _, id in ipairs(a) do set[id] = true end
+  return set, true
+end
+
+-- Songs einer Situation (nach Quelle gefiltert), keiner da -> Ersatz-Situation
+local function songsFor(id, depth)
+  local mode = modeOf(id)
+  local list = {}
+  if mode ~= 'off' then
+    for _, song in ipairs(library()) do
+      local set = assignOf(song)
+      local okSrc = (mode == 'both') or (mode == 'own' and song.own) or (mode == 'mod' and not song.own)
+      if set[id] and okSrc and not badFiles[song.path] then table.insert(list, song) end
+    end
+  end
+  local sdef = SIT[id]
+  if #list == 0 and mode ~= 'off' and sdef and sdef.fallback and (depth or 0) < 3 then
+    return songsFor(resolveFallback(sdef.fallback), (depth or 0) + 1)
+  end
+  return list, id, mode
+end
+
+-- Playlist der Situation bauen (Intro vorn, shuffle laut music.json, Titel ohne shuffle)
+local function buildPlaylist(ctx)
+  local songs, srcId, mode = songsFor(ctx)
+  local def = (cfg().contexts or {})[srcId] or {}
+  local list, intro = {}, nil
+  local nMod, nOwn = 0, 0
+  for _, song in ipairs(songs) do
+    local e = { path = song.path, key = song.key, own = song.own, id = song.id }
+    if not intro and def.intro and song.key == def.intro then intro = e
+    else table.insert(list, e) end
+    if song.own then nOwn = nOwn + 1 else nMod = nMod + 1 end
+  end
+  if def.shuffle ~= false or nOwn > 0 then list = shuffled(list) end
+  return list, intro, mode, nMod, nOwn, srcId
 end
 
 local function switchTo(ctx)
   context = ctx
   fadeOutCurrent()
   playlist, plIndex, introPending = {}, 0, nil
-  local nMod, nOwn = 0, 0
   if ctx ~= 'off' then
     ensureFolders()
-    local mode = modeOf(ctx)
-    local def = modDefFor(ctx)
-    if (mode == 'mod' or mode == 'both') and def then
-      local list, intro = modEntries(def)
-      introPending = intro
-      for _, e in ipairs(list) do table.insert(playlist, e) end
-      nMod = #list
-    end
-    if mode == 'own' or mode == 'both' then
-      for _, p in ipairs(ownTracksFor(ctx)) do
-        table.insert(playlist, { path = p, key = p:match('([^/]+)$'), own = true })
-        nOwn = nOwn + 1
-      end
-    end
-    if mode == 'both' and nOwn > 0 then
-      -- gemischt: Intro bleibt vorn, Rest zufällig
-      playlist = shuffled(playlist)
-    elseif mode == 'own' then
-      playlist = shuffled(playlist)
-    end
+    local list, intro, mode, nMod, nOwn, srcId = buildPlaylist(ctx)
+    playlist, introPending = list, intro
     nextTrack()
-    log('I', logTag, 'Musik: ' .. ctx .. ' (' .. mode .. ', ' .. nMod .. ' Mod, ' .. nOwn .. ' eigene)')
+    log('I', logTag, 'Musik: ' .. ctx .. (srcId ~= ctx and (' -> ' .. srcId) or '') .. ' (' .. mode .. ', ' .. nMod .. ' Mod, ' .. nOwn .. ' eigene)')
   else
     log('I', logTag, 'Musik: off')
+  end
+end
+
+-- nach einer Änderung im Menü: Playlist neu, das laufende Stück läuft weiter, wenn es noch dazugehört
+local function refreshPlaylist()
+  if not context or context == 'off' then return end
+  local list, intro = buildPlaylist(context)
+  local curId = cur and cur.entry and cur.entry.id
+  local keep = false
+  if intro and intro.id == curId then keep = true end
+  for i, e in ipairs(list) do if e.id == curId then keep = true; plIndex = i end end
+  playlist = list
+  introPending = (not keep and intro) or nil
+  if not keep then
+    if cur then local s = cur; cur = nil; table.insert(fading, s) end
+    plIndex = 0
+    nextTrack()
+  elseif cur and cur.loop and #list + (intro and 1 or 0) > 1 then
+    cur.loop = false -- war vorher allein in der Playlist, jetzt gibt es mehr
   end
 end
 
@@ -543,6 +612,11 @@ local function updatePlayback(dt)
 end
 
 local function onUpdate(dtReal)
+  -- Pausenmenü-Eintrag: so lange versuchen, bis BeamNGs Pausenmenü-Modul da ist
+  if not pauseRegistered then
+    pauseRetry = pauseRetry - dtReal
+    if pauseRetry <= 0 then pauseRetry = 3; M.registerPauseButton() end
+  end
   updatePlayback(dtReal)
   updateDuck(dtReal)
   checkTimer = checkTimer - dtReal
@@ -591,17 +665,114 @@ function M.uiSettings()
   return { folder = osFolder(), rows = rows, current = context }
 end
 
+local function saveSettings()
+  pcall(jsonWriteFile, settingsPath, settings(), true)
+end
+
+local function tr(key, fallbackText)
+  local c = core()
+  local ok, v = pcall(function() return c and c.t and c.t(key) end)
+  if ok and type(v) == 'string' and v ~= key then return v end
+  return fallbackText or key
+end
+
+-- Daten für die Karte im Pausenmenü (ui/ui-vue/mods/hashiriyaBattle/PauseCard.vue)
+function M.matrix()
+  ensureFolders()
+  local sits = {}
+  for _, sdef in ipairs(SITUATIONS) do
+    local fb = sdef.fallback and (sdef.fallback == 'daynight' and 'daynight' or sdef.fallback) or nil
+    table.insert(sits, { id = sdef.id, folder = sdef.folder, mode = modeOf(sdef.id), fallback = fb,
+      name = tr('music.sit.' .. sdef.id, sdef.id) })
+  end
+  local songs = {}
+  local playingId = cur and cur.entry and cur.entry.id
+  for _, song in ipairs(library()) do
+    local set, custom = assignOf(song)
+    local on = {}
+    for _, sdef in ipairs(SITUATIONS) do if set[sdef.id] then table.insert(on, sdef.id) end end
+    table.insert(songs, { id = song.id, title = song.title, artist = song.artist, own = song.own or false,
+      ai = song.ai or false, folder = song.folder, on = on, custom = custom, playing = (song.id == playingId),
+      bad = badFiles[song.path] and true or false })
+  end
+  local now = M.nowPlaying()
+  local t = {}
+  for _, k in ipairs({ 'pause.title', 'pause.sub', 'pause.situation', 'pause.source', 'pause.songs', 'pause.empty',
+    'pause.fallbackDayNight', 'pause.fallbackBattle', 'pause.own', 'pause.ai', 'pause.custom', 'pause.now', 'pause.skip',
+    'pause.reset', 'pause.resetDone', 'pause.all', 'pause.none', 'pause.alsoIn', 'pause.hint', 'pause.current',
+    'music.openFolder', 'music.rescan', 'music.folder', 'music.mode.both', 'music.mode.mod', 'music.mode.own', 'music.mode.off' }) do
+    t[k] = tr(k, k)
+  end
+  return { sits = sits, songs = songs, current = context, folder = osFolder(), now = now, t = t }
+end
+
+function M.sendMatrix()
+  if guihooks then guihooks.trigger('HashiriyaMusicMatrix', M.matrix()) end
+end
+
+-- Song an/aus für eine Situation
+function M.setAssign(songId, sitId, on)
+  if not SIT[sitId] then return end
+  local song = nil
+  for _, s2 in ipairs(library()) do if s2.id == songId then song = s2 break end end
+  if not song then return end
+  local set = assignOf(song)
+  local copy = {}
+  for k, v in pairs(set) do copy[k] = v end
+  copy[sitId] = on and true or nil
+  local list = {}
+  for _, sdef in ipairs(SITUATIONS) do if copy[sdef.id] then table.insert(list, sdef.id) end end
+  settings().assign = settings().assign or {}
+  settings().assign[songId] = list
+  saveSettings()
+  refreshPlaylist()
+  M.sendMatrix()
+end
+
+-- alle Songs einer Situation an oder aus
+function M.setAllFor(sitId, on)
+  if not SIT[sitId] then return end
+  settings().assign = settings().assign or {}
+  for _, song in ipairs(library()) do
+    local set = assignOf(song)
+    local copy = {}
+    for k, v in pairs(set) do copy[k] = v end
+    copy[sitId] = on and true or nil
+    local list = {}
+    for _, sdef in ipairs(SITUATIONS) do if copy[sdef.id] then table.insert(list, sdef.id) end end
+    settings().assign[song.id] = list
+  end
+  saveSettings()
+  refreshPlaylist()
+  M.sendMatrix()
+end
+
+-- zurück auf die Vorgabe der Mod (alle Songs)
+function M.resetAssign()
+  settings().assign = {}
+  saveSettings()
+  refreshPlaylist()
+  M.sendMatrix()
+end
+
+function M.setSource(id, mode)
+  if not SIT[id] then return end
+  local ok = false
+  for _, v in ipairs(MODES) do if v == mode then ok = true end end
+  if not ok then return end
+  settings().sources[id] = mode
+  saveSettings()
+  refreshPlaylist()
+  M.sendMatrix()
+end
+
 function M.cycleSource(id, dir)
   if not SIT[id] then return end
   local m = modeOf(id)
   local idx = 1
   for i, v in ipairs(MODES) do if v == m then idx = i end end
   idx = (idx - 1 + (tonumber(dir) or 1)) % #MODES + 1
-  settings().sources[id] = MODES[idx]
-  pcall(jsonWriteFile, settingsPath, settings(), true)
-  if context == id or (SIT[context] and SIT[context].fallback and resolveFallback(SIT[context].fallback) == id) then
-    switchTo(context)
-  end
+  M.setSource(id, MODES[idx])
 end
 
 function M.rescan()
@@ -609,11 +780,35 @@ function M.rescan()
   ensureFolders()
   for _, sdef in ipairs(SITUATIONS) do scanOwn(sdef.folder) end
   if context and context ~= 'off' then switchTo(context) end
+  M.sendMatrix()
 end
 
 function M.openFolder()
   ensureFolders()
   pcall(function() Engine.Platform.exploreFolder(ownRoot()) end)
+end
+
+function M.skipAndSend()
+  M.skip()
+  M.sendMatrix()
+end
+
+-- Pausenmenü (Esc) > Reiter "Mods" > "Hashiriya Battle" (wie Beam Turismo, BeamNG 0.40 ui_pause_actions)
+local pauseRegistered = false
+local pauseRetry = 0
+function M.registerPauseButton()
+  local pa = extensions.ui_pause_actions
+  if not pa and extensions.load then
+    pcall(extensions.load, 'ui_pause_actions')
+    pa = extensions.ui_pause_actions
+  end
+  if not pa or not pa.registerModButton then return false end
+  local ok, res = pcall(pa.registerModButton, {
+    id = 'hashiriya-battle', tabId = 'mods', label = 'Hashiriya Battle', icon = 'wrench',
+    componentName = '/ui/ui-vue/mods/hashiriyaBattle/PauseCard.vue',
+  })
+  pauseRegistered = ok and type(res) == 'table' and res.success and true or false
+  return pauseRegistered
 end
 
 -- Credits: alle Stücke mit Titel, Künstler, Lizenz
@@ -648,6 +843,11 @@ end
 
 local function onExtensionUnloaded() onClientEndMission() end
 
+local function onExtensionLoaded() M.registerPauseButton() end
+local function onWorldReadyState(state) if state == 2 then M.registerPauseButton() end end
+
+M.onExtensionLoaded = onExtensionLoaded
+M.onWorldReadyState = onWorldReadyState
 M.onUpdate = onUpdate
 M.onClientEndMission = onClientEndMission
 M.onExtensionUnloaded = onExtensionUnloaded

@@ -62,7 +62,8 @@
 - New music: four AI placeholder songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) play in all situations for now. They are marked as AI in the credits, can be switched off per situation and will be replaced by real tracks. The old Kevin MacLeod tracks are gone.
 - Your own music: put your songs into the hashiriya_musik folder in the BeamNG user folder, sorted by situation (title, day, night, parking area, garage, shop, battle, boss, wanderer, pink slip).
 - The title menu and the new save screen show a tip that your own music gives the best experience.
-- In the Hashiriya menu under Tools > Music settings you choose per situation: mod music, your own music, both or off.
+- In the pause menu under Esc > Mods > Hashiriya Battle you pick for every situation which songs play, mod songs and your own.
+- Music selection in the pause menu: every song, including the AI songs and your own, can be switched on and off per situation. Also per situation the source (both, mod, own, off), next song, open folder, rescan and reset to default.
 - New music situations: parking area (PA), garage and home, battles against leaders and bosses, against wanderers and pink slip.
 - New camera shutter sound for the photo job (camera_digital_shutter).
 - Music can now also play as WAV in full quality: if a WAV with the same name sits next to the OGG, the WAV is played. The title song Daikoku now runs this way in its new version V3.
