@@ -74,6 +74,17 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
 .st.open { color: var(--muted); }
 .st.no { color: var(--bad); border-color: var(--bad); }
 .top { position: fixed; right: 18px; bottom: 18px; background: var(--accent); color: #fff; text-decoration: none; border-radius: 50%; width: 40px; height: 40px; display: grid; place-items: center; font-size: 20px; }
+.flink { text-decoration: none; cursor: pointer; }
+.flink code, .flink .path { border-bottom: 1px dashed var(--accent2); }
+.flink:hover code, .flink:hover .path { border-color: var(--accent); color: var(--accent); }
+.fdir { display: inline-block; color: var(--muted); margin-left: 3px; vertical-align: -1px; line-height: 1; text-decoration: none; }
+.fdir:hover { color: var(--accent); }
+nav label.lm { display: block; margin-top: 10px; font-size: 12px; color: var(--muted); }
+nav label.lm select { width: 100%; margin-top: 3px; padding: 5px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel2); color: var(--text); font-size: 13px; }
+.quick { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 6px 14px; margin: 10px 0; padding: 0; list-style: none; }
+.quick li { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; margin: 0; }
+.quick li b { display: block; font-size: 13px; }
+@media print { .fdir { display: none; } }
 @media (max-width: 860px) {
   .wrap { grid-template-columns: 1fr; }
   nav { position: static; height: auto; }
@@ -86,7 +97,7 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 02.11.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 03.11.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -146,6 +157,13 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
     <a href="#lua">Lua-Dateien im Überblick</a>
   </div>
   <button id="theme">Hell / Dunkel</button>
+  <label class="lm">Datei-Links öffnen
+    <select id="linkmode">
+      <option value="browser">im Browser</option>
+      <option value="explorer">im Explorer (einmal einrichten)</option>
+      <option value="editor">im Editor (einmal einrichten)</option>
+    </select>
+  </label>
 </nav>
 
 <main id="content">
@@ -160,6 +178,17 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
 <p>Diese Seite liegt im Mod-Ordner und wird bei jedem <code>git pull</code> mit aktualisiert. Leg dir diese Adresse als Favorit im Browser ab:</p>
 <pre><code>file:///F:/BeamNG/current/mods/unpacked/Hashiriya-Battle/docs/handbuch.html</code></pre>
 <p>Oben links kannst du suchen: Tipp ein Wort wie <i>Kennzeichen</i> oder <i>Uhrzeit</i>, dann bleiben nur die passenden Kapitel sichtbar.</p>
+<h3 id="dateilinks">Datei-Links: mit einem Klick zur Datei</h3>
+<p>Jeder Datei- und Ordnername im Handbuch ist ein Link (gestrichelt unterstrichen). Ein Klick auf den Namen öffnet die Datei, das kleine Ordner-Symbol dahinter öffnet den Ordner, in dem sie liegt. Fährst du mit der Maus drüber, siehst du den vollen Pfad.</p>
+<p>Das Handbuch erkennt selbst, wo es liegt. Gerade zeigen die Links auf den Mod-Ordner <span class="path nolink" id="linkinfo">F:\BeamNG\current\mods\unpacked\Hashiriya-Battle\</span> und den Userordner <span class="path nolink" id="userinfo">F:\BeamNG\current\</span>.</p>
+<table>
+<tr><th>Links unten "Datei-Links öffnen"</th><th>Was ein Klick macht</th><th>Einrichtung</th></tr>
+<tr><td><b>im Browser</b> (Standard)</td><td>Datei: der Browser zeigt den Inhalt (nur lesen). Ordner: der Browser zeigt die Dateiliste, darin kannst du weiterklicken.</td><td>Keine</td></tr>
+<tr><td><b>im Explorer</b></td><td>Datei: der Windows-Explorer geht auf und die Datei ist markiert. Doppelklick darauf öffnet sie in deinem Programm. Ordner: der Ordner geht im Explorer auf.</td><td rowspan="2">Einmal <span class="path">tools\Handbuch-Links-einrichten.bat</span> doppelklicken</td></tr>
+<tr><td><b>im Editor</b></td><td>Datei: geht direkt in VS Code auf (ohne VS Code im Windows-Editor). Ordner: wie oben im Explorer.</td></tr>
+</table>
+<div class="box warn"><b>Warum es die Einrichtung braucht</b>Ein Browser darf aus Sicherheitsgründen keine Programme wie den Explorer starten. Die Einrichtung meldet dafür bei Windows eine eigene Link-Art <code class="nolink">hashiriya-open:</code> an (nur für deinen Benutzer). Beim ersten Klick fragt der Browser, ob er sie öffnen darf: erlauben, und wenn angeboten "immer erlauben" anhaken. Der Helfer öffnet nur Explorer oder Editor, startet nie eine Datei und reagiert nur auf Pfade im BeamNG-Userordner. Entfernen: in der Eingabeaufforderung <code class="nolink">tools\Handbuch-Links-einrichten.bat entfernen</code>, dann wieder "im Browser" wählen.</div>
+<div class="box tip"><b>Wenn ein Link ins Leere geht</b>Dateien im Userordner wie <code>save.json</code> oder das Log gibt es erst, wenn das Spiel sie einmal geschrieben hat. Im Explorer-Modus geht dann der nächste vorhandene Ordner auf. Öffnest du das Handbuch nicht aus dem Mod-Ordner (z. B. eine Kopie), zeigen die Links auf die festen Pfade unter <span class="path nolink">F:\BeamNG\current\</span>.</div>
 <h3>Häufige Aufgaben</h3>
 <div class="cards">
   <a class="card" href="#builder"><b>Crew, Wanderer, Boss anlegen</b><small>Builder im Spiel, ohne JSON</small></a>
@@ -178,6 +207,21 @@ details.cl h4 { color: var(--accent2); margin: 12px 0 4px; font-size: 15px; }
 <section id="ordner">
 <h2><span class="n">1</span> Ordner und Dateien</h2>
 <p>Der Mod-Ordner auf deinem PC: <span class="path">F:\BeamNG\current\mods\unpacked\Hashiriya-Battle\</span></p>
+<h3 id="schnellzugriff">Schnellzugriff</h3>
+<ul class="quick">
+<li><b>Mod-Ordner</b><span class="path">mods\unpacked\Hashiriya-Battle\</span></li>
+<li><b>Alle Daten-Dateien (JSON)</b><span class="path">lua\ge\extensions\hashiriyaBattle\data\</span></li>
+<li><b>Rivalen, Crews, Wanderer, Bosse</b><span class="path">lua\ge\extensions\hashiriyaBattle\data\rivals.json</span></li>
+<li><b>Startautos und Startgeld</b><span class="path">lua\ge\extensions\hashiriyaBattle\data\cars.json</span></li>
+<li><b>Autohändler</b><span class="path">lua\ge\extensions\hashiriyaBattle\data\dealer.json</span></li>
+<li><b>PA-Gespräche</b><span class="path">lua\ge\extensions\hashiriyaBattle\data\chat.json</span></li>
+<li><b>Eigene Fahrzeug-Configs der Mod</b><span class="path">vehicles\</span></li>
+<li><b>Deine Configs aus dem Spiel (Userordner)</b><span class="path">F:\BeamNG\current\vehicles\</span></li>
+<li><b>Spielstand, Exporte, Builder-Backups</b><span class="path">settings\hashiriya_battle\</span></li>
+<li><b>Mod-Log und Fehlerbericht</b><span class="path">settings\hashiriya_battle\logs\</span></li>
+<li><b>Porträts der Gegner</b><span class="path">art\portraits\</span></li>
+<li><b>Werkzeuge (Release, Generator, Silhouetten)</b><span class="path">tools\</span></li>
+</ul>
 <table>
 <tr><th>Pfad (im Mod-Ordner)</th><th>Was drin ist</th><th>Anfassen?</th></tr>
 <tr><td class="path">lua\ge\extensions\hashiriyaBattle\data\</td><td>Alle Einstellungen und Inhalte als JSON: Gegner, Autos, Händler, Tuning, Zeit, Map-Orte, Texte</td><td>Ja, das ist dein Hauptort</td></tr>
@@ -1578,6 +1622,11 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <details class="cl">
 <summary><b>Alpha 0.9.2</b> <small>Stand 03.11.2026</small></summary>
 <div>
+<h4>Handbuch</h4>
+<ul>
+<li>Jeder Datei- und Ordnername im Handbuch ist jetzt ein Link: Klick öffnet die Datei, das Ordner-Symbol dahinter den Ordner. Neu im Kapitel „Ordner und Dateien“: Schnellzugriff auf die wichtigsten Dateien und Ordner.</li>
+<li>Links wahlweise im Browser, im Explorer oder direkt im Editor öffnen (Explorer/Editor einmal mit tools\Handbuch-Links-einrichten.bat einrichten).</li>
+</ul>
 <h4>Fehler behoben</h4>
 <ul>
 <li>Autos der Fahrer an den PAs (Rivalen und Info-Fahrer) steckten manchmal in einem Auto vom Parkverkehr. Ihre Parkbucht ist jetzt für den Parkverkehr reserviert, und ein Auto, das trotzdem darin landet, wird sofort woandershin gestellt.</li>
@@ -2095,6 +2144,192 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </main>
 </div>
 <a class="top" href="#start" title="Nach oben">↑</a>
+<!-- DATEILISTE-START -->
+<script id="hb-files" type="application/json">[".gitattributes",".gitignore","CHANGELOG.md","CHANGELOG_EN.md","README.md","art/logo/hashiriya-battle-logo-1000.png","art/logo/hashiriya-battle-logo-dark.png","art/logo/hashiriya-battle-logo.png","art/logo/logo-source.html","art/portraits/b_kokuryu.svg","art/portraits/b_mugen.svg","art/portraits/b_shirotora.svg","art/portraits/colors.json","art/portraits/npc/courier_1.svg","art/portraits/npc/courier_2.svg","art/portraits/npc/courier_3.svg","art/portraits/npc/drifter_1.svg","art/portraits/npc/drifter_2.svg","art/portraits/npc/drifter_3.svg","art/portraits/npc/fan_1.svg","art/portraits/npc/fan_2.svg","art/portraits/npc/fan_3.svg","art/portraits/npc/guard_1.svg","art/portraits/npc/guard_2.svg","art/portraits/npc/guard_3.svg","art/portraits/npc/mechanic_1.svg","art/portraits/npc/mechanic_2.svg","art/portraits/npc/mechanic_3.svg","art/portraits/npc/photo_1.svg","art/portraits/npc/photo_2.svg","art/portraits/npc/photo_3.svg","art/portraits/npc/rookie_1.svg","art/portraits/npc/rookie_2.svg","art/portraits/npc/rookie_3.svg","art/portraits/npc/salaryman_1.svg","art/portraits/npc/salaryman_2.svg","art/portraits/npc/salaryman_3.svg","art/portraits/npc/student_1.svg","art/portraits/npc/student_2.svg","art/portraits/npc/student_3.svg","art/portraits/npc/taxi_1.svg","art/portraits/npc/taxi_2.svg","art/portraits/npc/taxi_3.svg","art/portraits/npc/trucker_1.svg","art/portraits/npc/trucker_2.svg","art/portraits/npc/trucker_3.svg","art/portraits/npc/veteran_1.svg","art/portraits/npc/veteran_2.svg","art/portraits/npc/veteran_3.svg","art/portraits/story/genzo.svg","art/portraits/t_akatsuki_1.svg","art/portraits/t_akatsuki_2.svg","art/portraits/t_akatsuki_3.svg","art/portraits/t_akatsuki_4.svg","art/portraits/t_akatsuki_5.svg","art/portraits/t_akatsuki_6.svg","art/portraits/t_akatsuki_7.svg","art/portraits/t_akatsuki_leader.svg","art/portraits/t_bastion_1.svg","art/portraits/t_bastion_2.svg","art/portraits/t_bastion_3.svg","art/portraits/t_bastion_4.svg","art/portraits/t_bastion_5.svg","art/portraits/t_bastion_6.svg","art/portraits/t_bastion_7.svg","art/portraits/t_bastion_leader.svg","art/portraits/t_bolide_1.svg","art/portraits/t_bolide_2.svg","art/portraits/t_bolide_3.svg","art/portraits/t_bolide_4.svg","art/portraits/t_bolide_5.svg","art/portraits/t_bolide_6.svg","art/portraits/t_bolide_7.svg","art/portraits/t_bolide_8.svg","art/portraits/t_bolide_9.svg","art/portraits/t_bolide_leader.svg","art/portraits/t_bxboys_1.svg","art/portraits/t_bxboys_2.svg","art/portraits/t_bxboys_3.svg","art/portraits/t_bxboys_4.svg","art/portraits/t_bxboys_5.svg","art/portraits/t_bxboys_6.svg","art/portraits/t_bxboys_leader.svg","art/portraits/t_diana_1.svg","art/portraits/t_diana_2.svg","art/portraits/t_diana_3.svg","art/portraits/t_diana_4.svg","art/portraits/t_diana_5.svg","art/portraits/t_diana_6.svg","art/portraits/t_diana_leader.svg","art/portraits/t_etkklassik_1.svg","art/portraits/t_etkklassik_10.svg","art/portraits/t_etkklassik_11.svg","art/portraits/t_etkklassik_2.svg","art/portraits/t_etkklassik_3.svg","art/portraits/t_etkklassik_4.svg","art/portraits/t_etkklassik_5.svg","art/portraits/t_etkklassik_6.svg","art/portraits/t_etkklassik_7.svg","art/portraits/t_etkklassik_8.svg","art/portraits/t_etkklassik_9.svg","art/portraits/t_etkklassik_leader.svg","art/portraits/t_etkmodern_1.svg","art/portraits/t_etkmodern_10.svg","art/portraits/t_etkmodern_2.svg","art/portraits/t_etkmodern_3.svg","art/portraits/t_etkmodern_4.svg","art/portraits/t_etkmodern_5.svg","art/portraits/t_etkmodern_6.svg","art/portraits/t_etkmodern_7.svg","art/portraits/t_etkmodern_8.svg","art/portraits/t_etkmodern_9.svg","art/portraits/t_etkmodern_leader.svg","art/portraits/t_hoshikuzu_1.svg","art/portraits/t_hoshikuzu_2.svg","art/portraits/t_hoshikuzu_3.svg","art/portraits/t_hoshikuzu_4.svg","art/portraits/t_hoshikuzu_5.svg","art/portraits/t_hoshikuzu_6.svg","art/portraits/t_hoshikuzu_7.svg","art/portraits/t_hoshikuzu_leader.svg","art/portraits/t_hotrod_1.svg","art/portraits/t_hotrod_2.svg","art/portraits/t_hotrod_3.svg","art/portraits/t_hotrod_4.svg","art/portraits/t_hotrod_5.svg","art/portraits/t_hotrod_6.svg","art/portraits/t_hotrod_7.svg","art/portraits/t_hotrod_8.svg","art/portraits/t_hotrod_9.svg","art/portraits/t_hotrod_leader.svg","art/portraits/t_kasumi_1.svg","art/portraits/t_kasumi_2.svg","art/portraits/t_kasumi_3.svg","art/portraits/t_kasumi_4.svg","art/portraits/t_kasumi_5.svg","art/portraits/t_kasumi_6.svg","art/portraits/t_kasumi_7.svg","art/portraits/t_kasumi_leader.svg","art/portraits/t_kitsune_1.svg","art/portraits/t_kitsune_2.svg","art/portraits/t_kitsune_3.svg","art/portraits/t_kitsune_4.svg","art/portraits/t_kitsune_5.svg","art/portraits/t_kitsune_6.svg","art/portraits/t_kitsune_7.svg","art/portraits/t_kitsune_8.svg","art/portraits/t_kitsune_leader.svg","art/portraits/t_kombi_1.svg","art/portraits/t_kombi_10.svg","art/portraits/t_kombi_11.svg","art/portraits/t_kombi_12.svg","art/portraits/t_kombi_2.svg","art/portraits/t_kombi_3.svg","art/portraits/t_kombi_4.svg","art/portraits/t_kombi_5.svg","art/portraits/t_kombi_6.svg","art/portraits/t_kombi_7.svg","art/portraits/t_kombi_8.svg","art/portraits/t_kombi_9.svg","art/portraits/t_kombi_leader.svg","art/portraits/t_kurogane_1.svg","art/portraits/t_kurogane_2.svg","art/portraits/t_kurogane_3.svg","art/portraits/t_kurogane_4.svg","art/portraits/t_kurogane_5.svg","art/portraits/t_kurogane_6.svg","art/portraits/t_kurogane_leader.svg","art/portraits/t_lantern_1.svg","art/portraits/t_lantern_2.svg","art/portraits/t_lantern_3.svg","art/portraits/t_lantern_4.svg","art/portraits/t_lantern_5.svg","art/portraits/t_lantern_6.svg","art/portraits/t_lantern_7.svg","art/portraits/t_lantern_8.svg","art/portraits/t_lantern_leader.svg","art/portraits/t_muscle73_1.svg","art/portraits/t_muscle73_2.svg","art/portraits/t_muscle73_3.svg","art/portraits/t_muscle73_4.svg","art/portraits/t_muscle73_5.svg","art/portraits/t_muscle73_6.svg","art/portraits/t_muscle73_7.svg","art/portraits/t_muscle73_8.svg","art/portraits/t_muscle73_9.svg","art/portraits/t_muscle73_leader.svg","art/portraits/t_neon_1.svg","art/portraits/t_neon_10.svg","art/portraits/t_neon_11.svg","art/portraits/t_neon_2.svg","art/portraits/t_neon_3.svg","art/portraits/t_neon_4.svg","art/portraits/t_neon_5.svg","art/portraits/t_neon_6.svg","art/portraits/t_neon_7.svg","art/portraits/t_neon_8.svg","art/portraits/t_neon_9.svg","art/portraits/t_neon_leader.svg","art/portraits/t_pocket_1.svg","art/portraits/t_pocket_2.svg","art/portraits/t_pocket_3.svg","art/portraits/t_pocket_4.svg","art/portraits/t_pocket_5.svg","art/portraits/t_pocket_6.svg","art/portraits/t_pocket_7.svg","art/portraits/t_pocket_leader.svg","art/portraits/t_raijin_1.svg","art/portraits/t_raijin_10.svg","art/portraits/t_raijin_11.svg","art/portraits/t_raijin_2.svg","art/portraits/t_raijin_3.svg","art/portraits/t_raijin_4.svg","art/portraits/t_raijin_5.svg","art/portraits/t_raijin_6.svg","art/portraits/t_raijin_7.svg","art/portraits/t_raijin_8.svg","art/portraits/t_raijin_9.svg","art/portraits/t_raijin_leader.svg","art/portraits/t_sbr_1.svg","art/portraits/t_sbr_2.svg","art/portraits/t_sbr_3.svg","art/portraits/t_sbr_4.svg","art/portraits/t_sbr_5.svg","art/portraits/t_sbr_6.svg","art/portraits/t_sbr_7.svg","art/portraits/t_sbr_8.svg","art/portraits/t_sbr_leader.svg","art/portraits/t_scintilla_1.svg","art/portraits/t_scintilla_2.svg","art/portraits/t_scintilla_3.svg","art/portraits/t_scintilla_4.svg","art/portraits/t_scintilla_5.svg","art/portraits/t_scintilla_6.svg","art/portraits/t_scintilla_7.svg","art/portraits/t_scintilla_8.svg","art/portraits/t_scintilla_9.svg","art/portraits/t_scintilla_leader.svg","art/portraits/t_showa_1.svg","art/portraits/t_showa_2.svg","art/portraits/t_showa_3.svg","art/portraits/t_showa_4.svg","art/portraits/t_showa_5.svg","art/portraits/t_showa_6.svg","art/portraits/t_showa_7.svg","art/portraits/t_showa_8.svg","art/portraits/t_showa_9.svg","art/portraits/t_showa_leader.svg","art/portraits/t_sleeper_1.svg","art/portraits/t_sleeper_10.svg","art/portraits/t_sleeper_11.svg","art/portraits/t_sleeper_12.svg","art/portraits/t_sleeper_2.svg","art/portraits/t_sleeper_3.svg","art/portraits/t_sleeper_4.svg","art/portraits/t_sleeper_5.svg","art/portraits/t_sleeper_6.svg","art/portraits/t_sleeper_7.svg","art/portraits/t_sleeper_8.svg","art/portraits/t_sleeper_9.svg","art/portraits/t_sleeper_leader.svg","art/portraits/t_vivace_1.svg","art/portraits/t_vivace_2.svg","art/portraits/t_vivace_3.svg","art/portraits/t_vivace_4.svg","art/portraits/t_vivace_5.svg","art/portraits/t_vivace_6.svg","art/portraits/t_vivace_leader.svg","art/portraits/t_yamagumi_1.svg","art/portraits/t_yamagumi_10.svg","art/portraits/t_yamagumi_11.svg","art/portraits/t_yamagumi_12.svg","art/portraits/t_yamagumi_2.svg","art/portraits/t_yamagumi_3.svg","art/portraits/t_yamagumi_4.svg","art/portraits/t_yamagumi_5.svg","art/portraits/t_yamagumi_6.svg","art/portraits/t_yamagumi_7.svg","art/portraits/t_yamagumi_8.svg","art/portraits/t_yamagumi_9.svg","art/portraits/t_yamagumi_leader.svg","art/portraits/t_yokota_1.svg","art/portraits/t_yokota_2.svg","art/portraits/t_yokota_3.svg","art/portraits/t_yokota_4.svg","art/portraits/t_yokota_5.svg","art/portraits/t_yokota_6.svg","art/portraits/t_yokota_7.svg","art/portraits/t_yokota_8.svg","art/portraits/t_yokota_leader.svg","art/portraits/t_zangyo_1.svg","art/portraits/t_zangyo_10.svg","art/portraits/t_zangyo_11.svg","art/portraits/t_zangyo_2.svg","art/portraits/t_zangyo_3.svg","art/portraits/t_zangyo_4.svg","art/portraits/t_zangyo_5.svg","art/portraits/t_zangyo_6.svg","art/portraits/t_zangyo_7.svg","art/portraits/t_zangyo_8.svg","art/portraits/t_zangyo_9.svg","art/portraits/t_zangyo_leader.svg","art/portraits/w_afterburner.svg","art/portraits/w_alex_zockt.svg","art/portraits/w_bakuon.svg","art/portraits/w_benikaze.svg","art/portraits/w_bigblock.svg","art/portraits/w_corsa.svg","art/portraits/w_doc.svg","art/portraits/w_dragvan.svg","art/portraits/w_dtm.svg","art/portraits/w_erbstueck.svg","art/portraits/w_familie.svg","art/portraits/w_fink.svg","art/portraits/w_fukurou.svg","art/portraits/w_gruppe5.svg","art/portraits/w_hakone.svg","art/portraits/w_hellcat.svg","art/portraits/w_henry.svg","art/portraits/w_hotaru.svg","art/portraits/w_kaminari.svg","art/portraits/w_kazekiri.svg","art/portraits/w_kemuri.svg","art/portraits/w_kemuri2.svg","art/portraits/w_kofun.svg","art/portraits/w_marshal.svg","art/portraits/w_mont.svg","art/portraits/w_nitro.svg","art/portraits/w_noir.svg","art/portraits/w_noodle.svg","art/portraits/w_nurburg.svg","art/portraits/w_ojisan.svg","art/portraits/w_oval.svg","art/portraits/w_pastor.svg","art/portraits/w_rallye.svg","art/portraits/w_rentner.svg","art/portraits/w_rodeo.svg","art/portraits/w_shinkiro.svg","art/portraits/w_slider.svg","art/portraits/w_tasti.svg","art/portraits/w_tetsujin.svg","art/portraits/w_tractor.svg","art/portraits/w_tsukiyomi.svg","art/portraits/w_viper.svg","art/portraits/w_wheelie.svg","art/portraits/w_yurei.svg","art/sound/hashiriya/music/LIZENZ.txt","art/sound/hashiriya/music/daikoku.ogg","art/sound/hashiriya/music/daikoku_loop.ogg","art/sound/hashiriya/music/km_airport_lounge.ogg","art/sound/hashiriya/music/km_bossa_antigua.ogg","art/sound/hashiriya/music/km_cool_vibes.ogg","art/sound/hashiriya/music/km_cut_and_run.ogg","art/sound/hashiriya/music/km_easy_lemon.ogg","art/sound/hashiriya/music/km_exhilarate.ogg","art/sound/hashiriya/music/km_exit_the_premises.ogg","art/sound/hashiriya/music/km_funkorama.ogg","art/sound/hashiriya/music/km_funky_chunk.ogg","art/sound/hashiriya/music/km_groove_grove.ogg","art/sound/hashiriya/music/km_hep_cats.ogg","art/sound/hashiriya/music/km_lobby_time.ogg","art/sound/hashiriya/music/km_local_forecast.ogg","art/sound/hashiriya/music/km_movement_prop.ogg","art/sound/hashiriya/music/km_ouroboros.ogg","art/sound/hashiriya/music/km_raving_energy.ogg","art/sound/hashiriya/music/km_rhinoceros.ogg","art/sound/hashiriya/music/km_volatile_reaction.ogg","art/sound/hashiriya/sfx/photo.ogg","art/tutorial/LIESMICH.txt","art/tutorial/page1.png","art/tutorial/page2.png","art/tutorial/page3.png","art/tutorial/page4.png","art/tutorial/page5.png","art/tutorial/page6.png","art/tutorial/page7.png","docs/handbuch.html","lua/ge/extensions/core/input/actions/input_actions_hashiriya.json","lua/ge/extensions/hashiriyaBattle/battle.lua","lua/ge/extensions/hashiriyaBattle/builder.lua","lua/ge/extensions/hashiriyaBattle/career.lua","lua/ge/extensions/hashiriyaBattle/condition.lua","lua/ge/extensions/hashiriyaBattle/core.lua","lua/ge/extensions/hashiriyaBattle/damage.lua","lua/ge/extensions/hashiriyaBattle/data/build.json","lua/ge/extensions/hashiriyaBattle/data/cars.json","lua/ge/extensions/hashiriyaBattle/data/chat.json","lua/ge/extensions/hashiriyaBattle/data/credits.json","lua/ge/extensions/hashiriyaBattle/data/dealer.json","lua/ge/extensions/hashiriyaBattle/data/driver.json","lua/ge/extensions/hashiriyaBattle/data/jobs.json","lua/ge/extensions/hashiriyaBattle/data/lang/de.json","lua/ge/extensions/hashiriyaBattle/data/lang/en.json","lua/ge/extensions/hashiriyaBattle/data/maps/_beispiel.json","lua/ge/extensions/hashiriyaBattle/data/maps/c1.json","lua/ge/extensions/hashiriyaBattle/data/music.json","lua/ge/extensions/hashiriyaBattle/data/rivals.json","lua/ge/extensions/hashiriyaBattle/data/sounds.json","lua/ge/extensions/hashiriyaBattle/data/story.json","lua/ge/extensions/hashiriyaBattle/data/style.json","lua/ge/extensions/hashiriyaBattle/data/tuning.json","lua/ge/extensions/hashiriyaBattle/data/tutorial.json","lua/ge/extensions/hashiriyaBattle/data/world.json","lua/ge/extensions/hashiriyaBattle/dealer.lua","lua/ge/extensions/hashiriyaBattle/devtools.lua","lua/ge/extensions/hashiriyaBattle/driver.lua","lua/ge/extensions/hashiriyaBattle/economy.lua","lua/ge/extensions/hashiriyaBattle/fuel.lua","lua/ge/extensions/hashiriyaBattle/home.lua","lua/ge/extensions/hashiriyaBattle/jobs.lua","lua/ge/extensions/hashiriyaBattle/logger.lua","lua/ge/extensions/hashiriyaBattle/music.lua","lua/ge/extensions/hashiriyaBattle/parking.lua","lua/ge/extensions/hashiriyaBattle/pinkslip.lua","lua/ge/extensions/hashiriyaBattle/plates.lua","lua/ge/extensions/hashiriyaBattle/progress.lua","lua/ge/extensions/hashiriyaBattle/release.lua","lua/ge/extensions/hashiriyaBattle/rivals.lua","lua/ge/extensions/hashiriyaBattle/setup.lua","lua/ge/extensions/hashiriyaBattle/shop.lua","lua/ge/extensions/hashiriyaBattle/story.lua","lua/ge/extensions/hashiriyaBattle/style.lua","lua/ge/extensions/hashiriyaBattle/talk.lua","lua/vehicle/extensions/hashiriyaDriver.lua","scripts/hashiriya_battle/modScript.lua","settings/inputmaps/keyboard_hashiriya.json","settings/ui_apps/originalLayouts/default/hashiriyaBattle.uilayout.json","settings/ui_apps/originalLayouts/default/hashiriyaShop.uilayout.json","settings/ui_apps/originalLayouts/default/hashiriyaTitle.uilayout.json","tools/Handbuch-Links-einrichten.bat","tools/Release-Werkzeug.bat","tools/audio/.gitignore","tools/audio/README.md","tools/audio/music/midnight_line.mid","tools/audio/music/sunlit_grid.mid","tools/audio/music.py","tools/audio/out/music/midnight_line.ogg","tools/audio/out/music/sunlit_grid.ogg","tools/audio/out/sfx/back.ogg","tools/audio/out/sfx/buy.ogg","tools/audio/out/sfx/challenge.ogg","tools/audio/out/sfx/click.ogg","tools/audio/out/sfx/countdown.ogg","tools/audio/out/sfx/denied.ogg","tools/audio/out/sfx/go.ogg","tools/audio/out/sfx/hover.ogg","tools/audio/out/sfx/info.ogg","tools/audio/out/sfx/levelUp.ogg","tools/audio/out/sfx/lose.ogg","tools/audio/out/sfx/money.ogg","tools/audio/out/sfx/photo.ogg","tools/audio/out/sfx/sp_hit.ogg","tools/audio/out/sfx/sp_low.ogg","tools/audio/out/sfx/tab.ogg","tools/audio/out/sfx/talk.ogg","tools/audio/out/sfx/terminal.ogg","tools/audio/out/sfx/unlock.ogg","tools/audio/out/sfx/win.ogg","tools/audio/sfx.py","tools/community/build_form_lists.py","tools/community/import_wanderer.py","tools/community/wanderer-formular.gs","tools/driver-sim/run.py","tools/driver-sim/sim.lua","tools/generator/base/chat.json","tools/generator/base/rivals.json","tools/generator/build.py","tools/generator/cfg/marks.json","tools/generator/chat.py","tools/generator/crews_a.py","tools/generator/crews_b.py","tools/generator/crews_c.py","tools/generator/fixes.py","tools/generator/lines_1.py","tools/generator/lines_2.py","tools/generator/lines_3.py","tools/generator/lines_4.py","tools/generator/lore.py","tools/generator/protect.py","tools/generator/wanderers.py","tools/handbuch-links.ps1","tools/handbuch_sync.py","tools/mod_info/banner.jpg","tools/mod_info/icon.jpg","tools/mod_info/info.json","tools/portraits/export_npc_portraits.js","tools/portraits/export_portraits.js","tools/release-stubs/HashiriyaBuilder/app.js","tools/release-stubs/HashiriyaBuilder/app.json","tools/release-stubs/HashiriyaDev/app.js","tools/release-stubs/HashiriyaDev/app.json","tools/release-werkzeug.ps1","tools/roadmap.json","tools/silhouette/build_data.py","tools/silhouette/rivals_data.js","tools/silhouette/silhouetten.html","tools/silhouette/vc/.gitignore","tools/silhouette/vc/build_tool.py","tools/silhouette/vc/core.py","tools/silhouette/vc/make.py","tools/silhouette/vc/out/katalog.svg","tools/silhouette/vc/out/katalog_steps.json","tools/silhouette/vc/out/muster_00.svg","tools/silhouette/vc/out/muster_00_steps.json","tools/silhouette/vc/out/muster_01.svg","tools/silhouette/vc/out/muster_01_steps.json","tools/silhouette/vc/out/muster_02.svg","tools/silhouette/vc/out/muster_02_steps.json","tools/silhouette/vc/out/muster_03.svg","tools/silhouette/vc/out/muster_03_steps.json","tools/silhouette/vc/out/muster_04.svg","tools/silhouette/vc/out/muster_04_steps.json","tools/silhouette/vc/out/muster_05.svg","tools/silhouette/vc/out/muster_05_steps.json","tools/silhouette/vc/out/muster_06.svg","tools/silhouette/vc/out/muster_06_steps.json","tools/silhouette/vc/out/muster_07.svg","tools/silhouette/vc/out/muster_07_steps.json","tools/silhouette/vc/out/muster_08.svg","tools/silhouette/vc/out/muster_08_steps.json","tools/silhouette/vc/out/muster_09.svg","tools/silhouette/vc/out/muster_09_steps.json","tools/silhouette/vc/out/muster_10.svg","tools/silhouette/vc/out/muster_10_steps.json","tools/silhouette/vc/out/muster_11.svg","tools/silhouette/vc/out/muster_11_steps.json","tools/silhouette/vc/out/muster_specs.json","tools/silhouette/vc/out/portrait_specs.json","tools/silhouette/vc/parts_body.py","tools/silhouette/vc/parts_head.py","tools/silhouette/vc/rivals_v2.py","tools/silhouette/vc/tool_template.html","ui/modules/apps/HashiriyaBoost/app.js","ui/modules/apps/HashiriyaBoost/app.json","ui/modules/apps/HashiriyaBuilder/app.html","ui/modules/apps/HashiriyaBuilder/app.js","ui/modules/apps/HashiriyaBuilder/app.json","ui/modules/apps/HashiriyaDev/app.js","ui/modules/apps/HashiriyaDev/app.json","ui/modules/apps/HashiriyaMenu/app.js","ui/modules/apps/HashiriyaMenu/app.json","ui/modules/apps/HashiriyaMinimap/app.js","ui/modules/apps/HashiriyaMinimap/app.json","ui/modules/apps/HashiriyaPowertrain/app.js","ui/modules/apps/HashiriyaPowertrain/app.json","ui/modules/apps/HashiriyaSpHud/app.js","ui/modules/apps/HashiriyaSpHud/app.json","ui/modules/apps/HashiriyaStatus/app.js","ui/modules/apps/HashiriyaStatus/app.json","ui/modules/apps/HashiriyaTacho/app.js","ui/modules/apps/HashiriyaTacho/app.json","ui/modules/apps/HashiriyaTalk/app.js","ui/modules/apps/HashiriyaTalk/app.json","ui/modules/apps/HashiriyaTerminal/app.js","ui/modules/apps/HashiriyaTerminal/app.json","ui/modules/apps/HashiriyaTitle/app.js","ui/modules/apps/HashiriyaTitle/app.json","ui/modules/apps/HashiriyaUnlock/app.js","ui/modules/apps/HashiriyaUnlock/app.json","ui/modules/apps/HashiriyaUtility/app.js","ui/modules/apps/HashiriyaUtility/app.json","ui/ui-vue/mods/hashiriyaBattle/assets/icon.png","ui/ui-vue/mods/hashiriyaBattle/index.js","vehicles/bx/hashiriya_wanderer_lxz.jpg","vehicles/bx/hashiriya_wanderer_lxz.pc","vehicles/bx/info_hashiriya_wanderer_lxz.json","vehicles/etki/hashiriya_wanderer_henry.jpg","vehicles/etki/hashiriya_wanderer_henry.pc","vehicles/etki/info_hashiriya_wanderer_henry.json"]</script>
+<!-- DATEILISTE-ENDE -->
+<script>
+/* Datei-Links: macht jeden Datei- und Ordnernamen im Handbuch klickbar.
+   Grundlage ist die Dateiliste oben (tools/handbuch_sync.py schreibt sie neu).
+   Mod-Ordner und Userordner werden aus dem Ort dieser Seite abgeleitet. */
+(function () {
+  var listEl = document.getElementById('hb-files');
+  var FILES = [];
+  try { FILES = JSON.parse(listEl ? listEl.textContent : '[]'); } catch (e) {}
+  var fileSet = {}, dirSet = {}, byName = {};
+  FILES.forEach(function (f) {
+    fileSet[f.toLowerCase()] = f;
+    var parts = f.split('/');
+    for (var i = 1; i < parts.length; i++) {
+      var d = parts.slice(0, i).join('/');
+      dirSet[d.toLowerCase()] = d;
+    }
+    var n = parts[parts.length - 1].toLowerCase();
+    (byName[n] = byName[n] || []).push(f);
+  });
+
+  var MOD = 'F:/BeamNG/current/mods/unpacked/Hashiriya-Battle/';
+  var USERDIR = 'F:/BeamNG/current/';
+  if (location.protocol === 'file:') {
+    var here = decodeURIComponent(location.pathname).replace(/^\/(?=[A-Za-z]:)/, '');
+    var m = here.match(/^(.*\/mods\/unpacked\/[^\/]+\/)docs\/handbuch\.html$/i);
+    if (m) { MOD = m[1]; USERDIR = m[1].replace(/mods\/unpacked\/[^\/]+\/$/i, ''); }
+  }
+  var DATA = 'lua/ge/extensions/hashiriyaBattle/data/';
+  var USERFILES = {
+    'save.json': 'settings/hashiriya_battle/save.json',
+    'save_alt.json': 'settings/hashiriya_battle/',
+    'hashiriya.log': 'settings/hashiriya_battle/logs/hashiriya.log',
+    'bugreport.txt': 'settings/hashiriya_battle/logs/bugreport.txt',
+    'config_dump.json': 'settings/hashiriya_battle/config_dump.json',
+    'dev_places.json': 'settings/hashiriya_battle/dev_places.json',
+    'captured_positions.json': 'settings/hashiriya_battle/captured_positions.json',
+    'title_camera.json': 'settings/hashiriya_battle/title_camera.json',
+    'beamng.log': 'beamng.log',
+    'logs/': 'settings/hashiriya_battle/logs/'
+  };
+  var USERPREFIX = /^(settings\/hashiriya_battle(\/|$)|settings\/ui_apps\/layouts(\/|$)|beamng\.log$|hashiriya_tools(\/|$)|mods\/?$)/i;
+
+  function pick(cands) {
+    if (!cands || !cands.length) return null;
+    if (cands.length === 1) return cands[0];
+    var d = cands.filter(function (c) { return (c + '/').indexOf(DATA) === 0; });
+    if (d.length === 1) return d[0];
+    var nb = cands.filter(function (c) { return c.indexOf('tools/generator/base/') !== 0; });
+    return nb.length === 1 ? nb[0] : null;
+  }
+  function suffix(rel, isDir) {
+    var low = '/' + rel.toLowerCase(), hits = [];
+    var src = isDir ? dirSet : fileSet;
+    for (var k in src) if (('/' + k).slice(-low.length) === low) hits.push(src[k]);
+    return pick(hits);
+  }
+  /* Text -> {abs: 'F:/...', dir: true/false} oder null */
+  function resolve(text) {
+    var t = text.replace(/&lt;/g, '<').trim().replace(/^["']|["']$/g, '').replace(/\\/g, '/');
+    if (!t || t.length > 200 || /\n/.test(t)) return null;
+    if (/^file:\/\//i.test(t)) t = t.replace(/^file:\/\/\/?/i, '');
+    if (/\s/.test(t)) {                       // Befehl: erstes Wort mit Pfad nehmen
+      var toks = t.split(/\s+/);
+      for (var i = 0; i < toks.length; i++) {
+        if (/[\/]/.test(toks[i]) && /\w/.test(toks[i])) { var r = resolve(toks[i]); if (r) return r; }
+      }
+      return null;
+    }
+    var cut = t.search(/[<*%]/);              // Platzhalter: bis zum Ordner davor
+    var dir = /\/$/.test(t);
+    if (cut >= 0) {
+      t = t.slice(0, cut); t = t.slice(0, t.lastIndexOf('/') + 1); dir = true;
+      if (!t) return null;
+    }
+    var rel = t.replace(/\/+$/, '').replace(/^\/(?![A-Za-z]:)/, '');
+    if (/^[A-Za-z]:\//.test(t)) return { abs: t, dir: dir };
+    if (!rel || rel === '.' || !/[A-Za-z]/.test(rel)) return null;
+    if (!dir && !/[\/.]/.test(rel) && !/^mods$/i.test(rel)) return null;
+    var low = rel.toLowerCase();
+    if (/^mods\/unpacked\/hashiriya-battle(\/|$)/.test(low)) {
+      rel = rel.slice(31); low = rel.toLowerCase();
+      if (!rel) return { abs: MOD, dir: true };
+    }
+    if (!dir && fileSet[low]) return { abs: MOD + fileSet[low], dir: false };
+    if (dirSet[low]) return { abs: MOD + dirSet[low] + '/', dir: true };
+    if (USERFILES[low + (dir ? '/' : '')]) { var u = USERFILES[low + (dir ? '/' : '')]; return { abs: USERDIR + u, dir: /\/$/.test(u) }; }
+    if (USERPREFIX.test(rel)) return { abs: USERDIR + rel + (dir ? '/' : ''), dir: dir };
+    if (/^logs\//i.test(rel)) return { abs: USERDIR + 'settings/hashiriya_battle/' + rel + (dir ? '/' : ''), dir: dir };
+    if (rel.indexOf('/') < 0 && !dir) {
+      if (!/\.[a-z0-9]+$/i.test(rel)) return null;
+      var c = pick(byName[low]);
+      return c ? { abs: MOD + c, dir: false } : null;
+    }
+    var s = dir ? suffix(rel, true) : (suffix(rel, false) || suffix(rel, true));
+    if (s) return { abs: MOD + s + (dirSet[s.toLowerCase()] ? '/' : ''), dir: !!dirSet[s.toLowerCase()] };
+    if (dir && /^data(\/|$)/i.test(rel)) return { abs: MOD + DATA + rel.slice(5) + '/', dir: true };
+    if (/^(tools|art)\//i.test(rel)) {        // Datei entsteht erst auf deinem PC oder ist ein Beispiel: Ordner davor
+      var up = rel.split('/');
+      while (up.length > 1) { up.pop(); var k = up.join('/').toLowerCase(); if (dirSet[k]) return { abs: MOD + dirSet[k] + '/', dir: true }; }
+    }
+    return null;
+  }
+
+  var mode = 'browser';
+  try { mode = localStorage.getItem('hb-linkmode') || 'browser'; } catch (e) {}
+  function winPath(abs) { return abs.replace(/\//g, '\\'); }
+  function parentOf(abs) { return abs.replace(/[^\/]+\/?$/, ''); }
+  function href(abs, dir) {
+    if (mode !== 'browser') {
+      return 'hashiriya-open:' + (mode === 'editor' && !dir ? 'editor/' : 'zeigen/') + encodeURIComponent(abs);
+    }
+    return 'file:///' + encodeURI(abs).replace(/#/g, '%23').replace(/\?/g, '%3F');
+  }
+  var FOLDER = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M1.5 3A1.5 1.5 0 0 1 3 1.5h3.1l1.6 1.6H13A1.5 1.5 0 0 1 14.5 4.6v7.9A1.5 1.5 0 0 1 13 14H3a1.5 1.5 0 0 1-1.5-1.5z"/></svg>';
+  var made = [];
+  function link(el, r) {
+    var a = document.createElement('a');
+    a.className = 'flink';
+    a.dataset.abs = r.abs; a.dataset.dir = r.dir ? '1' : '';
+    el.parentNode.insertBefore(a, el);
+    a.appendChild(el);
+    made.push(a);
+    if (!r.dir) {
+      var f = document.createElement('a');
+      f.className = 'fdir';
+      f.dataset.abs = parentOf(r.abs); f.dataset.dir = '1';
+      f.innerHTML = FOLDER;
+      a.parentNode.insertBefore(f, a.nextSibling);
+      made.push(f);
+    }
+  }
+  function apply() {
+    made.forEach(function (a) {
+      var dir = !!a.dataset.dir;
+      a.href = href(a.dataset.abs, dir);
+      var w = winPath(a.dataset.abs);
+      a.title = a.classList.contains('fdir') ? 'Ordner öffnen: ' + w
+        : (dir ? 'Ordner öffnen: ' : (mode === 'editor' ? 'Im Editor öffnen: ' : mode === 'explorer' ? 'Im Explorer zeigen: ' : 'Datei öffnen: ')) + w;
+    });
+  }
+  var els = document.querySelectorAll('main code, main .path, nav .path');
+  Array.prototype.forEach.call(els, function (el) {
+    if (el.closest('a, pre, .nolink') || el.querySelector('*')) return;
+    if (/^T[DH]$/.test(el.tagName)) {                              // Tabellenzelle: Inhalt einpacken
+      var inner = document.createElement('span');
+      inner.textContent = el.textContent;
+      if (el.classList.contains('path')) { inner.className = 'path'; el.classList.remove('path'); }
+      el.textContent = '';
+      el.appendChild(inner);
+      el = inner;
+    }
+    var parts = el.textContent.split(/,\s+/);
+    if (parts.length > 1 && el.classList.contains('path')) {       // "CHANGELOG.md, README.md"
+      el.textContent = '';
+      parts.forEach(function (p, i) {
+        if (i) el.appendChild(document.createTextNode(', '));
+        var s = document.createElement('span');
+        s.textContent = p;
+        el.appendChild(s);
+        var r = resolve(p);
+        if (r) link(s, r);
+      });
+      return;
+    }
+    var r = resolve(el.textContent);
+    if (r) link(el, r);
+  });
+  var sel = document.getElementById('linkmode');
+  if (sel) {
+    sel.value = mode;
+    sel.onchange = function () {
+      mode = sel.value;
+      try { localStorage.setItem('hb-linkmode', mode); } catch (e) {}
+      apply();
+    };
+  }
+  apply();
+  var info = document.getElementById('linkinfo');
+  if (info) info.textContent = winPath(MOD);
+  var uinfo = document.getElementById('userinfo');
+  if (uinfo) uinfo.textContent = winPath(USERDIR);
+})();
+</script>
 <script>
 (function () {
   var root = document.documentElement;
