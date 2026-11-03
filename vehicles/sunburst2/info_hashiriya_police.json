@@ -1,0 +1,14 @@
+{
+  "Body Style":"Sedan",
+  "Config Type":"Police",
+  "Configuration":"hashiriya_police",
+  "InsuranceClass":"dailyDriver",
+  "Value":32900,
+  "defaultMultiPaintSetup":{
+    "name":"hashiriya_police Multi Paint Setup",
+    "paint1":"Silica White",
+    "paint2":"Silica White",
+    "paint3":"Silica White"
+  },
+  "vehicleSelectorSubGroup":"vehiclesData.etk800.844_150_A.vehicleSelectorSubGroup"
+}

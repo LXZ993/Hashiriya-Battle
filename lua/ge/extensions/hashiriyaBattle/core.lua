@@ -276,16 +276,65 @@ end
 -- (cars.json: trafficGroup), sonst den normalen BeamNG-Verkehr.
 local trafficStarted = false
 
-local function trafficGroup()
-  local path = M.carsData and M.carsData.trafficGroup
+-- Alle Einträge der Agent-Gruppe (cars.json trafficGroup) plus trafficExtraConfigs (Configs, die Agent nicht in der
+-- Gruppe hat). Gewicht = Population der Config (info_*.json), geparkt populationParked, falls angegeben.
+local function trafficPool(parked)
+  local cd = M.carsData or {}
+  local path = cd.trafficGroup
   if not path or path == '' then return nil end
   local g = jsonReadFile(path)
   local list = g and g.data
   if type(list) ~= 'table' or not list[1] then return nil end
-  -- nur Autos, deren Modell es gibt (Agent-Mod deaktiviert -> Vanilla-Verkehr)
-  local okM, m = pcall(core_vehicles.getModel, list[1].model)
-  if not okM or not m or not m.model then return nil end
-  return list
+  local entries = {}
+  for _, e in ipairs(list) do table.insert(entries, e) end
+  for _, e in ipairs(cd.trafficExtraConfigs or {}) do table.insert(entries, e) end
+  local skip = {}
+  for _, c in ipairs(cd.trafficSkipConfigs or {}) do skip[c] = true end
+  local pool, models, seen = {}, {}, {}
+  for _, e in ipairs(entries) do
+    if e.model and e.config and not skip[e.config] and not seen[e.model .. '/' .. e.config] then
+      seen[e.model .. '/' .. e.config] = true
+      if models[e.model] == nil then
+        local okM, m = pcall(core_vehicles.getModel, e.model)
+        models[e.model] = (okM and m and type(m.configs) == 'table') and m.configs or false
+      end
+      local info = models[e.model] and models[e.model][e.config]
+      if info then -- nur Configs, die es gibt (Agent-Mod deaktiviert -> Vanilla-Verkehr)
+        local w = tonumber(e.population) or tonumber(info.Population) or 1000
+        if parked and e.populationParked then w = tonumber(e.populationParked) or w end
+        if info.isLarge == true or info.isLarge == 'true' then w = 0 end -- Busse/Lkw wie bei Agent nicht im Verkehr
+        if w > 0 then table.insert(pool, { model = e.model, config = e.config, paintName = e.paintName or 'random', w = w }) end
+      end
+    end
+  end
+  if not pool[1] then return nil end
+  return pool
+end
+
+-- Liste mit genau amount Autos ziehen: nach Population gewichtet, aber jede schon gezogene Config wird seltener
+-- (wie Agents Traffic Tool), damit möglichst viele verschiedene Autos unterwegs sind.
+local function buildTrafficList(pool, amount)
+  local repeatFactor = tonumber((M.carsData or {}).trafficRepeatPenalty) or 4
+  local used, out = {}, {}
+  for _ = 1, amount do
+    local total = 0
+    for _, e in ipairs(pool) do total = total + e.w / (1 + (used[e] or 0) * repeatFactor) end
+    local r, pick = math.random() * total, pool[#pool]
+    for _, e in ipairs(pool) do
+      r = r - e.w / (1 + (used[e] or 0) * repeatFactor)
+      if r <= 0 then pick = e; break end
+    end
+    used[pick] = (used[pick] or 0) + 1
+    table.insert(out, { model = pick.model, config = pick.config, paintName = pick.paintName })
+  end
+  -- mischen, damit die seltenen Autos nicht alle am Ende spawnen
+  for i = #out, 2, -1 do
+    local j = math.random(1, i)
+    out[i], out[j] = out[j], out[i]
+  end
+  local kinds = 0
+  for _ in pairs(used) do kinds = kinds + 1 end
+  return out, kinds
 end
 
 -- Lack-Bibliothek von BeamNG laden: sie entsteht erst beim ersten Fahrzeug-Spawn. Im Titelbildschirm direkt nach
@@ -314,7 +363,7 @@ function M.startTraffic()
   local amount = M.carsData and tonumber(M.carsData.trafficAmount) or -1
   local parked = M.carsData and tonumber(M.carsData.parkedAmount) or -1
   local tOpts, pOpts = { police = false }, {}
-  local group = trafficGroup()
+  local pool = trafficPool(false)
   local n = amount
   if n < 0 then
     local okA, ideal = pcall(tr.getIdealSpawnAmount, nil, true)
@@ -328,16 +377,24 @@ function M.startTraffic()
   end
   M.trafficTotal = n -- volle Menge (tagsüber); nachts fahren davon weniger (trafficByHour in world.json)
   M.trafficActive = nil
-  if group then
-    local ms = rawget(_G, 'core_multiSpawn') or extensions.core_multiSpawn
-    local okF, fitted = pcall(function() return ms and ms.fitGroup and ms.fitGroup(group, n) end)
-    tOpts.vehGroup = okF and fitted or group
-    pOpts.vehGroup = group
+  -- Pool: zusätzlich versteckte Autos, die BeamNG nach und nach gegen die fahrenden tauscht (mehr Abwechslung).
+  -- Aktiv sind trotzdem nur n (updateTrafficDensity setzt die Menge).
+  local spawnN = n
+  if pool then
+    spawnN = n + math.max(0, tonumber(M.carsData.trafficPoolExtra) or 0)
+    local list, kinds = buildTrafficList(pool, spawnN)
+    tOpts.vehGroup = list
+    local pp = trafficPool(true) or pool
+    local pn = parked
+    if pn < 0 then pn = tonumber(M.carsData.parkedListSize) or 60 end
+    local plist, pkinds = buildTrafficList(pp, math.max(pn, 1))
+    pOpts.vehGroup = plist
+    log('I', logTag, string.format('Agent Traffic JP: %d Configs verfügbar, fahrend %d Autos (%d aktiv) aus %d Configs, geparkt %d verschiedene', #pool, spawnN, n, kinds, pkinds))
   end
-  local ok, err = pcall(tr.setupTrafficHelper, n, tOpts, parked, pOpts)
+  local ok, err = pcall(tr.setupTrafficHelper, spawnN, tOpts, parked, pOpts)
   if ok then
     trafficRetry, trafficTries = nil, 0
-    log('I', logTag, 'Verkehr gestartet' .. (group and ' (Agent Traffic JP)' or ''))
+    log('I', logTag, 'Verkehr gestartet' .. (pool and ' (Agent Traffic JP)' or ''))
   else
     log('W', logTag, 'Verkehr starten fehlgeschlagen: ' .. tostring(err))
     -- gleich noch mal versuchen (höchstens 5-mal), sonst bleibt der Titelbildschirm leer
@@ -372,8 +429,12 @@ local function updateTrafficDensity(dt)
   if type(byHour) ~= 'table' or not h then return end
   local pct = tonumber(byHour[math.floor(h) % 24 + 1]) or 100
   local target = math.max(1, math.floor(M.trafficTotal * pct / 100 + 0.5))
-  if target == M.trafficActive then return end
   local tr = rawget(_G, 'gameplay_traffic')
+  if target == M.trafficActive then
+    -- Pool-Autos kommen erst nach dem ersten Setzen dazu: sind mehr aktiv als gewollt, nochmal setzen
+    local okN, active = pcall(function() return tr and tr.getNumOfTraffic and tr.getNumOfTraffic(true) end)
+    if not okN or not tonumber(active) or tonumber(active) <= target then return end
+  end
   if not tr or not tr.setActiveAmount then
     if not trafficWarned then trafficWarned = true; log('W', logTag, 'gameplay_traffic.setActiveAmount fehlt, Verkehr bleibt konstant') end
     return

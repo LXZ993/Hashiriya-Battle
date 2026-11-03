@@ -1,0 +1,13 @@
+{
+  "Config Type":"Factory",
+  "Configuration":"hashiriya_taxi_gekko",
+  "Population":5000,
+  "Value":27700,
+  "defaultMultiPaintSetup":{
+    "name":"hashiriya_taxi_gekko Multi Paint Setup",
+    "paint1":"Pleasant Blue",
+    "paint2":"Pleasant Blue",
+    "paint3":"Pleasant Blue"
+  },
+  "vehicleSelectorSubGroup":"vehiclesData.autobello.110_m.vehicleSelectorSubGroup"
+}

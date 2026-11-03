@@ -1,5 +1,5 @@
 {
-  "_hinweis": "PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader (wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet. fact = Wissen über Japan, Tokio, den Shutoko und die Szene (topic = Thema fürs Label, map = nur auf dieser Karte, place = nur an PAs, deren Name das enthält, text = erster Satz, lines = weitere Sätze der Geschichte). more = Überleitung, wenn man jemanden nochmal anspricht und er noch Wissen hat. Neue Wissens-Texte am besten in tools/generator/lore.py eintragen.",
+  "_hinweis": "PA-Gespräche (System: talk.lua, Einstellungen unter pa). speakers = allgemeine Figuren an den Parkplätzen (figur, night/day = wie oft nachts/tagsüber, cars = Autos, match = Config-Name enthält, config = genau diese Config (Dateiname ohne .pc, z. B. aus Agent Traffic JP: model agent_traffic_jp2), fallback = Ersatzauto, nur wenn keins der anderen installiert ist, look = Porträt-Teile, color = Lack der Figur). kind: small = belanglos, tip = Spieltipp, again = Antwort, wenn man denselben Fahrer nochmal anspricht (speaker leer = alle), crew = Gerücht über eine Crew (about = Crew-ID, sinnvoll ab deren minRank - 1, solange nicht geschlagen), leader = Gerücht über den Leader (wenn die Crew fast geschlagen ist), wanderer/boss = verrät die Bedingung eines Wanderers oder Bosses (about = Rivalen-ID, solange nicht geschlagen), waiting = Vorlage, {name} = ein Rivale, der gerade auf dich wartet. fact = Wissen über Japan, Tokio, den Shutoko und die Szene (topic = Thema fürs Label, map = nur auf dieser Karte, place = nur an PAs, deren Name das enthält, text = erster Satz, lines = weitere Sätze der Geschichte). more = Überleitung, wenn man jemanden nochmal anspricht und er noch Wissen hat. Neue Wissens-Texte am besten in tools/generator/lore.py eintragen.",
   "pa": {
     "_hinweis": "Fahrer an den PAs (napSpots der Kartendatei). nightCount/dayCount = wie viele Fahrer nachts/tagsüber (von, bis). spawnDistance = ab dieser Entfernung zur PA-Mitte erscheinen sie, despawnDistance = ab hier verschwinden sie wieder (m). spotRadius = in diesem Umkreis um die PA-Mitte werden Parkbuchten gesucht (m). talkDistance = so nah musst du zu Fuß ran (m), lookDistance = ab hier dreht sich der Fahrer zu dir. importantChance = Chance, dass ein Fahrer ein Gerücht oder einen Hinweis statt Smalltalk hat. secondLineChance = Chance auf einen zweiten Satz. rankSlack = so viele Ränge vor dem nötigen Rang hört man schon von Crews und Wanderern. heardWeight = Gewicht für Sätze, die man schon kennt (1 = normal, 0 = nie wieder). excludeConfigs = Configs mit diesen Wörtern parken nie an der PA. portraitVariants = Porträts je Sprecher (art/portraits/npc/<sprecher>_<n>.svg). loreChance = Chance auf Wissen (fact) statt Smalltalk, wenn kein Gerücht kommt. ownTopicWeight/otherTopicWeight = Gewicht für Wissen der eigenen Figur bzw. anderer Figuren. placeWeight = Faktor für Wissen über genau diese PA. moreChance = Chance, beim zweiten Ansprechen noch Wissen zu bekommen statt \"Hab dir schon alles erzählt\". rivalNight/rivalDay = wie viele Rivalen und Wanderer pro PA nachts/tagsüber neben ihrem Auto stehen (von, bis). rivalWaitDistance/rivalWaitSpeed = so weit weg (m) und so schnell (km/h) musst du sein, bis der verabredete Rivale vor dir auftaucht. rivalWeightNew/rivalWeightBeaten/rivalWeightHolder = wie oft neue, geschlagene und Rivalen mit deinem Auto (Pink Slip) an der PA stehen.",
     "nightCount": [
@@ -55,7 +55,9 @@
       "prerunner",
       "crawler",
       "ambulance",
-      "fire"
+      "fire",
+      "taxi",
+      "hashiriya_"
     ]
   },
   "speakers": [
@@ -111,10 +113,56 @@
       "day": 2,
       "cars": [
         {
-          "model": "pickup"
+          "model": "agent_traffic_jp2",
+          "config": "am5carry63_stock"
         },
         {
-          "model": "van"
+          "model": "agent_traffic_jp2",
+          "config": "am5carry63_tarp"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_high"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_subaru"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_toyota"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5ad12_nissan_facelift"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5ad12_nissan_pre"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5ad12_mazda_facelift"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5minicab60_pre_nissan"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5caravan26_facelift_base"
+        },
+        {
+          "model": "pickup",
+          "fallback": true
+        },
+        {
+          "model": "van",
+          "fallback": true
         }
       ],
       "color": [
@@ -150,10 +198,40 @@
       "day": 3,
       "cars": [
         {
-          "model": "van"
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_aluminium_facelift"
         },
         {
-          "model": "pickup"
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_aluminium_pre"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_aluminium_seino"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_bed_facelift"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_bed_pre"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_fridge_facelift"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_fridge_pre"
+        },
+        {
+          "model": "van",
+          "fallback": true
+        },
+        {
+          "model": "pickup",
+          "fallback": true
         }
       ],
       "color": [
@@ -189,15 +267,62 @@
       "day": 2,
       "cars": [
         {
+          "model": "agent_traffic_jp2",
+          "config": "am5jpntaxi_daiwa_base"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5jpntaxi_daiwa_high"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5jpntaxi_greencab"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5jpntaxi_hinomaru_black"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5jpntaxi_hinomaru_white"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5jpntaxi_km"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5jpntaxi_nihonkotsu"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5jpntaxi_olympic"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5crown220_taxi"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5crew30_musen"
+        },
+        {
+          "model": "pessima",
+          "config": "hashiriya_taxi_shinonome"
+        },
+        {
+          "model": "pessima",
+          "config": "hashiriya_taxi_gekko"
+        },
+        {
           "model": "fullsize",
+          "fallback": true,
           "match": "taxi"
         },
         {
           "model": "midsize",
+          "fallback": true,
           "match": "taxi"
-        },
-        {
-          "model": "fullsize"
         }
       ],
       "color": [
@@ -392,10 +517,40 @@
       "day": 3,
       "cars": [
         {
-          "model": "van"
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_yamato_facelift"
         },
         {
-          "model": "pickup"
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_yamato_pre"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5caravan26_facelift_fedex"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5every64_suzuki_pa"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5every64_nissan_dx"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5every64_mitsubishi_m"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5minicab60_facelift_mitsubishi"
+        },
+        {
+          "model": "van",
+          "fallback": true
+        },
+        {
+          "model": "pickup",
+          "fallback": true
         }
       ],
       "color": [
@@ -430,6 +585,38 @@
       "night": 2,
       "day": 1,
       "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5lapin33_mode"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5lapin33_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "ezocanbus_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5alto36_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5nwgn12_pre"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "spicylatte_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5mira350_daihatsu_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5xbee_pre"
+        },
         {
           "model": "covet"
         },
@@ -470,13 +657,44 @@
       "day": 2,
       "cars": [
         {
-          "model": "midsize"
+          "model": "agent_traffic_jp2",
+          "config": "am5crown220_base"
         },
         {
-          "model": "etki"
+          "model": "agent_traffic_jp2",
+          "config": "am5crown220_standard"
         },
         {
-          "model": "legran"
+          "model": "agent_traffic_jp2",
+          "config": "am5cx5_base"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5cx5_standard"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5aqua210_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5cx30_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5alphard30_alphard_standard"
+        },
+        {
+          "model": "midsize",
+          "fallback": true
+        },
+        {
+          "model": "etki",
+          "fallback": true
+        },
+        {
+          "model": "legran",
+          "fallback": true
         }
       ],
       "color": [
@@ -541,6 +759,502 @@
           "jacke": "bomber",
           "haare": "bandana",
           "brille": "sonne"
+        }
+      ]
+    },
+    {
+      "id": "postman",
+      "name": {
+        "de": "Postbote",
+        "en": "Postman"
+      },
+      "figur": "m",
+      "night": 0,
+      "day": 2,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5every64_suzuki_post"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5every64_suzuki_postold"
+        },
+        {
+          "model": "van",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.8,
+        0.15,
+        0.15
+      ],
+      "look": [
+        {
+          "jacke": "polo",
+          "haare": "cap"
+        },
+        {
+          "jacke": "windbreaker",
+          "haare": "cap",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "polo",
+          "haare": "kurz",
+          "brille": "halb"
+        }
+      ]
+    },
+    {
+      "id": "garbage",
+      "name": {
+        "de": "Müllwerker",
+        "en": "Refuse collector"
+      },
+      "figur": "m",
+      "night": 1,
+      "day": 2,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_packer_tokyo23"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_packer_facelift"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_packer_pre"
+        },
+        {
+          "model": "van",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.3,
+        0.6,
+        0.35
+      ],
+      "look": [
+        {
+          "jacke": "warnweste",
+          "haare": "muetze",
+          "hals": "handtuch"
+        },
+        {
+          "jacke": "overall",
+          "haare": "cap"
+        },
+        {
+          "jacke": "warnweste",
+          "haare": "kahl",
+          "extra": "maske"
+        }
+      ]
+    },
+    {
+      "id": "roadworker",
+      "name": {
+        "de": "Straßenarbeiter",
+        "en": "Road worker"
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 1,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_roadwork"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_stock"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_bed_pre"
+        },
+        {
+          "model": "pickup",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.95,
+        0.6,
+        0.1
+      ],
+      "look": [
+        {
+          "jacke": "warnweste",
+          "haare": "muetze",
+          "hals": "handtuch"
+        },
+        {
+          "jacke": "warnweste",
+          "haare": "stirnband"
+        },
+        {
+          "jacke": "warnweste",
+          "haare": "cap",
+          "extra": "zahnstocher"
+        }
+      ]
+    },
+    {
+      "id": "electrician",
+      "name": {
+        "de": "Elektriker",
+        "en": "Electrician"
+      },
+      "figur": "m",
+      "night": 1,
+      "day": 2,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5carry63_panasonic"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_platform_facelift"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5dutro2_platform_pre"
+        },
+        {
+          "model": "pickup",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.2,
+        0.4,
+        0.75
+      ],
+      "look": [
+        {
+          "jacke": "overall",
+          "haare": "cap"
+        },
+        {
+          "jacke": "overall",
+          "haare": "kurz",
+          "brille": "halb"
+        },
+        {
+          "jacke": "warnweste",
+          "haare": "muetze"
+        }
+      ]
+    },
+    {
+      "id": "security",
+      "name": {
+        "de": "Wachmann",
+        "en": "Security guard"
+      },
+      "figur": "m",
+      "night": 3,
+      "day": 1,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5caravan26_como_alsok"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5caravan26_como"
+        },
+        {
+          "model": "van",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.15,
+        0.2,
+        0.4
+      ],
+      "look": [
+        {
+          "jacke": "militaer",
+          "haare": "cap"
+        },
+        {
+          "jacke": "militaer",
+          "haare": "muetze",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "weste",
+          "haare": "scheitel",
+          "extra": "headset"
+        }
+      ]
+    },
+    {
+      "id": "cleaner",
+      "name": {
+        "de": "Reinigungskraft",
+        "en": "Cleaner"
+      },
+      "figur": "f",
+      "night": 1,
+      "day": 2,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5minicab60_honpo"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5carry63_shitter"
+        },
+        {
+          "model": "van",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.4,
+        0.75,
+        0.8
+      ],
+      "look": [
+        {
+          "jacke": "overall",
+          "haare": "bandana"
+        },
+        {
+          "jacke": "polo",
+          "haare": "dutt"
+        },
+        {
+          "jacke": "overall",
+          "haare": "zopf",
+          "extra": "maske"
+        }
+      ]
+    },
+    {
+      "id": "family",
+      "name": {
+        "de": "Familienvater",
+        "en": "Family man"
+      },
+      "figur": "m",
+      "night": 0,
+      "day": 3,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5alphard30_alphard_base"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5alphard30_vellfire_base"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5stepwgnrp_pre_base"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5stepwgnrp_spada"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5freed2_facelift_base"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5freed2_pre_base_hybrid"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5solio7s_standard_suzuki"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5solio7s_bandit_suzuki"
+        },
+        {
+          "model": "midsize",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.5,
+        0.65,
+        0.4
+      ],
+      "look": [
+        {
+          "jacke": "polo",
+          "haare": "kurz"
+        },
+        {
+          "jacke": "strick",
+          "haare": "scheitel",
+          "brille": "rund"
+        },
+        {
+          "jacke": "tshirt",
+          "haare": "kurz",
+          "hals": "kette"
+        }
+      ]
+    },
+    {
+      "id": "camper",
+      "name": {
+        "de": "Rentner im Camper",
+        "en": "Retired camper"
+      },
+      "figur": "m",
+      "night": 1,
+      "day": 2,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_camper_blue"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_camper_red"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_camper_steel"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5hijet500_camper_white"
+        },
+        {
+          "model": "van",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.6,
+        0.5,
+        0.35
+      ],
+      "look": [
+        {
+          "jacke": "strick",
+          "haare": "kahl",
+          "haarfarbe": "silber",
+          "brille": "rund"
+        },
+        {
+          "jacke": "windbreaker",
+          "haare": "cap",
+          "haarfarbe": "silber"
+        },
+        {
+          "jacke": "weste",
+          "haare": "scheitel",
+          "haarfarbe": "silber",
+          "brille": "halb"
+        }
+      ]
+    },
+    {
+      "id": "otaku",
+      "name": {
+        "de": "Otaku",
+        "en": "Otaku"
+      },
+      "figur": "m",
+      "night": 2,
+      "day": 1,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "ezocanbus_miku"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5every64_mitsubishi_jashin"
+        },
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5every64_french"
+        },
+        {
+          "model": "covet",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.3,
+        0.8,
+        0.8
+      ],
+      "look": [
+        {
+          "jacke": "hoodie",
+          "haare": "kurz",
+          "brille": "rund",
+          "hals": "kopfhoerer"
+        },
+        {
+          "jacke": "tshirt",
+          "haare": "lang",
+          "brille": "halb"
+        },
+        {
+          "jacke": "bomber",
+          "haare": "capback",
+          "brille": "rund"
+        }
+      ]
+    },
+    {
+      "id": "mapper",
+      "name": {
+        "de": "Kartenfahrer",
+        "en": "Map car driver"
+      },
+      "figur": "m",
+      "night": 0,
+      "day": 1,
+      "cars": [
+        {
+          "model": "agent_traffic_jp2",
+          "config": "am5alto36_streetview"
+        },
+        {
+          "model": "covet",
+          "fallback": true
+        }
+      ],
+      "color": [
+        0.45,
+        0.55,
+        0.85
+      ],
+      "look": [
+        {
+          "jacke": "windbreaker",
+          "haare": "cap"
+        },
+        {
+          "jacke": "polo",
+          "haare": "kurz",
+          "brille": "halb"
+        },
+        {
+          "jacke": "hoodie",
+          "haare": "capback"
         }
       ]
     }
@@ -2500,6 +3214,267 @@
       }
     },
     {
+      "id": "waiting_7",
+      "kind": "waiting",
+      "speaker": "postman",
+      "text": {
+        "de": "Dreihundert Briefkästen am Tag. Und jeder zweite klemmt.",
+        "en": "Three hundred letterboxes a day. And every second one sticks."
+      }
+    },
+    {
+      "id": "waiting_8",
+      "kind": "waiting",
+      "speaker": "postman",
+      "text": {
+        "de": "Mein Kleintransporter hat 50 PS. Auf dem Ring fühlt sich das an wie Zeitlupe. Ich mag Zeitlupe.",
+        "en": "My little van has 50 PS. On the loop it feels like slow motion. I like slow motion."
+      }
+    },
+    {
+      "id": "waiting_9",
+      "kind": "waiting",
+      "speaker": "postman",
+      "text": {
+        "de": "Wenn du mal einen Brief schreiben willst: Die Adresse kommt in Japan vom Großen zum Kleinen. Erst die Präfektur, dann der Name.",
+        "en": "If you ever write a letter: in Japan the address goes from big to small. Prefecture first, name last."
+      }
+    },
+    {
+      "id": "waiting_10",
+      "kind": "waiting",
+      "speaker": "garbage",
+      "text": {
+        "de": "Brennbar, nicht brennbar, Flaschen, Dosen, Papier. Wer falsch trennt, kriegt seinen Sack mit einem gelben Zettel zurück.",
+        "en": "Burnable, non-burnable, bottles, cans, paper. Sort it wrong and your bag comes back with a yellow note."
+      }
+    },
+    {
+      "id": "waiting_11",
+      "kind": "waiting",
+      "speaker": "garbage",
+      "text": {
+        "de": "Wir fangen um sechs an. Ihr hört um sechs auf. Wir sehen uns jeden Morgen und grüßen uns nie.",
+        "en": "We start at six. You lot stop at six. We see each other every morning and never say hello."
+      }
+    },
+    {
+      "id": "waiting_12",
+      "kind": "waiting",
+      "speaker": "garbage",
+      "text": {
+        "de": "Das Laute am Morgen? Das ist die Presse hinten im Wagen. Nicht mein Auspuff, keine Sorge.",
+        "en": "That noise in the morning? That's the compactor at the back. Not my exhaust, don't worry."
+      }
+    },
+    {
+      "id": "waiting_13",
+      "kind": "waiting",
+      "speaker": "roadworker",
+      "text": {
+        "de": "Nachts sperren wir eine Spur, tagsüber fahrt ihr drüber. So bleibt die Stadt am Laufen.",
+        "en": "At night we close a lane, by day you drive over it. That keeps the city moving."
+      }
+    },
+    {
+      "id": "waiting_14",
+      "kind": "waiting",
+      "speaker": "roadworker",
+      "text": {
+        "de": "Wenn du an einer Baustelle vorbeifährst, geh vom Gas. Hinter den Kegeln stehe ich.",
+        "en": "When you pass a roadworks site, ease off. I'm standing behind those cones."
+      }
+    },
+    {
+      "id": "waiting_15",
+      "kind": "waiting",
+      "speaker": "roadworker",
+      "text": {
+        "de": "Jede Fuge, über die es bei dir rumpelt, hat einer von uns irgendwann mal eingebaut.",
+        "en": "Every joint that thumps under your car was put there by one of us at some point."
+      }
+    },
+    {
+      "id": "waiting_16",
+      "kind": "waiting",
+      "speaker": "electrician",
+      "text": {
+        "de": "Ich hänge nachts an Masten und repariere Leitungen. Von da oben sieht der Ring aus wie ein Lichtband.",
+        "en": "At night I hang off poles fixing lines. From up there the loop looks like a ribbon of light."
+      }
+    },
+    {
+      "id": "waiting_17",
+      "kind": "waiting",
+      "speaker": "electrician",
+      "text": {
+        "de": "Die Hebebühne hinten auf dem Wagen fährt zehn Meter hoch. Schneller als zwanzig fahr ich damit nicht.",
+        "en": "The platform on the back goes up ten metres. I don't drive faster than twenty with it."
+      }
+    },
+    {
+      "id": "waiting_18",
+      "kind": "waiting",
+      "speaker": "electrician",
+      "text": {
+        "de": "Wenn bei dir die Laterne flackert, ruf nicht mich an. Ich hab Feierabend.",
+        "en": "If your street lamp flickers, don't call me. I'm off duty."
+      }
+    },
+    {
+      "id": "waiting_19",
+      "kind": "waiting",
+      "speaker": "security",
+      "text": {
+        "de": "Ich mache hier meine Runde. Parken ja, Rennen nein. Offiziell jedenfalls.",
+        "en": "I'm doing my rounds. Parking yes, racing no. Officially, anyway."
+      }
+    },
+    {
+      "id": "waiting_20",
+      "kind": "waiting",
+      "speaker": "security",
+      "text": {
+        "de": "Siehst du die Leute mit dem Leuchtstab an Baustellen? Kollegen. Bei uns winkt man Autos durch, auch um drei Uhr nachts.",
+        "en": "See the people with light sticks at roadworks? Colleagues. We wave cars through, even at three in the morning."
+      }
+    },
+    {
+      "id": "waiting_21",
+      "kind": "waiting",
+      "speaker": "security",
+      "text": {
+        "de": "Mein Funkgerät hat mehr Rauschen als dein Radio. Aber es weckt mich zuverlässig.",
+        "en": "My radio has more static than yours. But it wakes me up every time."
+      }
+    },
+    {
+      "id": "waiting_22",
+      "kind": "waiting",
+      "speaker": "cleaner",
+      "text": {
+        "de": "Die Toiletten an den PAs gehören zu den saubersten der Welt. Das ist kein Zufall, das bin ich.",
+        "en": "The toilets at the PAs are some of the cleanest in the world. That's no accident, that's me."
+      }
+    },
+    {
+      "id": "waiting_23",
+      "kind": "waiting",
+      "speaker": "cleaner",
+      "text": {
+        "de": "Wir putzen nachts, wenn keiner da ist. Nur ihr seid immer da.",
+        "en": "We clean at night when nobody's around. Except you lot, you're always around."
+      }
+    },
+    {
+      "id": "waiting_24",
+      "kind": "waiting",
+      "speaker": "cleaner",
+      "text": {
+        "de": "Wenn du schon Reifenabrieb auf dem Parkplatz hinterlässt, dann wenigstens in gerader Linie.",
+        "en": "If you're going to leave rubber on the car park, at least do it in a straight line."
+      }
+    },
+    {
+      "id": "waiting_25",
+      "kind": "waiting",
+      "speaker": "family",
+      "text": {
+        "de": "Schiebetüren sind das Beste, was Eltern passieren kann. Kein Kind haut damit mehr den Nachbarn an.",
+        "en": "Sliding doors are the best thing that can happen to parents. No kid dents the neighbour's car anymore."
+      }
+    },
+    {
+      "id": "waiting_26",
+      "kind": "waiting",
+      "speaker": "family",
+      "text": {
+        "de": "Früher war ich auch nachts unterwegs. Heute fahre ich am Wochenende zum Zoo. Das ist auch eine Strecke.",
+        "en": "I used to be out at night too. Now I drive to the zoo at weekends. That's a route too."
+      }
+    },
+    {
+      "id": "waiting_27",
+      "kind": "waiting",
+      "speaker": "family",
+      "text": {
+        "de": "Die Kinder wollten unbedingt hier halten. Wegen der Eiscreme. Und wegen deinem Auto.",
+        "en": "The kids insisted on stopping here. For the ice cream. And for your car."
+      }
+    },
+    {
+      "id": "waiting_28",
+      "kind": "waiting",
+      "speaker": "camper",
+      "text": {
+        "de": "Meine Frau und ich fahren durchs ganze Land. Ein Kleinlaster, ein Bett hinten drauf, mehr braucht man nicht.",
+        "en": "My wife and I drive all over the country. A little truck, a bed on the back, that's all you need."
+      }
+    },
+    {
+      "id": "waiting_29",
+      "kind": "waiting",
+      "speaker": "camper",
+      "text": {
+        "de": "Mit 64 PS über die Berge? Dauert eben. Wir haben Zeit, wir sind in Rente.",
+        "en": "Over the mountains with 64 PS? Takes a while. We've got time, we're retired."
+      }
+    },
+    {
+      "id": "waiting_30",
+      "kind": "waiting",
+      "speaker": "camper",
+      "text": {
+        "de": "In deinem Alter bin ich auch gerast. Dann hab ich geheiratet und angefangen, Aussichtspunkte zu zählen.",
+        "en": "At your age I raced too. Then I got married and started counting viewpoints."
+      }
+    },
+    {
+      "id": "waiting_31",
+      "kind": "waiting",
+      "speaker": "otaku",
+      "text": {
+        "de": "Ja, das ist ein Itasha. Ja, die Folie hat mehr gekostet als das Auto. Nein, ich bereue nichts.",
+        "en": "Yes, it's an itasha. Yes, the wrap cost more than the car. No, I regret nothing."
+      }
+    },
+    {
+      "id": "waiting_32",
+      "kind": "waiting",
+      "speaker": "otaku",
+      "text": {
+        "de": "Morgen ist eine Veranstaltung in Akihabara. Ich parke hier, damit ich als Erster da bin.",
+        "en": "There's an event in Akihabara tomorrow. I'm parked here so I'm first in line."
+      }
+    },
+    {
+      "id": "waiting_33",
+      "kind": "waiting",
+      "speaker": "otaku",
+      "text": {
+        "de": "Du schaust auf mein Auto? Alle schauen auf mein Auto. Deswegen hab ich es so gemacht.",
+        "en": "Looking at my car? Everyone looks at my car. That's why I did it."
+      }
+    },
+    {
+      "id": "waiting_34",
+      "kind": "waiting",
+      "speaker": "mapper",
+      "text": {
+        "de": "Ich fahre mit einer Kamera auf dem Dach jede Straße ab. Falls du irgendwann im Internet auftauchst: Ich war's.",
+        "en": "I drive every street with a camera on the roof. If you ever turn up online: that was me."
+      }
+    },
+    {
+      "id": "waiting_35",
+      "kind": "waiting",
+      "speaker": "mapper",
+      "text": {
+        "de": "Den Ring hab ich schon dreimal fotografiert. Jedes Mal hat mich einer von euch überholt. Ihr seid jetzt alle verpixelt.",
+        "en": "I've photographed the loop three times. Each time one of you overtook me. You're all blurred now."
+      }
+    },
+    {
       "id": "again_1",
       "kind": "again",
       "speaker": "",
@@ -4005,6 +4980,119 @@
         "en": "Our world has been on console too since 19 October 2026. It's busier in this car park since then."
       },
       "topic": "beamng"
+    },
+    {
+      "id": "fact_105",
+      "kind": "fact",
+      "speaker": "postman",
+      "text": {
+        "de": "Das Postzeichen 〒 kennst du? Das kommt vom alten Ministerium für Post und Verkehr, dem Teishinsho. Es ist aus dem Zeichen テ entstanden, für Teishin.",
+        "en": "Know the postal mark 〒? It comes from the old Ministry of Communications, the Teishinsho. It grew out of the character テ, for Teishin."
+      },
+      "topic": "japan",
+      "lines": [
+        {
+          "de": "Seit 1887 steht es für die Post. Du findest es heute noch auf jedem Briefkasten und vor jeder Postleitzahl.",
+          "en": "It has stood for the post since 1887. You still find it on every letterbox and in front of every postcode."
+        }
+      ]
+    },
+    {
+      "id": "fact_106",
+      "kind": "fact",
+      "speaker": "garbage",
+      "text": {
+        "de": "Weißt du, worauf ein Teil der Bucht steht? Auf Müll. Yumenoshima, die Trauminsel, war von 1957 bis 1967 eine Deponie.",
+        "en": "Know what part of the bay stands on? Rubbish. Yumenoshima, Dream Island, was a landfill from 1957 to 1967."
+      },
+      "topic": "tokyo",
+      "lines": [
+        {
+          "de": "Heute sind da ein Park und ein Sportplatz. Die Möwen erinnern sich trotzdem.",
+          "en": "Today there's a park and a sports ground. The seagulls still remember."
+        }
+      ]
+    },
+    {
+      "id": "fact_107",
+      "kind": "fact",
+      "speaker": "roadworker",
+      "text": {
+        "de": "Bei Nihonbashi bauen sie den Ring gerade unter die Erde. Die alte Hochstraße über der Brücke soll danach ganz verschwinden.",
+        "en": "At Nihonbashi they're moving the loop underground. The old elevated road over the bridge is meant to disappear completely afterwards."
+      },
+      "topic": "c1",
+      "map": "c1",
+      "lines": [
+        {
+          "de": "Die Brücke von 1911 hat dann zum ersten Mal seit den Sechzigern wieder freien Himmel über sich. Das dauert aber noch bis in die 2030er.",
+          "en": "The 1911 bridge will then have open sky above it for the first time since the sixties. But that will take until the 2030s."
+        }
+      ]
+    },
+    {
+      "id": "fact_108",
+      "kind": "fact",
+      "speaker": "electrician",
+      "text": {
+        "de": "Wusstest du, dass Japan zwei Stromnetze hat? Im Osten, also hier in Tokio, laufen 50 Hertz, im Westen um Osaka 60 Hertz.",
+        "en": "Did you know Japan has two power grids? In the east, here in Tokyo, it runs at 50 hertz, in the west around Osaka at 60 hertz."
+      },
+      "topic": "japan",
+      "lines": [
+        {
+          "de": "Das liegt daran, dass man im 19. Jahrhundert in Tokio deutsche und in Osaka amerikanische Generatoren gekauft hat. Bis heute ist das so geblieben.",
+          "en": "That's because in the 19th century Tokyo bought German generators and Osaka bought American ones. It has stayed that way ever since."
+        }
+      ]
+    },
+    {
+      "id": "fact_109",
+      "kind": "fact",
+      "speaker": "camper",
+      "text": {
+        "de": "Wenn du mal aufs Land fährst: Halt an einem Michi-no-Eki. Das sind Raststationen an normalen Landstraßen, mit Toiletten, Markt und Essen aus der Gegend.",
+        "en": "If you ever drive out to the countryside: stop at a michi-no-eki. Those are roadside stations on ordinary roads, with toilets, a market and local food."
+      },
+      "topic": "japan",
+      "lines": [
+        {
+          "de": "Die gibt es seit 1993, inzwischen über tausend Stück. Wir haben schon über zweihundert gesehen. Meine Frau führt Buch.",
+          "en": "They have existed since 1993, there are over a thousand now. We've seen over two hundred. My wife keeps a log."
+        }
+      ]
+    },
+    {
+      "id": "fact_110",
+      "kind": "fact",
+      "speaker": "otaku",
+      "text": {
+        "de": "Itasha heißt wörtlich schmerzhaftes Auto. Weil es wehtut, so etwas anzusehen. Oder dem Geldbeutel.",
+        "en": "Itasha literally means painful car. Because it hurts to look at. Or to your wallet."
+      },
+      "topic": "cars",
+      "lines": [
+        {
+          "de": "Es ist auch ein Wortspiel: Ita-sha klingt wie Italia-sha, also italienisches Auto. Unsere sind halt eher aus Akihabara als aus Italien.",
+          "en": "It's also a pun: ita-sha sounds like Italia-sha, an Italian car. Ours just come from Akihabara rather than Italy."
+        }
+      ]
+    },
+    {
+      "id": "fact_111",
+      "kind": "fact",
+      "speaker": "security",
+      "text": {
+        "de": "An fast jeder Baustelle in Japan steht jemand in Uniform und winkt die Autos vorbei. Das sind Wachleute, keine Bauarbeiter.",
+        "en": "At almost every roadworks in Japan there's someone in uniform waving cars past. Those are security guards, not builders."
+      },
+      "topic": "japan",
+      "lines": [
+        {
+          "de": "Groß geworden ist die Branche mit den Olympischen Spielen 1964 in Tokio. Seitdem gehören wir zum Straßenbild.",
+          "en": "The trade grew big with the 1964 Tokyo Olympics. Since then we've been part of the street scene."
+        }
+      ]
     }
   ]
 }

@@ -43,7 +43,12 @@ if __name__=='__main__':
     import os
     from livery import WORK
     dae,mats,out,W,H=sys.argv[1],sys.argv[2].split(','),os.path.join(WORK,sys.argv[3]),int(sys.argv[4]),int(sys.argv[5])
-    tris=load(dae,mats,out+'.pkl')
+    tag=sys.argv[3]
+    tris=load(dae,mats,os.path.join(WORK,tag.split('@')[0]+'.pkl'))
+    import re
+    if len(sys.argv)>6 and sys.argv[6]: tris=[t for t in tris if not re.search(sys.argv[6],t['name'])]
+    if len(sys.argv)>7 and sys.argv[7]: tris=[t for t in tris if re.search(sys.argv[7],t['name'])]
+    print('meshes',len(tris))
     pos,nrm,mask=gbuffer(tris,W,H)
     np.savez_compressed(out+'_gb.npz',pos=pos,nrm=nrm,mask=mask)
     from PIL import Image
