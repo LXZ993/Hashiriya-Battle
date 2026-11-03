@@ -79,6 +79,8 @@
 - Startmenü und neuer Spielstand zeigen einen Tipp, dass eigene Musik das beste Erlebnis bringt.
 - Im Pausenmenü unter Esc > Mods > Hashiriya Battle wählst du für jede Situation, welche Songs laufen, Mod-Songs und eigene.
 - Musik-Auswahl im Pausenmenü: Jeder Song, auch die KI-Songs und deine eigenen, lässt sich pro Situation an- und ausschalten. Dazu pro Situation die Quelle (Beides, Mod, Eigene, Aus), Nächster Song, Ordner öffnen, Neu einlesen und Alles auf Standard.
+- Reihenfolge pro Situation einstellbar: zufällig oder feste Reihenfolge, die du selbst sortierst.
+- Musik springt nicht mehr so oft: Ein Song läuft weiter, wenn er auch in der neuen Situation dabei ist, und in der freien Fahrt (PA, Garage, Zuhause, Shop) spielt er zu Ende. Battle-Wechsel blenden langsamer über.
 - Neue Musik-Situationen: Parkplatz (PA), Garage und Zuhause, Battle gegen Leader und Bosse, gegen Wanderer und Pink Slip.
 - Neuer Kamera-Sound beim Fotojob (camera_digital_shutter).
 - Musik kann jetzt auch als WAV in voller Qualität laufen: Liegt eine WAV mit gleichem Namen neben der OGG, wird die WAV gespielt. Der Titelsong Daikoku läuft so in der neuen Version V3.

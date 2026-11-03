@@ -1351,6 +1351,15 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <li><b>Songliste</b>: alle Songs, die da sind, also Mod-Songs (auch die KI-Platzhalter, Markierung „KI“) und alle eigenen Dateien aus allen Unterordnern (Markierung „Eigene“). Klick auf einen Song schaltet ihn für die gewählte Situation an oder aus. Darunter steht, in welchen Situationen er sonst noch läuft. „geändert“ = vom Spieler angepasst.</li>
 <li>Unten <b>Ordner öffnen</b>, <b>Neu einlesen</b> (nach neuen Dateien) und <b>Alles auf Standard</b> (alle Song-Auswahlen zurück auf die Vorgabe der Mod).</li>
 </ul>
+<p><b>Reihenfolge pro Situation:</b> unter der Quelle wählst du <b>Zufällig</b> oder <b>Feste Reihenfolge</b>. Bei fester Reihenfolge stehen die angeschalteten Songs oben mit Nummer, mit ▲ ▼ sortierst du sie; sie laufen von oben nach unten und dann wieder von vorn. Vorgabe kommt aus <code>shuffle</code> in <code>music.json</code> (Titel = fest, Rest = zufällig). Gespeichert als <code>order</code> und <code>sort</code> in <span class="path">settings\hashiriya_battle\music_settings.json</span>. Sobald du eine Situation selbst sortierst, gilt deine Reihenfolge auch für das Intro (Daikoku im Titel).</p>
+<p><b>Wann die Musik wechselt</b> (damit nicht bei jedem Schritt ein neuer Song kommt):</p>
+<ul>
+<li>Läuft der aktuelle Song auch in der neuen Situation, spielt er einfach weiter. Mit der Vorgabe (KI-Songs überall) bleibt der Song also beim Aussteigen, an der PA, beim Reden, in der Garage und beim Losfahren.</li>
+<li>Innerhalb der freien Fahrt (Tag, Nacht, PA, Garage, Shop) spielt ein Song zu Ende, auch wenn er in der neuen Situation nicht dabei ist; danach kommt die neue Playlist (<code>finishSongInRoam</code>, <code>false</code> = sofort überblenden).</li>
+<li>Ein Wechsel in der freien Fahrt zählt erst, wenn er <code>switchDelaySeconds</code> (4 s) anhält. Musik aus erst nach 3 s.</li>
+<li>Battle beginnt oder endet: sofort, aber weich übergeblendet über <code>switchFadeSeconds</code> (4 s). Das gilt auch für Titel zu Spiel.</li>
+<li><code>fadeSeconds</code> (2 s) = Ein- und Ausblenden beim normalen Songwechsel in einer Situation.</li>
+</ul>
 <p><b>Vorgabe ohne Änderung:</b> Ein Mod-Song läuft in den Situationen, in deren <code>contexts</code>-Liste in <code>music.json</code> er steht. Ein eigener Song läuft in der Situation seines Unterordners. Ist in einer Situation kein Song an, läuft die Musik der Ersatz-Situation (Spalte „Ist der Ordner leer“ oben). Änderungen wirken sofort; der laufende Song spielt weiter, wenn er in der Situation an bleibt.</p>
 <p><b>Gespeichert</b> wird in <span class="path">settings\hashiriya_battle\music_settings.json</span>, also pro Spieler und nicht im Spielstand: <code>sources</code> = Quelle pro Situation, <code>assign</code> = pro Song (<code>mod:&lt;datei&gt;</code> oder <code>own:&lt;pfad&gt;</code>) die Liste der Situationen. Löschen der Datei = alles auf Standard. Im Hashiriya-Menü unter Werkzeuge steht nur noch ein Hinweis, wo die Musik-Auswahl ist.</p>
 <p><b>Technik:</b> Der Eintrag wird über BeamNGs <code>ui_pause_actions.registerModButton</code> angemeldet (<span class="path">lua\ge\extensions\hashiriyaBattle\music.lua</span>, <code>registerPauseButton</code>). Die Karte ist <span class="path">ui\ui-vue\mods\hashiriyaBattle\PauseCard.vue</span>, sie holt die Daten über das Ereignis <code>HashiriyaMusicMatrix</code>. Texte: Sprachschlüssel <code>pause.*</code>. Nach Änderungen an der Karte: <span class="path">temp\ui-cache-rt-sfc.bin</span> löschen und BeamNG komplett neu starten.</p>
@@ -1860,6 +1869,8 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>Startmenü und neuer Spielstand zeigen einen Tipp, dass eigene Musik das beste Erlebnis bringt.</li>
 <li>Im Pausenmenü unter Esc &gt; Mods &gt; Hashiriya Battle wählst du für jede Situation, welche Songs laufen, Mod-Songs und eigene.</li>
 <li>Musik-Auswahl im Pausenmenü: Jeder Song, auch die KI-Songs und deine eigenen, lässt sich pro Situation an- und ausschalten. Dazu pro Situation die Quelle (Beides, Mod, Eigene, Aus), Nächster Song, Ordner öffnen, Neu einlesen und Alles auf Standard.</li>
+<li>Reihenfolge pro Situation einstellbar: zufällig oder feste Reihenfolge, die du selbst sortierst.</li>
+<li>Musik springt nicht mehr so oft: Ein Song läuft weiter, wenn er auch in der neuen Situation dabei ist, und in der freien Fahrt (PA, Garage, Zuhause, Shop) spielt er zu Ende. Battle-Wechsel blenden langsamer über.</li>
 <li>Neue Musik-Situationen: Parkplatz (PA), Garage und Zuhause, Battle gegen Leader und Bosse, gegen Wanderer und Pink Slip.</li>
 <li>Neuer Kamera-Sound beim Fotojob (camera_digital_shutter).</li>
 <li>Musik kann jetzt auch als WAV in voller Qualität laufen: Liegt eine WAV mit gleichem Namen neben der OGG, wird die WAV gespielt. Der Titelsong Daikoku läuft so in der neuen Version V3.</li>

@@ -778,5 +778,9 @@
   "save.towed.short": "Mehr Geld hattest du nicht. Den Rest hat man dir großzügig erlassen.",
   "save.towed.hint": "Tipp: Anhalten, Motor aus, im Menü „Hier parken & speichern“. Dann geht es genau dort weiter.",
   "save.resumed.title": "ZWISCHENSTAND",
-  "save.resumed.text": "Das Spiel wurde nicht ordentlich geparkt beendet. Du stehst an der zuletzt gemerkten Stelle, Motor aus."
+  "save.resumed.text": "Das Spiel wurde nicht ordentlich geparkt beendet. Du stehst an der zuletzt gemerkten Stelle, Motor aus.",
+  "pause.order": "Reihenfolge",
+  "pause.shuffle": "Zufällig",
+  "pause.list": "Feste Reihenfolge",
+  "pause.listHint": "Mit ▲ ▼ sortieren. Die Songs laufen von oben nach unten und danach wieder von vorn."
 }

@@ -722,5 +722,9 @@
   "save.towed.short": "That was all the money you had. They generously let the rest slide.",
   "save.towed.hint": "Tip: stop, engine off, then “Park & save here” in the menu. You will continue right there.",
   "save.resumed.title": "CHECKPOINT",
-  "save.resumed.text": "The game was closed without parking properly. You're at the last remembered spot, engine off."
+  "save.resumed.text": "The game was closed without parking properly. You're at the last remembered spot, engine off.",
+  "pause.order": "Order",
+  "pause.shuffle": "Shuffle",
+  "pause.list": "Fixed order",
+  "pause.listHint": "Sort with ▲ ▼. Songs play from top to bottom, then start over."
 }

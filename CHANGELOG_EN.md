@@ -79,6 +79,8 @@
 - The title menu and the new save screen show a tip that your own music gives the best experience.
 - In the pause menu under Esc > Mods > Hashiriya Battle you pick for every situation which songs play, mod songs and your own.
 - Music selection in the pause menu: every song, including the AI songs and your own, can be switched on and off per situation. Also per situation the source (both, mod, own, off), next song, open folder, rescan and reset to default.
+- Song order per situation: shuffle or a fixed order you sort yourself.
+- Music no longer jumps around so much: a song keeps playing if it is also part of the new situation, and in free roam (PA, garage, home, shop) it plays to the end. Battle changes crossfade more slowly.
 - New music situations: parking area (PA), garage and home, battles against leaders and bosses, against wanderers and pink slip.
 - New camera shutter sound for the photo job (camera_digital_shutter).
 - Music can now also play as WAV in full quality: if a WAV with the same name sits next to the OGG, the WAV is played. The title song Daikoku now runs this way in its new version V3.

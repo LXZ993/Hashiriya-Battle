@@ -37,15 +37,24 @@
         <button class="hb-btn hb-ghost" @click="call('setAllFor(' + q(sel) + ',true)')">{{ tx('pause.all') }}</button>
         <button class="hb-btn hb-ghost" @click="call('setAllFor(' + q(sel) + ',false)')">{{ tx('pause.none') }}</button>
       </div>
+      <div class="hb-bar" v-if="selSit">
+        <span class="hb-label">{{ tx('pause.order') }}</span>
+        <div class="hb-seg">
+          <button :class="{ 'is-sel': selSit.order === 'shuffle' }" @click="call('setOrder(' + q(sel) + ',' + q('shuffle') + ')')">{{ tx('pause.shuffle') }}</button>
+          <button :class="{ 'is-sel': selSit.order === 'list' }" @click="call('setOrder(' + q(sel) + ',' + q('list') + ')')">{{ tx('pause.list') }}</button>
+        </div>
+      </div>
+      <p class="hb-note" v-if="selSit && selSit.order === 'list'">{{ tx('pause.listHint') }}</p>
       <p class="hb-note" v-if="selSit && selSit.fallback && countFor(sel) === 0">
         {{ selSit.fallback === 'daynight' ? tx('pause.fallbackDayNight') : tx('pause.fallbackBattle') }}
       </p>
 
       <div class="hb-list">
-        <div v-for="song in data.songs" :key="song.id" class="hb-song"
+        <div v-for="song in shownSongs" :key="song.id" class="hb-song"
           :class="{ 'is-on': isOn(song, sel), 'is-playing': song.playing, 'is-bad': song.bad }"
           @click="toggle(song)">
           <span class="hb-check">{{ isOn(song, sel) ? '✓' : '' }}</span>
+          <span class="hb-pos" v-if="isList && isOn(song, sel)">{{ posOf(song) }}</span>
           <span class="hb-song-main">
             <span class="hb-song-title">
               {{ song.title }}
@@ -59,6 +68,10 @@
               <template v-if="song.artist && others(song).length"> · </template>
               <template v-if="others(song).length">{{ tx('pause.alsoIn') }}: {{ others(song).join(', ') }}</template>
             </small>
+          </span>
+          <span class="hb-move" v-if="isList && isOn(song, sel)">
+            <button :disabled="posOf(song) === 1" @click.stop="move(song, -1)">▲</button>
+            <button :disabled="posOf(song) === selSit.sorted.length" @click.stop="move(song, 1)">▼</button>
           </span>
         </div>
         <p class="hb-note" v-if="!data.songs.length">{{ tx('pause.empty') }}</p>
@@ -99,6 +112,26 @@ const sitName = computed(() => {
   return m
 })
 
+const isList = computed(() => !!(selSit.value && selSit.value.order === "list"))
+function posOf(song) { return selSit.value ? selSit.value.sorted.indexOf(song.id) + 1 : 0 }
+// feste Reihenfolge: angeschaltete Songs in ihrer Reihenfolge oben, der Rest darunter
+const shownSongs = computed(() => {
+  if (!data.value) return []
+  if (!isList.value) return data.value.songs
+  const pos = {}
+  selSit.value.sorted.forEach((id, i) => { pos[id] = i })
+  const on = data.value.songs.filter(s => pos[s.id] !== undefined).sort((a, b) => pos[a.id] - pos[b.id])
+  const off = data.value.songs.filter(s => pos[s.id] === undefined)
+  return on.concat(off)
+})
+function move(song, dir) {
+  const list = selSit.value.sorted
+  const i = list.indexOf(song.id), j = i + dir
+  if (i < 0 || j < 0 || j >= list.length) return
+  list[i] = list[j]; list[j] = song.id // sofort anzeigen
+  call("moveSong(" + q(sel.value) + "," + q(song.id) + "," + dir + ")")
+}
+
 function isOn(song, id) { return song.on.indexOf(id) >= 0 }
 function countFor(id) { return data.value ? data.value.songs.filter(s => isOn(s, id)).length : 0 }
 function others(song) { return song.on.filter(id => id !== sel.value).map(id => sitName.value[id] || id) }
@@ -116,7 +149,7 @@ const arr = v => (Array.isArray(v) ? v : (v && typeof v === "object" ? Object.va
 
 function onMatrix(d) {
   if (!d) return
-  d.sits = arr(d.sits)
+  d.sits = arr(d.sits).map(s => Object.assign(s, { sorted: arr(s.sorted) }))
   d.songs = arr(d.songs).map(s => Object.assign(s, { on: arr(s.on) }))
   data.value = d
   if (!sel.value || !d.sits.find(s => s.id === sel.value)) {
@@ -201,6 +234,15 @@ onUnmounted(() => events.off("HashiriyaMusicMatrix", onMatrix))
   &.hb-own { background: rgba(80, 160, 255, 0.2); color: #9cc8ff; }
   &.hb-ai { background: rgba(190, 120, 255, 0.2); color: #d6b3ff; }
   &.hb-play { background: rgba(255, 102, 0, 0.25); color: #ffb380; }
+}
+.hb-pos { width: 1.4rem; flex: none; text-align: right; color: #ff8a3d; font-weight: 700; font-size: 0.8rem; }
+.hb-move {
+  margin-left: auto; display: flex; gap: 2px;
+  button {
+    border: 0; background: rgba(255, 255, 255, 0.07); color: #e6e6e6; width: 1.6rem; height: 1.4rem; cursor: pointer; font-size: 0.7rem;
+    &:hover { background: #ff6600; color: #fff; }
+    &:disabled { opacity: 0.25; cursor: default; background: rgba(255, 255, 255, 0.07); }
+  }
 }
 .hb-foot { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.4rem; flex-wrap: wrap; }
 </style>
