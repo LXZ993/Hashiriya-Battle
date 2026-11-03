@@ -670,8 +670,8 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <h3>Bedienen</h3>
 <ol class="steps">
 <li>Links einen Gegner anklicken. Oben gibt es eine Suche (Name, ID, Crew), einen Crew-Filter und "nur geänderte".</li>
-<li>Rechts jedes Teil wählen: Figur (Mann/Frau), Oberteil, Stofffarbe, Hals, Crew-Abzeichen ja/nein, Crew-Zeichen, Frisur, Haarfarbe, Augen, Kopfbedeckung und deren Farbe, Brille, Ohren, Mund (Maske, Zigarette, Zahnstocher). Geänderte Felder werden orange, der Gegner bekommt links einen orangen Punkt.</li>
-<li><b>Ausgegraut</b> heißt: passt nicht, der Grund steht in Klammern. Zum Beispiel keine Cap und kein Bandana zum Anzug, Hut nur zu eleganter Kleidung, Feldmütze nur zur Feldjacke, Brille im Haar nur ohne Kopfbedeckung, Stofffarben passend zum Oberteil, Halsteile passend zum Kragen. Machst du durch einen Wechsel etwas anderes unpassend, stellt das Tool es um und schreibt unter das Bild, was es angepasst hat.</li>
+<li>Rechts jedes Teil wählen: Figur (Mann/Frau), Oberteil, Stofffarbe, Hals, Crew-Abzeichen ja/nein, Crew-Zeichen, Frisur, Haarfarbe, Augen, Kopfbedeckung und deren Farbe, Brille, Bart und Bartfarbe, Ohren, Mund (Maske, Zigarette, Zahnstocher). Geänderte Felder werden orange, der Gegner bekommt links einen orangen Punkt.</li>
+<li><b>Ausgegraut</b> heißt: passt nicht, der Grund steht in Klammern. Zum Beispiel keine Cap und kein Bandana zum Anzug, Hut nur zu eleganter Kleidung, Feldmütze nur zur Feldjacke, Brille im Haar nur ohne Kopfbedeckung, kein Bart bei Frauen und unter der Maske, Stofffarben passend zum Oberteil, Halsteile passend zum Kragen. Machst du durch einen Wechsel etwas anderes unpassend, stellt das Tool es um und schreibt unter das Bild, was es angepasst hat.</li>
 <li><b>Zufall</b> würfelt eine passende Figur, <b>Zurück auf Spiel-Stand</b> nimmt deine Änderungen an diesem Gegner zurück, <b>PNG speichern</b> speichert das Bild in 1024 × 1024.</li>
 </ol>
 <div class="box warn"><b>Ins Spiel bringen</b>Änderungen merkt sich zuerst nur dein Browser. Klick oben auf <b>silhouetten.json speichern</b> und leg die Datei nach <span class="path">tools\silhouette\silhouetten.json</span> im Mod-Ordner (oder schick sie mir). Dann erzeugt <code>python tools/silhouette/vc/rivals_v2.py</code> alle Spielbilder neu, mit deinen Änderungen genau so, wie das Tool sie zeigt. Mit <b>Laden…</b> liest du eine gespeicherte <code>silhouetten.json</code> wieder ein.</div>
@@ -679,6 +679,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <ul>
 <li><b>Ein Gegner soll eine Glatze haben:</b> Gegner wählen, bei "Frisur" <code>Glatze</code> einstellen. Passt die Kopfbedeckung nicht mehr, nimmt das Tool sie ab.</li>
 <li><b>Ein Gegner ist eigentlich eine Frau:</b> "Figur" auf Frau stellen. Unpassende Frisur oder Kleidung wird automatisch ersetzt, danach nach Geschmack anpassen. Fest im Spiel geht es auch mit <code>"figur": "w"</code> in <code>rivals.json</code>.</li>
+<li><b>Henry will einen Bart:</b> <code>Slim Henry</code> suchen, unter "Extras" bei "Bart" z. B. <code>Vollbart</code> wählen und bei "Bartfarbe" <code>Dunkelbraun</code> (oder "wie die Haare"). Dann <b>silhouetten.json speichern</b> wie unten beschrieben.</li>
 <li><b>Dauerhaft in rivals.json statt im Tool:</b> <code>"silhouette": {"garment": "leder", "hair": "tolle", "glasses": "pilot"}</code> beim Gegner eintragen. Die Teile-IDs stehen in der Teile-Übersicht und in der Katalog-PSD.</li>
 </ul>
 <div class="box tip"><b>Für mich: das Tool neu bauen</b>Das Tool wird aus denselben Python-Teilen gebaut wie die Spielbilder: <code>python tools/silhouette/vc/rivals_v2.py</code>, dann <code>python tools/silhouette/vc/build_tool.py</code>. Die Bedienoberfläche steht in <span class="path">tools\silhouette\vc\tool_template.html</span>, <code>silhouetten.html</code> selbst nicht von Hand ändern. Kommen neue Teile dazu, einfach beide Befehle neu ausführen.</div>
@@ -687,7 +688,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <ul>
 <li><b>Ein Crew-Abzeichen pro Figur:</b> Es sitzt immer auf der linken Brust des Trägers (im Bild rechts), wo man es im echten Leben trägt. Auf Jacken ist es ein Stoffaufnäher, an Anzug, Weste, Lederjacke und Trenchcoat eine Anstecknadel am Revers, auf dem T-Shirt ein Aufdruck, auf der Sukajan eine Stickerei. Pelzmantel, Bluse, Rollkragen und Warnweste bekommen keins. Leader tragen es in Gold, beim Tokkou-Mantel steht dann 総長 (Anführer) im Stick. Etwa 70 % der Mitglieder tragen das Abzeichen. Wanderer und Bosse haben keins.</li>
 <li><b>Crew-Stil:</b> <code>CREW</code> in <span class="path">tools\silhouette\vc\rivals_v2.py</span> legt pro Crew fest, was die Mitglieder meistens tragen. Zum Beispiel trägt Night Patrol 16 Feldjacke, Feldmütze und Hundemarken, Zangyō Express Anzug, Kostüm und eckige Brille. Hinweise aus der Beschreibung (z. B. Sonnenbrille, Overall, raucht, Opa) gehen vor.</li>
-<li><b>Feste Looks:</b> Henry (Dutt, Zigarette, weinroter Hoodie, wie sein altes Bild), Alex Zockt (Lantern-Farben, Hachimaki, Headset, Rennjacke, Goldkette, wie dein altes Bild) und die drei Bosse stehen in <code>FIXED</code>.</li>
+<li><b>Feste Looks:</b> Henry (Dutt, Zigarette, weinroter Hoodie, wie sein altes Bild), Alex Zockt (Lantern-Farben, Hachimaki, Headset, Rennjacke, Goldkette, wie dein altes Bild) und die drei Bosse stehen in <code>FIXED</code>. Boss Mugen hat einen silbernen Spitzbart, Boss Shirotora einen platinblonden Kinnbart (Kokuryū trägt Maske). Henry und Alex Zockt haben fest keinen Bart, Henry sucht sich seinen im Tool selbst aus. Fest eintragen geht mit <code>beard="vollbart", beardcolor="grau"</code> (in <code>FIXED</code>, in <code>"silhouette"</code> in rivals.json oder im Tool).</li>
 </ul>
 <ul>
 <li><b>Wo:</b> <span class="path">tools\silhouette\vc\</span>. <code>core.py</code> enthält die Grundlagen (Schattierung, Ebenen), <code>parts_head.py</code> die Kopfteile, <code>parts_body.py</code> Körper und Kleidung, <code>make.py</code> setzt alles zusammen.</li>
@@ -696,6 +697,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Kopf und Gesicht: 8 Augen, 16 Frisuren (z. B. Tolle, Undercut, Irokese, Afro, Bob, Hime-Schnitt, Dutt, Zöpfe), 7 Kopfbedeckungen (Cap, Cap rückwärts, Strickmütze, Feldmütze, Hachimaki, Bandana, Trilby), 5 Brillen, 4 Ohrteile und eine Maske.</li>
 <li>Kleidung: 20 Oberteile, z. B. Hoodie, Pelzmantel, Feldjacke, Lederjacke, Bomber, Anzug, Kostüm, Tokkou-Mantel, Trainingsjacke, Rennanzug, Jeansjacke, Sukajan, Parka, Weste, Bluse, Warnweste, Trenchcoat.</li>
 <li>Dazu 6 Halsteile (Kopfhörer, Hundemarken, Goldkette, Schal, Halsband, Handtuch) und im Mund Zigarette oder Zahnstocher.</li>
+<li>7 Bärte (seit 03.11.2026, Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart, Ziegenbart. Bartfarbe frei wählbar aus allen Haarfarben plus Grau, Weiß, Rotblond und Pfeffer-Salz, oder "wie die Haare". Der Bart sitzt unter dem Visier und liegt unter Maske, Zigarette und Zahnstocher.</li>
 </ul></li>
 <li><b>Logisch statt zufällig:</b>
 <ul>
@@ -703,6 +705,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Halsteile gibt es nur bei passendem Ausschnitt, zum Beispiel keine Hundemarken über Pelz oder Krawatte.</li>
 <li>Hüte gibt es nur bei passender Frisur und Kleidung: keine Cap über Tolle oder Dutt, die Feldmütze nur zur Feldjacke, den Trilby nur zu eleganter Kleidung, keine Cap zum Anzug.</li>
 <li>Eine Sonnenbrille im Haar gibt es nur ohne Hut.</li>
+<li>Bärte nur bei Männern und nie unter der Maske. Etwa jeder sechste Gegner hat einen, Wanderer öfter (etwa jeder dritte). Manche Crews haben mehr Bärte und eigene Lieblingsbärte (<code>beard</code> und <code>beardchance</code> in <code>CREW</code>), z. B. Showa mit Vollbart und Spitzbart, die 73er Muscle-Crew mit Koteletten und Schnurrbart, Yamagumi-Arbeiter mit Dreitagebart. An den PAs tragen Lkw-Fahrer, Rentner, Mechaniker und Straßenarbeiter öfter Bart. Der Bart wird mit eigenem Zufall gewürfelt, alle anderen Teile der Figuren bleiben dadurch gleich.</li>
 <li>Die Regeln stehen in <code>make.py</code> (<code>allowed_hats</code>, <code>allowed_glasses</code>, <code>allowed_necks</code>).</li>
 </ul></li>
 <li><b>Bauen:</b> <code>python tools\silhouette\vc\make.py AUSGABEORDNER</code> erzeugt 12 Musterfiguren und den Katalog. Mit <code>--uebersicht</code> kommt je Teil eine Beispielfigur dazu. Rendern geht so: <code>vectorcraft-cli run --in X.svg --commands X_steps.json --export X.png --export X.psd --scale 2</code>.</li>
@@ -1772,6 +1775,12 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <details class="cl">
 <summary><b>Alpha 0.9.2</b> <small>Stand 03.11.2026</small></summary>
 <div>
+<h4>Porträts: Bärte</h4>
+<ul>
+<li>Die Bob-Porträts können jetzt Bärte tragen (Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart und Ziegenbart, in vielen Farben (Haarfarben plus Grau, Weiß, Rotblond, Pfeffer-Salz).</li>
+<li>45 Gegner und 20 PA-Fahrer haben jetzt einen Bart, darunter einige Wanderer. Boss Mugen trägt einen silbernen Spitzbart, Boss Shirotora einen platinblonden Kinnbart. Alle anderen Figuren sehen aus wie vorher.</li>
+<li>Im Silhouetten-Tool gibt es unter „Extras“ die Felder „Bart“ und „Bartfarbe“.</li>
+</ul>
 <h4>Speichern am Standort</h4>
 <ul>
 <li>Laden bringt dich nicht mehr immer nach Hause. Du startest dort, wo du ordentlich gespeichert hast: zu Hause (Speichern oder Schlafen) und in der Garage wie bisher in der Garage, unterwegs genau an der Stelle, mit derselben Richtung, Uhrzeit, Tank und Schaden.</li>

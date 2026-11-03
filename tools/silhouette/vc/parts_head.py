@@ -1,4 +1,4 @@
-"""Kopfteile: Augen, Frisuren, Kopfbedeckungen, Brillen, Ohren, Maske.
+"""Kopfteile: Augen, Frisuren, Kopfbedeckungen, Brillen, Ohren, Maske, Bärte.
 
 Alle Koordinaten im Kopf-System (vor der Verschiebung um HEAD_DY): Kopfmitte (300,222),
 Breite ±88, oben y=122, Kinn y=314. Visier 222..378 x 164..252.
@@ -637,4 +637,152 @@ def mo_zahnstocher(doc, A):
 MOUTHS = {
     "zigarette": ("Zigarette", mo_zigarette, 2, 1),
     "zahnstocher": ("Zahnstocher", mo_zahnstocher, 2, 0),
+}
+
+
+# ---------------------------------------------------------------------------
+# Bärte (unter dem Visier; liegen über dem Kopf, unter Visier, Maske und Mund)
+# ---------------------------------------------------------------------------
+# Bartfarben: alle Haarfarben plus typische Bartfarben (Bart darf anders sein als die Haare)
+BEARD_COLORS = dict(HAIR_COLORS, **{
+    "grau": ("#9a9ea6", "#4c5058"),
+    "weiss": ("#f4f4f2", "#b9bab6"),
+    "rotblond": ("#c9773f", "#6a3415"),
+    "pfeffer_salz": ("#6f7178", "#24252a"),
+})
+
+# Kopf-Unterkante (Kinnlinie) und Visier-Unterkante, damit der Bart sauber anliegt
+JAW = "M212,222 C212,272.8 251.4,314 300,314 C348.6,314 388,272.8 388,222"
+VISOR_LOW = "C378,240 342,252 300,252 C258,252 222,240 222,208"
+
+
+def _stubble(cx_list, col, op, r=1.2):
+    return "".join(f'<circle cx="{f(x)}" cy="{f(y)}" r="{r}" fill="{col}" fill-opacity="{op}"/>' for x, y in cx_list)
+
+
+def _dots_in(region_test, step=7, seed=1):
+    """Gleichmäßig verstreute Punkte (fest, ohne Zufall), die region_test(x,y) erfüllen."""
+    out = []
+    j = 0
+    for yy in range(200, 340, step):
+        for xx in range(205, 396, step):
+            j += 1
+            dx = ((j * 37 + seed * 11) % 7 - 3) * .6
+            dy = ((j * 53 + seed * 5) % 7 - 3) * .6
+            x, y = xx + dx + (step / 2 if (yy // step) % 2 else 0), yy + dy
+            if region_test(x, y):
+                out.append((x, y))
+    return out
+
+
+def _in_head_low(x, y, ymin_center=262, inset=3):
+    """Unterer Gesichtsbereich: im Kopf-Ei, unterhalb des Visiers."""
+    h = HEAD
+    nx = (x - h["cx"]) / (h["rx"] - inset)
+    ny = (y - h["cy"]) / ((h["ryb"] - inset) if y > h["cy"] else (h["ryt"] - inset))
+    if nx * nx + ny * ny > 1:
+        return False
+    # unterhalb der Visier-Unterkante (Ellipse 222..378 x 164..252) + Abstand
+    vx = (x - 300) / 84
+    vy = (y - 208) / (44 + (ymin_center - 252))
+    return vx * vx + vy * vy > 1 and y > 196
+
+
+def _beard_paint(doc, d, c, A, clip_head=True, hair_lines=()):
+    """Bartfläche: Verlauf, weiches Licht, feine Haarstriche, Randlicht. Auf Kopfform beschnitten."""
+    out = f'<path d="{d}" fill="{doc.lin([(0, c[0], 1), (1, c[1], 1)], 0, 0, .2, 1)}"/>'
+    inner = doc.soft("M250,262 C270,256 300,256 318,262 L318,276 C300,270 270,270 250,276 Z", "#ffffff", 5, .18)
+    inner += doc.soft("M372,214 C398,246 394,290 360,320 L420,330 L420,200 Z", A, 8, .28)
+    inner += "".join(line(p, "#000", 1.3, .28) for p in hair_lines)
+    inner += "".join(line(p, "#ffffff", 1, .16) for p in hair_lines[::2])
+    out += f"<g {doc.clip(d)}>{inner}</g>"
+    out += f'<path d="{d}" fill="none" stroke="#000" stroke-opacity=".38" stroke-width="1.3"/>'
+    return out
+
+
+def _fan(x0, y0, x1, y1, n, curl=6):
+    """n kurze Haarstriche zwischen zwei Punkten, leicht gebogen."""
+    out = []
+    for i in range(n):
+        t = (i + .5) / n
+        x, y = x0 + (x1 - x0) * t, y0 + (y1 - y0) * t
+        out.append(f"M{f(x)},{f(y)} q{f(curl * .4)},{f(curl)} {f(curl * .1)},{f(curl * 1.8)}")
+    return out
+
+
+def _mustache_d():
+    left = "M300,262 C290,257 272,256 260,262 C250,267 245,276 238,281 C252,282 264,277 274,273 C284,270 293,270 300,271"
+    right = "C307,270 316,270 326,273 C336,277 348,282 362,281 C355,276 350,267 340,262 C328,256 310,257 300,262 Z"
+    return left + " " + right
+
+
+def b_stoppeln(doc, A, c):
+    pts = _dots_in(_in_head_low, 4, 3)
+    out = f'<g {doc.clip(egg(HEAD["cx"], HEAD["cy"], HEAD["rx"], HEAD["ryt"], HEAD["ryb"]))}>'
+    region = "M212,214 " + JAW[JAW.index("C"):] + " L388,214 C378,250 342,262 300,262 C258,262 222,250 212,214 Z"
+    out += doc.soft(region, c[1], 7, .4)
+    out += _stubble(pts, c[1], .42, .85)
+    out += "</g>"
+    return out
+
+
+def b_schnurrbart(doc, A, c):
+    d = _mustache_d()
+    lines = _fan(258, 263, 296, 263, 6, 4) + _fan(304, 263, 342, 263, 6, 4)
+    return doc.shadowed(_beard_paint(doc, d, c, A, hair_lines=lines), 0, 2, 3, 35)
+
+
+def b_kinnbart(doc, A, c):
+    d = "M284,290 C292,286 308,286 316,290 C321,300 316,316 300,320 C284,316 279,300 284,290 Z"
+    lines = _fan(288, 292, 312, 292, 5, 6)
+    return doc.shadowed(_beard_paint(doc, d, c, A, hair_lines=lines), 0, 2, 3, 35)
+
+
+def b_spitzbart(doc, A, c):
+    must = _mustache_d()
+    goat = ("M272,276 C276,286 280,292 288,294 C294,295 306,295 312,294 C320,292 324,286 328,276 "
+            "C332,290 330,306 318,318 C312,326 306,334 300,342 C294,334 288,326 282,318 C270,306 268,290 272,276 Z")
+    d = must + " " + goat
+    lines = _fan(258, 263, 296, 263, 6, 4) + _fan(304, 263, 342, 263, 6, 4) + _fan(280, 300, 320, 300, 7, 9)
+    return doc.shadowed(_beard_paint(doc, d, c, A, hair_lines=lines), 0, 2, 3, 35)
+
+
+def b_koteletten(doc, A, c):
+    left = ("M211,196 L224,196 C223,224 228,244 244,262 C254,272 262,282 262,294 C254,300 246,300 240,296 "
+            "C224,284 212,262 211,232 Z")
+    d = left + " " + mirror(left)
+    lines = _fan(214, 214, 238, 276, 7, 5) + _fan(386, 214, 362, 276, 7, 5)
+    return doc.shadowed(_beard_paint(doc, d, c, A, hair_lines=lines), 0, 2, 3, 35)
+
+
+def b_vollbart(doc, A, c):
+    d = ("M210,196 L224,196 C224,236 246,258 274,264 C284,266 292,266 300,266 C308,266 316,266 326,264 "
+         "C354,258 376,236 376,196 L390,196 C392,250 384,290 360,314 C342,332 322,340 300,340 "
+         "C278,340 258,332 240,314 C216,290 208,250 210,196 Z")
+    must = _mustache_d()
+    lines = (_fan(216, 226, 252, 316, 8, 7) + _fan(384, 226, 348, 316, 8, 7) + _fan(262, 300, 338, 300, 9, 10)
+             + _fan(258, 263, 296, 263, 5, 4) + _fan(304, 263, 342, 263, 5, 4))
+    base = _beard_paint(doc, d, c, A, hair_lines=lines)
+    # Schnurrbart leicht abgesetzt (eigener Schatten), Mundlinie angedeutet
+    top = _beard_paint(doc, must, (c[0], c[1]), A)
+    mouth = line("M286,282 C294,285 306,285 314,282", "#000", 2, .35)
+    return doc.shadowed(base + mouth + top, 0, 3, 4, 40)
+
+
+def b_ziegenbart(doc, A, c):
+    d = ("M284,290 C292,286 308,286 316,290 C322,304 318,320 312,336 C308,348 304,358 300,368 "
+         "C296,358 292,348 288,336 C282,320 278,304 284,290 Z")
+    lines = _fan(288, 294, 312, 294, 4, 12) + _fan(292, 320, 308, 320, 3, 14)
+    return doc.shadowed(_beard_paint(doc, d, c, A, hair_lines=lines), 0, 2, 3, 35)
+
+
+# id: (Name, Funktion, Gewicht m)
+BEARDS = {
+    "stoppeln": ("Dreitagebart", b_stoppeln, 6),
+    "schnurrbart": ("Schnurrbart", b_schnurrbart, 3),
+    "kinnbart": ("Kinnbart", b_kinnbart, 3),
+    "spitzbart": ("Spitzbart", b_spitzbart, 3),
+    "koteletten": ("Koteletten", b_koteletten, 2),
+    "vollbart": ("Vollbart", b_vollbart, 4),
+    "ziegenbart": ("Ziegenbart", b_ziegenbart, 1),
 }

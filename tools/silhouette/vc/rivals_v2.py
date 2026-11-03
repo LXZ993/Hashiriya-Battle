@@ -14,52 +14,55 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import parts_head as PH
 import parts_body as PB
-from make import compose, allowed_hats, allowed_glasses, allowed_necks, wpick
+from make import compose, allowed_hats, allowed_glasses, allowed_necks, wpick, pick_beard
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 SEED = "hashiriya-v2"
-SPEC_KEYS = ("garment", "tone", "hair", "haircolor", "hat", "hattone", "glasses", "ear", "neck", "mask", "mouth", "eyes", "emblem", "crew")
+SPEC_KEYS = ("garment", "tone", "hair", "haircolor", "hat", "hattone", "glasses", "ear", "neck", "mask", "mouth", "eyes", "emblem", "crew", "beard", "beardcolor")
 
 # Crew-Stil: welche Teile die Mitglieder meistens tragen (passend zum Crew-Thema)
 CREW = {
     "t_lantern":    dict(emblem="flamme", garment=["hoodie", "bomber", "tshirt", "sukajan"], hair=["stachelig", "kurz", "mittel", "pferdeschwanz", "zoepfe"], neck=["kopfhoerer", "kette"], hat=["cap_rueck"]),
     "t_zangyo":     dict(emblem="raute", garment=["anzug", "kostuem", "weste", "mantel"], glasses=["eckig", "rund"], hair=["scheitel", "kurz", "bob", "dutt", "zurueck"]),
-    "t_showa":      dict(emblem="kreis", garment=["weste", "mantel", "rollkragen", "anzug", "kostuem"], hair=["scheitel", "tolle", "glatze", "dutt"], haircolor=["silber", "silber", "schwarz"]),
+    "t_showa":      dict(beard=["vollbart", "spitzbart", "schnurrbart"], beardchance=.5, emblem="kreis", garment=["weste", "mantel", "rollkragen", "anzug", "kostuem"], hair=["scheitel", "tolle", "glatze", "dutt"], haircolor=["silber", "silber", "schwarz"]),
     "t_diana":      dict(emblem="fluegel", garment=["bluse", "kostuem", "sukajan", "pelz", "jeans"], ear=["creolen", "haenger"], neck=["choker", "kette"]),
-    "t_yamagumi":   dict(emblem="raute", garment=["warnweste", "overall", "parka", "rollkragen"], hat=["muetze", "bandana", "stirnband", "cap"], neck=["handtuch"]),
+    "t_yamagumi":   dict(beard=["stoppeln", "vollbart"], beardchance=.45, emblem="raute", garment=["warnweste", "overall", "parka", "rollkragen"], hat=["muetze", "bandana", "stirnband", "cap"], neck=["handtuch"]),
     "t_bxboys":     dict(emblem="blitz", garment=["jeans", "bomber", "tshirt", "trainings"], hat=["cap", "cap_rueck"], hair=["kurz", "stachelig"]),
     "t_neon":       dict(emblem="stern", garment=["pelz", "anzug", "kostuem", "weste", "leder"], glasses=["sonnenbrille", "pilot"], neck=["kette"], ear=["creolen", "stecker"], mouth=["zigarette"]),
-    "t_kombi":      dict(emblem="kreis", garment=["weste", "tshirt", "parka", "rollkragen"], glasses=["rund", "eckig"], hair=["kurz", "scheitel", "glatze"], hat=["cap"]),
+    "t_kombi":      dict(beard=["kinnbart", "stoppeln"], beardchance=.25, emblem="kreis", garment=["weste", "tshirt", "parka", "rollkragen"], glasses=["rund", "eckig"], hair=["kurz", "scheitel", "glatze"], hat=["cap"]),
     "t_kitsune":    dict(emblem="flamme", garment=["anzug", "mantel", "rollkragen", "kostuem"], glasses=["sonnenbrille", "pilot"], mask=True),
     "t_pocket":     dict(emblem="blitz", garment=["tshirt", "hoodie", "rennanzug", "sukajan"], hair=["stachelig", "zoepfe", "bob", "mittel"], hat=["cap_rueck"]),
     "t_hoshikuzu":  dict(emblem="stern", garment=["rennanzug", "trainings", "overall"], hat=["cap"], hair=["kurz"]),
     "t_sleeper":    dict(emblem="raute", garment=["jeans", "weste", "trainings", "tshirt"], hat=["cap"], hair=["kurz", "scheitel"]),
-    "t_kasumi":     dict(emblem="fluegel", garment=["sukajan", "hoodie", "tokkou", "bomber"], mouth=["zigarette", "zahnstocher"], hair=["stachelig", "irokese", "mittel", "lang_wellig"], hat=["bandana"]),
-    "t_etkklassik": dict(emblem="kreis", garment=["leder", "rollkragen", "mantel"], glasses=["rund", "eckig"]),
-    "t_sbr":        dict(emblem="flamme", garment=["overall", "warnweste", "trainings"], hat=["cap"], hair=["kurz"]),
-    "t_yokota":     dict(emblem="fluegel", garment=["militaer", "tshirt", "bomber"], neck=["hundemarken"], hair=["kurz", "glatze"], hat=["feldmuetze", "cap"]),
+    "t_kasumi":     dict(beard=["ziegenbart", "kinnbart"], beardchance=.2, emblem="fluegel", garment=["sukajan", "hoodie", "tokkou", "bomber"], mouth=["zigarette", "zahnstocher"], hair=["stachelig", "irokese", "mittel", "lang_wellig"], hat=["bandana"]),
+    "t_etkklassik": dict(beard=["spitzbart", "vollbart"], beardchance=.35, emblem="kreis", garment=["leder", "rollkragen", "mantel"], glasses=["rund", "eckig"]),
+    "t_sbr":        dict(beard=["stoppeln", "schnurrbart"], beardchance=.3, emblem="flamme", garment=["overall", "warnweste", "trainings"], hat=["cap"], hair=["kurz"]),
+    "t_yokota":     dict(beard=["stoppeln", "schnurrbart"], beardchance=.3, emblem="fluegel", garment=["militaer", "tshirt", "bomber"], neck=["hundemarken"], hair=["kurz", "glatze"], hat=["feldmuetze", "cap"]),
     "t_kurogane":   dict(emblem="raute", garment=["mantel", "anzug", "leder", "kostuem"], glasses=["sonnenbrille"], tone=["schwarz", "anthrazit"]),
-    "t_muscle73":   dict(emblem="stern", garment=["leder", "jeans", "tshirt", "weste"], hair=["lang_m", "tolle", "lang_wellig", "zurueck"], glasses=["sonnenbrille", "pilot"]),
-    "t_raijin":     dict(emblem="blitz", garment=["overall", "sukajan", "tshirt", "tokkou"], mouth=["zigarette"], hat=["bandana", "stirnband"], hair=["stachelig"]),
-    "t_hotrod":     dict(emblem="flamme", garment=["leder", "jeans"], hair=["tolle", "zurueck", "hime", "pferdeschwanz"], mouth=["zigarette", "zahnstocher"]),
+    "t_muscle73":   dict(beard=["koteletten", "schnurrbart", "vollbart"], beardchance=.45, emblem="stern", garment=["leder", "jeans", "tshirt", "weste"], hair=["lang_m", "tolle", "lang_wellig", "zurueck"], glasses=["sonnenbrille", "pilot"]),
+    "t_raijin":     dict(beard=["stoppeln", "ziegenbart"], beardchance=.3, emblem="blitz", garment=["overall", "sukajan", "tshirt", "tokkou"], mouth=["zigarette"], hat=["bandana", "stirnband"], hair=["stachelig"]),
+    "t_hotrod":     dict(beard=["koteletten", "kinnbart"], beardchance=.35, emblem="flamme", garment=["leder", "jeans"], hair=["tolle", "zurueck", "hime", "pferdeschwanz"], mouth=["zigarette", "zahnstocher"]),
     "t_bolide":     dict(emblem="fluegel", garment=["rennanzug", "anzug", "kostuem", "rollkragen"], glasses=["sonnenbrille", "pilot"], neck=["schal"]),
     "t_vivace":     dict(emblem="kreis", garment=["rollkragen", "mantel", "trainings", "bluse"], neck=["schal"], hair=["scheitel", "bob"], hat=["cap_rueck"]),
     "t_akatsuki":   dict(emblem="flamme", garment=["rennanzug", "overall", "trainings"], ear=["headset"]),
     "t_etkmodern":  dict(emblem="blitz", garment=["anzug", "kostuem", "rollkragen", "mantel"], glasses=["eckig"]),
-    "t_bastion":    dict(emblem="raute", garment=["leder", "jeans", "militaer", "weste"], neck=["hundemarken", "kette"]),
+    "t_bastion":    dict(beard=["vollbart", "ziegenbart", "stoppeln"], beardchance=.4, emblem="raute", garment=["leder", "jeans", "militaer", "weste"], neck=["hundemarken", "kette"]),
     "t_scintilla":  dict(emblem="stern", garment=["anzug", "kostuem", "pelz", "mantel"], glasses=["sonnenbrille"], neck=["kette"]),
 }
 
 # Feste Looks (Bosse und besondere Wanderer)
 FIXED = {
-    "b_shirotora": dict(garment="sukajan", tone="weiss", hair="kurz", haircolor="platin", eyes="cool", glasses="sonnenbrille", crew=False),
+    "b_shirotora": dict(garment="sukajan", tone="weiss", hair="kurz", haircolor="platin", eyes="cool", glasses="sonnenbrille", crew=False,
+                        beard="kinnbart", beardcolor="platin"),
     "b_kokuryu":   dict(garment="tokkou", tone="schwarz", hair="zurueck", haircolor="schwarz", eyes="grimmig", mask=True, crew=False),
-    "b_mugen":     dict(garment="mantel", tone="anthrazit", hair="zurueck", haircolor="silber", hat="hut", hattone="schwarz", eyes="muede", crew=False, figur="m"),
+    "b_mugen":     dict(garment="mantel", tone="anthrazit", hair="zurueck", haircolor="silber", hat="hut", hattone="schwarz", eyes="muede", crew=False, figur="m",
+                        beard="spitzbart", beardcolor="silber"),
     # Slim Henry: Dutt, Zigarette, weinroter Hoodie, fröhlich (nach seinem bisherigen Porträt)
-    "w_henry":     dict(garment="hoodie", tone="weinrot", hair="dutt", haircolor="dunkelbraun", eyes="laecheln", mouth="zigarette", crew=False, figur="m"),
+    "w_henry":     dict(garment="hoodie", tone="weinrot", hair="dutt", haircolor="dunkelbraun", eyes="laecheln", mouth="zigarette", crew=False, figur="m",
+                        beard=None),  # Bart sucht sich Henry im Silhouetten-Tool selbst aus
     # Alex Zockt (LXZ): nach Alex' eigenem Porträt: Lantern-Farben, Hachimaki, Funk-Headset, dunkle Rennjacke, Goldkette
     "w_alex_zockt": dict(garment="rennanzug", tone="marine", hair="kurz", haircolor="dunkelbraun", hat="stirnband", eyes="cool",
-                         ear="headset", neck="kette", crew=False, figur="m", A="#ffb347", jp="真夜中ランタン"),
+                         ear="headset", neck="kette", crew=False, figur="m", A="#ffb347", jp="真夜中ランタン", beard=None),
 }
 BOSS_COLOR = {"b_shirotora": "#f5f5f5", "b_kokuryu": "#9c27ff", "b_mugen": "#ffd54f"}
 WANDERER_COLORS = ["#9fb4c7", "#b5a58c", "#a7c4a0", "#c9a7c7", "#8fb8c9", "#c4b48a", "#a0a8c8"]
@@ -195,6 +198,26 @@ def finish_spec(spec, R, st, fixed):
     return spec
 
 
+BEARD_NPC = {"trucker": .5, "veteran": .55, "mechanic": .45, "roadworker": .45, "camper": .4, "garbage": .35, "taxi": .3, "guard": .25, "security": .25}
+
+
+def add_beard(spec, rid, st, fixed, chance):
+    """Bart mit eigenem Zufall (die übrigen Teile bleiben dadurch wie vorher). Feste Vorgaben gehen vor."""
+    R = rng(SEED, rid, "bart")
+    if "beard" in fixed:
+        spec["beard"], spec["beardcolor"] = fixed["beard"], fixed.get("beardcolor")
+    else:
+        pick_beard(R, spec, st.get("beardchance", chance))
+        pref = [b for b in st.get("beard", []) if b in PH.BEARDS]
+        if spec["beard"] and pref and R.random() < .6:
+            spec["beard"] = R.choice(pref)
+    if spec.get("female") or spec.get("mask"):
+        spec["beard"] = None
+    if not spec.get("beard"):
+        spec["beardcolor"] = None
+    return spec
+
+
 def build_all(rivals, teams, overrides):
     specs, used = {}, set()
     for r in sorted(rivals, key=lambda x: x["id"]):
@@ -214,6 +237,7 @@ def build_all(rivals, teams, overrides):
             if sig not in used:
                 break
         used.add(sig)
+        add_beard(spec, r["id"], st, fixed, .3 if r.get("wanderer") else .15)
         if team:
             A, jp = team["color"], team["jp"]
             emblem = CREW.get(r["team"], {}).get("emblem", "stern")
@@ -247,6 +271,7 @@ def npc_specs(chat):
             r = {"id": f"{s['id']}_{i}", "figur": "f" if fem else "m"}
             spec, R, st = auto_spec(r, None, 0)
             spec = finish_spec(spec, R, {}, fixed)
+            add_beard(spec, r["id"], {}, fixed, BEARD_NPC.get(s["id"], .15))
             spec.update(A=A, jp="パーキング", emblem="stern", crew=False, leader=False, nick="", tape="")
             out[r["id"]] = spec
     return out

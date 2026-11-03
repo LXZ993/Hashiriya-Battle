@@ -98,6 +98,27 @@ def auto(seed):
     ni = 4 if fem else 3
     spec["neck"] = wpick(rnd, [(k, PB.NECKS[k][ni]) for k in nk], ni) if nk and rnd.random() < .4 else None
     spec["mask"] = rnd.random() < .07
+    pick_beard(random.Random(f"{seed}|bart"), spec, .3)  # eigener Zufall: alte Muster bleiben gleich
+    return spec
+
+
+def beard_color(spec):
+    """Bartfarbe: eigene Farbe, sonst wie die Haare."""
+    c = spec.get("beardcolor") or spec.get("haircolor")
+    return c if c in PH.BEARD_COLORS else "schwarz"
+
+
+def pick_beard(rnd, spec, chance):
+    """Bart nach den Regeln: nur Männer, nicht unter der Maske. Setzt beard/beardcolor."""
+    spec["beard"], spec["beardcolor"] = None, None
+    if spec.get("female") or spec.get("mask") or rnd.random() >= chance:
+        return spec
+    spec["beard"] = wpick(rnd, [(k, v[2]) for k, v in PH.BEARDS.items()], 2)
+    hc = spec.get("haircolor")
+    if rnd.random() < .6 and hc in ("schwarz", "dunkelbraun", "braun", "blond", "platin", "rot", "silber"):
+        spec["beardcolor"] = None  # wie die Haare
+    else:
+        spec["beardcolor"] = rnd.choice(["schwarz", "dunkelbraun", "braun", "rotblond", "blond", "grau", "pfeffer_salz", "weiss", "silber", "rot"])
     return spec
 
 
@@ -125,6 +146,8 @@ def compose(spec, preview):
     if spec.get("neck"):
         doc.layer("Hals", PB.NECKS[spec["neck"]][1](doc, A), k=k)
     doc.layer("Kopf", PH.head_shell(doc, A), head=True)
+    if spec.get("beard") and not spec.get("female"):
+        doc.layer("Bart", PH.BEARDS[spec["beard"]][1](doc, A, PH.BEARD_COLORS[beard_color(spec)]), head=True)
     doc.layer("Visier", PH.visor_glass(doc), head=True)
     doc.layer("Augen", PH.eyes_svg(doc, PH.EYES[spec["eyes"]][1], lashes=spec["female"]) + PH.visor_shine(doc), head=True)
     if spec.get("mask"):
@@ -173,6 +196,8 @@ def catalog(preview, hide=True):
     for nid, n in PB.NECKS.items():
         L(f"Hals_{nid}", n[1](doc, A))
     L("Kopf", PH.head_shell(doc, A), head=True)
+    for bid, (nm, fn, _w) in PH.BEARDS.items():
+        L(f"Bart_{bid}", fn(doc, A, PH.BEARD_COLORS["dunkelbraun"]), head=True)
     L("Visier", PH.visor_glass(doc) + PH.visor_shine(doc), head=True)
     for eid, (nm, fn) in PH.EYES.items():
         L(f"Augen_{eid}", PH.eyes_svg(doc, fn), head=True)
@@ -219,6 +244,9 @@ def overview_specs():
         out.append((f"e_{eid}", dict(base, ear=eid, female=True, hair="dutt", garment="bluse", tone="creme")))
     for eid in PH.EYES:
         out.append((f"a_{eid}", dict(base, eyes=eid, hair="scheitel", garment="trainings", tone="royal")))
+    bcols = ["dunkelbraun", "schwarz", "rotblond", "grau", "blond", "weiss", "pfeffer_salz"]
+    for i, bid in enumerate(PH.BEARDS):
+        out.append((f"v_{bid}", dict(base, beard=bid, beardcolor=bcols[i % len(bcols)], garment="leder")))
     out.append(("m_maske", dict(base, mask=True, hair="tolle", garment="tokkou", tone="weiss")))
     return out
 
