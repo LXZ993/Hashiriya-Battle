@@ -4,6 +4,9 @@
 -- HTML5-Audio im UI geht in BeamNG nicht zuverlässig (OGG wird nicht gestreamt, bleibt stumm).
 -- Solange Hashiriya läuft, wird die Hauptmenü-Musik von BeamNG angehalten.
 -- Einstellungen und Playlists: data/music.json.
+-- Eigene Musik: Spieler legen Dateien in <Userfolder>/hashiriya_musik/<situation>/ ab. Pro Situation
+-- stellt man im Hashiriya-Menü ein, ob Mod-Musik, eigene Musik, beides oder nichts läuft
+-- (gespeichert in settings/hashiriya_battle/music_settings.json).
 local M = {}
 
 local logTag = 'hashiriya.music'
@@ -55,6 +58,132 @@ local function shuffled(list)
     out[i], out[j] = out[j], out[i]
   end
   return out
+end
+
+-- Situationen ---------------------------------------------------------------------
+-- id = interne Situation, folder = Unterordner für eigene Musik, fallback = woher Musik kommt,
+-- wenn für diese Situation nichts da ist ('daynight' = Tag oder Nacht je nach Uhrzeit).
+local SITUATIONS = {
+  { id = 'title',    folder = 'titel' },
+  { id = 'day',      folder = 'tag' },
+  { id = 'night',    folder = 'nacht' },
+  { id = 'pa',       folder = 'parkplatz', fallback = 'daynight' },
+  { id = 'garage',   folder = 'garage',    fallback = 'daynight' },
+  { id = 'shop',     folder = 'shop' },
+  { id = 'battle',   folder = 'battle' },
+  { id = 'leader',   folder = 'boss',      fallback = 'battle' },
+  { id = 'wanderer', folder = 'wanderer',  fallback = 'battle' },
+  { id = 'pinkslip', folder = 'pinkslip',  fallback = 'battle' },
+}
+local SIT = {}
+for i, sdef in ipairs(SITUATIONS) do sdef.order = i; SIT[sdef.id] = sdef end
+local MODES = { 'both', 'mod', 'own', 'off' }
+local OWN_EXT = { 'ogg', 'wav', 'mp3', 'flac' }
+
+local settingsPath = '/settings/hashiriya_battle/music_settings.json'
+local userSettings = nil
+local ownCache = {}       -- folder -> Liste der Pfade (bei jedem Situationswechsel neu eingelesen)
+local badFiles = {}       -- Dateien, die BeamNG nicht laden konnte
+
+local function settings()
+  if not userSettings then
+    userSettings = jsonReadFile(settingsPath) or {}
+    userSettings.sources = userSettings.sources or {}
+  end
+  return userSettings
+end
+
+local function modeOf(id)
+  local m = settings().sources[id]
+  if m == 'both' or m == 'mod' or m == 'own' or m == 'off' then return m end
+  return (cfg().defaultSource or 'both')
+end
+
+local function ownRoot() return cfg().ownFolder or '/hashiriya_musik/' end
+
+local function isNight()
+  local home = extensions.hashiriyaBattle_home
+  return home and home.isNight() and true or false
+end
+
+local function resolveFallback(fb)
+  if fb == 'daynight' then return isNight() and 'night' or 'day' end
+  return fb
+end
+
+local function scanOwn(folder)
+  local dir = ownRoot() .. folder .. '/'
+  local out = {}
+  for _, ext in ipairs(OWN_EXT) do
+    local ok, list = pcall(function() return FS:findFiles(dir, '*.' .. ext, 0, true, false) end)
+    if ok and type(list) == 'table' then
+      for _, f in ipairs(list) do if not badFiles[f] then table.insert(out, f) end end
+    end
+  end
+  table.sort(out)
+  ownCache[folder] = out
+  return out
+end
+
+-- Ordner und Kurzanleitung anlegen, damit Spieler wissen, wohin die Dateien kommen
+local readme = [[
+Hashiriya Battle - eigene Musik / own music
+
+DE: Lege deine Musik (OGG, WAV, MP3, FLAC) in den passenden Unterordner.
+Im Hashiriya-Menü unter Werkzeuge > Musik stellst du pro Situation ein,
+ob Mod-Musik, eigene Musik, beides oder nichts läuft.
+Ist ein Unterordner leer, wird der Ordner in Klammern genommen.
+
+EN: Put your music (OGG, WAV, MP3, FLAC) into the matching subfolder.
+In the Hashiriya menu under Tools > Music you choose per situation
+whether mod music, your own music, both or nothing plays.
+An empty subfolder falls back to the one in brackets.
+
+titel      Titelbildschirm / title screen
+tag        Freie Fahrt am Tag / free roam by day
+nacht      Freie Fahrt in der Nacht / free roam at night
+parkplatz  Parkplätze (PA) (tag/nacht)
+garage     Garage und Zuhause / garage and home (tag/nacht)
+shop       Shops, Teile-Terminal, Autohändler / shops and dealer
+battle     Battle gegen normale Rivalen / battle vs. normal rivals
+boss       Battle gegen Leader und Bosse (battle)
+wanderer   Battle gegen Wanderer (battle)
+pinkslip   Pink-Slip-Battle (battle)
+]]
+
+local foldersMade = false
+local function ensureFolders()
+  if foldersMade then return end
+  foldersMade = true
+  local root = ownRoot()
+  pcall(function()
+    if not FS:directoryExists(root) then FS:directoryCreate(root, true) end
+    for _, sdef in ipairs(SITUATIONS) do
+      local d = root .. sdef.folder
+      if not FS:directoryExists(d) then FS:directoryCreate(d, true) end
+    end
+    if not FS:fileExists(root .. 'LIESMICH_README.txt') then writeFile(root .. 'LIESMICH_README.txt', readme) end
+  end)
+end
+
+-- eigene Stücke einer Situation, leerer Ordner -> Ordner der Ersatz-Situation
+local function ownTracksFor(id, depth)
+  local sdef = SIT[id]
+  if not sdef then return {} end
+  local list = scanOwn(sdef.folder)
+  if #list == 0 and sdef.fallback and (depth or 0) < 3 then
+    return ownTracksFor(resolveFallback(sdef.fallback), (depth or 0) + 1)
+  end
+  return list
+end
+
+-- Mod-Playlist einer Situation (music.json contexts), fehlt sie -> Ersatz-Situation
+local function modDefFor(id, depth)
+  local def = (cfg().contexts or {})[id]
+  if def then return def end
+  local sdef = SIT[id]
+  if sdef and sdef.fallback and (depth or 0) < 3 then return modDefFor(resolveFallback(sdef.fallback), (depth or 0) + 1) end
+  return nil
 end
 
 -- BeamNG-Hauptmenü-Musik anhalten, solange Hashiriya läuft (main.lua: setMainMenuMusicPauseRequest)
@@ -168,7 +297,12 @@ local function rivalKind()
   return 'normal'
 end
 
-local function trackAllowed(file)
+local function trackAllowed(entry)
+  if type(entry) == 'table' then
+    if entry.own then return true end
+    entry = entry.key
+  end
+  local file = entry
   local t = (cfg().tracks or {})[file]
   local w = t and t.when
   if type(w) ~= 'table' then return true end
@@ -206,30 +340,58 @@ end
 
 local function pathOf(file) return file and filePath(file) or nil end
 
+-- startet das Stück; lädt BeamNG es nicht (z. B. ein Format, das nicht geht), wird es gemerkt und übersprungen
+local function tryStart(entry, loop)
+  local s2 = startFile(entry.path, loop)
+  if s2 then s2.entry = entry; return s2 end
+  badFiles[entry.path] = true
+  return nil
+end
+
 local function nextTrack()
   if introPending then
-    local f = introPending
+    local e = introPending
     introPending = nil
-    if trackAllowed(f) and pathOf(f) then
-      cur = startFile(pathOf(f), #playlist == 0)
+    if trackAllowed(e) then
+      cur = tryStart(e, #playlist == 0)
       if cur then return end
     end
   end
   if #playlist == 0 then return end
-  -- nächstes Stück, dessen Bedingungen gerade passen; passt keins, ganz normal reihum
-  local pick = nil
-  for k = 1, #playlist do
-    local i = (plIndex + k - 1) % #playlist + 1
-    if trackAllowed(playlist[i]) then pick = i break end
-  end
-  if not pick then pick = plIndex % #playlist + 1 end
-  plIndex = pick
   local allowedCount = 0
-  for _, f in ipairs(playlist) do if trackAllowed(f) then allowedCount = allowedCount + 1 end end
-  cur = startFile(pathOf(playlist[pick]), #playlist == 1 or allowedCount == 1)
+  for _, e in ipairs(playlist) do if trackAllowed(e) and not badFiles[e.path] then allowedCount = allowedCount + 1 end end
+  -- nächstes Stück, dessen Bedingungen gerade passen; passt keins, ganz normal reihum
+  for attempt = 1, #playlist do
+    local pick = nil
+    for k = 1, #playlist do
+      local i = (plIndex + k - 1) % #playlist + 1
+      local e = playlist[i]
+      if not badFiles[e.path] and (allowedCount == 0 or trackAllowed(e)) then pick = i break end
+    end
+    if not pick then return end
+    plIndex = pick
+    cur = tryStart(playlist[pick], #playlist == 1 or allowedCount == 1)
+    if cur then return end
+  end
 end
 
 -- Welche Situation gerade ist ---------------------------------------------------
+local function nearPa()
+  local md = core() and core().mapData
+  local list = md and (md.talkSpots or md.napSpots) or {}
+  local veh = be and be:getPlayerVehicle(0)
+  if not veh or #list == 0 then return false end
+  local p = veh:getPosition()
+  for _, pa in ipairs(list) do
+    if pa.pos then
+      local dx, dy, dz = p.x - pa.pos[1], p.y - pa.pos[2], p.z - pa.pos[3]
+      local r = pa.radius or 80
+      if dx * dx + dy * dy + dz * dz < r * r then return true end
+    end
+  end
+  return false
+end
+
 local function wantedContext()
   local c = cfg()
   if c.enabled == false then return 'off' end
@@ -240,7 +402,14 @@ local function wantedContext()
   local battle = extensions.hashiriyaBattle_battle
   if battle then
     local st = battle.getState()
-    if st == 'sync' or st == 'countdown' or st == 'battle' or st == 'result' then return 'battle' end
+    if st == 'sync' or st == 'countdown' or st == 'battle' or st == 'result' then
+      local hud = battle.getHudState and battle.getHudState()
+      if hud and hud.pinkSlip then return 'pinkslip' end
+      local k = rivalKind()
+      if k == 'boss' or k == 'leader' then return 'leader' end
+      if k == 'wanderer' then return 'wanderer' end
+      return 'battle'
+    end
   end
   local shop = extensions.hashiriyaBattle_shop
   if shop and shop.isTerminalOpen() then return 'shop' end
@@ -251,24 +420,54 @@ local function wantedContext()
     local ctx = area and (c.areaContexts or {})[area.type]
     if ctx then return ctx end
   end
-  local home = extensions.hashiriyaBattle_home
-  return (home and home.isNight()) and 'night' or 'day'
+  local okPa, inPa = pcall(nearPa)
+  if okPa and inPa then return 'pa' end
+  return isNight() and 'night' or 'day'
+end
+
+local function modEntries(def)
+  local out, intro = {}, nil
+  if def.intro and filePath(def.intro) then intro = { path = filePath(def.intro), key = def.intro } end
+  local list = def.shuffle and shuffled(def.tracks or {}) or (def.tracks or {})
+  for _, f in ipairs(list) do
+    local p = filePath(f)
+    if p then table.insert(out, { path = p, key = f }) else log('W', logTag, 'Musikdatei fehlt: ' .. f) end
+  end
+  return out, intro
 end
 
 local function switchTo(ctx)
   context = ctx
   fadeOutCurrent()
   playlist, plIndex, introPending = {}, 0, nil
-  local def = (cfg().contexts or {})[ctx]
-  if ctx ~= 'off' and def then
-    introPending = (def.intro and filePath(def.intro)) and def.intro or nil
-    local list = def.shuffle and shuffled(def.tracks or {}) or (def.tracks or {})
-    for _, f in ipairs(list) do
-      if filePath(f) then table.insert(playlist, f) else log('W', logTag, 'Musikdatei fehlt: ' .. f) end
+  local nMod, nOwn = 0, 0
+  if ctx ~= 'off' then
+    ensureFolders()
+    local mode = modeOf(ctx)
+    local def = modDefFor(ctx)
+    if (mode == 'mod' or mode == 'both') and def then
+      local list, intro = modEntries(def)
+      introPending = intro
+      for _, e in ipairs(list) do table.insert(playlist, e) end
+      nMod = #list
+    end
+    if mode == 'own' or mode == 'both' then
+      for _, p in ipairs(ownTracksFor(ctx)) do
+        table.insert(playlist, { path = p, key = p:match('([^/]+)$'), own = true })
+        nOwn = nOwn + 1
+      end
+    end
+    if mode == 'both' and nOwn > 0 then
+      -- gemischt: Intro bleibt vorn, Rest zufällig
+      playlist = shuffled(playlist)
+    elseif mode == 'own' then
+      playlist = shuffled(playlist)
     end
     nextTrack()
+    log('I', logTag, 'Musik: ' .. ctx .. ' (' .. mode .. ', ' .. nMod .. ' Mod, ' .. nOwn .. ' eigene)')
+  else
+    log('I', logTag, 'Musik: off')
   end
-  log('I', logTag, 'Musik: ' .. ctx .. ' (' .. #playlist .. ' Stücke)')
 end
 
 -- Überspringen (Menü-Knopf, Taste): aktuelles Stück schnell ausblenden, nächstes passendes starten
@@ -288,11 +487,14 @@ end
 -- Für das Menü: Titel und Künstler des laufenden Stücks
 function M.nowPlaying()
   if not cur or not context or context == 'off' then return nil end
-  local file = cur.file:match('([^/]+)$')
-  local t = (cfg().tracks or {})[file] or {}
+  local e = cur.entry or { key = cur.file:match('([^/]+)$') }
+  if e.own then
+    return { title = (e.key or ''):gsub('%.[^.]+$', ''), own = true }
+  end
+  local t = (cfg().tracks or {})[e.key] or {}
   local artist = t.artist
   if artist and artist:match('^%[') then artist = nil end
-  return { title = t.title or file, artist = artist }
+  return { title = t.title or e.key, artist = artist }
 end
 
 function M.stop()
@@ -333,7 +535,7 @@ local function updatePlayback(dt)
     destroy(s)
     if s.loop then
       cur = startFile(s.file, true)
-      if cur then cur.vol = cur.target; setVol(cur, cur.vol) end
+      if cur then cur.entry = s.entry; cur.vol = cur.target; setVol(cur, cur.vol) end
     else
       nextTrack()
     end
@@ -363,6 +565,55 @@ local function onUpdate(dtReal)
   else
     pendingCtx = nil
   end
+end
+
+-- Musik-Einstellungen fürs Menü -------------------------------------------------------
+local function osFolder()
+  local ok, up = pcall(function() return FS:getUserPath() end)
+  local root = ownRoot():gsub('^/', '')
+  if ok and type(up) == 'string' and up ~= '' then
+    return (up .. root):gsub('/', '\\')
+  end
+  return root
+end
+
+function M.uiSettings()
+  local rows = {}
+  for _, sdef in ipairs(SITUATIONS) do
+    local own = ownCache[sdef.folder] or scanOwn(sdef.folder)
+    local def = (cfg().contexts or {})[sdef.id]
+    local nMod = 0
+    if def then for _, f in ipairs(def.tracks or {}) do if filePath(f) then nMod = nMod + 1 end end
+      if def.intro and filePath(def.intro) then nMod = nMod + 1 end end
+    table.insert(rows, { id = sdef.id, folder = sdef.folder, mode = modeOf(sdef.id), own = #own, mod = nMod,
+      fallback = sdef.fallback })
+  end
+  return { folder = osFolder(), rows = rows, current = context }
+end
+
+function M.cycleSource(id, dir)
+  if not SIT[id] then return end
+  local m = modeOf(id)
+  local idx = 1
+  for i, v in ipairs(MODES) do if v == m then idx = i end end
+  idx = (idx - 1 + (tonumber(dir) or 1)) % #MODES + 1
+  settings().sources[id] = MODES[idx]
+  pcall(jsonWriteFile, settingsPath, settings(), true)
+  if context == id or (SIT[context] and SIT[context].fallback and resolveFallback(SIT[context].fallback) == id) then
+    switchTo(context)
+  end
+end
+
+function M.rescan()
+  ownCache, badFiles = {}, {}
+  ensureFolders()
+  for _, sdef in ipairs(SITUATIONS) do scanOwn(sdef.folder) end
+  if context and context ~= 'off' then switchTo(context) end
+end
+
+function M.openFolder()
+  ensureFolders()
+  pcall(function() Engine.Platform.exploreFolder(ownRoot()) end)
 end
 
 -- Credits: alle Stücke mit Titel, Künstler, Lizenz

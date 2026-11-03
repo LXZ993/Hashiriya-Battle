@@ -59,6 +59,22 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-if="s.devMenu" ng-click="act(\'devMenu\')"><i class="hbm-ico" ng-bind-html="ico(\'adjust\')"></i>{{ s.t[\'menu.devMenu\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-if="s.music" ng-click="act(\'musicSkip\')" title="{{ s.t[\'menu.musicNow\'] }}: {{ s.music.title }}{{ s.music.artist ? \' \u2013 \' + s.music.artist : \'\' }}"><i class="hbm-ico" ng-bind-html="ico(\'next\')"></i>' +
               '<span class="hbm-car-name">{{ s.t[\'menu.musicSkip\'] }}<small class="hbm-music-now">{{ s.music.title }}</small></span><span class="hbm-price" ng-if="s.music.key">{{ s.music.key }}</span></div>' +
+            '<div class="hbm-item hbm-sub" ng-if="s.musicCfg" ng-click="toggleMusic()"><i class="hbm-ico" ng-bind-html="ico(\'adjust\')"></i>' +
+              '<span class="hbm-car-name">{{ s.t[\'music.settings\'] }}</span><span class="hbm-price">{{ musicOpen ? \'\u25b4\' : \'\u25be\' }}</span></div>' +
+            '<div class="hbm-musiccfg" ng-if="s.musicCfg && musicOpen">' +
+              '<div class="hbm-note">{{ s.t[\'music.hint\'] }}</div>' +
+              '<div class="hbm-mrow" ng-repeat="r in s.musicCfg.rows track by r.id" ng-class="{\'is-now\': r.id == s.musicCfg.current}">' +
+                '<span class="hbm-mname">{{ s.t[\'music.sit.\' + r.id] }}<small>{{ r.folder }} \u00b7 {{ s.t[\'music.ownCount\'].replace(\'%d\', r.own) }}</small></span>' +
+                '<span class="hbm-cycle-btn" ng-click="act(\'musicSource\', r.id + \'|-1\')">\u2039</span>' +
+                '<span class="hbm-cycle-val">{{ s.t[\'music.mode.\' + r.mode] }}</span>' +
+                '<span class="hbm-cycle-btn" ng-click="act(\'musicSource\', r.id + \'|1\')">\u203a</span>' +
+              '</div>' +
+              '<div class="hbm-note hbm-mfolder">{{ s.t[\'music.folder\'] }}: {{ s.musicCfg.folder }}</div>' +
+              '<div class="hbm-actions">' +
+                '<span class="hbm-btn" ng-click="act(\'musicFolder\')">{{ s.t[\'music.openFolder\'] }}</span>' +
+                '<span class="hbm-btn" ng-click="act(\'musicRescan\')">{{ s.t[\'music.rescan\'] }}</span>' +
+              '</div>' +
+            '</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
               '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
           '</div>' +
@@ -395,6 +411,12 @@ angular.module('beamng.apps')
           '.hbm-sub{font-size:13px;font-weight:500;color:rgba(244,244,244,.8);padding-top:7px;padding-bottom:7px;}' +
           '.hbm-num{font-size:11px;font-weight:800;font-style:italic;color:var(--o);width:28px;flex:none;}' +
           '.hbm-car-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+          '.hbm-musiccfg{margin:0 0 6px;}' +
+          '.hbm-mrow{display:grid;grid-template-columns:1fr 24px 74px 24px;align-items:center;margin:0 18px 3px;background:rgba(255,255,255,.04);}' +
+          '.hbm-mrow.is-now{background:rgba(255,102,0,.12);}' +
+          '.hbm-mname{font-size:12px;padding:3px 8px;line-height:1.2;}' +
+          '.hbm-mname small{display:block;font-size:10px;opacity:.55;}' +
+          '.hbm-mfolder{word-break:break-all;font-size:10px;}' +
           '.hbm-music-now{margin-left:8px;font-size:11px;opacity:.6;font-style:normal;}' +
           '.hbm-price{font-size:13px;font-variant-numeric:tabular-nums;color:var(--o2);margin-left:10px;}' +
           '.hbm-label{display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
@@ -687,6 +709,8 @@ angular.module('beamng.apps')
         scope.plate.type = null
       }
       // Abschleppen kostet viel: erster Klick fragt nach, zweiter Klick (innerhalb 4 s) bestätigt.
+      scope.musicOpen = false
+      scope.toggleMusic = function () { scope.musicOpen = !scope.musicOpen }
       scope.towArmed = false
       var towTimer = null
       scope.towClick = function () {

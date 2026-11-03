@@ -965,6 +965,7 @@ local function buildUiState()
   st.devMenu = (not st.release) and extensions.hashiriyaBattle_devtools ~= nil or nil
   local mu = extensions.hashiriyaBattle_music
   st.music = mu and mu.nowPlaying() or nil
+  st.musicCfg = (M.active and mu and mu.uiSettings) and mu.uiSettings() or nil
   if st.music and extensions.hashiriyaBattle_career.keyFor then
     local ok, k = pcall(extensions.hashiriyaBattle_career.keyFor, 'hashiriyaMusicSkip')
     st.music.key = ok and k or nil
@@ -1111,6 +1112,13 @@ function M.uiAction(action, arg)
     showLexicon = false
   elseif action == 'musicSkip' then
     if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.skip() end
+  elseif action == 'musicSource' then
+    local id, dir = tostring(arg or ''):match('^([%w_]+)|(-?%d+)$')
+    if id and extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.cycleSource(id, tonumber(dir)) end
+  elseif action == 'musicRescan' then
+    if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.rescan() end
+  elseif action == 'musicFolder' then
+    if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.openFolder() end
   elseif action == 'jobs' then
     showJobs = true
     showStats = false

@@ -1287,6 +1287,24 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <p>Gespielt wird über BeamNGs eigenen Audio-Kanal <b>Musik</b>. Lautstärke: <code>volume</code> in music.json (0 bis 1), dazu wirken die BeamNG-Regler <b>Gesamt</b> und <b>Musik</b> (Optionen, Audio). Überblenden: <code>fadeSeconds</code>. Ganz aus: <code>"enabled": false</code>. Sobald du Hashiriya Battle im Hauptmenü startest, ist die BeamNG-Hauptmenü-Musik aus; zurück im normalen Hauptmenü läuft sie wieder.</p>
 <p>Beispiel, ein eigenes Stück für die Nacht dazunehmen: die Datei als <span class="path">art\sound\hashiriya\music\mein_song.ogg</span> ablegen, in <code>contexts.night.tracks</code> <code>"mein_song.ogg"</code> eintragen und unter <code>tracks</code> Titel und Künstler angeben (erscheint dann in den Credits). Fehlt eine Datei, wird sie übersprungen.</p>
 <p><b>WAV statt OGG</b>: Liegt neben einer eingetragenen Datei eine WAV mit gleichem Namen, spielt die Mod die WAV (volle Qualität). Beispiel: <span class="path">daikoku.wav</span> neben <span class="path">daikoku.ogg</span> ablegen, in <code>music.json</code> bleibt <code>"daikoku.ogg"</code> stehen. Nimmst du die WAV wieder weg, läuft automatisch die OGG. Nachteil: eine WAV ist etwa 10-mal so groß (ca. 26 MB für 2,5 Minuten). Wer lieber OGG nimmt: mit hoher Qualität umwandeln (Vorbis q8 bis q10, etwa 256 bis 320 kbit/s), 112 kbit/s klingt hörbar schlechter.</p>
+<h3>Eigene Musik und Musik pro Situation</h3>
+<p>Spieler können ihre eigene Musik einbinden und pro Situation wählen, was läuft. Damit ist die Mod auch ohne mitgelieferte Musik auf der sicheren Seite.</p>
+<p><b>Wo die Dateien hinkommen:</b> <span class="path">F:\BeamNG\current\hashiriya_musik\&lt;ordner&gt;\</span> (allgemein: BeamNG-Userfolder, Unterordner <code>hashiriya_musik</code>). Die Ordner legt die Mod beim ersten Start selbst an, mit einer <span class="path">LIESMICH_README.txt</span>. Formate: OGG und WAV sicher, MP3 und FLAC versucht die Mod auch. Eine Datei, die BeamNG nicht laden kann, wird übersprungen.</p>
+<table>
+<tr><th>Situation im Menü</th><th>Ordner</th><th>Wann</th><th>Ist der Ordner leer</th></tr>
+<tr><td>Titelbildschirm</td><td><code>titel</code></td><td>Titel, neues Spiel</td><td>nichts eigenes</td></tr>
+<tr><td>Fahrt am Tag</td><td><code>tag</code></td><td>freie Fahrt am Tag</td><td>nichts eigenes</td></tr>
+<tr><td>Fahrt in der Nacht</td><td><code>nacht</code></td><td>freie Fahrt nachts</td><td>nichts eigenes</td></tr>
+<tr><td>Parkplatz (PA)</td><td><code>parkplatz</code></td><td>im Umkreis einer PA (Shibaura, Daikoku …)</td><td>tag bzw. nacht</td></tr>
+<tr><td>Garage und Zuhause</td><td><code>garage</code></td><td>in der Bucht von Garage oder Zuhause</td><td>tag bzw. nacht</td></tr>
+<tr><td>Shops und Händler</td><td><code>shop</code></td><td>Shop-Parkplatz, Teile-Terminal, Autohändler</td><td>nichts eigenes</td></tr>
+<tr><td>Battle</td><td><code>battle</code></td><td>Battle gegen normale Rivalen</td><td>nichts eigenes</td></tr>
+<tr><td>Battle: Leader und Boss</td><td><code>boss</code></td><td>gegen Team-Leader und Bosse</td><td>battle</td></tr>
+<tr><td>Battle: Wanderer</td><td><code>wanderer</code></td><td>gegen Wanderer</td><td>battle</td></tr>
+<tr><td>Pink-Slip-Battle</td><td><code>pinkslip</code></td><td>Battle um das Auto</td><td>battle</td></tr>
+</table>
+<p><b>Einstellen im Spiel:</b> Hashiriya-Menü &gt; Werkzeuge &gt; <b>Musik einstellen</b>. Pro Zeile mit ‹ › wählen: <b>Beides</b> (Mod und eigene gemischt, Vorgabe), <b>Mod</b>, <b>Eigene</b>, <b>Aus</b>. Die gerade laufende Situation ist orange markiert, daneben steht, wie viele eigene Stücke gefunden wurden. <b>Ordner öffnen</b> öffnet den Musikordner im Explorer, <b>Neu einlesen</b> nach dem Hinzufügen von Dateien. Gespeichert wird in <span class="path">settings\hashiriya_battle\music_settings.json</span>, also pro Spieler und nicht im Spielstand.</p>
+<p><b>Für dich als Entwickler:</b> In <code>music.json</code> kannst du für <code>pa</code>, <code>garage</code>, <code>leader</code>, <code>wanderer</code> und <code>pinkslip</code> eigene Mod-Playlists unter <code>contexts</code> anlegen. Fehlen sie, läuft die Mod-Musik von Tag/Nacht bzw. Battle. <code>defaultSource</code> = Vorgabe für neue Spieler (<code>both</code>), <code>ownFolder</code> = Ordner der eigenen Musik.</p>
 <p><b>Welches Stück wann kommt</b>: Jedes Stück kann unter <code>tracks</code> ein Feld <code>when</code> bekommen. Dann läuft es nur, wenn alle Bedingungen darin passen. Stücke ohne <code>when</code> laufen immer.</p>
 <table>
 <tr><th>Bedingung</th><th>Bedeutung</th></tr>

@@ -1,12 +1,15 @@
 {
   "_hinweis": "Musik der Mod (music.lua, spielt über BeamNGs Audio-Kanal Musik). Dateien liegen in folder (OGG). contexts = Situation -> Playlist: title = Titelbildschirm/Neues Spiel, day = Tagesfahrt, night = Nachtfahrt (Uhrzeit wie world.json nightFrom/nightTo), shop = Shop-Parkplatz, Teile-Terminal, Autohändler, battle = Battle (ab Annehmen bis zum Ergebnis). intro = einmal am Anfang, danach tracks im Wechsel (shuffle = zufällige Reihenfolge, eine einzelne Datei läuft als Schleife). areaContexts = Parkplatz-Typ -> Situation (fehlt ein Typ, läuft die Fahrmusik weiter). volume = Lautstärke der Mod-Musik (0 bis 1), die BeamNG-Regler Gesamt und Musik wirken zusätzlich. Solange Hashiriya läuft, ist die BeamNG-Hauptmenü-Musik aus. Fehlende Dateien werden übersprungen. tracks = Titel und Credits je Datei, erscheinen in den Credits.",
+  "_hinweisEigene": "Eigene Musik der Spieler: Dateien (OGG, WAV, MP3, FLAC) in <Userfolder>/hashiriya_musik/<ordner>/ (ownFolder). Ordner: titel, tag, nacht, parkplatz, garage, shop, battle, boss, wanderer, pinkslip. Pro Situation wählt der Spieler im Menü (Werkzeuge > Musik): both = Mod und eigene gemischt, mod, own, off; defaultSource = Vorgabe. Situationen ohne eigene Playlist in contexts (pa, garage, leader, wanderer, pinkslip) nehmen die Mod-Musik von Tag/Nacht bzw. battle. Gespeichert in settings/hashiriya_battle/music_settings.json.",
   "_hinweisWhen": "Bedingungen pro Stück: unter tracks.<datei> ein Feld when eintragen. Ein Stück mit when kommt nur, wenn alles darin passt; ohne when immer. Möglich: hours [von, bis] (Spieluhr, über Mitternacht geht, z. B. [22, 4]), rival [\"normal\", \"leader\", \"wanderer\", \"boss\"] (Art des Gegners, für battle), pinkSlip true/false, minRank/maxRank (Rang-Index, 0 = erster Rang), area [\"shop\", \"garage\", \"gas\", \"home\"] (Parkplatz), level [\"c1\"] (Karte). Beispiel: \"km_rhinoceros.ogg\": { ..., \"when\": { \"rival\": [\"leader\", \"boss\"] } } = nur gegen Leader und Bosse. Passt in einer Situation gar kein Stück, laufen alle wie gewohnt reihum.",
   "enabled": true,
   "trafficVolumeInTitle": 0.1,
   "volume": 0.8,
   "fadeSeconds": 2.0,
   "folder": "/art/sound/hashiriya/music/",
-  "areaContexts": { "shop": "shop" },
+  "areaContexts": { "shop": "shop", "garage": "garage", "home": "garage" },
+  "defaultSource": "both",
+  "ownFolder": "/hashiriya_musik/",
   "contexts": {
     "title":  { "intro": "daikoku.ogg", "tracks": ["daikoku_loop.ogg"], "shuffle": false },
     "day":    { "tracks": ["km_airport_lounge.ogg", "km_bossa_antigua.ogg", "km_cool_vibes.ogg", "km_lobby_time.ogg", "km_local_forecast.ogg"], "shuffle": true },

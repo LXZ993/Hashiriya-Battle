@@ -56,6 +56,9 @@
 - The style is shown in the rival lexicon once you know the rival.
 
 ### New: Music controls
+- Your own music: put your songs into the hashiriya_musik folder in the BeamNG user folder, sorted by situation (title, day, night, parking area, garage, shop, battle, boss, wanderer, pink slip).
+- In the Hashiriya menu under Tools > Music settings you choose per situation: mod music, your own music, both or off.
+- New music situations: parking area (PA), garage and home, battles against leaders and bosses, against wanderers and pink slip.
 - New camera shutter sound for the photo job (camera_digital_shutter).
 - Music can now also play as WAV in full quality: if a WAV with the same name sits next to the OGG, the WAV is played. The title song Daikoku now runs this way in its new version V3.
 - Skip music: End key or in the Hashiriya menu under Tools. It also shows which track is playing.
