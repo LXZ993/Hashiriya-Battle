@@ -1,0 +1,11 @@
+{
+  "midsize_skin_hb_police": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Police (Shuto Keisatsu)",
+      "value": 2500
+    },
+    "slotType": "paint_design",
+    "globalSkin": "hb_police"
+  }
+}

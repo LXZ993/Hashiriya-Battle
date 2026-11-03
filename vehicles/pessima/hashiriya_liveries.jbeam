@@ -1,0 +1,20 @@
+{
+  "pessima_skin_hb_taxi_shinonome": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Taxi Shinonome Kotsu",
+      "value": 2500
+    },
+    "slotType": "paint_design",
+    "globalSkin": "hb_taxi_shinonome"
+  },
+  "pessima_skin_hb_taxi_gekko": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Taxi Gekko",
+      "value": 2500
+    },
+    "slotType": "paint_design",
+    "globalSkin": "hb_taxi_gekko"
+  }
+}

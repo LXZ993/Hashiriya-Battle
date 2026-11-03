@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (Stand 03.11.2026)
 
+### Liveries
+- Neue japanische Lackierungen (eigene, erfundene Firmen) als Lackdesign im Konfigurator: zwei Taxis auf der Pessima Mk1 (Shinonome Kotsu, Gekko), Polizei 首都警察 auf Pessima Mk2 und Sunburst, sowie Werkstatt, Spedition, Kurier und Krankenwagen auf Gavril D-Series und H-Series. Die Configs für die Fahrer an den PAs folgen.
+
 ### Handbuch
 - Jeder Datei- und Ordnername im Handbuch ist jetzt ein Link: Klick öffnet die Datei, das Ordner-Symbol dahinter den Ordner. Neu im Kapitel „Ordner und Dateien“: Schnellzugriff auf die wichtigsten Dateien und Ordner.
 - Links wahlweise im Browser, im Explorer oder direkt im Editor öffnen (Explorer/Editor einmal mit tools\Handbuch-Links-einrichten.bat einrichten).
