@@ -689,5 +689,9 @@
   "pause.alsoIn": "Also in",
   "pause.current": "now",
   "pause.hint": "Put your own songs (OGG, WAV, MP3, FLAC) into the music folder, then press Rescan. An own song starts in the situation of its subfolder and can be switched on anywhere here.",
-  "pause.mainMenuHint": "Music settings: Esc > Mods > Hashiriya Battle"
+  "pause.mainMenuHint": "Music settings: Esc > Mods > Hashiriya Battle",
+  "pause.order": "Order",
+  "pause.shuffle": "Shuffle",
+  "pause.list": "Fixed order",
+  "pause.listHint": "Sort with ▲ ▼. Songs play from top to bottom, then start over."
 }

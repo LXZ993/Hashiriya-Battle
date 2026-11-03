@@ -247,12 +247,19 @@ local function startFile(path, loop)
   return s
 end
 
-local function fadeOutCurrent()
+-- dur = eigene Ausblendzeit in Sekunden (nil = fadeSeconds)
+local function fadeOutCurrent(dur)
   if cur then
+    cur.fadeDur = dur
     table.insert(fading, cur)
     cur = nil
   end
 end
+
+-- Gruppen: innerhalb von "roam" (freie Fahrt, PA, Garage, Shop) wird nicht hart gewechselt
+local GROUP = { title = 'title', day = 'roam', night = 'roam', pa = 'roam', garage = 'roam', shop = 'roam',
+  battle = 'battle', leader = 'battle', wanderer = 'battle', pinkslip = 'battle', off = 'off' }
+local function switchFade() return math.max(0.05, cfg().switchFadeSeconds or 4) end
 
 -- Bedingungen pro Stück (music.json tracks.<datei>.when) ---------------------------
 local function hourIn(h, range)
@@ -489,35 +496,94 @@ local function songsFor(id, depth)
   return list, id, mode
 end
 
--- Playlist der Situation bauen (Intro vorn, shuffle laut music.json, Titel ohne shuffle)
+-- Reihenfolge pro Situation: 'shuffle' (zufällig) oder 'list' (feste Reihenfolge, im Menü sortierbar).
+-- Vorgabe aus music.json (shuffle = false -> list), Spieler-Wahl in settings.order, Sortierung in settings.sort.
+local function orderOf(id)
+  local o = (settings().order or {})[id]
+  if o == 'shuffle' or o == 'list' then return o end
+  local def = (cfg().contexts or {})[id]
+  if def and def.shuffle == false then return 'list' end
+  return 'shuffle'
+end
+
+-- Songs in der festen Reihenfolge der Situation: zuerst wie sortiert, Rest wie in der Bibliothek
+local function sortSongs(id, songs)
+  local pos = {}
+  for i, sid in ipairs((settings().sort or {})[id] or {}) do pos[sid] = i end
+  local idx = {}
+  for i, song in ipairs(songs) do idx[song.id] = i end
+  local out = {}
+  for _, song in ipairs(songs) do table.insert(out, song) end
+  table.sort(out, function(a, b)
+    local pa, pb = pos[a.id], pos[b.id]
+    if pa and pb then return pa < pb end
+    if pa then return true end
+    if pb then return false end
+    return idx[a.id] < idx[b.id]
+  end)
+  return out
+end
+
+-- Playlist der Situation bauen (Intro vorn, dann zufällig oder in fester Reihenfolge)
 local function buildPlaylist(ctx)
   local songs, srcId, mode = songsFor(ctx)
   local def = (cfg().contexts or {})[srcId] or {}
+  local order = orderOf(srcId)
+  if order == 'list' then songs = sortSongs(srcId, songs) end
   local list, intro = {}, nil
   local nMod, nOwn = 0, 0
   for _, song in ipairs(songs) do
     local e = { path = song.path, key = song.key, own = song.own, id = song.id }
-    if not intro and def.intro and song.key == def.intro then intro = e
+    -- Intro (z. B. Daikoku im Titel) nur, solange der Spieler die Reihenfolge nicht selbst sortiert hat
+    if not intro and def.intro and song.key == def.intro and not (settings().sort or {})[srcId] then intro = e
     else table.insert(list, e) end
     if song.own then nOwn = nOwn + 1 else nMod = nMod + 1 end
   end
-  if def.shuffle ~= false or nOwn > 0 then list = shuffled(list) end
+  if order == 'shuffle' then list = shuffled(list) end
   return list, intro, mode, nMod, nOwn, srcId
 end
 
+-- Situationswechsel:
+-- 1. Gehört der laufende Song auch zur neuen Situation, läuft er einfach weiter (kein Neustart).
+-- 2. Wechsel innerhalb der freien Fahrt (Tag, Nacht, PA, Garage, Shop): der Song spielt zu Ende,
+--    danach kommt die Playlist der neuen Situation (music.json finishSongInRoam, Vorgabe true).
+-- 3. Sonst (Battle beginnt oder endet, Titel): langsam überblenden (switchFadeSeconds).
 local function switchTo(ctx)
+  local prev = context
   context = ctx
-  fadeOutCurrent()
-  playlist, plIndex, introPending = {}, 0, nil
-  if ctx ~= 'off' then
-    ensureFolders()
-    local list, intro, mode, nMod, nOwn, srcId = buildPlaylist(ctx)
-    playlist, introPending = list, intro
-    nextTrack()
-    log('I', logTag, 'Musik: ' .. ctx .. (srcId ~= ctx and (' -> ' .. srcId) or '') .. ' (' .. mode .. ', ' .. nMod .. ' Mod, ' .. nOwn .. ' eigene)')
-  else
+  if ctx == 'off' then
+    fadeOutCurrent(switchFade())
+    playlist, plIndex, introPending = {}, 0, nil
     log('I', logTag, 'Musik: off')
+    return
   end
+  ensureFolders()
+  local list, intro, mode, nMod, nOwn, srcId = buildPlaylist(ctx)
+  local info = ctx .. (srcId ~= ctx and (' -> ' .. srcId) or '') .. ' (' .. mode .. ', ' .. nMod .. ' Mod, ' .. nOwn .. ' eigene)'
+  playlist, plIndex, introPending = list, 0, nil
+  local curId = cur and cur.entry and cur.entry.id
+  local keepIdx = nil
+  if curId then
+    if intro and intro.id == curId then keepIdx = 0 end
+    for i, e in ipairs(list) do if e.id == curId then keepIdx = i end end
+  end
+  if cur and keepIdx then
+    plIndex = keepIdx
+    cur.loop = (#list + (intro and 1 or 0)) <= 1
+    log('I', logTag, 'Musik: ' .. info .. ', Song läuft weiter')
+    return
+  end
+  if cur and #list + (intro and 1 or 0) > 0 and GROUP[prev] == 'roam' and GROUP[ctx] == 'roam' and cfg().finishSongInRoam ~= false then
+    cur.loop = false
+    introPending = intro
+    log('I', logTag, 'Musik: ' .. info .. ', aktueller Song spielt zu Ende')
+    return
+  end
+  fadeOutCurrent(switchFade())
+  introPending = intro
+  nextTrack()
+  if cur then cur.fadeDur = switchFade() end
+  log('I', logTag, 'Musik: ' .. info)
 end
 
 -- nach einer Änderung im Menü: Playlist neu, das laufende Stück läuft weiter, wenn es noch dazugehört
@@ -576,10 +642,11 @@ function M.resend() end
 
 local function updatePlayback(dt)
   local step = targetVolume() * dt / fadeTime()
-  -- ausblenden
+  -- ausblenden (jede Quelle mit ihrer eigenen Ausblendzeit)
   for i = #fading, 1, -1 do
     local s = fading[i]
-    s.vol = s.vol - (s.fast and step * 4 or step)
+    local st = s.fadeDur and (targetVolume() * dt / s.fadeDur) or step
+    s.vol = s.vol - (s.fast and step * 4 or st)
     if s.vol <= 0 then
       destroy(s)
       table.remove(fading, i)
@@ -591,7 +658,8 @@ local function updatePlayback(dt)
   cur.age = cur.age + dt
   cur.target = targetVolume()
   if cur.vol < cur.target then
-    cur.vol = math.min(cur.target, cur.vol + step)
+    local st = cur.fadeDur and (targetVolume() * dt / cur.fadeDur) or step
+    cur.vol = math.min(cur.target, cur.vol + st)
     setVol(cur, cur.vol)
   elseif cur.vol > cur.target then
     cur.vol = cur.target
@@ -626,11 +694,15 @@ local function onUpdate(dtReal)
   local career = extensions.hashiriyaBattle_career
   pauseMenuMusic(ctx ~= 'off' or (career and career.isPending and career.isPending()))
   if ctx ~= context then
-    local slow = (ctx == 'day' or ctx == 'night') and (context == 'day' or context == 'night')
-    if slow then
+    -- kurz warten, bis die Situation stabil ist: in der freien Fahrt switchDelaySeconds (Vorgabe 4 s),
+    -- Musik aus 3 s; Battle beginnt/endet sofort
+    local wait = 0
+    if GROUP[ctx] == 'roam' and GROUP[context] == 'roam' then wait = cfg().switchDelaySeconds or 4
+    elseif ctx == 'off' and context and context ~= 'title' then wait = 3 end
+    if wait > 0 then
       if pendingCtx ~= ctx then pendingCtx, pendingTime = ctx, 0 end
       pendingTime = pendingTime + 0.25
-      if pendingTime < 2 then return end
+      if pendingTime < wait then return end
     end
     pendingCtx = nil
     switchTo(ctx)
@@ -683,7 +755,7 @@ function M.matrix()
   for _, sdef in ipairs(SITUATIONS) do
     local fb = sdef.fallback and (sdef.fallback == 'daynight' and 'daynight' or sdef.fallback) or nil
     table.insert(sits, { id = sdef.id, folder = sdef.folder, mode = modeOf(sdef.id), fallback = fb,
-      name = tr('music.sit.' .. sdef.id, sdef.id) })
+      name = tr('music.sit.' .. sdef.id, sdef.id), order = orderOf(sdef.id) })
   end
   local songs = {}
   local playingId = cur and cur.entry and cur.entry.id
@@ -695,11 +767,20 @@ function M.matrix()
       ai = song.ai or false, folder = song.folder, on = on, custom = custom, playing = (song.id == playingId),
       bad = badFiles[song.path] and true or false })
   end
+  -- feste Reihenfolge pro Situation (Song-IDs der angeschalteten Songs)
+  local lib = library()
+  for _, sit in ipairs(sits) do
+    local on = {}
+    for _, song in ipairs(lib) do if assignOf(song)[sit.id] then table.insert(on, song) end end
+    local ids = {}
+    for _, song in ipairs(sortSongs(sit.id, on)) do table.insert(ids, song.id) end
+    sit.sorted = ids
+  end
   local now = M.nowPlaying()
   local t = {}
   for _, k in ipairs({ 'pause.title', 'pause.sub', 'pause.situation', 'pause.source', 'pause.songs', 'pause.empty',
     'pause.fallbackDayNight', 'pause.fallbackBattle', 'pause.own', 'pause.ai', 'pause.custom', 'pause.now', 'pause.skip',
-    'pause.reset', 'pause.resetDone', 'pause.all', 'pause.none', 'pause.alsoIn', 'pause.hint', 'pause.current',
+    'pause.reset', 'pause.order', 'pause.shuffle', 'pause.list', 'pause.listHint', 'pause.all', 'pause.none', 'pause.alsoIn', 'pause.hint', 'pause.current',
     'music.openFolder', 'music.rescan', 'music.folder', 'music.mode.both', 'music.mode.mod', 'music.mode.own', 'music.mode.off' }) do
     t[k] = tr(k, k)
   end
@@ -750,6 +831,41 @@ end
 -- zurück auf die Vorgabe der Mod (alle Songs)
 function M.resetAssign()
   settings().assign = {}
+  settings().order = {}
+  settings().sort = {}
+  saveSettings()
+  refreshPlaylist()
+  M.sendMatrix()
+end
+
+function M.setOrder(id, order)
+  if not SIT[id] or (order ~= 'shuffle' and order ~= 'list') then return end
+  settings().order = settings().order or {}
+  settings().order[id] = order
+  saveSettings()
+  refreshPlaylist()
+  M.sendMatrix()
+end
+
+-- Song in der festen Reihenfolge einer Situation eins nach oben (dir -1) oder unten (dir 1)
+function M.moveSong(id, songId, dir)
+  if not SIT[id] then return end
+  local on = {}
+  for _, song in ipairs(library()) do
+    local set = assignOf(song)
+    if set[id] then table.insert(on, song) end
+  end
+  on = sortSongs(id, on)
+  local ids = {}
+  local at = nil
+  for i, song in ipairs(on) do ids[i] = song.id; if song.id == songId then at = i end end
+  local to = at and at + (tonumber(dir) or 0)
+  if not at or not to or to < 1 or to > #ids then return end
+  ids[at], ids[to] = ids[to], ids[at]
+  settings().sort = settings().sort or {}
+  settings().sort[id] = ids
+  settings().order = settings().order or {}
+  settings().order[id] = 'list'
   saveSettings()
   refreshPlaylist()
   M.sendMatrix()
