@@ -15,7 +15,7 @@ angular.module('beamng.apps')
         '<div class="hbk" ng-if="line" ng-class="[\'hbk-\' + line.side, \'hbk-k-\' + line.kind, \'hbk-t-\' + line.tag]">' +
           '<div class="hbk-pic" ng-if="line.side == \'left\'"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
           '<div class="hbk-bubble">' +
-            '<div class="hbk-who"><b>{{ line.name }}</b><span ng-if="line.nick">{{ line.nick }}</span></div>' +
+            '<div class="hbk-who"><img class="hbk-logo" ng-if="line.logo" ng-src="{{ line.logo }}" alt=""><b>{{ line.name }}</b><span ng-if="line.nick">{{ line.nick }}</span></div>' +
             '<div class="hbk-text">{{ line.text }}</div>' +
             '<div class="hbk-foot" ng-if="line.key">' +
               '<span class="hbk-hint" ng-if="line.hint">{{ line.hint }}</span>' +
@@ -46,6 +46,7 @@ angular.module('beamng.apps')
           '.hbk-pic{flex:none;width:150px;height:150px;position:relative;clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);' +
             'background:#0e1015;box-shadow:0 0 0 2px var(--o);}' +
           '.hbk-pic img{width:100%;height:100%;display:block;}' +
+          '.hbk-logo{align-self:center;width:30px;height:30px;margin:-6px 8px -6px 0;vertical-align:middle;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));}' +
           '.hbk-pic:after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--o);}' +
           '.hbk-pic-none{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:900;color:rgba(255,255,255,.15);}' +
           '.hbk-bubble{position:relative;flex:1;min-height:70px;margin-bottom:22px;padding:10px 18px 12px;background:rgba(10,11,14,.88);' +
@@ -132,7 +133,7 @@ angular.module('beamng.apps')
         var line = null
         if (b && b.quote) {
           line = { text: b.quote, kind: b.quoteKind || 'challenge', name: b.rivalName, nick: b.rivalNick,
-            portrait: b.portrait, tag: b.rivalTag || 'rival', side: 'right' }
+            portrait: b.portrait, logo: b.rivalLogo, tag: b.rivalTag || 'rival', side: 'right' }
         } else if (data && data.talk && data.talk.text) {
           line = data.talk
         }

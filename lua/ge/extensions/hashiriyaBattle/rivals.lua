@@ -707,6 +707,52 @@ function M.spawnNext(force, forced)
   return entry
 end
 
+-- Logos (Team-Logos, Wanderer-Siegel, Boss-Embleme) ---------------------------------
+-- Suche: eigener Pfad "logo" in rivals.json (Team oder Rivale), dann art/logos/<id>.png
+-- (fertiges Bild, z. B. aus VectorCraft), dann art/logos/<id>.svg (Entwurf aus tools/logos).
+-- Crews: <teamId>.* , Leader: <teamId>_leader.* (fehlt es, das normale Team-Logo).
+-- Wanderer/Bosse: <rivalId>.* . Gefundenes bleibt gemerkt, Fehlendes wird nach 30 s neu gesucht.
+local logoCache = {}
+local function findLogo(key, custom)
+  local hit = logoCache[key]
+  if hit and hit.path then return hit.path end
+  if hit and os.clock() - hit.t < 30 then return nil end
+  local list = {}
+  if type(custom) == 'string' and custom ~= '' then list[1] = '/' .. (custom:gsub('^/', '')) end
+  list[#list + 1] = '/art/logos/' .. key .. '.png'
+  list[#list + 1] = '/art/logos/' .. key .. '.svg'
+  local found = nil
+  for _, p in ipairs(list) do
+    if FS:fileExists(p) then found = p; break end
+  end
+  logoCache[key] = { path = found, t = os.clock() }
+  return found
+end
+
+function M.teamLogo(teamId, leader)
+  if not teamId or not data then return nil end
+  local team = teamById(teamId)
+  if leader then
+    local p = findLogo(teamId .. '_leader', team and team.logoLeader)
+    if p then return p end
+  end
+  return findLogo(teamId, team and team.logo)
+end
+
+function M.teamName(teamId)
+  local t = data and teamById(teamId)
+  return t and t.name or nil
+end
+
+-- Logo für einen Rivalen: Wanderer/Boss eigenes Siegel, sonst das Logo seiner Crew
+function M.logoOf(rival)
+  if not rival then return nil end
+  local id = rival.baseId or rival.id
+  if rival.wanderer or rival.boss then return findLogo(id, rival.logo) end
+  if rival.team then return M.teamLogo(rival.team, rival.leader) end
+  return nil
+end
+
 -- Ein schon vorhandenes Auto als Rivalen auf die Straße übernehmen (PA-Rivale, der selbst aus der PA gefahren ist).
 -- Er fährt schon (KI läuft), also kein Anschieben und kein Umdrehen. Zählt nicht gegen maxOnRoad.
 function M.adoptVehicle(rival, vehId)
