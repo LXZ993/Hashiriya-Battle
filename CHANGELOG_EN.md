@@ -18,6 +18,7 @@
 
 ### HUD
 - Rivals on the minimap (bottom left) now use the same colors as in the radar (top right): orange rival, yellow leader, purple wanderer, red boss, grey beaten, blue lost. The rival in the current battle pulses slightly.
+- Your own arrow on the minimap is now white (like your dot in the middle of the radar), so it stands out from orange rivals.
 
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.
