@@ -157,50 +157,40 @@ def render_motif(name, cx, cy, s, color):
     return "".join(out)
 
 
+def motif_paths(name, cx, cy, s, color):
+    """Motivteile als (pfad, füllung, zusatz) für den freigestellten Stil."""
+    out = []
+    for d, role in MOTIFS[name](cx, cy, s):
+        if role == "glow":
+            out.append((d, None, f' fill="none" stroke="{color}" stroke-width="10" stroke-linejoin="round" opacity=".55"'))
+        elif role == "stroke":
+            out.append((d, None, f' fill="none" stroke="{DARK2}" stroke-width="12" stroke-linejoin="round"'))
+        else:
+            out.append((d, {"c": color, "w": WHITE, "d": DARK, "k": color}[role], ' fill-rule="evenodd"' if role == "c" else ""))
+    return out
+
+
 def team_logo(team, leader=False):
+    """Freigestellt (Alex 2026-11-03): keine Grundform, nur das Objekt und der Schriftzug,
+    mit Aufkleber-Schnittkante (weiß, Leader gold) und dunkler Kontur, damit es auf jedem Hintergrund steht."""
     kind, motif, short = TEAMS[team["id"]]
     col = team["color"]
-    sp = shape_path(kind)
-    L = layout(kind)
     cutc = GOLD if leader else CUT
-    gid = "lg_" + team["id"] + ("_l" if leader else "")
-    defs = (f'<linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1">'
-            f'<stop offset="0" stop-color="#22262d"/><stop offset="1" stop-color="{DARK2}"/></linearGradient>')
-    layers = []
-    # Aufkleber-Rand (weiß, bei Leadern gold) + schwarze Kante
-    layers.append(("schnitt", stroked(sp, DARK2, 30, DARK2) + stroked(sp, cutc, 18, cutc)))
-    layers.append(("grund", p(sp, f"url(#{gid})")))
-    inner = f'<g transform="translate(256 256) scale(.93) translate(-256 -256)">{stroked(sp, col, 5)}</g>'
+    parts = motif_paths(motif, 256, 196, 138, col)
+    name = tp.line(short, "latin", 48, 256, 404, track=4, maxw=470)
+    jp = tp.line(team["jp"], "jp", 30, 256, 458, track=4, maxw=330)
+    shapes_all = [(d, 26, 12) for d, fill, _ in parts if fill is not None] + [(name, 15, 7), (jp, 11, 5)]
     if leader:
-        inner += f'<g transform="translate(256 256) scale(.885) translate(-256 -256)">{stroked(sp, GOLD, 2.5)}</g>'
-    layers.append(("rahmen", inner))
-    mx, my, ms = L["m"]
-    layers.append(("motiv", render_motif(motif, mx, my, ms, col)))
-    txt = ""
-    if kind == "seal":
-        txt += p(ring(256, 256, 214, 168), DARK2, ' fill-rule="evenodd"')
-        txt += stroked(circle(256, 256, 168), col, 3)
-        txt += p(tp.arc(short, "latin", 30, 256, 256, 191, -90, track=2.2, maxdeg=200), WHITE)
-        txt += p(tp.arc(team["jp"], "jp", 28, 256, 256, 191, 90, track=1, bottom=True, maxdeg=120), col)
-        # Punkte als Trenner links und rechts
-        for a in (0, 180):
-            r = math.radians(a)
-            txt += p(star(256 + 191 * math.cos(r), 256 + 191 * math.sin(r), 9, 3.5, 4), col)
-        if leader:
-            txt += p(star(256, 34, 16, 6.5), GOLD)
-    else:
-        by, bw, bh = L["band"]
-        txt += p(rrect(256 - bw / 2, by - bh / 2, bw, bh, 6), col)
-        txt += p(rrect(256 - bw / 2 + 6, by - bh / 2 + 6, bw - 12, bh - 12, 3), "none")
-        txt += p(tp.line(short, "latin", bh * .5, 256, by, track=bh * .03, maxw=bw - 28), DARK2)
-        if L.get("jp"):
-            txt += p(tp.line(team["jp"], "jp", L.get("jps", 30), 256, L["jp"], track=1.5, maxw=L.get("jpw", bw * .7)), col)
-        elif L.get("jp_top"):
-            txt += p(tp.line(team["jp"], "jp", 22, 256, L["jp_top"], track=1.5, maxw=bw * .75), col)
-        if leader:
-            txt += p(star(256, 66 if kind in ("shield", "diamond", "hex", "oct") else (L.get("jp_top", 120) - 34), 15, 6), GOLD)
+        shapes_all.append((star(456, 48, 22, 9), 20, 9))
+    cut = "".join(stroked(d, cutc, w1, cutc) for d, w1, w2 in shapes_all)
+    edge = "".join(stroked(d, DARK2, w2, DARK2) for d, w1, w2 in shapes_all)
+    layers = [("schnitt", cut), ("grund", edge)]
+    layers.append(("motiv", "".join(f'<path d="{d}"' + (f' fill="{fill}"' if fill else "") + f'{x}/>' for d, fill, x in parts)))
+    txt = p(name, WHITE) + p(jp, col)
+    if leader:
+        txt += p(star(456, 48, 22, 9), GOLD)
     layers.append(("schrift", txt))
-    return doc(layers, defs)
+    return doc(layers)
 
 
 def wanderer_logo(r):

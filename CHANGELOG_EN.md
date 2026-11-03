@@ -3,7 +3,7 @@
 ## Alpha 0.9.2 (as of 2026-11-03)
 
 ### Team logos (drafts)
-- Every crew now has its own logo in the style of a vinyl sticker, leaders get the same logo with a gold border. Every wanderer has a personal seal with their own sign, and the three bosses have their own emblems. All original designs.
+- Every crew now has its own logo in the style of a die-cut vinyl sticker (just the motif and lettering), leaders get the same logo with a gold border. Every wanderer has a personal seal with their own sign, and the three bosses have their own emblems. All original designs.
 - Logos show next to the rival's name in a battle (SP display), in the speech bubble for challenge, win and loss, in PA talks with rivals and at every crew in the rival lexicon. Wanderer and boss seals only appear in the lexicon after you beat them.
 
 ### Traffic and PA drivers
