@@ -745,5 +745,9 @@
   "pause.alsoIn": "Auch in",
   "pause.current": "jetzt",
   "pause.hint": "Eigene Songs (OGG, WAV, MP3, FLAC) in den Musik-Ordner legen und dann Neu einlesen. Ein eigener Song ist zuerst in der Situation seines Unterordners an und lässt sich hier überall dazuschalten.",
-  "pause.mainMenuHint": "Musik einstellen: Esc > Mods > Hashiriya Battle"
+  "pause.mainMenuHint": "Musik einstellen: Esc > Mods > Hashiriya Battle",
+  "pause.order": "Reihenfolge",
+  "pause.shuffle": "Zufällig",
+  "pause.list": "Feste Reihenfolge",
+  "pause.listHint": "Mit ▲ ▼ sortieren. Die Songs laufen von oben nach unten und danach wieder von vorn."
 }
