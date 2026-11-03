@@ -30,6 +30,7 @@
 - Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst.
 
 ### Neu: Musik steuern
+- Musik kann jetzt auch als WAV in voller Qualität laufen: Liegt eine WAV mit gleichem Namen neben der OGG, wird die WAV gespielt. Der Titelsong Daikoku läuft so in der neuen Version V3.
 - Musik überspringen: Taste Ende oder im Hashiriya-Menü unter Werkzeuge. Dort steht auch, welches Stück gerade läuft.
 - Für jedes Stück lässt sich festlegen, wann es kommt: Uhrzeit, Gegnerart (normal, Leader, Wanderer, Boss), Pink Slip, Rang, Parkplatz oder Karte (data/music.json, siehe Handbuch).
 - Im Titelbildschirm ist der Verkehr jetzt leise, damit die Titelmusik zu hören ist.
