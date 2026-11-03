@@ -1,5 +1,11 @@
 # Hashiriya Battle Changelog
 
+## Alpha 0.9.2 (as of 2026-11-03)
+
+### Bug fixes
+- Cars of the drivers at the PAs (rivals and info drivers) sometimes overlapped with a parked traffic car. Their bay is now reserved against parked traffic, and a car that still ends up in it is moved elsewhere right away.
+- PA drivers' cars had the default plate instead of a Japanese one. They now get a Japanese plate design (taxis and vans green), rivals their own.
+
 ## Alpha 0.9.1 (as of 2026-11-02)
 
 ### Side jobs

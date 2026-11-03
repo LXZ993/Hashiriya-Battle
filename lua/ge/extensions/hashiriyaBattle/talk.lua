@@ -122,6 +122,9 @@ local function freeSpots(center, radius)
     local ps = e.ps
     if ps and ps.pos and not ps.vehicle then
       local free = true
+      -- auch Fahrzeuge, die nur in die Bucht ragen (Parkverkehr, größere Autos nebenan)
+      local okA, any = pcall(function() return ps:hasAnyVehicles() end)
+      if okA and any then free = false end
       for _, p in ipairs(vehPos) do
         if (p - ps.pos):length() < 4 then free = false; break end
       end
@@ -185,7 +188,16 @@ local function setFacing(figId, dir)
   return true
 end
 
+-- Buchten, in denen unsere Autos stehen: für den BeamNG-Parkverkehr als belegt markiert (ps.vehicle),
+-- damit er dort kein Auto hineinsetzt
+local ourSpots = {}
+
 local function deleteObj(id)
+  local ps = id and ourSpots[id]
+  if ps then
+    if ps.vehicle == id then ps.vehicle = nil end
+    ourSpots[id] = nil
+  end
   local o = id and be:getObjectByID(id)
   if o then pcall(function() o:delete() end) end
 end
@@ -253,7 +265,43 @@ local function spawnFigure(n, pos, dir, rand)
   return fig:getID(), pos
 end
 
-local function spawnCar(model, config, ps, rand, paints, plate)
+-- Kennzeichen-Design (Plates Pack) für Autos ohne eigenes: zufällige Region, Taxis grün (gewerblich)
+local function randomDesign(model, config, rand)
+  local P = extensions.hashiriyaBattle_plates
+  local regions = {}
+  for _, r in ipairs(P.regions) do if not P.onlySpecial[r] then table.insert(regions, r) end end
+  local region = regions[math.floor(rand() * #regions) + 1] or 'shinagawa'
+  local name = (tostring(model) .. ' ' .. (type(config) == 'string' and config or '')):lower()
+  local kind = (name:find('taxi', 1, true) or name:find('van', 1, true) or name:find('delivery', 1, true)) and 'commercial' or 'standard'
+  return P.design(region, kind)
+end
+
+local function withPlateDesign(model, config, design, rand)
+  local P = extensions.hashiriyaBattle_plates
+  if type(config) == 'table' then
+    for k, v in pairs(config.parts or {}) do
+      if type(k) == 'string' and k:match(P.slot .. '$') and type(v) == 'string' and v:find('^am5jp_') then return config end
+    end
+  end
+  design = design or randomDesign(model, config, rand)
+  local src = config
+  if type(config) == 'string' and not config:find('/', 1, true) then src = 'vehicles/' .. model .. '/' .. config .. '.pc' end
+  if src == nil then return config end
+  local ok, out = pcall(P.applyToConfig, src, design)
+  if ok and type(out) == 'table' then
+    -- Werkslack aus der info_*.json, wenn die .pc keinen hat (sonst käme das Auto in Standardfarbe)
+    if not out.paints and type(src) == 'string' then
+      local okP, paints = pcall(rivals().infoPaints, src)
+      if okP and paints then out.paints = paints end
+    end
+    return out
+  end
+  return config
+end
+
+local function spawnCar(model, config, ps, rand, paints, plate, design)
+  config = withPlateDesign(model, config, design, rand)
+  if not paints and type(config) == 'table' and type(config.paints) == 'table' and config.paints[1] then paints = config.paints end
   local opts = { pos = ps.pos, rot = ps.rot, autoEnterVehicle = false, removeTraffic = false,
     canSpawnAnotherVehicleCheck = false, licenseText = plate or extensions.hashiriyaBattle_plates.random(rand) }
   if config then opts.config = config end
@@ -264,6 +312,9 @@ local function spawnCar(model, config, ps, rand, paints, plate)
     return nil
   end
   local id = veh:getID()
+  ps.vehicle = id -- Bucht für den Parkverkehr belegen
+  ourSpots[id] = ps
+  if plate then pcall(core_vehicles.setPlateText, plate, id) end
   veh.playerUsable = false -- nicht einsteigbar
   -- sauber in die Bucht stellen (wie der BeamNG-Parkverkehr), Motor aus, Bremse fest
   pcall(function()
@@ -354,7 +405,7 @@ local function spawnRivalNpc(r, ps, rand, pa)
   local model, config, paints, plate = rivals().carFor(r)
   local n = { rival = r, speaker = 'rival', variant = 1, heard = {}, place = pa.name,
     color = type(r.paint) == 'table' and r.paint.color or nil }
-  n.carId = spawnCar(model, config, ps, rand, paints, plate)
+  n.carId = spawnCar(model, config, ps, rand, paints, plate, r.plate and r.plate.design)
   if not n.carId then return nil end
   placeBeside(n, ps, rand)
   if not n.figId then
@@ -899,6 +950,44 @@ end
 
 -- Laufend ---------------------------------------------------------------------------
 
+-- Parkverkehr, der trotzdem in einer unserer Buchten landet (z. B. gleichzeitig gespawnt): wegschicken
+local spotGuardTimer = 1
+local function guardSpots(dtReal)
+  spotGuardTimer = spotGuardTimer - dtReal
+  if spotGuardTimer > 0 then return end
+  spotGuardTimer = 1
+  if not next(ourSpots) then return end
+  local park = extensions.gameplay_parking
+  local parked = {}
+  for _, id in ipairs(park and park.getParkedCarsList and park.getParkedCarsList() or {}) do parked[id] = true end
+  local player = core().getPlayerVehicle()
+  local playerId = player and player:getID()
+  for id, ps in pairs(ourSpots) do
+    if not be:getObjectByID(id) then
+      if ps.vehicle == id then ps.vehicle = nil end
+      ourSpots[id] = nil
+    else
+      if not ps.vehicle then ps.vehicle = id end
+      local ok, any, ids = pcall(function() return ps:hasAnyVehicles(id) end)
+      if ok and any then
+        for _, other in ipairs(ids or {}) do
+          local o = be:getObjectByID(other)
+          if other ~= playerId and not ourSpots[other] and o and o:getJBeamFilename() ~= 'unicycle' then
+            if parked[other] and park.forceTeleport then
+              pcall(park.forceTeleport, other, nil, 80, 400)
+              log('I', logTag, 'Parkverkehr aus einer PA-Bucht weggestellt: ' .. tostring(other))
+            elseif vec3(o:getVelocity()):length() < 0.5 then
+              -- fremdes stehendes Auto (anderer Parkverkehr): ausblenden statt ineinander stecken lassen
+              pcall(function() o:setActive(0) end)
+              log('I', logTag, 'Stehendes Auto in einer PA-Bucht ausgeblendet: ' .. tostring(other))
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 local function onUpdate(dtReal)
   local c = core()
   if not c or not c.active or not c.save then
@@ -906,6 +995,7 @@ local function onUpdate(dtReal)
     return
   end
   if not chat then M.loadData() end
+  pcall(guardSpots, dtReal)
 
   -- Blickrichtung nachreichen (Controller ist erst nach dem Spawnen bereit)
   for id, p in pairs(pendingFace) do

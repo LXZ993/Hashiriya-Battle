@@ -883,7 +883,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <li><b>Welche PAs:</b> alle <code>napSpots</code> aus der Kartendatei (C1: Shibaura PA, Tatsumi 1st PA). Eigene Gesprächs-Orte gehen mit <code>"talkSpots"</code> in der Kartendatei (gleicher Aufbau: <code>name</code>, <code>pos</code>, <code>radius</code>); gibt es die, gelten nur sie.</li>
 <li><b>Wann:</b> Kommst du näher als <code>spawnDistance</code> (230 m), stellen sich die Leute auf, einer nach dem anderen (damit es beim Vorbeifahren nicht ruckelt). Ab <code>despawnDistance</code> (330 m) verschwinden sie. Nachts 3 bis 6 Fahrer, tagsüber 1 bis 2.</li>
 <li><b>Wer:</b> Pro Nacht (bzw. Tag) und PA fest ausgewürfelt aus Spielstand + Nacht. Kommst du in derselben Nacht wieder, stehen dieselben Leute da. In der nächsten Nacht andere, aber nie vor deinen Augen: gewechselt wird erst, wenn du weg bist.</li>
-<li><b>Autos:</b> in freien Parkbuchten der Map (dieselben, die der BeamNG-Parkverkehr nutzt), Motor aus, festgebremst, nicht einsteigbar. Kennzeichen zufällig. Die Config wird zufällig aus dem Modell gewählt, ohne Polizei, Rennwagen usw. (<code>excludeConfigs</code>). Findet die Mod keine freien Buchten, stehen die Fahrer ohne Auto auf dem Platz (steht dann als Warnung im Mod-Log).</li>
+<li><b>Autos:</b> in freien Parkbuchten der Map (dieselben, die der BeamNG-Parkverkehr nutzt), Motor aus, festgebremst, nicht einsteigbar. Kennzeichen zufällig, mit japanischem Kennzeichen-Design aus dem Plates Pack (zufällige Region; Taxis, Vans und Lieferwagen grün/gewerblich; Rivalen ihr eigenes Design aus <code>rivals.json</code>). Die Bucht wird für den BeamNG-Parkverkehr als belegt markiert, damit dort kein geparktes Auto hineingesetzt wird. Landet trotzdem eins darin (z. B. weil es gleichzeitig gespawnt ist), stellt die Mod es jede Sekunde in eine andere Bucht weit weg (stehende Autos anderer Verkehrs-Mods werden ausgeblendet). Im Mod-Log steht dann „Parkverkehr aus einer PA-Bucht weggestellt“. Die Config wird zufällig aus dem Modell gewählt, ohne Polizei, Rennwagen usw. (<code>excludeConfigs</code>). Findet die Mod keine freien Buchten, stehen die Fahrer ohne Auto auf dem Platz (steht dann als Warnung im Mod-Log).</li>
 <li><b>Figuren:</b> die BeamNG-Fußgängerfigur (dieselbe wie du zu Fuß), mit zufälligem Gesicht und eigener Farbe je Sprecher. Meist an der Fahrerseite. Kommst du näher als <code>lookDistance</code>, drehen sie sich zu dir.</li>
 <li><b>Eigene Stehplätze (Alpha 0.9.1):</b> Dev-Menü, Orte, Typ „PA-Fahrer-Stehplatz“: hinstellen, in die Blickrichtung schauen, Ort merken. Gibt es an einer PA Stehplätze, stellt sich jeder Fahrer auf den freien Platz, der seinem Auto am nächsten ist (höchstens <code>standMaxDistance</code> 15 m weg), Fahrer ohne Auto auf irgendeinen freien. Erst wenn alle belegt sind, gilt wieder „neben dem Auto“. Für die Release kommen sie als <code>"standSpots"</code> in die Kartendatei (dev_places.json an mich schicken).</li>
 <li><b>Porträts:</b> <span class="path">art\portraits\npc\&lt;sprecher&gt;_&lt;1-3&gt;.svg</span>, drei Varianten je Sprecher (36 Bilder).</li>
@@ -1576,6 +1576,16 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
 <details class="cl">
+<summary><b>Alpha 0.9.2</b> <small>Stand 03.11.2026</small></summary>
+<div>
+<h4>Fehler behoben</h4>
+<ul>
+<li>Autos der Fahrer an den PAs (Rivalen und Info-Fahrer) steckten manchmal in einem Auto vom Parkverkehr. Ihre Parkbucht ist jetzt für den Parkverkehr reserviert, und ein Auto, das trotzdem darin landet, wird sofort woandershin gestellt.</li>
+<li>Die Autos der PA-Fahrer hatten das Standard-Kennzeichen statt eines japanischen Kennzeichens. Jetzt bekommen sie ein japanisches Kennzeichen-Design (Taxis und Lieferwagen grün), Rivalen ihr eigenes.</li>
+</ul>
+</div>
+</details>
+<details class="cl">
 <summary><b>Alpha 0.9.1</b> <small>Stand 02.11.2026</small></summary>
 <div>
 <h4>Nebenjobs</h4>
@@ -1614,6 +1624,8 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </ul>
 <h4>Neu: Musik steuern</h4>
 <ul>
+<li>Neuer Kamera-Sound beim Fotojob (camera_digital_shutter).</li>
+<li>Musik kann jetzt auch als WAV in voller Qualität laufen: Liegt eine WAV mit gleichem Namen neben der OGG, wird die WAV gespielt. Der Titelsong Daikoku läuft so in der neuen Version V3.</li>
 <li>Musik überspringen: Taste Ende oder im Hashiriya-Menü unter Werkzeuge. Dort steht auch, welches Stück gerade läuft.</li>
 <li>Für jedes Stück lässt sich festlegen, wann es kommt: Uhrzeit, Gegnerart (normal, Leader, Wanderer, Boss), Pink Slip, Rang, Parkplatz oder Karte (data/music.json, siehe Handbuch).</li>
 <li>Im Titelbildschirm ist der Verkehr jetzt leise, damit die Titelmusik zu hören ist.</li>
