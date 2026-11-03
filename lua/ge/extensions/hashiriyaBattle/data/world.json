@@ -16,5 +16,7 @@
   "jobRewards": {
     "garageToGarage": { "passed": 8000, "completed": 15000, "repeatFactor": 0.5 }
   },
+  "_hinweisSpeichern": "Speichern am Standort (savepoint.lua). Zu Hause/Garage gespeichert -> Start in der Garage; unterwegs geht Speichern nur im Stand (maxSpeedKmh) mit Motor aus, dann startet man genau dort. unsavedExit = was passiert, wenn das Spiel beendet wird, ohne ordentlich zu parken: \"tow\" = abgeschleppt zur Garage (normale Abschleppgebühr + towFineYen, Start zu Hause) oder \"resume\" = am letzten Zwischenstand weiter. snapshotSeconds = so oft merkt sich das Spiel den Standort, writeSeconds = so oft wird er gespeichert (Absturzschutz). leaveRadius = Meter, ab denen ein Speicherort als verlassen gilt. gagSeconds = Anzeigedauer des Motor-aus-Hinweises.",
+  "saving": { "unsavedExit": "tow", "snapshotSeconds": 30, "writeSeconds": 60, "leaveRadius": 20, "maxSpeedKmh": 2, "towFineYen": 20000, "gagSeconds": 14 },
   "trafficByHour": [ 55, 50, 40, 35, 35, 45, 65, 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 90, 80, 75, 65, 60 ]
 }

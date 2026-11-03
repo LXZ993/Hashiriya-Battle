@@ -217,6 +217,8 @@ local function finishRest()
   if r.newDay then newDay() end
   setRestLock()
   local c = core()
+  -- Speicherort: zu Hause geschlafen -> Start zu Hause; Nickerchen im stehenden Auto -> Start genau dort
+  pcall(function() extensions.hashiriyaBattle_savepoint.mark(r.kind == 'home' and 'home' or 'parked') end)
   c.writeSave()
   if r.kind == 'nap' then freezePlayer(false) end
   local fs = fadeScreen()
