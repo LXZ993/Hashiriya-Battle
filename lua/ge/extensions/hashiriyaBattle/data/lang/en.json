@@ -664,5 +664,8 @@
   "jobs.windowSpot": "park your car there between %s and %s",
   "title.betaTag": "Early access · balancing in progress",
   "title.betaText": "Hashiriya Battle is being balanced with your help. Is a rival, a part, a price or a job too strong, too weak or simply off? Tell us in the \"Hashiriya Battle\" thread on the BeamNG forum. For bugs, a bug report from the Hashiriya menu helps.",
-  "new.balanceNote": "Prices, rival strength and rewards will be tuned over time based on community feedback, so a save may feel a little different after an update. Thanks for playing and helping to test!"
+  "new.balanceNote": "Prices, rival strength and rewards will be tuned over time based on community feedback, so a save may feel a little different after an update. Thanks for playing and helping to test!",
+  "title.musicTag": "Tip · Your own music",
+  "title.musicText": "For the best experience, play with your own music. Put songs (OGG, WAV, MP3) into the hashiriya_musik folder in your BeamNG user folder, sorted by situation: day, night, battle, shop and more. In the Hashiriya menu under Tools > Music settings you choose what plays where.",
+  "new.musicNote": "Tip: your own music makes it complete. Put your songs into the hashiriya_musik folder in the BeamNG user folder and set where they play in the Hashiriya menu under Tools > Music settings."
 }

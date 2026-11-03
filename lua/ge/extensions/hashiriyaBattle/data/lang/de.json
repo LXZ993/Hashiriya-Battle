@@ -720,5 +720,8 @@
   "jobs.windowSpot": "Auto dort abstellen zwischen %s und %s",
   "title.betaTag": "Early Access · Balancing läuft",
   "title.betaText": "Hashiriya Battle wird mit eurer Hilfe ausbalanciert. Ist ein Rivale, ein Teil, ein Preis oder ein Job zu stark, zu schwach oder passt gar nicht? Schreib es in den Thread „Hashiriya Battle“ im BeamNG-Forum. Bei Fehlern hilft ein Fehlerbericht aus dem Hashiriya-Menü.",
-  "new.balanceNote": "Preise, Gegnerstärke und Belohnungen werden mit der Zeit nach dem Feedback der Community angepasst. Ein Spielstand kann sich nach einem Update darum etwas anders anfühlen. Danke fürs Mitspielen und Mittesten!"
+  "new.balanceNote": "Preise, Gegnerstärke und Belohnungen werden mit der Zeit nach dem Feedback der Community angepasst. Ein Spielstand kann sich nach einem Update darum etwas anders anfühlen. Danke fürs Mitspielen und Mittesten!",
+  "title.musicTag": "Tipp · Eigene Musik",
+  "title.musicText": "Für das beste Erlebnis spielst du mit deiner eigenen Musik. Leg Lieder (OGG, WAV, MP3) in den Ordner hashiriya_musik in deinem BeamNG-Benutzerordner, sortiert nach Situation: Tag, Nacht, Battle, Shop und mehr. Im Hashiriya-Menü unter Werkzeuge > Musik einstellen wählst du, wo was läuft.",
+  "new.musicNote": "Tipp: Eigene Musik macht das Erlebnis erst richtig. Leg deine Lieder in den Ordner hashiriya_musik im BeamNG-Benutzerordner und stelle im Hashiriya-Menü unter Werkzeuge > Musik einstellen ein, wo sie laufen sollen."
 }

@@ -31,6 +31,8 @@ angular.module('beamng.apps')
             '</div>' +
             // Hinweis für den öffentlichen Release: Balancing mit Hilfe der Community
             '<div class="hbt-beta"><span class="hbt-beta-tag">{{ t(\'title.betaTag\') }}</span>{{ t(\'title.betaText\') }}</div>' +
+            // Hinweis: eigene Musik für das beste Erlebnis
+            '<div class="hbt-beta hbt-music"><span class="hbt-beta-tag">{{ t(\'title.musicTag\') }}</span>{{ t(\'title.musicText\') }}</div>' +
             '<div class="hbt-foot">{{ t(\'title.hint\') }}</div>' +
           '</div>' +
 
@@ -127,6 +129,7 @@ angular.module('beamng.apps')
               '<div class="hbt-money"><span>{{ t(\'new.restMoney\') }}</span><b>{{ f.summary.rest }}</b></div>' +
               '<div class="hbt-note">{{ t(\'new.confirmNote\') }}</div>' +
               '<div class="hbt-beta hbt-beta-wiz"><span class="hbt-beta-tag">{{ t(\'title.betaTag\') }}</span>{{ t(\'new.balanceNote\') }}</div>' +
+              '<div class="hbt-beta hbt-beta-wiz hbt-music"><span class="hbt-beta-tag">{{ t(\'title.musicTag\') }}</span>{{ t(\'new.musicNote\') }}</div>' +
             '</div>' +
 
             '<div class="hbt-busy" ng-if="f.busy">{{ t(\'new.loading\') }}</div>' +
@@ -235,6 +238,7 @@ angular.module('beamng.apps')
           '.hbt-beta{width:440px;margin-top:4vh;padding:10px 14px;border-left:3px solid var(--o);background:rgba(18,18,20,.55);font-size:12px;line-height:1.55;color:rgba(244,244,244,.8);}' +
           '.hbt-beta-tag{display:block;margin-bottom:4px;font-size:10.5px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--o2);}' +
           '.hbt-beta-wiz{width:auto;margin-top:0;}' +
+          '.hbt-music{margin-top:8px;}' +
           '.hbt-foot{margin-top:auto;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
           '.hbt-wiz{left:0;top:0;bottom:0;width:560px;padding:7vh 48px 6vh 56px;box-sizing:border-box;display:flex;flex-direction:column;animation:hbtIn .35s ease-out;}' +
           '.hbt-kicker{font-size:12px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--o2);}' +
