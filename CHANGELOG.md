@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (Stand 03.11.2026)
 
+### Speichern am Standort
+- Laden bringt dich nicht mehr immer nach Hause. Du startest dort, wo du ordentlich gespeichert hast: zu Hause (Speichern oder Schlafen) und in der Garage wie bisher in der Garage, unterwegs genau an der Stelle, mit derselben Richtung, Uhrzeit, Tank und Schaden.
+- Unterwegs geht Speichern nur, wenn das Auto steht und der Motor aus ist: an den Fahrbahnrand oder in eine PA fahren, anhalten, Zündung aus, im Menü „Hier parken & speichern“. Wer mitten auf der Strecke parkt, startet auch dort. Ein Nickerchen im Auto zählt als geparkt.
+- Speichern mit laufendem Motor bringt einen Hinweis „MOTOR AUS!“ mit einem Umwelt-Spruch aus dem Jahr 2026. Wer es öfter probiert, bekommt einen Extra-Spruch.
+- Spiel beendet, ohne ordentlich zu parken (oder Absturz)? Fortschritt geht nie verloren, der Standort wird alle 30 Sekunden mitgeschrieben. Standardmäßig wurde dein Auto dann von der Autobahnpolizei zur Garage geschleppt (Abschleppgebühr plus 20.000 ¥ Bußgeld), du startest zu Hause. In world.json (saving.unsavedExit) lässt sich stattdessen „am letzten Zwischenstand weiter“ einstellen.
+- Im Menü steht unter „Speichern“, wo du gerade gespeichert bist, und rot, wenn du gerade nicht geparkt bist.
+
 ### Team-Logos (Entwürfe)
 - Jede Crew hat jetzt ein eigenes Logo im Stil eines freigestellten Vinyl-Aufklebers (nur Motiv und Schriftzug), Leader haben dieselbe Version mit Goldrand. Jeder Wanderer hat ein eigenes Siegel mit seinem Zeichen, die drei Bosse haben eigene Embleme. Alles eigene Entwürfe.
 - Die Logos stehen im Duell neben dem Namen des Rivalen (SP-Anzeige), in der Sprechblase bei Herausforderung, Sieg und Niederlage, in PA-Gesprächen mit Rivalen und im Rivalen-Lexikon bei jeder Crew. Siegel von Wanderern und Bossen siehst du im Lexikon erst, wenn du sie geschlagen hast.

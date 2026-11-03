@@ -186,6 +186,9 @@ end
 -- Abschleppen zur Garage -----------------------------------------------------------
 -- Teuer genug, dass es keine Abkürzung ist; nicht während eines Battles und nur im Stand.
 
+-- Abschleppgebühr für km Luftlinie zur Garage (auch nach unsauberem Beenden, savepoint.lua)
+function M.towCost(km) return math.floor((towBaseYen + km * towYenPerKm) / 100) * 100 end
+
 function M.towInfo()
   local c = core()
   local veh = c.getPlayerVehicle()
@@ -214,6 +217,7 @@ function M.towToGarage()
   c.save.money = c.save.money - info.cost
   extensions.hashiriyaBattle_progress.bump(c.save, 'tows')
   pcall(extensions.hashiriyaBattle_rivals.despawnActive)
+  pcall(function() extensions.hashiriyaBattle_savepoint.markSoon('garage') end) -- Auto steht danach in der Garage
   -- Abschleppen repariert nicht: Schaden bleibt (Reparatur kostet in der Garage extra).
   -- safeTeleport setzt das Auto sonst zurück (letzter Parameter resetVehicle, Standard true).
   local ok = pcall(function() spawn.safeTeleport(veh, pos, rot, nil, nil, nil, nil, false) end)

@@ -9,6 +9,15 @@ angular.module('beamng.apps')
   return {
     template:
       '<div class="bngApp hbm-root">' +
+        // Speichern am Standort (savepoint.lua): Motor-aus-Gag, Abgeschleppt, Zwischenstand
+        '<div class="hbm-pop" ng-if="s.saveState.popup" ng-class="\'hbm-pop-\' + s.saveState.popup.kind">' +
+          '<div class="hbm-pop-stripe"></div>' +
+          '<div class="hbm-pop-head"><i class="hbm-ico" ng-bind-html="ico(popIcons[s.saveState.popup.kind] || \'engine\')"></i>' +
+            '<span class="hbm-pop-title">{{ s.saveState.popup.title }}</span></div>' +
+          '<div class="hbm-pop-text">{{ s.saveState.popup.text }}</div>' +
+          '<div class="hbm-pop-hint" ng-if="s.saveState.popup.hint">{{ s.saveState.popup.hint }}</div>' +
+          '<div class="hbm-pop-ok" ng-click="act(\'savePopupClose\')">{{ s.saveState.popup.ok }}</div>' +
+        '</div>' +
         '<div class="hbm" ng-if="s && s.menuVisible">' +
           '<div class="hbm-head">' +
             '<div class="hbm-logo">HASHIRIYA<span>BATTLE</span></div>' +
@@ -45,7 +54,10 @@ angular.module('beamng.apps')
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.record\'] }}</span><b>{{ s.wins }} <i>/</i> {{ s.losses }}</b></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.rivalNear\'] }}</span><b>{{ s.rival || \'\u2014\' }}</b></div>' +
             '<div class="hbm-section">{{ s.t[\'menu.career\'] }}</div>' +
-            '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
+            '<div class="hbm-item" ng-class="{\'hbm-off\': s.saveState && !s.saveState.can && s.saveState.reason != s.t[\'save.reason.engine\']}" ng-click="act(\'save\')" title="{{ s.saveState.reason }}">' +
+              '<i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i><span class="hbm-car-name">{{ (s.saveState && s.saveState.label) || s.t[\'menu.save\'] }}</span>' +
+              '<span class="hbm-price" ng-if="s.saveState && s.saveState.reason">{{ s.saveState.reason }}</span></div>' +
+            '<div class="hbm-note" ng-if="s.saveState && s.saveState.where" ng-class="{\'hbm-warn\': s.saveState.unparked}">{{ s.saveState.where }}</div>' +
             '<div class="hbm-item" ng-click="act(\'dealer\')"><i class="hbm-ico" ng-bind-html="ico(\'carDealer\')"></i>{{ s.t[\'dealer.menu\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'stats\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i>{{ s.t[\'menu.stats\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i>{{ s.t[\'home.lexicon\'] }}</div>' +
@@ -365,7 +377,27 @@ angular.module('beamng.apps')
         '</div>' +
 
         '<style>' +
-          '.hbm-root{width:100%;height:100%;background:transparent;box-shadow:none;overflow:hidden;}' +
+          '.hbm-root{position:relative;width:100%;height:100%;background:transparent;box-shadow:none;overflow:hidden;}' +
+          '.hbm-pop{--o:#ff6600;--o2:#ff9a3c;--w:#f4f4f4;position:absolute;left:0;right:0;top:0;z-index:20;overflow:hidden;' +
+            'font-family:"Overpass","Noto Sans","Segoe UI",sans-serif;color:var(--w);padding:0 0 14px;' +
+            'background:linear-gradient(160deg,rgba(30,30,33,.97),rgba(14,14,16,.95));border-left:4px solid var(--o);' +
+            'box-shadow:0 10px 30px rgba(0,0,0,.65);animation:hbmPop .28s cubic-bezier(.2,1.4,.4,1);}' +
+          '@keyframes hbmPop{from{opacity:0;transform:translateY(-10px) scale(.97);}to{opacity:1;transform:none;}}' +
+          '.hbm-pop-stripe{height:8px;background:repeating-linear-gradient(-45deg,var(--o) 0 10px,#151517 10px 20px);opacity:.9;}' +
+          '.hbm-pop-towed .hbm-pop-stripe{background:repeating-linear-gradient(-45deg,#e8c400 0 10px,#151517 10px 20px);}' +
+          '.hbm-pop-resumed .hbm-pop-stripe{background:linear-gradient(90deg,var(--o),rgba(255,102,0,0));height:4px;}' +
+          '.hbm-pop-head{position:relative;display:flex;align-items:center;gap:10px;padding:12px 18px 6px;}' +
+          '.hbm-pop-head:after{content:"";position:absolute;right:-30px;top:0;bottom:-6px;width:110px;transform:skewX(-28deg);' +
+            'background:repeating-linear-gradient(90deg,rgba(255,102,0,.16) 0 6px,transparent 6px 14px);}' +
+          '.hbm-pop-head .hbm-ico{width:26px;height:26px;color:var(--o);flex:0 0 auto;}' +
+          '.hbm-pop-engine .hbm-pop-head .hbm-ico{animation:hbmShake .5s ease-in-out 2;}' +
+          '@keyframes hbmShake{0%,100%{transform:none;}25%{transform:rotate(-8deg);}75%{transform:rotate(8deg);}}' +
+          '.hbm-pop-title{font-size:22px;font-weight:900;font-style:italic;letter-spacing:2px;line-height:1;}' +
+          '.hbm-pop-text{font-size:14px;line-height:1.45;padding:4px 18px 0;}' +
+          '.hbm-pop-hint{font-size:12px;line-height:1.4;color:var(--o2);padding:8px 18px 0;}' +
+          '.hbm-pop-ok{display:inline-block;margin:12px 18px 0;padding:6px 14px;font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;' +
+            'background:var(--o);color:#111;cursor:pointer;clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);}' +
+          '.hbm-pop-ok:hover{background:var(--o2);}' +
           '.hbm{max-height:100%;display:flex;flex-direction:column;}' +
           '.hbm-head,.hbm-topback,.hbm-foot{flex:0 0 auto;}' +
           '.hbm > .hbm-body{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;}' +
@@ -701,6 +733,7 @@ angular.module('beamng.apps')
       scope.toggleMusic = function () { scope.musicOpen = !scope.musicOpen }
       scope.towArmed = false
       var towTimer = null
+      scope.popIcons = { engine: 'engine', towed: 'tow', resumed: 'parking' }
       scope.towClick = function () {
         if (scope.towArmed) { scope.towArmed = false; clearTimeout(towTimer); scope.act('tow'); return }
         scope.towArmed = true

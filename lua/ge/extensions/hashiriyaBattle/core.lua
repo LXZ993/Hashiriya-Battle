@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -527,6 +527,7 @@ function M.newCareer(data)
     end
   end
   extensions.hashiriyaBattle_home.applyClock(extensions.hashiriyaBattle_home.world().startHour)
+  pcall(function() extensions.hashiriyaBattle_savepoint.markSoon('garage') end)
   M.writeSave()
   M.active = true
   showCarSelect = false
@@ -555,8 +556,20 @@ function M.continueCareer()
     extensions.hashiriyaBattle_dealer.checkNoCar()
     return
   end
-  local opts = { config = plateConfig(car), licenseText = car.plate, autoEnterVehicle = false }
-  local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
+  -- Speichern am Standort (savepoint.lua): zu Hause/Garage -> Garagenbucht, geparkt -> genau dort,
+  -- nicht ordentlich geparkt -> abgeschleppt oder Zwischenstand (world.json saving.unsavedExit)
+  local sp = extensions.hashiriyaBattle_savepoint
+  local okP, plan = pcall(sp.planLoad, M.save)
+  if not okP or type(plan) ~= 'table' then
+    log('W', logTag, 'Speicherort nicht lesbar, Start in der Garage: ' .. tostring(plan))
+    plan = { mode = 'garage' }
+  end
+  local atSpot = plan.mode == 'spot'
+  local inCar = atSpot and not plan.onFoot
+  local opts = { config = plateConfig(car), licenseText = car.plate, autoEnterVehicle = inCar }
+  local pos, rot
+  if atSpot then pos, rot = plan.pos, plan.rot
+  else pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage')) end
   if pos then opts.pos, opts.rot = pos, rot end
   local current = M.getPlayerVehicle()
   local carVeh
@@ -573,7 +586,26 @@ function M.continueCareer()
   -- Uhr dort weiterlaufen lassen, wo gespeichert wurde
   extensions.hashiriyaBattle_home.applyClock(M.save.hour or extensions.hashiriyaBattle_home.world().startHour)
   msg(M.t('msg.welcomeBack', M.save.playerName or ''), 6)
-  M.goOnFoot(carVeh)
+  if inCar then
+    if carVeh then
+      M.carVehId = carVeh:getID()
+      if M.isWalking() then
+        local w = walk()
+        if not (w and w.getInVehicle and pcall(w.getInVehicle, carVeh)) then pcall(function() be:enterVehicle(0, carVeh) end) end
+      end
+    end
+  elseif atSpot then
+    local fp, fr = plan.footPos, plan.footRot
+    if not fp and pos then
+      -- zu Fuß, aber ohne gemerkte Stelle: neben dem Auto
+      local side = (rot * vec3(1, 0, 0)); side.z = 0
+      fp, fr = pos + side:normalized() * 3, rot
+    end
+    M.goOnFoot(carVeh, fp, fr)
+  else
+    M.goOnFoot(carVeh)
+  end
+  pcall(sp.afterLoad, plan)
   M.startTraffic()
 end
 
@@ -602,7 +634,10 @@ function M.stopGame()
   pcall(function() extensions.hashiriyaBattle_jobs.reset() end)
   pcall(function() extensions.hashiriyaBattle_talk.despawnAll() end)
   pcall(function() extensions.hashiriyaBattle_talk.clearPending() end)
-  if M.active then M.writeSave() end
+  if M.active then
+    pcall(function() extensions.hashiriyaBattle_savepoint.beforeStop() end)
+    M.writeSave()
+  end
   M.active = false
   extensions.hashiriyaBattle_battle.reset()
   extensions.hashiriyaBattle_rivals.despawnAll()
@@ -615,7 +650,10 @@ function M.onParkingArrived(area)
   showMenu = true
   menuAutoOpened = true
   msg(M.t('msg.enterPa', M.t('pa.' .. area.type)), 4)
-  if area.type == 'garage' then M.writeSave() end
+  if area.type == 'garage' then
+    pcall(function() extensions.hashiriyaBattle_savepoint.mark('garage') end) -- Auto steht in der Garage: Laden startet hier
+    M.writeSave()
+  end
   -- Shop zu Fuß: gleich das Teile-Terminal
   if area.type == 'shop' and extensions.hashiriyaBattle_parking.isFootShop() then extensions.hashiriyaBattle_shop.openTerminal('shop') end
   -- Story (Alpha 0.6): Szenen in der Garage, zuhause, ...
@@ -916,6 +954,8 @@ local function buildUiState()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
     if st.night and left then st.battlesLeft = left end
     st.job = extensions.hashiriyaBattle_jobs.getHudState()
+    local okSv, sv = pcall(function() return extensions.hashiriyaBattle_savepoint.getUiState() end)
+    if okSv then st.saveState = sv end
     st.noCar = M.save.noCar and #M.save.cars == 0 or nil
     if M.save.gameOver then
       -- Alpha 0.8: Karriere vorbei (kein Auto, kein Geld)
@@ -1161,8 +1201,9 @@ function M.uiAction(action, arg)
   elseif action == 'titleCamera' then
     M.captureTitleCamera(true)
   elseif action == 'save' then
-    M.writeSave()
-    msg(M.t('msg.saved'))
+    extensions.hashiriyaBattle_savepoint.manualSave()
+  elseif action == 'savePopupClose' then
+    extensions.hashiriyaBattle_savepoint.closePopup()
   elseif action == 'paintSlot' then
     extensions.hashiriyaBattle_shop.setPaintSlot(arg)
   elseif action == 'setPlate' then

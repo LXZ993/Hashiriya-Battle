@@ -52,6 +52,9 @@
     "msg.leader": "info",
     "msg.welcomeDriver": "money",
     "msg.refueled": "comboBank",
-    "msg.slept": "sleep"
+    "msg.slept": "sleep",
+    "msg.saved.parked": "save",
+    "msg.saved.garage": "save",
+    "msg.saved.home": "save"
   }
 }

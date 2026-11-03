@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (as of 2026-11-03)
 
+### Save where you park
+- Loading no longer always takes you home. You start where you properly saved: at home (save or sleep) and in the garage like before, out on the road exactly at that spot, same heading, time, fuel and damage.
+- On the road you can only save when the car is standing still with the engine off: pull over to the shoulder or into a PA, stop, ignition off, then "Park & save here" in the menu. Park in the middle of the expressway and that is where you start. A nap in the car counts as parked.
+- Saving with the engine running shows an "ENGINE OFF!" notice with a 2026 eco joke. Keep trying and you get an extra one.
+- Quit without parking properly (or the game crashed)? Progress is never lost, your position is tracked every 30 seconds. By default the expressway police towed your car to the garage (towing fee plus a 20,000 ¥ fine) and you start at home. world.json (saving.unsavedExit) can switch this to "continue from the last checkpoint".
+- The menu shows below "Save" where your current save spot is, in red while you are not parked.
+
 ### Team logos (drafts)
 - Every crew now has its own logo in the style of a die-cut vinyl sticker (just the motif and lettering), leaders get the same logo with a gold border. Every wanderer has a personal seal with their own sign, and the three bosses have their own emblems. All original designs.
 - Logos show next to the rival's name in a battle (SP display), in the speech bubble for challenge, win and loss, in PA talks with rivals and at every crew in the rival lexicon. Wanderer and boss seals only appear in the lexicon after you beat them.
