@@ -138,6 +138,8 @@ local function infoPaints(path)
   return { p1, one(setup.paint2) or p1, one(setup.paint3) or p1 }
 end
 
+M.infoPaints = infoPaints
+
 -- Config fürs Spawnen: Pfad, oder Tabelle mit Kennzeichen-Design und Lack. Zweiter Wert = Lacke {1,2,3} (oder nil)
 local function spawnSetup(rival)
   local path = rival.config ~= '' and rival.config or nil
