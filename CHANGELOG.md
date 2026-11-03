@@ -20,6 +20,8 @@
 - Fahrer an den PAs können eine feste eigene Config bekommen (chat.json, cars[].config).
 - Startmenü und neuer Spielstand: Hinweis, dass die Mod mit Hilfe der Community ausbalanciert wird, mit Bitte um Feedback im Forum-Thread.
 - Die Bobs an den PAs haben jetzt die Farbe des Oberteils aus ihrem Porträt (vorher z. B. gelber Taxifahrer mit weinroter Weste im Porträt).
+- Dev-Menü: einzelne Säulen und ganze Typen ausblendbar, dazu die Parkbuchten der Map als Markierung.
+- Feste Stehplätze für die Fahrer an Tatsumi PA 1 und Shibaura PA (60 Plätze, von JDMArsch gesetzt).
 
 ## Alpha 0.9 (Stand 02.11.2026)
 

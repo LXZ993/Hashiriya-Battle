@@ -96,6 +96,11 @@ angular.module('beamng.apps')
               '<span class="hbd-check" ng-class="{\'is-on\': d.markers.on}" ng-click="dev(\'setMarkers\', {on: !d.markers.on})"><i></i>Säulen</span>' +
               '<span class="hbd-check" ng-class="{\'is-on\': d.markers.labels}" ng-click="dev(\'setMarkers\', {labels: !d.markers.labels})"><i></i>Namen</span>' +
               '<span class="hbd-check" ng-class="{\'is-on\': d.markers.showMap}" ng-click="dev(\'setMarkers\', {showMap: !d.markers.showMap})"><i></i>Orte aus Kartendatei</span>' +
+              '<span class="hbd-check" ng-class="{\'is-on\': d.markers.parkSpots}" ng-click="dev(\'setMarkers\', {parkSpots: !d.markers.parkSpots})" title="Parkbuchten der Map im Umkreis von 250 m: weiß = frei, rot = belegt"><i></i>Parkbuchten der Map</span>' +
+            '</div>' +
+            '<div class="hbd-chips"><span class="hbd-lbl">Typen</span>' +
+              '<span class="hbd-check" ng-repeat="t in d.types track by t.id" ng-class="{\'is-on\': !t.hidden}" ng-click="dev(\'toggleHidden\', {type: t.id})" title="Säulen dieses Typs ein/aus"><i></i>{{ t.name }}</span>' +
+              '<span class="hbd-btn hbd-mini" ng-click="dev(\'toggleHidden\', {showAll: true})" title="Alle ausgeblendeten Säulen wieder zeigen">Alle zeigen</span>' +
             '</div>' +
             '<div class="hbd-chips"><span class="hbd-lbl">Höhe</span>' +
               '<span class="hbd-chip" ng-repeat="h in [15, 40, 80, 150]" ng-class="{\'is-on\': d.markers.height == h}" ng-click="dev(\'setMarkers\', {height: h})">{{ h }} m</span>' +
@@ -122,6 +127,7 @@ angular.module('beamng.apps')
               '<div class="hbd-li" ng-class="{\'is-map\': p.map}" ng-style="{\'border-left-color\': color(p.type)}">' +
                 '<div class="hbd-li-main" ng-click="toggleEdit(p)"><b>{{ p.name }}</b>' +
                   '<span><i class="hbd-type" ng-style="{color: color(p.type)}">{{ p.typeName }}</i>{{ p.map ? \' \u00b7 Kartendatei\' : \'\' }}{{ p.onFoot ? \' \u00b7 zu Fuß\' : \'\' }} \u00b7 {{ distText(p) }}{{ p.note ? \' \u00b7 \' + p.note : \'\' }}</span></div>' +
+                '<span class="hbd-btn" ng-class="{\'hbd-off\': p.hidden}" ng-click="dev(\'toggleHidden\', {id: p.id})" title="Säule dieses Orts ein/aus">{{ p.hidden ? \'Säule aus\' : \'Säule an\' }}</span>' +
                 '<span class="hbd-btn hbd-main" ng-click="dev(\'teleport\', {id: p.id})">Hin</span>' +
                 '<span class="hbd-btn" ng-click="toggleEdit(p)">{{ edit.id == p.id ? \'Zu\' : \'Bearb.\' }}</span>' +
               '</div>' +
@@ -198,6 +204,7 @@ angular.module('beamng.apps')
         '.hbd input[type=text]{box-sizing:border-box;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:var(--w);padding:4px 6px;font-size:12px;font-family:inherit;outline:none;flex:1;min-width:0;}' +
         '.hbd input[type=text]:focus{border-color:var(--o);}' +
         '.hbd-btn{display:inline-block;padding:4px 8px;font-size:11px;font-weight:700;letter-spacing:.3px;background:rgba(255,255,255,.08);cursor:pointer;white-space:nowrap;text-align:center;}' +
+        '.hbd-btn.hbd-off{opacity:.45;text-decoration:line-through;}' +
         '.hbd-btn:hover{background:rgba(255,102,0,.35);} .hbd-main{background:rgba(255,102,0,.55);} .hbd-main:hover{background:var(--o);}' +
         '.hbd-warn:hover{background:rgba(220,40,40,.6);} .hbd-wide{flex:1;}' +
         '.hbd-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:2px 0;}' +
