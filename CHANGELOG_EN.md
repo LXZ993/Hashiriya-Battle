@@ -30,6 +30,7 @@
 - The style is shown in the rival lexicon once you know the rival.
 
 ### New: Music controls
+- New camera shutter sound for the photo job (camera_digital_shutter).
 - Music can now also play as WAV in full quality: if a WAV with the same name sits next to the OGG, the WAV is played. The title song Daikoku now runs this way in its new version V3.
 - Skip music: End key or in the Hashiriya menu under Tools. It also shows which track is playing.
 - Each track can be limited to certain situations: time of day, rival type (normal, leader, wanderer, boss), pink slip, rank, parking area or map (data/music.json, see handbook).

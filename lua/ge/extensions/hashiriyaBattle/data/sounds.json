@@ -27,7 +27,7 @@
     "unlock": "event:>UI>Career>Progress_LevelUp",
     "talk": "event:>UI>Missions>Info_Open",
     "talkHint": "event:>UI>Career>Progress_LevelUp",
-    "photo": "/art/sound/hashiriya/sfx/photo.ogg",
+    "photo": "/art/sound/hashiriya/sfx/camera_digital_shutter.wav",
     "jobPickup": "event:>UI>Career>Buy_01"
   },
   "messages": {

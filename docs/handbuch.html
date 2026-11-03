@@ -1161,7 +1161,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <p><code>events</code> ordnet einem Namen einen BeamNG-Sound zu, <code>messages</code> spielt beim Anzeigen einer Meldung einen Sound.</p>
 <pre><code>"events":   {"buy": "event:>UI>Career>Buy_01", ...},
 "messages": {"msg.carBought": "buy", "msg.noMoney": "denied", ...}</code></pre>
-<p>Eigene Sounds: Pfad zu einer .ogg-Datei statt des <code>event:</code>-Namens eintragen. Erstes Beispiel (Alpha 0.9.1): <code>"photo": "/art/sound/hashiriya/sfx/photo.ogg"</code>, der Kamera-Verschluss beim Fotojob (erzeugt mit <span class="path">tools\audio\sfx.py photo</span>). <code>jobPickup</code> = Ware abgeholt.</p>
+<p>Eigene Sounds: Pfad zu einer .ogg- oder .wav-Datei statt des <code>event:</code>-Namens eintragen. Beispiel: <code>"photo": "/art/sound/hashiriya/sfx/camera_digital_shutter.wav"</code>, der Kamera-Verschluss beim Fotojob (vorher die selbst erzeugte <span class="path">photo.ogg</span>, die als Ersatz noch im Ordner liegt). <code>jobPickup</code> = Ware abgeholt.</p>
 <h3>Musik im Spiel <span class="tag">data\music.json</span> <span class="tag">music.lua</span></h3>
 <p>Die Mod spielt je nach Situation eine eigene Playlist. Die Dateien (OGG) liegen in <span class="path">art\sound\hashiriya\music\</span>.</p>
 <table>
