@@ -6,7 +6,7 @@
 - Loading no longer always takes you home. You start where you properly saved: at home (save or sleep) and in the garage like before, out on the road exactly at that spot, same heading, time, fuel and damage.
 - On the road you can only save when the car is standing still with the engine off: pull over to the shoulder or into a PA, stop, ignition off, then "Park & save here" in the menu. Park in the middle of the expressway and that is where you start. A nap in the car counts as parked.
 - Saving with the engine running shows an "ENGINE OFF!" notice with a 2026 eco joke. Keep trying and you get an extra one.
-- Quit without parking properly (or the game crashed)? Progress is never lost, your position is tracked every 30 seconds. By default the expressway police towed your car to the garage (towing fee plus a 20,000 ¥ fine) and you start at home. world.json (saving.unsavedExit) can switch this to "continue from the last checkpoint".
+- Quit without parking properly (or the game crashed)? Progress is never lost, your position is tracked every 30 seconds. By default the expressway police towed your car to the garage (towing fee plus a fine). The fine doubles every time: 20,000 ¥, then 40,000, 80,000 and so on, so towing is no shortcut and you start at home. world.json (saving.unsavedExit) can switch this to "continue from the last checkpoint".
 - The menu shows below "Save" where your current save spot is, in red while you are not parked.
 
 ### Team logos (drafts)

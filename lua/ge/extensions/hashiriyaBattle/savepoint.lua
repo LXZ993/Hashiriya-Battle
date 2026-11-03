@@ -23,7 +23,9 @@ local defaults = {
   writeSeconds = 60,       -- so oft landet der Zwischenstand auf der Platte (Absturzschutz)
   leaveRadius = 20,        -- m: so weit darf sich das Auto vom Speicherort entfernen, bevor er nicht mehr gilt
   maxSpeedKmh = 2,         -- Speichern nur im Stand
-  towFineYen = 20000,      -- Abschleppen nach unsauberem Beenden: Bußgeld zusätzlich zur normalen Abschleppgebühr
+  towFineYen = 20000,      -- Abschleppen nach unsauberem Beenden: Bußgeld beim 1. Mal, zusätzlich zur normalen Abschleppgebühr
+  towFineFactor = 2,       -- jedes weitere Mal Bußgeld mal diesen Wert (2 = verdoppeln: 20.000, 40.000, 80.000 ...)
+  towFineMaxYen = 0,       -- Obergrenze fürs Bußgeld (0 = keine)
   gagSeconds = 14,         -- so lange bleibt der Motor-aus-Hinweis offen
 }
 
@@ -292,17 +294,29 @@ function M.planLoad(save)
     return plan
   end
   -- abgeschleppt: Gebühr wie beim Abschleppen aus dem Menü plus Bußgeld
+  -- Bußgeld steigt mit jedem Mal (save.unparkedTows = wie oft schon), damit Abschleppen keine Abkürzung ist
+  local cfg = M.cfg()
+  local times = tonumber(save.unparkedTows) or 0
+  local function fineFor(n)
+    local f = (tonumber(cfg.towFineYen) or 0) * (tonumber(cfg.towFineFactor) or 2) ^ n
+    local cap = tonumber(cfg.towFineMaxYen) or 0
+    if cap > 0 then f = math.min(f, cap) end
+    return math.floor(f / 100 + 0.5) * 100
+  end
+  local fine, nextFine = fineFor(times), fineFor(times + 1)
   local garage = parking().find('garage')
-  local cost = 0
+  local fee = 0
   if garage then
     local km = (v3(r.pos) - v3(garage.pos)):length() / 1000
-    local fee = parking().towCost and parking().towCost(km) or math.floor((30000 + km * 2500) / 100) * 100
-    cost = fee + (tonumber(M.cfg().towFineYen) or 0)
+    fee = parking().towCost and parking().towCost(km) or math.floor((30000 + km * 2500) / 100) * 100
   end
+  local cost = fee + fine
+  save.unparkedTows = times + 1
   local paid = math.min(cost, math.max(0, save.money or 0))
   save.money = (save.money or 0) - paid
   extensions.hashiriyaBattle_progress.bump(save, 'tows')
-  return { mode = 'garage', unsaved = 'towed', cost = cost, paid = paid }
+  log('I', logTag, string.format('Nicht geparkt beendet: abgeschleppt (%d. Mal), Gebühr %d + Bußgeld %d, bezahlt %d', times + 1, fee, fine, paid))
+  return { mode = 'garage', unsaved = 'towed', cost = cost, paid = paid, fee = fee, fine = fine, nextFine = nextFine, times = times + 1 }
 end
 
 -- nach dem Spawn: Hinweis zeigen, Speicherort setzen
@@ -312,8 +326,11 @@ function M.afterLoad(plan)
   gagCount = 0
   if plan.unsaved == 'towed' then
     local eco = c.economy()
-    showPopup('towed', c.t('save.towed.title'), c.t('save.towed.text', eco.formatYen(plan.paid or 0)),
-      (plan.paid or 0) < (plan.cost or 0) and c.t('save.towed.short') or c.t('save.towed.hint'), c.t('save.ok'), 20)
+    local text = c.t('save.towed.text', eco.formatYen(plan.fee or 0), eco.formatYen(plan.fine or 0))
+    if (plan.times or 1) > 1 then text = text .. ' ' .. c.t('save.towed.repeat', plan.times) end
+    text = text .. ' ' .. c.t('save.towed.next', eco.formatYen(plan.nextFine or 0))
+    showPopup('towed', c.t('save.towed.title'), text,
+      (plan.paid or 0) < (plan.cost or 0) and c.t('save.towed.short') or c.t('save.towed.hint'), c.t('save.ok'), 25)
     c.save.resume = { kind = 'home', level = c.levelName }
   elseif plan.unsaved == 'resumed' then
     showPopup('resumed', c.t('save.resumed.title'), c.t('save.resumed.text'), c.t('save.towed.hint'), c.t('save.ok'), 14)
