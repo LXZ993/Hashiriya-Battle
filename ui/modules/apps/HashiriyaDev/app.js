@@ -181,7 +181,7 @@ angular.module('beamng.apps')
           '</div>' +
           '<div class="hbd-note">Exporte landen in BeamNG-Userordner/settings/hashiriya_battle/.</div>' +
           '<div class="hbd-sec">Gegner-Garage</div>' +
-          '<div class="hbd-note" ng-if="d.garageTool">Eigener Dev-Modus: BeamNG-Hauptmenü &gt; More &gt; Gegner-Garage (Dev). Die originale BeamNG-Garage bleibt unverändert.</div>' +
+          '<div class="hbd-note" ng-if="d.garageTool">Start: BeamNG-Hauptmenü &gt; More &gt; Gegner-Garage (Dev). Das ist die normale BeamNG-Garage mit allen Funktionen plus Gegner-Panel (Gegner-Configs, Aura-Vorschau).</div>' +
           '<div class="hbd-note" ng-if="!d.garageTool">garagetool.lua fehlt im Mod.</div>' +
         '</div>' +
       '</div>' +

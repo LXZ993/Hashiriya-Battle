@@ -1,28 +1,33 @@
 -- Hashiriya Battle: Gegner-Garage (Entwickler-Werkzeug, nicht im Release).
--- Eigene Dev-Garage, unabhängig von der BeamNG-Garage (die bleibt komplett unangetastet):
--- BeamNG-Hauptmenü > More > "Gegner-Garage (Dev)" (oder Dev-Menü > Werkzeuge) lädt die Garagen-Halle (Level garage_v2) als
--- normales Freeroam und zeigt das Panel HashiriyaGarage im eigenen Layout "hashiriyaGarage".
--- Gegner wählen, sein Auto mit seiner Config wird geladen, daneben stehen Crew, Beschreibung, Bedingungen und Sprüche.
--- Anpassen mit den normalen BeamNG-Menüs (Esc > Fahrzeug-Konfiguration: Teile, Tuning, Lack).
+-- BeamNG-Hauptmenü > More > "Gegner-Garage (Dev)" startet die ganz normale BeamNG-Garage
+-- (gameplay_garageMode.start(), genau wie More > Garage: Teile, Tuning, Lack, Decals, Fahrzeuge, Kamera, Licht, Foto ...).
+-- Zusätzlich liegt darüber das Panel "Gegner-Garage" (Vue, ui/ui-vue/mods/hashiriyaGarage/GaragePanel.vue).
+-- Die Original-Garage wird nicht verändert: keine Datei ersetzt, kein Layout umgeschaltet. Das Panel erscheint nur,
+-- wenn die Garage über unseren Eintrag gestartet wurde.
+-- Reiter "Gegner": Gegner wählen, sein Auto mit seiner Config laden, daneben Crew, Beschreibung, Bedingungen, Sprüche.
 -- "Auf Gegner speichern" schreibt die Config zurück:
 --   * eigene Mod-Config (vehicles/<model>/hashiriya_*.pc im Mod-Ordner) wird überschrieben (Sicherung vorher),
 --   * eine BeamNG- oder fremde Config bleibt unangetastet: es entsteht vehicles/<model>/hashiriya_r_<id>.pc im
 --     Mod-Ordner, und rivals.json bekommt beim Gegner den neuen Pfad (und das Modell, falls du das Auto gewechselt hast).
+-- Reiter "Aura": Aura eines Gegners am Auto in der Garage ansehen (aura.lua, Vorschau ohne Karriere).
+-- Weitere Test-Reiter kommen in GaragePanel.vue dazu (tabs) und bekommen hier eine Aktion in "actions".
 local M = {}
 
 local logTag = 'hashiriya'
 local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logger') if L then L.log(level, tag, text) else _G.log(level, tag, text) end end
 
-local layoutName = 'hashiriyaGarage' -- settings/ui_apps/originalLayouts/default/hashiriyaGarage.uilayout.json
-local garageLevel = 'garage_v2'      -- die Halle der BeamNG-Garage, hier als normales Freeroam geladen
+local garageLevel = 'garage_v2'  -- Level der BeamNG-Garage
 local backupDir = '/settings/hashiriya_battle/builder_backups/'
 local dataRel = 'lua/ge/extensions/hashiriyaBattle/data/rivals.json'
 local maxBackups = 20
 
 local loadedId = nil   -- Gegner, dessen Auto gerade in der Garage steht
 local loadedMode = nil -- 'game' (wie im Spiel: Kennzeichen-Design, fester Lack) oder 'pure' (nur die .pc)
-local pending = false  -- Garage wird gerade geladen
-local active = false   -- Dev-Garage läuft (Level garage_v2, über uns gestartet)
+local wanted = false   -- Garage wurde über "Gegner-Garage (Dev)" gestartet
+local starting = false -- Garage-Level lädt gerade
+local shown = nil      -- zuletzt an die Oberfläche gemeldeter Zustand
+local auraPreview = nil -- { id = Gegner-ID, mode = 'ground'|'battle'|'both', sp = 0..1, level = 1..3 }
+local expectSpawn = false -- nächstes Spawnen kommt von "Gegner laden"
 
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
@@ -40,7 +45,21 @@ local function levelName()
   return ok and n and tostring(n):lower() or ''
 end
 
-local function garageActive() return active and levelName() == garageLevel end
+local function garageMode()
+  local gm = rawget(_G, 'gameplay_garageMode') or extensions.gameplay_garageMode
+  if not gm then
+    pcall(extensions.load, 'gameplay_garageMode')
+    gm = extensions.gameplay_garageMode
+  end
+  return gm
+end
+
+-- Läuft die BeamNG-Garage und wurde sie über unseren Eintrag gestartet?
+local function garageActive()
+  if not wanted then return false end
+  local gm = rawget(_G, 'gameplay_garageMode')
+  return gm and gm.isActive and gm.isActive() and levelName() == garageLevel or false
+end
 M.garageActive = garageActive
 M.isActive = garageActive
 
@@ -52,79 +71,91 @@ local function modRoot()
   end
 end
 
--- Starten / Beenden -------------------------------------------------------------------------
+-- Zustand an das Panel melden (es zeigt sich nur, wenn active = true)
+local function pushState(force)
+  local a = garageActive()
+  if not force and a == shown then return end
+  shown = a
+  guihooks.trigger('HashiriyaGarageState', { active = a })
+end
+function M.getState() return { active = garageActive() } end
 
-local function setLayout(name)
-  local gs = rawget(_G, 'core_gamestate')
-  if gs and gs.setGameState then pcall(gs.setGameState, 'freeroam', name, 'freeroam') end
+local function setAuraPreview(p)
+  auraPreview = p
+  local au = extensions.hashiriyaBattle_aura
+  if au and au.setPreview then au.setPreview(p and M.auraSpec(p) or nil) end
 end
 
--- Dev-Garage öffnen: Halle laden (oder, wenn sie schon geladen ist, nur das Panel zeigen)
+local function reset()
+  wanted, starting = false, false
+  loadedId, loadedMode = nil, nil
+  setAuraPreview(nil)
+  pushState()
+end
+
+-- Starten / Beenden -------------------------------------------------------------------------
+
+-- Hauptmenü > More > "Gegner-Garage (Dev)": dieselbe Garage wie More > Garage, nur mit Panel
 function M.start()
   if not M.isAllowed() then return end
-  if core().active then
-    core().msg('Gegner-Garage: erst die Karriere beenden (Titelbildschirm oder Modus beenden)', 6)
+  local c = core()
+  if c and c.active then
+    if c.msg then c.msg('Gegner-Garage: erst die Karriere beenden', 6) end
     return
   end
-  if levelName() == garageLevel then
-    active = true
-    setLayout(layoutName)
+  local gm = garageMode()
+  if not gm or not gm.start then
+    log('E', logTag, 'Gegner-Garage: gameplay_garageMode fehlt')
+    return
+  end
+  wanted = true
+  loadedId, loadedMode = nil, nil
+  if gm.isActive and gm.isActive() and levelName() == garageLevel then
+    pushState(true)
     M.refresh()
     return
   end
-  -- wie der Hashiriya-Battle-Eintrag im Hauptmenü: Level als normales Freeroam starten
-  if extensions.hashiriyaBattle_music and extensions.hashiriyaBattle_music.pauseMenuMusic then
-    pcall(extensions.hashiriyaBattle_music.pauseMenuMusic, true)
-  end
-  local ff = rawget(_G, 'freeroam_freeroam') or (extensions.load('freeroam_freeroam') and freeroam_freeroam)
-  pending = true
-  local ok, res = pcall(function() return ff and ff.startFreeroamByName and ff.startFreeroamByName(garageLevel, nil, nil, false) end)
-  if not ok or not res then
-    pending = false
-    log('E', logTag, 'Gegner-Garage: Halle nicht geladen: ' .. tostring(res))
-    core().msg('Gegner-Garage: Halle (' .. garageLevel .. ') nicht gefunden', 6)
+  starting = true
+  local ok, err = pcall(gm.start)
+  if not ok then
+    reset()
+    log('E', logTag, 'Gegner-Garage: Start fehlgeschlagen: ' .. tostring(err))
     return
   end
-  log('I', logTag, 'Gegner-Garage: lade ' .. garageLevel)
+  log('I', logTag, 'Gegner-Garage: starte BeamNG-Garage (' .. garageLevel .. ')')
 end
 
--- Zurück ins BeamNG-Hauptmenü
-function M.leave()
-  active, pending = false, false
-  loadedId, loadedMode = nil, nil
-  local back = rawget(_G, 'returnToMainMenu') or rawget(_G, 'endActiveGameMode')
-  if back then pcall(back) end
+-- Level fertig: nur in der Garage-Halle bleibt die Gegner-Garage an
+function M.onClientPostStartMission()
+  if not wanted then return end
+  starting = false
+  if levelName() ~= garageLevel then reset() return end
+  log('I', logTag, 'Gegner-Garage: geöffnet')
 end
 
--- Level fertig geladen: in der Halle unser Layout setzen, sonst Dev-Garage aus
-function M.onWorldReadyState(state)
-  if state ~= 2 then return end
-  if pending and levelName() == garageLevel then
-    pending, active = false, true
-    setLayout(layoutName)
-    log('I', logTag, 'Gegner-Garage: geöffnet (Layout ' .. layoutName .. ')')
-  elseif levelName() ~= garageLevel then
-    active, pending = false, false
-    loadedId, loadedMode = nil, nil
-  end
+-- Garage verlassen (Hauptmenü, Testfahrt, anderer Modus): Panel aus
+function M.onClientEndMission()
+  if starting then return end
+  if wanted then log('I', logTag, 'Gegner-Garage: beendet') end
+  reset()
 end
 
--- Andere Teile der Mod setzen beim Laden evtl. ein anderes Layout: in der Dev-Garage immer wieder unseres nehmen
-local layoutTimer = 0
+-- Zustand regelmäßig prüfen (Garage kann auch ohne Levelwechsel enden), Panel ein-/ausblenden
+local stateTimer = 0
 function M.onUpdate(dtReal)
-  if not active then return end
-  layoutTimer = layoutTimer + (dtReal or 0)
-  if layoutTimer < 0.5 then return end
-  layoutTimer = 0
-  if not garageActive() then active = false return end
-  local gs = rawget(_G, 'core_gamestate')
-  local st = gs and gs.state
-  if st and st.state ~= 'garage' and st.appLayout ~= layoutName and st.state ~= 'menu' then setLayout(layoutName) end
+  if not wanted and not shown then return end
+  stateTimer = stateTimer + (dtReal or 0)
+  if stateTimer < 0.3 then return end
+  stateTimer = 0
+  pushState()
+  if auraPreview and not garageActive() then setAuraPreview(nil) end
 end
 
--- Auto gewechselt (auch über Esc > Fahrzeuge): Anzeige "in der Garage" aktualisieren
+-- Auto gewechselt (auch über die Garage-Menüs): Anzeige "in der Garage" aktualisieren
 function M.onVehicleSpawned()
-  if active then M.refresh() end
+  if not garageActive() then return end
+  if expectSpawn then expectSpawn = false else loadedId, loadedMode = nil, nil end
+  M.refresh()
 end
 
 -- Daten fürs Panel ------------------------------------------------------------------------------
@@ -200,8 +231,10 @@ local function buildData()
     table.insert(byConfig[k], r.id)
   end
   local list = {}
+  local au = extensions.hashiriyaBattle_aura
   for i, r in ipairs(data.rivals or {}) do
     local ci = configInfo(r.model, r.config)
+    local okA, auraColor = pcall(function() return au and au.colorOf and au.colorOf(r) or nil end)
     local shared = {}
     for _, id in ipairs(byConfig[tostring(r.config or '')] or {}) do if id ~= r.id then table.insert(shared, id) end end
     local lines = {}
@@ -218,6 +251,7 @@ local function buildData()
       aggression = r.aggression, cruiseKmh = r.cruiseKmh, maxSp = r.maxSp,
       rewardUsd = r.rewardUsd, rewardYen = r.rewardYen, rep = r.rep,
       placeholder = r._platzhalter,
+      auraColor = okA and auraColor or nil, leader = r.leader and true or false,
     })
   end
   local ranks = {}
@@ -239,6 +273,7 @@ function M.refresh()
     full = true, garage = garageActive(),
     teams = d.teams, rivals = d.rivals, ranks = d.ranks, root = d.root,
     loadedId = loadedId, loadedMode = loadedMode, player = playerInfo(),
+    aura = auraPreview,
   })
 end
 
@@ -267,13 +302,15 @@ local function loadRival(a)
     opts.config = cfgOut or r.config
     if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
   end
+  local prevId, prevMode = loadedId, loadedMode
+  loadedId, loadedMode, expectSpawn = r.id, mode, true
   local ok, err = pcall(core_vehicles.replaceVehicle, r.model, opts)
   if not ok then
+    loadedId, loadedMode, expectSpawn = prevId, prevMode, false
     status(false, 'Laden fehlgeschlagen: ' .. tostring(err))
     log('E', logTag, 'Gegner-Garage: ' .. tostring(r.id) .. ' nicht geladen: ' .. tostring(err))
     return
   end
-  loadedId, loadedMode = r.id, mode
   M.refresh()
   status(true, r.name .. ' geladen (' .. (mode == 'pure' and 'nur Config' or 'wie im Spiel') .. ')')
   log('I', logTag, 'Gegner-Garage: ' .. r.id .. ' geladen, ' .. tostring(r.config))
@@ -427,11 +464,62 @@ end
 
 -- Aktionen aus der App -----------------------------------------------------------------------------
 
+-- Aura-Vorschau -------------------------------------------------------------------------------------
+
+-- Spec für aura.setPreview aus Gegner + Modus
+function M.auraSpec(p)
+  local au = extensions.hashiriyaBattle_aura
+  local r = p and findRival(p.id)
+  if not au or not r then return nil end
+  local color = au.colorOf and au.colorOf(r) or '#ff6600'
+  local rim = nil
+  if r.leader then
+    local okC, c = pcall(function() return jsonReadFile('/lua/ge/extensions/hashiriyaBattle/data/aura.json') end)
+    rim = okC and c and c.leaderRimColor or '#ffd257'
+  end
+  local mode = p.mode or 'ground'
+  return {
+    color = color, rim = rim,
+    ground = mode == 'ground' or mode == 'both',
+    battle = mode == 'battle' or mode == 'both',
+    sp = math.max(0, math.min(1, tonumber(p.sp) or 1)),
+    level = math.max(1, math.min(3, math.floor(tonumber(p.level) or 2))),
+  }
+end
+
+local function auraAction(a)
+  if not garageActive() then status(false, 'Nur in der Gegner-Garage') return end
+  local au = extensions.hashiriyaBattle_aura
+  if not au or not au.setPreview then status(false, 'aura.lua fehlt oder ist zu alt') return end
+  if not a.id or a.mode == 'off' then
+    setAuraPreview(nil)
+    status(true, 'Aura aus')
+    M.refresh()
+    return
+  end
+  local r = findRival(a.id)
+  if not r then status(false, 'Gegner nicht gefunden: ' .. tostring(a.id)) return end
+  setAuraPreview({ id = r.id, mode = a.mode or 'ground', sp = a.sp, level = a.level })
+  local names = { ground = 'Boden-Aura', battle = 'Battle-Aura', both = 'Boden + Battle' }
+  status(true, 'Aura von ' .. tostring(r.name) .. ': ' .. (names[a.mode] or tostring(a.mode)))
+  M.refresh()
+end
+
+local function auraReload()
+  local au = extensions.hashiriyaBattle_aura
+  if not au or not au.reload then status(false, 'aura.lua fehlt') return end
+  au.reload()
+  if auraPreview then setAuraPreview(auraPreview) end
+  status(true, 'aura.json neu geladen')
+end
+
 local actions = {
   load = loadRival,
   save = saveRival,
-  leave = function() M.leave() end,
+  aura = auraAction,
+  auraReload = auraReload,
   refresh = function() M.refresh() end,
+  state = function() pushState(true) end,
 }
 
 function M.action(name, argText)
