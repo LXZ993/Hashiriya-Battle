@@ -46,7 +46,7 @@ class Doc:
                f'<image x="{self.TX}" y="0" width="{T[0]}" height="{T[1]}" opacity="0.6" href="data:image/png;base64,{b64(self.model + "_T.png")}"/></g>']
         for lid, items in self.layers:
             out.append(f'<g id="{lid}">' + ''.join(
-                f'<path fill="{f}"' + (f' stroke="{s}" stroke-width="{w}" stroke-linejoin="round"' if s else '') + f' d="{d}"/>'
+                f'<path fill="{f}"' + (f' stroke="{s}" stroke-width="{w}" stroke-linejoin="miter" stroke-miterlimit="20"' if s else '') + f' d="{d}"/>'
                 for d, f, s, w in items) + '</g>')
         out.append('</svg>'); return '\n'.join(out)
     def write(self, name):
