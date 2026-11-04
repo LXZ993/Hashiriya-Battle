@@ -31,6 +31,7 @@ local expectSpawn = false -- nächstes Spawnen kommt von "Gegner laden"
 local pendingPlate = nil   -- Kennzeichen-Text des geladenen Gegners (nach dem Spawnen setzen, wie rivals.lua spawnCar)
 
 local auraCfgForUi -- weiter unten
+local auraChanged = {} -- aura.json: Pfad -> Wert, geändert seit dem letzten Speichern/Laden
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
 local function send(data) guihooks.trigger('HashiriyaGarage', data) end
@@ -538,8 +539,10 @@ local function auraReload()
   local au = extensions.hashiriyaBattle_aura
   if not au or not au.reload then status(false, 'aura.lua fehlt') return end
   au.reload()
+  auraChanged = {}
   if auraPreview then setAuraPreview(auraPreview) end
   status(true, 'aura.json neu geladen')
+  M.refresh()
 end
 
 -- Aura-Editor ---------------------------------------------------------------------------------------
@@ -555,55 +558,96 @@ local function auraSet(a)
   local v = a.value
   if type(v) ~= 'number' and type(v) ~= 'boolean' then status(false, 'Ungültiger Wert für ' .. path) return end
   au.setValue(path, v)
+  auraChanged[path] = v
   if auraPreview then setAuraPreview(auraPreview) end
   M.refresh()
 end
 
--- aura.json mit fester Reihenfolge schreiben (lesbar wie vorher)
-local auraKeyOrder = { '_info', 'enabled', 'who', 'rivals', 'levels', 'rivalLevel', 'ground', 'battle', 'rim', 'shell', 'haze', 'leaderRimColor', 'defaultColor', 'colors' }
-local function encodeOrdered(v, ind, order)
-  local pad = string.rep('  ', ind)
-  if type(v) ~= 'table' then return jsonEncode(v) end
-  if #v > 0 or next(v) == nil then
-    if next(v) == nil then return '{}' end
-    local simple = true
-    for _, x in ipairs(v) do if type(x) == 'table' then simple = false end end
-    local parts = {}
-    for _, x in ipairs(v) do table.insert(parts, encodeOrdered(x, ind + 1)) end
-    if simple then return '[' .. table.concat(parts, ', ') .. ']' end
-    return '[\n' .. pad .. '  ' .. table.concat(parts, ',\n' .. pad .. '  ') .. '\n' .. pad .. ']'
+-- aura.json gezielt im Text ändern: nur die geänderten Werte, Reihenfolge und Format bleiben wie in der Datei
+
+-- Objekt ab Position s ("{"): Position des Werts zu key (direkt in diesem Objekt) und Ende des Objekts
+local function jsonFindKey(text, s, key)
+  local depth, i, n = 0, s, #text
+  while i <= n do
+    local c = text:sub(i, i)
+    if c == '"' then
+      local j = i + 1
+      while j <= n do
+        local d = text:sub(j, j)
+        if d == '\\' then j = j + 2 elseif d == '"' then break else j = j + 1 end
+      end
+      if depth == 1 and text:sub(i + 1, j - 1) == key then
+        local _, ce = text:find('^%s*:%s*', j + 1)
+        if ce then return ce + 1 end
+      end
+      i = j + 1
+    else
+      if c == '{' or c == '[' then depth = depth + 1
+      elseif c == '}' or c == ']' then
+        depth = depth - 1
+        if depth == 0 then return nil, i end
+      end
+      i = i + 1
+    end
   end
-  local keys, seen = {}, {}
-  for _, k in ipairs(order or {}) do if v[k] ~= nil then table.insert(keys, k); seen[k] = true end end
-  local rest = {}
-  for k in pairs(v) do if not seen[k] then table.insert(rest, k) end end
-  table.sort(rest, function(x, y)
-    if x == '_info' then return true elseif y == '_info' then return false end
-    return tostring(x) < tostring(y)
-  end)
-  for _, k in ipairs(rest) do table.insert(keys, k) end
-  local parts = {}
-  for _, k in ipairs(keys) do
-    table.insert(parts, pad .. '  ' .. jsonEncode(tostring(k)) .. ': ' .. encodeOrdered(v[k], ind + 1))
-  end
-  return '{\n' .. table.concat(parts, ',\n') .. '\n' .. pad .. '}'
+  return nil, n
 end
+
+local function jsonNum(v)
+  if type(v) == 'boolean' then return tostring(v) end
+  local t = string.format('%.4f', v):gsub('0+$', ''):gsub('%.$', '')
+  return t
+end
+
+local function patchJsonPath(text, path, value)
+  local keys = {}
+  for k in path:gmatch('[^%.]+') do table.insert(keys, k) end
+  local objStart = text:find('{')
+  for i, k in ipairs(keys) do
+    local vs, objEnd = jsonFindKey(text, objStart, k)
+    if not vs then
+      if i < #keys then return nil, 'Abschnitt fehlt: ' .. k end
+      -- neuer Schlüssel: vor die schließende Klammer, mit gleicher Einrückung wie die anderen
+      local before = text:sub(1, objEnd - 1):gsub('%s*$', '')
+      local ind = (text:sub(objStart, objEnd):match('\n(%s*)"') or '  ')
+      local closeInd = text:sub(1, objEnd - 1):match('\n([ \t]*)$') or ''
+      return before .. ',\n' .. ind .. '"' .. k .. '": ' .. jsonNum(value) .. '\n' .. closeInd .. text:sub(objEnd)
+    end
+    if i == #keys then
+      local ve = text:find('[,%}%]\r\n]', vs) or (#text + 1)
+      local old = text:sub(vs, ve - 1):gsub('%s+$', '')
+      return text:sub(1, vs - 1) .. jsonNum(value) .. text:sub(vs + #old)
+    end
+    if text:sub(vs, vs) ~= '{' then return nil, k .. ' ist kein Abschnitt' end
+    objStart = vs
+  end
+end
+M._patchJsonPath = patchJsonPath -- für Tests
 
 local auraRel = 'lua/ge/extensions/hashiriyaBattle/data/aura.json'
 local function auraSaveCfg()
-  local au = extensions.hashiriyaBattle_aura
-  if not au or not au.config then status(false, 'aura.lua fehlt') return end
   local root = modRoot()
   if not root then status(false, 'Mod-Ordner mods/unpacked/Hashiriya-Battle nicht gefunden') return end
-  local text = encodeOrdered(au.config(), 0, auraKeyOrder) .. '\n'
+  if next(auraChanged) == nil then status(true, 'aura.json: nichts geändert') return end
+  local text = readFile(root .. auraRel)
+  if not text then status(false, 'aura.json nicht lesbar') return end
+  local paths = {}
+  for p in pairs(auraChanged) do table.insert(paths, p) end
+  table.sort(paths)
+  for _, p in ipairs(paths) do
+    local t, err = patchJsonPath(text, p, auraChanged[p])
+    if not t then status(false, 'aura.json: ' .. tostring(err)) return end
+    text = t
+  end
   local okJson = pcall(jsonDecode, text, 'garagetool')
   if not okJson then status(false, 'aura.json wäre ungültig, nicht gespeichert') return end
   local stamp = os.date('%Y%m%d_%H%M%S')
   local b = backup(root .. auraRel, 'aura_' .. stamp .. '.json')
   pcall(pruneBackups, 'aura_*.json')
   writeFile(root .. auraRel, text)
-  log('I', logTag, 'Gegner-Garage: aura.json gespeichert (Sicherung ' .. tostring(b) .. ')')
-  status(true, 'aura.json gespeichert (Sicherung in builder_backups)')
+  auraChanged = {}
+  log('I', logTag, 'Gegner-Garage: aura.json gespeichert: ' .. table.concat(paths, ', ') .. ' (Sicherung ' .. tostring(b) .. ')')
+  status(true, 'aura.json gespeichert (' .. #paths .. ' Werte, Sicherung in builder_backups)')
 end
 
 -- Feld eines Rivalen setzen, ändern oder entfernen (Text, Reihenfolge bleibt). jsonValue = fertiger JSON-Text oder nil = entfernen
