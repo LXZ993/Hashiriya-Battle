@@ -672,6 +672,7 @@ const CG=[
   {k:"playerPart",ty:"text",l:L2("Only if a certain tuning part is installed","Nur wenn ein bestimmtes Tuningteil verbaut ist"),h:L2("A word from the part name, e.g. turbo, supercharger, slick","Ein Wort aus dem Teilenamen, z. B. turbo, supercharger, slick")},
   {k:"noPart",ty:"text",l:L2("Only if a certain part is NOT installed","Nur wenn ein bestimmtes Teil NICHT verbaut ist"),h:L2("e.g. slick","z. B. slick")},
   {k:"induction",ty:"select",opts:[["na",L2("naturally aspirated (no turbo, no supercharger)","Saugmotor (kein Turbo, kein Kompressor)")],["forced",L2("turbo or supercharger","Turbo oder Kompressor")]],l:L2("Only with a certain engine","Nur mit einer bestimmten Motorart")},
+  {k:"drive",ty:"multi",opts:[["FWD",L2("front-wheel drive (FF)","Frontantrieb (FF)")],["RWD",L2("rear-wheel drive (FR/MR/RR)","Heckantrieb (FR/MR/RR)")],["AWD",L2("all-wheel drive (4WD)","Allrad (4WD)")]],l:L2("Only with a certain drivetrain","Nur mit einer bestimmten Antriebsart"),h:L2("Pick one or more.","Eine oder mehrere wählen.")},
   {k:"manual",ty:"bool",l:L2("Only with a manual or sequential gearbox","Nur mit Schaltgetriebe (manuell oder sequenziell)")},
   {k:"paintColor",ty:"multi",opts:COLORS_C,l:L2("Only with a certain paint colour","Nur mit einer bestimmten Lackfarbe"),h:L2("Pick one or more.","Eine oder mehrere wählen.")},
   {k:"plateContains",ty:"text",l:L2("Only if the player's plate contains certain digits","Nur wenn das Kennzeichen des Spielers bestimmte Ziffern enthält"),h:L2("e.g. 86","z. B. 86")},
