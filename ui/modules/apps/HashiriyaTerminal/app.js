@@ -20,13 +20,15 @@ angular.module('beamng.apps')
               '<span class="hbt-search-x" ng-if="ui.query" ng-click="ui.query = \'\'; onSearch()">&#10005;</span></div>' +
           '</div>' +
           '<div class="hbt-tabs" ng-if="term.mode == \'garage\'">' +
-            '<div class="hbt-tab" ng-class="{\'is-on\': ui.gtab == \'fit\'}" ng-click="ui.gtab = \'fit\'">{{ t(\'term.gtab.fit\') }}</div>' +
-            '<div class="hbt-tab" ng-class="{\'is-on\': ui.gtab == \'store\'}" ng-click="ui.gtab = \'store\'">{{ t(\'term.gtab.store\') }}</div>' +
+            '<div class="hbt-tab" ng-class="{\'is-on\': ui.gtab == \'fit\'}" ng-click="setGtab(\'fit\')">{{ t(\'term.gtab.fit\') }}</div>' +
+            '<div class="hbt-tab" ng-class="{\'is-on\': ui.gtab == \'store\'}" ng-click="setGtab(\'store\')">{{ t(\'term.gtab.store\') }}</div>' +
+            '<div class="hbt-tab" ng-if="term.board" ng-class="{\'is-on\': ui.gtab == \'board\'}" ng-click="setGtab(\'board\')">{{ t(\'term.gtab.board\') }}' +
+              '<span class="hbt-tab-n" ng-if="term.board.newCount">{{ term.board.newCount }}</span></div>' +
           '</div>' +
           '<div class="hbt-dmg" ng-if="term.damaged"><span class="hbt-dmg-t">{{ t(\'term.damaged\') }}</span>' +
             '<button class="hbt-btn hbt-dmg-b" ng-disabled="!term.damaged.affordable" ng-click="act(\'repair\')">{{ t(\'term.repair\') }} {{ term.damaged.cost }}</button></div>' +
           '<div class="hbt-split">' +
-            '<div class="hbt-nav" ng-if="!(term.mode == \'garage\' && ui.gtab == \'store\')">' +
+            '<div class="hbt-nav" ng-if="!(term.mode == \'garage\' && (ui.gtab == \'store\' || ui.gtab == \'board\'))">' +
               '<div ng-repeat="g in groups track by g.id">' +
                 '<div class="hbt-navh">{{ t(\'term.group.\' + g.id) }}</div>' +
                 '<div class="hbt-navi" ng-repeat="c in g.cats track by c.id" ng-class="{\'is-on\': c.id == ui.cat && !ui.query}" ng-click="pickCat(c.id)">' +
@@ -69,7 +71,20 @@ angular.module('beamng.apps')
                       '{{ sellArm === p.key ? t(\'term.sellConfirm\') : t(\'term.sell\') }} · {{ p.opt.sell }}</button></span></div>' +
               '</div>' +
               // Teile (Kategorie oder Suchergebnis)
-              '<div ng-if="!(term.mode == \'garage\' && ui.gtab == \'store\')">' +
+              // Schwarzes Brett (HashiNet-Forum, board.lua)
+              '<div ng-if="term.mode == \'garage\' && ui.gtab == \'board\' && term.board">' +
+                '<div class="hbt-bb-head"><span class="hbt-bb-cat" ng-repeat="c in term.board.cats" ng-class="{\'is-on\': ui.bbCat == c}" ng-click="ui.bbCat = c">{{ t(\'board.cat.\' + c) }}</span></div>' +
+                '<div class="hbt-note" ng-if="!boardPosts().length">{{ t(\'board.empty\') }}</div>' +
+                '<div class="hbt-bb-post" ng-repeat="p in boardPosts() track by p.id" ng-class="\'c-\' + p.cat" ng-style="p.color ? {\'border-left-color\': p.color} : {}">' +
+                  '<div class="hbt-bb-top"><span class="hbt-bb-kind">{{ p.catText }}</span><span class="hbt-bb-new" ng-if="p.isNew">{{ t(\'board.new\') }}</span>' +
+                    '<span class="hbt-bb-meta">{{ p.author }} · {{ p.ago }}</span></div>' +
+                  '<div class="hbt-bb-title"><img class="hbt-bb-logo" ng-if="p.logo" ng-src="{{ p.logo }}">{{ p.title }}</div>' +
+                  '<div class="hbt-bb-text">{{ p.text }}</div>' +
+                  '<div class="hbt-bb-foot" ng-if="p.tag || p.price"><span class="hbt-warn" ng-if="p.price">{{ p.price }}</span><span class="hbt-ok" ng-if="p.tag">{{ p.tag }}</span></div>' +
+                '</div>' +
+                '<div class="hbt-note hbt-small">{{ t(\'board.note\') }}</div>' +
+              '</div>' +
+              '<div ng-if="!(term.mode == \'garage\' && (ui.gtab == \'store\' || ui.gtab == \'board\'))">' +
                 '<div class="hbt-note" ng-if="!term.loading && !visibleRows.length && (ui.cat != \'paint\' || ui.query)">{{ ui.query ? t(\'term.noHits\') : t(\'shop.none\') }}</div>' +
                 '<div ng-repeat="r in visibleRows track by r.id">' +
                   '<div class="hbt-grp" ng-mouseenter="focus(r.slot)"><span>{{ r.name }}<span class="hbt-path" ng-if="ui.query || ui.cat == \'all\'"> · {{ r.path }}</span></span>' +
@@ -172,6 +187,22 @@ angular.module('beamng.apps')
         '.hbt-tabs{display:flex;gap:4px;padding:8px 10px 0;border-bottom:1px solid rgba(255,140,60,.5);flex:none;}' +
         '.hbt-tab{padding:5px 14px;border:1px solid rgba(0,0,0,.5);border-bottom:0;border-radius:4px 4px 0 0;background:rgba(255,255,255,.06);color:#c7d2de;cursor:pointer;}' +
         '.hbt-tab.is-on{background:rgba(255,102,0,.28);color:#fff;border-color:rgba(255,140,60,.6);}' +
+        '.hbt-tab-n{display:inline-block;margin-left:6px;min-width:16px;padding:0 4px;border-radius:8px;background:#ff6600;color:#fff;font-size:10px;font-weight:700;text-align:center;}' +
+        '.hbt-bb-head{display:flex;flex-wrap:wrap;gap:6px;padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.45);background:rgba(14,19,27,.55);position:sticky;top:0;z-index:1;}' +
+        '.hbt-bb-cat{padding:2px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);cursor:pointer;font-size:12px;}' +
+        '.hbt-bb-cat.is-on{border-color:#ff8a33;background:rgba(255,102,0,.3);}' +
+        '.hbt-bb-post{margin:8px 10px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-left:4px solid #8ea0b4;border-radius:3px;' +
+          'background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));}' +
+        '.hbt-bb-post.c-rumor{border-left-color:#9b30ff;}.hbt-bb-post.c-boss{border-left-color:#e2453c;}.hbt-bb-post.c-news{border-left-color:#ff6600;}' +
+        '.hbt-bb-post.c-job{border-left-color:#ffe14d;}.hbt-bb-post.c-fact{border-left-color:#3fa9ff;}.hbt-bb-post.c-ad{border-left-color:#4fd18b;}' +
+        '.hbt-bb-top{display:flex;align-items:baseline;gap:8px;}' +
+        '.hbt-bb-kind{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffb070;font-weight:700;}' +
+        '.hbt-bb-new{font-size:9px;font-weight:800;text-transform:uppercase;color:#fff;background:#ff6600;padding:0 5px;border-radius:2px;}' +
+        '.hbt-bb-meta{margin-left:auto;font-size:11px;color:#8ea0b4;white-space:nowrap;}' +
+        '.hbt-bb-title{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;margin-top:3px;color:#fff;}' +
+        '.hbt-bb-logo{width:22px;height:22px;object-fit:contain;flex:none;}' +
+        '.hbt-bb-text{margin-top:3px;line-height:1.45;color:#c7d2de;}' +
+        '.hbt-bb-foot{display:flex;gap:12px;margin-top:4px;font-size:12px;}' +
         '.hbt-split{flex:1 1 auto;display:flex;min-height:0;}' +
         '.hbt-nav{width:170px;flex:none;overflow-y:auto;padding:6px 0;background:rgba(14,19,27,.65);border-right:1px solid rgba(0,0,0,.5);}' +
         '.hbt-navh{padding:8px 12px 3px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8ea0b4;}' +
@@ -268,7 +299,7 @@ angular.module('beamng.apps')
       scope.term = null
       scope.strings = {}
       scope.catalog = { rows: [], categories: [], version: -1 }
-      scope.ui = { cat: 'engine', query: '', gtab: 'fit', sizes: {} }
+      scope.ui = { cat: 'engine', query: '', gtab: 'fit', sizes: {}, bbCat: 'all' }
       scope.groups = []
       scope.visibleRows = []
       scope.storeList = []
@@ -389,13 +420,33 @@ angular.module('beamng.apps')
         scope.act('focusSlot', slot)
       }
 
+      // Schwarzes Brett: Reiter, Filter und Suche
+      var bbGroups = { rumor: ['rumor', 'boss'], crew: ['crew', 'news'], scene: ['scene', 'fact', 'ad'], job: ['job'] }
+      scope.setGtab = function (tab) {
+        if (scope.ui.gtab === 'board' && tab !== 'board') scope.act('boardRead')
+        scope.ui.gtab = tab
+      }
+      scope.boardPosts = function () {
+        var b = scope.term && scope.term.board
+        if (!b) return []
+        var c = scope.ui.bbCat || 'all'
+        var q = norm(scope.ui.query).trim()
+        return b.posts.filter(function (p) {
+          if (c !== 'all' && (bbGroups[c] || [c]).indexOf(p.cat) < 0) return false
+          if (q && norm(p.title + ' ' + p.text + ' ' + p.author).indexOf(q) < 0) return false
+          return true
+        })
+      }
+
       scope.addrText = function () {
+        if (scope.term && scope.term.mode === 'garage' && scope.ui.gtab === 'board') return 'hashinet://bbs \u25b8 ' + scope.t('board.cat.' + (scope.ui.bbCat || 'all'))
         if (scope.ui.query) return scope.t('term.searchFor') + ' "' + scope.ui.query + '"'
         var c = scope.catalog.categories.filter(function (x) { return x.id === scope.ui.cat })[0]
         return scope.t('term.catalog') + ' \u25b8 ' + (c ? c.name : '')
       }
       scope.statusText = function () {
         if (scope.term && scope.term.mode === 'garage' && scope.ui.gtab === 'store') return scope.storeList.length + ' ' + scope.t('term.partsOwned')
+        if (scope.term && scope.term.mode === 'garage' && scope.ui.gtab === 'board') return scope.boardPosts().length + ' / ' + (scope.term.board ? scope.term.board.posts.length : 0)
         var n = 0
         scope.visibleRows.forEach(function (r) { n += scope.rowOptions(r).length })
         return n + ' ' + scope.t('term.partsShown')
@@ -438,7 +489,11 @@ angular.module('beamng.apps')
           var wasOpen = !!scope.term
           var prevMode = scope.term && scope.term.mode
           scope.term = data.terminal || null
-          if (!scope.term) { lastFocus = null; return }
+          if (!scope.term) {
+            if (wasOpen && scope.ui.gtab === 'board') { scope.ui.gtab = 'fit'; scope.act('boardRead') }
+            lastFocus = null
+            return
+          }
           if (!wasOpen || prevMode !== scope.term.mode) {
             scope.ui.query = ''
             scope.ui.gtab = 'fit'

@@ -2,6 +2,22 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### Bulletin board (HashiNet forum)
+- New: the garage PC has a "Bulletin board" tab, the scene's forum. The number on the tab shows new posts.
+- Rumours about wanderers and bosses you can meet soon. Each day a rumour reveals something different (time, car brand, wanted part, which crew has to fall first), never the full condition. Read along and piece the rest together. Bought tips stay more precise.
+- Crew news: how many drivers of a crew you have beaten, when the leader goes out personally, who was just beaten and which crew is new in the scene (with crew logo).
+- Night report: who you beat last night. Plus scene posts, trivia about Japan and the C1, classifieds and ads for today's side jobs.
+- Filters: All, Rumours, Crews, Scene, Jobs, plus the search at the top of the terminal.
+- Also readable at the PAs: place notice boards with the new dev menu place type "Schwarzes Brett (Aushang)". There you see "[T] Read bulletin board" (on foot or in a stopped car), the board opens in the left menu. Walking away closes it.
+- All texts and settings in data\board.json.
+
+### New side jobs: taxi shift and delivery round
+- New at the job board: the taxi shift. A company taxi (Pessima in Shinonome or Gekko livery) waits next to you, your own car stays parked. Pick up and drop off three passengers, then bring the taxi back to the depot.
+- Pay is the meter (flag fall + distance) plus tips. Tips are lost by speeding (limit 80 km/h, the status display warns you), jerky braking and acceleration, damage and being late. Each fare gets 1 to 5 stars and the passenger tells you what they think.
+- Too much damage during a fare: the passenger gets out and pays nothing. The company deducts the taxi's repairs from your pay at the end of the shift. Cancelling pays out what you have earned so far.
+- The taxi does not count as your car: your fuel, damage and wear stay untouched, and there are no battles in the taxi.
+- New: the delivery round. Drive 3 to 4 stops in a row with your own car under one overall time. If time runs out, only delivered stops are paid.
+- Now five offers per day on the board (complete at most four). New dev menu place types: "Taxi: Fahrgast-Punkt" (passenger point) and "Taxi-Depot".
 ### Crew battles, declining and bets
 - New, like in TXR 2025: leaders and bosses drive with two escorts in a convoy. Challenge anyone in the group and you race them all in a row: first the escorts from back to front, then the leader or boss. The display shows "CHAIN 1/3". After each win the next one waits for you.
 - A loss (or a false start) breaks the chain: the group regroups and next time it starts over. Leaders bring members of their crew, bosses bring the leaders of the crews you had to beat before.

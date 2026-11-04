@@ -297,6 +297,23 @@ angular.module('beamng.apps')
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
           '</div>' +
 
+          // Schwarzes Brett am PA-Aushang (board.lua) ----------------------------------------------
+          '<div class="hbm-body" ng-if="s.screen == \'board\' && s.board">' +
+            '<div class="hbm-area"><span class="hbm-area-tag" ng-bind-html="ico(\'location1\')"></span>{{ s.t[\'board.title\'] }}<span class="hbm-day">{{ s.board.place }}</span></div>' +
+            '<div class="hbm-bb-cats"><span class="hbm-bb-cat" ng-repeat="c in s.board.cats" ng-class="{\'is-on\': (bb.cat || \'all\') == c}" ng-click="bb.cat = c">{{ s.t[\'board.cat.\' + c] }}</span></div>' +
+            '<div class="hbm-scroll hbm-bb-scroll">' +
+              '<div class="hbm-note" ng-if="!s.board.posts.length">{{ s.t[\'board.empty\'] }}</div>' +
+              '<div class="hbm-bb-post" ng-repeat="p in s.board.posts | filter:bbFilter track by p.id" ng-class="\'hbm-bb-\' + p.cat" ng-style="p.color ? {\'border-left-color\': p.color} : {}">' +
+                '<div class="hbm-bb-top"><span class="hbm-bb-kind">{{ p.catText }}</span><span class="hbm-bb-new" ng-if="p.isNew">{{ s.t[\'board.new\'] }}</span>' +
+                  '<span class="hbm-bb-meta">{{ p.author }} · {{ p.ago }}</span></div>' +
+                '<div class="hbm-bb-title"><img class="hbm-bb-logo" ng-if="p.logo" ng-src="{{ p.logo }}">{{ p.title }}</div>' +
+                '<div class="hbm-bb-text">{{ p.text }}</div>' +
+                '<div class="hbm-bb-foot" ng-if="p.tag || p.price"><span ng-if="p.price" class="hbm-price">{{ p.price }}</span><span ng-if="p.tag" class="hbm-bb-tag">{{ p.tag }}</span></div>' +
+              '</div>' +
+              '<div class="hbm-note">{{ s.t[\'board.note\'] }}</div>' +
+            '</div>' +
+          '</div>' +
+
           // Jobbrett (Alpha 0.7): Nebenjobs am Tag und Tipps ------------------------------------
           '<div class="hbm-body" ng-if="s.screen == \'jobs\' && s.jobs">' +
             '<div class="hbm-area"><span class="hbm-area-tag" ng-bind-html="ico(\'location1\')"></span>{{ s.t[\'jobs.menu\'] }}<span class="hbm-day">{{ s.day }}</span></div>' +
@@ -312,7 +329,7 @@ angular.module('beamng.apps')
               '<div class="hbm-note" ng-if="s.jobs.reason">{{ s.jobs.reason }}</div>' +
               '<div class="hbm-job" ng-repeat="o in s.jobs.offers track by o.id" ng-class="[\'hbm-job-\' + o.kind, {\'is-done\': o.state, \'hbm-off\': !s.jobs.can || o.state}]" ng-click="s.jobs.can && !o.state && act(\'jobAccept\', o.id)">' +
                 '<div class="hbm-job-top"><span class="hbm-job-kind">{{ o.kindText }}</span><span class="hbm-job-title">{{ o.title }}</span><span class="hbm-price">{{ o.pay }}</span></div>' +
-                '<div class="hbm-job-sub">{{ s.t[\'jobs.to\'] }} <b>{{ o.target }}</b> · {{ o.info }}<span ng-if="o.client"> · {{ o.client }}</span></div>' +
+                '<div class="hbm-job-sub">{{ o.toText || s.t[\'jobs.to\'] }} <b>{{ o.target }}</b> · {{ o.info }}<span ng-if="o.client"> · {{ o.client }}</span></div>' +
                 '<div class="hbm-job-text" ng-if="o.text">{{ o.text }}</div>' +
                 '<div class="hbm-job-state" ng-if="o.state">{{ s.t[\'jobs.state.\' + o.state] }}</div>' +
               '</div>' +
@@ -614,6 +631,25 @@ angular.module('beamng.apps')
           '.hbm-job-express{border-left-color:#ff3b30;}' +
           '.hbm-job-fragile{border-left-color:#ffd23f;}' +
           '.hbm-job-photo{border-left-color:#4fd18b;}' +
+          '.hbm-job-taxi{border-left-color:#ffe14d;}' +
+          '.hbm-job-route{border-left-color:#3fa9ff;}' +
+          // Schwarzes Brett
+          '.hbm-bb-cats{display:flex;flex-wrap:wrap;gap:4px;padding:6px 12px 4px;}' +
+          '.hbm-bb-cat{font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;padding:2px 8px;cursor:pointer;color:rgba(244,244,244,.65);background:rgba(255,255,255,.05);}' +
+          '.hbm-bb-cat.is-on{color:#111;background:#ff9a3c;}' +
+          '.hbm-bb-scroll{max-height:420px;}' +
+          '.hbm-bb-post{margin:4px 12px;padding:7px 10px;border-left:3px solid rgba(255,255,255,.25);background:rgba(255,255,255,.04);}' +
+          '.hbm-bb-rumor{border-left-color:#9b30ff;}.hbm-bb-boss{border-left-color:#e2453c;}.hbm-bb-news{border-left-color:#ff6600;}' +
+          '.hbm-bb-job{border-left-color:#ffe14d;}.hbm-bb-fact{border-left-color:#3fa9ff;}.hbm-bb-ad{border-left-color:#4fd18b;}' +
+          '.hbm-bb-top{display:flex;align-items:baseline;gap:6px;}' +
+          '.hbm-bb-kind{font-size:9.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ff9a3c;}' +
+          '.hbm-bb-new{font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#111;background:#ff6600;padding:0 4px;}' +
+          '.hbm-bb-meta{margin-left:auto;font-size:10px;color:rgba(244,244,244,.45);white-space:nowrap;}' +
+          '.hbm-bb-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#f4f4f4;margin-top:2px;}' +
+          '.hbm-bb-logo{width:18px;height:18px;object-fit:contain;flex:none;}' +
+          '.hbm-bb-text{font-size:11.5px;line-height:1.45;color:rgba(244,244,244,.72);margin-top:2px;}' +
+          '.hbm-bb-foot{display:flex;gap:10px;align-items:center;margin-top:3px;}' +
+          '.hbm-bb-tag{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#4fd18b;}' +
           '.hbm-job-top{display:flex;align-items:baseline;gap:8px;}' +
           '.hbm-job-kind{font-size:9.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#ff9a3c;white-space:nowrap;}' +
           '.hbm-job-title{flex:1;font-size:13px;font-weight:700;color:#f4f4f4;}' +
@@ -1208,19 +1244,29 @@ angular.module('beamng.apps')
         if (s.screen == 'lexicon') return scope.act('lexiconBack')
         if (s.screen == 'logos') return scope.act('logosBack')
         if (s.screen == 'jobs') return scope.act('jobsBack')
+        if (s.screen == 'board') return scope.act('boardBack')
         if (s.screen == 'home' && s.home && s.home.tab != 'main') return scope.act('homeTab', 'main')
         if (scope.open && scope.open.slot) { scope.open.slot = null; scope.act('focusSlot', ''); return }
         scope.act('hide')
       }
       scope.isTopLevel = function () {
         var s = scope.s || {}
-        return !(s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'logos' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') || (scope.open && scope.open.slot))
+        return !(s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'logos' || s.screen == 'jobs' || s.screen == 'board' || (s.screen == 'home' && s.home && s.home.tab != 'main') || (scope.open && scope.open.slot))
       }
       scope.backLabel = function () {
         var s = scope.s || {}, t = s.t || {}
-        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'logos' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
+        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'logos' || s.screen == 'jobs' || s.screen == 'board' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
           (scope.open && scope.open.slot)
         return sub ? t['menu.back'] : t['menu.hide']
+      }
+
+      // Schwarzes Brett: Filter nach Kategorie (Gerüchte umfassen auch Legenden, Crews den Nachtbericht, Szene auch Wissen und Anzeigen)
+      scope.bb = { cat: 'all' }
+      var bbGroups = { rumor: ['rumor', 'boss'], crew: ['crew', 'news'], scene: ['scene', 'fact', 'ad'], job: ['job'] }
+      scope.bbFilter = function (p) {
+        var c = scope.bb.cat || 'all'
+        if (c === 'all') return true
+        return (bbGroups[c] || [c]).indexOf(p.cat) >= 0
       }
 
       scope.sellCarArm = null

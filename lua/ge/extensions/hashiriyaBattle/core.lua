@@ -23,7 +23,7 @@ end
 local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -37,6 +37,7 @@ local showStats = false    -- Statistik (aus dem Menü links)
 local showLexicon = false  -- Rivalen-Lexikon (aus dem Menü links, überall)
 local showLogos = false    -- Logo-Sammlung (aus dem Menü links, überall)
 local showJobs = false     -- Jobbrett (Nebenjobs und Tipps, Alpha 0.7; Garage und Zuhause)
+local showBoard = false    -- Schwarzes Brett am PA-Aushang (board.lua; im Garagen-PC ist es ein Reiter im Terminal)
 local homeTab = 'main'     -- Zuhause: main | lexicon
 local showCarSelect = false
 local platePriceYen = 15000 -- Kennzeichen ummelden
@@ -122,6 +123,9 @@ end
 function M.getPlayerVehicle()
   local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
   if veh and veh:getJBeamFilename() == 'unicycle' then return nil end
+  -- Firmentaxi der Taxischicht (jobs.lua) ist nicht "dein Auto": kein Tank, Schaden, Zustand, Shop, Battle dafür
+  local jv = extensions.hashiriyaBattle_jobs and extensions.hashiriyaBattle_jobs.jobVehId
+  if veh and jv and veh:getID() == jv then return nil end
   return veh
 end
 
@@ -334,8 +338,11 @@ end
 -- Eigene Punkte: Kartendatei (maps/<level>.json) plus im Dev-Menü gemerkte Orte (dev_places.json) ------
 -- kind 'stand' = Stehplätze der PA-Fahrer (standSpots / Dev-Typ npc), 'photo' = Foto-Spots (photoSpots / Dev-Typ photo)
 -- kind 'paexit' = Ausfahrt-Routen aus PAs (paExitRoutes / Dev-Typ paexit, mit points = Liste von Punkten)
+-- kind 'board' = Aushänge des Schwarzen Bretts (boardSpots / Dev-Typ board), 'taxi' = Fahrgast-Punkte der Taxischicht
+-- (taxiSpots / Dev-Typ taxi), 'taxidepot' = Taxi-Depot, dort steht das Firmentaxi (taxiDepots / Dev-Typ taxidepot)
 local spotKinds = { stand = { list = 'standSpots', dev = 'npc' }, photo = { list = 'photoSpots', dev = 'photo' },
-  paexit = { list = 'paExitRoutes', dev = 'paexit' } }
+  paexit = { list = 'paExitRoutes', dev = 'paexit' }, board = { list = 'boardSpots', dev = 'board' },
+  taxi = { list = 'taxiSpots', dev = 'taxi' }, taxidepot = { list = 'taxiDepots', dev = 'taxidepot' } }
 local spotCache = {}
 function M.resetSpotCache() spotCache = {} end
 function M.spots(kind)
@@ -1046,6 +1053,11 @@ local function buildUiState()
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
     local talkHud = extensions.hashiriyaBattle_talk.getHudState()
     if talkHud then st.talk, st.talkPrompt = talkHud.talk, talkHud.prompt end
+    -- Schwarzes Brett: Hinweis "[T] Lesen" am PA-Aushang, wenn gerade kein Fahrer zum Reden da ist
+    if not st.talk and not st.talkPrompt then
+      local okB, bp = pcall(function() return extensions.hashiriyaBattle_board.prompt() end)
+      if okB and bp then st.talkPrompt = bp end
+    end
     -- Story (Alpha 0.6): Kapitelkarte und Szenen haben Vorrang vor PA-Gesprächen
     local okS, storyHud = pcall(function() return extensions.hashiriyaBattle_story.getHudState() end)
     if okS and storyHud then
@@ -1096,6 +1108,9 @@ local function buildUiState()
       st.menuVisible = true
       st.gameOver = { days = M.save.day or 1, wins = M.save.wins or 0, losses = M.save.losses or 0, money = eco.formatYen(M.save.money or 0),
         rank = extensions.hashiriyaBattle_progress.rankName(M.save) }
+    elseif showBoard then
+      st.screen = 'board'
+      st.board = extensions.hashiriyaBattle_board.getUiState()
     elseif showJobs then
       st.screen = 'jobs'
       st.jobs = extensions.hashiriyaBattle_jobs.getUiState()
@@ -1145,6 +1160,11 @@ local function buildUiState()
     end
   end
   st.terminal = M.active and M.save and extensions.hashiriyaBattle_shop.terminalState() or nil
+  -- Garagen-PC: Reiter "Schwarzes Brett" (board.lua)
+  if st.terminal and st.terminal.mode == 'garage' then
+    local okB, bs = pcall(function() return extensions.hashiriyaBattle_board.getUiState() end)
+    if okB then st.terminal.board = bs end
+  end
   st.release = M.isRelease()
   st.devMenu = (not st.release) and extensions.hashiriyaBattle_devtools ~= nil or nil
   local mu = extensions.hashiriyaBattle_music
@@ -1207,7 +1227,7 @@ end
 -- Klick-Sounds der Menüs (Meldungen bringen ihren eigenen Sound mit)
 local silentActions = { setLanguage = true, photoMode = true, focusSlot = true, sound = true, fuelHold = true, termHello = true, termCatalog = true, paintLive = true }
 local tabActions = { shopTab = true, garageTab = true, setupCat = true, paintSlot = true, termCat = true }
-local backActions = { jobsBack = true, back = true, hide = true, previewCancel = true, setupDiscard = true }
+local backActions = { jobsBack = true, boardBack = true, back = true, hide = true, previewCancel = true, setupDiscard = true }
 
 local function actionSound(action, arg)
   if silentActions[action] then return end
@@ -1275,6 +1295,7 @@ function M.uiAction(action, arg)
     showLexicon = false
     showLogos = false
     showJobs = false
+    if showBoard then showBoard = false pcall(function() extensions.hashiriyaBattle_board.close() end) end
     extensions.hashiriyaBattle_parking.leaveFootShop()
   elseif action == 'dealer' then
     showDealer = true
@@ -1329,6 +1350,24 @@ function M.uiAction(action, arg)
     showMenu = true
   elseif action == 'jobsBack' then
     showJobs = false
+  elseif action == 'board' then
+    -- Schwarzes Brett am PA-Aushang (Taste T, board.interact)
+    showBoard = true
+    showJobs = false
+    showLogos = false
+    showStats = false
+    showDealer = false
+    showLexicon = false
+    showMenu = true
+  elseif action == 'boardBack' then
+    if showBoard then
+      showBoard = false
+      showMenu = false
+      pcall(function() extensions.hashiriyaBattle_board.close() end)
+    end
+  elseif action == 'boardRead' then
+    -- Garagen-PC: Reiter verlassen = alles gelesen
+    extensions.hashiriyaBattle_board.markRead()
   elseif action == 'jobAccept' then
     extensions.hashiriyaBattle_jobs.accept(tostring(arg))
     showJobs = false

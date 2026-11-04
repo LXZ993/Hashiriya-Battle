@@ -2,6 +2,22 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Schwarzes Brett (HashiNet-Forum)
+- Neu: Im Garagen-PC gibt es den Reiter „Schwarzes Brett“, das Forum der Szene. Die Zahl am Reiter zeigt neue Beiträge.
+- Gerüchte über Wanderer und Bosse, die du bald treffen kannst. Jeden Tag verrät ein Gerücht etwas anderes (Uhrzeit, Automarke, gesuchtes Teil, welche Crew erst fallen muss), nie die ganze Bedingung. Wer mitliest, kann sich den Rest zusammenreimen. Gekaufte Tipps bleiben trotzdem genauer.
+- Crew-News: wie viele Fahrer einer Crew du schon geschlagen hast, wann der Leader selbst rausfährt, wer gerade besiegt wurde und welche Crew neu in der Szene ist (mit Crew-Logo).
+- Nachtbericht: wen du in der letzten Nacht geschlagen hast. Dazu Szene-Beiträge, Wissen über Japan und die C1, Kleinanzeigen und Anzeigen zu den heutigen Nebenjobs.
+- Filter: Alle, Gerüchte, Crews, Szene, Jobs, dazu die Suche oben im Terminal.
+- Auch an den PAs lesbar: Mit dem neuen Ort-Typ „Schwarzes Brett (Aushang)“ im Dev-Menü setzt du Aushänge. Dort steht „[T] Schwarzes Brett lesen“ (zu Fuß oder im stehenden Auto), das Brett öffnet sich im Menü links. Weggehen schließt es.
+- Alle Texte und Einstellungen in data\board.json.
+
+### Neue Nebenjobs: Taxischicht und Lieferrunde
+- Neu am Jobbrett: die Taxischicht. Ein Firmentaxi (Pessima mit Shinonome- oder Gekkō-Lackierung) steht neben dir, dein Auto bleibt stehen. Drei Fahrgäste abholen und hinbringen, danach das Taxi zurück zum Depot.
+- Bezahlt wird per Taxameter (Grundpreis + Kilometer) plus Trinkgeld. Trinkgeld kosten: zu schnell fahren (Tempolimit 80 km/h, die Statusanzeige warnt), ruckartiges Bremsen und Beschleunigen, Schaden und Verspätung. Jede Fahrt bekommt 1 bis 5 Sterne, und der Fahrgast sagt dir seine Meinung.
+- Zu viel Schaden in einer Fahrt: der Fahrgast steigt aus und zahlt nichts. Die Reparatur des Taxis zieht die Firma am Schichtende vom Lohn ab. Abbrechen zahlt aus, was du bis dahin verdient hast.
+- Das Taxi zählt nicht als dein Auto: dein Tank, Schaden und Zustand bleiben unberührt, Battles gibt es im Taxi nicht.
+- Neu: die Lieferrunde. Mit dem eigenen Auto 3 bis 4 Stopps nacheinander anfahren, eine Gesamtzeit. Läuft die Zeit ab, werden nur die gelieferten Stopps bezahlt.
+- Jetzt fünf Aufträge pro Tag am Brett (höchstens vier erledigen). Neue Ort-Typen im Dev-Menü: „Taxi: Fahrgast-Punkt“ und „Taxi-Depot“.
 ### Crew-Battles, Ablehnen und Wetten
 - Neu wie in TXR 2025: Leader und Bosse fahren mit zwei Begleitern im Konvoi. Forderst du einen aus der Gruppe heraus, fährst du nacheinander gegen alle: erst die Begleiter von hinten nach vorne, zuletzt der Leader oder Boss. Oben steht „KETTE 1/3“. Nach jedem Sieg wartet der nächste auf dich.
 - Eine Niederlage (oder ein Frühstart) lässt die Kette reißen: die Gruppe fährt wieder zusammen, beim nächsten Mal geht es von vorn los. Leader nehmen Leute aus ihrer Crew mit, Bosse die Leader der Crews, die du vorher schlagen musstest.

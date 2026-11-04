@@ -63,7 +63,7 @@ angular.module('beamng.apps')
             'border-right:3px solid #ff6600;text-shadow:0 1px 2px rgba(0,0,0,.8);}' +
           '.hbt-job{--c:#ff9a3c;display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:3px 7px;margin-top:5px;padding-top:5px;' +
             'border-top:1px solid rgba(255,255,255,.12);font-size:11px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;min-width:0;}' +
-          '.hbt-job.k-express{--c:#ff3b30;}.hbt-job.k-fragile{--c:#ffd23f;}.hbt-job.k-photo{--c:#4fd18b;}' +
+          '.hbt-job.k-express{--c:#ff3b30;}.hbt-job.k-fragile{--c:#ffd23f;}.hbt-job.k-photo{--c:#4fd18b;}.hbt-job.k-taxi{--c:#ffe14d;}.hbt-job.k-route{--c:#3fa9ff;}' +
           '.hbt-job-tag{padding:0 5px;background:var(--c);color:#111;font-weight:900;font-size:9.5px;}' +
           '.hbt-job-name{font-weight:700;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;}' +
           '.hbt-job-time{font-variant-numeric:tabular-nums;font-weight:900;color:var(--c);}' +
