@@ -137,10 +137,11 @@
 - Your own arrow on the minimap is now white (like your dot in the middle of the radar), so it stands out from orange rivals.
 
 ### Rival garage (developer tool)
-- New in the dev version: own mode "Gegner-Garage (Dev)" in the BeamNG main menu under More, right next to Hashiriya Battle. It loads the garage hall as plain freeroam with the "Rival garage" panel on the right. Search rivals or filter by crews, leaders, wanderers, bosses, own configs and missing configs, click one, and his car loads in the garage with his config (as in game with plate and fixed paint, or the plain config).
+- New in the dev version: entry "Gegner-Garage (Dev)" in the BeamNG main menu under More, right next to Hashiriya Battle. It starts the regular BeamNG garage with all its features (parts, tune, paint, decals, vehicles, photo, lights, camera) and puts the "Rival garage" panel on top. Search rivals or filter by crews, leaders, wanderers, bosses, own configs and missing configs, click one, and his car loads in the garage with his config (as in game with plate and fixed paint, or the plain config).
 - Next to it: description, crew with all members and their cars, conditions in plain words, driving style, reward and lines. That keeps a car in character while tuning it, e.g. the company cars of Zangyō Express.
 - "Save to rival" writes the tuned config back: own mod configs are overwritten (with a backup), BeamNG configs stay untouched and the rival gets his own hashiriya_r_<id>.pc, rivals.json is only changed at that one spot.
-- The original BeamNG garage (More > Garage) stays completely unchanged. Tuning happens in the dev garage with the normal menus (Esc > Vehicle config: parts, tuning, paint); Esc and HUD editing work there as usual. Not in the release.
+- "Aura" tab: see a rival's aura right on the car in the garage (ground, battle, level, SP), with a brighter preview and "reload aura.json".
+- The original BeamNG garage (More > Garage) stays completely unchanged; the panel only appears through the own entry. Not in the release.
 
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.

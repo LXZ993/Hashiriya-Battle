@@ -28,7 +28,6 @@ local starting = false -- Garage-Level lädt gerade
 local shown = nil      -- zuletzt an die Oberfläche gemeldeter Zustand
 local auraPreview = nil -- { id = Gegner-ID, mode = 'ground'|'battle'|'both', sp = 0..1, level = 1..3 }
 local expectSpawn = false -- nächstes Spawnen kommt von "Gegner laden"
-local savedTod = nil    -- Tageszeit der Halle vor "Nacht" (nil = Nacht aus)
 
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
@@ -88,7 +87,6 @@ local function setAuraPreview(p)
 end
 
 local function reset()
-  savedTod = nil -- Level wird entladen, die Tageszeit kommt mit dem nächsten Level neu
   wanted, starting = false, false
   loadedId, loadedMode = nil, nil
   setAuraPreview(nil)
@@ -275,7 +273,7 @@ function M.refresh()
     full = true, garage = garageActive(),
     teams = d.teams, rivals = d.rivals, ranks = d.ranks, root = d.root,
     loadedId = loadedId, loadedMode = loadedMode, player = playerInfo(),
-    aura = auraPreview, night = savedTod ~= nil,
+    aura = auraPreview,
   })
 end
 
@@ -490,25 +488,6 @@ function M.auraSpec(p)
   }
 end
 
--- Tageszeit in der Halle (für die Aura: nachts sieht man sie wie auf der Strecke). BeamNG: 0 = Mittag, 0.5 = Mitternacht
-local function setNight(on)
-  local ok, err = pcall(function()
-    local tod = core_environment.getTimeOfDay()
-    if not tod then error('keine Tageszeit in diesem Level') end
-    if on then
-      if not savedTod then savedTod = { time = tod.time, play = tod.play } end
-      tod.time = 0.5
-      tod.play = false
-    elseif savedTod then
-      tod.time, tod.play = savedTod.time, savedTod.play
-      savedTod = nil
-    end
-    if core_environment.canChange and not core_environment.canChange() and core_environment.enableChanges then core_environment.enableChanges(true) end
-    core_environment.setTimeOfDay(tod)
-  end)
-  return ok, err
-end
-M.isNight = function() return savedTod ~= nil end
 
 local function auraAction(a)
   if not garageActive() then status(false, 'Nur in der Gegner-Garage') return end
@@ -536,16 +515,7 @@ local function auraReload()
   status(true, 'aura.json neu geladen')
 end
 
-local function nightAction(a)
-  if not garageActive() then status(false, 'Nur in der Gegner-Garage') return end
-  local ok, err = setNight(a.on and true or false)
-  if ok then status(true, a.on and 'Halle: Nacht (Mitternacht)' or 'Halle: Tageszeit wie vorher')
-  else status(false, 'Tageszeit nicht änderbar: ' .. tostring(err)) end
-  M.refresh()
-end
-
 local actions = {
-  night = nightAction,
   load = loadRival,
   save = saveRival,
   aura = auraAction,
