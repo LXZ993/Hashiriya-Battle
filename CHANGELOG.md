@@ -147,6 +147,7 @@
 
 ### Gegner-Garage (Entwickler-Werkzeug)
 - Neu für die Dev-Version: Eintrag „Gegner-Garage (Dev)“ im BeamNG-Hauptmenü unter More, direkt neben Hashiriya Battle. Er startet die ganz normale BeamNG-Garage mit allen Funktionen (Teile, Tune, Lack, Decals, Fahrzeuge, Foto, Licht, Kamera) und legt rechts das Panel „Gegner-Garage“ darüber. Gegner suchen oder nach Crews, Leadern, Wanderern, Bossen, eigenen Configs und fehlenden Configs filtern, anklicken, und sein Auto wird mit seiner Config in der Garage geladen (wahlweise wie im Spiel mit Kennzeichen und festem Lack oder nur die Config).
+- Beim Laden bekommt das Auto jetzt auch das Kennzeichen des Gegners (vorher blieb die Nummer des alten Autos stehen, nur das Design wechselte).
 - Daneben stehen Beschreibung, Crew mit allen Mitgliedern und ihren Autos, Bedingungen in Klartext, Fahrstil, Belohnung und Sprüche. So bleibt ein Auto beim Anpassen beim Charakter, z. B. die Firmenwagen von Zangyō Express.
 - „Auf Gegner speichern“ schreibt die angepasste Config zurück: eigene Mod-Configs werden überschrieben (mit Sicherung), BeamNG-Configs bleiben unangetastet und der Gegner bekommt eine eigene hashiriya_r_<id>.pc, rivals.json wird nur an dieser Stelle angepasst.
 - Reiter „Aura“: die Aura eines Gegners direkt am Auto in der Garage ansehen (Boden, Battle, Stufe, SP), mit heller Vorschau und „aura.json neu laden“.

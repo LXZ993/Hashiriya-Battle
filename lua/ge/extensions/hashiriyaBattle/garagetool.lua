@@ -28,6 +28,7 @@ local starting = false -- Garage-Level lädt gerade
 local shown = nil      -- zuletzt an die Oberfläche gemeldeter Zustand
 local auraPreview = nil -- { id = Gegner-ID, mode = 'ground'|'battle'|'both', sp = 0..1, level = 1..3 }
 local expectSpawn = false -- nächstes Spawnen kommt von "Gegner laden"
+local pendingPlate = nil   -- Kennzeichen-Text des geladenen Gegners (nach dem Spawnen setzen, wie rivals.lua spawnCar)
 
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
@@ -88,7 +89,7 @@ end
 
 local function reset()
   wanted, starting = false, false
-  loadedId, loadedMode = nil, nil
+  loadedId, loadedMode, pendingPlate = nil, nil, nil
   setAuraPreview(nil)
   pushState()
 end
@@ -109,7 +110,7 @@ function M.start()
     return
   end
   wanted = true
-  loadedId, loadedMode = nil, nil
+  loadedId, loadedMode, pendingPlate = nil, nil, nil
   if gm.isActive and gm.isActive() and levelName() == garageLevel then
     pushState(true)
     M.refresh()
@@ -152,9 +153,20 @@ function M.onUpdate(dtReal)
 end
 
 -- Auto gewechselt (auch über die Garage-Menüs): Anzeige "in der Garage" aktualisieren
-function M.onVehicleSpawned()
+local function applyPlate(vid)
+  if not pendingPlate then return end
+  local veh = vid and be:getObjectByID(vid) or getPlayerVehicle(0)
+  if veh then pcall(core_vehicles.setPlateText, pendingPlate, veh:getID()) end
+end
+
+function M.onVehicleSpawned(vid)
   if not garageActive() then return end
-  if expectSpawn then expectSpawn = false else loadedId, loadedMode = nil, nil end
+  if expectSpawn then
+    expectSpawn = false
+    applyPlate(vid)
+  else
+    loadedId, loadedMode, pendingPlate = nil, nil, nil
+  end
   M.refresh()
 end
 
@@ -302,15 +314,16 @@ local function loadRival(a)
     opts.config = cfgOut or r.config
     if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
   end
-  local prevId, prevMode = loadedId, loadedMode
-  loadedId, loadedMode, expectSpawn = r.id, mode, true
+  local prevId, prevMode, prevPlate = loadedId, loadedMode, pendingPlate
+  loadedId, loadedMode, expectSpawn, pendingPlate = r.id, mode, true, opts.licenseText
   local ok, err = pcall(core_vehicles.replaceVehicle, r.model, opts)
   if not ok then
-    loadedId, loadedMode, expectSpawn = prevId, prevMode, false
+    loadedId, loadedMode, expectSpawn, pendingPlate = prevId, prevMode, false, prevPlate
     status(false, 'Laden fehlgeschlagen: ' .. tostring(err))
     log('E', logTag, 'Gegner-Garage: ' .. tostring(r.id) .. ' nicht geladen: ' .. tostring(err))
     return
   end
+  applyPlate()
   M.refresh()
   status(true, r.name .. ' geladen (' .. (mode == 'pure' and 'nur Config' or 'wie im Spiel') .. ')')
   log('I', logTag, 'Gegner-Garage: ' .. r.id .. ' geladen, ' .. tostring(r.config))
