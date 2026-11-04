@@ -558,6 +558,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>paintColor</code></td><td>Nur mit dieser Lackfarbe (grob erkannt): red, orange, yellow, green, blue, purple, pink, white, silver, grey, black. Auch als Liste.</td><td><code>"paintColor": "white"<br>"paintColor": ["black", "grey"]</code></td></tr>
 <tr><td><code>plateContains</code></td><td>Dein Kennzeichen enthält diese Zeichen</td><td><code>"plateContains": "86"</code></td></tr>
 <tr><td><code>minPower / maxPower</code></td><td>Leistung deines Autos in PS (gemessen wie im Tuning-Shop)</td><td><code>"maxPower": 150</code></td></tr>
+<tr><td><code>drive</code></td><td>Antrieb deines Autos: <code>FWD</code> (Front), <code>RWD</code> (Heck) oder <code>AWD</code> (Allrad), gemessen an den angetriebenen Rädern. Auch als Liste.</td><td><code>"drive": "RWD"</code></td></tr>
 <tr><td><code>minWeight / maxWeight</code></td><td>Gewicht deines Autos in kg</td><td><code>"maxWeight": 1100</code></td></tr>
 <tr><td><code>minOdometerKm / maxOdometerKm</code></td><td>Kilometerstand deines aktuellen Autos</td><td><code>"minOdometerKm": 200000</code></td></tr>
 <tr><td><code>minTopSpeed</code></td><td>Du warst schon mindestens so schnell (Statistik Höchsttempo, km/h)</td><td><code>"minTopSpeed": 280</code></td></tr>
@@ -570,7 +571,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>minPaVisited</code></td><td>Mindestens so viele verschiedene PAs zu Fuß besucht</td><td><code>"minPaVisited": 2</code></td></tr>
 <tr><td><code>stat</code></td><td>Beliebiger Statistik-Wert aus der Statistik-Seite (Schlüssel z. B. cleanWins, closeWins, quickWins, leaderWins, bossWins, rematchWins, pinkWins, jobsDone, nights, nearMisses, distanceKm, tows, repairs, carsBought) mit min und/oder max. Auch als Liste.</td><td><code>"stat": {"key": "pinkWins", "min": 3}</code></td></tr>
 </table>
-<p>Leistung und Gewicht misst die Mod im Auto; direkt nach dem Spawn fehlen sie ein paar Sekunden, dann zählt die Bedingung noch als nicht erfüllt. Der Rivalen-Builder im Spiel (Dev-Menü) hat dafür noch keine Felder, behält sie aber beim Bearbeiten bei.</p>
+<p>Leistung, Gewicht und Antrieb misst die Mod im Auto; direkt nach dem Spawn fehlen sie ein paar Sekunden, dann zählt die Bedingung noch als nicht erfüllt. Der Rivalen-Builder im Spiel (Dev-Menü) hat dafür noch keine Felder, behält sie aber beim Bearbeiten bei.</p>
 <h4>Beispiele zum Kopieren</h4>
 <pre><code>// Kommt nur zwischen 2 und 4 Uhr nachts, ab Rang 6
 "conditions": {"minRank": 6, "hours": [2, 4]}
@@ -2093,7 +2094,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <p>Ideen, die wir besprochen haben. „Meilenstein“ sagt, wo sie eingeplant sind. Was TXR, TXR Drift, Racing Battle: C1 Grand Prix und Wangan Midnight Maximum Tune noch voraushaben, steht im <a href="https://claude.ai/artifact/7ZxvAtWHURRvtP5xVzRaFr" target="_blank">Feature-Abgleich (04.11.2026)</a>; die Punkte daraus stehen unten, mit deinen Entscheidungen vom 04.11.2026.</p>
 <table>
 <tr><th>Idee</th><th>Meilenstein</th><th>Stand</th></tr>
-<tr><td>Team-Logos auch auf den Autos der Rivalen (als Aufkleber/Lackdesign) und gewonnene Siegel als eigene Aufkleber für dein Auto, wie die Sticker in TXR.</td><td>noch keiner</td><td>Idee. Erster Teil gebaut (04.11.2026): <a href="#logosammlung">Trophäenwand</a>, gewonnenes Logo als dein Logo im Battle. Aufkleber aufs Auto fehlt noch.</td></tr>
+<tr><td>Team-Logos auch auf den Autos der Rivalen (als Aufkleber/Lackdesign) und gewonnene Siegel als eigene Aufkleber für dein Auto, wie die Sticker in TXR.</td><td>noch keiner</td><td>Idee. Erster Teil gebaut (04.11.2026): <a href="#logosammlung">Trophäenwand</a>, gewonnenes Logo als dein Logo im Battle. Aufkleber aufs Auto fehlt noch. Geprüft 04.11.2026: BeamNG 0.40 hat dafür die Dynamic-Decals-API (editor_api_dynamicDecals, wie der Livery-Editor im Spiel), läuft ohne Editor; Aufkleber lassen sich als Ebenen speichern. Umsetzbar.</td></tr>
 <tr><td>Team-Logos auf den Crew-Abzeichen der Porträts und als farbige Markierung auf dem Radar.</td><td>noch keiner</td><td>Idee</td></tr>
 <tr><td>Eigene japanische Liveries für die Arbeiter-Autos an den PAs (Taxi, Werkstatt, Spedition, Kurier, Krankenwagen) und für Polizei, die später tagsüber am Straßenrand wartet.</td><td>Alpha 0.9.x</td><td>12 Liveries gebaut (03.11.2026, <a href="#liveries">Kapitel 12f</a>), Configs macht JDMArsch. Polizei am Straßenrand braucht noch die Markierungen.</td></tr>
 <tr><td>PA-Gespräche: zu Fuß mit Fahrern neben ihren Autos reden (Smalltalk, Gerüchte, Hinweise auf Wanderer und wartende Rivalen). Figuren = BeamNG-„Bobs“.</td><td>Alpha 0.4</td><td>gebaut (01.11.2026), im Spiel getestet: kein Ruckeln, Fahrer stehen still. Ob sie sich zu dir drehen und eigene Autos haben, noch offen.</td></tr>
@@ -2116,12 +2117,12 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Tag-Events auf Rennstrecken (Tsukuba, Ebisu usw.).</td><td>nach 1.0</td><td>wartet auf Erlaubnis der Map-Autoren</td></tr>
 <tr><td>Eigene Gegner-KI später auch als eigene Mod anbieten.</td><td>nach 1.0</td><td>offen</td></tr>
 <tr><td>Eigene Sounds und Songs (Eurobeat, GT-Stil, ohne Gesang).</td><td>nach 1.0</td><td>Probe 1 fertig</td></tr>
-<tr><td>Mehr Wanderer-Bedingungen: Siegesserie, Geldstand, Anzahl Autos, nur Saugmotor, Lackfarbe, Kennzeichen-Nummer, Logo am Auto, Unfall an bestimmter Stelle, Fahrtrichtung innen/außen, Nebel/Regen (wie TXR 2025/TXR 3).</td><td>vor 1.0</td><td>gebaut (04.11.2026): 22 neue Bedingungsarten, siehe <a href="#bedingungen">Bedingungen</a>; welche Wanderer sie bekommen, legt JDMArsch fest</td></tr>
+<tr><td>Mehr Wanderer-Bedingungen: Siegesserie, Geldstand, Anzahl Autos, nur Saugmotor, Lackfarbe, Kennzeichen-Nummer, Logo am Auto, Unfall an bestimmter Stelle, Fahrtrichtung innen/außen, Nebel/Regen (wie TXR 2025/TXR 3).</td><td>vor 1.0</td><td>gebaut (04.11.2026): 23 neue Bedingungsarten, siehe <a href="#bedingungen">Bedingungen</a>; welche Wanderer sie bekommen, legt JDMArsch fest</td></tr>
 <tr><td>Boss-Battles gegen mehrere: Leader/Boss mit 2 Begleitern nacheinander, Verlust = Kette neu (wie TXR 2025).</td><td>vor 1.0</td><td>gebaut (Alpha 0.9.2, <a href="#crewbattle">Crew-Battles</a>)</td></tr>
 <tr><td>Fahrer-Skills (Perk-Baum) mit eigenen Punkten pro Sieg; nur Spiellogik (SP-Abzug, Rabatte, Ruf, Tipps), keine Physik.</td><td>offen</td><td>erst besprechen, was Sinn macht</td></tr>
 <tr><td>Titel und Erfolge: Erfolgsliste im Lexikon, Titel nach meistgefahrenem Auto („Fahrer des …“), als Anzeige wählbar.</td><td>offen</td><td>JDMArsch: Titel pro Automodell ja, unbedingt (z. B. „Covet-Fahrer“ nach 10 Siegen). <b>Gebaut</b> (Alpha 0.9.2): Fahrer/Kenner/Meister/Legende nach 10/25/50/100 Siegen, wählbar wie die Spitznamen, siehe <a href="#spitznamen">Spitznamen</a></td></tr>
 <tr><td>Wahres Ende erst nach allen Wanderern, danach Post-Game mit „Rekord“-Gegnern; Neues Spiel+ mit Logos, Titeln, Skills.</td><td>offen</td><td>Ende + Post-Game erst besprechen, NG+ später</td></tr>
-<tr><td>Auren als Belohnung: Neon-/Unterbodenlicht am eigenen Auto, Farbe nach besiegtem Boss oder Wanderer.</td><td>nach 1.0</td><td>später; Idee: Punktlicht unter dem Auto ohne Teile-Slot</td></tr>
+<tr><td>Auren als Belohnung: Neon-/Unterbodenlicht am eigenen Auto, Farbe nach besiegtem Boss oder Wanderer.</td><td>nach 1.0</td><td>später; Idee: Punktlicht unter dem Auto ohne Teile-Slot Geprüft 04.11.2026: Punktlicht/Spotlicht per createObject, jeden Frame mitführbar (wie der Fotomodus-Blitz). Umsetzbar.</td></tr>
 <tr><td>Rivalen-Autos kaufen: nach Sieg gegen Leader/Boss steht dessen Config (ohne Livery) teuer beim Händler.</td><td>vor 1.0</td><td>JDMArsch: ja, Crew-Leader/Bosse/Wanderer zum 5- bis 10-fachen BeamNG-Preis. <b>Gebaut</b> (Alpha 0.9.2, mit Lack, Leader 5×, Wanderer 7×, Boss 10×), siehe <a href="#rivalenautos">Rivalen-Autos</a></td></tr>
 <tr><td>Zeitfahren auf dem C1 (Innen-/Außenring) mit Bestzeiten pro Auto und Rangliste mit Rivalen-Zeiten (wie WMMT).</td><td>nach 1.0</td><td>später (Start/Ziel-Punkte nötig), ohne Rangliste</td></tr>
 <tr><td>Wetten aufs Battle (Einsatz in Yen) und Sponsoren mit Aufkleber und Bonus (wie TXR Drift).</td><td>vor 1.0</td><td>Wetten gebaut (Alpha 0.9.2, <a href="#crewbattle">Crew-Battles</a>); Sponsoren nur bei offiziellen Events auf DLC-Maps</td></tr>
@@ -2217,7 +2218,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </ul>
 <h4>Mehr Bedingungen für Wanderer</h4>
 <ul>
-<li>22 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo, Tage ohne Niederlage, Auto fast unbeschädigt, besuchte PAs und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).</li>
+<li>23 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, Antrieb (Front, Heck, Allrad), bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo, Tage ohne Niederlage, Auto fast unbeschädigt, besuchte PAs und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).</li>
 <li>Alle Bedingungen samt Beispielen stehen im Handbuch unter „Bedingungen (conditions)“. Der Rivalen-Builder im Dev-Menü behält die neuen Bedingungen beim Bearbeiten bei.</li>
 </ul>
 <h4>Rivalen-Autos kaufen</h4>

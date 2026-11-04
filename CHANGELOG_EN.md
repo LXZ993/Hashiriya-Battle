@@ -34,7 +34,7 @@
 - Phone messages are now easy to spot: green "Phone message" tab with a phone icon on the speech bubble and a ringing phone on the portrait.
 
 ### More wanderer conditions
-- 22 new condition types for rivals and wanderers (like in TXR): win streak, money, number of cars, at most X losses, naturally aspirated only or forced induction only, manual gearbox only, a part that must not be fitted, paint colour, characters in the plate, power and weight, odometer of the car, top speed already reached, in-game weekday, active nickname, chosen logo, days without a loss, car almost undamaged, PAs visited and any value from the statistics (e.g. pink slips won or side jobs done).
+- 23 new condition types for rivals and wanderers (like in TXR): win streak, money, number of cars, at most X losses, naturally aspirated only or forced induction only, manual gearbox only, drivetrain (FWD, RWD, AWD), a part that must not be fitted, paint colour, characters in the plate, power and weight, odometer of the car, top speed already reached, in-game weekday, active nickname, chosen logo, days without a loss, car almost undamaged, PAs visited and any value from the statistics (e.g. pink slips won or side jobs done).
 - The rival builder in the dev menu keeps the new conditions when editing.
 
 ### Buy rival cars

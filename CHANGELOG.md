@@ -34,7 +34,7 @@
 - Handy-Nachrichten sind jetzt klar zu erkennen: grüner Reiter „Handy-Nachricht“ mit Handy-Symbol an der Sprechblase und ein klingelndes Handy am Porträt.
 
 ### Mehr Bedingungen für Wanderer
-- 22 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo, Tage ohne Niederlage, Auto fast unbeschädigt, besuchte PAs und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).
+- 23 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, Antrieb (Front, Heck, Allrad), bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo, Tage ohne Niederlage, Auto fast unbeschädigt, besuchte PAs und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).
 - Alle Bedingungen samt Beispielen stehen im Handbuch unter „Bedingungen (conditions)“. Der Rivalen-Builder im Dev-Menü behält die neuen Bedingungen beim Bearbeiten bei.
 
 ### Rivalen-Autos kaufen

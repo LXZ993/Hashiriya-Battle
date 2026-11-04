@@ -343,6 +343,15 @@ local function extraConditionsMet(c, save)
     if c.minWeight and kg < c.minWeight then return false end
     if c.maxWeight and kg > c.maxWeight then return false end
   end
+  -- Antrieb: "FWD", "RWD" oder "AWD" (auch als Liste), gemessen im Auto
+  if c.drive then
+    local d = carStat('drive')
+    if not d then return false end
+    local list = type(c.drive) == 'table' and c.drive or { c.drive }
+    local ok = false
+    for _, w in ipairs(list) do if tostring(w):upper() == d then ok = true end end
+    if not ok then return false end
+  end
   if c.minOdometerKm and carOdometerKm(save) < c.minOdometerKm then return false end
   if c.maxOdometerKm and carOdometerKm(save) > c.maxOdometerKm then return false end
   if c.minTopSpeed and (st.topKmh or 0) < c.minTopSpeed then return false end
