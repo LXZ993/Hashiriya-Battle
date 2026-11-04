@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### Wanderer Builder to send around
+- New Wanderer Builder: a single HTML file that helpers and testers open in their browser with a double click (offline, English and German). They build their own Wanderer with it and send back one file.
+- Inside: name, Japanese name, nickname, backstory, sign for the Wanderer seal, the new Bob avatar with all parts including beards and an own colour, the car config (just drag in the .pc), Japanese license plate with preview, driving style, strength, conditions and three lines.
+- Submitted Wanderers come into the game with avatar, seal, plate, config and credits entry, exactly as the builder shows them.
+
 ### New left menu
 - The left menu (Home key) is tidied up: a card at the top with money, time, rank and reputation bar, plus small fields for record and "Nearby". The main entries (save, lexicon, dealer, stats, nap, tow) are tiles instead of a long list.
 - Rarely used entries (skip music, parking marker, bug report, dev menu, quit mode) sit under a collapsible "Tools".
