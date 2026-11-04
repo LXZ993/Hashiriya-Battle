@@ -5,10 +5,11 @@
   "class": "Material",
   "Stages": [
    {
+    "baseColorMap": "/art/shapes/hashiriya/aura_flame.color.png",
     "baseColorFactor": [
-     0,
-     0,
-     0,
+     1,
+     1,
+     1,
      1
     ],
     "roughnessFactor": 1,
@@ -22,6 +23,7 @@
     ],
     "emissiveIgnoreExposure": true,
     "emissiveIntensityNits": 6,
+    "instanceDiffuse": true,
     "instanceEmissive": true
    },
    {},

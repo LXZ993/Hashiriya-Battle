@@ -186,11 +186,12 @@ def main():
     mats = {mat: {
         'name': mat, 'mapTo': mat, 'class': 'Material',
         'Stages': [{
-            # nur Leuchten (kein beleuchteter Grundton, sonst wird es in heller Umgebung grau); Schwarz = durchsichtig
-            'baseColorFactor': [0, 0, 0, 1], 'roughnessFactor': 1, 'metallicFactor': 1,  # Metall mit Schwarz = keine Spiegelung (sonst graue Flächen vor hellen Fenstern)
+            # Grundfarbe = Flammen-Textur x Aura-Farbe (instanceColor). Metall: kein grauer Streulicht-Anteil, Spiegelungen
+            # nur in Flammenfarbe; Leuchten = Grundfarbe x emissive. Schwarz in der Textur = unsichtbar (additiv).
+            'baseColorMap': tex, 'baseColorFactor': [1, 1, 1, 1], 'roughnessFactor': 1, 'metallicFactor': 1,
             'emissive': True, 'emissiveMap': tex, 'emissiveFactor': [1, 1, 1],
             'emissiveIgnoreExposure': True, 'emissiveIntensityNits': 6,
-            'instanceEmissive': True,
+            'instanceDiffuse': True, 'instanceEmissive': True,
         }, {}, {}, {}],
         'castShadows': False, 'doubleSided': False, 'translucent': True, 'translucentBlendOp': 'Add',
         'alphaTest': False, 'alphaRef': 0,
