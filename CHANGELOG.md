@@ -6,6 +6,16 @@
 - 22 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo, Tage ohne Niederlage, Auto fast unbeschädigt, besuchte PAs und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).
 - Alle Bedingungen samt Beispielen stehen im Handbuch unter „Bedingungen (conditions)“. Der Rivalen-Builder im Dev-Menü behält die neuen Bedingungen beim Bearbeiten bei.
 
+### Rivalen-Autos kaufen
+- Neu: Besiegst du einen Crew-Leader, Boss oder Wanderer, steht sein Auto danach beim Autohändler unter „Rivalen-Autos“, mit seinem Lack, Bild und Vorbesitzer. Eine Meldung nach dem Sieg sagt Bescheid.
+- Jedes Auto gibt es nur einmal und es ist teuer: Leader 5-fach, Wanderer 7-fach, Boss 10-fach des BeamNG-Preises. Einstellbar in dealer.json („rivalCars“), pro Rivale auch eigener Faktor oder gar nicht zu kaufen.
+
+### Wartung: Öl, Kühlwasser, Reifen
+- Neu: Jedes Auto hat Motoröl, Kühlwasser und Reifen von 100 % bis 0 %. Die Werte sinken mit jedem Kilometer.
+- In der Garage (Reiter Service) siehst du alle drei mit Balken und Preis und machst einzeln oder komplett Service.
+- Unter 50 % merkst du es: altes Öl kostet Leistung, wenig Kühlwasser lässt den Motor schneller überhitzen, abgefahrene Reifen haben weniger Grip. Unter 20 % kommt unterwegs eine Warnung.
+- Gebrauchte Autos starten mit 35 bis 90 %, Rivalen-Autos frisch. Neue Reifen aus dem Shop zählen als frisch. Alles einstellbar in maintenance.json.
+
 ### Trophäenwand (Logo-Sammlung)
 - Neu, wie in TXR: Besiegst du den Leader einer Crew, bekommst du das Crew-Logo. Besiegst du einen Wanderer oder Boss, bekommst du sein Siegel oder Emblem. Nach dem Sieg sagt eine Meldung, welches Logo neu ist.
 - Neue Kachel „Trophäenwand“ im Menü links (unterwegs und zuhause) mit deinem aktuellen Logo und wie viele du schon hast (z. B. 16 / 73). Darin alle Logos nach Crews, Wanderern und Bossen. Gesperrte Crew-Logos sind grau, Siegel und Embleme bleiben „?“, bis du sie geschlagen hast. Antippen zeigt, was du dafür tun musst.
