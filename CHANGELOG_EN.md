@@ -74,6 +74,7 @@
 - Inside: name, Japanese name, nickname, backstory, sign for the Wanderer seal, the new Bob avatar with all parts including beards and an own colour, the car config (just drag in the .pc), Japanese license plate with preview, driving style, strength, conditions and three lines.
 - Submitted Wanderers come into the game with avatar, seal, plate, config and credits entry, exactly as the builder shows them.
 - The Wanderer Builder now knows all 30 condition types (weekday, NA/turbo, manual gearbox, drivetrain FWD/RWD/AWD, paint colour, power, weight, mileage, win streak, money, nickname, emblem, statistics, visited parking areas and more), sorted into five groups. The build date is shown at the bottom.
+- Handbook: all links to the old Wanderer form now point to the Wanderer Builder. The old Google form is marked as outdated and folded away for reference only.
 
 ### New left menu
 - The left menu (Home key) is tidied up: a card at the top with money, time, rank and reputation bar, plus small fields for record and "Nearby". The main entries (save, lexicon, dealer, stats, nap, tow) are tiles instead of a long list.

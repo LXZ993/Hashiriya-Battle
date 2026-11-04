@@ -524,7 +524,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
   "hint": {"de": "Fährt nur gegen Miramar-Fahrer.", "en": "Only races Miramar drivers."}
 }</code></pre>
 <p>Im Lexikon bleiben Name, Spruch und Beschreibung von Wanderern und Bossen verborgen, bis du sie geschlagen hast. Auch der <code>hint</code> ist erst sichtbar, wenn man davon gehört hat (Spielstand <code>knownHints</code>, erfährt man durch die <a href="#chat">PA-Gespräche</a>). Vorher steht dort "Noch unbekannt" (Text <code>home.hintUnknown</code>).</p>
-<p>Für Wanderer aus der Community gibt es das <a href="https://claude.ai/artifact/X81uryXxM3PfamZggfK9C9">Wanderer-Formular</a>; sein Export ist schon im richtigen Format.</p>
+<p>Für Wanderer aus der Community gibt es den <a href="#wanderer-builder">Wanderer-Builder</a> (Datei <span class="path">F:\BeamNG\current\hashiriya_tools\Wanderer-Builder\Hashiriya-Wanderer-Builder.html</span>, Kapitel 13b). Er speichert eine <code>hashiriya_wanderer_&lt;name&gt;.json</code>, die <code>import_wanderer.py</code> direkt ins richtige Format bringt.</p>
 
 <h3 id="boss">Bosse und Endboss</h3>
 <p>Bosse haben <code>"boss": true</code>, der letzte zusätzlich <code>"final": true</code>. Den letzten Rang (Herr der Nacht) bekommt man nur nach dem Endboss (<code>requiresFinal</code> beim Rang). Zurzeit sind Shirotora, Kokuryū und Mugen Platzhalter (<code>_platzhalter</code>) mit einem Ersatzauto. Wenn deine Configs fertig sind, trägst du nur <code>model</code> und <code>config</code> ein und löschst <code>_platzhalter</code>:</p>
@@ -606,7 +606,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><th>Arten</th><td><code>standard</code> (weiß, privat), <code>kei</code> (gelb, Kleinwagen), <code>commercial</code> (grün, gewerblich), <code>keicommercial</code> (schwarz)</td></tr>
 <tr><th>Sonder-Designs</th><td><code>am5jp_shinagawa_olympic</code>, <code>am5jp_shinagawa_olympiccommercial</code>, <code>am5jp_shinagawa_temporary</code>, <code>am5jp_shinagawa_glow</code>, <code>am5jp_okinawa_airforce</code></td></tr>
 </table>
-<p>Die Sonder-Designs kann auch der Spieler wählen (Neues Spiel und Garage): bei Region Shinagawa erscheinen zusätzlich Kurzzeit, Beleuchtet, Olympia und Olympia gewerblich; Region Okinawa hat nur US Air Force. Welche Art es in welcher Region gibt, steht in <span class="path">plates.lua</span> (<code>specialTypes</code>, <code>onlySpecial</code>). Im Google-Formular stehen sie als "Special: …" bei der Art.</p>
+<p>Die Sonder-Designs kann auch der Spieler wählen (Neues Spiel und Garage): bei Region Shinagawa erscheinen zusätzlich Kurzzeit, Beleuchtet, Olympia und Olympia gewerblich; Region Okinawa hat nur US Air Force. Welche Art es in welcher Region gibt, steht in <span class="path">plates.lua</span> (<code>specialTypes</code>, <code>onlySpecial</code>). Im <a href="#wanderer-builder">Wanderer-Builder</a> stehen sie als "Special: …" bei der Art.</p>
 <p>Die Mod setzt das Design in den Slot <code>licenseplate_design_2_1</code> und den Text beim Spawnen. Fehlt das Design, zeigt BeamNG das Standard-Kennzeichen der Map (auf der C1 "川崎").</p>
 <h4>Kennzeichen des Spielers</h4>
 <ul>
@@ -1536,7 +1536,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 
 <section id="community">
 <h2><span class="n">13b</span> Community-Wanderer und Credits <span class="tag">tools\community\</span> <span class="tag">data\credits.json</span></h2>
-<p>Jeder, der hilft (Tests, Mods), bekommt einen eigenen Wanderer. Der Weg dafür ist jetzt der <b>Wanderer-Builder</b>: eine einzige HTML-Datei, die du verschickst. Das alte Google-Formular (weiter unten) geht weiterhin, brauchst du aber nicht mehr.</p>
+<p>Jeder, der hilft (Tests, Mods), bekommt einen eigenen Wanderer. Der Weg dafür ist der <b>Wanderer-Builder</b>: eine einzige HTML-Datei, die du verschickst. Das alte Google-Formular und die alte Formular-Seite im Browser sind veraltet und werden nicht mehr gepflegt (alte Bedingungen, keine Bärte), bitte nicht mehr verschicken.</p>
 <h3 id="wanderer-builder">Wanderer-Builder <span class="tag">tools\community\Hashiriya-Wanderer-Builder.html</span></h3>
 <p>Die Datei liegt in <span class="path">F:\BeamNG\current\hashiriya_tools\Wanderer-Builder\Hashiriya-Wanderer-Builder.html</span> (und im Mod-Ordner unter <span class="path">tools\community\Hashiriya-Wanderer-Builder.html</span>). Doppelklick öffnet sie im Browser, ohne Internet, ohne Installation, ohne Google-Konto. Oben rechts lässt sich zwischen Englisch und Deutsch umschalten (startet in der Sprache des Browsers).</p>
 <p><b>Verschicken:</b> Die Datei (etwa 1,4 MB) einfach per Discord oder Forum an die Leute schicken. Sie füllen alles aus und klicken am Ende auf <b>Meinen Wanderer speichern</b>. Dabei entsteht <b>eine</b> Datei <code>hashiriya_wanderer_&lt;name&gt;.json</code>, die sie dir zurückschicken. Ihr Stand bleibt im Browser gespeichert, sie können also zwischendurch aufhören. Mit <b>Gespeicherte Datei öffnen…</b> lässt sich eine fertige Datei wieder laden und ändern.</p>
@@ -1559,30 +1559,9 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 </ol>
 <div class="box warn"><b>Regel: Builder immer mitziehen</b>Jede Änderung an Avatar-Teilen, an den Bedingungen (<code>rivals.lua</code>), an Wanderer-Feldern oder am Roster kommt auch in den Wanderer-Builder, und die Datei wird neu gebaut und neu verteilt. Unten im Builder steht das Baudatum („Builder 2026-11-04“), daran erkennst du die aktuelle Version.</div>
 <div class="box tip"><b>Builder neu bauen</b>Neue Crews, Wanderer, Bosse oder Avatar-Teile kommen mit <code>python3 tools/community/build_wanderer_builder.py</code> in die Datei (Vorlage: <span class="path">tools\community\wanderer_builder_template.html</span>). Community-Wanderer selbst tauchen in den Auswahllisten nicht auf, damit niemand fremde Einsendungen sieht.</div>
-<h3>Altes Google-Formular <span class="tag">wanderer-formular.gs</span></h3>
-<p>Das Formular legt ein Google-Script für dich an. Das Script liegt in <span class="path">tools\community\wanderer-formular.gs</span>. Es nutzt noch die alten v1-Avatarteile (ohne Bärte).</p>
-<h3>Einmal einrichten</h3>
-<ol class="steps">
-<li><a href="https://script.google.com">script.google.com</a> öffnen, <b>Neues Projekt</b>, den ganzen Inhalt von <code>wanderer-formular.gs</code> hineinkopieren, speichern.</li>
-<li>Oben <code>formularAnlegen</code> wählen, <b>Ausführen</b>, Berechtigungen bestätigen (Formulare, Tabellen, Drive).</li>
-<li>Im Ausführungsprotokoll stehen drei Links: zum Teilen (für die Community), zum Bearbeiten und zur Prüf-Tabelle (beide nur für dich).</li>
-</ol>
-<h3>Was im Formular abgefragt wird</h3>
-<ul>
-<li>Credit-Name, Kontakt, Rolle (Tests, Mod-Autor, Sonstiges).</li>
-<li>Name, japanischer Name, Spitzname, Hintergrund des Wanderers.</li>
-<li><b>Avatar im Bob-Stil:</b> Figur (Mann/Frau) und die Teile aus dem Silhouetten-Tool (Kopfform, Gesicht, Haare/Hut, Haarfarbe, Brille, Jacke, Stofffarbe, Extras an Kopf und Hals, Aufnäher). Alles auf "Surprise me" wählt das Tool automatisch. Crew-Teile gibt es nicht, weil Wanderer zu keiner Crew gehören.</li>
-<li>Auto: Model-ID, Config-Name <code>hashiriya_wanderer_XXX</code> und der <b>Inhalt der .pc-Datei</b> (einfach hineinkopiert, so musst du keine Dateien sammeln).</li>
-<li>Kennzeichen (Region, Art, Nummer), Fahrstil, Stärke, Bedingungen (Uhrzeit, Spielerauto, Tuningteil, geschlagene Crew, Leader oder Mitglied per Name, Wanderer, Boss, ab Nacht X), drei Sprüche.</li>
-</ul>
-<h3>Einsendungen prüfen und übernehmen</h3>
-<ol class="steps">
-<li>Im Script <code>rivalsExportieren</code> ausführen. Neue Einsendungen stehen dann in der Tabelle <b>Hashiriya Battle – Wanderer prüfen</b> mit Status "Neu". In der Spalte "Notiz" stehen Probleme (z. B. kaputte Config, Teil passt nicht zur Figur).</li>
-<li>Status auf <b>Angenommen</b> oder <b>Abgelehnt</b> setzen.</li>
-<li><code>rivalsExportieren</code> nochmal ausführen. Im Drive-Ordner <b>Hashiriya Battle – Community Import</b> liegen dann <code>community_wanderer.json</code>, <code>credits.json</code> und <code>vehicles\&lt;model&gt;\*.pc</code>.</li>
-<li>Den Ordner herunterladen (ZIP) und mir geben. Ich übernehme ihn mit <code>python3 tools/community/import_wanderer.py &lt;zip&gt;</code>: Wanderer kommen in <code>rivals.json</code> (vor die Bosse), Configs nach <span class="path">vehicles\&lt;model&gt;\</span> im Mod-Ordner, Namen in <code>credits.json</code>. Kontaktdaten kommen nicht in die Mod. Danach erzeuge ich die Porträts neu.</li>
-</ol>
-<div class="box tip"><b>Neue Crews oder Rivalen?</b>Die Auswahllisten im Formular (Crews, Leader, Wanderer, Bosse, Avatar-Teile) erzeugt <code>python3 tools/community/build_form_lists.py</code> aus <code>rivals.json</code>. Danach das Script in Google ersetzen und <code>formularAnlegen</code> neu ausführen (gibt ein neues Formular, das alte in Drive löschen).</div>
+<details><summary><b>Altes Google-Formular (veraltet, nur noch zum Nachschlagen)</b></summary>
+<p>Das Script <span class="path">tools\community\wanderer-formular.gs</span> und die Listen aus <code>build_form_lists.py</code> liegen noch im Ordner, werden aber nicht mehr aktualisiert: Sie kennen nur die alten Bedingungen und die v1-Avatarteile ohne Bärte. Ein ZIP aus dem alten Formular übernimmt <code>import_wanderer.py</code> weiterhin, falls noch eins kommt. Neue Leute bekommen immer den <a href="#wanderer-builder">Wanderer-Builder</a>.</p>
+</details>
 <h3>Credits im Spiel <span class="tag">data\credits.json</span></h3>
 <p>Im Titelbildschirm gibt es den Menüpunkt <b>Credits</b>. Er zeigt die Abschnitte aus <code>sections</code>, darunter alle Community-Wanderer und zum Schluss <code>thanks</code>.</p>
 <pre><code>{ "title": { "de": "Benötigte Mods", "en": "Required mods" },
@@ -2265,6 +2244,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>Drin: Name, japanischer Name, Spitzname, Geschichte, Zeichen fürs Wanderer-Siegel, der neue Bob-Avatar mit allen Teilen inklusive Bärten und eigener Farbe, die Auto-Config (.pc einfach hineinziehen), japanisches Kennzeichen mit Vorschau, Fahrstil, Stärke, Bedingungen und drei Sprüche.</li>
 <li>Eingesendete Wanderer kommen mit Avatar, Siegel, Kennzeichen, Config und Credits-Eintrag ins Spiel, genau so, wie der Builder sie zeigt.</li>
 <li>Der Wanderer-Builder kennt jetzt alle 30 Bedingungsarten (Wochentag, Saugmotor/Turbo, Schaltgetriebe, Antrieb FF/FR/Allrad, Lackfarbe, PS, Gewicht, Kilometerstand, Siegesserie, Geld, Spitzname, Wappen, Statistik, besuchte PAs und mehr), sortiert in fünf Gruppen. Unten steht das Baudatum der Datei.</li>
+<li>Handbuch: Alle Verweise auf das alte Wanderer-Formular zeigen jetzt auf den Wanderer-Builder. Das alte Google-Formular ist als veraltet markiert und nur noch zum Nachschlagen eingeklappt.</li>
 </ul>
 <h4>Menü links neu</h4>
 <ul>
