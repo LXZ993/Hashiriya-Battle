@@ -6,6 +6,7 @@
 - Neu: 63 Lackdesigns für alle 9 Japan-Autos (Pessima Mk1 und Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 Stilen: Street-Drift Flammen, Street-Drift Team, Werks-Sportstreifen, Bosozoku, Kaido-Racer, Werks-Zweifarben und Werks-Rennteam.
 - Alle Entwürfe sind in VectorCraft nach den Vorlagen von JDMArsch (LXZ aka. LXZockt) gezeichnet und laufen sauber über Säule, Dach und Haube.
 - Lackierbar wie der Vanilla-Skin „Custom“: Farbe 1 ist der Grundlack, Farbe 2 und Farbe 3 färben die Livery. Zu finden im Konfigurator unter Lackdesign als „Hashiriya: … (Colorable)“. Alle Sponsoren sind erfunden oder BeamNG-Lore.
+- Jeder Stil hat 3 Formvarianten, verteilt auf die Autos. Jedes Auto trägt seine eigene Marke (Ibishu oder Hirochi), eigene Texte, Teams und Nummern, und als Sponsoren die BeamNG-Lore-Logos aus dem Spiel (DriftGear, Okudai, Wangan, GripAll und andere).
 - Zu jeder Lackierung gibt es eine .vectorcraft-Datei und eine PSD mit Ebenen zum Feinjustieren (Details im Handbuch, Kapitel 12g).
 
 ### Blitzer und Polizei
