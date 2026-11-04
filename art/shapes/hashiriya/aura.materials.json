@@ -1,0 +1,41 @@
+{
+ "hashiriya_aura_shell": {
+  "name": "hashiriya_aura_shell",
+  "mapTo": "hashiriya_aura_shell",
+  "class": "Material",
+  "Stages": [
+   {
+    "baseColorMap": "/art/shapes/hashiriya/aura_flame.color.png",
+    "baseColorFactor": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "emissive": true,
+    "emissiveMap": "/art/shapes/hashiriya/aura_flame.color.png",
+    "emissiveFactor": [
+     1,
+     1,
+     1
+    ],
+    "emissiveIgnoreExposure": true,
+    "emissiveIntensityNits": 8,
+    "instanceDiffuse": true,
+    "instanceEmissive": true,
+    "instanceOpacity": true,
+    "opacityMap": "/art/shapes/hashiriya/aura_flame.color.png",
+    "opacityFactor": 1
+   },
+   {},
+   {},
+   {}
+  ],
+  "castShadows": false,
+  "doubleSided": true,
+  "translucent": true,
+  "translucentBlendOp": "Add",
+  "translucentZWrite": false,
+  "version": 1.5
+ }
+}

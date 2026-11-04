@@ -1,6 +1,12 @@
 -- Hashiriya Battle: Aura = farbiges Licht um das Auto (wie in TXR, vorerst als Licht, Effekte wie Gewitter kommen nach 1.0)
 --
--- Zwei Arten, beide aus Punktlichtern des Spiels, die jedem Auto jeden Frame folgen:
+-- Sichtbar wird die Aura durch drei Bausteine, die jedem Auto jeden Frame folgen:
+--   Hülle   leuchtende, additive Flammen-Hülle ums Auto (TSStatic art/shapes/hashiriya/aura_shell.dae,
+--           Farbe pro Auto über instanceColor), pulsiert im Battle
+--   Nebel   aufsteigender Leucht-Nebel (ParticleEmitterNode, ein Datablock pro Farbe aus aura.particleData.json)
+--   Licht   Punktlichter, die Boden und Lack färben
+-- Erzeugt werden Hülle, Texturen und Datablocks von tools/aura/build_aura_assets.py.
+-- Zwei Arten:
 --   Boden-Aura   weicher Schein in der Aura-Farbe unter und neben dem Auto (Rivalen: nur nachts)
 --   Battle-Aura  heller, pulsiert, mit Leuchtsaum (vier kleine Lichter an den Ecken der Karosserie);
 --                wird schwächer, je weniger SP der Fahrer noch hat
@@ -35,7 +41,7 @@ local function cfg()
   end
   return data
 end
-function M.reload() data = nil; failed = false; M.clear() end
+function M.reload() data = nil; failed = false; M.clear(); if M.resetFx then M.resetFx() end end
 
 -- Vorschau ohne Karriere (Gegner-Garage, garagetool.lua): Aura am Spielerauto, egal ob Nacht oder Battle.
 -- p = { color = '#rrggbb', rim = '#rrggbb' oder nil, ground = bool, battle = bool, sp = 0..1, level = 1..3,
@@ -118,6 +124,143 @@ local function put(key, pos, col, radius, intensity)
   if changed then pcall(function() obj:postApply() end) end
 end
 
+-- Hülle und Nebel ----------------------------------------------------------------------------------
+local shells = {}      -- [Schlüssel] = { obj = TSStatic }
+local hazes = {}       -- [Schlüssel] = { obj = ParticleEmitterNode, emitter = Name }
+local dimCache = {}    -- [Fahrzeug-ID] = Maße
+local assetsLoaded = false
+local emitterNames = nil -- [hex] = true (Farben mit eigenem Datablock)
+local shellFailed, hazeFailed = false, false
+local SHELL_SHAPE = 'art/shapes/hashiriya/aura_shell.dae'
+
+local function loadAssets()
+  if assetsLoaded then return end
+  assetsLoaded = true
+  for _, f in ipairs({ 'art/shapes/hashiriya/aura.materials.json', 'art/shapes/hashiriya/aura.particleData.json', 'art/shapes/hashiriya/aura.emitterData.json' }) do
+    local ok, err = pcall(loadJsonMaterialsFile, f)
+    if not ok then log('W', 'Aura: ' .. f .. ' nicht geladen: ' .. tostring(err)) end
+  end
+  emitterNames = {}
+  local d = jsonReadFile('/art/shapes/hashiriya/aura.emitterData.json') or {}
+  for name in pairs(d) do
+    local hex = name:match('^HBAuraE_(%x+)$')
+    if hex then emitterNames[hex:lower()] = true end
+  end
+end
+
+-- Datablock zur Farbe; gibt es keinen, den mit der ähnlichsten Farbe
+local function emitterFor(hex)
+  loadAssets()
+  hex = tostring(hex or ''):gsub('#', ''):lower()
+  if emitterNames[hex] then return 'HBAuraE_' .. hex end
+  if #hex ~= 6 then return nil end
+  local r, g, b = tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
+  local best, bestD = nil, math.huge
+  for h in pairs(emitterNames) do
+    local d = (tonumber(h:sub(1, 2), 16) - r) ^ 2 + (tonumber(h:sub(3, 4), 16) - g) ^ 2 + (tonumber(h:sub(5, 6), 16) - b) ^ 2
+    if d < bestD then best, bestD = h, d end
+  end
+  return best and ('HBAuraE_' .. best) or nil
+end
+
+local usedFx = {}
+
+-- Achsen-Winkel aus Vorwärts- und Hochrichtung (für das Feld 'rotation' = "x y z Grad")
+local function axisAngle(fwd, up)
+  local okQ, q = pcall(quatFromDir, fwd, up)
+  if not okQ or not q then return '0 0 1 0' end
+  local w = math.max(-1, math.min(1, q.w))
+  local ang = 2 * math.acos(w)
+  local sn = math.sqrt(math.max(0, 1 - w * w))
+  if sn < 1e-4 then return '0 0 1 0' end
+  return string.format('%.5f %.5f %.5f %.4f', q.x / sn, q.y / sn, q.z / sn, math.deg(ang))
+end
+
+local function putShell(key, pos, fwd, up, size, col, alpha)
+  if shellFailed then return end
+  usedFx['s' .. key] = true
+  loadAssets()
+  local s = shells[key]
+  if not s then
+    local ok, obj = pcall(function()
+      local o = createObject('TSStatic')
+      o:setField('shapeName', 0, SHELL_SHAPE)
+      o:setField('collisionType', 0, 'None')
+      o:setField('decalType', 0, 'None')
+      o.useInstanceRenderData = true
+      o:setField('instanceColor', 0, '1 1 1 0')
+      o.canSave = false
+      nameSeq = nameSeq + 1
+      o:registerObject('hashiriyaAuraShell_' .. nameSeq)
+      return o
+    end)
+    if not ok or not obj then
+      log('W', 'Aura-Hülle nicht verfügbar: ' .. tostring(obj))
+      shellFailed = true
+      return
+    end
+    s = { obj = obj }
+    shells[key] = s
+  end
+  local o = s.obj
+  pcall(function()
+    o:setPosition(pos)
+    o:setField('rotation', 0, axisAngle(fwd, up))
+    o:setScale(size)
+    o:setField('instanceColor', 0, string.format('%.3f %.3f %.3f %.3f', col[1], col[2], col[3], math.max(0, math.min(1, alpha))))
+    o:updateInstanceRenderData()
+  end)
+end
+
+local function putHaze(key, pos, hex)
+  if hazeFailed then return end
+  local emitter = emitterFor(hex)
+  if not emitter then return end
+  usedFx['h' .. key] = true
+  local h = hazes[key]
+  if h and h.emitter ~= emitter then pcall(function() h.obj:delete() end); hazes[key] = nil; h = nil end
+  if not h then
+    local ok, obj = pcall(function()
+      local o = createObject('ParticleEmitterNode')
+      o:setField('emitter', 0, emitter)
+      o:setField('dataBlock', 0, 'lightExampleEmitterNodeData1')
+      o:setField('rotation', 0, '1 0 0 0')
+      o.canSave = false
+      nameSeq = nameSeq + 1
+      o:registerObject('hashiriyaAuraHaze_' .. nameSeq)
+      return o
+    end)
+    if not ok or not obj then
+      log('W', 'Aura-Nebel nicht verfügbar: ' .. tostring(obj))
+      hazeFailed = true
+      return
+    end
+    h = { obj = obj, emitter = emitter }
+    hazes[key] = h
+  end
+  pcall(function() h.obj:setPosition(pos) end)
+end
+
+local function dropUnusedFx()
+  for key, s in pairs(shells) do
+    if not usedFx['s' .. key] then pcall(function() s.obj:delete() end); shells[key] = nil end
+  end
+  for key, h in pairs(hazes) do
+    if not usedFx['h' .. key] then pcall(function() h.obj:delete() end); hazes[key] = nil end
+  end
+  usedFx = {}
+end
+
+-- Datablocks und Hülle neu laden (aura.json neu laden, neues Level)
+function M.resetFx() assetsLoaded, shellFailed, hazeFailed = false, false, false end
+
+local function clearFx()
+  for _, s in pairs(shells) do pcall(function() s.obj:delete() end) end
+  for _, h in pairs(hazes) do pcall(function() h.obj:delete() end) end
+  shells, hazes, usedFx = {}, {}, {}
+  dimCache = {}
+end
+
 local function dropUnused()
   for key, l in pairs(lights) do
     if not used[key] then
@@ -125,11 +268,13 @@ local function dropUnused()
       lights[key] = nil
     end
   end
+  dropUnusedFx()
 end
 
 function M.clear()
   for _, l in pairs(lights) do pcall(function() l.obj:delete() end) end
   lights = {}
+  clearFx()
 end
 
 -- Mitte und Ausrichtung des Autos
@@ -144,10 +289,78 @@ local function frame(veh)
   return pos, fwd, up, side
 end
 
--- spec: { color = {r,g,b}, level = Faktor, ground = bool, battle = bool, sp = 0..1, rimColor = {r,g,b} }
+-- Maße des Autos (Länge, Breite, Höhe in Metern), pro Auto gemerkt
+local function dims(veh)
+  local id = veh:getID()
+  local d = dimCache[id]
+  if d then return d end
+  local okL, l = pcall(function() return veh:getInitialLength() end)
+  local okW, w = pcall(function() return veh:getInitialWidth() end)
+  local okH, h = pcall(function() return veh:getInitialHeight() end)
+  l = okL and tonumber(l) or nil
+  w = okW and tonumber(w) or nil
+  h = okH and tonumber(h) or nil
+  if not (l and w and h and l > 0.5 and w > 0.5 and h > 0.3) then
+    local okE, e = pcall(function() return veh:getSpawnWorldOOBB():getHalfExtents() end)
+    if okE and e then
+      local t = { math.abs(e.x) * 2, math.abs(e.y) * 2, math.abs(e.z) * 2 }
+      table.sort(t)
+      l, w, h = t[3], t[2], t[1]
+    else
+      l, w, h = 4.4, 1.8, 1.35
+    end
+  end
+  d = { l = l, w = w, h = h }
+  dimCache[id] = d
+  return d
+end
+
+-- Hülle und Nebel um das Auto
+local function drawFx(key, veh, spec, pos, fwd, up, side)
+  local c = cfg()
+  local sc, hz = c.shell or {}, c.haze or {}
+  local d = dims(veh)
+  local ground = pos - up * (d.h * 0.5 + 0.05)
+  local bt = c.battle or {}
+  local spF = (bt.minSpFactor or 0.25) + (1 - (bt.minSpFactor or 0.25)) * math.max(0, math.min(1, spec.sp or 1))
+  if sc.enabled ~= false then
+    local alpha, hgt
+    if spec.battle then
+      local pulse = 1 - (sc.pulseDepth or 0.3) * (0.5 + 0.5 * math.sin(clock * (bt.pulseSpeed or 2.2) * math.pi))
+      alpha = (sc.battle or 0.85) * (spec.battleLevel / 1.4) * spF * pulse
+      hgt = d.h * (sc.battleHeight or 1.7)
+    else
+      alpha = (sc.ground or 0.4) * (spec.level / 0.9)
+      hgt = d.h * (sc.height or 1.15)
+    end
+    local fl = sc.flicker or 0.12
+    alpha = alpha * (1 - fl * (0.5 + 0.25 * math.sin(clock * 11.3) + 0.25 * math.sin(clock * 17.9 + 1.7)))
+    local size = vec3(d.w * 0.5 * (sc.widthPad or 1.25) + 0.12, d.l * 0.5 * (sc.lengthPad or 1.08) + 0.12, hgt)
+    putShell(key, ground, fwd, up, size, spec.color, alpha)
+  end
+  if hz.enabled ~= false and spec.hex and (spec.battle or hz.ground ~= false) then
+    local n = spec.battle and (hz.battlePoints or 4) or (hz.groundPoints or 2)
+    local fl, sw = d.l * 0.5 * 0.8, d.w * 0.5 * 0.9
+    local pts
+    if n >= 4 then
+      pts = { fwd * fl + side * sw, fwd * fl - side * sw, fwd * (-fl) + side * sw, fwd * (-fl) - side * sw }
+    else
+      pts = { side * sw, side * (-sw) }
+    end
+    for i, off in ipairs(pts) do
+      local hex = spec.hex
+      if spec.rimHex and i > 2 then hex = spec.rimHex end
+      putHaze(key .. ':' .. i, ground + off + up * 0.1, hex)
+    end
+  end
+end
+
+-- spec: { color = {r,g,b}, hex = '#rrggbb', level = Faktor, ground = bool, battle = bool, sp = 0..1,
+--         rimColor = {r,g,b}, rimHex = '#rrggbb' }
 local function drawAura(key, veh, spec)
   local c = cfg()
   local pos, fwd, up, side = frame(veh)
+  if spec.ground or spec.battle then drawFx(key, veh, spec, pos, fwd, up, side) end
   local g = c.ground or {}
   local base = pos - up * (0.6 - (g.height or 0.35))
   if spec.ground or spec.battle then
@@ -376,7 +589,7 @@ local function update(dt)
       local lv = levelOf(preview.level or 2)
       local boost = tonumber(preview.boost) or 1
       drawAura('preview', veh, {
-        color = lightColor(preview.color), level = (lv.ground or 0.9) * boost, battleLevel = (lv.battle or 1.4) * boost,
+        color = lightColor(preview.color), hex = preview.color, rimHex = preview.rim, level = (lv.ground or 0.9) * boost, battleLevel = (lv.battle or 1.4) * boost,
         ground = preview.ground and true or false, battle = preview.battle and true or false, sp = preview.sp or 1,
         rimColor = preview.rim and lightColor(preview.rim) or nil,
       })
@@ -406,7 +619,7 @@ local function update(dt)
       local ground = rc.ground ~= false and (night or rc.groundOnlyNight == false)
       if near and (ground or (fighting and rc.battle ~= false)) then
         drawAura('r' .. tostring(e.vehId), veh, {
-          color = lightColor(M.colorOf(e.rival)), level = rLevel.ground or 0.9, battleLevel = rLevel.battle or 1.4,
+          color = lightColor(M.colorOf(e.rival)), hex = M.colorOf(e.rival), rimHex = e.rival.leader and (c.leaderRimColor or '#ffd257') or nil, level = rLevel.ground or 0.9, battleLevel = rLevel.battle or 1.4,
           ground = ground, battle = fighting and rc.battle ~= false, sp = fighting and bi.rivalSp or 1,
           rimColor = e.rival.leader and lightColor(c.leaderRimColor or '#ffd257') or nil,
         })
@@ -424,7 +637,7 @@ local function update(dt)
       local fighting = inBattle
       if ground or fighting then
         drawAura('p', player, {
-          color = lightColor(pe.color), level = lv.ground or 0.9, battleLevel = lv.battle or 1.4,
+          color = lightColor(pe.color), hex = pe.color, rimHex = pe.rim, level = lv.ground or 0.9, battleLevel = lv.battle or 1.4,
           ground = ground, battle = fighting, sp = fighting and bi.playerSp or 1,
           rimColor = pe.rim and lightColor(pe.rim) or nil,
         })
@@ -443,7 +656,7 @@ function M.onPreRender(dt)
   end
 end
 
-function M.onClientEndMission() M.clear() end
+function M.onClientEndMission() M.clear(); M.resetFx() end
 function M.onExtensionUnloaded() M.clear() end
 
 return M
