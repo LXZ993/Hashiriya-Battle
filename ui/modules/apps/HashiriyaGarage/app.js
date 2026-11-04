@@ -102,6 +102,7 @@ angular.module('beamng.apps')
       '</div>' +
       '<style>' +
         '.hbg-root{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}' +
+        '.hbg-root.hbg-portal{position:fixed;z-index:9000;}' +
         '.hbg{--o:#ff6600;--o2:#ff9a3c;--w:#f4f4f4;--dim:rgba(244,244,244,.58);position:absolute;width:440px;max-height:calc(100% - 110px);' +
           'display:flex;flex-direction:column;pointer-events:auto;font-family:"Overpass","Noto Sans","Segoe UI",sans-serif;color:var(--w);' +
           'background:linear-gradient(160deg,rgba(26,26,29,.95),rgba(14,14,16,.93));box-shadow:0 8px 24px rgba(0,0,0,.55);border-left:4px solid var(--o);}' +
@@ -192,7 +193,7 @@ angular.module('beamng.apps')
       } catch (e) {}
       function clampWin() {
         var w = window.innerWidth || 1920, h = window.innerHeight || 1080
-        if (!win.x && !win.y) { win.x = Math.max(10, w - 470); win.y = 100 }
+        if (!win.x && !win.y) { win.x = Math.max(10, w - 520); win.y = 120 } // rechts, aber links von den Garage-Knöpfen am Rand
         win.x = Math.min(Math.max(0, win.x), w - 120); win.y = Math.min(Math.max(0, win.y), h - 60)
       }
       clampWin()
@@ -213,6 +214,15 @@ angular.module('beamng.apps')
       window.addEventListener('mousemove', onMove)
       window.addEventListener('mouseup', onUp)
       scope.$on('$destroy', function () { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) })
+
+      // Die Garage-Oberfläche (Vue) liegt über der Apps-Ebene und würde Klicks abfangen:
+      // das Panel deshalb direkt an <body> hängen, über die Garage. Beim Entfernen der App wieder weg.
+      var rootEl = element[0]
+      if (rootEl && document.body) {
+        rootEl.classList.add('hbg-portal')
+        document.body.appendChild(rootEl)
+        scope.$on('$destroy', function () { if (rootEl.parentNode) rootEl.parentNode.removeChild(rootEl) })
+      }
 
       // --- Lua -------------------------------------------------------------------------------
       function luaStr(s) {
