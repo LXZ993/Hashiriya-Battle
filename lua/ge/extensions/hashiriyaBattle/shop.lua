@@ -725,16 +725,34 @@ local function requestStats()
     pcall(function() for _, n in pairs(v.data.nodes) do kg = kg + (n.nodeWeight or 0) end end)
     local brake = 0
     pcall(function() for _, w in pairs(wheels.wheels) do brake = brake + (w.brakeTorque or 0) end end)
-    obj:queueGameEngineLua(string.format('if extensions.hashiriyaBattle_shop then extensions.hashiriyaBattle_shop.onStats(%f,%f,%f,%f) end', kw, nm, kg, brake))
+    -- Antrieb: angetriebene Räder (isPropulsed) vorne/hinten nach Lage zur Fahrzeugmitte (wie dynamicVehicleData.getPowertrainLayout)
+    local drive = ''
+    pcall(function()
+      local ref = v.data.refNodes and v.data.refNodes[0]
+      if not ref then return end
+      local fwd = obj:getNodePosition(ref.ref) - obj:getNodePosition(ref.back)
+      local avg, n = vec3(0, 0, 0), 0
+      for _, w in pairs(wheels.wheels) do avg = avg + obj:getNodePosition(w.node1); n = n + 1 end
+      if n == 0 then return end
+      avg = avg / n
+      local f, r = 0, 0
+      for _, w in pairs(wheels.wheels) do
+        if w.isPropulsed then
+          if (obj:getNodePosition(w.node1) - avg):dot(fwd) > 0 then f = f + 1 else r = r + 1 end
+        end
+      end
+      if f > 0 and r > 0 then drive = 'AWD' elseif f > 0 then drive = 'FWD' elseif r > 0 then drive = 'RWD' end
+    end)
+    obj:queueGameEngineLua(string.format('if extensions.hashiriyaBattle_shop then extensions.hashiriyaBattle_shop.onStats(%f,%f,%f,%f,%q) end', kw, nm, kg, brake, drive))
   ]])
 end
 
-function M.onStats(kw, nm, kg, brake)
+function M.onStats(kw, nm, kg, brake, drive)
   -- combustionEngine.maxPower ist in PS (metrisch), maxTorque in Nm
   local ps
   ps, nm, kg, brake = tonumber(kw) or 0, tonumber(nm) or 0, tonumber(kg) or 0, tonumber(brake) or 0
   if kg <= 0 then return end
-  carStats = { ps = ps, nm = nm, kg = kg, brake = brake, pw = ps > 0 and kg / ps or nil }
+  carStats = { ps = ps, nm = nm, kg = kg, brake = brake, pw = ps > 0 and kg / ps or nil, drive = (drive ~= nil and drive ~= '') and drive or nil }
   if not cart then baseStats = nil end
 end
 
