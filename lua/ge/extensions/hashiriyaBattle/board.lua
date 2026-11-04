@@ -163,7 +163,8 @@ local function rumorPosts(save, day, rand)
   local rank = progress().rankIndex(save)
   local cands = {}
   for _, r in ipairs((rivals().getData() or {}).rivals or {}) do
-    if (r.wanderer or r.boss) and not (save.defeated or {})[r.id] and not r._platzhalter then
+    if (r.wanderer or r.boss) and not (save.defeated or {})[r.id] and not r._platzhalter
+      and not (r.stagePrev and not (save.defeated or {})[r.stagePrev]) then
       local need = (r.conditions or {}).minRank or 0
       if need <= rank + cfg().rumorRankAhead then table.insert(cands, r) end
     end

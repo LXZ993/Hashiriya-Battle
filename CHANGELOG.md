@@ -148,6 +148,11 @@
 
 ### Gegner-Garage (Entwickler-Werkzeug)
 - Neu für die Dev-Version: Eintrag „Gegner-Garage (Dev)“ im BeamNG-Hauptmenü unter More, direkt neben Hashiriya Battle. Er startet die ganz normale BeamNG-Garage mit allen Funktionen (Teile, Tune, Lack, Decals, Fahrzeuge, Foto, Licht, Kamera) und legt rechts das Panel „Gegner-Garage“ darüber. Gegner suchen oder nach Crews, Leadern, Wanderern, Bossen, eigenen Configs und fehlenden Configs filtern, anklicken, und sein Auto wird mit seiner Config in der Garage geladen (wahlweise wie im Spiel mit Kennzeichen und festem Lack oder nur die Config).
+- Neu: Stufen wie die Rückkampf-Versionen in TXR 2025. Ein Gegner kann in einem späteren Kapitel stärker zurückkommen, mit neuem Spitznamen, neuen Sprüchen, eigener Config und oft erst dann mit Aura. Genzō kündigt die Rückkehr per Handy an, auf der Straße steht „(Stufe 2)“.
+- Mit Aura zurück kommen Kemuri und Kazekiri (ab Kapitel 4), Benikaze und Noir (ab Kapitel 5) sowie Gruppe Fünf und Fukurō (Epilog). Shinkirō, Tsukiyomi, Yūrei, Hotaru, Kaminari und Afterburner haben ihre Aura von Anfang an.
+- Drei Crew-Mitglieder steigen in zwei Stufen zum Wanderer auf: Hinata Oda („Erbin der Laterne“), Tadashi Hirota („Der Aussteiger“) und Taiga Shimizu („Schneesturm“), Stufe 3 mit Aura.
+- Gegner-Garage: Filter „Stufen“. Speichern auf einer Stufe legt eine eigene Config an und trägt sie bei der Stufe ein. Der Aura-Editor gilt pro Stufe.
+- Wanderer-Builder: neue Auswahl „Rückkehr (Wunsch)“ mit dem Kapitel.
 - Aura-Editor im Reiter „Aura“: pro Gegner Aura an/aus, Farbe (Hex-Feld und Regler) und Stärke, mit Live-Vorschau am Auto, gespeichert in rivals.json. Dazu Regler für Hülle, Nebel und Licht und die Regel, wer automatisch eine Aura hat, gespeichert in aura.json. Jeweils mit Sicherung.
 - Wie in TXR 2025 tragen nur noch wenige Gegner eine Aura: die drei Bosse und 12 besondere Wanderer (unter anderem alle mit Powerglow-Lack: Shinkirō, Tsukiyomi, Yūrei, Hotaru). Weitere lassen sich im Editor dazuschalten. Crew-, Leader-, Wanderer- und Boss-Auren gibt es in der Trophäenwand nur noch von Gegnern, die selbst eine tragen.
 - Der Leucht-Nebel wird im Battle mit sinkenden SP dünner und verschwindet bei fast leeren SP.

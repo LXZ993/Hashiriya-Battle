@@ -31,6 +31,7 @@ local expectSpawn = false -- nächstes Spawnen kommt von "Gegner laden"
 local pendingPlate = nil   -- Kennzeichen-Text des geladenen Gegners (nach dem Spawnen setzen, wie rivals.lua spawnCar)
 
 local auraCfgForUi -- weiter unten
+local setRivalOrStageField -- weiter unten (Stufen in rivals.json)
 local auraChanged = {} -- aura.json: Pfad -> Wert, geändert seit dem letzten Speichern/Laden
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
@@ -270,6 +271,8 @@ local function buildData()
       auraOwnColor = type(r.aura) == 'string' and r.aura or nil,
       auraDefault = au and au.defaultColorOf and au.defaultColorOf(r) or nil,
       auraDefaultOn = au and au.defaultOn and au.defaultOn(r) or false, auraLevel = r.auraLevel,
+      stage = r.stage, stageOf = r.stageOf, stageChapter = r.stageChapter, stageOwnConfig = r.stageOwnConfig or false,
+      stages = type(r.stages) == 'table' and #r.stages or 0,
     })
   end
   local ranks = {}
@@ -422,7 +425,8 @@ local function saveRival(a)
   -- sonst eine eigene Datei für diesen Gegner
   local oldPath = tostring(r.config or ''):gsub('^/', '')
   local rel
-  if model == r.model and isOwnConfig(oldPath, root) and not a.ownFile then
+  -- Stufe ohne eigene Config fährt die der Stufe davor: nie überschreiben, eigene Datei anlegen
+  if model == r.model and isOwnConfig(oldPath, root) and not a.ownFile and not (r.stageOf and not r.stageOwnConfig) then
     rel = oldPath
   else
     local safeId = tostring(r.id):lower():gsub('[^a-z0-9_]', '_')
@@ -452,17 +456,23 @@ local function saveRival(a)
 
   -- rivals.json anpassen, wenn sich Pfad oder Modell ändert
   local changed = {}
-  if rel ~= oldPath or model ~= r.model then
+  if rel ~= oldPath or model ~= r.model or (r.stageOf and not r.stageOwnConfig) then
     local jsonPath = root .. dataRel
     local text = readFile(jsonPath)
     if not text then status(false, 'Config gespeichert, aber rivals.json nicht lesbar: ' .. rel) return end
     local newText, err = text, nil
-    if rel ~= oldPath then
+    if r.stageOf then
+      -- Stufe: Config und Modell in ihren Eintrag unter "stages" schreiben
+      newText, err = setRivalOrStageField(newText, r, 'config', '"' .. rel .. '"')
+      if newText and model ~= r.model then newText, err = setRivalOrStageField(newText, r, 'model', '"' .. model .. '"') end
+      if not newText then status(false, 'Config gespeichert, rivals.json nicht geändert: ' .. tostring(err)) return end
+      table.insert(changed, 'stage ' .. tostring(r.stage))
+    elseif rel ~= oldPath then
       newText, err = replaceField(newText, r.id, 'config', rel)
       if not newText then status(false, 'Config gespeichert, rivals.json nicht geändert: ' .. err) return end
       table.insert(changed, 'config')
     end
-    if model ~= r.model then
+    if model ~= r.model and not r.stageOf then
       newText, err = replaceField(newText, r.id, 'model', model)
       if not newText then status(false, 'Config gespeichert, rivals.json nicht geändert: ' .. err) return end
       table.insert(changed, 'model')
@@ -624,6 +634,109 @@ local function patchJsonPath(text, path, value)
 end
 M._patchJsonPath = patchJsonPath -- für Tests
 
+-- Ende (inklusive) des JSON-Werts, der bei vs beginnt
+local function jsonValueEnd(text, vs)
+  local c = text:sub(vs, vs)
+  local n = #text
+  if c == '"' then
+    local j = vs + 1
+    while j <= n do
+      local d = text:sub(j, j)
+      if d == '\\' then j = j + 2 elseif d == '"' then return j else j = j + 1 end
+    end
+    return n
+  end
+  if c == '{' or c == '[' then
+    local depth, i = 0, vs
+    while i <= n do
+      local d = text:sub(i, i)
+      if d == '"' then i = jsonValueEnd(text, i)
+      elseif d == '{' or d == '[' then depth = depth + 1
+      elseif d == '}' or d == ']' then depth = depth - 1; if depth == 0 then return i end end
+      i = i + 1
+    end
+    return n
+  end
+  local e = text:find('[,%}%]%s]', vs)
+  return (e or (n + 1)) - 1
+end
+
+-- Schlüssel in dem Objekt ab objStart ("{") setzen, ändern oder (jsonValue == nil) entfernen
+local function jsonObjSet(text, objStart, key, jsonValue)
+  local vs, objEnd = jsonFindKey(text, objStart, key)
+  if vs then
+    local ve = jsonValueEnd(text, vs)
+    if jsonValue ~= nil then return text:sub(1, vs - 1) .. jsonValue .. text:sub(ve + 1) end
+    local ks = nil
+    local from = 1
+    while true do
+      local a = text:find('"' .. key .. '"', from, true)
+      if not a or a >= vs then break end
+      ks = a
+      from = a + 1
+    end
+    if not ks then return text end
+    local _, ce = text:find('^%s*,%s*', ve + 1)
+    if ce then return text:sub(1, ks - 1) .. text:sub(ce + 1) end
+    local before = text:sub(1, ks - 1):gsub('%s*,%s*$', '')
+    return before .. text:sub(ve + 1)
+  end
+  if jsonValue == nil then return text end
+  local inner = text:sub(objStart, objEnd)
+  local ind = inner:match('\n(%s*)"') or ''
+  local closeInd = text:sub(1, objEnd - 1):match('\n([ \t]*)$') or ''
+  local before = text:sub(1, objEnd - 1):gsub('%s*$', '')
+  if ind == '' then
+    local lineInd = text:sub(1, objStart):match('\n([ \t]*)[^\n]*$') or ''
+    ind = lineInd .. '  '
+    closeInd = lineInd
+  end
+  local sep = before:sub(-1) == '{' and '' or ','
+  return before .. sep .. '\n' .. ind .. '"' .. key .. '": ' .. jsonValue .. '\n' .. closeInd .. text:sub(objEnd)
+end
+
+-- Objekt der Stufe n (2, 3 ...) von Rivale baseId in rivals.json: Startposition von "{"
+local function stageObjStart(text, baseId, n)
+  local listStart = text:find('"rivals"%s*:%s*%[') or 1
+  local idPat = '"id"%s*:%s*"' .. baseId:gsub('%p', '%%%0') .. '"'
+  local s0 = text:find(idPat, listStart)
+  if not s0 then return nil, 'Gegner ' .. baseId .. ' nicht in rivals.json gefunden' end
+  -- umschließendes Objekt suchen (rückwärts bis zur offenen Klammer)
+  local depth, i = 0, s0 - 1
+  while i > 0 do
+    local c = text:sub(i, i)
+    if c == '}' or c == ']' then depth = depth + 1
+    elseif c == '{' or c == '[' then
+      if depth == 0 then break end
+      depth = depth - 1
+    end
+    i = i - 1
+  end
+  if i <= 0 then return nil, 'Gegner ' .. baseId .. ': Objekt nicht gefunden' end
+  local as = jsonFindKey(text, i, 'stages')
+  if not as or text:sub(as, as) ~= '[' then return nil, baseId .. ' hat keine "stages"' end
+  local k, j, ae = 0, as + 1, jsonValueEnd(text, as)
+  while j < ae do
+    local c = text:sub(j, j)
+    if c == '{' then
+      k = k + 1
+      if k == n - 1 then return j end
+      j = jsonValueEnd(text, j) + 1
+    elseif c == '"' or c == '[' then j = jsonValueEnd(text, j) + 1
+    else j = j + 1 end
+  end
+  return nil, baseId .. ': Stufe ' .. n .. ' fehlt in "stages"'
+end
+
+-- Feld eines Gegners setzen; bei Stufen landet es in rivals.json im Eintrag der Stufe
+setRivalOrStageField = function(text, r, field, jsonValue)
+  if not r.stageOf then return M._setRivalField(text, r.id, field, jsonValue) end
+  local os_, err = stageObjStart(text, r.stageOf, r.stage)
+  if not os_ then return nil, err end
+  return jsonObjSet(text, os_, field, jsonValue)
+end
+M._setRivalOrStageField = setRivalOrStageField -- für Tests
+
 local auraRel = 'lua/ge/extensions/hashiriyaBattle/data/aura.json'
 local function auraSaveCfg()
   local root = modRoot()
@@ -695,11 +808,11 @@ local function auraSaveRival(a)
   local level = tonumber(a.level)
   local levelJson = level and tostring(math.max(1, math.min(3, math.floor(level)))) or nil
   local err
-  text, err = setRivalField(text, r.id, 'auraOn', onJson)
+  text, err = setRivalOrStageField(text, r, 'auraOn', onJson)
   if not text then status(false, err) return end
-  text, err = setRivalField(text, r.id, 'aura', color and ('"' .. color .. '"') or nil)
+  text, err = setRivalOrStageField(text, r, 'aura', color and ('"' .. color .. '"') or nil)
   if not text then status(false, err) return end
-  text, err = setRivalField(text, r.id, 'auraLevel', levelJson)
+  text, err = setRivalOrStageField(text, r, 'auraLevel', levelJson)
   if not text then status(false, err) return end
   local okJson = pcall(jsonDecode, text, 'garagetool')
   if not okJson then status(false, 'rivals.json wäre ungültig, nicht gespeichert') return end

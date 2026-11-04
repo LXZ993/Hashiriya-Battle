@@ -22,8 +22,72 @@ local cooldown = 10
 
 local function core() return extensions.hashiriyaBattle_core end
 
+-- Stufen (wie die Rückkampf-Versionen in TXR 2025): "stages" beim Rivalen in rivals.json.
+-- Jede Stufe wird ein eigener Gegner <id>_s2, <id>_s3 ..., der erst kommt, wenn die Stufe davor geschlagen ist
+-- und das Kapitel "chapter" (story.json) erreicht ist. Alle anderen Felder der Stufe ersetzen die der Stufe davor
+-- (config, model, nick, desc, lines, auraOn, aura, auraLevel, wanderer, boss, team ...; false bei team/leader = weg).
+-- Stärke relativ zur Stufe davor: spFactor (1.25), aggressionBonus (0.1), rewardFactor (1.5), repFactor (1.5).
+local stageSpecial = { chapter = true, spFactor = true, aggressionBonus = true, rewardFactor = true, repFactor = true,
+  conditions = true, _info = true }
+local stageClearable = { team = true, leader = true, boss = true, wanderer = true, hint = true, aura = true }
+local function expandStages(d)
+  local out = {}
+  for _, r in ipairs(d.rivals or {}) do
+    table.insert(out, r)
+    if type(r.stages) == 'table' then
+      local prev = r
+      for i, st in ipairs(r.stages) do
+        if type(st) == 'table' then
+          local n = i + 1
+          local e = {}
+          for k, v in pairs(prev) do e[k] = v end
+          e.stages = nil
+          -- Stufen gehören nicht mehr zur Crew (sonst zählen sie für den Leader mit); ohne Rolle werden sie Wanderer
+          e.stageTeam = prev.team or prev.stageTeam
+          e.team, e.leader = nil, nil
+          e.hint = nil -- der Tipp der Stufe davor passt nicht mehr; eigener Tipp über "hint" in der Stufe
+          e.id = r.id .. '_s' .. n
+          e.baseId = r.id
+          e.stageOf = r.id
+          e.stage = n
+          e.stagePrev = prev.id
+          e.stageChapter = st.chapter
+          e.stageOwnConfig = st.config ~= nil or prev.stageOwnConfig or nil
+          e.maxSp = math.floor((tonumber(prev.maxSp) or 1000) * (tonumber(st.spFactor) or 1.25))
+          e.aggression = math.min(1, (tonumber(prev.aggression) or 0.5) + (tonumber(st.aggressionBonus) or 0.1))
+          e.cruiseKmh = (tonumber(prev.cruiseKmh) or 100) + 5
+          local rf = tonumber(st.rewardFactor) or 1.5
+          e.rewardUsd = math.floor((tonumber(prev.rewardUsd) or 1000) * rf)
+          if tonumber(prev.rewardYen) then e.rewardYen = math.floor(tonumber(prev.rewardYen) * rf) end
+          e.rep = math.floor((tonumber(prev.rep) or 30) * (tonumber(st.repFactor) or 1.5))
+          for k, v in pairs(st) do
+            if not stageSpecial[k] then
+              if v == false and stageClearable[k] then e[k] = nil else e[k] = v end
+            end
+          end
+          if not e.boss and not e.team then e.wanderer = true end
+          -- Bedingungen: wie die Stufe davor (Uhrzeit, Auto ...), dazu Sieg über die Stufe davor und das Kapitel
+          local c = {}
+          for k, v in pairs(type(prev.conditions) == 'table' and prev.conditions or {}) do c[k] = v end
+          for k, v in pairs(type(st.conditions) == 'table' and st.conditions or {}) do c[k] = v end
+          c.beatenRivals = { prev.id }
+          c.beatenTeam, c.beatenTeams = nil, nil
+          c.storyChapter = st.chapter
+          e.conditions = c
+          table.insert(out, e)
+          prev = e
+        end
+      end
+    end
+  end
+  d.rivals = out
+end
+M._expandStages = expandStages -- für Tests
+
 function M.loadData()
   data = jsonReadFile(dataPath) or { rivals = {}, teams = {} }
+  local ok, err = pcall(expandStages, data)
+  if not ok then log('E', logTag, 'Stufen: ' .. tostring(err)) end
 end
 
 function M.getData()
@@ -525,7 +589,26 @@ function M.challengeData(e)
   return e.data
 end
 
+-- Stufen: Genzō meldet per Handy, wenn eine neue Stufe da ist (Stufe davor geschlagen, Kapitel erreicht). Einmal pro Stufe.
+local function announceStages(save)
+  local st = extensions.hashiriyaBattle_story
+  if not st or not st.phoneMessage then return end
+  save.stageAnnounced = save.stageAnnounced or {}
+  for _, r in ipairs(data.rivals) do
+    if r.stageOf and not save.stageAnnounced[r.id] and not save.defeated[r.id] and save.defeated[r.stagePrev]
+      and (not r.stageChapter or (st.reached and st.reached(r.stageChapter, save))) then
+      save.stageAnnounced[r.id] = true
+      local pr = progress()
+      local text = r.announce and pr.loc(r.announce) or ''
+      if text == '' then text = core().t('msg.stageReturn', r.name) end
+      pcall(st.phoneMessage, 'stage_' .. r.id, r.announceSpeaker or 'genzo', { text })
+    end
+  end
+end
+M.announceStages = announceStages
+
 local function pickRival(save)
+  pcall(announceStages, save)
   -- Gibt es neue Gegner, kommt meist einer davon (rematch.weight = Anteil der Revanchen); sonst eine Revanche
   -- Ein Leader, dessen Mitglieder alle geschlagen sind, kommt bevorzugt (settings.leaderChance)
   local fresh, beaten, leaders = {}, {}, {}
@@ -974,7 +1057,7 @@ function M.spawnNext(force, forced)
     local nick = progress().loc(rival.nick)
     core().msg(core().t('msg.rivalSpotted', rival.name .. (nick ~= '' and (' "' .. nick .. '"') or ''))
       .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or '') .. (rival.boss and core().t('msg.boss') or '')
-      .. (rival.rematch and core().t('msg.rematch') or '') .. (home().isWatched(rival.id) and core().t('msg.watched') or '')
+      .. (rival.stage and core().t('msg.stage', rival.stage) or '') .. (rival.rematch and core().t('msg.rematch') or '') .. (home().isWatched(rival.id) and core().t('msg.watched') or '')
       .. (escorts and core().t('msg.escorts', escorts) or ''))
   end
   log('I', logTag, 'Rivale gespawnt: ' .. rival.id .. string.format(' (%d m, %d unterwegs)', math.floor(dist), #onRoad))

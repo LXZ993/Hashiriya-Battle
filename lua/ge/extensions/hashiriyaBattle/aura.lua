@@ -474,15 +474,16 @@ function M.colorOf(rival)
   local id = rival.baseId or rival.id
   if type(rival.aura) == 'string' and rival.aura ~= '' then return rival.aura end
   if c.colors and c.colors[id] then return c.colors[id] end
-  if rival.team then
-    local t = teamOf(rival.team)
+  local team = rival.team or rival.stageTeam -- Stufen ehemaliger Crew-Mitglieder: Farbe der alten Crew
+  if team then
+    local t = teamOf(team)
     if t and t.color then return t.color end
   end
   return c.defaultColor or '#ff6600'
 end
 
 -- Hat dieser Rivale eine Aura? Eigene Angabe in rivals.json ("auraOn": true/false) gewinnt,
--- sonst die Regel aus aura.json "who" (wie in TXR 2025: Bosse, Wanderer, Leader; normale Crew-Mitglieder nicht)
+-- sonst die Regel aus aura.json "who" (wie in TXR 2025 nur wenige: standardmäßig nur Bosse)
 local function roleOf(rival)
   if rival.boss then return 'boss' end
   if rival.wanderer then return 'wanderer' end
@@ -509,8 +510,9 @@ function M.defaultColorOf(rival)
   local c = cfg()
   local id = rival.baseId or rival.id
   if c.colors and c.colors[id] then return c.colors[id] end
-  if rival.team then
-    local t = teamOf(rival.team)
+  local team = rival.team or rival.stageTeam -- Stufen ehemaliger Crew-Mitglieder: Farbe der alten Crew
+  if team then
+    local t = teamOf(team)
     if t and t.color then return t.color end
   end
   return c.defaultColor or '#ff6600'

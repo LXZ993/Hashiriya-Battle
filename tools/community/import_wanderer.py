@@ -174,7 +174,8 @@ def main(src, *more):
         for r in new:
             r = {k: v for k, v in r.items() if k != '_kontakt'}
             for k, lab in (('_idee', 'Eigene Bedingungs-Idee'), ('_wunsch', 'Wünsche/Änderungen'),
-                           ('_auraWunsch', 'Aura-Wunsch (Farbe, im Aura-Editor der Gegner-Garage setzen)')):
+                           ('_auraWunsch', 'Aura-Wunsch (Farbe, im Aura-Editor der Gegner-Garage setzen)'),
+                           ('_rueckkehrWunsch', 'Rückkehr-Wunsch (Kapitel, als Stufe unter "stages" eintragen)')):
                 if r.get(k):
                     print(f"  {r.get('name')}: {lab}: {r[k]}")  # bleibt in rivals.json stehen, bis du es umgesetzt hast
             if not r.get('hint'):

@@ -51,6 +51,7 @@
                 <b>{{ r.name }}<i v-if="d.loadedId === r.id"> ● in der Garage</i></b>
                 <span>{{ roleName(r) }} · {{ r.modelName }} · {{ r.configName }}</span>
               </div>
+              <span class="hbg-tag hbg-tag-stage" v-if="r.stage">Stufe {{ r.stage }}</span>
               <span class="hbg-tag" v-if="r.own">eigene</span>
               <span class="hbg-tag hbg-tag-bad" v-if="!r.configOk">fehlt</span>
             </div>
@@ -64,6 +65,11 @@
             <em>„{{ sel.nick }}“ · {{ sel.id }}</em>
           </div>
           <div class="hbg-warn" v-if="sel.placeholder">Platzhalter: {{ sel.placeholder }}</div>
+          <div class="hbg-note hbg-stage" v-if="sel.stage">
+            <b>Stufe {{ sel.stage }}</b> von {{ nameOf(sel.stageOf) }} · kommt {{ chapterName(sel.stageChapter) }}, wenn Stufe {{ sel.stage - 1 }} geschlagen ist.
+            <template v-if="!sel.stageOwnConfig"> Noch keine eigene Config: fährt die von Stufe {{ sel.stage - 1 }}. „Speichern“ legt eine eigene Datei an und trägt sie bei der Stufe ein.</template>
+          </div>
+          <div class="hbg-note hbg-stage" v-else-if="sel.stages > 0">Hat {{ sel.stages }} weitere Stufe{{ sel.stages > 1 ? "n" : "" }} (Filter „Stufen“).</div>
 
           <div class="hbg-sec">Auto</div>
           <div class="hbg-kv"><span>Modell</span><b>{{ sel.modelName }} <i>({{ sel.model }})</i></b></div>
@@ -223,11 +229,13 @@ const tabs = [
 ]
 const filters = [
   { id: "all", name: "Alle" }, { id: "crew", name: "Crews" }, { id: "leader", name: "Leader" },
-  { id: "wanderer", name: "Wanderer" }, { id: "boss", name: "Bosse" }, { id: "own", name: "Eigene Configs" }, { id: "missing", name: "Config fehlt" },
+  { id: "wanderer", name: "Wanderer" }, { id: "boss", name: "Bosse" }, { id: "stages", name: "Stufen" },
+  { id: "own", name: "Eigene Configs" }, { id: "missing", name: "Config fehlt" },
 ]
 const roleLabel = { crew: "Crew", leader: "Leader", wanderer: "Wanderer", boss: "Boss", final: "Endboss", other: "Sonstige" }
 const roleColors = { crew: "#ff9a3c", leader: "#ffd400", wanderer: "#b07bff", boss: "#ff3b3b", final: "#ff3b3b", other: "#a0a0a0" }
 const roleColor = role => roleColors[role] || "#a0a0a0"
+const chapterName = id => (!id ? "sofort" : id === "epilog" ? "im Epilog" : id === "prolog" ? "im Prolog" : "ab Kapitel " + String(id).replace(/^ch/, ""))
 const auraModes = [
   { id: "ground", name: "Boden (Nacht)" },
   { id: "battle", name: "Battle (pulsiert)" },
@@ -315,6 +323,7 @@ function roleMatch(r, role) {
   if (role === "boss") return r.role === "boss" || r.role === "final"
   if (role === "own") return r.own
   if (role === "missing") return !r.configOk
+  if (role === "stages") return !!r.stage || r.stages > 0
   return r.role === role
 }
 const roleCount = computed(() => {
@@ -343,6 +352,7 @@ function select(r) {
 }
 function selectId(id) { if (byId(id)) select(byId(id)) }
 const nameOf = id => (byId(id) ? byId(id).name : id)
+const stageName = id => (byId(id) && byId(id).stage ? nameOf(id) + " (Stufe " + byId(id).stage + ")" : nameOf(id))
 const loadedName = computed(() => {
   const r = d.value.loadedId && byId(d.value.loadedId)
   if (r) return r.name
@@ -391,7 +401,8 @@ const condList = computed(() => {
       case "speedTraps": out.push(v === "all" ? "alle Blitzer ausgelöst" : v + " Blitzer ausgelöst"); break
       case "beatenTeam": out.push("Crew " + teamName(v) + " geschlagen"); break
       case "beatenTeams": out.push("Crews geschlagen: " + list(v).map(teamName).join(", ")); break
-      case "beatenRivals": case "requires": out.push("Gegner geschlagen: " + list(v).map(nameOf).join(", ")); break
+      case "beatenRivals": case "requires": out.push("Gegner geschlagen: " + list(v).map(stageName).join(", ")); break
+      case "storyChapter": out.push("Story " + chapterName(v)); break
       case "naOnly": out.push("nur Sauger"); break
       case "forcedInduction": out.push("nur Turbo/Kompressor"); break
       case "manual": out.push("nur Schaltgetriebe"); break
@@ -642,6 +653,8 @@ onUnmounted(() => {
 .hbg-mate:hover { background: rgba(255, 102, 0, 0.15); }
 .hbg-mate.is-sel { background: rgba(255, 102, 0, 0.3); }
 .hbg-mate em { font-style: normal; color: var(--dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbg-tag-stage { background: rgba(176, 123, 255, 0.35); }
+.hbg-stage { border-left: 2px solid #b07bff; padding-left: 6px; }
 .hbg-color { display: flex; align-items: center; gap: 5px; }
 .hbg-sw-big { width: 18px; height: 18px; }
 .hbg-hex { width: 82px; margin: 0; padding: 3px 5px; font-size: 11px; }

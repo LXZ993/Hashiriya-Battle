@@ -44,7 +44,8 @@ local function build(save)
   end
   for _, kind in ipairs({ 'wanderer', 'boss' }) do
     for _, r in ipairs(data.rivals or {}) do
-      if (kind == 'boss' and r.boss) or (kind == 'wanderer' and r.wanderer and not r.boss) then
+      -- Stufen (rivals.json "stages") haben dasselbe Siegel wie der Fahrer selbst
+      if not r.stageOf and ((kind == 'boss' and r.boss) or (kind == 'wanderer' and r.wanderer and not r.boss)) then
         local p = rv.logoOf(r)
         if p then
           table.insert(list, { id = r.id, kind = kind, name = r.name, nick = loc(r.nick),

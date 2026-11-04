@@ -284,7 +284,8 @@ function M.rivalCarOffers()
   local rd = extensions.hashiriyaBattle_rivals.getData() or {}
   for _, r in ipairs(rd.rivals or {}) do
     local kind = rivalKind(r)
-    if kind and r.carForSale ~= false and save.defeated and save.defeated[r.id]
+    -- Stufen ohne eigene Config fahren dasselbe Auto wie die Stufe davor: nicht doppelt anbieten
+    if kind and r.carForSale ~= false and not (r.stageOf and not r.stageOwnConfig) and save.defeated and save.defeated[r.id]
       and not (save.rivalCarsBought and save.rivalCarsBought[r.id])
       and not (save.pinkHeld and save.pinkHeld[r.id])
       and not (save.pinkWon and save.pinkWon[r.id])

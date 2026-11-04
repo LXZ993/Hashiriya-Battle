@@ -260,6 +260,8 @@
   "pa.gas": "Gas station",
   "hud.tag.boss": "BOSS",
   "msg.rematch": " (rematch)",
+  "msg.stage": " (stage %d)",
+  "msg.stageReturn": "%s is back. Stronger than last time. Keep your eyes open at night.",
   "msg.boss": " (Boss)",
   "msg.rankUp": "New rank: %s",
   "unlock.title": "New parts unlocked",
