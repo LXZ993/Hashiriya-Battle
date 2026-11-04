@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Spitznamen, Trophäen und Handy-Nachrichten
+- 89 Spitznamen statt 7, in den Gruppen Battle, Fahrstil, Straße und Leben & Garage: z. B. Querfahrer (50 Drifts), Windschatten, Haarscharf, Geisterstunde (Siege zwischen 2 und 4 Uhr), Kamikaze, Kilometerfresser, Radarschreck, Schrauber, Plaudertasche. Viele in mehreren Stufen.
+- Neu: Titel pro Automodell wie in TXR 2025, z. B. „Covet-Fahrer“ nach 10 Siegen mit dem Covet, dann Kenner (25), Meister (50) und Legende (100).
+- Jeder verdiente Spitzname bleibt und ist wählbar: Trophäenwand > Reiter „Spitznamen“ (oder deinen Spitznamen auf der Karte im Menü antippen). „Automatisch“ trägt immer den neuesten. Offene zeigen ihren Fortschritt, z. B. 13 / 25.
+- Neu in der Trophäenwand: Reiter „Trophäen“. Jeder besiegte Crew-Leader gibt eine Plakette, jeder Boss einen Pokal, der Endboss den großen Pokal. Antippen zeigt Tag, Auto und Battle-Zeit des Siegs.
+- Handy-Nachrichten sind jetzt klar zu erkennen: grüner Reiter „Handy-Nachricht“ mit Handy-Symbol an der Sprechblase und ein klingelndes Handy am Porträt.
+
 ### Mehr Bedingungen für Wanderer
 - 22 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo, Tage ohne Niederlage, Auto fast unbeschädigt, besuchte PAs und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).
 - Alle Bedingungen samt Beispielen stehen im Handbuch unter „Bedingungen (conditions)“. Der Rivalen-Builder im Dev-Menü behält die neuen Bedingungen beim Bearbeiten bei.
