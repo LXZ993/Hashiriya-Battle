@@ -1,0 +1,100 @@
+{
+  "_info": "Aura = Licht um das Auto (aura.lua). Handbuch Kapitel 5e. intensity = Helligkeit in Lumen, radius in Metern. Farben der Wanderer/Bosse erzeugt tools/logos/aura_colors.py, Crews nehmen teams[].color aus rivals.json.",
+  "enabled": true,
+  "rivals": {
+    "ground": true,
+    "groundOnlyNight": true,
+    "battle": true,
+    "maxDistance": 220
+  },
+  "levels": [
+    {
+      "id": "low",
+      "ground": 0.55,
+      "battle": 0.9
+    },
+    {
+      "id": "mid",
+      "ground": 0.9,
+      "battle": 1.4
+    },
+    {
+      "id": "high",
+      "ground": 1.3,
+      "battle": 2.0
+    }
+  ],
+  "rivalLevel": 2,
+  "ground": {
+    "radius": 3.6,
+    "spread": 1.3,
+    "height": 0.35,
+    "intensity": 1200
+  },
+  "battle": {
+    "radius": 4.8,
+    "pulseSpeed": 2.2,
+    "pulseDepth": 0.35,
+    "minSpFactor": 0.25,
+    "intensity": 2600
+  },
+  "rim": {
+    "enabled": true,
+    "radius": 1.7,
+    "height": 0.75,
+    "side": 1.05,
+    "length": 2.0,
+    "intensity": 900
+  },
+  "leaderRimColor": "#ffd257",
+  "defaultColor": "#ff6600",
+  "colors": {
+    "b_kokuryu": "#ff3b4e",
+    "b_mugen": "#ffcc4d",
+    "b_shirotora": "#e9f2ff",
+    "w_afterburner": "#6fb8ff",
+    "w_alex_zockt": "#ffcc4d",
+    "w_bakuon": "#ff5a28",
+    "w_benikaze": "#ff3030",
+    "w_bigblock": "#ff7a30",
+    "w_corsa": "#ff4040",
+    "w_doc": "#e0f4ff",
+    "w_dragvan": "#ffd040",
+    "w_dtm": "#e0c060",
+    "w_erbstueck": "#e8c25a",
+    "w_familie": "#c0c8d0",
+    "w_fink": "#ff9f40",
+    "w_fukurou": "#8d7cff",
+    "w_gruppe5": "#ef6c50",
+    "w_hakone": "#8cc070",
+    "w_hellcat": "#b070ff",
+    "w_henry": "#ff9ad5",
+    "w_hotaru": "#c6ff60",
+    "w_kaminari": "#fff27a",
+    "w_kazekiri": "#7fe0c8",
+    "w_kemuri": "#b0bec5",
+    "w_kemuri2": "#9fb6c8",
+    "w_kofun": "#c6a46c",
+    "w_marshal": "#d4b25c",
+    "w_mont": "#ffffff",
+    "w_nitro": "#ff6a1a",
+    "w_noir": "#9e9e9e",
+    "w_noodle": "#ffcf70",
+    "w_nurburg": "#54c46a",
+    "w_ojisan": "#d9a066",
+    "w_oval": "#ff5a4f",
+    "w_pastor": "#f0d890",
+    "w_rallye": "#5c8cf0",
+    "w_rentner": "#4f9fd9",
+    "w_rodeo": "#c8813c",
+    "w_shinkiro": "#80deea",
+    "w_slider": "#ff6f91",
+    "w_tasti": "#ff5f7a",
+    "w_tetsujin": "#ff8a50",
+    "w_tractor": "#a3c94f",
+    "w_tsukiyomi": "#cfd8ff",
+    "w_viper": "#9ccc3d",
+    "w_wheelie": "#ff8fd8",
+    "w_yurei": "#a7f3ff"
+  }
+}

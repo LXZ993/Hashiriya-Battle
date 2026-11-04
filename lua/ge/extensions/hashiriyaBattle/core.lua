@@ -23,7 +23,7 @@ end
 local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -852,6 +852,10 @@ function M.onBattleResult(rival, won, result)
     if not okT then log('E', logTag, 'Trophäe: ' .. tostring(trophy)); trophy = nil end
     if trophy then msg(M.t('msg.trophyWon', trophy), 7)
     elseif okL and newLogo then msg(M.t('msg.logoUnlocked', newLogo), 7) end
+    -- Aura des geschlagenen Gegners (aura.lua): Crew-, Leader-, Wanderer- oder Boss-Aura
+    local okA, newAura = pcall(function() return extensions.hashiriyaBattle_aura.newlyUnlocked(rival) end)
+    if okA and newAura then msg(M.t('msg.auraUnlocked', newAura), 7)
+    elseif not okA then log('E', logTag, 'Aura: ' .. tostring(newAura)) end
     -- Rivalen-Autos: Leader, Boss oder Wanderer geschlagen -> sein Auto steht beim Händler
     pcall(function() extensions.hashiriyaBattle_dealer.onRivalBeaten(rival) end)
   end
@@ -1121,6 +1125,8 @@ local function buildUiState()
       st.nicks = okN and nk or nil
       local okT, tr = pcall(function() return extensions.hashiriyaBattle_logos.getTrophyUi() end)
       st.trophies = okT and tr or nil
+      local okA, au = pcall(function() return extensions.hashiriyaBattle_aura.getUiState() end)
+      st.auras = okA and au or nil
     elseif showLexicon then
       st.screen = 'lexicon'
       st.home = extensions.hashiriyaBattle_home.getUiState('lexicon')
@@ -1330,6 +1336,12 @@ function M.uiAction(action, arg)
     showLogos = false
   elseif action == 'logoPick' then
     extensions.hashiriyaBattle_logos.choose(arg and tostring(arg) or nil)
+  elseif action == 'auraPick' then
+    extensions.hashiriyaBattle_aura.choose(arg and tostring(arg) or nil)
+  elseif action == 'auraMode' then
+    extensions.hashiriyaBattle_aura.setMode(arg and tostring(arg) or nil)
+  elseif action == 'auraLevel' then
+    extensions.hashiriyaBattle_aura.setLevel(tonumber(arg))
   elseif action == 'nickPick' then
     extensions.hashiriyaBattle_progress.chooseNick(arg and tostring(arg) or nil)
   elseif action == 'musicSkip' then

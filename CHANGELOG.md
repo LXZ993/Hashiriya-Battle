@@ -2,6 +2,12 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Aura
+- Neu wie in TXR: Rivalen haben nachts eine Aura in ihrer Farbe, ein weicher Schein unter dem Auto. Crews in Crew-Farbe, Leader mit goldenem Saum, Wanderer und Bosse in der Farbe ihres Siegels.
+- Im Battle wird die Aura heller, pulsiert und bekommt einen Leuchtsaum um die Karosserie. Je weniger SP der Fahrer hat, desto schwächer leuchtet sie.
+- Deine eigene Aura bekommst du nur von dem Gegner, dem sie gehört, nach dem Sieg gegen ihn. In der Trophäenwand im neuen Reiter „Auren“ legst du sie an, wählst wann (nachts immer, nur im Battle, aus) und wie stark.
+- Effekte wie Gewitterwolken, Blitze oder Regen ums Auto kommen nach 1.0.
+
 ### Schwarzes Brett (HashiNet-Forum)
 - Neu: Im Garagen-PC gibt es den Reiter „Schwarzes Brett“, das Forum der Szene. Die Zahl am Reiter zeigt neue Beiträge.
 - Gerüchte über Wanderer und Bosse, die du bald treffen kannst. Jeden Tag verrät ein Gerücht etwas anderes (Uhrzeit, Automarke, gesuchtes Teil, welche Crew erst fallen muss), nie die ganze Bedingung. Wer mitliest, kann sich den Rest zusammenreimen. Gekaufte Tipps bleiben trotzdem genauer.

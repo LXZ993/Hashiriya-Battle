@@ -389,7 +389,7 @@ angular.module('beamng.apps')
           '<div class="hbm-body hbm-v2 hbm-logov" ng-if="s.screen == \'logos\' && s.logos">' +
             // Reiter: Logos | Trophäen | Spitznamen
             '<div class="hbm-tabs hbm-wall-tabs">' +
-              '<div class="hbm-tab" ng-repeat="w in [\'logos\', \'trophies\', \'nicks\']" ng-class="{\'is-on\': w == wall.tab}" ng-click="wallTab(w)">{{ s.t[\'wall.tab.\' + w] }}</div>' +
+              '<div class="hbm-tab" ng-repeat="w in [\'logos\', \'trophies\', \'auras\', \'nicks\']" ng-class="{\'is-on\': w == wall.tab}" ng-click="wallTab(w)">{{ s.t[\'wall.tab.\' + w] }}</div>' +
             '</div>' +
             '<div ng-if="wall.tab == \'logos\'">' +
             '<div class="hbm-card hbm-logo-card">' +
@@ -442,6 +442,41 @@ angular.module('beamng.apps')
                         '<span class="hbm-tro-plate" ng-style="t.color && t.unlocked ? {\'border-bottom-color\': t.color} : {}">{{ t.unlocked ? (t.plate || \'\u2605\') : \'\u2014\' }}</span></div>' +
                       '<span class="hbm-tro-name">{{ t.name }}</span>' +
                     '</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            // Auren (aura.lua getUiState): Licht in der Farbe des geschlagenen Gegners, nur von ihm zu bekommen
+            '<div ng-if="wall.tab == \'auras\' && s.auras">' +
+              '<div class="hbm-card hbm-logo-card">' +
+                '<div class="hbm-logo-cur hbm-aura-cur"><span class="hbm-aura-orb" ng-class="{\'is-off\': !s.auras.currentColor || s.auras.mode == \'off\'}" ng-style="auraStyle(s.auras.currentColor)"></span></div>' +
+                '<div class="hbm-logo-curtext"><span class="hbm-label">{{ s.t[\'aura.current\'] }}</span><b>{{ s.auras.currentName }}</b>' +
+                  '<span class="hbm-logo-count">{{ s.t[\'logos.collected\'] }} <b>{{ s.auras.have }}</b> / {{ s.auras.total }}</span>' +
+                  '<span class="hbm-fuelbar hbm-repbar"><i ng-style="{width: (s.auras.total ? s.auras.have * 100 / s.auras.total : 0) + \'%\'}"></i></span></div>' +
+              '</div>' +
+              '<div class="hbm-aura-set">' +
+                '<span class="hbm-label">{{ s.t[\'aura.modeLabel\'] }}</span>' +
+                '<span class="hbm-aura-seg"><i ng-repeat="m in [\'always\', \'battle\', \'off\']" ng-class="{\'is-on\': s.auras.mode == m}" ng-click="act(\'auraMode\', m)">{{ s.t[\'aura.mode.\' + m] }}</i></span>' +
+                '<span class="hbm-label">{{ s.t[\'aura.levelLabel\'] }}</span>' +
+                '<span class="hbm-aura-seg"><i ng-repeat="l in [1, 2, 3]" ng-class="{\'is-on\': s.auras.level == l}" ng-click="act(\'auraLevel\', l)">{{ s.t[\'aura.level.\' + l] }}</i></span>' +
+              '</div>' +
+              '<div class="hbm-note hbm-note-s">{{ s.t[\'aura.info\'] }}</div>' +
+              '<div class="hbm-logo-info" ng-if="auraInfo()">' +
+                '<b>{{ auraInfo().name }}</b>' +
+                '<span ng-if="!auraInfo().unlocked">{{ auraInfo().hint }}</span>' +
+                '<span ng-if="auraInfo().unlocked && auraInfo().selected">{{ s.t[\'logos.active\'] }}</span></div>' +
+              '<div class="hbm-logo-list">' +
+                '<div class="hbm-logo-grid">' +
+                  '<div class="hbm-logo hbm-aura" ng-class="{\'is-sel\': !s.auras.current}" ng-click="auraPick(null)" title="{{ s.t[\'aura.none\'] }}">' +
+                    '<span class="hbm-aura-orb is-off"></span><span class="hbm-aura-name">{{ s.t[\'aura.none\'] }}</span><span class="hbm-logo-tick" ng-if="!s.auras.current"></span></div>' +
+                '</div>' +
+                '<div ng-repeat="g in s.auras.groups">' +
+                  '<div class="hbm-logo-head"><span>{{ g.name }}</span><small>{{ g.have }} / {{ g.total }}</small></div>' +
+                  '<div class="hbm-logo-grid">' +
+                    '<div class="hbm-logo hbm-aura" ng-repeat="a in g.list" ng-class="{\'is-locked\': !a.unlocked, \'is-sel\': a.selected, \'is-info\': auraSelId == a.id}" ng-click="auraPick(a)" title="{{ a.unlocked ? a.name : a.hint }}">' +
+                      '<span class="hbm-aura-orb" ng-class="{\'is-off\': !a.color, \'has-rim\': a.rim}" ng-style="auraStyle(a.color, a.rim)"></span>' +
+                      '<img ng-if="a.logo" ng-src="{{ a.logo }}" alt=""><span class="hbm-logo-q" ng-if="!a.logo">?</span>' +
+                      '<span class="hbm-logo-tick" ng-if="a.selected"></span></div>' +
                   '</div>' +
                 '</div>' +
               '</div>' +
@@ -894,6 +929,21 @@ angular.module('beamng.apps')
           '.hbm-logo.is-sel{border-color:var(--o);box-shadow:inset 0 0 0 1px var(--o);background:rgba(255,102,0,.14);}' +
           '.hbm-logo-tick{position:absolute;right:-1px;top:-1px;width:0;height:0;border-style:solid;border-width:0 18px 18px 0;border-color:transparent var(--o) transparent transparent;}' +
           '.hbm-wall-tabs{padding:4px 12px 6px;}' +
+          '.hbm-aura{overflow:hidden;}' +
+          '.hbm-aura img{position:relative;max-width:62%;max-height:62%;}' +
+          '.hbm-aura-orb{position:absolute;left:50%;bottom:-14px;width:110%;height:46px;transform:translateX(-50%);border-radius:50%;pointer-events:none;' +
+            'opacity:.85;}' +
+          '.hbm-aura-orb.is-off{background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.12) 0%,transparent 70%) !important;box-shadow:none !important;}' +
+          '.hbm-aura.is-locked .hbm-aura-orb{opacity:.25;}' +
+          '.hbm-logo.hbm-aura .hbm-aura-name{position:relative;font-size:10px;font-weight:700;font-style:normal;letter-spacing:1px;text-transform:uppercase;color:var(--dim);}' +
+          '.hbm-aura-cur{position:relative;overflow:hidden;}' +
+          '.hbm-aura-cur .hbm-aura-orb{bottom:-10px;height:60%;}' +
+          '.hbm-aura-set{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;margin:0 12px 6px;}' +
+          '.hbm-aura-seg{display:flex;gap:3px;}' +
+          '.hbm-aura-seg i{flex:1 1 0;min-width:0;text-align:center;font-style:normal;font-size:10.5px;font-weight:700;padding:4px 2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' +
+            'background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);}' +
+          '.hbm-aura-seg i:hover{border-color:rgba(255,102,0,.5);}' +
+          '.hbm-aura-seg i.is-on{background:rgba(255,102,0,.2);border-color:var(--o);color:var(--w);}' +
           '.hbm-tro-cur img{filter:drop-shadow(0 2px 5px rgba(0,0,0,.85));}' +
           '.hbm-tro-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 12px 6px;}' +
           '.hbm-tro{position:relative;min-width:0;padding:6px 4px 4px;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);}' +
@@ -1219,7 +1269,7 @@ angular.module('beamng.apps')
       }
       // Trophäenwand: Reiter, Trophäen-Info, Spitznamen wählen
       scope.wall = { tab: 'logos' }
-      scope.wallTab = function (w) { scope.wall.tab = w; scope.trophySelId = null; scope.logoSelId = null }
+      scope.wallTab = function (w) { scope.wall.tab = w; scope.trophySelId = null; scope.logoSelId = null; scope.auraSelId = null }
       scope.trophySelId = null
       scope.trophyInfo = function () {
         var gs = (scope.s && scope.s.trophies && scope.s.trophies.groups) || []
@@ -1228,6 +1278,25 @@ angular.module('beamng.apps')
         return null
       }
       scope.trophyPick = function (t) { scope.trophySelId = scope.trophySelId === t.id ? null : t.id }
+      scope.auraSelId = null
+      scope.auraInfo = function () {
+        var gs = (scope.s && scope.s.auras && scope.s.auras.groups) || []
+        if (!scope.auraSelId) return null
+        for (var i = 0; i < gs.length; i++) for (var j = 0; j < gs[i].list.length; j++) if (gs[i].list[j].id === scope.auraSelId) return gs[i].list[j]
+        return null
+      }
+      scope.auraPick = function (a) {
+        if (!a) { scope.auraSelId = null; return scope.act('auraPick', 'none') }
+        scope.auraSelId = a.id
+        if (a.unlocked) scope.act('auraPick', a.id)
+      }
+      // Farbfleck der Aura (ng-style kann keine CSS-Variablen setzen, daher der Verlauf direkt)
+      scope.auraStyle = function (col, rim) {
+        var st = {}
+        if (col) st.background = 'radial-gradient(ellipse at 50% 40%, ' + col + ' 0%, transparent 70%)'
+        if (rim) st.boxShadow = '0 -2px 10px ' + rim
+        return st
+      }
       scope.nickPick = function (n) { scope.act('nickPick', n ? n.id : 'auto') }
       scope.openWall = function (tab) { scope.wallTab(tab || 'logos'); scope.act('logos') }
       scope.logoPick = function (l) {

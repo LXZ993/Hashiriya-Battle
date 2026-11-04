@@ -2,6 +2,12 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### Aura
+- New, like in TXR: at night rivals have an aura in their colour, a soft glow under the car. Crews in their crew colour, leaders with a golden rim, wanderers and bosses in the colour of their seal.
+- In battle the aura gets brighter, pulses and gets a glowing rim around the body. The fewer SP the driver has left, the weaker it glows.
+- You only get an aura from the rival it belongs to, after beating them. Equip it on the trophy wall in the new "Auras" tab and choose when (always at night, battle only, off) and how strong.
+- Effects like thunderclouds, lightning or rain around the car come after 1.0.
+
 ### Bulletin board (HashiNet forum)
 - New: the garage PC has a "Bulletin board" tab, the scene's forum. The number on the tab shows new posts.
 - Rumours about wanderers and bosses you can meet soon. Each day a rumour reveals something different (time, car brand, wanted part, which crew has to fall first), never the full condition. Read along and piece the rest together. Bought tips stay more precise.
