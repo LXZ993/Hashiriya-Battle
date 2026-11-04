@@ -30,6 +30,8 @@ local auraPreview = nil -- { id = Gegner-ID, mode = 'ground'|'battle'|'both', sp
 local expectSpawn = false -- nächstes Spawnen kommt von "Gegner laden"
 local pendingPlate = nil   -- Kennzeichen-Text des geladenen Gegners (nach dem Spawnen setzen, wie rivals.lua spawnCar)
 
+local auraCfgForUi -- weiter unten
+local auraChanged = {} -- aura.json: Pfad -> Wert, geändert seit dem letzten Speichern/Laden
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
 local function send(data) guihooks.trigger('HashiriyaGarage', data) end
@@ -264,11 +266,23 @@ local function buildData()
       rewardUsd = r.rewardUsd, rewardYen = r.rewardYen, rep = r.rep,
       placeholder = r._platzhalter,
       auraColor = okA and auraColor or nil, leader = r.leader and true or false,
+      auraOn = au and au.hasAura and au.hasAura(r) or false, auraOwn = r.auraOn,
+      auraOwnColor = type(r.aura) == 'string' and r.aura or nil,
+      auraDefault = au and au.defaultColorOf and au.defaultColorOf(r) or nil,
+      auraDefaultOn = au and au.defaultOn and au.defaultOn(r) or false, auraLevel = r.auraLevel,
     })
   end
   local ranks = {}
   for i, rk in ipairs(data.ranks or {}) do ranks[i] = loc(rk.name) end
   return { teams = teams, rivals = list, ranks = ranks, root = root }
+end
+
+-- Werte aus aura.json, die der Aura-Editor zeigt
+auraCfgForUi = function()
+  local au = extensions.hashiriyaBattle_aura
+  local c = au and au.config and au.config() or {}
+  return { who = c.who, shell = c.shell, haze = c.haze, ground = c.ground, battle = c.battle, rim = c.rim,
+    rivalLevel = c.rivalLevel, leaderRimColor = c.leaderRimColor }
 end
 
 local function playerInfo()
@@ -285,7 +299,7 @@ function M.refresh()
     full = true, garage = garageActive(),
     teams = d.teams, rivals = d.rivals, ranks = d.ranks, root = d.root,
     loadedId = loadedId, loadedMode = loadedMode, player = playerInfo(),
-    aura = auraPreview,
+    aura = auraPreview, auraCfg = auraCfgForUi(),
   })
 end
 
@@ -485,6 +499,7 @@ function M.auraSpec(p)
   local r = p and findRival(p.id)
   if not au or not r then return nil end
   local color = au.colorOf and au.colorOf(r) or '#ff6600'
+  if type(p.color) == 'string' and p.color:match('^#%x%x%x%x%x%x$') then color = p.color end
   local rim = nil
   if r.leader then
     local okC, c = pcall(function() return jsonReadFile('/lua/ge/extensions/hashiriyaBattle/data/aura.json') end)
@@ -496,7 +511,7 @@ function M.auraSpec(p)
     ground = mode == 'ground' or mode == 'both',
     battle = mode == 'battle' or mode == 'both',
     sp = math.max(0, math.min(1, tonumber(p.sp) or 1)),
-    level = math.max(1, math.min(3, math.floor(tonumber(p.level) or 2))),
+    level = math.max(1, math.min(3, math.floor(tonumber(p.level) or tonumber(r.auraLevel) or tonumber((au.config and au.config() or {}).rivalLevel) or 2))),
     boost = math.max(1, math.min(20, tonumber(p.boost) or 1)),
   }
 end
@@ -514,7 +529,7 @@ local function auraAction(a)
   end
   local r = findRival(a.id)
   if not r then status(false, 'Gegner nicht gefunden: ' .. tostring(a.id)) return end
-  setAuraPreview({ id = r.id, mode = a.mode or 'ground', sp = a.sp, level = a.level, boost = a.boost })
+  setAuraPreview({ id = r.id, mode = a.mode or 'ground', sp = a.sp, level = a.level, boost = a.boost, color = a.color })
   local names = { ground = 'Boden-Aura', battle = 'Battle-Aura', both = 'Boden + Battle' }
   status(true, 'Aura von ' .. tostring(r.name) .. ': ' .. (names[a.mode] or tostring(a.mode)))
   M.refresh()
@@ -524,8 +539,180 @@ local function auraReload()
   local au = extensions.hashiriyaBattle_aura
   if not au or not au.reload then status(false, 'aura.lua fehlt') return end
   au.reload()
+  auraChanged = {}
   if auraPreview then setAuraPreview(auraPreview) end
   status(true, 'aura.json neu geladen')
+  M.refresh()
+end
+
+-- Aura-Editor ---------------------------------------------------------------------------------------
+
+-- Wert aus aura.json live ändern (nur im Speicher, bis "aura.json speichern")
+local auraEditable = { who = true, shell = true, haze = true, ground = true, battle = true, rim = true, rivalLevel = true }
+local function auraSet(a)
+  local au = extensions.hashiriyaBattle_aura
+  if not au or not au.setValue then status(false, 'aura.lua fehlt oder ist zu alt') return end
+  local path = tostring(a.path or '')
+  local top = path:match('^([^%.]+)')
+  if not top or not auraEditable[top] then status(false, 'Wert nicht änderbar: ' .. path) return end
+  local v = a.value
+  if type(v) ~= 'number' and type(v) ~= 'boolean' then status(false, 'Ungültiger Wert für ' .. path) return end
+  au.setValue(path, v)
+  auraChanged[path] = v
+  if auraPreview then setAuraPreview(auraPreview) end
+  M.refresh()
+end
+
+-- aura.json gezielt im Text ändern: nur die geänderten Werte, Reihenfolge und Format bleiben wie in der Datei
+
+-- Objekt ab Position s ("{"): Position des Werts zu key (direkt in diesem Objekt) und Ende des Objekts
+local function jsonFindKey(text, s, key)
+  local depth, i, n = 0, s, #text
+  while i <= n do
+    local c = text:sub(i, i)
+    if c == '"' then
+      local j = i + 1
+      while j <= n do
+        local d = text:sub(j, j)
+        if d == '\\' then j = j + 2 elseif d == '"' then break else j = j + 1 end
+      end
+      if depth == 1 and text:sub(i + 1, j - 1) == key then
+        local _, ce = text:find('^%s*:%s*', j + 1)
+        if ce then return ce + 1 end
+      end
+      i = j + 1
+    else
+      if c == '{' or c == '[' then depth = depth + 1
+      elseif c == '}' or c == ']' then
+        depth = depth - 1
+        if depth == 0 then return nil, i end
+      end
+      i = i + 1
+    end
+  end
+  return nil, n
+end
+
+local function jsonNum(v)
+  if type(v) == 'boolean' then return tostring(v) end
+  local t = string.format('%.4f', v):gsub('0+$', ''):gsub('%.$', '')
+  return t
+end
+
+local function patchJsonPath(text, path, value)
+  local keys = {}
+  for k in path:gmatch('[^%.]+') do table.insert(keys, k) end
+  local objStart = text:find('{')
+  for i, k in ipairs(keys) do
+    local vs, objEnd = jsonFindKey(text, objStart, k)
+    if not vs then
+      if i < #keys then return nil, 'Abschnitt fehlt: ' .. k end
+      -- neuer Schlüssel: vor die schließende Klammer, mit gleicher Einrückung wie die anderen
+      local before = text:sub(1, objEnd - 1):gsub('%s*$', '')
+      local ind = (text:sub(objStart, objEnd):match('\n(%s*)"') or '  ')
+      local closeInd = text:sub(1, objEnd - 1):match('\n([ \t]*)$') or ''
+      return before .. ',\n' .. ind .. '"' .. k .. '": ' .. jsonNum(value) .. '\n' .. closeInd .. text:sub(objEnd)
+    end
+    if i == #keys then
+      local ve = text:find('[,%}%]\r\n]', vs) or (#text + 1)
+      local old = text:sub(vs, ve - 1):gsub('%s+$', '')
+      return text:sub(1, vs - 1) .. jsonNum(value) .. text:sub(vs + #old)
+    end
+    if text:sub(vs, vs) ~= '{' then return nil, k .. ' ist kein Abschnitt' end
+    objStart = vs
+  end
+end
+M._patchJsonPath = patchJsonPath -- für Tests
+
+local auraRel = 'lua/ge/extensions/hashiriyaBattle/data/aura.json'
+local function auraSaveCfg()
+  local root = modRoot()
+  if not root then status(false, 'Mod-Ordner mods/unpacked/Hashiriya-Battle nicht gefunden') return end
+  if next(auraChanged) == nil then status(true, 'aura.json: nichts geändert') return end
+  local text = readFile(root .. auraRel)
+  if not text then status(false, 'aura.json nicht lesbar') return end
+  local paths = {}
+  for p in pairs(auraChanged) do table.insert(paths, p) end
+  table.sort(paths)
+  for _, p in ipairs(paths) do
+    local t, err = patchJsonPath(text, p, auraChanged[p])
+    if not t then status(false, 'aura.json: ' .. tostring(err)) return end
+    text = t
+  end
+  local okJson = pcall(jsonDecode, text, 'garagetool')
+  if not okJson then status(false, 'aura.json wäre ungültig, nicht gespeichert') return end
+  local stamp = os.date('%Y%m%d_%H%M%S')
+  local b = backup(root .. auraRel, 'aura_' .. stamp .. '.json')
+  pcall(pruneBackups, 'aura_*.json')
+  writeFile(root .. auraRel, text)
+  auraChanged = {}
+  log('I', logTag, 'Gegner-Garage: aura.json gespeichert: ' .. table.concat(paths, ', ') .. ' (Sicherung ' .. tostring(b) .. ')')
+  status(true, 'aura.json gespeichert (' .. #paths .. ' Werte, Sicherung in builder_backups)')
+end
+
+-- Feld eines Rivalen setzen, ändern oder entfernen (Text, Reihenfolge bleibt). jsonValue = fertiger JSON-Text oder nil = entfernen
+local function setRivalField(text, id, field, jsonValue)
+  local idPat = '"id"%s*:%s*"' .. id:gsub('%p', '%%%0') .. '"'
+  local listStart = text:find('"rivals"%s*:%s*%[') or 1
+  local s0, e0 = text:find(idPat, listStart)
+  if not s0 then return nil, 'Gegner ' .. id .. ' nicht in rivals.json gefunden' end
+  local nextId = text:find('"id"%s*:%s*"', e0 + 1) or #text
+  -- vorhandenes Feld (Wert: Text, Zahl, true/false)
+  local fs, fe = text:find('%s*"' .. field .. '"%s*:%s*"[^"]*"%s*,?', e0 + 1)
+  if not fs or fs > nextId then fs, fe = text:find('%s*"' .. field .. '"%s*:%s*[%w%.%-]+%s*,?', e0 + 1) end
+  if fs and fs > nextId then fs, fe = nil, nil end
+  if fs then
+    local chunk = text:sub(fs, fe)
+    local hadComma = chunk:match(',%s*$') ~= nil
+    if jsonValue == nil then
+      if hadComma then return text:sub(1, fs - 1) .. text:sub(fe + 1) end
+      -- letztes Feld: Komma davor mit entfernen
+      local before = text:sub(1, fs - 1):gsub(',%s*$', '')
+      return before .. text:sub(fe + 1)
+    end
+    local lead = chunk:match('^(%s*)')
+    return text:sub(1, fs - 1) .. lead .. '"' .. field .. '": ' .. jsonValue .. (hadComma and ',' or '') .. text:sub(fe + 1)
+  end
+  if jsonValue == nil then return text end
+  -- neu: direkt hinter "id": "..." einfügen, gleiche Einrückung wie die id-Zeile
+  local lineStart = text:sub(1, s0 - 1):match('.*\n()') or 1
+  local indent = text:sub(lineStart, s0 - 1):match('^(%s*)') or ''
+  return text:sub(1, e0) .. ',\n' .. indent .. '"' .. field .. '": ' .. jsonValue .. text:sub(e0 + 1)
+end
+M._setRivalField = setRivalField -- für Tests
+
+local function auraSaveRival(a)
+  local r = findRival(a.id)
+  if not r then status(false, 'Gegner nicht gefunden') return end
+  local root = modRoot()
+  if not root then status(false, 'Mod-Ordner mods/unpacked/Hashiriya-Battle nicht gefunden') return end
+  local jsonPath = root .. dataRel
+  local text = readFile(jsonPath)
+  if not text then status(false, 'rivals.json nicht lesbar') return end
+  local on = a.on
+  local onJson = (on == true and 'true') or (on == false and 'false') or nil
+  local color = type(a.color) == 'string' and a.color:match('^#%x%x%x%x%x%x$') and a.color:lower() or nil
+  local level = tonumber(a.level)
+  local levelJson = level and tostring(math.max(1, math.min(3, math.floor(level)))) or nil
+  local err
+  text, err = setRivalField(text, r.id, 'auraOn', onJson)
+  if not text then status(false, err) return end
+  text, err = setRivalField(text, r.id, 'aura', color and ('"' .. color .. '"') or nil)
+  if not text then status(false, err) return end
+  text, err = setRivalField(text, r.id, 'auraLevel', levelJson)
+  if not text then status(false, err) return end
+  local okJson = pcall(jsonDecode, text, 'garagetool')
+  if not okJson then status(false, 'rivals.json wäre ungültig, nicht gespeichert') return end
+  local stamp = os.date('%Y%m%d_%H%M%S')
+  local b = backup(jsonPath, 'rivals_' .. stamp .. '.json')
+  pcall(pruneBackups, 'rivals_*.json')
+  writeFile(jsonPath, text)
+  rivals().loadData()
+  log('I', logTag, string.format('Gegner-Garage: Aura von %s gespeichert (an=%s, Farbe=%s, Stufe=%s, Sicherung %s)',
+    r.id, tostring(onJson or 'Standard'), tostring(color or 'Standard'), tostring(levelJson or 'Standard'), tostring(b)))
+  if auraPreview then setAuraPreview(auraPreview) end
+  status(true, 'Aura von ' .. tostring(r.name) .. ' gespeichert (rivals.json)')
+  M.refresh()
 end
 
 local actions = {
@@ -533,6 +720,9 @@ local actions = {
   save = saveRival,
   aura = auraAction,
   auraReload = auraReload,
+  auraSet = auraSet,
+  auraSaveCfg = auraSaveCfg,
+  auraSaveRival = auraSaveRival,
   refresh = function() M.refresh() end,
   state = function() pushState(true) end,
 }

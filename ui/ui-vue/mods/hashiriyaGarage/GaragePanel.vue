@@ -122,17 +122,49 @@
         <div class="hbg-detail" v-if="sel && ui.tab === 'aura'">
           <div class="hbg-name" :style="{ borderLeftColor: sel.auraColor || sel.color || roleColor(sel.role) }">
             <b>{{ sel.name }}</b><span class="hbg-role" :style="{ background: roleColor(sel.role) }">{{ roleLabel[sel.role] }}</span>
-            <em>Aura-Farbe <i class="hbg-sw" :style="{ background: sel.auraColor || '#ff6600' }"></i>{{ sel.auraColor || "Standard" }}<template v-if="sel.leader"> · goldener Saum (Leader)</template></em>
+            <em>
+              <template v-if="sel.auraOn">Hat eine Aura <i class="hbg-sw" :style="{ background: sel.auraColor || '#ff6600' }"></i>{{ sel.auraColor || "Standard" }}<template v-if="sel.leader"> · goldener Saum (Leader)</template></template>
+              <template v-else>Hat im Spiel keine Aura</template>
+            </em>
+          </div>
+
+          <div class="hbg-sec">Aura dieses Gegners</div>
+          <div class="hbg-kv"><span>Hat Aura</span>
+            <b class="hbg-chips hbg-inline">
+              <span class="hbg-chip" :class="{ 'is-on': ed.on === null }" @click="edSet({ on: null })">Standard <em>{{ sel.auraDefaultOn ? "an" : "aus" }}</em></span>
+              <span class="hbg-chip" :class="{ 'is-on': ed.on === true }" @click="edSet({ on: true })">An</span>
+              <span class="hbg-chip" :class="{ 'is-on': ed.on === false }" @click="edSet({ on: false })">Aus</span>
+            </b>
+          </div>
+          <div class="hbg-kv"><span>Farbe</span>
+            <b class="hbg-color">
+              <i class="hbg-sw hbg-sw-big" :style="{ background: edColor }"></i>
+              <input class="hbg-search hbg-hex" type="text" v-model="hexText" maxlength="7"
+                @focus="typing(true)" @blur="typing(false); hexDone()" @keydown.stop="e => e.key === 'Enter' && hexDone()" @keyup.stop />
+              <span class="hbg-chip" :class="{ 'is-on': !ed.color }" @click="edSet({ color: null })" :title="'Standardfarbe ' + (sel.auraDefault || '')">Standard</span>
+            </b>
+          </div>
+          <div class="hbg-rgb" v-for="(c, i) in ['R', 'G', 'B']" :key="c">
+            <span>{{ c }}</span>
+            <input type="range" min="0" max="255" step="1" :value="edRgb[i]" @input="e => rgbSet(i, e.target.value)" />
+            <em>{{ edRgb[i] }}</em>
+          </div>
+          <div class="hbg-kv"><span>Stärke</span>
+            <b class="hbg-chips hbg-inline">
+              <span class="hbg-chip" :class="{ 'is-on': !ed.level }" @click="edSet({ level: null })">Standard <em>{{ ["schwach", "mittel", "stark"][(gcNum("rivalLevel", 2) || 2) - 1] }}</em></span>
+              <span v-for="lv in [1, 2, 3]" :key="lv" class="hbg-chip" :class="{ 'is-on': ed.level === lv }" @click="edSet({ level: lv })">{{ ["schwach", "mittel", "stark"][lv - 1] }}</span>
+            </b>
+          </div>
+          <div class="hbg-btns">
+            <span class="hbg-btn hbg-main hbg-wide" :class="{ 'hbg-off': !edDirty }" @click="edSave">
+              {{ edDirty ? "Aura auf " + sel.name + " speichern" : "Gespeichert" }}
+            </span>
+            <span class="hbg-btn" v-if="edDirty" @click="edReset">Verwerfen</span>
           </div>
           <div class="hbg-sec">Aura am Auto in der Garage</div>
           <div class="hbg-chips">
             <span v-for="m in auraModes" :key="m.id" class="hbg-chip" :class="{ 'is-on': auraOn && aura.mode === m.id }" @click="setAura({ mode: m.id })">{{ m.name }}</span>
             <span class="hbg-chip" :class="{ 'is-on': !auraOn }" @click="auraOff">Aus</span>
-          </div>
-          <div class="hbg-kv"><span>Stufe</span>
-            <b class="hbg-chips hbg-inline">
-              <span v-for="lv in [1, 2, 3]" :key="lv" class="hbg-chip" :class="{ 'is-on': aura.level === lv }" @click="setAura({ level: lv })">{{ ["schwach", "mittel", "stark"][lv - 1] }}</span>
-            </b>
           </div>
           <div class="hbg-kv"><span>SP im Battle</span>
             <b class="hbg-chips hbg-inline">
@@ -145,9 +177,28 @@
             </b>
           </div>
           <div class="hbg-note" v-if="auraOn && d.aura && d.aura.id !== sel.id">Gerade an: Aura von {{ nameOf(d.aura.id) }}. Ein Klick auf eine Art zeigt die Aura von {{ sel.name }}.</div>
-          <div class="hbg-note">Die Aura folgt dem Auto, das gerade in der Garage steht. Am besten mit ausgeschaltetem Hallenlicht ansehen (rechts: Garage-Funktionen, die drei Lichter). „Vorschau heller“ gilt nur hier, nicht im Spiel. Werte stehen in lua/ge/extensions/hashiriyaBattle/data/aura.json.</div>
+          <div class="hbg-note">Die Aura folgt dem Auto, das gerade in der Garage steht. Am besten mit ausgeschaltetem Hallenlicht ansehen (rechts: Garage-Funktionen, die drei Lichter). „Vorschau heller“ gilt nur hier, nicht im Spiel. Farbe und Stärke oben siehst du sofort in der Vorschau, gespeichert wird erst mit dem Knopf.</div>
+
+          <div class="hbg-sec">Allgemein für alle (aura.json)</div>
+          <div class="hbg-kv"><span>Automatisch eine Aura</span>
+            <b class="hbg-chips hbg-inline">
+              <span v-for="w in whoList" :key="w.id" class="hbg-chip" :class="{ 'is-on': gcGet('who.' + w.id) === true }" @click="gcSet('who.' + w.id, gcGet('who.' + w.id) !== true)">{{ w.name }}</span>
+            </b>
+          </div>
+          <div class="hbg-note">Aura-Träger im Moment: {{ auraCount }} von {{ d.rivals.length }}. Einzelne Gegner stellst du oben bei „Hat Aura“ an oder aus, das gilt vor dieser Regel.</div>
+          <div class="hbg-kv"><span>Nebel</span>
+            <b class="hbg-chips hbg-inline">
+              <span class="hbg-chip" :class="{ 'is-on': gcGet('haze.ground') !== false }" @click="gcSet('haze.ground', gcGet('haze.ground') === false)">auch ohne Battle</span>
+            </b>
+          </div>
+          <div class="hbg-rgb hbg-slider" v-for="sl in sliders" :key="sl.path" :title="sl.path">
+            <span>{{ sl.name }}</span>
+            <input type="range" :min="sl.min" :max="sl.max" :step="sl.step" :value="gcNum(sl.path, sl.min)" @input="e => gcSet(sl.path, Number(e.target.value))" />
+            <em>{{ fmt(gcNum(sl.path, sl.min), sl.step) }}</em>
+          </div>
           <div class="hbg-btns">
-            <span class="hbg-btn" @click="act('auraReload')" title="aura.json neu einlesen, nachdem du Werte geändert hast">aura.json neu laden</span>
+            <span class="hbg-btn hbg-main" :class="{ 'hbg-off': !gcDirty }" @click="gcSave" title="Regler und Regel in aura.json schreiben (mit Sicherung)">aura.json speichern</span>
+            <span class="hbg-btn" @click="gcReload" title="aura.json neu einlesen, ungespeicherte Regler verwerfen">aura.json neu laden</span>
           </div>
         </div>
 
@@ -161,7 +212,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from "vue"
+import { ref, reactive, computed, watch, onMounted, onUnmounted } from "vue"
 import { useBridge } from "@/bridge"
 
 const { api, events } = useBridge()
@@ -368,9 +419,110 @@ function setAura(p) {
   if (!p.mode && !auraOn.value) return // Stufe/SP nur merken, solange keine Aura an ist
   // Stufe/SP ändern, während eine Aura an ist: die laufende Aura bleibt beim gleichen Gegner
   const id = p.mode || !auraOn.value ? sel.value.id : d.value.aura.id
-  act("aura", { id, mode: aura.mode, level: aura.level, sp: aura.sp, boost: aura.boost })
+  const own = id === sel.value.id && ed.id === id // Werte aus dem Editor in die Vorschau
+  act("aura", {
+    id, mode: aura.mode, sp: aura.sp, boost: aura.boost,
+    level: own ? ed.level || gcNum("rivalLevel", 2) : undefined, color: own ? edColor.value : undefined,
+  })
 }
 function auraOff() { act("aura", { mode: "off" }) }
+
+// --- Aura-Editor: pro Gegner (rivals.json) ------------------------------------------------------
+const HEX = /^#[0-9a-fA-F]{6}$/
+const ed = reactive({ id: null, on: null, color: null, level: null })
+const hexText = ref("")
+function edFrom(r) {
+  ed.id = r ? r.id : null
+  ed.on = r && (r.auraOwn === true || r.auraOwn === false) ? r.auraOwn : null
+  ed.color = r && r.auraOwnColor ? r.auraOwnColor.toLowerCase() : null
+  ed.level = r && r.auraLevel ? Number(r.auraLevel) : null
+  hexText.value = edColor.value
+}
+const edColor = computed(() => ed.color || (sel.value && (sel.value.auraDefault || sel.value.auraColor)) || "#ff6600")
+const edRgb = computed(() => [1, 3, 5].map(i => parseInt(edColor.value.substr(i, 2), 16) || 0))
+const edDirty = computed(() => {
+  const r = sel.value
+  if (!r || ed.id !== r.id) return false
+  const on = r.auraOwn === true || r.auraOwn === false ? r.auraOwn : null
+  const color = r.auraOwnColor ? r.auraOwnColor.toLowerCase() : null
+  const level = r.auraLevel ? Number(r.auraLevel) : null
+  return on !== ed.on || color !== ed.color || level !== ed.level
+})
+watch(() => sel.value && sel.value.id, () => edFrom(sel.value), { immediate: true })
+let edTimer = null
+function edPreview() {
+  // nur nachführen, wenn gerade die Aura dieses Gegners gezeigt wird
+  if (!auraOn.value || !sel.value || d.value.aura.id !== sel.value.id) return
+  clearTimeout(edTimer)
+  edTimer = setTimeout(() => setAura({ mode: aura.mode }), 90)
+}
+function edSet(p) {
+  Object.assign(ed, p)
+  if ("color" in p) hexText.value = edColor.value
+  edPreview()
+}
+function hexDone() {
+  let v = (hexText.value || "").trim()
+  if (v && v[0] !== "#") v = "#" + v
+  if (HEX.test(v)) edSet({ color: v.toLowerCase() })
+  else hexText.value = edColor.value
+}
+function rgbSet(i, v) {
+  const c = edRgb.value.slice()
+  c[i] = Math.max(0, Math.min(255, Math.round(Number(v) || 0)))
+  edSet({ color: "#" + c.map(x => x.toString(16).padStart(2, "0")).join("") })
+}
+function edSave() {
+  if (!sel.value || !edDirty.value) return
+  act("auraSaveRival", { id: sel.value.id, on: ed.on, color: ed.color, level: ed.level })
+}
+function edReset() { edFrom(sel.value); edPreview() }
+
+// --- Aura-Editor: allgemein (aura.json) ---------------------------------------------------------
+const whoList = [
+  { id: "boss", name: "Bosse" }, { id: "wanderer", name: "Wanderer" },
+  { id: "leader", name: "Leader" }, { id: "member", name: "Crew-Mitglieder" },
+]
+const sliders = [
+  { path: "rivalLevel", name: "Standard-Stärke", min: 1, max: 3, step: 1 },
+  { path: "shell.ground", name: "Hülle ohne Battle", min: 0, max: 1.5, step: 0.05 },
+  { path: "shell.battle", name: "Hülle im Battle", min: 0, max: 2, step: 0.05 },
+  { path: "shell.height", name: "Hülle Höhe", min: 0.3, max: 3, step: 0.05 },
+  { path: "shell.battleHeight", name: "Hülle Höhe Battle", min: 0.3, max: 3.5, step: 0.05 },
+  { path: "shell.widthPad", name: "Hülle Abstand", min: 0.5, max: 2.5, step: 0.05 },
+  { path: "shell.pulseDepth", name: "Pulsieren", min: 0, max: 1, step: 0.05 },
+  { path: "shell.flicker", name: "Flackern", min: 0, max: 0.6, step: 0.02 },
+  { path: "haze.amount", name: "Nebel Menge", min: 0, max: 3, step: 0.05 },
+  { path: "haze.groundAmount", name: "Nebel ohne Battle", min: 0, max: 1.5, step: 0.05 },
+  { path: "haze.alpha", name: "Nebel Dichte", min: 0.05, max: 1, step: 0.05 },
+  { path: "haze.size", name: "Nebel Größe", min: 0.3, max: 3, step: 0.05 },
+  { path: "haze.rise", name: "Nebel steigt", min: 0, max: 3, step: 0.05 },
+  { path: "ground.intensity", name: "Bodenlicht", min: 0, max: 4000, step: 50 },
+  { path: "battle.intensity", name: "Licht im Battle", min: 0, max: 6000, step: 50 },
+]
+const gc = ref({})
+const gcDirty = ref(false)
+function gcGet(path) {
+  let t = gc.value
+  for (const k of path.split(".")) { if (!t || typeof t !== "object") return undefined; t = t[k] }
+  return t
+}
+const gcNum = (path, dflt) => { const v = Number(gcGet(path)); return isFinite(v) ? v : dflt }
+const fmt = (v, step) => (step >= 1 ? String(Math.round(v)) : Number(v).toFixed(2))
+const gcTimers = {}
+function gcSet(path, value) {
+  const keys = path.split(".")
+  let t = gc.value
+  for (const k of keys.slice(0, -1)) { if (!t[k] || typeof t[k] !== "object") t[k] = {}; t = t[k] }
+  t[keys[keys.length - 1]] = value
+  gc.value = { ...gc.value }
+  gcDirty.value = true
+  clearTimeout(gcTimers[path])
+  gcTimers[path] = setTimeout(() => act("auraSet", { path, value }), 120)
+}
+function gcSave() { if (gcDirty.value) { act("auraSaveCfg"); gcDirty.value = false } }
+function gcReload() { gcDirty.value = false; act("auraReload") }
+const auraCount = computed(() => d.value.rivals.filter(r => r.auraOn).length)
 
 // --- Daten von Lua ------------------------------------------------------------------------------
 function onData(msg) {
@@ -388,6 +540,8 @@ function onData(msg) {
     if (msg.aura.boost) aura.boost = msg.aura.boost
   }
   d.value = msg
+  if (msg.auraCfg && !gcDirty.value) gc.value = JSON.parse(JSON.stringify(msg.auraCfg))
+  if (!edDirty.value && sel.value) edFrom(sel.value)
 }
 
 onMounted(() => {
@@ -488,6 +642,14 @@ onUnmounted(() => {
 .hbg-mate:hover { background: rgba(255, 102, 0, 0.15); }
 .hbg-mate.is-sel { background: rgba(255, 102, 0, 0.3); }
 .hbg-mate em { font-style: normal; color: var(--dim); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbg-color { display: flex; align-items: center; gap: 5px; }
+.hbg-sw-big { width: 18px; height: 18px; }
+.hbg-hex { width: 82px; margin: 0; padding: 3px 5px; font-size: 11px; }
+.hbg-rgb { display: flex; align-items: center; gap: 6px; padding: 1px 0; font-size: 10px; }
+.hbg-rgb span { width: 14px; color: var(--dim); font-weight: 700; }
+.hbg-rgb.hbg-slider span { width: 118px; }
+.hbg-rgb input { flex: 1; min-width: 0; accent-color: var(--o); }
+.hbg-rgb em { width: 38px; text-align: right; font-style: normal; color: var(--dim); }
 .hbg-btns { display: flex; gap: 4px; padding: 6px 0 2px; }
 .hbg-btn { display: inline-block; padding: 5px 9px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; background: rgba(255, 255, 255, 0.08); cursor: pointer; white-space: nowrap; text-align: center; }
 .hbg-btn:hover { background: rgba(255, 102, 0, 0.35); }
