@@ -126,11 +126,12 @@ function M.kind()
 end
 
 -- Kann man hier und jetzt am Standort speichern?
--- reason: battle | resting | moving | engine | noCar | nil (geht)
+-- reason: battle | police | resting | moving | engine | noCar | nil (geht)
 function M.saveInfo()
   local c = core()
   if not c.active or not c.save then return nil end
   if extensions.hashiriyaBattle_battle.isBusy() then return { can = false, reason = 'battle' } end
+  if (extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.isActive()) then return { can = false, reason = 'police' } end -- Fahndung (police.lua)
   if home().isResting() then return { can = false, reason = 'resting' } end
   local p = parking()
   local area = p.isArrived() and p.getCurrent() or nil

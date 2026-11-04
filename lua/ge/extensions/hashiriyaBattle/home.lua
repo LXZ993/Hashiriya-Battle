@@ -273,6 +273,7 @@ function M.napInfo()
   local reason, lock = nil, nil
   if not napSpotNear(veh:getPosition()) then reason = 'notHere'
   elseif extensions.hashiriyaBattle_battle.isBusy() then reason = 'battle'
+  elseif (extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.isActive()) then reason = 'police' -- Fahndung läuft
   else
     lock = M.restLock()
     if lock then reason = 'rested'

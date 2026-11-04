@@ -24,6 +24,7 @@ local rivalCache = nil
 
 local function core() return extensions.hashiriyaBattle_core end
 local function send(data) guihooks.trigger('HashiriyaDev', data) end
+local cleanPolice -- Messstellen-Einstellungen (weiter unten bei den Orten)
 
 -- Ort-Typen (Reihenfolge = Auswahlliste im Fenster)
 local placeTypes = {
@@ -352,6 +353,8 @@ local function fullState()
     rivals = c.active and rivalList() or {},
     player = playerInfo(), hour = extensions.hashiriyaBattle_home.hour(), rec = rec and #rec.points or false,
     garageTool = extensions.hashiriyaBattle_garagetool and true or nil,
+    police = c.active and extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.devInfo() or nil,
+    policeDefaultLimit = extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.cfg().defaultLimitKmh or nil,
   }
 end
 
@@ -486,6 +489,18 @@ end
 
 -- Orte -----------------------------------------------------------------------------------
 
+-- Messstelle (Typ police): Art (speedcam = Blitzer, laser = Laserkontrolle), Tempolimit in km/h (nil = Standard aus
+-- data/police.json), both = misst in beide Richtungen, off = vorübergehend aus. Gelesen von police.lua.
+cleanPolice = function(a)
+  if type(a) ~= 'table' then a = {} end
+  local out = { kind = a.kind == 'laser' and 'laser' or 'speedcam' }
+  local lim = tonumber(a.limit)
+  if lim and lim >= 10 and lim <= 300 then out.limit = math.floor(lim + 0.5) end
+  if a.both then out.both = true end
+  if a.off then out.off = true end
+  return out
+end
+
 function actions.capture(a)
   local s = currentSpot(a.useCam)
   if not s or s.pos:length() < 0.5 then msg(core().t('msg.posInvalid')) return end
@@ -501,6 +516,7 @@ function actions.capture(a)
   end
   table.insert(L.places, {
     id = id, name = name, type = t, note = (a.note and a.note ~= '') and tostring(a.note) or nil,
+    police = t == 'police' and cleanPolice(a.police) or nil,
     pos = arr(s.pos), dir = arr(s.dir), center = s.center and arr(s.center) or nil,
     onFoot = s.onFoot or nil, freecam = s.freecam or nil, created = os.date('%Y-%m-%d %H:%M'),
   })
@@ -526,6 +542,11 @@ function actions.editPlace(a)
   end
   if a.type ~= nil and typeName[a.type] then p.type = a.type end
   if a.note ~= nil then p.note = a.note ~= '' and tostring(a.note) or nil end
+  if p.type == 'police' then
+    if a.police ~= nil or not p.police then p.police = cleanPolice(a.police or p.police) end
+  else
+    p.police = nil
+  end
   savePlaces()
 end
 
@@ -697,6 +718,15 @@ function actions.teleport(a)
   end
 end
 
+-- Polizei (police.lua): Tests ohne gesetzte Messstellen ------------------------------------
+
+local function police() return extensions.hashiriyaBattle_police end
+function actions.policeCam(a) if police() then police().devSpeedcam(a.kmh) end end
+function actions.policeLaser() if police() then police().devLaser() end end
+function actions.policeStart(a) if police() then police().devStart(a.level) end end
+function actions.policeStop() if police() then police().devStop() end end
+function actions.policeResetDay() if police() then police().devResetDay() msg('Dev: Blitzer und Strafzettel von heute zurückgesetzt', 3) end end
+
 -- Kommt aus der App: Aktion + Argumente als JSON-Text
 function M.action(name, argText)
   if not M.isAllowed() then return end
@@ -729,7 +759,11 @@ local function buildDrawList()
   for _, p in ipairs(allPlaces()) do
     if type(p.pos) == 'table' and (m.showMap or not p.map) and not m.hidden[p.id] and not m.hiddenTypes[p.type] then
       local r, g, b = hexColor(typeColor(p.type))
-      table.insert(list, { pos = v3(p.pos), name = p.name, r = r, g = g, b = b, map = p.map })
+      local label = p.name
+      if p.type == 'police' and type(p.police) == 'table' then
+        label = label .. ' (' .. (p.police.kind == 'laser' and 'Laser' or 'Blitzer') .. ', ' .. (p.police.limit and (p.police.limit .. ' km/h') or 'Standard') .. ')'
+      end
+      table.insert(list, { pos = v3(p.pos), name = label, r = r, g = g, b = b, map = p.map })
     end
   end
   return list
@@ -808,8 +842,9 @@ local function onUpdate(dtReal)
   if tickTimer > 0 then return end
   tickTimer = 0.5
   local c = core()
+  local okPo, po = pcall(function() return c.active and extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.devInfo() or nil end)
   send({ tick = true, rec = rec and #rec.points or false, player = playerInfo(), hour = extensions.hashiriyaBattle_home.hour(), active = c.active or false,
-    moneyText = c.active and c.save and c.economy().formatYen(c.save.money or 0) or nil })
+    moneyText = c.active and c.save and c.economy().formatYen(c.save.money or 0) or nil, police = okPo and po or nil })
 end
 
 local function onClientEndMission()

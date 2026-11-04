@@ -84,6 +84,15 @@ angular.module('beamng.apps')
             '<div class="hbd-chips">' +
               '<span class="hbd-chip" ng-repeat="t in d.types" ng-class="{\'is-on\': nw.type == t.id}" ng-click="nw.type = t.id"><i class="hbd-dot" ng-style="{background: t.color}"></i>{{ t.name }}</span>' +
             '</div>' +
+            '<div class="hbd-pol" ng-if="nw.type == \'police\'">' +
+              '<span class="hbd-lbl">Messstelle</span>' +
+              '<span class="hbd-chip" ng-class="{\'is-on\': nw.police.kind != \'laser\'}" ng-click="nw.police.kind = \'speedcam\'">Blitzer</span>' +
+              '<span class="hbd-chip" ng-class="{\'is-on\': nw.police.kind == \'laser\'}" ng-click="nw.police.kind = \'laser\'">Laserkontrolle</span>' +
+              '<input class="hbd-num" type="number" min="10" max="300" step="10" ng-model="nw.police.limit" placeholder="{{ d.policeDefaultLimit || 60 }}" title="Tempolimit in km/h (leer = Standard aus data/police.json)"><span class="hbd-lbl">km/h</span>' +
+              '<span class="hbd-check" ng-click="nw.police.both = !nw.police.both" ng-class="{\'is-on\': nw.police.both}"><i></i>beide Richtungen</span>' +
+              '<span class="hbd-check" ng-click="nw.police.off = !nw.police.off" ng-class="{\'is-on\': nw.police.off}"><i></i>aus</span>' +
+            '</div>' +
+            '<div class="hbd-note" ng-if="nw.type == \'police\'">Blitzer: Auto in die Fahrspur stellen, Blick in Fahrtrichtung (gemessen wird beim Vorbeifahren). Laserkontrolle: Auto dorthin stellen, wo der Streifenwagen stehen soll (Seitenstreifen/Bucht); gemessen wird im Umkreis.</div>' +
             '<div class="hbd-form">' +
               '<span class="hbd-check" ng-click="nw.useCam = !nw.useCam" ng-class="{\'is-on\': nw.useCam || (d.player && d.player.freecam)}">' +
                 '<i></i>Kamera-Position (Freecam){{ d.player && d.player.freecam ? \' \u00b7 aktiv\' : \'\' }}</span>' +
@@ -138,7 +147,7 @@ angular.module('beamng.apps')
             '<div ng-repeat="p in placeMatches() track by p.id">' +
               '<div class="hbd-li" ng-class="{\'is-map\': p.map}" ng-style="{\'border-left-color\': color(p.type)}">' +
                 '<div class="hbd-li-main" ng-click="toggleEdit(p)"><b>{{ p.name }}</b>' +
-                  '<span><i class="hbd-type" ng-style="{color: color(p.type)}">{{ p.typeName }}</i>{{ p.map ? \' \u00b7 Kartendatei\' : \'\' }}{{ p.onFoot ? \' \u00b7 zu Fuß\' : \'\' }} \u00b7 {{ distText(p) }}{{ p.note ? \' \u00b7 \' + p.note : \'\' }}</span></div>' +
+                  '<span><i class="hbd-type" ng-style="{color: color(p.type)}">{{ p.typeName }}</i>{{ p.map ? \' \u00b7 Kartendatei\' : \'\' }}{{ p.onFoot ? \' \u00b7 zu Fuß\' : \'\' }} \u00b7 {{ distText(p) }}{{ p.note ? \' \u00b7 \' + p.note : \'\' }}{{ polText(p) }}</span></div>' +
                 '<span class="hbd-btn" ng-class="{\'hbd-off\': p.hidden}" ng-click="dev(\'toggleHidden\', {id: p.id})" title="Säule dieses Orts ein/aus">{{ p.hidden ? \'Säule aus\' : \'Säule an\' }}</span>' +
                 '<span class="hbd-btn hbd-main" ng-click="dev(\'teleport\', {id: p.id})">Hin</span>' +
                 '<span class="hbd-btn" ng-click="toggleEdit(p)">{{ edit.id == p.id ? \'Zu\' : \'Bearb.\' }}</span>' +
@@ -151,6 +160,15 @@ angular.module('beamng.apps')
                 '<div class="hbd-chips" ng-if="!p.map">' +
                   '<span class="hbd-chip" ng-repeat="t in d.types" ng-class="{\'is-on\': edit.type == t.id}" ng-click="edit.type = t.id"><i class="hbd-dot" ng-style="{background: t.color}"></i>{{ t.name }}</span>' +
                 '</div>' +
+                '<div class="hbd-pol" ng-if="edit.type == \'police\'">' +
+                  '<span class="hbd-lbl">Messstelle</span>' +
+                  '<span class="hbd-chip" ng-class="{\'is-on\': edit.police.kind != \'laser\'}" ng-click="edit.police.kind = \'speedcam\'">Blitzer</span>' +
+                  '<span class="hbd-chip" ng-class="{\'is-on\': edit.police.kind == \'laser\'}" ng-click="edit.police.kind = \'laser\'">Laserkontrolle</span>' +
+                  '<input class="hbd-num" type="number" min="10" max="300" step="10" ng-model="edit.police.limit" placeholder="{{ d.policeDefaultLimit || 60 }}" title="Tempolimit in km/h (leer = Standard aus data/police.json)"><span class="hbd-lbl">km/h</span>' +
+                  '<span class="hbd-check" ng-click="edit.police.both = !edit.police.both" ng-class="{\'is-on\': edit.police.both}"><i></i>beide Richtungen</span>' +
+                  '<span class="hbd-check" ng-click="edit.police.off = !edit.police.off" ng-class="{\'is-on\': edit.police.off}"><i></i>aus</span>' +
+                '</div>' +
+                '<div class="hbd-note" ng-if="edit.type == \'police\'">Blitzer: Auto in die Fahrspur stellen, Blick in Fahrtrichtung (gemessen wird beim Vorbeifahren). Laserkontrolle: Auto dorthin stellen, wo der Streifenwagen stehen soll (Seitenstreifen/Bucht); gemessen wird im Umkreis.</div>' +
                 '<div class="hbd-note" ng-if="p.map">Ort aus der Kartendatei: nur der Anzeigename lässt sich hier ändern (leer = Standardname).</div>' +
                 '<div class="hbd-grid">' +
                   '<span class="hbd-btn hbd-main" ng-click="saveEdit(p)">Speichern</span>' +
@@ -180,6 +198,23 @@ angular.module('beamng.apps')
             '<span class="hbd-btn" ng-click="act(\'dumpParts\')">Teile des Autos exportieren</span>' +
           '</div>' +
           '<div class="hbd-note">Exporte landen in BeamNG-Userordner/settings/hashiriya_battle/.</div>' +
+          '<div class="hbd-sec">Polizei (Blitzer, Laser, Fahndung)</div>' +
+          '<div class="hbd-note" ng-if="!d.police">Nur in einer laufenden Karriere.</div>' +
+          '<div ng-if="d.police">' +
+            '<div class="hbd-note">Messstellen auf dieser Map: <b>{{ d.police.places }}</b> (davon Laser {{ d.police.laser }}) \u00b7 ' +
+              'Blitzer heute: <b>{{ d.police.camHits }}</b> \u00b7 Strafzettel heute: <b>{{ d.police.tickets }}</b> \u00b7 {{ d.police.day ? \'Tag: Messungen an\' : \'Nacht: Messungen aus\' }}' +
+              '<span ng-if="d.police.level"> \u00b7 Fahndung <b>{{ d.police.level }} \u2605</b> (Druck {{ d.police.heat }}, Streifenwagen {{ d.police.units }})</span></div>' +
+            '<div class="hbd-grid">' +
+              '<span class="hbd-btn" ng-click="dev(\'policeCam\')">Blitzer auslösen (Limit +30)</span>' +
+              '<span class="hbd-btn" ng-click="dev(\'policeLaser\')">Laserkontrolle auslösen</span>' +
+              '<span class="hbd-btn" ng-click="dev(\'policeStart\', {level: 1})">Fahndung 1 \u2605</span>' +
+              '<span class="hbd-btn" ng-click="dev(\'policeStart\', {level: 2})">Fahndung 2 \u2605</span>' +
+              '<span class="hbd-btn" ng-click="dev(\'policeStart\', {level: 3})">Fahndung 3 \u2605</span>' +
+              '<span class="hbd-btn hbd-warn" ng-click="dev(\'policeStop\')">Fahndung beenden</span>' +
+              '<span class="hbd-btn" ng-click="dev(\'policeResetDay\')">Blitzer/Strafzettel heute auf 0</span>' +
+            '</div>' +
+            '<div class="hbd-note">Testknöpfe gehen auch ohne gesetzte Messstellen und auch nachts. Messstellen setzen: Reiter Orte, Typ \u201ePolizei / Messstelle\u201c.</div>' +
+          '</div>' +
           '<div class="hbd-sec">Gegner-Garage</div>' +
           '<div class="hbd-note" ng-if="d.garageTool">Eigener Dev-Modus: BeamNG-Hauptmenü &gt; More &gt; Gegner-Garage (Dev). Die originale BeamNG-Garage bleibt unverändert.</div>' +
           '<div class="hbd-note" ng-if="!d.garageTool">garagetool.lua fehlt im Mod.</div>' +
@@ -203,6 +238,10 @@ angular.module('beamng.apps')
         '.hbd-body::-webkit-scrollbar{width:4px;} .hbd-body::-webkit-scrollbar-thumb{background:var(--o);}' +
         '.hbd-sec{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--o2);padding:10px 0 4px;}' +
         '.hbd-sec em{font-style:normal;color:var(--dim);letter-spacing:.5px;text-transform:none;font-weight:500;margin-left:6px;}' +
+        '.hbd-pol{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 0;}' +
+        '.hbd-pol .hbd-lbl{width:auto;}' +
+        '.hbd input.hbd-num{box-sizing:border-box;width:64px;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.12);color:var(--w);padding:4px 6px;font-size:12px;font-family:inherit;outline:none;}' +
+        '.hbd input.hbd-num:focus{border-color:var(--o);}' +
         '.hbd-note{font-size:11px;color:var(--dim);padding:6px 0;line-height:1.4;}' +
         '.hbd-big{font-size:15px;font-weight:700;padding:6px 0 2px;} .hbd-big b{color:var(--o);font-style:italic;margin-right:6px;}' +
         '.hbd-big span{display:block;font-size:11px;font-weight:500;color:var(--dim);margin-top:2px;}' +
@@ -269,7 +308,7 @@ angular.module('beamng.apps')
       scope.tab = 'save'
       scope.inp = {}
       scope.q = { rival: '', place: '', type: null }
-      scope.nw = { name: '', note: '', type: 'pa', useCam: false }
+      scope.nw = { name: '', note: '', type: 'pa', useCam: false, police: { kind: 'speedcam', limit: null, both: false, off: false } }
       scope.edit = { id: null }
       scope.sortNear = true
       scope.ui = { colors: false }
@@ -420,15 +459,29 @@ angular.module('beamng.apps')
         return typeCache.list
       }
       scope.capture = function () {
-        scope.dev('capture', { name: scope.nw.name, note: scope.nw.note, type: scope.nw.type, useCam: scope.nw.useCam })
+        scope.dev('capture', { name: scope.nw.name, note: scope.nw.note, type: scope.nw.type, useCam: scope.nw.useCam, police: scope.nw.type === 'police' ? polOut(scope.nw.police) : undefined })
         scope.nw.name = ''; scope.nw.note = ''
+      }
+      // Messstelle (Typ police): Einstellungen als eigenes Objekt (Art, Limit, beide Richtungen, aus)
+      function polCopy(pc) {
+        pc = pc || {}
+        return { kind: pc.kind === 'laser' ? 'laser' : 'speedcam', limit: pc.limit || null, both: !!pc.both, off: !!pc.off }
+      }
+      function polOut(pc) {
+        var lim = parseInt(pc.limit, 10)
+        return { kind: pc.kind, limit: isNaN(lim) ? null : lim, both: pc.both, off: pc.off }
+      }
+      scope.polText = function (p) {
+        if (p.type !== 'police') return ''
+        var pc = p.police || {}
+        return ' \u00b7 ' + (pc.kind === 'laser' ? 'Laser' : 'Blitzer') + ' ' + (pc.limit ? pc.limit + ' km/h' : 'Standard') + (pc.both ? ' \u2195' : '') + (pc.off ? ' (aus)' : '')
       }
       scope.toggleEdit = function (p) {
         if (scope.edit.id === p.id) { scope.edit = { id: null }; return }
-        scope.edit = { id: p.id, name: p.name, note: p.note || '', type: p.type }
+        scope.edit = { id: p.id, name: p.name, note: p.note || '', type: p.type, police: polCopy(p.police) }
       }
       scope.saveEdit = function (p) {
-        scope.dev('editPlace', { id: p.id, name: scope.edit.name, note: scope.edit.note, type: scope.edit.type })
+        scope.dev('editPlace', { id: p.id, name: scope.edit.name, note: scope.edit.note, type: scope.edit.type, police: scope.edit.type === 'police' ? polOut(scope.edit.police) : undefined })
         scope.edit = { id: null }
       }
       scope.delPlace = function (p) {
@@ -446,6 +499,7 @@ angular.module('beamng.apps')
             scope.d.hour = msg.hour
             scope.d.moneyText = msg.moneyText
             scope.d.active = msg.active
+            scope.d.police = msg.police
             return
           }
           var wasOpen = scope.d.open
