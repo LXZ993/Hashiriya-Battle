@@ -1,6 +1,13 @@
 # Hashiriya Battle Changelog
 
-## Alpha 0.9.2 (as of 2026-11-03)
+## Alpha 0.9.2 (as of 2026-11-04)
+
+### New left menu
+- The left menu (Home key) is tidied up: a card at the top with money, time, rank and reputation bar, plus small fields for record and "Nearby". The main entries (save, lexicon, dealer, stats, nap, tow) are tiles instead of a long list.
+- Rarely used entries (skip music, parking marker, bug report, dev menu, quit mode) sit under a collapsible "Tools".
+- Home works the same way: "Sleep" as a wide tile with its note, then save, lexicon, job board and tutorial.
+- New rival lexicon: all crews as a compact list with logo and progress bar, one crew opens at a time. Rivals take one line each (name, nickname, car, driving style); description and quote only show when you click.
+- The lexicon has a search (name, car or crew) and filters: All, Open, Beaten, Watch list. Use the star in front of a name to add someone to your watch list. A dot on the right shows open (ring) or beaten (orange).
 
 ### Portraits: beards
 - The Bob portraits can now wear beards (Henry's idea): stubble, moustache, chin beard, goatee, sideburns, full beard, long goatee, contour beard, chin strap, anchor beard and short boxed beard, in many colours (all hair colours plus grey, white, ginger and salt-and-pepper).

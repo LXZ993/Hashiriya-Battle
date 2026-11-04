@@ -97,7 +97,7 @@ nav label.lm select { width: 100%; margin-top: 3px; padding: 5px 6px; border-rad
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 03.11.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 04.11.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -720,7 +720,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <ul>
 <li><b>Im Duell (SP-Anzeige):</b> groß (116 px) rechts unter der Anzeige, unter dem Namen des Rivalen; neben dem Namen steht der Crew-Name. Immer sichtbar, solange das Duell läuft. Größe ändern: <code>.hbh-emblem</code> in <span class="path">ui\modules\apps\HashiriyaSpHud\app.js</span>.</li>
 <li><b>Sprechblase:</b> neben dem Namen bei Herausforderung, Sieg und Niederlage, und in PA-Gesprächen mit Rivalen.</li>
-<li><b>Rivalen-Lexikon:</b> jede Crew zeigt ihr Logo im Kopf (gesperrte Crews grau). Leader haben das goldene Logo neben dem Namen. Wanderer und Bosse zeigen ihr Siegel erst, wenn du sie geschlagen hast (vorher "???").</li>
+<li><b>Rivalen-Lexikon:</b> jede Crew zeigt ihr Logo vorne in ihrer Zeile (gesperrte Crews grau). Leader haben das goldene Logo neben dem Namen. Wanderer und Bosse zeigen ihr Siegel erst, wenn du sie geschlagen hast (vorher "???").</li>
 </ul>
 <h3>Welche Dateien</h3>
 <table>
@@ -1624,7 +1624,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <h2><span class="n">20</span> UI-Apps und Layout</h2>
 <table>
 <tr><th>App (Ordner in <span class="path">ui\modules\apps\</span>)</th><th>Was sie zeigt</th></tr>
-<tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Tankstelle, Zuhause, Händler, Lexikon, Statistik, Werkzeuge</td></tr>
+<tr><td><code>HashiriyaMenu</code></td><td>Das linke Menü (Pos1): Garage, Tankstelle, Zuhause, Händler, Lexikon, Statistik, Werkzeuge. <b>Aufbau seit 04.11.2026 (Menü v2):</b> Hauptmenü und Zuhause oben mit einer Karte (Geld, Uhrzeit, Rang, Ruf-Balken, Felder „Bilanz“ und „In der Nähe“), darunter Kacheln für die Hauptpunkte (Klasse <code>hbm-tile</code>, zwei pro Reihe; <code>hbm-tile-wide</code> = ganze Breite). Seltene Punkte stehen unter „Werkzeuge“ zum Aufklappen (<code>more.open</code>). <b>Rivalen-Lexikon:</b> oben Suchfeld und Filter (Alle/Offen/Besiegt/Merkliste, Texte <code>lex.*</code> in den Sprachdateien), darunter die Crews eingeklappt mit Logo und Fortschrittsbalken; bei Suche oder Filter klappen alle passenden Crews auf. Ein Klick auf einen Rivalen zeigt Beschreibung, Spruch und den Knopf für die Merkliste, der Stern vor dem Namen setzt ihn direkt drauf. Die Suche findet nur, was du schon sehen kannst (unbekannte Wanderer/Bosse bleiben „???“). Alles steht in <span class="path">ui/modules/apps/HashiriyaMenu/app.js</span> (Vorlage oben, CSS am Ende im Block „Menü v2“, Logik bei <code>scope.lex</code>); die Daten liefert weiter <span class="path">lua/ge/extensions/hashiriyaBattle/home.lua</span> (Funktion <code>lexicon</code>).</td></tr>
 <tr><td><code>HashiriyaDev</code></td><td>Dev-Menü (Umschalt+Ende), eigenes verschiebbares Fenster, nicht im Release. Siehe <a href="#dev">Dev-Menü</a>.</td></tr>
 <tr><td><code>HashiriyaTerminal</code></td><td>Teile-Terminal im Shop und Garagen-PC (eigenes Layout <code>hashiriyaShop.uilayout.json</code>, ganzer Bildschirm, Mitte frei für die Live-Vorschau). Siehe <a href="#tuning">Teile-Terminal</a>.</td></tr>
 <tr><td><code>HashiriyaSpHud</code></td><td>SP-Balken im Battle, Rivalenname, Ergebnis</td></tr>
@@ -1773,8 +1773,16 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <p>Alle Versionen zum Aufklappen, neueste oben. Kommt aus <span class="path">CHANGELOG.md</span> (englisch: <span class="path">CHANGELOG_EN.md</span>) und wird bei jeder neuen Version hier mit eingetragen (<code>python3 tools/handbuch_sync.py</code>). Die Versionsnummern folgen der Roadmap, siehe <a href="#release">Release-Werkzeug</a>.</p>
 <!-- CHANGELOG-START -->
 <details class="cl">
-<summary><b>Alpha 0.9.2</b> <small>Stand 03.11.2026</small></summary>
+<summary><b>Alpha 0.9.2</b> <small>Stand 04.11.2026</small></summary>
 <div>
+<h4>Menü links neu</h4>
+<ul>
+<li>Das linke Menü (Pos1) ist aufgeräumt: oben eine Karte mit Geld, Uhrzeit, Rang und Ruf-Balken, darunter kleine Felder für Bilanz und „In der Nähe“. Die Hauptpunkte (Speichern, Lexikon, Autohändler, Statistik, Nickerchen, Abschleppen) sind Kacheln statt einer langen Liste.</li>
+<li>Selten gebrauchte Punkte (Musik überspringen, Parkplatz-Markierung, Fehlerbericht, Dev-Menü, Modus beenden) liegen unter „Werkzeuge“ zum Aufklappen.</li>
+<li>Zuhause genauso: „Schlafen“ als breite Kachel mit Hinweis, darunter Speichern, Lexikon, Jobbrett und Tutorial.</li>
+<li>Rivalen-Lexikon neu: alle Crews als kompakte Liste mit Logo und Fortschrittsbalken, eine Crew klappt auf. Rivalen stehen in einer Zeile (Name, Spitzname, Auto, Fahrstil), Beschreibung und Spruch erst beim Anklicken.</li>
+<li>Im Lexikon gibt es eine Suche (Name, Auto oder Crew) und Filter: Alle, Offen, Besiegt, Merkliste. Auf die Merkliste setzt du jetzt mit dem Stern vor dem Namen. Ein Punkt rechts zeigt offen (Ring) oder besiegt (orange).</li>
+</ul>
 <h4>Porträts: Bärte</h4>
 <ul>
 <li>Die Bob-Porträts können jetzt Bärte tragen (Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart, Ziegenbart, Konturbart, Kinnriemen, Ankerbart und kurzer Vollbart, in vielen Farben (Haarfarben plus Grau, Weiß, Rotblond, Pfeffer-Salz).</li>

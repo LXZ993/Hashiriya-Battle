@@ -1,6 +1,13 @@
 # Changelog Hashiriya Battle
 
-## Alpha 0.9.2 (Stand 03.11.2026)
+## Alpha 0.9.2 (Stand 04.11.2026)
+
+### Menü links neu
+- Das linke Menü (Pos1) ist aufgeräumt: oben eine Karte mit Geld, Uhrzeit, Rang und Ruf-Balken, darunter kleine Felder für Bilanz und „In der Nähe“. Die Hauptpunkte (Speichern, Lexikon, Autohändler, Statistik, Nickerchen, Abschleppen) sind Kacheln statt einer langen Liste.
+- Selten gebrauchte Punkte (Musik überspringen, Parkplatz-Markierung, Fehlerbericht, Dev-Menü, Modus beenden) liegen unter „Werkzeuge“ zum Aufklappen.
+- Zuhause genauso: „Schlafen“ als breite Kachel mit Hinweis, darunter Speichern, Lexikon, Jobbrett und Tutorial.
+- Rivalen-Lexikon neu: alle Crews als kompakte Liste mit Logo und Fortschrittsbalken, eine Crew klappt auf. Rivalen stehen in einer Zeile (Name, Spitzname, Auto, Fahrstil), Beschreibung und Spruch erst beim Anklicken.
+- Im Lexikon gibt es eine Suche (Name, Auto oder Crew) und Filter: Alle, Offen, Besiegt, Merkliste. Auf die Merkliste setzt du jetzt mit dem Stern vor dem Namen. Ein Punkt rechts zeigt offen (Ring) oder besiegt (orange).
 
 ### Porträts: Bärte
 - Die Bob-Porträts können jetzt Bärte tragen (Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart, Ziegenbart, Konturbart, Kinnriemen, Ankerbart und kurzer Vollbart, in vielen Farben (Haarfarben plus Grau, Weiß, Rotblond, Pfeffer-Salz).

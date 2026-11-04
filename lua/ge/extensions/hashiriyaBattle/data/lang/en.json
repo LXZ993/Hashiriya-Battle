@@ -728,5 +728,16 @@
   "pause.order": "Order",
   "pause.shuffle": "Shuffle",
   "pause.list": "Fixed order",
-  "pause.listHint": "Sort with ▲ ▼. Songs play from top to bottom, then start over."
+  "pause.listHint": "Sort with ▲ ▼. Songs play from top to bottom, then start over.",
+  "menu.recordShort": "Record",
+  "menu.battlesShort": "Battles left",
+  "menu.rivalShort": "Nearby",
+  "lex.search": "Search name, car or crew …",
+  "lex.f.all": "All",
+  "lex.f.open": "Open",
+  "lex.f.beaten": "Beaten",
+  "lex.f.watch": "Watch list",
+  "lex.noHits": "No matches.",
+  "lex.watch": "Add to watch list",
+  "lex.unwatch": "Remove from watch list"
 }
