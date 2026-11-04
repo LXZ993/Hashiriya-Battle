@@ -266,6 +266,8 @@ function M.getStatsUi()
       { k = 'stats.carsOwned', v = #(save.cars or {}) },
       { k = 'stats.fuel', v = string.format('%.0f l', s.fuelLiters or 0) },
       { k = 'stats.repairs', v = s.repairs or 0 },
+      { k = 'stats.services', v = s.services or 0 },
+      { k = 'stats.rivalCarsBought', v = s.rivalCarsBought or 0 },
       { k = 'stats.tows', v = s.tows or 0 },
       { k = 'stats.unstucks', v = s.unstucks or 0 },
     } },

@@ -6,6 +6,16 @@
 - 22 new condition types for rivals and wanderers (like in TXR): win streak, money, number of cars, at most X losses, naturally aspirated only or forced induction only, manual gearbox only, a part that must not be fitted, paint colour, characters in the plate, power and weight, odometer of the car, top speed already reached, in-game weekday, active nickname, chosen logo, days without a loss, car almost undamaged, PAs visited and any value from the statistics (e.g. pink slips won or side jobs done).
 - The rival builder in the dev menu keeps the new conditions when editing.
 
+### Buy rival cars
+- New: beat a crew leader, boss or wanderer and their car shows up at the car dealer under "Rival cars", in their paint, with picture and previous owner. A message after the win tells you.
+- Each car is sold only once and it's expensive: leader 5x, wanderer 7x, boss 10x the BeamNG price. Adjustable in dealer.json ("rivalCars"), per rival also an own factor or not for sale at all.
+
+### Maintenance: oil, coolant, tires
+- New: every car has engine oil, coolant and tires from 100 % to 0 %. They drop with every kilometre.
+- In the garage (Service tab) you see all three with a bar and price and service them one by one or all at once.
+- Below 50 % you feel it: old oil costs power, low coolant overheats the engine faster, worn tires have less grip. Below 20 % you get a warning on the road.
+- Used cars start at 35 to 90 %, rival cars fresh. New tires from the shop count as fresh. Everything adjustable in maintenance.json.
+
 ### Trophy wall (logo collection)
 - New, like in TXR: beat a crew leader and you get the crew logo. Beat a wanderer or boss and you get their seal or emblem. A message after the win tells you which logo is new.
 - New "Trophy wall" tile in the left menu (on the road and at home) with your current logo and how many you have (e.g. 16 / 73). Inside are all logos by crews, wanderers and bosses. Locked crew logos are grey, seals and emblems stay "?" until you beat them. Tap one to see what it takes.

@@ -83,8 +83,24 @@ local function apply(veh, car, fresh)
   ]], tostring(fresh == true), cd.conditionMinFuel or 0.25, cd.conditionMisfireScale or 0.1, cd.conditionCoolingScale or 0.4,
       wear.fuel or -1,
       tbl, odo, integ, vis, odo, radInteg))
+  -- Wartung (maintenance.lua): Öl, Kühlwasser, Reifen nach dem Zustand setzen
+  local mt = extensions.hashiriyaBattle_maintenance
+  if mt and car.maint then
+    local okM, code = pcall(mt.vehicleLua, car, radInteg, cd.conditionCoolingScale or 0.4)
+    if okM and code then veh:queueLuaCommand(code) end
+  end
   pollTimer = 2
   log('I', logTag, string.format('Fahrzeugzustand gesetzt (%s)', tbl == 'nil' and 'Grundwerte' or 'je Teil'))
+end
+
+-- Kühlerzustand fürs Auto (für maintenance.lua): Zustand des Kühlerteils, sonst Grundzustand; dazu der Abschwächfaktor
+function M.radiatorInfo(car)
+  local wear = car and car.wear or {}
+  local rad = tonumber(wear.integrity) or 1
+  for id, p in pairs(car and car.parts or {}) do
+    if tostring(id):find('radiator') then rad = p.i or 1 break end
+  end
+  return rad, (core().carsData or {}).conditionCoolingScale or 0.4
 end
 
 -- Laufleistung je Teil abfragen; Antwort über onConditions
