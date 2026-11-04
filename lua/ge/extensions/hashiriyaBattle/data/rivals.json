@@ -12617,6 +12617,7 @@
     },
     {
       "id": "w_kemuri",
+      "auraOn": true,
       "name": "Kemuri",
       "nick": {
         "de": "Großvaters Rauch",
@@ -12709,6 +12710,7 @@
     },
     {
       "id": "w_shinkiro",
+      "auraOn": true,
       "name": "Shinkirō",
       "nick": {
         "de": "Luftspiegelung",
@@ -12851,6 +12853,7 @@
     },
     {
       "id": "w_noir",
+      "auraOn": true,
       "name": "Noir",
       "nick": {
         "de": "Die Schwarze Katze",
@@ -13002,6 +13005,7 @@
     },
     {
       "id": "w_hotaru",
+      "auraOn": true,
       "name": "Hotaru",
       "nick": {
         "de": "Glühwürmchen",
@@ -13052,6 +13056,7 @@
     },
     {
       "id": "w_kazekiri",
+      "auraOn": true,
       "name": "Kazekiri",
       "nick": {
         "de": "Windschneider",
@@ -13285,6 +13290,7 @@
     },
     {
       "id": "w_tsukiyomi",
+      "auraOn": true,
       "name": "Tsukiyomi",
       "nick": {
         "de": "Mondläufer",
@@ -13380,6 +13386,7 @@
     },
     {
       "id": "w_yurei",
+      "auraOn": true,
       "name": "Yūrei",
       "nick": {
         "de": "Das Gespenst",
@@ -13522,6 +13529,7 @@
     },
     {
       "id": "w_gruppe5",
+      "auraOn": true,
       "name": "Gruppe Fünf",
       "nick": {
         "de": "Silhouette",
@@ -13760,6 +13768,7 @@
     },
     {
       "id": "w_fukurou",
+      "auraOn": true,
       "name": "Fukurō",
       "nick": {
         "de": "Die dunkle Eule",
@@ -13855,6 +13864,7 @@
     },
     {
       "id": "w_benikaze",
+      "auraOn": true,
       "name": "Benikaze",
       "nick": {
         "de": "Roter Wind",
@@ -14442,6 +14452,7 @@
     },
     {
       "id": "w_afterburner",
+      "auraOn": true,
       "name": "Afterburner",
       "nick": {
         "de": "Nachbrenner",
@@ -14490,6 +14501,7 @@
     },
     {
       "id": "w_kaminari",
+      "auraOn": true,
       "name": "Kaminari",
       "nick": {
         "de": "Der Blitz",
