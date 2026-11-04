@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### Crew battles, declining and bets
+- New, like in TXR 2025: leaders and bosses drive with two escorts in a convoy. Challenge anyone in the group and you race them all in a row: first the escorts from back to front, then the leader or boss. The display shows "CHAIN 1/3". After each win the next one waits for you.
+- A loss (or a false start) breaks the chain: the group regroups and next time it starts over. Leaders bring members of their crew, bosses bring the leaders of the crews you had to beat before.
+- Crew tactics: while you race someone from the group, the other escorts block for him. They pull in just ahead of you, brake with you and close the line. Against a leader his crew members on the road block too. The display then shows "BLOCKING".
+- Rivals now decline visibly: if one doesn't want to (just raced you, night limit reached or simply not in the mood), he sets his turn signal and a stop sign with a cross and the reason appears in the middle of the screen. If you decline yourself, the sign shows in orange.
+- Bets: while matching speed the rival sometimes offers a bet in yen. Hazards = accept, flash = raise the stake (up to triple), do nothing = no bet. Win = stake on top, loss = stake gone. Never more than half your money, not in pink slip races.
+- Everything is adjustable in the new file data/crewbattle.json.
 ### Nicknames, trophies and phone messages
 - 89 nicknames instead of 7, in the groups Battle, Driving style, Road and Life & garage: e.g. Sideways (50 drifts), Slipstreamer, Hairline, Witching Hour (wins between 2 and 4 am), Kamikaze, Mile Eater, Radar Terror, Wrench Head, Chatterbox. Many come in several tiers.
 - New: titles per car model like in TXR 2025, e.g. "Covet Driver" after 10 wins with the Covet, then Expert (25), Master (50) and Legend (100).

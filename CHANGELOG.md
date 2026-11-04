@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Crew-Battles, Ablehnen und Wetten
+- Neu wie in TXR 2025: Leader und Bosse fahren mit zwei Begleitern im Konvoi. Forderst du einen aus der Gruppe heraus, fährst du nacheinander gegen alle: erst die Begleiter von hinten nach vorne, zuletzt der Leader oder Boss. Oben steht „KETTE 1/3“. Nach jedem Sieg wartet der nächste auf dich.
+- Eine Niederlage (oder ein Frühstart) lässt die Kette reißen: die Gruppe fährt wieder zusammen, beim nächsten Mal geht es von vorn los. Leader nehmen Leute aus ihrer Crew mit, Bosse die Leader der Crews, die du vorher schlagen musstest.
+- Crew-Taktik: Während du gegen jemanden aus der Gruppe fährst, blocken die anderen Begleiter für ihn. Sie setzen sich knapp vor dich, bremsen mit und machen die Linie zu. Gegen einen Leader blocken auch seine Crew-Mitglieder, die gerade unterwegs sind. Unten steht dann „BLOCKT“.
+- Rivalen lehnen jetzt sichtbar ab: will einer nicht (gerade erst gegen dich gefahren, Nacht-Limit erreicht oder einfach keine Lust), setzt er den Blinker und in der Bildschirmmitte erscheint ein Stopp-Zeichen mit Kreuz und dem Grund. Lehnst du selbst ab, kommt das Zeichen in Orange.
+- Wetten: Beim Tempo-Angleichen bietet der Rivale manchmal eine Wette in Yen an. Warnblinker = annehmen, Lichthupe = Einsatz erhöhen (bis dreifach), nichts tun = keine Wette. Sieg = Einsatz obendrauf, Niederlage = Einsatz weg. Nie mehr als die Hälfte deines Geldes, nicht bei Pink Slip.
+- Alles einstellbar in der neuen Datei data/crewbattle.json (siehe Handbuch „Crew-Battles, Ablehnen und Wetten“).
 ### Spitznamen, Trophäen und Handy-Nachrichten
 - 89 Spitznamen statt 7, in den Gruppen Battle, Fahrstil, Straße und Leben & Garage: z. B. Querfahrer (50 Drifts), Windschatten, Haarscharf, Geisterstunde (Siege zwischen 2 und 4 Uhr), Kamikaze, Kilometerfresser, Radarschreck, Schrauber, Plaudertasche. Viele in mehreren Stufen.
 - Neu: Titel pro Automodell wie in TXR 2025, z. B. „Covet-Fahrer“ nach 10 Siegen mit dem Covet, dann Kenner (25), Meister (50) und Legende (100).
