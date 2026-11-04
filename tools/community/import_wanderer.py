@@ -72,6 +72,10 @@ def make_hint(r, names):
         de.append('nur gegen Turbo oder Kompressor'); en.append('only against turbo or supercharged cars')
     if c.get('manual'):
         de.append('nur gegen Schaltwagen'); en.append('only against manual gearboxes')
+    if c.get('drive'):
+        dv = c['drive'] if isinstance(c['drive'], list) else [c['drive']]
+        DDE = {'FWD': 'Frontantrieb', 'RWD': 'Heckantrieb', 'AWD': 'Allrad'}
+        de.append('nur gegen ' + '/'.join(DDE.get(str(x).upper(), x) for x in dv)); en.append('only against ' + '/'.join(str(x).upper() for x in dv) + ' cars')
     if c.get('paintColor'):
         pc = c['paintColor'] if isinstance(c['paintColor'], list) else [c['paintColor']]
         FDE = {'red': 'rot', 'yellow': 'gelb', 'green': 'grün', 'blue': 'blau', 'purple': 'lila', 'white': 'weiß', 'silver': 'silber', 'grey': 'grau', 'black': 'schwarz'}
