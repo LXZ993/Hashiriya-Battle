@@ -432,7 +432,7 @@ onUnmounted(() => {
 .hbg-tab { flex: 1; text-align: center; padding: 6px 0; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); cursor: pointer; border-bottom: 2px solid transparent; }
 .hbg-tab:hover { color: var(--w); background: rgba(255, 102, 0, 0.12); }
 .hbg-tab.is-on { color: var(--w); border-bottom-color: var(--o); }
-.hbg-status { flex: none; font-size: 11px; padding: 4px 14px; height: 14px; line-height: 14px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; background: rgba(61, 220, 132, 0.15); color: #bff5d5; }
+.hbg-status { flex: none; font-size: 11px; padding: 4px 14px; height: 22px; line-height: 14px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; background: rgba(61, 220, 132, 0.15); color: #bff5d5; }
 .hbg-status.is-empty { background: rgba(255, 255, 255, 0.04); color: var(--dim); }
 .hbg-status.is-bad { background: rgba(220, 40, 40, 0.25); color: #ffc9c9; }
 .hbg-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 4px 12px 10px; }
