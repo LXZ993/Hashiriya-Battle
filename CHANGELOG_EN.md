@@ -26,6 +26,7 @@
 - Bets: while matching speed the rival sometimes offers a bet in yen. Hazards = accept, flash = raise the stake (up to triple), do nothing = no bet. Win = stake on top, loss = stake gone. Never more than half your money, not in pink slip races.
 - Everything is adjustable in the new file data/crewbattle.json.
 ### Nicknames, trophies and phone messages
+- 20 ranks instead of 15: five new in-between ranks (Lane Changer, Midnight Blade, Loop Breaker, Storm Runner, Loop Phantom). Everything else unlocks at the same reputation as before, you just rank up more often. Old saves fit automatically.
 - 89 nicknames instead of 7, in the groups Battle, Driving style, Road and Life & garage: e.g. Sideways (50 drifts), Slipstreamer, Hairline, Witching Hour (wins between 2 and 4 am), Kamikaze, Mile Eater, Radar Terror, Wrench Head, Chatterbox. Many come in several tiers.
 - New: titles per car model like in TXR 2025, e.g. "Covet Driver" after 10 wins with the Covet, then Expert (25), Master (50) and Legend (100).
 - Every nickname you earn stays yours and can be picked: Trophy wall > "Nicknames" tab (or tap your nickname on the menu card). "Automatic" always wears the newest. Open ones show their progress, e.g. 13 / 25.

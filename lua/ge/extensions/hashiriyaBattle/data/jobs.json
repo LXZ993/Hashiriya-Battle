@@ -7,12 +7,12 @@
     "minDistance": 800,
     "arriveRadius": 25,
     "arriveKmh": 8,
-    "rankBonus": 0.08,
+    "rankBonus": 0.06,
     "photoRadius": 60,
     "photoWindowHours": 2,
     "tipPriceWanderer": 250000,
     "tipPriceBoss": 750000,
-    "tipRankFactor": 0.1
+    "tipRankFactor": 0.075
   },
   "types": {
     "courier": {

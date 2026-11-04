@@ -72,6 +72,14 @@
       "jp": "信号ダッシュ"
     },
     {
+      "rep": 2050,
+      "name": {
+        "de": "Spurwechsler",
+        "en": "Lane Changer"
+      },
+      "jp": "車線変更師"
+    },
+    {
       "rep": 2500,
       "name": {
         "de": "Ringjäger",
@@ -104,6 +112,14 @@
       "jp": "影走り"
     },
     {
+      "rep": 5250,
+      "name": {
+        "de": "Mitternachtsklinge",
+        "en": "Midnight Blade"
+      },
+      "jp": "真夜中の刃"
+    },
+    {
       "rep": 5700,
       "name": {
         "de": "Nachtfalke",
@@ -118,6 +134,14 @@
         "en": "Turbo Wolf"
       },
       "jp": "ターボ狼"
+    },
+    {
+      "rep": 7150,
+      "name": {
+        "de": "Ringbrecher",
+        "en": "Loop Breaker"
+      },
+      "jp": "環状破り"
     },
     {
       "rep": 7750,
@@ -136,12 +160,28 @@
       "jp": "アスファルトの竜"
     },
     {
+      "rep": 9300,
+      "name": {
+        "de": "Sturmläufer",
+        "en": "Storm Runner"
+      },
+      "jp": "嵐走り"
+    },
+    {
       "rep": 9850,
       "name": {
         "de": "Legende des Rings",
         "en": "Loop Legend"
       },
       "jp": "環状伝説"
+    },
+    {
+      "rep": 10400,
+      "name": {
+        "de": "Phantom des Rings",
+        "en": "Loop Phantom"
+      },
+      "jp": "環状の幻"
     },
     {
       "rep": 11000,
@@ -1537,7 +1577,7 @@
       "name": "Kōsoku Kitsune",
       "jp": "高速狐",
       "color": "#ff8a3d",
-      "minRank": 4,
+      "minRank": 5,
       "desc": {
         "de": "Die Autobahnfüchse. Schlau, schnell und immer genau dort, wo man sie nicht erwartet. Ihre Autos sehen aus wie Opas Limousine, sind es aber nicht.",
         "en": "The highway foxes. Clever, fast and always exactly where you do not expect them. Their cars look like grandpa's sedan, but they are not."
@@ -1548,7 +1588,7 @@
       "name": "Pocket Rockets",
       "jp": "ポケットロケッツ",
       "color": "#ffd54f",
-      "minRank": 4,
+      "minRank": 5,
       "desc": {
         "de": "Kleine Autos, große Klappe. Die Pocket Rockets aus Kōchi wiegen weniger als dein Kofferraum und bremsen später, als du denkst.",
         "en": "Small cars, big mouths. The Pocket Rockets from Kōchi weigh less than your boot and brake later than you think."
@@ -1559,7 +1599,7 @@
       "name": "Hoshikuzu Rally-dan",
       "jp": "星屑ラリー団",
       "color": "#81d4fa",
-      "minRank": 5,
+      "minRank": 6,
       "desc": {
         "de": "Rallye-Fans, die Schotter vermissen und deshalb nachts den Ring mit Allrad bügeln. Sie springen über jede Fuge, als wäre sie eine Kuppe.",
         "en": "Rally fans who miss gravel and iron out the loop at night with all-wheel drive. They jump every expansion joint like it was a crest."
@@ -1570,7 +1610,7 @@
       "name": "Sleeper Agents",
       "jp": "スリーパー・エージェンツ",
       "color": "#90a4ae",
-      "minRank": 5,
+      "minRank": 6,
       "desc": {
         "de": "Amerikanische Familienlimousinen mit Frontantrieb und viel zu großen Motoren. Sehen aus wie Mietwagen am Flughafen, fahren wie Raketen.",
         "en": "American family sedans with front-wheel drive and far too much engine. They look like airport rentals and drive like rockets."
@@ -1581,7 +1621,7 @@
       "name": "Kasumi Drift Union",
       "jp": "霞ドリフトユニオン",
       "color": "#7fd6ff",
-      "minRank": 6,
+      "minRank": 7,
       "desc": {
         "de": "Drifter, die lieber quer als schnell sind. Auf dem Ring zeigen sie, dass beides geht.",
         "en": "Drifters who would rather go sideways than fast. On the loop they show you can do both."
@@ -1592,7 +1632,7 @@
       "name": "Bayern Kaze",
       "jp": "バイエルン風",
       "color": "#64b5f6",
-      "minRank": 6,
+      "minRank": 7,
       "desc": {
         "de": "Japaner mit einer Schwäche für deutsche Achtziger-Limousinen. Sie tragen Lederhandschuhe, sammeln Ersatzteile aus Stuttgart und reden über Lenkradpolster, als wäre es Philosophie.",
         "en": "Japanese drivers with a soft spot for German eighties saloons. Leather gloves, spare parts from Stuttgart, and opinions on steering wheel padding that sound like philosophy."
@@ -1603,7 +1643,7 @@
       "name": "Hirochi Blood",
       "jp": "ヒロチの血",
       "color": "#ef5350",
-      "minRank": 7,
+      "minRank": 8,
       "desc": {
         "de": "Werksangestellte, die ihr eigenes Produkt lieben. Nur SBR, nur Hirochi, keine Diskussion. Manche fahren jetzt elektrisch, die anderen reden nicht mehr mit ihnen.",
         "en": "Factory workers who love their own product. Only SBR, only Hirochi, no discussion. Some drive electric now, and the others no longer speak to them."
@@ -1614,7 +1654,7 @@
       "name": "Night Patrol 16",
       "jp": "ナイトパトロール16",
       "color": "#7cb342",
-      "minRank": 7,
+      "minRank": 8,
       "desc": {
         "de": "US-Soldaten von einem Stützpunkt im Westen Tokios, die nach Dienstschluss mit amerikanischen Pick-ups und V8 den Ring erobern. Laut, freundlich und immer mit Barbecue-Soße im Handschuhfach.",
         "en": "US service members from a base west of Tokyo who take the loop after duty in American pickups and V8s. Loud, friendly, and always with barbecue sauce in the glovebox."
@@ -1625,7 +1665,7 @@
       "name": "Kurogane-kai",
       "jp": "黒鉄会",
       "color": "#b0b0b0",
-      "minRank": 8,
+      "minRank": 10,
       "desc": {
         "de": "Schwarze Autos, keine Aufkleber, kein Wort. Die Kurogane fahren seit zwanzig Jahren auf dem Ring und haben eine Regel: Lack ist schwarz.",
         "en": "Black cars, no stickers, no words. The Kurogane have raced the loop for twenty years and have one rule: paint is black."
@@ -1636,7 +1676,7 @@
       "name": "Shōwa 48 Muscle",
       "jp": "昭和48マッスル",
       "color": "#ff7043",
-      "minRank": 8,
+      "minRank": 10,
       "desc": {
         "de": "Japaner, die mit amerikanischen Filmen aus den Siebzigern aufgewachsen sind und jetzt die Autos dazu fahren. Sie bremsen vor Kurven so früh, dass man sie für vorsichtig hält. Sind sie nicht.",
         "en": "Japanese drivers who grew up on seventies American movies and now drive the cars from them. They brake so early for corners you think they are careful. They are not."
@@ -1647,7 +1687,7 @@
       "name": "Raijin Garage",
       "jp": "雷神ガレージ",
       "color": "#ffe14d",
-      "minRank": 9,
+      "minRank": 11,
       "desc": {
         "de": "Tuner aus einer Werkstatt unter den Gleisen. Ihre Turbos hört man, bevor man sie sieht.",
         "en": "Tuners from a workshop under the railway tracks. You hear their turbos before you see them."
@@ -1658,7 +1698,7 @@
       "name": "Kōenji Greasers",
       "jp": "高円寺グリーサーズ",
       "color": "#bcaaa4",
-      "minRank": 9,
+      "minRank": 11,
       "desc": {
         "de": "Rockabilly-Tolle, Lederjacke, Hot Rod. Die Greasers aus Kōenji fahren Autos, die älter sind als ihre Großeltern, mit Motoren, die jünger und viel zu stark sind.",
         "en": "Rockabilly quiffs, leather jackets, hot rods. The Greasers from Kōenji drive cars older than their grandparents with engines that are younger and far too strong."
@@ -1669,7 +1709,7 @@
       "name": "Rosso Ottantuno",
       "jp": "ロッソ・オッタントゥーノ",
       "color": "#e53935",
-      "minRank": 10,
+      "minRank": 13,
       "desc": {
         "de": "Japanische Sammler italienischer Achtziger-Exoten. Sie fahren mit Fahrerhandschuhen, haben Ersatzteile in Mailand bestellt und warten seit 1997 darauf.",
         "en": "Japanese collectors of eighties Italian exotics. Driving gloves on, spare parts ordered from Milan, still waiting since 1997."
@@ -1680,7 +1720,7 @@
       "name": "Périph Tokyo",
       "jp": "ペリフ東京",
       "color": "#5c6bc0",
-      "minRank": 10,
+      "minRank": 13,
       "desc": {
         "de": "Französische Auswanderer und ihre japanischen Freunde. Sie fahren Kompaktsportler, als wäre der Ring der Pariser Boulevard Périphérique, und hupen genauso viel.",
         "en": "French expats and their Japanese friends. They drive hot hatches like the loop was the Paris Boulevard Périphérique, and honk just as much."
@@ -1691,7 +1731,7 @@
       "name": "Akatsuki Racing",
       "jp": "暁レーシング",
       "color": "#ff5252",
-      "minRank": 11,
+      "minRank": 14,
       "desc": {
         "de": "Ein ehemaliges Werksteam, das jetzt nur noch nachts fährt. Diszipliniert und gnadenlos, mit Rennautos, die eigentlich gar nicht auf die Straße dürften.",
         "en": "A former works team that only races at night now. Disciplined and ruthless, in race cars that should not really be on the road."
@@ -1702,7 +1742,7 @@
       "name": "Rennspecht Kai",
       "jp": "レンシュペヒト会",
       "color": "#42a5f5",
-      "minRank": 11,
+      "minRank": 14,
       "desc": {
         "de": "Unternehmer aus Roppongi mit moderner deutscher Ingenieurskunst. Sie reden über Allradsysteme wie andere über Aktien und schlagen dich, bevor ihr Kaffee kalt ist.",
         "en": "Entrepreneurs from Roppongi with modern German engineering. They talk about AWD systems like others talk about stocks, and beat you before their coffee gets cold."
@@ -1713,7 +1753,7 @@
       "name": "Bastion Brotherhood",
       "jp": "バスティオン兄弟団",
       "color": "#ffb300",
-      "minRank": 12,
+      "minRank": 16,
       "desc": {
         "de": "Moderne amerikanische Muscle Cars mit Kompressor, gefahren von Veteranen und Japanern, die Hubraum für eine Lebenseinstellung halten. Auf der Geraden sind sie Götter.",
         "en": "Modern supercharged American muscle, driven by veterans and Japanese fans who think displacement is a way of life. On the straights they are gods."
@@ -1724,7 +1764,7 @@
       "name": "Scintilla Salon",
       "jp": "シンティラ・サロン",
       "color": "#ce93d8",
-      "minRank": 12,
+      "minRank": 16,
       "desc": {
         "de": "Die reichsten Fahrer der Stadt, mit italienischen Supersportwagen, die mehr kosten als ein Haus in Setagaya. Sie fahren nicht für das Geld, sie fahren gegen dich, weil ihnen langweilig ist.",
         "en": "The richest drivers in the city, in Italian supercars that cost more than a house in Setagaya. They do not race for money, they race you because they are bored."
@@ -12591,7 +12631,7 @@
       "rewardUsd": 9900,
       "rep": 140,
       "conditions": {
-        "minRank": 6,
+        "minRank": 7,
         "beatenTeam": "t_kasumi"
       },
       "plate": {
@@ -12637,7 +12677,7 @@
       "rewardUsd": 7800,
       "rep": 120,
       "conditions": {
-        "minRank": 4,
+        "minRank": 5,
         "minDay": 8
       },
       "plate": {
@@ -12683,7 +12723,7 @@
       "rewardUsd": 8800,
       "rep": 130,
       "conditions": {
-        "minRank": 5,
+        "minRank": 6,
         "hours": [
           3,
           5
@@ -12733,7 +12773,7 @@
       "rewardUsd": 14100,
       "rep": 180,
       "conditions": {
-        "minRank": 10,
+        "minRank": 13,
         "beatenTeam": "t_vivace"
       },
       "plate": {
@@ -12779,7 +12819,7 @@
       "rewardUsd": 9900,
       "rep": 140,
       "conditions": {
-        "minRank": 6,
+        "minRank": 7,
         "playerModel": "etki"
       },
       "plate": {
@@ -12825,7 +12865,7 @@
       "rewardUsd": 13000,
       "rep": 170,
       "conditions": {
-        "minRank": 9,
+        "minRank": 11,
         "hours": [
           1,
           3
@@ -12884,7 +12924,7 @@
       "rewardUsd": 7800,
       "rep": 120,
       "conditions": {
-        "minRank": 4,
+        "minRank": 5,
         "playerPart": "turbo"
       },
       "plate": {
@@ -12930,7 +12970,7 @@
       "rewardUsd": 11000,
       "rep": 150,
       "conditions": {
-        "minRank": 7,
+        "minRank": 8,
         "beatenTeam": "t_yokota"
       },
       "plate": {
@@ -12976,7 +13016,7 @@
       "rewardUsd": 7800,
       "rep": 120,
       "conditions": {
-        "minRank": 4,
+        "minRank": 5,
         "beatenTeam": "t_neon",
         "hours": [
           20,
@@ -13026,7 +13066,7 @@
       "rewardUsd": 11000,
       "rep": 150,
       "conditions": {
-        "minRank": 7,
+        "minRank": 8,
         "speedTraps": "all"
       },
       "plate": {
@@ -13072,7 +13112,7 @@
       "rewardUsd": 11000,
       "rep": 150,
       "conditions": {
-        "minRank": 7,
+        "minRank": 8,
         "hours": [
           4,
           6
@@ -13121,7 +13161,7 @@
       "rewardUsd": 12000,
       "rep": 160,
       "conditions": {
-        "minRank": 8,
+        "minRank": 10,
         "minWins": 60
       },
       "plate": {
@@ -13167,7 +13207,7 @@
       "rewardUsd": 12000,
       "rep": 160,
       "conditions": {
-        "minRank": 8,
+        "minRank": 10,
         "beatenTeam": "t_muscle73"
       },
       "plate": {
@@ -13213,7 +13253,7 @@
       "rewardUsd": 8800,
       "rep": 130,
       "conditions": {
-        "minRank": 5,
+        "minRank": 6,
         "beatenTeam": "t_zangyo"
       },
       "plate": {
@@ -13259,7 +13299,7 @@
       "rewardUsd": 9900,
       "rep": 140,
       "conditions": {
-        "minRank": 6,
+        "minRank": 7,
         "hours": [
           0,
           3
@@ -13308,7 +13348,7 @@
       "rewardUsd": 11000,
       "rep": 150,
       "conditions": {
-        "minRank": 7,
+        "minRank": 8,
         "beatenTeam": "t_etkklassik"
       },
       "plate": {
@@ -13354,7 +13394,7 @@
       "rewardUsd": 12000,
       "rep": 160,
       "conditions": {
-        "minRank": 8,
+        "minRank": 10,
         "hours": [
           2,
           3
@@ -13404,7 +13444,7 @@
       "rewardUsd": 15200,
       "rep": 190,
       "conditions": {
-        "minRank": 11,
+        "minRank": 14,
         "beatenTeam": "t_etkmodern"
       },
       "plate": {
@@ -13450,7 +13490,7 @@
       "rewardUsd": 13000,
       "rep": 170,
       "conditions": {
-        "minRank": 9,
+        "minRank": 11,
         "beatenTeam": "t_hotrod"
       },
       "plate": {
@@ -13496,7 +13536,7 @@
       "rewardUsd": 14100,
       "rep": 180,
       "conditions": {
-        "minRank": 10,
+        "minRank": 13,
         "beatenTeam": "t_bolide"
       },
       "plate": {
@@ -13542,7 +13582,7 @@
       "rewardUsd": 13000,
       "rep": 170,
       "conditions": {
-        "minRank": 9,
+        "minRank": 11,
         "beatenTeams": [
           "t_yamagumi",
           "t_hoshikuzu"
@@ -13591,7 +13631,7 @@
       "rewardUsd": 13000,
       "rep": 170,
       "conditions": {
-        "minRank": 9,
+        "minRank": 11,
         "hours": [
           20,
           22
@@ -13640,7 +13680,7 @@
       "rewardUsd": 15200,
       "rep": 190,
       "conditions": {
-        "minRank": 11,
+        "minRank": 14,
         "minWins": 120
       },
       "plate": {
@@ -13686,7 +13726,7 @@
       "rewardUsd": 14100,
       "rep": 180,
       "conditions": {
-        "minRank": 10,
+        "minRank": 13,
         "beatenRivals": [
           "w_kemuri"
         ]
@@ -13734,7 +13774,7 @@
       "rewardUsd": 16200,
       "rep": 200,
       "conditions": {
-        "minRank": 12,
+        "minRank": 16,
         "hours": [
           1,
           4
@@ -13783,7 +13823,7 @@
       "rewardUsd": 16200,
       "rep": 200,
       "conditions": {
-        "minRank": 12,
+        "minRank": 16,
         "beatenTeam": "t_scintilla"
       },
       "plate": {
@@ -13829,7 +13869,7 @@
       "rewardUsd": 11000,
       "rep": 150,
       "conditions": {
-        "minRank": 7,
+        "minRank": 8,
         "beatenTeam": "t_yamagumi"
       },
       "plate": {
@@ -13885,7 +13925,7 @@
       "rewardUsd": 16200,
       "rep": 200,
       "conditions": {
-        "minRank": 12,
+        "minRank": 16,
         "beatenTeam": "t_bastion"
       },
       "plate": {
@@ -13931,7 +13971,7 @@
       "rewardUsd": 14100,
       "rep": 180,
       "conditions": {
-        "minRank": 10,
+        "minRank": 13,
         "hours": [
           22,
           0
@@ -13980,7 +14020,7 @@
       "rewardUsd": 14100,
       "rep": 180,
       "conditions": {
-        "minRank": 10,
+        "minRank": 13,
         "beatenTeam": "t_muscle73",
         "minWins": 80
       },
@@ -14027,7 +14067,7 @@
       "rewardUsd": 15200,
       "rep": 190,
       "conditions": {
-        "minRank": 11,
+        "minRank": 14,
         "playerPart": "supercharger"
       },
       "plate": {
@@ -14073,7 +14113,7 @@
       "rewardUsd": 14100,
       "rep": 180,
       "conditions": {
-        "minRank": 10,
+        "minRank": 13,
         "beatenTeams": [
           "t_zangyo",
           "t_kombi"
@@ -14132,7 +14172,7 @@
       "rewardUsd": 14100,
       "rep": 180,
       "conditions": {
-        "minRank": 10,
+        "minRank": 13,
         "playerModel": "covet"
       },
       "plate": {
@@ -14178,7 +14218,7 @@
       "rewardUsd": 15200,
       "rep": 190,
       "conditions": {
-        "minRank": 11,
+        "minRank": 14,
         "beatenTeam": "t_sleeper"
       },
       "plate": {
@@ -14224,7 +14264,7 @@
       "rewardUsd": 15200,
       "rep": 190,
       "conditions": {
-        "minRank": 11,
+        "minRank": 14,
         "beatenRivals": [
           "w_ojisan"
         ]
@@ -14272,7 +14312,7 @@
       "rewardUsd": 15200,
       "rep": 190,
       "conditions": {
-        "minRank": 11,
+        "minRank": 14,
         "hours": [
           5,
           6
@@ -14321,7 +14361,7 @@
       "rewardUsd": 15200,
       "rep": 190,
       "conditions": {
-        "minRank": 11,
+        "minRank": 14,
         "playerModel": "bx"
       },
       "plate": {
@@ -14367,7 +14407,7 @@
       "rewardUsd": 16200,
       "rep": 200,
       "conditions": {
-        "minRank": 12,
+        "minRank": 16,
         "beatenTeam": "t_hotrod",
         "beatenRivals": [
           "w_noodle"
@@ -14416,7 +14456,7 @@
       "rewardUsd": 17200,
       "rep": 210,
       "conditions": {
-        "minRank": 13,
+        "minRank": 18,
         "beatenRivals": [
           "t_bastion_leader"
         ]
@@ -14464,7 +14504,7 @@
       "rewardUsd": 17200,
       "rep": 210,
       "conditions": {
-        "minRank": 13,
+        "minRank": 18,
         "hours": [
           3,
           4
@@ -14568,7 +14608,7 @@
       "rewardYen": 777777,
       "rep": 80,
       "conditions": {
-        "minRank": 7,
+        "minRank": 8,
         "speedTraps": 7
       },
       "plate": {
@@ -14614,7 +14654,7 @@
       "rewardUsd": 40000,
       "rep": 250,
       "conditions": {
-        "minRank": 6,
+        "minRank": 7,
         "minDay": 6,
         "beatenTeams": [
           "t_lantern",
@@ -14667,7 +14707,7 @@
       "rewardUsd": 60000,
       "rep": 320,
       "conditions": {
-        "minRank": 12,
+        "minRank": 16,
         "minDay": 12,
         "beatenTeams": [
           "t_kasumi",
@@ -14720,7 +14760,7 @@
       "rewardUsd": 100000,
       "rep": 500,
       "conditions": {
-        "minRank": 13,
+        "minRank": 18,
         "minDay": 15,
         "beatenRivals": [
           "b_shirotora",

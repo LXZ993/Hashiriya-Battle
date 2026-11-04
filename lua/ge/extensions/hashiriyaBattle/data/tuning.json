@@ -3,10 +3,10 @@
   "tiers": [
     { "level": 1, "unlock": { "minRank": 1 } },
     { "level": 2, "unlock": { "minRank": 3 } },
-    { "level": 3, "unlock": { "minRank": 5 } },
-    { "level": 4, "unlock": { "minRank": 7 } },
-    { "level": 5, "unlock": { "minRank": 9 } },
-    { "level": 6, "unlock": { "minRank": 11 } }
+    { "level": 3, "unlock": { "minRank": 6 } },
+    { "level": 4, "unlock": { "minRank": 8 } },
+    { "level": 5, "unlock": { "minRank": 11 } },
+    { "level": 6, "unlock": { "minRank": 14 } }
   ],
   "levelSpread": {
     "_hinweis": "Verteilt die Teile jedes Slots nach Klasse (levelWords) und Preis gleichmäßig auf LV1 bis levels. bands = erlaubter Bereich je Klasse [von, bis]. Ganz entfernen = alte Regel (Stufe = Klasse 1-3).",

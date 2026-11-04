@@ -357,7 +357,7 @@ angular.module('beamng.apps')
         if (role === 'member' || role === 'leader') r.team = teamId
         if (role === 'leader') { r.leader = true; r.appear = 'sameNight' }
         if (role === 'wanderer') { r.wanderer = true; r.conditions = { minRank: 2 } }
-        if (role === 'boss') { r.boss = true; r.conditions = { minRank: 10, minDay: 10 } }
+        if (role === 'boss') { r.boss = true; r.conditions = { minRank: 13, minDay: 10 } }
         var target = { kind: 'rival', id: r.id, newObj: r }
         if (scope.dirty()) { b.pending = target; return }
         doSelect(target)

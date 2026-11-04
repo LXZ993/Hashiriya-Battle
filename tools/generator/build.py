@@ -194,8 +194,13 @@ for i, (de, en, jp) in enumerate(RANKNAMES):
 EXTRA_HINT = (' plate = Kennzeichen aus Agent\'s Japanese Plates Pack (text: 4 Zeichen oben inkl. /, 5 unten; design = Teil im Slot licenseplate_design_2_1). paint = fester Lack (color RGB 0..1, metallic, roughness), nur wenn die Config keine Livery hat. _platzhalter = Boss wartet auf eigene Config. lines = Sprüche des Rivalen im SP-HUD: challenge beim Start, win wenn der Rivale gewinnt, lose wenn er verliert.')
 hint = old['_hinweis'].replace('Rivalen fuer C1 (50 Gegner).', f'Rivalen fuer C1 ({len(rivals)} Gegner: {len(teams)} Crews, Wanderer, Bosse).')
 if ' plate = Kennzeichen' in hint: hint = hint[:hint.index(' plate = Kennzeichen')]  # nicht bei jedem Lauf erneut anhaengen
+# 20 Ränge (Alex 2026-11-04): 5 Zwischenränge, alte Rang-Nummern der Crews und Bedingungen übersetzen
+from ranks20 import expand_ranks, remap as remap_ranks
+ranks = expand_ranks(ranks)
+remap_ranks(teams); remap_ranks(rivals)
 out = {'_hinweis': hint + EXTRA_HINT,
        'settings': old['settings'], 'ranks': ranks, 'nicknames': old['nicknames'], 'teams': teams, 'rivals': rivals}
+if 'modelTitles' in old: out['modelTitles'] = old['modelTitles']
 write_protected('rivals.json', out)  # Handänderungen in rivals.json bleiben erhalten
 print(len(teams), 'crews', len(rivals), 'rivals', sum(1 for r in rivals if r.get('wanderer')), 'wanderer',
       sum(1 for r in rivals if r.get('paint')), 'paints')
