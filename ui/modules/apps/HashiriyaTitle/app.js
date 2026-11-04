@@ -55,10 +55,13 @@ angular.module('beamng.apps')
 
             '<div class="hbt-wiz-body" ng-if="f.step == \'keys\'">' +
               '<div class="hbt-note">{{ t(\'keys.note\') }}</div>' +
-              '<div class="hbt-key" ng-repeat="k in f.keys track by k.id" ng-class="{\'is-missing\': !k.keys}">' +
-                '<div><div class="hbt-key-t">{{ t(\'keys.\' + k.id) }}</div><div class="hbt-key-d">{{ t(\'keys.\' + k.id + \'.d\') }}</div></div>' +
-                '<b title="{{ k.keys }}">{{ k.keys || t(\'keys.unbound\') }}</b>' +
-                '<span class="hbt-btn hbt-btn-s" ng-click="cmd(\'openControls\', k.id)">{{ t(\'keys.bind\') }}</span>' +
+              '<div ng-repeat="g in f.keyGroups track by g" ng-if="(f.keys | filter:{group:g}:true).length">' +
+                '<div class="hbt-key-g">{{ t(\'keys.group.\' + g) }}</div>' +
+                '<div class="hbt-key" ng-repeat="k in f.keys | filter:{group:g}:true track by k.id" ng-class="{\'is-missing\': !k.keys && k.need, \'is-free\': !k.keys && !k.need}">' +
+                  '<div><div class="hbt-key-t">{{ t(\'keys.\' + k.id) }}</div><div class="hbt-key-d">{{ t(\'keys.\' + k.id + \'.d\') }}</div></div>' +
+                  '<b title="{{ k.keys }}">{{ k.keys || t(\'keys.unbound\') }}</b>' +
+                  '<span class="hbt-btn hbt-btn-s" ng-click="cmd(\'openControls\', k.id)">{{ t(\'keys.bind\') }}</span>' +
+                '</div>' +
               '</div>' +
               '<div class="hbt-note hbt-warn" ng-if="f.keysMissing > 0">{{ t(\'keys.missing\') }}</div>' +
               '<div class="hbt-note" ng-if="f.keysMissing == 0">{{ t(\'keys.allOk\') }}</div>' +
@@ -286,6 +289,9 @@ angular.module('beamng.apps')
           '.hbt-key b{justify-self:center;max-width:118px;box-sizing:border-box;padding:5px 10px;font-size:13px;font-weight:800;color:#3fbf6f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' +
             'border:1px solid rgba(63,191,111,.45);border-bottom-width:3px;border-radius:4px;background:rgba(0,0,0,.25);text-align:center;}' +
           '.hbt-key.is-missing b{color:#ff6b6b;border-color:rgba(255,107,107,.45);font-size:11px;}' +
+          '.hbt-key.is-free{border-left-color:rgba(255,255,255,.22);}' +
+          '.hbt-key.is-free b{color:var(--dim);border-color:rgba(255,255,255,.18);font-size:11px;}' +
+          '.hbt-key-g{font-size:10px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);margin:14px 0 6px;}' +
           '.hbt-warn{color:#ff9a3c;}' +
           '.hbt-btn-s{flex:none;padding:7px 8px;font-size:11px;letter-spacing:1px;}' +
           '.hbt-car{display:flex;align-items:center;padding:12px 16px;margin-bottom:4px;cursor:pointer;background:rgba(255,255,255,.04);transition:background .12s,padding-left .12s;}' +

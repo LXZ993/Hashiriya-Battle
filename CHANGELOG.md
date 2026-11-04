@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Tastenbelegung übersichtlich
+- Der Tasten-Check beim neuen Spielstand zeigt jetzt alle Tasten der Mod, sortiert nach Battle, Hashiriya Battle, Unterwegs und Entwickler. Neu dabei: Musik überspringen, Aussteigen/Einsteigen und (nur in der Dev-Version) Titelbild-Kamera und Dev-Menü.
+- Rot heißt: wird gebraucht und fehlt. Grau heißt: nur praktisch, darf frei bleiben.
+- Neu im Pausenmenü: Esc > Mods > Hashiriya Battle hat jetzt die Reiter „Tasten“ und „Musik“. Unter „Tasten“ siehst du jederzeit alle Belegungen, „Belegen“ öffnet die BeamNG-Steuerung direkt für diese Taste.
+
 ### Befreien, wenn man festhängt
 - Neu: „Befreien“ mit Shift + U oder als Kachel im Menü links. Wer mit dem Auto oder zu Fuß in einer Leitplanke oder einem Objekt hängen bleibt (manche sind auf der C1 nicht ganz fest und halten fest wie ein Magnet), wird 0,5 m auf dem eigenen Weg zurückgesetzt, in der Richtung von damals und ohne Schwung.
 - Hängt man danach immer noch, bringt ein weiterer Druck kurz danach einen größeren Schritt zurück (1,5 m, 3 m, 6 m).
