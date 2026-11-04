@@ -19,7 +19,7 @@ from PIL import Image
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = os.path.join(ROOT, 'art', 'shapes', 'hashiriya')
 DATA = os.path.join(ROOT, 'lua', 'ge', 'extensions', 'hashiriyaBattle', 'data')
-VFS = '/art/shapes/hashiriya/'
+VFS = 'art/shapes/hashiriya/'
 
 
 def smooth(e0, e1, x):
@@ -35,14 +35,14 @@ def flame_texture(path, w=128, h=256):
     px = img.load()
     for x in range(w):
         u = (x + 0.5) / w
-        side = math.exp(-((u - 0.5) / 0.24) ** 2)
+        side = math.exp(-((u - 0.5) / 0.2) ** 2)
         f = u * 15
         i = int(f)
         k = f - i
         streak = cols[i] * (1 - k) + cols[min(i + 1, 15)] * k
         for y in range(h):
             v = 1 - (y + 0.5) / h  # 0 unten, 1 oben
-            up = (1 - v) ** 1.7 * smooth(0.0, 0.06, v)
+            up = (1 - v) ** 1.5 * smooth(0.0, 0.22, v)
             wav = 0.85 + 0.15 * math.sin(v * 9 + u * 5)
             val = max(0.0, min(1.0, side * up * streak * wav * 1.15))
             c = int(round(val * 255))
@@ -62,16 +62,19 @@ def glow_texture(path, s=128):
     img.save(path)
 
 
-def ring(segs, r0, r1, z1, width):
-    """Senkrechte Streifen tangential um den Kreis; unten Radius r0, oben r1 (leicht nach außen)."""
+def ring(segs, r0, r1, z1, width, seed=3):
+    """Senkrechte Streifen tangential um den Kreis; unten Radius r0, oben r1 (leicht nach außen).
+    Jeder Streifen bekommt eine etwas andere Höhe, damit die Kante wie Flammen aussieht."""
+    rnd = random.Random(seed)
     pos, nrm, uv, tris = [], [], [], []
     for i in range(segs):
-        a = 2 * math.pi * i / segs
+        a = 2 * math.pi * (i + rnd.uniform(-0.2, 0.2)) / segs
+        zt = z1 * rnd.uniform(0.65, 1.0)
         cx, cy = math.cos(a), math.sin(a)
         tx, ty = -cy, cx
         hw = width / 2
         base = len(pos)
-        for (s, z, r, uu, vv) in ((-1, 0, r0, 0, 0), (1, 0, r0, 1, 0), (1, z1, r1, 1, 1), (-1, z1, r1, 0, 1)):
+        for (s, z, r, uu, vv) in ((-1, 0, r0, 0, 0), (1, 0, r0, 1, 0), (1, zt, r1, 1, 1), (-1, zt, r1, 0, 1)):
             pos.append((cx * r + tx * hw * s, cy * r + ty * hw * s, z))
             nrm.append((cx, cy, 0))
             uv.append((uu, vv))
@@ -81,8 +84,8 @@ def ring(segs, r0, r1, z1, width):
 
 def write_dae(path, mat):
     pos, nrm, uv, tris = [], [], [], []
-    for (segs, r0, r1, z1, wdt) in ((28, 1.0, 1.08, 1.0, 0.42), (22, 1.12, 1.3, 1.35, 0.6)):
-        p, n, u, t = ring(segs, r0, r1, z1, wdt)
+    for k, (segs, r0, r1, z1, wdt) in enumerate(((30, 1.0, 1.06, 1.0, 0.34), (20, 1.04, 1.16, 1.25, 0.42))):
+        p, n, u, t = ring(segs, r0, r1, z1, wdt, seed=3 + k)
         off = len(pos)
         pos += p; nrm += n; uv += u
         tris += [(a + off, b + off, c + off) for a, b, c in t]
@@ -172,13 +175,13 @@ def main():
     flame_texture(os.path.join(OUT, 'aura_flame.color.png'))
     glow_texture(os.path.join(OUT, 'aura_glow.color.png'))
     write_dae(os.path.join(OUT, 'aura_shell.dae'), mat)
-    tex = VFS + 'aura_flame.color.png'
+    tex = '/' + VFS + 'aura_flame.color.png'  # Materialien mit führendem /, Partikel ohne (wie im Spiel)
     mats = {mat: {
         'name': mat, 'mapTo': mat, 'class': 'Material',
         'Stages': [{
             'baseColorMap': tex, 'baseColorFactor': [1, 1, 1, 1],
             'emissive': True, 'emissiveMap': tex, 'emissiveFactor': [1, 1, 1],
-            'emissiveIgnoreExposure': True, 'emissiveIntensityNits': 8,
+            'emissiveIgnoreExposure': True, 'emissiveIntensityNits': 3,
             'instanceDiffuse': True, 'instanceEmissive': True, 'instanceOpacity': True,
             'opacityMap': tex, 'opacityFactor': 1,
         }, {}, {}, {}],
@@ -195,8 +198,8 @@ def main():
         pdata[pn] = {
             'name': pn, 'class': 'ParticleData',
             'textureName': VFS + 'aura_glow.color.png', 'animTexName': VFS + 'aura_glow.color.png',
-            'colors': [[r, g, b, 0], [r, g, b, 0.55], [r, g, b, 0.3], [r, g, b, 0]],
-            'sizes': [0.5, 1.1, 1.7, 2.1], 'times': [0, 0.15, 0.6, 1],
+            'colors': [[r, g, b, 0], [r, g, b, 0.35], [r, g, b, 0.18], [r, g, b, 0]],
+            'sizes': [0.4, 0.8, 1.2, 1.5], 'times': [0, 0.15, 0.6, 1],
             'lifetimeMS': 1300, 'lifetimeVarianceMS': 400,
             'gravityCoefficient': -0.12, 'dragCoefficient': 2.0, 'inheritedVelFactor': 0.1,
             'spinInitialMax': 360, 'spinRandomMin': -60, 'spinRandomMax': 60, 'spinSpeed': 0.2,
@@ -204,7 +207,7 @@ def main():
         }
         edata[en] = {
             'name': en, 'class': 'ParticleEmitterData', 'particles': pn, 'blendStyle': 'ADDITIVE',
-            'ejectionPeriodMS': 30, 'periodVarianceMS': 10, 'ejectionVelocity': 0.35, 'velocityVariance': 0.25,
+            'ejectionPeriodMS': 45, 'periodVarianceMS': 15, 'ejectionVelocity': 0.35, 'velocityVariance': 0.25,
             'ejectionOffset': 0.25, 'thetaMin': 0, 'thetaMax': 80, 'phiVariance': 360,
             'alignDirection': [0, 0, 1], 'reverseOrder': True, 'softParticles': '0', 'useLighting': False,
         }

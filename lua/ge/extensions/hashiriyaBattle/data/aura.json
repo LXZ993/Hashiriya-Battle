@@ -48,12 +48,12 @@
   },
   "shell": {
     "enabled": true,
-    "ground": 0.4,
-    "battle": 0.85,
-    "height": 1.15,
-    "battleHeight": 1.7,
-    "widthPad": 1.25,
-    "lengthPad": 1.08,
+    "ground": 0.25,
+    "battle": 0.7,
+    "height": 1.2,
+    "battleHeight": 1.6,
+    "widthPad": 1.1,
+    "lengthPad": 1.0,
     "pulseDepth": 0.3,
     "flicker": 0.12
   },

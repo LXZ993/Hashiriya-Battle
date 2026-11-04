@@ -294,24 +294,16 @@ local function dims(veh)
   local id = veh:getID()
   local d = dimCache[id]
   if d then return d end
-  local okL, l = pcall(function() return veh:getInitialLength() end)
-  local okW, w = pcall(function() return veh:getInitialWidth() end)
-  local okH, h = pcall(function() return veh:getInitialHeight() end)
-  l = okL and tonumber(l) or nil
-  w = okW and tonumber(w) or nil
-  h = okH and tonumber(h) or nil
-  if not (l and w and h and l > 0.5 and w > 0.5 and h > 0.3) then
-    local okE, e = pcall(function() return veh:getSpawnWorldOOBB():getHalfExtents() end)
-    if okE and e then
-      local t = { math.abs(e.x) * 2, math.abs(e.y) * 2, math.abs(e.z) * 2 }
-      table.sort(t)
-      l, w, h = t[3], t[2], t[1]
-    else
-      l, w, h = 4.4, 1.8, 1.35
-    end
+  local l, w, h = 4.4, 1.8, 1.35
+  local okE, e = pcall(function() return veh:getSpawnWorldOOBB():getHalfExtents() end)
+  if okE and e then
+    local t = { math.abs(e.x) * 2, math.abs(e.y) * 2, math.abs(e.z) * 2 }
+    table.sort(t)
+    if t[1] > 0.3 then l, w, h = t[3], t[2], t[1] end
   end
   d = { l = l, w = w, h = h }
   dimCache[id] = d
+  log('I', string.format('Aura: Maße %s: %.2f x %.2f x %.2f m (OOBB %s)', tostring(id), l, w, h, okE and e and string.format('%.2f %.2f %.2f', e.x, e.y, e.z) or '-'))
   return d
 end
 
@@ -335,7 +327,7 @@ local function drawFx(key, veh, spec, pos, fwd, up, side)
     end
     local fl = sc.flicker or 0.12
     alpha = alpha * (1 - fl * (0.5 + 0.25 * math.sin(clock * 11.3) + 0.25 * math.sin(clock * 17.9 + 1.7)))
-    local size = vec3(d.w * 0.5 * (sc.widthPad or 1.25) + 0.12, d.l * 0.5 * (sc.lengthPad or 1.08) + 0.12, hgt)
+    local size = vec3(d.w * 0.5 * (sc.widthPad or 1.1) + 0.08, d.l * 0.5 * (sc.lengthPad or 1.0) + 0.08, hgt)
     putShell(key, ground, fwd, up, size, spec.color, alpha)
   end
   if hz.enabled ~= false and spec.hex and (spec.battle or hz.ground ~= false) then

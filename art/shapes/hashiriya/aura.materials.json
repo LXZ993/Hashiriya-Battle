@@ -20,7 +20,7 @@
      1
     ],
     "emissiveIgnoreExposure": true,
-    "emissiveIntensityNits": 8,
+    "emissiveIntensityNits": 3,
     "instanceDiffuse": true,
     "instanceEmissive": true,
     "instanceOpacity": true,
