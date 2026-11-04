@@ -1869,7 +1869,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <pre><code>// Beispiel: Wetten nur gegen Leader und Bosse, dafür höher
 "bet": { "chance": { "rival": 0, "leader": 1, "wanderer": 0.5, "boss": 1 }, "stakeOfReward": 1.0, ... }</code></pre>
 <p>Texte: <code>msg.chain*</code>, <code>msg.bet*</code>, <code>fx.decline.*</code>, <code>hud.chain</code>, <code>hud.bet</code>, <code>hud.decline</code>, <code>hud.blockers</code> in <span class="path">lua\ge\extensions\hashiriyaBattle\data\lang\de.json</span> / en.json. Sounds <code>declined</code> und <code>bet</code> in <a href="#sounds">sounds.json</a>.</p>
-<p><b>Noch nicht im Spiel getestet:</b> die BeamNG-Folge-KI der Begleiter (<code>ai: "follow"</code>) und die Blinker-Befehle beim Ablehnen. Fährt der Konvoi komisch, <code>"ai": "traffic"</code> setzen und mir Bescheid geben; blinkt er nicht, steht es im Log.</p>
+<p><b>Geprüft in den BeamNG-Dateien (04.11.2026):</b> Blinker-Befehle und Folge-KI gibt es. Die Folge-KI hält Tempolimit und Spur, stellt ihre Aggression aber selbst ein (höchstens 0,75) und fährt direkt aufs Ziel zu, wenn sie den Vordermann verliert. Die Verkehrs-KI schaltet Blinker bei Spurwechseln selbst aus, darum setzt die Mod den Ablehn-Blinker jede Sekunde neu. Fährt der Konvoi im Spiel komisch, <code>"ai": "traffic"</code> setzen und mir Bescheid geben.</p>
 </section>
 
 <section id="fahrer">

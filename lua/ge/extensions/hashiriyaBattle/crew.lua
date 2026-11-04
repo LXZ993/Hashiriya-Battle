@@ -220,12 +220,18 @@ function M.declineReason(e)
   return nil
 end
 
+-- Blinker links/rechts (BeamNG 0.40 electrics.lua: set_left_signal/set_right_signal, Zustand in values.turnsignal
+-- -1 = links, 1 = rechts, 0 = aus). Die Verkehrs-KI schaltet Blinker bei Spurwechseln selbst aus, darum setzt
+-- M.tick ihn während der Ablehnung jede Sekunde neu, falls er weg ist.
 local function setSignal(veh, side, on)
+  local want = on and (side == 'left' and -1 or 1) or 0
   veh:queueLuaCommand(string.format([[
-    local f = electrics.set_%s_signal
-    if f then f(%s)
-    elseif electrics.toggle_%s_signal and ((electrics.values.signal_%s_input or 0) > 0) ~= %s then electrics.toggle_%s_signal() end
-  ]], side, tostring(on), side, side, tostring(on), side))
+    if (electrics.values.turnsignal or 0) ~= %d then
+      local f = electrics.set_%s_signal
+      if f then f(%s)
+      elseif electrics.toggle_%s_signal then electrics.toggle_%s_signal() end
+    end
+  ]], want, side, tostring(on), side, side))
 end
 
 -- Stopp-Zeichen in der Bildschirmmitte (App HashiriyaSpHud, Hook HashiriyaBattleFx)
@@ -256,6 +262,12 @@ function M.tick(dt)
   for i = #blinks, 1, -1 do
     local b = blinks[i]
     b.t = b.t - dt
+    b.refresh = (b.refresh or 1) - dt
+    if b.t > 0 and b.refresh <= 0 then
+      b.refresh = 1
+      local veh = be:getObjectByID(b.vehId)
+      if veh then setSignal(veh, b.side, true) end
+    end
     if b.t <= 0 then
       local veh = be:getObjectByID(b.vehId)
       if veh then setSignal(veh, b.side, false) end
