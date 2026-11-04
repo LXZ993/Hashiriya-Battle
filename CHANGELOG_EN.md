@@ -16,7 +16,7 @@
 
 ### Team logos (drafts)
 - Every crew now has its own logo in the style of a die-cut vinyl sticker (just the motif and lettering), leaders get the same logo with a gold border. Every wanderer has a personal seal with their own sign, and the three bosses have their own emblems. All original designs.
-- Logos show next to the rival's name in a battle (SP display), in the speech bubble for challenge, win and loss, in PA talks with rivals and at every crew in the rival lexicon. Wanderer and boss seals only appear in the lexicon after you beat them.
+- Logos show large below the rival's name in a battle (SP display), in the speech bubble for challenge, win and loss, in PA talks with rivals and at every crew in the rival lexicon. Wanderer and boss seals only appear in the lexicon after you beat them.
 
 ### Traffic and PA drivers
 - Traffic now really uses all 152 Japanese vehicles of the Agent traffic mod. Before, only the first few cars of Agent's list ever showed up. Now the list is mixed by frequency, cars already picked become rarer, and extra hidden cars take turns with the driving ones. Parked cars are much more varied too.

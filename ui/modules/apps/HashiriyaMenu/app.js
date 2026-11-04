@@ -617,9 +617,9 @@ angular.module('beamng.apps')
           '.hbm-lex-head{display:flex;align-items:center;gap:8px;padding:7px 18px;cursor:pointer;}' +
           '.hbm-lex-head:hover{background:rgba(255,255,255,.05);}' +
           '.hbm-lex-bar{width:4px;height:16px;background:var(--tc,var(--o));transform:skewX(-12deg);}' +
-          '.hbm-lex-logo{flex:none;width:34px;height:34px;margin:-6px 0;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));}' +
+          '.hbm-lex-logo{flex:none;width:52px;height:52px;margin:-10px 0;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));}' +
           '.hbm-lex-group.is-locked .hbm-lex-logo{filter:grayscale(1) brightness(.55);}' +
-          '.hbm-lex-seal{flex:none;align-self:center;width:24px;height:24px;margin:-4px 0;object-fit:contain;}' +
+          '.hbm-lex-seal{flex:none;align-self:center;width:36px;height:36px;margin:-8px 0;object-fit:contain;}' +
           '.hbm-lex-team{flex:1;font-size:13px;font-weight:800;}' +
           '.hbm-lex-team small{margin-left:6px;font-size:10px;font-weight:400;color:var(--dim);}' +
           '.hbm-lex-count{font-size:11px;font-weight:700;color:var(--dim);}' +

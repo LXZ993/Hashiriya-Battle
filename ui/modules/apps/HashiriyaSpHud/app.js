@@ -46,9 +46,11 @@ angular.module('beamng.apps')
             '<div class="hbh-gap" ng-show="b.state == \'battle\'" ng-class="{\'hbh-gap-lead\': b.gap < 0}">' +
               '{{ b.gap < 0 ? t[\'hud.lead\'] : t[\'hud.behind\'] }}<b>{{ abs(b.gap) }}</b><i>m</i></div>' +
             '<div class="hbh-title hbh-title-r"><span class="hbh-rname">{{ b.rivalName }}<small ng-if="b.rivalTeam"> · {{ b.rivalTeam }}</small></span>' +
-              '<img class="hbh-logo" ng-if="b.rivalLogo" ng-src="{{ b.rivalLogo }}" alt=""></div>' +
+              '</div>' +
           '</div>' +
 
+          // Team-Logo / Siegel groß unter dem Rivalennamen, das ganze Duell über sichtbar
+          '<img class="hbh-emblem" ng-if="b.rivalLogo" ng-src="{{ b.rivalLogo }}" alt="">' +
           '<div class="hbh-sync" ng-if="b.state == \'sync\'">{{ t[\'hud.sync\'] }}</div>' +
           '<div class="hbh-count" ng-if="b.state == \'countdown\'"><span ng-attr-key="{{ b.countdown }}">{{ b.countdown }}</span></div>' +
           '<div class="hbh-result" ng-if="b.state == \'result\'" ng-class="b.won ? \'hbh-win\' : \'hbh-lose\'">' +
@@ -107,7 +109,10 @@ angular.module('beamng.apps')
           '.hbh-rname{min-width:0;overflow:hidden;text-overflow:ellipsis;}' +
           '.hbh-rname small{font-size:10px;letter-spacing:.8px;opacity:.8;}' +
           /* Team-Logo / Wanderer-Siegel: dezent, ragt etwas über die Zeile, leichter Schatten wie ein Aufkleber */
-          '.hbh-logo{flex:none;width:38px;height:38px;margin:-10px 0 -8px;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,.8));}' +
+          '.hbh{position:relative;}' +
+          '.hbh-emblem{position:absolute;top:calc(100% + 6px);right:18px;width:116px;height:116px;object-fit:contain;' +
+            'filter:drop-shadow(0 2px 6px rgba(0,0,0,.85));animation:hbhEmblem .35s ease-out;}' +
+          '@keyframes hbhEmblem{from{opacity:0;transform:translateY(-8px) scale(.9);}to{opacity:1;transform:none;}}' +
           '.hbh-gap{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--o2);padding:1px 10px 0;' +
             'background:rgba(0,0,0,.45);border-radius:2px;}' +
           '.hbh-gap b{font-size:14px;margin-left:8px;letter-spacing:0;color:var(--w);}' +

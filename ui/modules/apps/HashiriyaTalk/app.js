@@ -46,7 +46,7 @@ angular.module('beamng.apps')
           '.hbk-pic{flex:none;width:150px;height:150px;position:relative;clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);' +
             'background:#0e1015;box-shadow:0 0 0 2px var(--o);}' +
           '.hbk-pic img{width:100%;height:100%;display:block;}' +
-          '.hbk-logo{align-self:center;width:30px;height:30px;margin:-6px 8px -6px 0;vertical-align:middle;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));}' +
+          '.hbk-logo{align-self:center;width:56px;height:56px;margin:-18px 4px -14px -4px;vertical-align:middle;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));}' +
           '.hbk-pic:after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--o);}' +
           '.hbk-pic-none{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:900;color:rgba(255,255,255,.15);}' +
           '.hbk-bubble{position:relative;flex:1;min-height:70px;margin-bottom:22px;padding:10px 18px 12px;background:rgba(10,11,14,.88);' +
