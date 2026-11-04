@@ -305,6 +305,7 @@ function M.getHudState()
     text = lineText(line), name = sp.name, nick = sp.nick, portrait = sp.portrait, side = sp.side,
     kind = current.phone and 'phone' or 'story', tag = current.phone and 'phone' or sp.tag,
     step = current.index, steps = #lines,
+    phoneTag = current.phone and c.t('story.phoneTag') or nil,
     topic = current.phone and c.t('story.phone') or (current.chapter and loc(current.chapter.title)) or nil,
     key = extensions.hashiriyaBattle_talk.keyName(), next = c.t(last and 'talk.end' or 'talk.next'),
     timer = current.phone and math.max(0, 1 - current.t / phoneSeconds(lineText(line))) or nil,

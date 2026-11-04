@@ -840,10 +840,16 @@ function M.onBattleResult(rival, won, result)
   -- Logo-Sammlung: Crew-Logo (Leader besiegt), Wanderer-Siegel oder Boss-Emblem neu freigeschaltet
   if won then
     local okL, newLogo = pcall(function() return extensions.hashiriyaBattle_logos.newlyUnlocked(rival) end)
-    if okL and newLogo then msg(M.t('msg.logoUnlocked', newLogo), 7) end
+    -- Trophäe (Plakette / Pokal) für Leader und Bosse, mit Tag, Auto und Zeit; die Meldung nennt dann auch das Logo
+    local okT, trophy = pcall(function() return extensions.hashiriyaBattle_logos.recordTrophy(rival, result) end)
+    if not okT then log('E', logTag, 'Trophäe: ' .. tostring(trophy)); trophy = nil end
+    if trophy then msg(M.t('msg.trophyWon', trophy), 7)
+    elseif okL and newLogo then msg(M.t('msg.logoUnlocked', newLogo), 7) end
     -- Rivalen-Autos: Leader, Boss oder Wanderer geschlagen -> sein Auto steht beim Händler
     pcall(function() extensions.hashiriyaBattle_dealer.onRivalBeaten(rival) end)
   end
+  -- Spitznamen: neu verdiente melden (alle Zähler sind jetzt aktuell)
+  pcall(function() extensions.hashiriyaBattle_progress.afterBattle() end)
   -- Story (Alpha 0.6): Szenen nach einem Battle
   pcall(function() extensions.hashiriyaBattle_story.onEvent(won and 'win' or 'lose', { rival = rival }) end)
 end
@@ -1096,6 +1102,10 @@ local function buildUiState()
     elseif showLogos then
       st.screen = 'logos'
       st.logos = extensions.hashiriyaBattle_logos.getUiState()
+      local okN, nk = pcall(function() return extensions.hashiriyaBattle_progress.getNickUi() end)
+      st.nicks = okN and nk or nil
+      local okT, tr = pcall(function() return extensions.hashiriyaBattle_logos.getTrophyUi() end)
+      st.trophies = okT and tr or nil
     elseif showLexicon then
       st.screen = 'lexicon'
       st.home = extensions.hashiriyaBattle_home.getUiState('lexicon')
@@ -1299,6 +1309,8 @@ function M.uiAction(action, arg)
     showLogos = false
   elseif action == 'logoPick' then
     extensions.hashiriyaBattle_logos.choose(arg and tostring(arg) or nil)
+  elseif action == 'nickPick' then
+    extensions.hashiriyaBattle_progress.chooseNick(arg and tostring(arg) or nil)
   elseif action == 'musicSkip' then
     if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.skip() end
   elseif action == 'musicSource' then

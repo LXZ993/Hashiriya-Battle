@@ -86,6 +86,7 @@ local function award(name, extra)
   combo.timer = comboCfg().window or 4
   combo.label, combo.labelPts, combo.labelTimer = name, pts, 1.6
   pr().bump(c.save, 'maneuvers')
+  pr().bump(c.save, 'man_' .. name)   -- je Manöver (für Spitznamen wie Querfahrer oder Windschatten)
   if name == 'nearMiss' or name == 'razor' then pr().bump(c.save, 'nearMisses') end
   c.sound('combo')
 end

@@ -1,4 +1,5 @@
--- Hashiriya Battle: Logo-Sammlung (wie die Aufkleber in TXR)
+-- Hashiriya Battle: Trophäenwand = Logo-Sammlung (wie die Aufkleber in TXR) + Trophäen für Leader und Bosse
+-- (Spitznamen stehen als dritter Reiter daneben, Logik in progress.lua)
 --
 -- Wer eine Crew (ihren Leader), einen Wanderer oder einen Boss besiegt, bekommt dessen Logo in die Sammlung.
 -- Eins davon wählt der Spieler als sein eigenes Logo: es steht dann im Battle oben links in der SP-Anzeige
@@ -167,6 +168,101 @@ function M.tileInfo()
     if e.unlocked then have = have + 1 end
   end
   return { have = have, total = total, logo = M.playerLogo(save) }
+end
+
+-- Trophäen (Reiter "Trophäen" der Trophäenwand) ---------------------------------------
+-- Jeder besiegte Crew-Leader gibt eine Wand-Plakette mit dem goldenen Leader-Logo, jeder Boss einen Pokal mit seinem
+-- Emblem, der Endboss den großen Pokal. Die Bilder sind 2D: Grundbild aus art/trophies/ (plaque.svg, cup.svg, final.svg),
+-- das Menü legt das Logo darauf und schreibt den Namen auf das Schild.
+-- Frei ist eine Trophäe, sobald der Gegner in save.defeated steht (alte Spielstände haben ihre sofort).
+-- Beim ersten Sieg merkt sich save.trophies[id] = { day, car, time } (Tag, dein Auto, Battle-Zeit) für die Infozeile.
+M.trophyArt = { leader = '/art/trophies/plaque.svg', boss = '/art/trophies/cup.svg', final = '/art/trophies/final.svg' }
+
+local function trophyList(save)
+  local rv = rivals()
+  local data = rv and rv.getData and rv.getData() or {}
+  local defeated = save and save.defeated or {}
+  local list = {}
+  for _, tm in ipairs(data.teams or {}) do
+    local leader = leaderOf(data, tm.id)
+    if leader then
+      table.insert(list, { id = leader.id, kind = 'leader', art = M.trophyArt.leader, name = tm.name, jp = tm.jp, color = tm.color,
+        sub = leader.name, nick = loc(leader.nick), unlocked = defeated[leader.id] and true or false, source = leader,
+        logo = rv.teamLogo(tm.id, true, true) or rv.teamLogo(tm.id) })
+    end
+  end
+  for _, r in ipairs(data.rivals or {}) do
+    if r.boss then
+      local kind = r.final and 'final' or 'boss'
+      table.insert(list, { id = r.id, kind = kind, art = M.trophyArt[kind], name = r.name, nick = loc(r.nick),
+        unlocked = defeated[r.id] and true or false, source = r, logo = rv.logoOf(r) })
+    end
+  end
+  return list
+end
+
+-- Nach einem Sieg (core.onBattleResult): Trophäe eintragen. Gibt den Namen zurück, wenn es eine neue ist.
+function M.recordTrophy(rival, result)
+  if not rival or rival.rematch or not (rival.leader or rival.boss) then return nil end
+  local c = core()
+  local save = c.save
+  if not save then return nil end
+  local id = rival.baseId or rival.id
+  save.trophies = save.trophies or {}
+  if save.trophies[id] then return nil end
+  local car = save.cars and save.cars[save.activeCar or 1]
+  save.trophies[id] = { day = save.day or 1, car = car and car.name or nil, time = result and result.time or nil }
+  c.writeSave()
+  if rival.leader and rival.team then return rivals().teamName(rival.team) or rival.name end
+  return rival.name
+end
+
+local function fmtTime(t)
+  if not t then return nil end
+  return string.format('%d:%04.1f', math.floor(t / 60), t % 60)
+end
+
+function M.getTrophyUi()
+  local c = core()
+  local save = c.save
+  if not save then return nil end
+  local home = extensions.hashiriyaBattle_home
+  local rec = save.trophies or {}
+  local groups = {
+    { key = 'leader', name = c.t('trophy.g.leader'), list = {}, have = 0 },
+    { key = 'boss', name = c.t('trophy.g.boss'), list = {}, have = 0 },
+  }
+  local have, total = 0, 0
+  for _, e in ipairs(trophyList(save)) do
+    local g = e.kind == 'leader' and groups[1] or groups[2]
+    total = total + 1
+    if e.unlocked then have = have + 1; g.have = g.have + 1 end
+    local hidden = not e.unlocked and e.kind ~= 'leader'
+    local r = rec[e.id]
+    local info
+    if e.unlocked then
+      local parts = {}
+      if r and r.day then parts[#parts + 1] = c.t('trophy.day', r.day) end
+      if r and r.car then parts[#parts + 1] = r.car end
+      if r and r.time then parts[#parts + 1] = fmtTime(r.time) end
+      info = #parts > 0 and table.concat(parts, ' · ') or c.t('trophy.old')
+    end
+    local hint
+    if not e.unlocked then
+      if e.kind == 'leader' then hint = c.t('trophy.hint.leader', e.source.name)
+      else hint = (home and home.hintText and home.hintText(e.source, save)) or c.t('trophy.hint.boss') end
+    end
+    table.insert(g.list, {
+      id = e.id, kind = e.kind, art = e.art, unlocked = e.unlocked,
+      logo = (not hidden) and e.logo or nil,
+      name = hidden and '???' or e.name, jp = e.jp, color = e.color,
+      sub = (not hidden) and e.sub or nil, nick = (not hidden) and e.nick ~= '' and e.nick or nil,
+      info = info, hint = hint,
+      plate = (e.unlocked and r and r.day) and c.t('trophy.day', r.day) or nil,   -- Gravur auf dem Schild
+    })
+  end
+  for _, g in ipairs(groups) do g.total = #g.list end
+  return { have = have, total = total, groups = groups }
 end
 
 return M

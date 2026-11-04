@@ -52,7 +52,7 @@ angular.module('beamng.apps')
               '</div>' +
               '<div class="hbm-rank" ng-if="s.progress">' +
                 '<div class="hbm-rank-top"><span class="hbm-rank-no">{{ s.progress.rankNo }}</span><span class="hbm-rank-name">{{ s.progress.rank }}</span>' +
-                  '<span class="hbm-rank-nick" ng-if="s.progress.nick">\u201e{{ s.progress.nick }}\u201c</span></div>' +
+                  '<span class="hbm-rank-nick" ng-if="s.progress.nick" ng-click="openWall(\'nicks\')" title="{{ s.t[\'wall.tab.nicks\'] }}">\u201e{{ s.progress.nick }}\u201c</span></div>' +
                 '<div class="hbm-fuelbar hbm-repbar"><i ng-style="{width: s.progress.progress + \'%\'}"></i></div>' +
                 '<div class="hbm-rank-sub">{{ s.t[\'rank.rep\'] }} {{ s.progress.rep }}<span ng-if="s.progress.next"> · {{ s.t[\'rank.next\'] }}: {{ s.progress.next }} ({{ s.progress.repNext }})</span></div>' +
               '</div>' +
@@ -70,7 +70,7 @@ angular.module('beamng.apps')
                 '<i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i><span class="hbm-tile-t">{{ (s.saveState && s.saveState.label) || s.t[\'menu.save\'] }}</span>' +
                 '<span class="hbm-tile-s" ng-if="s.saveState && s.saveState.reason">{{ s.saveState.reason }}</span></div>' +
               '<div class="hbm-tile" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i><span class="hbm-tile-t">{{ s.t[\'home.lexicon\'] }}</span></div>' +
-              '<div class="hbm-tile hbm-tile-logo" ng-if="s.logoTile" ng-click="act(\'logos\')"><img class="hbm-tile-logoimg" ng-src="{{ s.logoTile.logo }}" alt="">' +
+              '<div class="hbm-tile hbm-tile-logo" ng-if="s.logoTile" ng-click="openWall(\'logos\')"><img class="hbm-tile-logoimg" ng-src="{{ s.logoTile.logo }}" alt="">' +
                 '<span class="hbm-tile-t">{{ s.t[\'logos.menu\'] }}</span><span class="hbm-tile-s">{{ s.logoTile.have }} / {{ s.logoTile.total }}</span></div>' +
               '<div class="hbm-tile" ng-click="act(\'dealer\')"><i class="hbm-ico" ng-bind-html="ico(\'carDealer\')"></i><span class="hbm-tile-t">{{ s.t[\'dealer.menu\'] }}</span></div>' +
               '<div class="hbm-tile" ng-click="act(\'stats\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i><span class="hbm-tile-t">{{ s.t[\'menu.stats\'] }}</span></div>' +
@@ -276,7 +276,7 @@ angular.module('beamng.apps')
               '<div class="hbm-grid">' +
                 '<div class="hbm-tile" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i><span class="hbm-tile-t">{{ s.t[\'menu.save\'] }}</span></div>' +
                 '<div class="hbm-tile" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i><span class="hbm-tile-t">{{ s.t[\'home.lexicon\'] }}</span></div>' +
-              '<div class="hbm-tile hbm-tile-logo" ng-if="s.logoTile" ng-click="act(\'logos\')"><img class="hbm-tile-logoimg" ng-src="{{ s.logoTile.logo }}" alt="">' +
+              '<div class="hbm-tile hbm-tile-logo" ng-if="s.logoTile" ng-click="openWall(\'logos\')"><img class="hbm-tile-logoimg" ng-src="{{ s.logoTile.logo }}" alt="">' +
                 '<span class="hbm-tile-t">{{ s.t[\'logos.menu\'] }}</span><span class="hbm-tile-s">{{ s.logoTile.have }} / {{ s.logoTile.total }}</span></div>' +
                 '<div class="hbm-tile" ng-click="act(\'jobs\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i><span class="hbm-tile-t">{{ s.t[\'jobs.menu\'] }}</span><span class="hbm-tile-s hbm-tile-live" ng-if="s.job">{{ s.t[\'jobs.running\'] }}</span></div>' +
                 '<div class="hbm-tile" ng-click="act(\'tutorial\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i><span class="hbm-tile-t">{{ s.t[\'home.tutorial\'] }}</span></div>' +
@@ -370,6 +370,11 @@ angular.module('beamng.apps')
           // Tankstelle ----------------------------------------------------------------
           // Logo-Sammlung (logos.lua): besiegte Crews, Wanderer und Bosse geben ihr Logo, eins wird dein Logo im Battle
           '<div class="hbm-body hbm-v2 hbm-logov" ng-if="s.screen == \'logos\' && s.logos">' +
+            // Reiter: Logos | Trophäen | Spitznamen
+            '<div class="hbm-tabs hbm-wall-tabs">' +
+              '<div class="hbm-tab" ng-repeat="w in [\'logos\', \'trophies\', \'nicks\']" ng-class="{\'is-on\': w == wall.tab}" ng-click="wallTab(w)">{{ s.t[\'wall.tab.\' + w] }}</div>' +
+            '</div>' +
+            '<div ng-if="wall.tab == \'logos\'">' +
             '<div class="hbm-card hbm-logo-card">' +
               '<div class="hbm-logo-cur"><img ng-src="{{ s.logos.currentLogo }}" alt=""></div>' +
               '<div class="hbm-logo-curtext"><span class="hbm-label">{{ s.t[\'logos.yours\'] }}</span><b>{{ s.logos.currentName }}</b>' +
@@ -393,6 +398,56 @@ angular.module('beamng.apps')
                   '<div class="hbm-logo" ng-repeat="l in g.list" ng-class="{\'is-locked\': !l.unlocked, \'is-sel\': l.selected, \'is-hidden\': !l.logo, \'is-info\': logoSelId == l.id}" ng-click="logoPick(l)" title="{{ l.unlocked ? l.name : l.hint }}">' +
                     '<img ng-if="l.logo" ng-src="{{ l.logo }}" alt=""><span class="hbm-logo-q" ng-if="!l.logo">?</span>' +
                     '<span class="hbm-logo-tick" ng-if="l.selected"></span></div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '</div>' +
+            // Trophäen (logos.lua getTrophyUi): Plakette pro Crew-Leader, Pokal pro Boss, 2D-Bild + Logo darauf
+            '<div ng-if="wall.tab == \'trophies\' && s.trophies">' +
+              '<div class="hbm-card hbm-logo-card">' +
+                '<div class="hbm-logo-cur hbm-tro-cur"><img src="/art/trophies/cup.svg" alt=""></div>' +
+                '<div class="hbm-logo-curtext"><span class="hbm-label">{{ s.t[\'trophy.collected\'] }}</span><b>{{ s.trophies.have }} / {{ s.trophies.total }}</b>' +
+                  '<span class="hbm-fuelbar hbm-repbar"><i ng-style="{width: (s.trophies.total ? s.trophies.have * 100 / s.trophies.total : 0) + \'%\'}"></i></span></div>' +
+              '</div>' +
+              '<div class="hbm-note hbm-note-s">{{ s.t[\'trophy.note\'] }}</div>' +
+              '<div class="hbm-logo-info" ng-if="trophyInfo()">' +
+                '<b>{{ trophyInfo().name }}<small ng-if="trophyInfo().jp"> {{ trophyInfo().jp }}</small><em ng-if="trophyInfo().nick"> \u201e{{ trophyInfo().nick }}\u201c</em></b>' +
+                '<span ng-if="trophyInfo().sub">{{ trophyInfo().sub }}</span>' +
+                '<span ng-if="trophyInfo().unlocked">{{ trophyInfo().info }}</span>' +
+                '<span ng-if="!trophyInfo().unlocked">{{ trophyInfo().hint }}</span></div>' +
+              '<div class="hbm-logo-list">' +
+                '<div ng-repeat="g in s.trophies.groups">' +
+                  '<div class="hbm-logo-head"><span>{{ g.name }}</span><small>{{ g.have }} / {{ g.total }}</small></div>' +
+                  '<div class="hbm-tro-grid">' +
+                    '<div class="hbm-tro" ng-repeat="t in g.list" ng-class="[\'hbm-tro-\' + t.kind, {\'is-locked\': !t.unlocked, \'is-info\': trophySelId == t.id}]" ng-click="trophyPick(t)" title="{{ t.unlocked ? t.name : t.hint }}">' +
+                      '<div class="hbm-tro-art"><img class="hbm-tro-base" ng-src="{{ t.art }}" alt="">' +
+                        '<img class="hbm-tro-logo" ng-if="t.logo" ng-src="{{ t.logo }}" alt=""><span class="hbm-tro-q" ng-if="!t.logo">?</span>' +
+                        '<span class="hbm-tro-plate" ng-style="t.color && t.unlocked ? {\'border-bottom-color\': t.color} : {}">{{ t.unlocked ? (t.plate || \'\u2605\') : \'\u2014\' }}</span></div>' +
+                      '<span class="hbm-tro-name">{{ t.name }}</span>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            // Spitznamen (progress.lua getNickUi): alle verdienten wählbar, offene mit Fortschritt
+            '<div ng-if="wall.tab == \'nicks\' && s.nicks">' +
+              '<div class="hbm-card hbm-nick-card">' +
+                '<span class="hbm-label">{{ s.t[\'nicks.yours\'] }}</span>' +
+                '<b class="hbm-nick-cur">{{ s.nicks.current ? \'\u201e\' + s.nicks.current + \'\u201c\' : s.t[\'nicks.none\'] }}</b>' +
+                '<span class="hbm-logo-count">{{ s.t[\'nicks.earned\'] }} <b>{{ s.nicks.have }}</b> / {{ s.nicks.total }}</span>' +
+                '<span class="hbm-fuelbar hbm-repbar"><i ng-style="{width: (s.nicks.total ? s.nicks.have * 100 / s.nicks.total : 0) + \'%\'}"></i></span>' +
+              '</div>' +
+              '<div class="hbm-note hbm-note-s">{{ s.t[\'nicks.note\'] }}</div>' +
+              '<div class="hbm-logo-list">' +
+                '<div class="hbm-nick" ng-class="{\'is-sel\': s.nicks.auto}" ng-click="nickPick(null)">' +
+                  '<span class="hbm-nick-main"><b>{{ s.t[\'nicks.auto\'] }}</b><small>{{ s.t[\'nicks.autoDesc\'] }}</small></span></div>' +
+                '<div ng-repeat="g in s.nicks.groups">' +
+                  '<div class="hbm-logo-head"><span>{{ g.name }}</span><small>{{ g.have }} / {{ g.total }}</small></div>' +
+                  '<div class="hbm-note hbm-note-s" ng-if="g.key == \'cars\' && !g.total">{{ s.t[\'nicks.carsEmpty\'] }}</div>' +
+                  '<div class="hbm-nick" ng-repeat="n in g.list" ng-class="{\'is-locked\': !n.earned, \'is-sel\': n.selected && !s.nicks.auto, \'is-auto\': n.selected && s.nicks.auto}" ng-click="n.earned && nickPick(n)">' +
+                    '<span class="hbm-nick-main"><b>{{ n.earned ? \'\u201e\' + n.name + \'\u201c\' : n.name }}</b><small>{{ n.desc }}</small></span>' +
+                    '<span class="hbm-nick-prog" ng-if="!n.earned"><em>{{ n.value }}</em><span class="hbm-fuelbar"><i ng-style="{width: n.progress + \'%\'}"></i></span></span>' +
+                    '<span class="hbm-logo-tick" ng-if="n.selected && !s.nicks.auto"></span></div>' +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -423,7 +478,7 @@ angular.module('beamng.apps')
             '<div class="hbm-area"><span class="hbm-area-tag" ng-bind-html="ico(\'medal\')"></span>{{ s.t[\'menu.stats\'] }}<span class="hbm-day">{{ s.day }}</span></div>' +
             '<div class="hbm-rank" ng-if="s.progress">' +
               '<div class="hbm-rank-top"><span class="hbm-rank-no">{{ s.progress.rankNo }}</span><span class="hbm-rank-name">{{ s.progress.rank }}</span>' +
-                '<span class="hbm-rank-nick" ng-if="s.progress.nick">\u201e{{ s.progress.nick }}\u201c</span></div>' +
+                '<span class="hbm-rank-nick" ng-if="s.progress.nick" ng-click="openWall(\'nicks\')" title="{{ s.t[\'wall.tab.nicks\'] }}">\u201e{{ s.progress.nick }}\u201c</span></div>' +
               '<div class="hbm-rank-sub">{{ s.t[\'rank.rep\'] }} {{ s.progress.rep }}</div>' +
             '</div>' +
             '<div ng-repeat="g in s.stats.groups">' +
@@ -722,7 +777,7 @@ angular.module('beamng.apps')
           '.hbm-rank-top{display:flex;align-items:baseline;gap:8px;}' +
           '.hbm-rank-no{font-size:11px;font-weight:900;color:#141414;background:var(--o);padding:0 5px;transform:skewX(-12deg);}' +
           '.hbm-rank-name{font-size:15px;font-weight:800;letter-spacing:.5px;}' +
-          '.hbm-rank-nick{flex:1;text-align:right;font-size:12px;font-style:italic;color:var(--o2);}' +
+          '.hbm-rank-nick{flex:1;text-align:right;font-size:12px;font-style:italic;color:var(--o2);cursor:pointer;}' +
           '.hbm-repbar{margin:5px 0 3px;height:5px;}' +
           '.hbm-rank-sub{font-size:11px;color:var(--dim);}' +
           '.hbm-leave{display:flex;align-items:center;gap:8px;margin:0 0 8px;padding:9px 12px;cursor:pointer;pointer-events:auto;' +
@@ -802,6 +857,43 @@ angular.module('beamng.apps')
           '.hbm-logo-q{font-size:26px;font-weight:900;font-style:italic;color:rgba(244,244,244,.18);}' +
           '.hbm-logo.is-sel{border-color:var(--o);box-shadow:inset 0 0 0 1px var(--o);background:rgba(255,102,0,.14);}' +
           '.hbm-logo-tick{position:absolute;right:-1px;top:-1px;width:0;height:0;border-style:solid;border-width:0 18px 18px 0;border-color:transparent var(--o) transparent transparent;}' +
+          '.hbm-wall-tabs{padding:4px 12px 6px;}' +
+          '.hbm-tro-cur img{filter:drop-shadow(0 2px 5px rgba(0,0,0,.85));}' +
+          '.hbm-tro-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 12px 6px;}' +
+          '.hbm-tro{position:relative;min-width:0;padding:6px 4px 4px;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);}' +
+          '.hbm-tro:hover,.hbm-tro.is-info{background:linear-gradient(135deg,rgba(255,102,0,.2),rgba(255,102,0,.03));border-color:rgba(255,102,0,.5);}' +
+          '.hbm-tro-art{position:relative;width:100%;padding-top:120%;}' +
+          '.hbm-tro-base{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.8));}' +
+          /* Logo-Platz im Grundbild (200x240): Plakette Kreis 100/98 r57, Pokal 100/74 r40 */
+          '.hbm-tro-logo{position:absolute;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}' +
+          '.hbm-tro-leader .hbm-tro-logo{left:25%;top:20%;width:50%;height:42%;}' +
+          '.hbm-tro-boss .hbm-tro-logo,.hbm-tro-final .hbm-tro-logo{left:31%;top:15.5%;width:38%;height:31.5%;}' +
+          '.hbm-tro-q{position:absolute;left:0;right:0;top:26%;text-align:center;font-size:30px;font-weight:900;font-style:italic;color:rgba(244,244,244,.2);}' +
+          '.hbm-tro-plate{position:absolute;left:24%;right:24%;top:72.5%;height:9%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;' +
+            'font-size:8.5px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:#2a1e08;border-bottom:2px solid transparent;}' +
+          '.hbm-tro-name{display:block;margin-top:3px;min-height:24px;font-size:10px;line-height:12px;font-weight:800;font-style:italic;text-align:center;color:var(--w);' +
+            'overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}' +
+          '.hbm-tro.is-locked .hbm-tro-name{color:var(--dim);font-weight:600;}' +
+          '.hbm-tro-boss .hbm-tro-plate,.hbm-tro-final .hbm-tro-plate{left:31%;right:31%;top:81%;height:8.5%;font-size:7.5px;}' +
+          '.hbm-tro-final .hbm-tro-plate{color:#fff;}' +
+          '.hbm-tro.is-locked .hbm-tro-base,.hbm-tro.is-locked .hbm-tro-logo{filter:grayscale(1) brightness(.28);opacity:.75;}' +
+          '.hbm-tro.is-locked .hbm-tro-plate{color:rgba(244,244,244,.35);}' +
+          '.hbm-nick-card{display:flex;flex-direction:column;gap:3px;}' +
+          '.hbm-nick-cur{font-size:17px;font-weight:900;font-style:italic;color:var(--o2);}' +
+          '.hbm-nick{position:relative;display:flex;align-items:center;gap:10px;margin:0 12px 3px;padding:6px 10px;cursor:pointer;' +
+            'background:rgba(255,255,255,.03);border-left:3px solid rgba(255,102,0,.55);}' +
+          '.hbm-nick:hover{background:rgba(255,102,0,.12);}' +
+          '.hbm-nick.is-sel{background:rgba(255,102,0,.16);box-shadow:inset 0 0 0 1px var(--o);}' +
+          '.hbm-nick.is-auto{background:rgba(255,102,0,.08);}' +
+          '.hbm-nick.is-locked{cursor:default;border-left-color:rgba(255,255,255,.12);}' +
+          '.hbm-nick.is-locked:hover{background:rgba(255,255,255,.03);}' +
+          '.hbm-nick.is-locked b{color:var(--dim);font-style:normal;}' +
+          '.hbm-nick-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}' +
+          '.hbm-nick-main b{font-size:12.5px;font-weight:800;font-style:italic;color:var(--w);}' +
+          '.hbm-nick-main small{font-size:10.5px;color:var(--dim);}' +
+          '.hbm-nick-prog{flex:none;width:78px;display:flex;flex-direction:column;align-items:flex-end;gap:2px;}' +
+          '.hbm-nick-prog em{font-size:10px;font-style:normal;color:var(--dim);}' +
+          '.hbm-nick-prog .hbm-fuelbar{width:100%;height:4px;margin:0;}' +
           '.hbm-tile.hbm-off{opacity:.45;cursor:default;}' +
           '.hbm-tile.hbm-off:hover{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.05);}' +
           '.hbm-tile.hbm-off:after{display:none;}' +
@@ -1089,6 +1181,19 @@ angular.module('beamng.apps')
         for (var i = 0; i < gs.length; i++) for (var j = 0; j < gs[i].list.length; j++) if (gs[i].list[j].id === scope.logoSelId) return gs[i].list[j]
         return null
       }
+      // Trophäenwand: Reiter, Trophäen-Info, Spitznamen wählen
+      scope.wall = { tab: 'logos' }
+      scope.wallTab = function (w) { scope.wall.tab = w; scope.trophySelId = null; scope.logoSelId = null }
+      scope.trophySelId = null
+      scope.trophyInfo = function () {
+        var gs = (scope.s && scope.s.trophies && scope.s.trophies.groups) || []
+        if (!scope.trophySelId) return null
+        for (var i = 0; i < gs.length; i++) for (var j = 0; j < gs[i].list.length; j++) if (gs[i].list[j].id === scope.trophySelId) return gs[i].list[j]
+        return null
+      }
+      scope.trophyPick = function (t) { scope.trophySelId = scope.trophySelId === t.id ? null : t.id }
+      scope.nickPick = function (n) { scope.act('nickPick', n ? n.id : 'auto') }
+      scope.openWall = function (tab) { scope.wallTab(tab || 'logos'); scope.act('logos') }
       scope.logoPick = function (l) {
         if (!l) { scope.logoSelId = null; return scope.act('logoPick', 'default') }
         scope.logoSelId = l.id
