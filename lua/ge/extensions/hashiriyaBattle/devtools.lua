@@ -39,6 +39,7 @@ local placeTypes = {
   { id = 'job', name = 'Nebenjob-Ziel (jobSpots)' },
   { id = 'npc', name = 'PA-Fahrer-Stehplatz' },
   { id = 'photo', name = 'Foto-Spot (Auto abstellen)' },
+  { id = 'paexit', name = 'PA-Ausfahrt (Route)' },
   { id = 'police', name = 'Polizei / Messstelle' },
   { id = 'ramp_on', name = 'Auffahrt' },
   { id = 'ramp_off', name = 'Ausfahrt' },
@@ -54,7 +55,7 @@ for _, t in ipairs(placeTypes) do typeName[t.id] = t.name end
 local defaultColors = {
   garage = '#ff6600', home = '#ffffff', pa = '#3fa9ff', shop = '#ffd400', shop_mech = '#ff9a3c', shop_paint = '#ff4fd8',
   shop_body = '#b07bff', gas = '#3ddc84', wanderer = '#9b30ff', police = '#1e40ff', ramp_on = '#00e5d4', ramp_off = '#ff3b3b',
-  mapchange = '#c6ff00', job = '#ffb3e6', npc = '#7fffd4', photo = '#4fd18b', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
+  mapchange = '#c6ff00', job = '#ffb3e6', npc = '#7fffd4', photo = '#4fd18b', paexit = '#ff8c1a', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
 }
 local markerDefaults = { on = true, showMap = true, height = 40, radius = 0.8, labels = true, parkSpots = false }
 local drawList = nil -- vorbereitete Säulen (wird bei jeder Änderung neu gebaut)
@@ -154,6 +155,12 @@ local function mapPlaces()
       table.insert(out, { id = 'map:job' .. i, name = nm or ('Jobziel ' .. i), type = 'job', pos = j.pos, map = true, mapId = 'job' .. i })
     end
   end
+  for i, e in ipairs(md.paExitRoutes or {}) do
+    if type(e.points) == 'table' and e.points[1] then
+      table.insert(out, { id = 'map:paexit' .. i, name = e.name or ('PA-Ausfahrt ' .. i), type = 'paexit', pos = e.points[1],
+        note = #e.points .. ' Punkte', map = true, mapId = 'paexit' .. i })
+    end
+  end
   if md.playerSpawn and md.playerSpawn.pos then
     table.insert(out, { id = 'map:playerSpawn', name = 'Startpunkt zu Fuß', type = 'spawn', pos = md.playerSpawn.pos, dir = md.playerSpawn.dir, onFoot = true, map = true, mapId = 'playerSpawn' })
   end
@@ -209,6 +216,7 @@ local function allPlaces()
     for k, v in pairs(p) do e[k] = v end
     e.typeName = typeName[p.type] or p.type
     e.hidden = mk.hidden[p.id] or nil
+    if type(p.points) == 'table' then e.points, e.nPoints = nil, #p.points end -- Route nicht jedes Mal ans Fenster schicken
     table.insert(out, e)
   end
   return out
@@ -339,7 +347,7 @@ local function fullState()
     save = c.active and saveState() or nil,
     places = allPlaces(), types = typesWithColors(), markers = markerCfg(),
     rivals = c.active and rivalList() or {},
-    player = playerInfo(), hour = extensions.hashiriyaBattle_home.hour(),
+    player = playerInfo(), hour = extensions.hashiriyaBattle_home.hour(), rec = rec and #rec.points or false,
   }
 end
 
@@ -564,6 +572,117 @@ function actions.setColor(a)
   savePlaces()
 end
 
+local function hexColor(h)
+  local r, g, b = tostring(h):match('^#(%x%x)(%x%x)(%x%x)$')
+  if not r then return 0.5, 0.5, 0.5 end
+  return tonumber(r, 16) / 255, tonumber(g, 16) / 255, tonumber(b, 16) / 255
+end
+
+-- PA-Ausfahrt aufnehmen: mit dem Auto die Gasse entlang bis auf die Fahrbahn fahren, alle 3 m ein Punkt
+-- (Mitte des Autos). Gespeichert als Ort vom Typ paexit mit points; talk.lua lässt PA-Rivalen diese Route abfahren.
+local rec = nil -- { points = { vec3 }, last = vec3 }
+local recStep = 3
+
+local function carCenter(car)
+  local ok, c = pcall(function() return vec3(car:getSpawnWorldOOBB():getCenter()) end)
+  return ok and c or vec3(car:getPosition())
+end
+
+function actions.routeStart()
+  local car = core().getPlayerVehicle()
+  if not car or core().getWalkerPos() then msg('Für die Aufnahme ins Auto setzen', 3) return end
+  local p = carCenter(car)
+  rec = { points = { p }, last = p }
+  msg('Aufnahme läuft: fahr die Gasse entlang bis auf die Fahrbahn, dann "Aufnahme beenden"', 6)
+  log('I', logTag, 'PA-Ausfahrt: Aufnahme gestartet')
+end
+
+function actions.routeCancel()
+  rec = nil
+  msg('Aufnahme verworfen', 2)
+end
+
+local function nearestPaName(p)
+  local best, name = 400, nil
+  for _, n in ipairs((core().mapData or {}).napSpots or {}) do
+    if type(n.pos) == 'table' then
+      local d = (v3(n.pos) - p):length()
+      if d < best then best, name = d, n.name end
+    end
+  end
+  return name
+end
+
+function actions.routeStop(a)
+  if not rec then return end
+  local car = core().getPlayerVehicle()
+  if car then
+    local p = carCenter(car)
+    if (p - rec.last):length() > 0.5 then table.insert(rec.points, p) end
+  end
+  local pts = rec.points
+  rec = nil
+  if #pts < 4 then msg('Route zu kurz (mindestens 10 m fahren)', 3) return end
+  local L = levelPlaces()
+  local list = {}
+  for _, p in ipairs(pts) do table.insert(list, arr(p)) end
+  local pa = nearestPaName(pts[1]) or 'PA'
+  local n = 0
+  for _, p in ipairs(L.places) do if p.type == 'paexit' then n = n + 1 end end
+  local name = tostring(a.name or ''):gsub('^%s+', ''):gsub('%s+$', '')
+  if name == '' then name = 'Ausfahrt ' .. pa .. ' ' .. (n + 1) end
+  local dir = (pts[2] - pts[1]); dir = vec3(dir.x, dir.y, 0)
+  if dir:length() > 0.01 then dir = dir:normalized() else dir = vec3(0, 1, 0) end
+  table.insert(L.places, { id = newId(L), name = name, type = 'paexit', pos = list[1], dir = arr(dir), points = list,
+    note = #list .. ' Punkte', created = os.date('%Y-%m-%d %H:%M') })
+  savePlaces()
+  msg('PA-Ausfahrt gespeichert: ' .. name .. ' (' .. #list .. ' Punkte)', 4)
+  log('I', logTag, 'PA-Ausfahrt gespeichert: ' .. name .. ' (' .. #list .. ' Punkte)')
+end
+
+local function updateRecording()
+  if not rec then return end
+  local car = core().getPlayerVehicle()
+  if not car or core().getWalkerPos() then return end
+  local p = carCenter(car)
+  if (p - rec.last):length() >= recStep then
+    table.insert(rec.points, p)
+    rec.last = p
+  end
+end
+
+function M.isRecording() return rec ~= nil, rec and #rec.points or 0 end
+
+-- Routen als Linie zeichnen (Dev-Menü offen, Säulen an)
+local function drawRoutes()
+  local m = markerCfg()
+  if not m.on or not debugDrawer or m.hiddenTypes.paexit then return end
+  local r, g, b = hexColor(typeColor('paexit'))
+  local col = ColorF(r, g, b, 0.9)
+  local function line(pts)
+    for i = 2, #pts do
+      local p1, p2 = pts[i - 1], pts[i]
+      debugDrawer:drawLine(p1 + vec3(0, 0, 0.3), p2 + vec3(0, 0, 0.3), col)
+      debugDrawer:drawSphere(p2 + vec3(0, 0, 0.3), 0.25, col)
+    end
+  end
+  for _, p in ipairs(levelPlaces().places) do
+    if p.type == 'paexit' and type(p.points) == 'table' and not m.hidden[p.id] then
+      local pts = {}
+      for _, q in ipairs(p.points) do table.insert(pts, v3(q)) end
+      line(pts)
+    end
+  end
+  for _, e in ipairs((core().mapData or {}).paExitRoutes or {}) do
+    if type(e.points) == 'table' and m.showMap then
+      local pts = {}
+      for _, q in ipairs(e.points) do table.insert(pts, v3(q)) end
+      line(pts)
+    end
+  end
+  if rec then line(rec.points) end
+end
+
 function actions.teleport(a)
   for _, p in ipairs(allPlaces()) do
     if p.id == a.id then
@@ -599,11 +718,6 @@ end
 
 -- Säulen zeichnen ---------------------------------------------------------------------
 
-local function hexColor(h)
-  local r, g, b = tostring(h):match('^#(%x%x)(%x%x)(%x%x)$')
-  if not r then return 0.5, 0.5, 0.5 end
-  return tonumber(r, 16) / 255, tonumber(g, 16) / 255, tonumber(b, 16) / 255
-end
 
 local function buildDrawList()
   local m = markerCfg()
@@ -677,19 +791,25 @@ local function drawParkSpots(dtReal)
 end
 
 local function onUpdate(dtReal)
+  if rec then
+    local okR, errR = pcall(updateRecording)
+    if not okR then log('E', logTag, 'PA-Ausfahrt aufnehmen: ' .. tostring(errR)) rec = nil end
+  end
   if not isOpen then return end
   pcall(drawParkSpots, dtReal)
+  pcall(drawRoutes)
   local okD, errD = pcall(drawMarkers)
   if not okD and not M._drawWarned then M._drawWarned = true log('E', logTag, 'Markierungen: ' .. tostring(errD)) end
   tickTimer = tickTimer - dtReal
   if tickTimer > 0 then return end
   tickTimer = 0.5
   local c = core()
-  send({ tick = true, player = playerInfo(), hour = extensions.hashiriyaBattle_home.hour(), active = c.active or false,
+  send({ tick = true, rec = rec and #rec.points or false, player = playerInfo(), hour = extensions.hashiriyaBattle_home.hour(), active = c.active or false,
     moneyText = c.active and c.save and c.economy().formatYen(c.save.money or 0) or nil })
 end
 
 local function onClientEndMission()
+  rec = nil
   placesCache = nil
   drawList = nil
   rivalCache = nil

@@ -1095,12 +1095,23 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <ol>
 <li><b>Ansprechen (T):</b> Er sagt seinen Herausforderungs-Spruch aus <code>rivals.json</code> (<code>lines.challenge</code>), dann fragt er nach einem Battle.</li>
 <li><b>Annehmen:</b> <b>T</b> = normales Battle, <b>G</b> = Pink Slip (nur wenn er um Autos fährt, siehe unten). <b>Weggehen</b> = Nein. Sprichst du ihn später nochmal an, fragt er wieder.</li>
-<li><b>Er steigt ein und fährt raus</b> (seit 0.9.2): Die Figur dreht sich zum Auto und steigt ein (<code>rivalBoardSeconds</code>, 2,5 s), der Motor springt an, nachts geht das Licht an. Dann fährt die BeamNG-KI langsam (<code>rivalLeaveKmh</code>, 25 km/h) aus der PA. Meldung „… steigt ein und fährt raus auf den C1“.</li>
-<li><b>Auf der Straße:</b> Ist er mehr als <code>rivalExitDistance</code> (110 m) von der PA-Mitte weg, ist er ein ganz normaler Rivale (Radar, Minimap-Farbe). Er bummelt erst mit <code>rivalWaitCruiseKmh</code> (70 km/h), damit du hinterherkommst, und fährt normales Tempo, sobald du auf <code>rivalCatchUpDistance</code> (250 m) dran bist. Lichthupe, sobald du hinter ihm bist (oder er fordert dich heraus, wenn er hinter dir ist, dann sicher statt zufällig). Danach ist es ein ganz normales Battle mit SP-Balken.</li>
-<li><b>Wenn er nicht rauskommt</b> (kein KI-Weg aus der PA, steht 12 s still oder braucht länger als <code>rivalLeaveTimeout</code>, 90 s): Er bleibt stehen und verschwindet erst, wenn du über 120 m weg bist. Dann geht es wie früher weiter: Bist du mehr als <code>rivalWaitDistance</code> (250 m) von der PA weg und schneller als <code>rivalWaitSpeed</code> (30 km/h), taucht er vor dir auf. Genauso, wenn du ihn auf der Straße verlierst (zu weit weg) bevor ihr gefahren seid.</li>
+<li><b>Er steigt ein und fährt raus</b> (seit 0.9.2): Die Figur dreht sich zum Auto und steigt ein (<code>rivalBoardSeconds</code>, 2,5 s), der Motor springt an, nachts geht das Licht an. Dann fährt er langsam (<code>rivalLeaveKmh</code>, 20 km/h) die <b>PA-Ausfahrt-Route</b> ab, die du im Dev-Menü aufgenommen hast (siehe unten). Meldung „… steigt ein und fährt raus auf den C1“.</li>
+<li><b>Warum eine eigene Route:</b> Die BeamNG-Verkehrs-KI kennt die Gassen der C1-PAs nicht und fuhr quer durch geparkte Autos und gegen die Fahrtrichtung. Deshalb fährt der Rivale die aufgenommene Route mit BeamNGs Script-KI (folgt einer Punkte-Liste genau), erst auf der Fahrbahn übernimmt die Verkehrs-KI.</li>
+<li><b>Rückwärts eingeparkt:</b> Rivalen stehen an der PA immer mit der Nase zur Gasse (zum nächsten Punkt der Route, ohne Route zur PA-Mitte), so wie man in Japan einparkt. So fährt er vorwärts raus und muss nie rückwärts rangieren.</li>
+<li><b>Auf der Straße:</b> Am Ende der Route ist er ein ganz normaler Rivale (Radar, Minimap-Farbe). Er bummelt erst mit <code>rivalWaitCruiseKmh</code> (70 km/h), damit du hinterherkommst, und fährt normales Tempo, sobald du auf <code>rivalCatchUpDistance</code> (250 m) dran bist. Lichthupe, sobald du hinter ihm bist (oder er fordert dich heraus, wenn er hinter dir ist, dann sicher statt zufällig). Danach ist es ein ganz normales Battle mit SP-Balken.</li>
+<li><b>Wenn er nicht rauskommt</b> (keine Route an dieser PA, steht 12 s still oder braucht länger als <code>rivalLeaveTimeout</code>, 90 s): Er bleibt stehen und verschwindet erst, wenn du über 120 m weg bist. Dann geht es wie früher weiter: Bist du mehr als <code>rivalWaitDistance</code> (250 m) von der PA weg und schneller als <code>rivalWaitSpeed</code> (30 km/h), taucht er vor dir auf. Genauso, wenn du ihn auf der Straße verlierst (zu weit weg) bevor ihr gefahren seid.</li>
 <li>Mit <code>rivalLeave: false</code> verschwinden Figur und Auto wie früher sofort und er wartet vor dir.</li>
 <li>Die Verabredung verfällt bei Tagesanbruch („… hat nicht mehr auf dich gewartet“) oder wenn er 30 Sekunden lang keinen Platz auf der Straße findet.</li>
-<li><b>Im Mod-Log:</b> „PA-Rivale fährt aus der PA“, „PA-Rivale ist auf der Straße“, bei Problemen „PA-Rivale kommt nicht aus der PA (kein Weg?)“.</li>
+<li><b>Im Mod-Log:</b> „PA-Rivale fährt aus der PA“, „PA-Rivale ist auf der Straße“, bei Problemen „PA-Rivale kommt nicht aus der PA (kein Weg?)“ oder „Keine PA-Ausfahrt-Route bei …“.</li>
+</ol>
+<h3>PA-Ausfahrt aufnehmen (Dev-Menü)</h3>
+<ol>
+<li>Dev-Menü (Shift+Ende), Reiter <b>Orte</b>, Kasten „PA-Ausfahrt aufnehmen“. Setz dich ins Auto.</li>
+<li>Fahr ans <b>hintere Ende der Gasse</b>, an der die Rivalen-Buchten liegen (dort, wo ein Auto die Gasse beginnen würde). Name eintragen (leer = „Ausfahrt &lt;PA&gt; &lt;Nummer&gt;“), <b>Aufnahme starten</b>.</li>
+<li>Fahr langsam und sauber in Fahrtrichtung die Gasse entlang, über die Ausfahrt bis <b>auf die Fahrbahn des C1</b> (ein Stück auf der richtigen Spur weiter). Alle 3 m wird ein Punkt gemerkt.</li>
+<li><b>Aufnahme beenden</b>. Die Route steht als Ort vom Typ „PA-Ausfahrt (Route)“ in der Liste und wird bei offenem Dev-Menü als orange Linie mit Kugeln gezeigt. Löschen und Umbenennen wie bei anderen Orten. Wirkt sofort (nächster Rivale, den du ansprichst).</li>
+<li>Hat eine PA mehrere Gassen, nimm für jede eine eigene Route auf. Der Rivale nimmt den Routenpunkt, der seinem Auto am nächsten ist, und fährt von dort bis zum Ende.</li>
+<li>Für die Release kommen die Routen als <code>"paExitRoutes"</code> in <code>data/maps/c1.json</code> (sag mir Bescheid, dann übernehme ich sie aus deiner <code>dev_places.json</code>).</li>
 </ol>
 <ul>
 <li><b>Wer steht da:</b> pro Nacht und PA 0 bis 2 Rivalen (<code>rivalNight</code>, tagsüber <code>rivalDay</code> = keine), fest ausgewürfelt wie die anderen Fahrer. Nur wer heute Nacht auch auf der Straße auftauchen dürfte (gleiche Regeln wie unterwegs: Rang der Crew, Leader erst nach den Mitgliedern, Bedingungen von Wanderern). Neue Gegner kommen öfter (<code>rivalWeightNew</code> 3) als schon geschlagene (<code>rivalWeightBeaten</code> 1, dann als Revanche). Wer dein Auto hat, steht am liebsten hier und zeigt es herum (<code>rivalWeightHolder</code> 6).</li>
@@ -1114,8 +1125,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><td><code>rivalWaitSpeed</code></td><td>30</td><td>So schnell (km/h) musst du dabei fahren</td></tr>
 <tr><td><code>rivalLeave</code></td><td>true</td><td>Er steigt sichtbar ein und fährt selbst aus der PA (false = verschwindet sofort, alte Art)</td></tr>
 <tr><td><code>rivalBoardSeconds</code></td><td>2.5</td><td>So lange (s) dauert das Einsteigen</td></tr>
-<tr><td><code>rivalLeaveKmh</code></td><td>25</td><td>Tempo (km/h), mit dem er aus der PA rollt</td></tr>
-<tr><td><code>rivalExitDistance</code></td><td>110</td><td>Ab so vielen m von der PA-Mitte gilt er als auf der Straße</td></tr>
+<tr><td><code>rivalLeaveKmh</code></td><td>20</td><td>Tempo (km/h), mit dem er die Ausfahrt-Route abfährt</td></tr>
 <tr><td><code>rivalLeaveTimeout</code></td><td>90</td><td>Spätestens nach so vielen s muss er draußen sein, sonst wartet er vor dir</td></tr>
 <tr><td><code>rivalWaitCruiseKmh</code> / <code>rivalCatchUpDistance</code></td><td>70 / 250</td><td>Bummeltempo auf der Straße, bis du auf so viele m dran bist</td></tr>
 <tr><td><code>rivalWeightNew</code> / <code>rivalWeightBeaten</code> / <code>rivalWeightHolder</code></td><td>3 / 1 / 6</td><td>Wie oft neue, schon geschlagene und Rivalen mit deinem Auto an der PA stehen</td></tr>
@@ -1811,7 +1821,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </ul>
 <h4>PA-Rivalen</h4>
 <ul>
-<li>Rivalen an den PAs fahren jetzt sichtbar los: Nach dem Annehmen steigt der Rivale in sein Auto, startet den Motor, macht nachts das Licht an und rollt langsam aus der PA auf den C1. Dort ist er ein ganz normaler Rivale auf dem Radar. Er bummelt erst etwas, damit du hinterherkommst. Kommt er aus der PA nicht heraus, wartet er wie früher vor dir.</li>
+<li>Rivalen an den PAs fahren jetzt sichtbar los: Nach dem Annehmen steigt der Rivale in sein Auto, startet den Motor, macht nachts das Licht an und rollt langsam aus der PA auf den C1. Dort ist er ein ganz normaler Rivale auf dem Radar. Er bummelt erst etwas, damit du hinterherkommst. Er fährt dabei eine Ausfahrt-Route ab, die im Dev-Menü pro PA einmal aufgenommen wird (Orte &gt; PA-Ausfahrt aufnehmen), und steht dafür immer rückwärts eingeparkt mit der Nase zur Gasse. Ohne Route oder wenn er nicht durchkommt, wartet er wie früher vor dir.</li>
 </ul>
 <h4>Liveries</h4>
 <ul>
@@ -2261,7 +2271,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </ol>
 <table>
 <tr><th>Teil</th><th>Was er macht</th></tr>
-<tr><td>Typen</td><td>Garage / HQ, Zuhause, Parkplatz (PA), Shop (allgemein), Mechaniker, Lackierer, Bodyshop, Tankstelle, Wanderer-Wartepunkt, Nebenjob-Ziel, PA-Fahrer-Stehplatz (Fahrer an den PAs stehen dort, wirkt sofort), Foto-Spot (Ziel der Fotojobs, wirkt sofort), Polizei / Messstelle, Auffahrt, Ausfahrt, Map-Wechsel, Spawnpunkt, Showroom, Sonstiges</td></tr>
+<tr><td>Typen</td><td>Garage / HQ, Zuhause, Parkplatz (PA), Shop (allgemein), Mechaniker, Lackierer, Bodyshop, Tankstelle, Wanderer-Wartepunkt, Nebenjob-Ziel, PA-Fahrer-Stehplatz (Fahrer an den PAs stehen dort, wirkt sofort), Foto-Spot (Ziel der Fotojobs, wirkt sofort), PA-Ausfahrt (Route, nur über „PA-Ausfahrt aufnehmen“, siehe <a href="#pinkslip">12b</a>), Polizei / Messstelle, Auffahrt, Ausfahrt, Map-Wechsel, Spawnpunkt, Showroom, Sonstiges</td></tr>
 <tr><td>Liste</td><td>Alle Orte der Map: die aus der Kartendatei (<code>c1.json</code>, orange Linie links, „Kartendatei“) und deine eigenen. Mit Typ, Entfernung zu dir und Notiz. Suchfeld und Typ-Filter oben, „Nach Nähe“ sortiert die nächsten nach oben.</td></tr>
 <tr><td>Hin</td><td>Teleportiert dich hin (Auto oder zu Fuß, Schaden bleibt). Mit aktiver Freecam fliegt auch die Kamera mit.</td></tr>
 <tr><td>Bearb.</td><td>Name, Typ und Notiz ändern, <b>Auf aktuelle Stelle setzen</b> (Ort neu setzen) oder <b>Löschen</b> (zweimal klicken). Ganz unten stehen die Koordinaten. Bei Orten aus der Kartendatei lässt sich nur der Anzeigename ändern; die Kartendatei bleibt, wie sie ist.</td></tr>
