@@ -7,7 +7,20 @@ local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logge
 
 local dataDir = '/lua/ge/extensions/hashiriyaBattle/data/'
 local saveDir = 'settings/hashiriya_battle/'
-local savePath = saveDir .. 'save.json'
+-- Bis zu drei Spielstände (Plätze): Platz 1 = save.json (alte Spielstände bleiben so erhalten),
+-- Platz 2 = save_2.json, Platz 3 = save_3.json. Welcher Platz gerade läuft, steht in slots.json.
+M.maxSlots = 3
+local slotsPath = saveDir .. 'slots.json'
+local currentSlot = nil
+local function slotFile(n) return saveDir .. (n == 1 and 'save.json' or ('save_' .. n .. '.json')) end
+local function readSlotState()
+  if currentSlot then return currentSlot end
+  local d = jsonReadFile(slotsPath)
+  local n = type(d) == 'table' and tonumber(d.active) or 1
+  currentSlot = (n and n >= 1 and n <= M.maxSlots) and math.floor(n) or 1
+  return currentSlot
+end
+local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
 local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck' }
@@ -198,17 +211,112 @@ function M.writeSave()
   if not M.save then return end
   local hour = extensions.hashiriyaBattle_home and extensions.hashiriyaBattle_home.hour()
   if hour then M.save.hour = hour end
-  jsonWriteFile(savePath, M.save, true)
+  M.save.savedAt = os.time()
+  jsonWriteFile(savePath(), M.save, true)
   M.hasSave = true
   log('I', logTag, 'Spielstand gespeichert')
 end
 
-local function readSave()
-  local data = jsonReadFile(savePath)
-  if data and data.version then return data end
+local function readSlot(n)
+  if not FS:fileExists(slotFile(n)) then return nil end
+  local data = jsonReadFile(slotFile(n))
+  if type(data) == 'table' and data.version then return data end
   return nil
 end
-M.peekSave = readSave
+local function readSave() return readSlot(readSlotState()) end
+
+-- Spielstand-Plätze ------------------------------------------------------------
+
+function M.currentSlot() return readSlotState() end
+function M.savePath() return savePath() end
+M.readSlot = readSlot
+
+local function anySave()
+  for n = 1, M.maxSlots do if readSlot(n) then return true end end
+  return false
+end
+
+-- Zuletzt gespielter Platz: der aktive, falls belegt, sonst der mit dem jüngsten Speicherzeitpunkt
+function M.lastSlot()
+  local cur = readSlotState()
+  if readSlot(cur) then return cur end
+  local best, bestAt = nil, -1
+  for n = 1, M.maxSlots do
+    local d = readSlot(n)
+    if d and (tonumber(d.savedAt) or 0) > bestAt then best, bestAt = n, tonumber(d.savedAt) or 0 end
+  end
+  return best
+end
+
+-- Spielstand ohne Platzwahl (Titel "Weiterspielen")
+function M.peekSave()
+  local n = M.lastSlot()
+  return n and readSlot(n) or nil, n
+end
+
+-- Platz wechseln. Läuft gerade ein anderer Spielstand, wird er vorher sauber gespeichert und beendet.
+function M.setSlot(n)
+  n = tonumber(n)
+  if not n or n < 1 or n > M.maxSlots then return false end
+  n = math.floor(n)
+  if n ~= readSlotState() and M.active and M.save then
+    local ok, err = pcall(M.stopGame)
+    if not ok then log('W', logTag, 'Spielstand wechseln: ' .. tostring(err)) end
+  end
+  currentSlot = n
+  jsonWriteFile(slotsPath, { active = n }, true)
+  log('I', logTag, 'Spielstand-Platz ' .. n)
+  return true
+end
+
+-- Schadensdateien (damage/<uid>.json) der Autos eines Spielstands entfernen
+local function clearSlotDamage(data)
+  for _, car in ipairs(type(data) == 'table' and data.cars or {}) do
+    if car.uid then
+      local f = 'settings/hashiriya_battle/damage/' .. tostring(car.uid) .. '.json'
+      if FS:fileExists(f) then pcall(function() FS:removeFile(f) end) end
+    end
+  end
+end
+
+-- Platz löschen. Der Spielstand, der gerade läuft, lässt sich nicht löschen.
+function M.deleteSlot(n)
+  n = tonumber(n)
+  if not n or n < 1 or n > M.maxSlots then return false end
+  if M.active and M.save and n == readSlotState() then return false end
+  local data = readSlot(n)
+  if not data and not FS:fileExists(slotFile(n)) then return false end
+  clearSlotDamage(data)
+  pcall(function() FS:removeFile(slotFile(n)) end)
+  M.hasSave = anySave()
+  log('I', logTag, 'Spielstand-Platz ' .. n .. ' gelöscht')
+  return true
+end
+
+-- Übersicht für den Titelbildschirm
+function M.slotList()
+  local eco = M.economy()
+  local pr = extensions.hashiriyaBattle_progress
+  local out = {}
+  for n = 1, M.maxSlots do
+    local d = readSlot(n)
+    local e = { slot = n, empty = d == nil, running = M.active and M.save ~= nil and n == readSlotState() }
+    if d then
+      local car = d.cars and d.cars[d.activeCar or 1]
+      e.name = d.playerName or '—'
+      e.car = car and car.name or ''
+      e.money = eco.formatYen(d.money or 0)
+      e.day = d.day or 1
+      e.cars = #(d.cars or {})
+      e.gameOver = d.gameOver and true or nil
+      local okR, rank = pcall(function() return pr.rankName(d) end)
+      e.rank = okR and rank or nil
+      e.savedAt = d.savedAt and os.date('%d.%m.%Y %H:%M', d.savedAt) or nil
+    end
+    table.insert(out, e)
+  end
+  return out
+end
 
 -- Daten laden ---------------------------------------------------------------
 
@@ -216,7 +324,7 @@ local function loadData()
   M.carsData = jsonReadFile(dataDir .. 'cars.json') or { starterCars = {} }
   M.buildData = jsonReadFile(dataDir .. 'build.json') or {}
   M.levelName = getLevelName()
-  M.hasSave = readSave() ~= nil
+  M.hasSave = anySave()
   M.mapData = M.levelName and jsonReadFile(dataDir .. 'maps/' .. M.levelName .. '.json') or nil
   spotCache = {}
   log('I', logTag, 'Level: ' .. tostring(M.levelName) .. ', Map-Daten: ' .. tostring(M.mapData ~= nil))
@@ -504,6 +612,8 @@ end
 
 -- Neues Spiel aus dem Karriere-Assistenten (career.lua): Auto steht im Showroom oder schon in der Garagenbucht.
 function M.newCareer(data)
+  if data.slot then M.setSlot(data.slot) end
+  clearSlotDamage(readSave()) -- überschriebener Spielstand: alte Schäden weg
   M.save = newSave()
   pcall(function() extensions.hashiriyaBattle_story.reset() end)
   M.save.playerName = data.playerName
@@ -538,7 +648,9 @@ function M.newCareer(data)
 end
 
 -- Weiterspielen: Auto in die Garagenbucht stellen, Spieler zu Fuß daneben.
-function M.continueCareer()
+function M.continueCareer(slot)
+  if slot then M.setSlot(slot)
+  elseif not readSave() and M.lastSlot() then M.setSlot(M.lastSlot()) end
   M.save = readSave()
   if not M.save then
     msg(M.t('msg.noSave'))

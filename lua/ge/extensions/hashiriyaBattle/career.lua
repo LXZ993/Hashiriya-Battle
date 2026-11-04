@@ -540,6 +540,7 @@ local function startCareer()
   local plate = plates.normalize(flow.plate) or plates.random()
   cfg = plates.applyToConfig(cfg, flow.plateDesign)
   c.newCareer({
+    slot = flow.slot,
     playerName = flow.name,
     experience = flow.experience,
     carPrice = starterPriceYen(starter),
@@ -586,17 +587,57 @@ function M.action(arg)
     if cmd == 'back' then flow = { step = 'title' } end
     return
   end
+  -- Spielstand-Plätze (Neues Spiel: Platz wählen, Laden, Löschen)
+  if step == 'slots' then
+    local c = core()
+    local n = tonumber(val)
+    if cmd == 'back' then
+      if flow.confirm then flow.confirm = nil else flow = { step = 'title' } end
+    elseif cmd == 'cancel' then
+      flow.confirm = nil
+    elseif cmd == 'mode' and (val == 'new' or val == 'load') then
+      flow.mode, flow.confirm = val, nil
+    elseif cmd == 'pick' and n then
+      local used = c.readSlot(n) ~= nil
+      if flow.mode == 'load' then
+        if used then
+          M.close()
+          c.continueCareer(n)
+        end
+      elseif used then
+        flow.confirm = { kind = 'overwrite', slot = n }
+      else
+        flow = { step = 'experience', slot = n, name = '', plate = '', plateDesign = extensions.hashiriyaBattle_plates.defaultDesign }
+      end
+    elseif cmd == 'delete' and n then
+      if c.readSlot(n) then flow.confirm = { kind = 'delete', slot = n } end
+    elseif cmd == 'confirm' and flow.confirm then
+      local cf = flow.confirm
+      flow.confirm = nil
+      if cf.kind == 'overwrite' then
+        flow = { step = 'experience', slot = cf.slot, name = '', plate = '', plateDesign = extensions.hashiriyaBattle_plates.defaultDesign }
+      elseif cf.kind == 'delete' then
+        if c.deleteSlot(cf.slot) then c.msg(c.t('slots.deleted', cf.slot), 4)
+        else c.msg(c.t('slots.deleteRunning'), 5) end
+      end
+    end
+    return
+  end
   if cmd == 'back' then
-    if step == 'experience' then flow = { step = 'title' }
+    if step == 'experience' then flow = { step = 'slots', mode = 'new' }
     elseif step == 'driver' then flow.step = (flow.experience == 'newbie' and #tutorialPages() > 0) and 'tutorial' or 'keys'
     elseif step == 'car' then flow.step = 'driver'
     elseif step == 'confirm' then flow.step = 'car' end
   elseif step == 'title' then
     if cmd == 'newGame' then
-      flow = { step = 'experience', name = '', plate = '', plateDesign = extensions.hashiriyaBattle_plates.defaultDesign }
+      flow = { step = 'slots', mode = 'new' }
+    elseif cmd == 'load' then
+      flow = { step = 'slots', mode = 'load' }
     elseif cmd == 'continue' then
+      local n = core().lastSlot()
+      if not n then return end
       M.close()
-      core().continueCareer()
+      core().continueCareer(n)
     elseif cmd == 'credits' then
       flow = { step = 'credits' }
     elseif cmd == 'changelog' then
@@ -747,7 +788,7 @@ function M.getUiState()
   local c = core()
   local eco = c.economy()
   local st = { step = flow.step, name = flow.name, plate = flow.plate, platePick = flow.platePick, busy = spawnTimer > 0,
-    experience = flow.experience, fromHome = flow.fromHome }
+    experience = flow.experience, fromHome = flow.fromHome, slot = flow.slot }
   st.steps = flow.experience == 'newbie' and { 'experience', 'keys', 'tutorial', 'driver', 'car', 'confirm' } or { 'experience', 'keys', 'driver', 'car', 'confirm' }
   if flow.step == 'keys' then st.keys, st.keysMissing = keyStatus(); st.keyGroups = keyGroups end
   if flow.step == 'tutorial' then
@@ -763,11 +804,18 @@ function M.getUiState()
   if flow.step == 'changelog' then st.changelog = changelogList() end
   flow.platePick = nil
   if flow.step == 'title' then
-    local save = c.peekSave()
+    local save, slot = c.peekSave()
     if save then
       local car = save.cars and save.cars[save.activeCar or 1]
-      st.save = { name = save.playerName or '—', car = car and car.name or '', money = eco.formatYen(save.money or 0) }
+      st.save = { name = save.playerName or '—', car = car and car.name or '', money = eco.formatYen(save.money or 0), slot = slot }
     end
+  end
+  if flow.step == 'slots' then
+    st.mode = flow.mode or 'new'
+    st.slots = c.slotList()
+    st.confirm = flow.confirm
+    st.anySave = false
+    for _, e in ipairs(st.slots) do if not e.empty then st.anySave = true end end
   end
   if flow.step == 'driver' then
     local plates = extensions.hashiriyaBattle_plates

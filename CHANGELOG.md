@@ -7,6 +7,12 @@
 - Rot heißt: wird gebraucht und fehlt. Grau heißt: nur praktisch, darf frei bleiben.
 - Neu im Pausenmenü: Esc > Mods > Hashiriya Battle hat jetzt die Reiter „Tasten“ und „Musik“. Unter „Tasten“ siehst du jederzeit alle Belegungen, „Belegen“ öffnet die BeamNG-Steuerung direkt für diese Taste.
 
+### Drei Spielstände
+- Neu: Bis zu drei Spielstände nebeneinander. „Neues Spiel“ fragt jetzt zuerst nach einem Platz (1 bis 3). Ein belegter Platz wird nur nach Rückfrage überschrieben, und erst wenn du den Assistenten abschließt.
+- Neuer Punkt „Spielstand laden“ im Titel: alle Plätze mit Fahrername, Rang, Auto, Tag, Geld und letzter Speicherung. „Weiterspielen“ lädt direkt den zuletzt gespielten Platz.
+- Spielstände lassen sich im Titel löschen (mit Rückfrage). Wechselst du mitten im Spiel den Platz, wird der laufende Spielstand vorher gespeichert.
+- Dein bisheriger Spielstand ist automatisch Platz 1.
+
 ### Befreien, wenn man festhängt
 - Neu: „Befreien“ mit Shift + U oder als Kachel im Menü links. Wer mit dem Auto oder zu Fuß in einer Leitplanke oder einem Objekt hängen bleibt (manche sind auf der C1 nicht ganz fest und halten fest wie ein Magnet), wird 0,5 m auf dem eigenen Weg zurückgesetzt, in der Richtung von damals und ohne Schwung.
 - Hängt man danach immer noch, bringt ein weiterer Druck kurz danach einen größeren Schritt zurück (1,5 m, 3 m, 6 m).
