@@ -1,6 +1,13 @@
 {
   "_info": "Aura (aura.lua): leuchtende Hülle (shell), Leucht-Nebel (haze) und Lichter (ground/battle/rim). Handbuch Kapitel 5e. shell: Deckkraft 0..1 und Höhe als Vielfaches der Autohöhe; haze: Nebel-Punkte am Boden; intensity = Helligkeit der Lichter in Lumen, radius in Metern. Farben der Wanderer/Bosse erzeugt tools/logos/aura_colors.py, Crews nehmen teams[].color aus rivals.json. Nach neuen Farben tools/aura/build_aura_assets.py laufen lassen (Nebel-Datablocks).",
   "enabled": true,
+  "who": {
+    "_info": "Wer hat automatisch eine Aura. In TXR 2025 tragen nur wenige besondere Gegner eine Aura, deshalb standardmäßig nur Bosse. Einzelne Rivalen: in rivals.json \"auraOn\": true/false, Farbe \"aura\": \"#rrggbb\", Stärke \"auraLevel\": 1-3 (Aura-Editor in der Gegner-Garage).",
+    "boss": true,
+    "wanderer": false,
+    "leader": false,
+    "member": false
+  },
   "rivals": {
     "ground": true,
     "groundOnlyNight": true,
@@ -61,7 +68,20 @@
     "enabled": true,
     "ground": true,
     "groundPoints": 2,
-    "battlePoints": 4
+    "battlePoints": 4,
+    "amount": 1,
+    "groundAmount": 0.6,
+    "alpha": 0.35,
+    "size": 1,
+    "life": 1,
+    "rise": 1,
+    "rate": 1,
+    "levels": [
+      1,
+      0.6,
+      0.35,
+      0.15
+    ]
   },
   "leaderRimColor": "#ffd257",
   "defaultColor": "#ff6600",

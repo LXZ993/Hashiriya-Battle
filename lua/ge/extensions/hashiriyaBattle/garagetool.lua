@@ -30,6 +30,7 @@ local auraPreview = nil -- { id = Gegner-ID, mode = 'ground'|'battle'|'both', sp
 local expectSpawn = false -- nächstes Spawnen kommt von "Gegner laden"
 local pendingPlate = nil   -- Kennzeichen-Text des geladenen Gegners (nach dem Spawnen setzen, wie rivals.lua spawnCar)
 
+local auraCfgForUi -- weiter unten
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
 local function send(data) guihooks.trigger('HashiriyaGarage', data) end
@@ -264,11 +265,23 @@ local function buildData()
       rewardUsd = r.rewardUsd, rewardYen = r.rewardYen, rep = r.rep,
       placeholder = r._platzhalter,
       auraColor = okA and auraColor or nil, leader = r.leader and true or false,
+      auraOn = au and au.hasAura and au.hasAura(r) or false, auraOwn = r.auraOn,
+      auraOwnColor = type(r.aura) == 'string' and r.aura or nil,
+      auraDefault = au and au.defaultColorOf and au.defaultColorOf(r) or nil,
+      auraDefaultOn = au and au.defaultOn and au.defaultOn(r) or false, auraLevel = r.auraLevel,
     })
   end
   local ranks = {}
   for i, rk in ipairs(data.ranks or {}) do ranks[i] = loc(rk.name) end
   return { teams = teams, rivals = list, ranks = ranks, root = root }
+end
+
+-- Werte aus aura.json, die der Aura-Editor zeigt
+auraCfgForUi = function()
+  local au = extensions.hashiriyaBattle_aura
+  local c = au and au.config and au.config() or {}
+  return { who = c.who, shell = c.shell, haze = c.haze, ground = c.ground, battle = c.battle, rim = c.rim,
+    rivalLevel = c.rivalLevel, leaderRimColor = c.leaderRimColor }
 end
 
 local function playerInfo()
@@ -285,7 +298,7 @@ function M.refresh()
     full = true, garage = garageActive(),
     teams = d.teams, rivals = d.rivals, ranks = d.ranks, root = d.root,
     loadedId = loadedId, loadedMode = loadedMode, player = playerInfo(),
-    aura = auraPreview,
+    aura = auraPreview, auraCfg = auraCfgForUi(),
   })
 end
 
@@ -485,6 +498,7 @@ function M.auraSpec(p)
   local r = p and findRival(p.id)
   if not au or not r then return nil end
   local color = au.colorOf and au.colorOf(r) or '#ff6600'
+  if type(p.color) == 'string' and p.color:match('^#%x%x%x%x%x%x$') then color = p.color end
   local rim = nil
   if r.leader then
     local okC, c = pcall(function() return jsonReadFile('/lua/ge/extensions/hashiriyaBattle/data/aura.json') end)
@@ -496,7 +510,7 @@ function M.auraSpec(p)
     ground = mode == 'ground' or mode == 'both',
     battle = mode == 'battle' or mode == 'both',
     sp = math.max(0, math.min(1, tonumber(p.sp) or 1)),
-    level = math.max(1, math.min(3, math.floor(tonumber(p.level) or 2))),
+    level = math.max(1, math.min(3, math.floor(tonumber(p.level) or tonumber(r.auraLevel) or tonumber((au.config and au.config() or {}).rivalLevel) or 2))),
     boost = math.max(1, math.min(20, tonumber(p.boost) or 1)),
   }
 end
@@ -514,7 +528,7 @@ local function auraAction(a)
   end
   local r = findRival(a.id)
   if not r then status(false, 'Gegner nicht gefunden: ' .. tostring(a.id)) return end
-  setAuraPreview({ id = r.id, mode = a.mode or 'ground', sp = a.sp, level = a.level, boost = a.boost })
+  setAuraPreview({ id = r.id, mode = a.mode or 'ground', sp = a.sp, level = a.level, boost = a.boost, color = a.color })
   local names = { ground = 'Boden-Aura', battle = 'Battle-Aura', both = 'Boden + Battle' }
   status(true, 'Aura von ' .. tostring(r.name) .. ': ' .. (names[a.mode] or tostring(a.mode)))
   M.refresh()
@@ -528,11 +542,143 @@ local function auraReload()
   status(true, 'aura.json neu geladen')
 end
 
+-- Aura-Editor ---------------------------------------------------------------------------------------
+
+-- Wert aus aura.json live ändern (nur im Speicher, bis "aura.json speichern")
+local auraEditable = { who = true, shell = true, haze = true, ground = true, battle = true, rim = true, rivalLevel = true }
+local function auraSet(a)
+  local au = extensions.hashiriyaBattle_aura
+  if not au or not au.setValue then status(false, 'aura.lua fehlt oder ist zu alt') return end
+  local path = tostring(a.path or '')
+  local top = path:match('^([^%.]+)')
+  if not top or not auraEditable[top] then status(false, 'Wert nicht änderbar: ' .. path) return end
+  local v = a.value
+  if type(v) ~= 'number' and type(v) ~= 'boolean' then status(false, 'Ungültiger Wert für ' .. path) return end
+  au.setValue(path, v)
+  if auraPreview then setAuraPreview(auraPreview) end
+  M.refresh()
+end
+
+-- aura.json mit fester Reihenfolge schreiben (lesbar wie vorher)
+local auraKeyOrder = { '_info', 'enabled', 'who', 'rivals', 'levels', 'rivalLevel', 'ground', 'battle', 'rim', 'shell', 'haze', 'leaderRimColor', 'defaultColor', 'colors' }
+local function encodeOrdered(v, ind, order)
+  local pad = string.rep('  ', ind)
+  if type(v) ~= 'table' then return jsonEncode(v) end
+  if #v > 0 or next(v) == nil then
+    if next(v) == nil then return '{}' end
+    local simple = true
+    for _, x in ipairs(v) do if type(x) == 'table' then simple = false end end
+    local parts = {}
+    for _, x in ipairs(v) do table.insert(parts, encodeOrdered(x, ind + 1)) end
+    if simple then return '[' .. table.concat(parts, ', ') .. ']' end
+    return '[\n' .. pad .. '  ' .. table.concat(parts, ',\n' .. pad .. '  ') .. '\n' .. pad .. ']'
+  end
+  local keys, seen = {}, {}
+  for _, k in ipairs(order or {}) do if v[k] ~= nil then table.insert(keys, k); seen[k] = true end end
+  local rest = {}
+  for k in pairs(v) do if not seen[k] then table.insert(rest, k) end end
+  table.sort(rest, function(x, y)
+    if x == '_info' then return true elseif y == '_info' then return false end
+    return tostring(x) < tostring(y)
+  end)
+  for _, k in ipairs(rest) do table.insert(keys, k) end
+  local parts = {}
+  for _, k in ipairs(keys) do
+    table.insert(parts, pad .. '  ' .. jsonEncode(tostring(k)) .. ': ' .. encodeOrdered(v[k], ind + 1))
+  end
+  return '{\n' .. table.concat(parts, ',\n') .. '\n' .. pad .. '}'
+end
+
+local auraRel = 'lua/ge/extensions/hashiriyaBattle/data/aura.json'
+local function auraSaveCfg()
+  local au = extensions.hashiriyaBattle_aura
+  if not au or not au.config then status(false, 'aura.lua fehlt') return end
+  local root = modRoot()
+  if not root then status(false, 'Mod-Ordner mods/unpacked/Hashiriya-Battle nicht gefunden') return end
+  local text = encodeOrdered(au.config(), 0, auraKeyOrder) .. '\n'
+  local okJson = pcall(jsonDecode, text, 'garagetool')
+  if not okJson then status(false, 'aura.json wäre ungültig, nicht gespeichert') return end
+  local stamp = os.date('%Y%m%d_%H%M%S')
+  local b = backup(root .. auraRel, 'aura_' .. stamp .. '.json')
+  pcall(pruneBackups, 'aura_*.json')
+  writeFile(root .. auraRel, text)
+  log('I', logTag, 'Gegner-Garage: aura.json gespeichert (Sicherung ' .. tostring(b) .. ')')
+  status(true, 'aura.json gespeichert (Sicherung in builder_backups)')
+end
+
+-- Feld eines Rivalen setzen, ändern oder entfernen (Text, Reihenfolge bleibt). jsonValue = fertiger JSON-Text oder nil = entfernen
+local function setRivalField(text, id, field, jsonValue)
+  local idPat = '"id"%s*:%s*"' .. id:gsub('%p', '%%%0') .. '"'
+  local listStart = text:find('"rivals"%s*:%s*%[') or 1
+  local s0, e0 = text:find(idPat, listStart)
+  if not s0 then return nil, 'Gegner ' .. id .. ' nicht in rivals.json gefunden' end
+  local nextId = text:find('"id"%s*:%s*"', e0 + 1) or #text
+  -- vorhandenes Feld (Wert: Text, Zahl, true/false)
+  local fs, fe = text:find('%s*"' .. field .. '"%s*:%s*"[^"]*"%s*,?', e0 + 1)
+  if not fs or fs > nextId then fs, fe = text:find('%s*"' .. field .. '"%s*:%s*[%w%.%-]+%s*,?', e0 + 1) end
+  if fs and fs > nextId then fs, fe = nil, nil end
+  if fs then
+    local chunk = text:sub(fs, fe)
+    local hadComma = chunk:match(',%s*$') ~= nil
+    if jsonValue == nil then
+      if hadComma then return text:sub(1, fs - 1) .. text:sub(fe + 1) end
+      -- letztes Feld: Komma davor mit entfernen
+      local before = text:sub(1, fs - 1):gsub(',%s*$', '')
+      return before .. text:sub(fe + 1)
+    end
+    local lead = chunk:match('^(%s*)')
+    return text:sub(1, fs - 1) .. lead .. '"' .. field .. '": ' .. jsonValue .. (hadComma and ',' or '') .. text:sub(fe + 1)
+  end
+  if jsonValue == nil then return text end
+  -- neu: direkt hinter "id": "..." einfügen, gleiche Einrückung wie die id-Zeile
+  local lineStart = text:sub(1, s0 - 1):match('.*\n()') or 1
+  local indent = text:sub(lineStart, s0 - 1):match('^(%s*)') or ''
+  return text:sub(1, e0) .. ',\n' .. indent .. '"' .. field .. '": ' .. jsonValue .. text:sub(e0 + 1)
+end
+M._setRivalField = setRivalField -- für Tests
+
+local function auraSaveRival(a)
+  local r = findRival(a.id)
+  if not r then status(false, 'Gegner nicht gefunden') return end
+  local root = modRoot()
+  if not root then status(false, 'Mod-Ordner mods/unpacked/Hashiriya-Battle nicht gefunden') return end
+  local jsonPath = root .. dataRel
+  local text = readFile(jsonPath)
+  if not text then status(false, 'rivals.json nicht lesbar') return end
+  local on = a.on
+  local onJson = (on == true and 'true') or (on == false and 'false') or nil
+  local color = type(a.color) == 'string' and a.color:match('^#%x%x%x%x%x%x$') and a.color:lower() or nil
+  local level = tonumber(a.level)
+  local levelJson = level and tostring(math.max(1, math.min(3, math.floor(level)))) or nil
+  local err
+  text, err = setRivalField(text, r.id, 'auraOn', onJson)
+  if not text then status(false, err) return end
+  text, err = setRivalField(text, r.id, 'aura', color and ('"' .. color .. '"') or nil)
+  if not text then status(false, err) return end
+  text, err = setRivalField(text, r.id, 'auraLevel', levelJson)
+  if not text then status(false, err) return end
+  local okJson = pcall(jsonDecode, text, 'garagetool')
+  if not okJson then status(false, 'rivals.json wäre ungültig, nicht gespeichert') return end
+  local stamp = os.date('%Y%m%d_%H%M%S')
+  local b = backup(jsonPath, 'rivals_' .. stamp .. '.json')
+  pcall(pruneBackups, 'rivals_*.json')
+  writeFile(jsonPath, text)
+  rivals().loadData()
+  log('I', logTag, string.format('Gegner-Garage: Aura von %s gespeichert (an=%s, Farbe=%s, Stufe=%s, Sicherung %s)',
+    r.id, tostring(onJson or 'Standard'), tostring(color or 'Standard'), tostring(levelJson or 'Standard'), tostring(b)))
+  if auraPreview then setAuraPreview(auraPreview) end
+  status(true, 'Aura von ' .. tostring(r.name) .. ' gespeichert (rivals.json)')
+  M.refresh()
+end
+
 local actions = {
   load = loadRival,
   save = saveRival,
   aura = auraAction,
   auraReload = auraReload,
+  auraSet = auraSet,
+  auraSaveCfg = auraSaveCfg,
+  auraSaveRival = auraSaveRival,
   refresh = function() M.refresh() end,
   state = function() pushState(true) end,
 }

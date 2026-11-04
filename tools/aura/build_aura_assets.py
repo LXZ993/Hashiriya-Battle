@@ -5,12 +5,10 @@ Schreibt nach art/shapes/hashiriya/:
   aura_shell.dae              Hülle: zwei Ringe aus weichen, senkrechten Flammen-Streifen um ein Einheits-Oval
                               (Radius 1, Höhe 0..1). aura.lua skaliert sie jeden Frame auf das Auto.
   aura_flame.color.png        Textur der Streifen (weiß, unten hell, nach oben und zu den Seiten weich aus)
-  aura_glow.color.png         weicher runder Leuchtpunkt für den Nebel
   aura.materials.json         Material "hashiriya_aura_shell" (additiv, leuchtend, Farbe pro Auto über instanceColor)
-  aura.particleData.json      pro Aura-Farbe ein Nebel-Partikel (Farbe steckt im Datablock)
-  aura.emitterData.json       pro Aura-Farbe ein Emitter (additiv)
-Farben: lua/ge/extensions/hashiriyaBattle/data/aura.json (colors, defaultColor, leaderRimColor) und
-rivals.json (teams[].color, rivals[].aura). Neu laufen lassen, wenn Farben dazukommen:
+Die Nebel-Partikel (Farbe und Stärke stecken im Datablock) legt aura.lua zur Laufzeit selbst an,
+für jede Farbe und Nebel-Stufe (settings/hashiriya_battle/aura_fx/). Neu laufen lassen nur, wenn sich Hülle,
+Textur oder Material ändern sollen:
   python tools/aura/build_aura_assets.py
 """
 import json, math, os, random
@@ -180,7 +178,6 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     mat = 'hashiriya_aura_shell'
     flame_texture(os.path.join(OUT, 'aura_flame.color.png'))
-    glow_texture(os.path.join(OUT, 'aura_glow.color.png'))
     write_dae(os.path.join(OUT, 'aura_shell.dae'), mat)
     tex = '/' + VFS + 'aura_flame.color.png'  # Materialien mit führendem /, Partikel ohne (wie im Spiel)
     mats = {mat: {
@@ -198,31 +195,7 @@ def main():
         'translucentZWrite': False, 'version': 1.5,
     }}
     json.dump(mats, open(os.path.join(OUT, 'aura.materials.json'), 'w', encoding='utf-8'), indent=1)
-    pdata, edata = {}, {}
-    cols = colors()
-    for c in cols:
-        r, g, b = light(hexrgb(c))
-        key = c.lstrip('#')
-        pn, en = 'HBAuraP_' + key, 'HBAuraE_' + key
-        pdata[pn] = {
-            'name': pn, 'class': 'ParticleData',
-            'textureName': SMOKE, 'animTexName': SMOKE,
-            'colors': [[r, g, b, 0], [r, g, b, 0.35], [r, g, b, 0.18], [r, g, b, 0]],
-            'sizes': [0.4, 0.8, 1.2, 1.5], 'times': [0, 0.15, 0.6, 1],
-            'lifetimeMS': 1300, 'lifetimeVarianceMS': 400,
-            'gravityCoefficient': -0.12, 'dragCoefficient': 2.0, 'inheritedVelFactor': 0.1,
-            'spinInitialMax': 360, 'spinRandomMin': -60, 'spinRandomMax': 60, 'spinSpeed': 0.2,
-            'useInvAlpha': False,
-        }
-        edata[en] = {
-            'name': en, 'class': 'ParticleEmitterData', 'particles': pn, 'blendStyle': 'ADDITIVE',
-            'ejectionPeriodMS': 45, 'periodVarianceMS': 15, 'ejectionVelocity': 0.35, 'velocityVariance': 0.25,
-            'ejectionOffset': 0.25, 'thetaMin': 0, 'thetaMax': 80, 'phiVariance': 360,
-            'alignDirection': [0, 0, 1], 'reverseOrder': True, 'softParticles': '0', 'useLighting': False,
-        }
-    json.dump(pdata, open(os.path.join(OUT, 'aura.particleData.json'), 'w', encoding='utf-8'), indent=1)
-    json.dump(edata, open(os.path.join(OUT, 'aura.emitterData.json'), 'w', encoding='utf-8'), indent=1)
-    print('Aura-Bausteine:', len(cols), 'Farben ->', OUT)
+    print('Aura-Bausteine ->', OUT)
 
 
 if __name__ == '__main__':

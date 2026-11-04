@@ -148,6 +148,10 @@
 
 ### Rival garage (developer tool)
 - New in the dev version: entry "Gegner-Garage (Dev)" in the BeamNG main menu under More, right next to Hashiriya Battle. It starts the regular BeamNG garage with all its features (parts, tune, paint, decals, vehicles, photo, lights, camera) and puts the "Rival garage" panel on top. Search rivals or filter by crews, leaders, wanderers, bosses, own configs and missing configs, click one, and his car loads in the garage with his config (as in game with plate and fixed paint, or the plain config).
+- Aura editor in the "Aura" tab: per rival aura on/off, colour (hex field and sliders) and strength, with live preview on the car, saved to rivals.json. Plus sliders for shell, haze and light and the rule for who gets an aura automatically, saved to aura.json. Both with backup.
+- Like in TXR 2025, only a few rivals carry an aura now: the bosses by default, plus everyone given one in the editor. Crew, leader, wanderer and boss auras in the trophy wall now only come from rivals who carry one themselves.
+- The glowing haze gets thinner in battle as SP drops and disappears when SP is almost empty.
+- Wanderer Builder: new choice "Aura (wish)". The wish goes into the file with the avatar colour, the import script shows it.
 - The aura now really glows around the car: a soft flame shell in the aura colour, rising glowing haze and the ground light. In a battle it gets taller, brighter and pulses. Applies to rivals, your own aura and the preview in the rival garage. Adjustable in aura.json (shell, haze).
 - Loading a rival now also sets his licence plate number (before, the old car's number stayed and only the plate design changed).
 - Next to it: description, crew with all members and their cars, conditions in plain words, driving style, reward and lines. That keeps a car in character while tuning it, e.g. the company cars of Zangyō Express.

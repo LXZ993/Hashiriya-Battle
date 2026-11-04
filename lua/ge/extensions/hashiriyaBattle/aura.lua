@@ -43,6 +43,24 @@ local function cfg()
 end
 function M.reload() data = nil; failed = false; M.clear(); if M.resetFx then M.resetFx() end end
 
+-- Aura-Editor (Gegner-Garage): Werte live ändern, ohne aura.json zu schreiben (Speichern macht garagetool.lua)
+function M.config() return cfg() end
+function M.setValue(path, value)
+  local c = cfg()
+  local t, last = c, nil
+  local keys = {}
+  for k in tostring(path):gmatch('[^%.]+') do table.insert(keys, k) end
+  if #keys == 0 then return false end
+  for i = 1, #keys - 1 do
+    local k = keys[i]
+    if type(t[k]) ~= 'table' then t[k] = {} end
+    t = t[k]
+  end
+  last = keys[#keys]
+  t[last] = value
+  return true
+end
+
 -- Vorschau ohne Karriere (Gegner-Garage, garagetool.lua): Aura am Spielerauto, egal ob Nacht oder Battle.
 -- p = { color = '#rrggbb', rim = '#rrggbb' oder nil, ground = bool, battle = bool, sp = 0..1, level = 1..3,
 --       boost = Faktor nur für die Vorschau (hell beleuchtete Halle) } oder nil = aus
@@ -129,38 +147,85 @@ local shells = {}      -- [Schlüssel] = { obj = TSStatic }
 local hazes = {}       -- [Schlüssel] = { obj = ParticleEmitterNode, emitter = Name }
 local dimCache = {}    -- [Fahrzeug-ID] = Maße
 local assetsLoaded = false
-local emitterNames = nil -- [hex] = true (Farben mit eigenem Datablock)
 local shellFailed, hazeFailed = false, false
 local SHELL_SHAPE = 'art/shapes/hashiriya/aura_shell.dae'
+local FX_DIR = '/settings/hashiriya_battle/aura_fx/'
+local SMOKE = 'art/shapes/particles/particle_smoke_soft_01.dds' -- weiche Rauch-Textur des Spiels
+local hazeBlocks = {}  -- [Name des Emitters] = true (geladen)
 
 local function loadAssets()
   if assetsLoaded then return end
   assetsLoaded = true
-  for _, f in ipairs({ 'art/shapes/hashiriya/aura.materials.json', 'art/shapes/hashiriya/aura.particleData.json', 'art/shapes/hashiriya/aura.emitterData.json' }) do
-    local ok, err = pcall(loadJsonMaterialsFile, f)
-    if not ok then log('W', 'Aura: ' .. f .. ' nicht geladen: ' .. tostring(err)) end
-  end
-  emitterNames = {}
-  local d = jsonReadFile('/art/shapes/hashiriya/aura.emitterData.json') or {}
-  for name in pairs(d) do
-    local hex = name:match('^HBAuraE_(%x+)$')
-    if hex then emitterNames[hex:lower()] = true end
-  end
+  local ok, err = pcall(loadJsonMaterialsFile, 'art/shapes/hashiriya/aura.materials.json')
+  if not ok then log('W', 'Aura: Material nicht geladen: ' .. tostring(err)) end
+  hazeBlocks = {}
 end
 
--- Datablock zur Farbe; gibt es keinen, den mit der ähnlichsten Farbe
-local function emitterFor(hex)
+-- Nebel-Stufen: Stärke 1 = voll, kleiner = dünner (weniger Partikel, durchsichtiger). Mit sinkenden SP wird umgeschaltet.
+local function hazeLevels()
+  local l = (cfg().haze or {}).levels
+  if type(l) ~= 'table' or #l == 0 then l = { 1, 0.6, 0.35, 0.15 } end
+  return l
+end
+
+-- kurze Prüfsumme der Nebel-Werte: ändern sie sich (Aura-Editor), bekommen die Datablocks neue Namen
+local function hazeHash(hz)
+  local s = string.format('%.2f|%.2f|%.2f|%.2f|%.2f', hz.size or 1, hz.life or 1, hz.rise or 1, hz.alpha or 0.35, hz.rate or 1)
+  local h = 0
+  for k = 1, #s do h = (h * 31 + s:byte(k)) % 65521 end
+  return string.format('%04x', h)
+end
+
+-- Datablocks für eine Farbe und Stufe zur Laufzeit anlegen (Datei im Benutzerordner, dann laden)
+local function hazeEmitter(hex, lvl)
   loadAssets()
   hex = tostring(hex or ''):gsub('#', ''):lower()
-  if emitterNames[hex] then return 'HBAuraE_' .. hex end
-  if #hex ~= 6 then return nil end
-  local r, g, b = tonumber(hex:sub(1, 2), 16), tonumber(hex:sub(3, 4), 16), tonumber(hex:sub(5, 6), 16)
-  local best, bestD = nil, math.huge
-  for h in pairs(emitterNames) do
-    local d = (tonumber(h:sub(1, 2), 16) - r) ^ 2 + (tonumber(h:sub(3, 4), 16) - g) ^ 2 + (tonumber(h:sub(5, 6), 16) - b) ^ 2
-    if d < bestD then best, bestD = h, d end
+  if #hex ~= 6 or not hex:match('^%x+$') then return nil end
+  local hz = cfg().haze or {}
+  local hash = hazeHash(hz)
+  local en = 'HBAuraE_' .. hex .. '_' .. lvl .. '_' .. hash
+  if hazeBlocks[en] then return en end
+  local pn = 'HBAuraP_' .. hex .. '_' .. lvl .. '_' .. hash
+  local exists = false
+  pcall(function() exists = scenetree.findObject(en) ~= nil end)
+  if not exists then
+    local col = lightColor('#' .. hex)
+    local k = hazeLevels()[lvl] or 1
+    local a = (hz.alpha or 0.35) * math.min(1, k * 1.2)
+    local sz = hz.size or 1
+    local life = math.floor(1300 * (hz.life or 1))
+    local r, g, b = col[1], col[2], col[3]
+    local pdata = { [pn] = {
+      name = pn, class = 'ParticleData', textureName = SMOKE, animTexName = SMOKE,
+      colors = { { r, g, b, 0 }, { r, g, b, a }, { r, g, b, a * 0.5 }, { r, g, b, 0 } },
+      sizes = { 0.4 * sz, 0.8 * sz, 1.2 * sz, 1.5 * sz }, times = { 0, 0.15, 0.6, 1 },
+      lifetimeMS = life, lifetimeVarianceMS = math.floor(life * 0.3),
+      gravityCoefficient = -0.12 * (hz.rise or 1), dragCoefficient = 2.0, inheritedVelFactor = 0.1,
+      spinInitialMax = 360, spinRandomMin = -60, spinRandomMax = 60, spinSpeed = 0.2, useInvAlpha = false,
+    } }
+    local period = math.floor(45 / math.max(0.1, (hz.rate or 1) * math.max(0.1, k)))
+    local edata = { [en] = {
+      name = en, class = 'ParticleEmitterData', particles = pn, blendStyle = 'ADDITIVE',
+      ejectionPeriodMS = math.max(10, period), periodVarianceMS = math.floor(math.max(10, period) / 3),
+      ejectionVelocity = 0.35, velocityVariance = 0.25, ejectionOffset = 0.25,
+      thetaMin = 0, thetaMax = 80, phiVariance = 360, alignDirection = { 0, 0, 1 },
+      reverseOrder = true, softParticles = '0', useLighting = false,
+    } }
+    local base = FX_DIR .. hex .. '_' .. lvl .. '_' .. hash
+    local ok, err = pcall(function()
+      if not FS:directoryExists(FX_DIR) then FS:directoryCreate(FX_DIR, true) end
+      jsonWriteFile(base .. '.particleData.json', pdata, false)
+      jsonWriteFile(base .. '.emitterData.json', edata, false)
+      loadJsonMaterialsFile(base .. '.particleData.json')
+      loadJsonMaterialsFile(base .. '.emitterData.json')
+    end)
+    if not ok then
+      log('W', 'Aura-Nebel: Datablock nicht angelegt: ' .. tostring(err))
+      return nil
+    end
   end
-  return best and ('HBAuraE_' .. best) or nil
+  hazeBlocks[en] = true
+  return en
 end
 
 local usedFx = {}
@@ -214,9 +279,9 @@ local function putShell(key, pos, fwd, up, size, col, alpha)
   end)
 end
 
-local function putHaze(key, pos, hex)
+local function putHaze(key, pos, hex, lvl)
   if hazeFailed then return end
-  local emitter = emitterFor(hex)
+  local emitter = hazeEmitter(hex, lvl)
   if not emitter then return end
   usedFx['h' .. key] = true
   local h = hazes[key]
@@ -332,7 +397,17 @@ local function drawFx(key, veh, spec, pos, fwd, up, side)
     local size = vec3(d.w * 0.5 * (sc.widthPad or 1.1) + 0.08, d.l * 0.5 * (sc.lengthPad or 1.0) + 0.08, hgt)
     putShell(key, ground, fwd, up, size, spec.color, alpha)
   end
-  if hz.enabled ~= false and spec.hex and (spec.battle or hz.ground ~= false) then
+  -- Stärke des Nebels: Stufe der Aura, im Battle mal SP; daraus die passende Nebel-Stufe
+  local strength
+  if spec.battle then strength = (spec.battleLevel / 1.4) * spF else strength = (spec.level / 0.9) * (hz.groundAmount or 0.6) end
+  strength = strength * (hz.amount or 1)
+  local lvl = nil
+  local levels = hazeLevels()
+  for li = 1, #levels do
+    if strength >= levels[li] * 0.85 then lvl = li; break end
+  end
+  if not lvl and strength >= levels[#levels] * 0.4 then lvl = #levels end
+  if hz.enabled ~= false and lvl and spec.hex and (spec.battle or hz.ground ~= false) then
     local n = spec.battle and (hz.battlePoints or 4) or (hz.groundPoints or 2)
     local fl, sw = d.l * 0.5 * 0.8, d.w * 0.5 * 0.9
     local pts
@@ -344,7 +419,7 @@ local function drawFx(key, veh, spec, pos, fwd, up, side)
     for i, off in ipairs(pts) do
       local hex = spec.hex
       if spec.rimHex and i > 2 then hex = spec.rimHex end
-      putHaze(key .. ':' .. i, ground + off + up * 0.1, hex)
+      putHaze(key .. ':' .. i, ground + off + up * 0.1, hex, lvl)
     end
   end
 end
@@ -397,7 +472,42 @@ function M.colorOf(rival)
   if not rival then return nil end
   local c = cfg()
   local id = rival.baseId or rival.id
-  if rival.aura then return rival.aura end
+  if type(rival.aura) == 'string' and rival.aura ~= '' then return rival.aura end
+  if c.colors and c.colors[id] then return c.colors[id] end
+  if rival.team then
+    local t = teamOf(rival.team)
+    if t and t.color then return t.color end
+  end
+  return c.defaultColor or '#ff6600'
+end
+
+-- Hat dieser Rivale eine Aura? Eigene Angabe in rivals.json ("auraOn": true/false) gewinnt,
+-- sonst die Regel aus aura.json "who" (wie in TXR 2025: Bosse, Wanderer, Leader; normale Crew-Mitglieder nicht)
+local function roleOf(rival)
+  if rival.boss then return 'boss' end
+  if rival.wanderer then return 'wanderer' end
+  if rival.leader then return 'leader' end
+  return 'member'
+end
+M.roleOf = roleOf
+
+function M.defaultOn(rival)
+  local who = cfg().who
+  if type(who) ~= 'table' then return true end
+  return who[roleOf(rival)] == true
+end
+
+function M.hasAura(rival)
+  if not rival then return false end
+  if rival.auraOn == true or rival.auraOn == false then return rival.auraOn end
+  return M.defaultOn(rival)
+end
+
+-- Farbe ohne eigene Angabe beim Rivalen (Crew-, Siegel- oder Standardfarbe)
+function M.defaultColorOf(rival)
+  if not rival then return nil end
+  local c = cfg()
+  local id = rival.baseId or rival.id
   if c.colors and c.colors[id] then return c.colors[id] end
   if rival.team then
     local t = teamOf(rival.team)
@@ -419,24 +529,30 @@ function M.entries(save)
   local c = cfg()
   local list = {}
   for _, t in ipairs(d.teams or {}) do
-    local anyMember, leader = false, nil
+    -- Crew-Aura nur, wenn mindestens ein Mitglied (ohne Leader) eine Aura hat; frei nach dem Sieg gegen so eines
+    local hasMember, anyMember, leader = false, false, nil
     for _, r in ipairs(d.rivals or {}) do
       if r.team == t.id then
-        if defeated[r.id] then anyMember = true end
-        if r.leader then leader = r end
+        if r.leader then leader = r
+        elseif M.hasAura(r) then
+          hasMember = true
+          if defeated[r.id] then anyMember = true end
+        end
       end
     end
-    table.insert(list, { id = 'c:' .. t.id, kind = 'crew', name = loc(t.name), color = t.color or c.defaultColor,
-      unlocked = anyMember, team = t.id, logo = rivals().teamLogo(t.id, false, true) })
-    if leader then
-      table.insert(list, { id = 'l:' .. t.id, kind = 'leader', name = loc(t.name), color = t.color or c.defaultColor,
+    if hasMember then
+      table.insert(list, { id = 'c:' .. t.id, kind = 'crew', name = loc(t.name), color = t.color or c.defaultColor,
+        unlocked = anyMember, team = t.id, logo = rivals().teamLogo(t.id, false, true) })
+    end
+    if leader and M.hasAura(leader) then
+      table.insert(list, { id = 'l:' .. t.id, kind = 'leader', name = loc(t.name), color = M.colorOf(leader) or t.color or c.defaultColor,
         rim = c.leaderRimColor, unlocked = defeated[leader.id] and true or false, team = t.id,
         source = leader, logo = rivals().teamLogo(t.id, true, true) })
     end
   end
   for _, kind in ipairs({ 'wanderer', 'boss' }) do
     for _, r in ipairs(d.rivals or {}) do
-      if (kind == 'boss' and r.boss) or (kind == 'wanderer' and r.wanderer and not r.boss) then
+      if ((kind == 'boss' and r.boss) or (kind == 'wanderer' and r.wanderer and not r.boss)) and M.hasAura(r) then
         table.insert(list, { id = r.id, kind = kind, name = r.name, nick = loc(r.nick), color = M.colorOf(r),
           unlocked = defeated[r.id] and true or false, source = r, logo = rivals().logoOf(r) })
       end
@@ -607,13 +723,14 @@ local function update(dt)
   local ppos = player and player:getPosition() or nil
   for _, e in ipairs(rivals() and rivals().getOnRoad() or {}) do
     local veh = e.vehId and be:getObjectByID(e.vehId)
-    if veh and e.rival then
+    if veh and e.rival and M.hasAura(e.rival) then
       local near = not ppos or (veh:getPosition() - ppos):length() < (rc.maxDistance or 220)
       local fighting = inBattle and bi.rival == e.rival
       local ground = rc.ground ~= false and (night or rc.groundOnlyNight == false)
       if near and (ground or (fighting and rc.battle ~= false)) then
+        local lv = e.rival.auraLevel and levelOf(math.max(1, math.min(3, tonumber(e.rival.auraLevel) or 2))) or rLevel
         drawAura('r' .. tostring(e.vehId), veh, {
-          color = lightColor(M.colorOf(e.rival)), hex = M.colorOf(e.rival), rimHex = e.rival.leader and (c.leaderRimColor or '#ffd257') or nil, level = rLevel.ground or 0.9, battleLevel = rLevel.battle or 1.4,
+          color = lightColor(M.colorOf(e.rival)), hex = M.colorOf(e.rival), rimHex = e.rival.leader and (c.leaderRimColor or '#ffd257') or nil, level = lv.ground or 0.9, battleLevel = lv.battle or 1.4,
           ground = ground, battle = fighting and rc.battle ~= false, sp = fighting and bi.rivalSp or 1,
           rimColor = e.rival.leader and lightColor(c.leaderRimColor or '#ffd257') or nil,
         })
