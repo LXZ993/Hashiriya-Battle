@@ -75,6 +75,11 @@
 - Submitted Wanderers come into the game with avatar, seal, plate, config and credits entry, exactly as the builder shows them.
 - The Wanderer Builder now knows all 30 condition types (weekday, NA/turbo, manual gearbox, drivetrain FWD/RWD/AWD, paint colour, power, weight, mileage, win streak, money, nickname, emblem, statistics, visited parking areas and more), sorted into five groups. The build date is shown at the bottom.
 - Handbook: all links to the old Wanderer form now point to the Wanderer Builder. The old Google form is marked as outdated and folded away for reference only.
+- Wanderer Builder reworked after Alex's feedback: the neck is visible again with the hoodie, fur coat and parka; headphone band and towel sit behind the neck; glasses temples run to the edge of the head instead of into the eyes; the comb lines of "slicked back" stay inside the hair; the ponytail falls closer to the neck.
+- New avatar parts: kimono with obi, happi (festival coat), hairstyles giant regent (bōsōzoku), pompadour (Elvis) and punch perm, visor eyes crossed (X X), hearts, stars and squeezed, plus the mouth shape (straight, grin, smirk, crooked, grim, teeth), also together with a cigarette or toothpick. "Blazer suit" is now "Women's suit (blazer)".
+- Every fabric colour works with every top. Locked parts show the reason right below them (e.g. the field cap needs the field jacket, the hat needs elegant clothes).
+- License plate: "Type" only offers types that really exist in the chosen region; Okinawa is its own region with US Air Force only.
+- Driving style as uniform buttons with explanations (aggression 1 to 8, cruising speed, strength with "from rank X"). The nickname condition lists all nicknames with how to earn them. New field "Anything else?" for wishes and later changes.
 
 ### New left menu
 - The left menu (Home key) is tidied up: a card at the top with money, time, rank and reputation bar, plus small fields for record and "Nearby". The main entries (save, lexicon, dealer, stats, nap, tow) are tiles instead of a long list.

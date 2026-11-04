@@ -75,6 +75,11 @@
 - Eingesendete Wanderer kommen mit Avatar, Siegel, Kennzeichen, Config und Credits-Eintrag ins Spiel, genau so, wie der Builder sie zeigt.
 - Der Wanderer-Builder kennt jetzt alle 30 Bedingungsarten (Wochentag, Saugmotor/Turbo, Schaltgetriebe, Antrieb FF/FR/Allrad, Lackfarbe, PS, Gewicht, Kilometerstand, Siegesserie, Geld, Spitzname, Wappen, Statistik, besuchte PAs und mehr), sortiert in fünf Gruppen. Unten steht das Baudatum der Datei.
 - Handbuch: Alle Verweise auf das alte Wanderer-Formular zeigen jetzt auf den Wanderer-Builder. Das alte Google-Formular ist als veraltet markiert und nur noch zum Nachschlagen eingeklappt.
+- Wanderer-Builder nach Alex' Feedback überarbeitet: Hals bei Hoodie, Pelzmantel und Parka wieder sichtbar; Kopfhörerbügel und Handtuch liegen hinter dem Hals; Brillenbügel gehen zum Kopfrand statt in die Augen; die Kammspuren bei „Zurückgegelt“ bleiben im Haar; der Pferdeschwanz fällt näher am Hals.
+- Neue Avatar-Teile: Kimono mit Obi, Happi (Festjacke), Frisuren Riesen-Regent (Bōsōzoku), Pompadour (Elvis) und Punch-Perm, Visier-Augen gekreuzt (X X), Herzen, Sterne und zugekniffen, dazu die Mundform (gerade, Grinsen, Schmunzeln, schief, grimmig, Zähne), auch zusammen mit Zigarette oder Zahnstocher. „Kostüm“ heißt jetzt „Damen-Anzug (Blazer)“.
+- Alle Stofffarben gehen bei allen Oberteilen. Gesperrte Teile zeigen den Grund direkt darunter (z. B. Feldmütze braucht die Feldjacke, Hut braucht elegante Kleidung).
+- Kennzeichen: Bei „Art“ stehen nur Arten, die es in der gewählten Region wirklich gibt; Okinawa ist eine eigene Region nur mit US Air Force.
+- Fahrstil einheitlich als Knöpfe mit Erklärung (Aggression 1 bis 8, Reisetempo, Stärke mit „ab Rang X“). Die Spitznamen-Bedingung zeigt alle Spitznamen mit Beschreibung. Neues Feld „Sonst noch was?“ für Wünsche und spätere Änderungen.
 
 ### Menü links neu
 - Das linke Menü (Pos1) ist aufgeräumt: oben eine Karte mit Geld, Uhrzeit, Rang und Ruf-Balken, darunter kleine Felder für Bilanz und „In der Nähe“. Die Hauptpunkte (Speichern, Lexikon, Autohändler, Statistik, Nickerchen, Abschleppen) sind Kacheln statt einer langen Liste.

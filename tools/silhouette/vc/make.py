@@ -152,8 +152,11 @@ def compose(spec, preview):
     doc.layer("Augen", PH.eyes_svg(doc, PH.EYES[spec["eyes"]][1], lashes=spec["female"]) + PH.visor_shine(doc), head=True)
     if spec.get("mask"):
         doc.layer("Maske", PH.mask(doc, A), head=True)
-    elif spec.get("mouth"):
-        doc.layer("Mund", PH.MOUTHS[spec["mouth"]][1](doc, A), head=True)
+    else:
+        if spec.get("lips"):
+            doc.layer("Mundform", PH.LIPS[spec["lips"]][1](doc, A), head=True)
+        if spec.get("mouth"):
+            doc.layer("Mund", PH.MOUTHS[spec["mouth"]][1](doc, A), head=True)
     if front:
         doc.layer("Haare", front, head=True)
     if spec.get("ear"):
@@ -203,6 +206,8 @@ def catalog(preview, hide=True):
         L(f"Augen_{eid}", PH.eyes_svg(doc, fn), head=True)
     L("Augen_Wimpern_normal", PH.eyes_svg(doc, PH.EYES["normal"][1], lashes=True), head=True)
     L("Maske", PH.mask(doc, A), head=True)
+    for lid, (nm, fn) in PH.LIPS.items():
+        L(f"Mundform_{lid}", fn(doc, A), head=True)
     for mid, (nm, fn, *_r) in PH.MOUTHS.items():
         L(f"Mund_{mid}", fn(doc, A), head=True)
     for hid, (b, fr) in hairs.items():

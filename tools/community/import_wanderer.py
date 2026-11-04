@@ -173,6 +173,9 @@ def main(src, *more):
         credits_new = []
         for r in new:
             r = {k: v for k, v in r.items() if k != '_kontakt'}
+            for k, lab in (('_idee', 'Eigene Bedingungs-Idee'), ('_wunsch', 'Wünsche/Änderungen')):
+                if r.get(k):
+                    print(f"  {r.get('name')}: {lab}: {r[k]}")  # bleibt in rivals.json stehen, bis du es umgesetzt hast
             if not r.get('hint'):
                 r['hint'] = make_hint(r, names)
             if r.get('credit'):

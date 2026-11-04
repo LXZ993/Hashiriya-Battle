@@ -47,9 +47,10 @@ class Doc:
         self.defs.append(f'<radialGradient id="{i}" cx="{cx}" cy="{cy}" r="{r}"{fxy}>{st}</radialGradient>')
         return f"url(#{i})"
 
-    def clip(self, d):
+    def clip(self, d, evenodd=False):
         i = self.uid("cp")
-        self.defs.append(f'<clipPath id="{i}"><path d="{d}"/></clipPath>')
+        cr = ' clip-rule="evenodd"' if evenodd else ""
+        self.defs.append(f'<clipPath id="{i}"><path d="{d}"{cr}/></clipPath>')
         return f'clip-path="url(#{i})"'
 
     def soft(self, d, fill, blur, opacity=1, extra=""):

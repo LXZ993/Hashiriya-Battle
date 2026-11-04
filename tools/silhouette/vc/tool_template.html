@@ -100,7 +100,7 @@ h2:first-child{margin-top:0}
 <script>
 const DATA=/*__DATA__*/null;
 const M=DATA.meta, F=DATA.frags, BASE=DATA.specs;
-const KEYS=["female","garment","tone","hair","haircolor","hat","hattone","glasses","ear","neck","mask","mouth","eyes","emblem","crew","beard","beardcolor"];
+const KEYS=["female","garment","tone","hair","haircolor","hat","hattone","glasses","ear","neck","mask","mouth","eyes","emblem","crew","beard","beardcolor","lips"];
 const LS="hb_silhouetten_v2";
 let OV={};
 try{OV=JSON.parse(localStorage.getItem(LS)||"{}")||{}}catch(e){OV={}}
@@ -156,7 +156,7 @@ function compose(s){
   L("Visier",["visor"],true);
   L("Augen",[`eyes:${s.eyes}:${fem?1:0}`,"shine"],true);
   if(s.mask)L("Maske",["mask"],true);
-  else if(s.mouth)L("Mund",["mouth:"+s.mouth],true);
+  else{if(s.lips&&F["lips:"+s.lips])L("Mundform",["lips:"+s.lips],true);if(s.mouth)L("Mund",["mouth:"+s.mouth],true)}
   L("Haare",["hairf:"+s.hair],true);
   if(s.ear)L("Ohren",["ear:"+s.ear],true);
   if(s.hat)L("Kopfbedeckung",["hat:"+s.hat],true);
@@ -179,7 +179,7 @@ function why(s,key,v){ // Grund, warum v nicht geht, sonst ""
   switch(key){
     case "garment":{const w=M.garments[v][s.female?"wf":"wm"];return w>0?"":(s.female?"nur für Männer":"nur für Frauen")}
     case "hair":{const w=M.hairs[v][s.female?"wf":"wm"];return w>0?"":(s.female?"nur für Männer":"nur für Frauen")}
-    case "tone":return g.tones.includes(v)?"":"passt nicht zu diesem Oberteil";
+    case "tone":return "";  // alle Stofffarben bei allen Oberteilen (Alex 04.11.2026)
     case "hat":{if(!v)return "";
       if(!M.hats[v].vols.includes(h.vol))return "passt nicht auf diese Frisur";
       if(v==="feldmuetze"&&s.garment!=="militaer")return "nur zur Feldjacke";
@@ -209,7 +209,7 @@ function fix(s){ // macht eine ungültige Kombination wieder gültig, gibt Liste
 
 // ---------- Auswahlfelder ----------
 const LABEL={female:"Figur",garment:"Oberteil",tone:"Stofffarbe",hair:"Frisur",haircolor:"Haarfarbe",eyes:"Augen",hat:"Kopfbedeckung",
-  hattone:"Farbe Kopfbedeckung",beard:"Bart",beardcolor:"Bartfarbe",glasses:"Brille",ear:"Ohren",neck:"Hals",mund:"Mund",emblem:"Crew-Zeichen",crew:"Crew-Abzeichen"};
+  hattone:"Farbe Kopfbedeckung",beard:"Bart",beardcolor:"Bartfarbe",glasses:"Brille",ear:"Ohren",neck:"Hals",mund:"Mund (Extra)",lips:"Mundform",emblem:"Crew-Zeichen",crew:"Crew-Abzeichen"};
 const pretty=s=>s.replace(/_/g," ").replace(/ae/g,"ä").replace(/oe/g,"ö").replace(/ue/g,"ü").replace(/^./,c=>c.toUpperCase());
 function opts_of(key){
   const o=d=>Object.entries(d).map(([k,v])=>[k,typeof v==="object"&&!Array.isArray(v)&&v.name?v.name:pretty(k)]);
@@ -222,6 +222,7 @@ function opts_of(key){
     case "hat":return [[null,"keine"],...o(M.hats)];case "glasses":return [[null,"keine"],...o(M.glasses)];
     case "ear":return [[null,"nichts"],...o(M.ears)];case "neck":return [[null,"nichts"],...o(M.necks)];
     case "mund":return [["","nichts"],["@mask","Maske"],...o(M.mouths)];
+    case "lips":return [[null,"keine (glatt)"],...o(M.lips||{})];
     case "emblem":return Object.keys(M.emblems).map(k=>[k,pretty(k)]);
     case "crew":return [["1","ja (Abzeichen am Oberteil)"],["0","nein"]];
     case "beard":return [[null,"keiner"],...o(M.beards)];
@@ -229,7 +230,7 @@ function opts_of(key){
   }
 }
 function nameOf(key,v){const f=opts_of(key).find(o=>o[0]===v);return f?f[1]:(v==null?"keine":String(v))}
-const GROUPS={g1:["female","garment","tone","neck","crew","emblem"],g2:["hair","haircolor","eyes","hat","hattone","glasses"],g3:["beard","beardcolor","ear","mund"]};
+const GROUPS={g1:["female","garment","tone","neck","crew","emblem"],g2:["hair","haircolor","eyes","hat","hattone","glasses"],g3:["beard","beardcolor","ear","mund","lips"]};
 function getv(s,key){
   if(key==="female"||key==="crew")return s[key]?"1":"0";
   if(key==="mund")return s.mask?"@mask":(s.mouth||"");

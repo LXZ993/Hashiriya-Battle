@@ -71,6 +71,8 @@ def bausteine():
         frag(f"neck:{nid}", lambda d, nk=nk: nk[1](d, A))
     for eid, e in PH.EARS.items():
         frag(f"ear:{eid}", lambda d, e=e: e[1](d, A))
+    for lid, li in PH.LIPS.items():
+        frag(f"lips:{lid}", lambda d, li=li: li[1](d, A))
     for mid, m in PH.MOUTHS.items():
         frag(f"mouth:{mid}", lambda d, m=m: m[1](d, A))
     for hid, h in PH.HATS.items():
@@ -91,6 +93,7 @@ def bausteine():
         "ears": {k: {"name": v[0]} for k, v in PH.EARS.items()},
         "necks": {k: {"name": v[0], "ok": sorted(v[2])} for k, v in PB.NECKS.items()},
         "mouths": {k: {"name": v[0]} for k, v in PH.MOUTHS.items()},
+        "lips": {k: {"name": v[0]} for k, v in PH.LIPS.items()},
         "beards": {k: {"name": v[0], "wm": v[2]} for k, v in PH.BEARDS.items()},
         "beardcolors": PH.BEARD_COLORS,
         "eyes": {k: v[0] for k, v in PH.EYES.items()},
