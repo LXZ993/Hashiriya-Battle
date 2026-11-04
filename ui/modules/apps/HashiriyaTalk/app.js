@@ -4,7 +4,8 @@
 // PA-Gespräche (talk.lua): data.talk = { text, name, portrait, side: 'left', step, steps, key, next, hint, topic },
 // Bei Rivalen (Alpha 0.5): talk.alt = { key, text } (Pink Slip), talk.decline, talkPrompt.rival = Farbklasse.
 // data.talkPrompt = { name, key, text, again } = Hinweis "[T] Reden", wenn man zu Fuß vor einem Fahrer steht.
-// Story (Alpha 0.6, story.lua): talk.kind 'story' oder 'phone' (Handy-Nachricht, talk.timer 1..0 läuft ab),
+// Story (Alpha 0.6, story.lua): talk.kind 'story' oder 'phone' (Handy-Nachricht, talk.timer 1..0 läuft ab;
+// Handy-Nachrichten haben einen grünen Reiter mit Handy-Symbol an der Blase und ein Handy-Symbol am Porträt),
 // data.storyCard = { label, title, jp, text, key, next } = Kapitelkarte (Vollbild, schwarz).
 angular.module('beamng.apps')
 .directive('hashiriyaTalk', [function () {
@@ -14,8 +15,11 @@ angular.module('beamng.apps')
         '<div class="hbk-flash" ng-if="flash"></div>' +
         '<div class="hbk" ng-if="line" ng-class="[\'hbk-\' + line.side, \'hbk-k-\' + line.kind, \'hbk-t-\' + line.tag]">' +
           '<div class="hbk-picw" ng-if="line.side == \'left\'"><div class="hbk-pic"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
+            '<i class="hbk-pic-phone" ng-if="line.kind == \'phone\'"><svg viewBox="0 0 24 24"><rect x="6" y="1.5" width="12" height="21" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8.2" y="4.6" width="7.6" height="12.4" rx=".6" fill="currentColor" opacity=".35"/><circle cx="12" cy="19.6" r="1.1" fill="currentColor"/></svg></i>' +
             '<img class="hbk-sticker" ng-if="line.logo" ng-src="{{ line.logo }}" alt=""></div>' +
           '<div class="hbk-bubble">' +
+            // Handy-Nachricht: Reiter mit Handy-Symbol oben an der Blase (klingelt beim Erscheinen)
+            '<div class="hbk-phone" ng-if="line.kind == \'phone\'"><i class="hbk-phone-ico"><svg viewBox="0 0 24 24"><rect x="6" y="1.5" width="12" height="21" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8.2" y="4.6" width="7.6" height="12.4" rx=".6" fill="currentColor" opacity=".35"/><circle cx="12" cy="19.6" r="1.1" fill="currentColor"/></svg></i><span>{{ line.phoneTag || line.topic }}</span></div>' +
             '<div class="hbk-who"><b>{{ line.name }}</b><span ng-if="line.nick">{{ line.nick }}</span></div>' +
             '<div class="hbk-text">{{ line.text }}</div>' +
             '<div class="hbk-foot" ng-if="line.key">' +
@@ -28,6 +32,7 @@ angular.module('beamng.apps')
             '</div>' +
           '</div>' +
           '<div class="hbk-picw" ng-if="line.side != \'left\'"><div class="hbk-pic"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
+            '<i class="hbk-pic-phone" ng-if="line.kind == \'phone\'"><svg viewBox="0 0 24 24"><rect x="6" y="1.5" width="12" height="21" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8.2" y="4.6" width="7.6" height="12.4" rx=".6" fill="currentColor" opacity=".35"/><circle cx="12" cy="19.6" r="1.1" fill="currentColor"/></svg></i>' +
             '<img class="hbk-sticker" ng-if="line.logo" ng-src="{{ line.logo }}" alt=""></div>' +
         '</div>' +
         '<div class="hbk-timer" ng-if="line && line.timer != null"><i ng-style="{width: (line.timer * 100) + \'%\'}"></i></div>' +
@@ -93,7 +98,16 @@ angular.module('beamng.apps')
           '.hbk-k-story .hbk-who b{color:#ffb070;}' +
           '.hbk-k-phone .hbk-bubble{border-top-color:#4fd18b;}' +
           '.hbk-k-phone .hbk-who b{color:#8de0b2;}' +
-          '.hbk-k-phone .hbk-topic{color:#4fd18b;}' +
+          '.hbk-k-phone .hbk-topic{display:none;}' +
+          // Handy-Reiter oben links an der Blase + Handy-Symbol unten am Porträt; Text der Nachricht wie eine SMS
+          '.hbk-k-phone .hbk-bubble{margin-top:22px;background:linear-gradient(180deg,rgba(14,30,22,.92),rgba(10,11,14,.9) 60%);}' +
+          '.hbk-phone{position:absolute;left:-1px;top:-25px;height:22px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;' +
+            'background:#4fd18b;color:#0c1a12;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 100%,0 100%);}' +
+          '.hbk-phone-ico{display:block;width:16px;height:16px;animation:hbkRing .9s ease-in-out 2;}' +
+          '.hbk-phone-ico svg,.hbk-pic-phone svg{display:block;width:100%;height:100%;}' +
+          '.hbk-pic-phone{position:absolute;right:-6px;bottom:-6px;width:34px;height:34px;padding:6px;box-sizing:border-box;border-radius:50%;' +
+            'background:#4fd18b;color:#0c1a12;box-shadow:0 2px 6px rgba(0,0,0,.7);animation:hbkRing .9s ease-in-out 2;}' +
+          '@keyframes hbkRing{0%,100%{transform:rotate(0)}10%,30%,50%{transform:rotate(-14deg)}20%,40%,60%{transform:rotate(14deg)}70%{transform:rotate(0)}}' +
           '.hbk-t-story .hbk-pic{box-shadow:0 0 0 2px #ff9a3c;}' +
           '.hbk-t-phone .hbk-pic{box-shadow:0 0 0 2px #4fd18b;}' +
           '.hbk-t-player .hbk-pic{box-shadow:0 0 0 2px #f4f4f4;}' +

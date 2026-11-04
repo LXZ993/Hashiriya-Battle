@@ -9,6 +9,13 @@
 - Rivals now decline visibly: if one doesn't want to (just raced you, night limit reached or simply not in the mood), he sets his turn signal and a stop sign with a cross and the reason appears in the middle of the screen. If you decline yourself, the sign shows in orange.
 - Bets: while matching speed the rival sometimes offers a bet in yen. Hazards = accept, flash = raise the stake (up to triple), do nothing = no bet. Win = stake on top, loss = stake gone. Never more than half your money, not in pink slip races.
 - Everything is adjustable in the new file data/crewbattle.json.
+### Nicknames, trophies and phone messages
+- 89 nicknames instead of 7, in the groups Battle, Driving style, Road and Life & garage: e.g. Sideways (50 drifts), Slipstreamer, Hairline, Witching Hour (wins between 2 and 4 am), Kamikaze, Mile Eater, Radar Terror, Wrench Head, Chatterbox. Many come in several tiers.
+- New: titles per car model like in TXR 2025, e.g. "Covet Driver" after 10 wins with the Covet, then Expert (25), Master (50) and Legend (100).
+- Every nickname you earn stays yours and can be picked: Trophy wall > "Nicknames" tab (or tap your nickname on the menu card). "Automatic" always wears the newest. Open ones show their progress, e.g. 13 / 25.
+- New on the trophy wall: "Trophies" tab. Every crew leader you beat gives a plaque, every boss a cup, the final boss the big cup. Tap one for the day, car and battle time of the win.
+- Phone messages are now easy to spot: green "Phone message" tab with a phone icon on the speech bubble and a ringing phone on the portrait.
+
 ### More wanderer conditions
 - 22 new condition types for rivals and wanderers (like in TXR): win streak, money, number of cars, at most X losses, naturally aspirated only or forced induction only, manual gearbox only, a part that must not be fitted, paint colour, characters in the plate, power and weight, odometer of the car, top speed already reached, in-game weekday, active nickname, chosen logo, days without a loss, car almost undamaged, PAs visited and any value from the statistics (e.g. pink slips won or side jobs done).
 - The rival builder in the dev menu keeps the new conditions when editing.

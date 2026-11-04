@@ -33,7 +33,10 @@
       "money": false,
       "wanderers": true,
       "leaders": true
-    }
+    },
+    "dominantWinMinSpPercent": 90,
+    "marathonWinSeconds": 120,
+    "wreckWinMinDamageSp": 250
   },
   "ranks": [
     {
@@ -160,7 +163,64 @@
   ],
   "nicknames": [
     {
+      "id": "first",
+      "group": "battle",
+      "stat": "wins",
+      "min": 1,
+      "name": {
+        "de": "Frischling mit Biss",
+        "en": "Fresh Blood"
+      },
+      "desc": {
+        "de": "Dein erster Sieg auf dem Ring",
+        "en": "Your first win on the loop"
+      }
+    },
+    {
+      "id": "wins25",
+      "group": "battle",
+      "stat": "wins",
+      "min": 25,
+      "name": {
+        "de": "Bekanntes Gesicht",
+        "en": "Familiar Face"
+      },
+      "desc": {
+        "de": "25 Siege",
+        "en": "25 wins"
+      }
+    },
+    {
+      "id": "wins100",
+      "group": "battle",
+      "stat": "wins",
+      "min": 100,
+      "name": {
+        "de": "Hundertsassa",
+        "en": "Centurion"
+      },
+      "desc": {
+        "de": "100 Siege",
+        "en": "100 wins"
+      }
+    },
+    {
+      "id": "wins250",
+      "group": "battle",
+      "stat": "wins",
+      "min": 250,
+      "name": {
+        "de": "Unaufhaltsam",
+        "en": "Unstoppable"
+      },
+      "desc": {
+        "de": "250 Siege",
+        "en": "250 wins"
+      }
+    },
+    {
       "id": "clean",
+      "group": "battle",
       "stat": "cleanWins",
       "min": 10,
       "name": {
@@ -173,7 +233,36 @@
       }
     },
     {
+      "id": "clean30",
+      "group": "battle",
+      "stat": "cleanWins",
+      "min": 30,
+      "name": {
+        "de": "Spiegelglatt",
+        "en": "Mirror Finish"
+      },
+      "desc": {
+        "de": "30 Siege ohne nennenswerten Schaden",
+        "en": "30 wins without real damage"
+      }
+    },
+    {
+      "id": "clean75",
+      "group": "battle",
+      "stat": "cleanWins",
+      "min": 75,
+      "name": {
+        "de": "Vitrinenstück",
+        "en": "Showroom Piece"
+      },
+      "desc": {
+        "de": "75 Siege ohne nennenswerten Schaden",
+        "en": "75 wins without real damage"
+      }
+    },
+    {
       "id": "close",
+      "group": "battle",
       "stat": "closeWins",
       "min": 5,
       "name": {
@@ -186,7 +275,36 @@
       }
     },
     {
+      "id": "close20",
+      "group": "battle",
+      "stat": "closeWins",
+      "min": 20,
+      "name": {
+        "de": "Nervenstahl",
+        "en": "Nerves of Steel"
+      },
+      "desc": {
+        "de": "20 Siege mit fast leeren SP",
+        "en": "20 wins with almost empty SP"
+      }
+    },
+    {
+      "id": "close50",
+      "group": "battle",
+      "stat": "closeWins",
+      "min": 50,
+      "name": {
+        "de": "Herzkasper",
+        "en": "Heart Attack"
+      },
+      "desc": {
+        "de": "50 Siege mit fast leeren SP",
+        "en": "50 wins with almost empty SP"
+      }
+    },
+    {
       "id": "fast",
+      "group": "battle",
       "stat": "quickWins",
       "min": 8,
       "name": {
@@ -199,7 +317,106 @@
       }
     },
     {
+      "id": "fast25",
+      "group": "battle",
+      "stat": "quickWins",
+      "min": 25,
+      "name": {
+        "de": "Kurzer Prozess",
+        "en": "Short Work"
+      },
+      "desc": {
+        "de": "25 Siege in unter 30 Sekunden",
+        "en": "25 wins in under 30 seconds"
+      }
+    },
+    {
+      "id": "fast60",
+      "group": "battle",
+      "stat": "quickWins",
+      "min": 60,
+      "name": {
+        "de": "Wimpernschlag",
+        "en": "Blink"
+      },
+      "desc": {
+        "de": "60 Siege in unter 30 Sekunden",
+        "en": "60 wins in under 30 seconds"
+      }
+    },
+    {
+      "id": "dominant",
+      "group": "battle",
+      "stat": "dominantWins",
+      "min": 10,
+      "name": {
+        "de": "Überflieger",
+        "en": "High Flyer"
+      },
+      "desc": {
+        "de": "10 Siege mit mehr als 90 % SP übrig",
+        "en": "10 wins with more than 90 % SP left"
+      }
+    },
+    {
+      "id": "dominant40",
+      "group": "battle",
+      "stat": "dominantWins",
+      "min": 40,
+      "name": {
+        "de": "Eiskalt",
+        "en": "Ice Cold"
+      },
+      "desc": {
+        "de": "40 Siege mit mehr als 90 % SP übrig",
+        "en": "40 wins with more than 90 % SP left"
+      }
+    },
+    {
+      "id": "marathon",
+      "group": "battle",
+      "stat": "marathonWins",
+      "min": 5,
+      "name": {
+        "de": "Langstreckenläufer",
+        "en": "Long Hauler"
+      },
+      "desc": {
+        "de": "5 Battles über 2 Minuten gewonnen",
+        "en": "5 battles over 2 minutes won"
+      }
+    },
+    {
+      "id": "marathon20",
+      "group": "battle",
+      "stat": "marathonWins",
+      "min": 20,
+      "name": {
+        "de": "Ausdauerbestie",
+        "en": "Endurance Beast"
+      },
+      "desc": {
+        "de": "20 Battles über 2 Minuten gewonnen",
+        "en": "20 battles over 2 minutes won"
+      }
+    },
+    {
+      "id": "wreck",
+      "group": "battle",
+      "stat": "wreckWins",
+      "min": 5,
+      "name": {
+        "de": "Kamikaze",
+        "en": "Kamikaze"
+      },
+      "desc": {
+        "de": "5 Siege trotz schwerem Schaden",
+        "en": "5 wins despite heavy damage"
+      }
+    },
+    {
       "id": "leaders",
+      "group": "battle",
       "stat": "leaderWins",
       "min": 4,
       "name": {
@@ -212,20 +429,106 @@
       }
     },
     {
-      "id": "stubborn",
-      "stat": "losses",
-      "min": 15,
+      "id": "leaders12",
+      "group": "battle",
+      "stat": "leaderWins",
+      "min": 12,
       "name": {
-        "de": "Stehaufmännchen",
-        "en": "Comeback Kid"
+        "de": "Crewbrecher",
+        "en": "Crew Crusher"
       },
       "desc": {
-        "de": "15 Niederlagen und trotzdem weiter",
-        "en": "15 losses and still going"
+        "de": "12 Teamleader besiegt",
+        "en": "12 team leaders beaten"
+      }
+    },
+    {
+      "id": "leaders26",
+      "group": "battle",
+      "stat": "leaderWins",
+      "min": 26,
+      "name": {
+        "de": "Kopfjäger",
+        "en": "Head Hunter"
+      },
+      "desc": {
+        "de": "26 Teamleader besiegt",
+        "en": "26 team leaders beaten"
+      }
+    },
+    {
+      "id": "wanderers",
+      "group": "battle",
+      "stat": "wandererWins",
+      "min": 5,
+      "name": {
+        "de": "Geisterjäger",
+        "en": "Ghost Hunter"
+      },
+      "desc": {
+        "de": "5 Wanderer besiegt",
+        "en": "5 wanderers beaten"
+      }
+    },
+    {
+      "id": "wanderers20",
+      "group": "battle",
+      "stat": "wandererWins",
+      "min": 20,
+      "name": {
+        "de": "Spurenleser",
+        "en": "Tracker"
+      },
+      "desc": {
+        "de": "20 Wanderer besiegt",
+        "en": "20 wanderers beaten"
+      }
+    },
+    {
+      "id": "wanderers35",
+      "group": "battle",
+      "stat": "wandererWins",
+      "min": 35,
+      "name": {
+        "de": "Phantomfänger",
+        "en": "Phantom Catcher"
+      },
+      "desc": {
+        "de": "35 Wanderer besiegt",
+        "en": "35 wanderers beaten"
+      }
+    },
+    {
+      "id": "boss",
+      "group": "battle",
+      "stat": "bossWins",
+      "min": 1,
+      "name": {
+        "de": "Drachentöter",
+        "en": "Dragon Slayer"
+      },
+      "desc": {
+        "de": "Deinen ersten Boss besiegt",
+        "en": "Your first boss beaten"
+      }
+    },
+    {
+      "id": "boss3",
+      "group": "battle",
+      "stat": "bossWins",
+      "min": 3,
+      "name": {
+        "de": "Thronräuber",
+        "en": "Throne Thief"
+      },
+      "desc": {
+        "de": "3 Bosse besiegt",
+        "en": "3 bosses beaten"
       }
     },
     {
       "id": "rematch",
+      "group": "battle",
       "stat": "rematchWins",
       "min": 10,
       "name": {
@@ -238,7 +541,540 @@
       }
     },
     {
+      "id": "rematch40",
+      "group": "battle",
+      "stat": "rematchWins",
+      "min": 40,
+      "name": {
+        "de": "Nachtragend",
+        "en": "Grudge Keeper"
+      },
+      "desc": {
+        "de": "40 Revanchen gewonnen",
+        "en": "40 rematches won"
+      }
+    },
+    {
+      "id": "streak5",
+      "group": "battle",
+      "stat": "bestStreak",
+      "min": 5,
+      "name": {
+        "de": "Heißgelaufen",
+        "en": "Running Hot"
+      },
+      "desc": {
+        "de": "5 Siege in Folge",
+        "en": "5 wins in a row"
+      }
+    },
+    {
+      "id": "streak10",
+      "group": "battle",
+      "stat": "bestStreak",
+      "min": 10,
+      "name": {
+        "de": "Serientäter",
+        "en": "Serial Winner"
+      },
+      "desc": {
+        "de": "10 Siege in Folge",
+        "en": "10 wins in a row"
+      }
+    },
+    {
+      "id": "streak20",
+      "group": "battle",
+      "stat": "bestStreak",
+      "min": 20,
+      "name": {
+        "de": "Lauffeuer",
+        "en": "Wildfire"
+      },
+      "desc": {
+        "de": "20 Siege in Folge",
+        "en": "20 wins in a row"
+      }
+    },
+    {
+      "id": "early",
+      "group": "battle",
+      "stat": "earlyWins",
+      "min": 15,
+      "name": {
+        "de": "Feierabendheld",
+        "en": "After-Work Hero"
+      },
+      "desc": {
+        "de": "15 Siege zwischen 20 und 22 Uhr",
+        "en": "15 wins between 8 and 10 pm"
+      }
+    },
+    {
+      "id": "late",
+      "group": "battle",
+      "stat": "lateWins",
+      "min": 15,
+      "name": {
+        "de": "Geisterstunde",
+        "en": "Witching Hour"
+      },
+      "desc": {
+        "de": "15 Siege zwischen 2 und 4 Uhr",
+        "en": "15 wins between 2 and 4 am"
+      }
+    },
+    {
+      "id": "dawn",
+      "group": "battle",
+      "stat": "dawnWins",
+      "min": 10,
+      "name": {
+        "de": "Morgengrauen",
+        "en": "Daybreak Duelist"
+      },
+      "desc": {
+        "de": "10 Siege zwischen 4 und 6 Uhr",
+        "en": "10 wins between 4 and 6 am"
+      }
+    },
+    {
+      "id": "pink",
+      "group": "battle",
+      "stat": "pinkWins",
+      "min": 1,
+      "name": {
+        "de": "Zettelsammler",
+        "en": "Slip Collector"
+      },
+      "desc": {
+        "de": "Dein erster Pink-Slip-Sieg",
+        "en": "Your first pink slip win"
+      }
+    },
+    {
+      "id": "pink5",
+      "group": "battle",
+      "stat": "pinkWins",
+      "min": 5,
+      "name": {
+        "de": "Garagenfüller",
+        "en": "Garage Filler"
+      },
+      "desc": {
+        "de": "5 Pink-Slip-Siege",
+        "en": "5 pink slip wins"
+      }
+    },
+    {
+      "id": "pinkBack",
+      "group": "battle",
+      "stat": "pinkBack",
+      "min": 1,
+      "name": {
+        "de": "Heimholer",
+        "en": "Homecoming"
+      },
+      "desc": {
+        "de": "Ein verlorenes Auto zurückgewonnen",
+        "en": "Won a lost car back"
+      }
+    },
+    {
+      "id": "pinkLoss",
+      "group": "battle",
+      "stat": "pinkLosses",
+      "min": 3,
+      "name": {
+        "de": "Hasardeur",
+        "en": "Reckless Gambler"
+      },
+      "desc": {
+        "de": "3 Autos im Pink Slip verloren",
+        "en": "3 cars lost in pink slips"
+      }
+    },
+    {
+      "id": "stubborn",
+      "group": "battle",
+      "stat": "losses",
+      "min": 15,
+      "name": {
+        "de": "Stehaufmännchen",
+        "en": "Comeback Kid"
+      },
+      "desc": {
+        "de": "15 Niederlagen und trotzdem weiter",
+        "en": "15 losses and still going"
+      }
+    },
+    {
+      "id": "stubborn50",
+      "group": "battle",
+      "stat": "losses",
+      "min": 50,
+      "name": {
+        "de": "Dickfellig",
+        "en": "Thick Skin"
+      },
+      "desc": {
+        "de": "50 Niederlagen und trotzdem weiter",
+        "en": "50 losses and still going"
+      }
+    },
+    {
+      "id": "near",
+      "group": "style",
+      "stat": "nearMisses",
+      "min": 50,
+      "name": {
+        "de": "Haarscharf",
+        "en": "Hairline"
+      },
+      "desc": {
+        "de": "50 knappe Vorbeifahrten am Verkehr",
+        "en": "50 near misses in traffic"
+      }
+    },
+    {
+      "id": "near250",
+      "group": "style",
+      "stat": "nearMisses",
+      "min": 250,
+      "name": {
+        "de": "Lückenspringer",
+        "en": "Gap Jumper"
+      },
+      "desc": {
+        "de": "250 knappe Vorbeifahrten am Verkehr",
+        "en": "250 near misses in traffic"
+      }
+    },
+    {
+      "id": "near1000",
+      "group": "style",
+      "stat": "nearMisses",
+      "min": 1000,
+      "name": {
+        "de": "Nadelöhr",
+        "en": "Needle Threader"
+      },
+      "desc": {
+        "de": "1000 knappe Vorbeifahrten am Verkehr",
+        "en": "1000 near misses in traffic"
+      }
+    },
+    {
+      "id": "razor",
+      "group": "style",
+      "stat": "man_razor",
+      "min": 100,
+      "name": {
+        "de": "Rasierklinge",
+        "en": "Razor Edge"
+      },
+      "desc": {
+        "de": "100 extrem knappe Vorbeifahrten (Rasiermesser)",
+        "en": "100 razor-close passes"
+      }
+    },
+    {
+      "id": "slip",
+      "group": "style",
+      "stat": "man_slipstream",
+      "min": 50,
+      "name": {
+        "de": "Windschatten",
+        "en": "Slipstreamer"
+      },
+      "desc": {
+        "de": "50-mal im Windschatten gefahren",
+        "en": "50 slipstreams"
+      }
+    },
+    {
+      "id": "slip250",
+      "group": "style",
+      "stat": "man_slipstream",
+      "min": 250,
+      "name": {
+        "de": "Klette",
+        "en": "Limpet"
+      },
+      "desc": {
+        "de": "250-mal im Windschatten gefahren",
+        "en": "250 slipstreams"
+      }
+    },
+    {
+      "id": "drift",
+      "group": "style",
+      "stat": "man_drift",
+      "min": 50,
+      "name": {
+        "de": "Querfahrer",
+        "en": "Sideways"
+      },
+      "desc": {
+        "de": "50 Drifts",
+        "en": "50 drifts"
+      }
+    },
+    {
+      "id": "drift300",
+      "group": "style",
+      "stat": "man_drift",
+      "min": 300,
+      "name": {
+        "de": "Rauchzeichen",
+        "en": "Smoke Signal"
+      },
+      "desc": {
+        "de": "300 Drifts",
+        "en": "300 drifts"
+      }
+    },
+    {
+      "id": "pass",
+      "group": "style",
+      "stat": "man_rivalPass",
+      "min": 30,
+      "name": {
+        "de": "Überholspur",
+        "en": "Passing Lane"
+      },
+      "desc": {
+        "de": "30-mal einen Rivalen überholt",
+        "en": "30 rival overtakes"
+      }
+    },
+    {
+      "id": "pass150",
+      "group": "style",
+      "stat": "man_rivalPass",
+      "min": 150,
+      "name": {
+        "de": "Schlitzohr",
+        "en": "Sly Fox"
+      },
+      "desc": {
+        "de": "150-mal einen Rivalen überholt",
+        "en": "150 rival overtakes"
+      }
+    },
+    {
+      "id": "speed",
+      "group": "style",
+      "stat": "man_highSpeed",
+      "min": 100,
+      "name": {
+        "de": "Bleifuß",
+        "en": "Lead Foot"
+      },
+      "desc": {
+        "de": "100-mal mit Höchsttempo durch den Verkehr",
+        "en": "100 high-speed runs through traffic"
+      }
+    },
+    {
+      "id": "speed500",
+      "group": "style",
+      "stat": "man_highSpeed",
+      "min": 500,
+      "name": {
+        "de": "Tiefflieger",
+        "en": "Low Flyer"
+      },
+      "desc": {
+        "de": "500-mal mit Höchsttempo durch den Verkehr",
+        "en": "500 high-speed runs through traffic"
+      }
+    },
+    {
+      "id": "combo",
+      "group": "style",
+      "stat": "bestCombo",
+      "min": 2000,
+      "name": {
+        "de": "Kettenreaktion",
+        "en": "Chain Reaction"
+      },
+      "desc": {
+        "de": "Eine Style-Combo mit 2000 Punkten",
+        "en": "A style combo worth 2000 points"
+      }
+    },
+    {
+      "id": "combo8000",
+      "group": "style",
+      "stat": "bestCombo",
+      "min": 8000,
+      "name": {
+        "de": "Combo-König",
+        "en": "Combo King"
+      },
+      "desc": {
+        "de": "Eine Style-Combo mit 8000 Punkten",
+        "en": "A style combo worth 8000 points"
+      }
+    },
+    {
+      "id": "show",
+      "group": "style",
+      "stat": "maneuvers",
+      "min": 2000,
+      "name": {
+        "de": "Showtalent",
+        "en": "Showman"
+      },
+      "desc": {
+        "de": "2000 Style-Manöver insgesamt",
+        "en": "2000 style moves in total"
+      }
+    },
+    {
+      "id": "top200",
+      "group": "road",
+      "stat": "topKmh",
+      "min": 200,
+      "name": {
+        "de": "Zweihunderter",
+        "en": "Double Ton"
+      },
+      "desc": {
+        "de": "200 km/h erreicht",
+        "en": "Reached 200 km/h"
+      }
+    },
+    {
+      "id": "top280",
+      "group": "road",
+      "stat": "topKmh",
+      "min": 280,
+      "name": {
+        "de": "Rakete",
+        "en": "Rocket"
+      },
+      "desc": {
+        "de": "280 km/h erreicht",
+        "en": "Reached 280 km/h"
+      }
+    },
+    {
+      "id": "top330",
+      "group": "road",
+      "stat": "topKmh",
+      "min": 330,
+      "name": {
+        "de": "Lichtgeschwindigkeit",
+        "en": "Lightspeed"
+      },
+      "desc": {
+        "de": "330 km/h erreicht",
+        "en": "Reached 330 km/h"
+      }
+    },
+    {
+      "id": "km500",
+      "group": "road",
+      "stat": "distanceKm",
+      "min": 500,
+      "name": {
+        "de": "Kilometerfresser",
+        "en": "Mile Eater"
+      },
+      "desc": {
+        "de": "500 km gefahren",
+        "en": "500 km driven"
+      }
+    },
+    {
+      "id": "km3000",
+      "group": "road",
+      "stat": "distanceKm",
+      "min": 3000,
+      "name": {
+        "de": "Ringbewohner",
+        "en": "Loop Resident"
+      },
+      "desc": {
+        "de": "3000 km gefahren",
+        "en": "3000 km driven"
+      }
+    },
+    {
+      "id": "km10000",
+      "group": "road",
+      "stat": "distanceKm",
+      "min": 10000,
+      "name": {
+        "de": "Asphaltnomade",
+        "en": "Asphalt Nomad"
+      },
+      "desc": {
+        "de": "10 000 km gefahren",
+        "en": "10,000 km driven"
+      }
+    },
+    {
+      "id": "duel",
+      "group": "road",
+      "stat": "battleKm",
+      "min": 300,
+      "name": {
+        "de": "Duellant",
+        "en": "Duelist"
+      },
+      "desc": {
+        "de": "300 km im Battle gefahren",
+        "en": "300 km driven in battles"
+      }
+    },
+    {
+      "id": "traps15",
+      "group": "road",
+      "stat": "speedTraps",
+      "min": 15,
+      "name": {
+        "de": "Blitzlichtstar",
+        "en": "Flash Star"
+      },
+      "desc": {
+        "de": "15 verschiedene Radarfallen ausgelöst",
+        "en": "15 different speed traps triggered"
+      }
+    },
+    {
+      "id": "trapsAll",
+      "group": "road",
+      "stat": "speedTraps",
+      "min": "all",
+      "name": {
+        "de": "Radarschreck",
+        "en": "Radar Terror"
+      },
+      "desc": {
+        "de": "Alle Radarfallen der Map ausgelöst",
+        "en": "Every speed trap on the map triggered"
+      }
+    },
+    {
+      "id": "trap250",
+      "group": "road",
+      "stat": "topTrapKmh",
+      "min": 250,
+      "name": {
+        "de": "Fotomodell",
+        "en": "Photo Model"
+      },
+      "desc": {
+        "de": "Mit 250 km/h geblitzt",
+        "en": "Caught by a speed trap at 250 km/h"
+      }
+    },
+    {
       "id": "nights",
+      "group": "road",
       "stat": "nights",
       "min": 20,
       "name": {
@@ -248,6 +1084,362 @@
       "desc": {
         "de": "20 Nächte auf dem Ring",
         "en": "20 nights on the loop"
+      }
+    },
+    {
+      "id": "nights60",
+      "group": "road",
+      "stat": "nights",
+      "min": 60,
+      "name": {
+        "de": "Vampir",
+        "en": "Vampire"
+      },
+      "desc": {
+        "de": "60 Nächte auf dem Ring",
+        "en": "60 nights on the loop"
+      }
+    },
+    {
+      "id": "nights150",
+      "group": "road",
+      "stat": "nights",
+      "min": 150,
+      "name": {
+        "de": "Mondsüchtig",
+        "en": "Moonstruck"
+      },
+      "desc": {
+        "de": "150 Nächte auf dem Ring",
+        "en": "150 nights on the loop"
+      }
+    },
+    {
+      "id": "repairs",
+      "group": "life",
+      "stat": "repairs",
+      "min": 20,
+      "name": {
+        "de": "Stammkunde",
+        "en": "Regular"
+      },
+      "desc": {
+        "de": "20-mal in der Werkstatt repariert",
+        "en": "20 repairs at the workshop"
+      }
+    },
+    {
+      "id": "tows",
+      "group": "life",
+      "stat": "tows",
+      "min": 5,
+      "name": {
+        "de": "Hakenfreund",
+        "en": "Tow Truck Buddy"
+      },
+      "desc": {
+        "de": "5-mal abgeschleppt",
+        "en": "Towed 5 times"
+      }
+    },
+    {
+      "id": "unstuck",
+      "group": "life",
+      "stat": "unstucks",
+      "min": 10,
+      "name": {
+        "de": "Pechvogel",
+        "en": "Unlucky Bird"
+      },
+      "desc": {
+        "de": "10-mal befreit",
+        "en": "Freed 10 times"
+      }
+    },
+    {
+      "id": "fuel",
+      "group": "life",
+      "stat": "fuelLiters",
+      "min": 1000,
+      "name": {
+        "de": "Spritschlucker",
+        "en": "Gas Guzzler"
+      },
+      "desc": {
+        "de": "1000 Liter getankt",
+        "en": "1000 litres of fuel bought"
+      }
+    },
+    {
+      "id": "parts",
+      "group": "life",
+      "stat": "partsBought",
+      "min": 30,
+      "name": {
+        "de": "Schrauber",
+        "en": "Wrench Head"
+      },
+      "desc": {
+        "de": "30 Teile gekauft",
+        "en": "30 parts bought"
+      }
+    },
+    {
+      "id": "parts100",
+      "group": "life",
+      "stat": "partsBought",
+      "min": 100,
+      "name": {
+        "de": "Teilejunkie",
+        "en": "Parts Junkie"
+      },
+      "desc": {
+        "de": "100 Teile gekauft",
+        "en": "100 parts bought"
+      }
+    },
+    {
+      "id": "paint",
+      "group": "life",
+      "stat": "paintsBought",
+      "min": 5,
+      "name": {
+        "de": "Farbenspiel",
+        "en": "Colour Changer"
+      },
+      "desc": {
+        "de": "5 Lackierungen gekauft",
+        "en": "5 paint jobs bought"
+      }
+    },
+    {
+      "id": "cars",
+      "group": "life",
+      "stat": "carsBought",
+      "min": 5,
+      "name": {
+        "de": "Autosammler",
+        "en": "Car Collector"
+      },
+      "desc": {
+        "de": "5 Autos gekauft",
+        "en": "5 cars bought"
+      }
+    },
+    {
+      "id": "sold",
+      "group": "life",
+      "stat": "carsSold",
+      "min": 5,
+      "name": {
+        "de": "Händlerseele",
+        "en": "Wheeler Dealer"
+      },
+      "desc": {
+        "de": "5 Autos verkauft",
+        "en": "5 cars sold"
+      }
+    },
+    {
+      "id": "rivalCar",
+      "group": "life",
+      "stat": "rivalCarsBought",
+      "min": 1,
+      "name": {
+        "de": "Erbe der Nacht",
+        "en": "Night Heir"
+      },
+      "desc": {
+        "de": "Das Auto eines geschlagenen Rivalen gekauft",
+        "en": "Bought the car of a beaten rival"
+      }
+    },
+    {
+      "id": "rivalCar5",
+      "group": "life",
+      "stat": "rivalCarsBought",
+      "min": 5,
+      "name": {
+        "de": "Beutesammler",
+        "en": "Spoils Collector"
+      },
+      "desc": {
+        "de": "5 Rivalen-Autos gekauft",
+        "en": "5 rival cars bought"
+      }
+    },
+    {
+      "id": "service",
+      "group": "life",
+      "stat": "services",
+      "min": 20,
+      "name": {
+        "de": "Pfleger",
+        "en": "Caretaker"
+      },
+      "desc": {
+        "de": "20 Wartungen in der Garage",
+        "en": "20 services in the garage"
+      }
+    },
+    {
+      "id": "jobs",
+      "group": "life",
+      "stat": "jobsDone",
+      "min": 10,
+      "name": {
+        "de": "Malocher",
+        "en": "Hard Worker"
+      },
+      "desc": {
+        "de": "10 Nebenjobs erledigt",
+        "en": "10 side jobs done"
+      }
+    },
+    {
+      "id": "jobs40",
+      "group": "life",
+      "stat": "jobsDone",
+      "min": 40,
+      "name": {
+        "de": "Doppelschicht",
+        "en": "Double Shift"
+      },
+      "desc": {
+        "de": "40 Nebenjobs erledigt",
+        "en": "40 side jobs done"
+      }
+    },
+    {
+      "id": "talk",
+      "group": "life",
+      "stat": "talks",
+      "min": 30,
+      "name": {
+        "de": "Plaudertasche",
+        "en": "Chatterbox"
+      },
+      "desc": {
+        "de": "30 Gespräche an den PAs",
+        "en": "30 talks at the parking areas"
+      }
+    },
+    {
+      "id": "talk100",
+      "group": "life",
+      "stat": "talks",
+      "min": 100,
+      "name": {
+        "de": "Klatschreporter",
+        "en": "Gossip Hound"
+      },
+      "desc": {
+        "de": "100 Gespräche an den PAs",
+        "en": "100 talks at the parking areas"
+      }
+    },
+    {
+      "id": "tips",
+      "group": "life",
+      "stat": "tipsBought",
+      "min": 5,
+      "name": {
+        "de": "Insider",
+        "en": "Insider"
+      },
+      "desc": {
+        "de": "5 Tipps gekauft",
+        "en": "5 tips bought"
+      }
+    },
+    {
+      "id": "yen10m",
+      "group": "life",
+      "stat": "moneyEarned",
+      "min": 10000000,
+      "name": {
+        "de": "Yen-Regen",
+        "en": "Yen Rain"
+      },
+      "desc": {
+        "de": "10 Millionen Yen verdient",
+        "en": "Earned 10 million yen"
+      }
+    },
+    {
+      "id": "yen50m",
+      "group": "life",
+      "stat": "moneyEarned",
+      "min": 50000000,
+      "name": {
+        "de": "Goldesel",
+        "en": "Money Maker"
+      },
+      "desc": {
+        "de": "50 Millionen Yen verdient",
+        "en": "Earned 50 million yen"
+      }
+    },
+    {
+      "id": "logos20",
+      "group": "life",
+      "stat": "logos",
+      "min": 20,
+      "name": {
+        "de": "Trophäenjäger",
+        "en": "Trophy Hunter"
+      },
+      "desc": {
+        "de": "20 Logos an der Trophäenwand",
+        "en": "20 logos on the trophy wall"
+      }
+    },
+    {
+      "id": "logos60",
+      "group": "life",
+      "stat": "logos",
+      "min": 60,
+      "name": {
+        "de": "Volle Wand",
+        "en": "Full Wall"
+      },
+      "desc": {
+        "de": "60 Logos an der Trophäenwand",
+        "en": "60 logos on the trophy wall"
+      }
+    }
+  ],
+  "modelTitles": [
+    {
+      "id": "driver",
+      "min": 10,
+      "name": {
+        "de": "%s-Fahrer",
+        "en": "%s Driver"
+      }
+    },
+    {
+      "id": "expert",
+      "min": 25,
+      "name": {
+        "de": "%s-Kenner",
+        "en": "%s Expert"
+      }
+    },
+    {
+      "id": "master",
+      "min": 50,
+      "name": {
+        "de": "%s-Meister",
+        "en": "%s Master"
+      }
+    },
+    {
+      "id": "legend",
+      "min": 100,
+      "name": {
+        "de": "%s-Legende",
+        "en": "%s Legend"
       }
     }
   ],
@@ -13400,7 +14592,7 @@
       "desc": {
         "de": "Er weiß nicht, wie er heißt, aber denkt, er wäre der Schnellste!",
         "en": "He doesn’t know what his own name is, but he thinks he’s the fastest!"
-      },	  
+      },
       "hint": {
         "de": "Sieben ist die Zahl.",
         "en": "Seven is the number."
