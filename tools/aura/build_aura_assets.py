@@ -58,7 +58,7 @@ def glow_texture(path, s=128):
             d = math.hypot((x + 0.5) / s - 0.5, (y + 0.5) / s - 0.5) * 2
             a = max(0.0, 1 - d) ** 2.2
             c = int(round(a * 255))
-            px[x, y] = (255, 255, 255, c)
+            px[x, y] = (c, c, c, c)  # vormultipliert: auch bei rein additivem Mischen weich
     img.save(path)
 
 
@@ -79,6 +79,11 @@ def ring(segs, r0, r1, z1, width, seed=3):
             nrm.append((cx, cy, 0))
             uv.append((uu, vv))
         tris += [(base, base + 1, base + 2), (base, base + 2, base + 3)]
+        # Rückseite als eigene Flächen (statt doubleSided), Normale nach innen
+        b2 = len(pos)
+        for k in range(4):
+            pos.append(pos[base + k]); nrm.append((-cx, -cy, 0)); uv.append(uv[base + k])
+        tris += [(b2, b2 + 2, b2 + 1), (b2, b2 + 3, b2 + 2)]
     return pos, nrm, uv, tris
 
 
@@ -179,13 +184,14 @@ def main():
     mats = {mat: {
         'name': mat, 'mapTo': mat, 'class': 'Material',
         'Stages': [{
-            'baseColorMap': tex, 'baseColorFactor': [1, 1, 1, 1],
+            # nur Leuchten (kein beleuchteter Grundton, sonst wird es in heller Umgebung grau); Schwarz = durchsichtig
+            'baseColorFactor': [0, 0, 0, 1], 'roughnessFactor': 1, 'metallicFactor': 0,
             'emissive': True, 'emissiveMap': tex, 'emissiveFactor': [1, 1, 1],
-            'emissiveIgnoreExposure': True, 'emissiveIntensityNits': 3,
-            'instanceDiffuse': True, 'instanceEmissive': True, 'instanceOpacity': True,
-            'opacityMap': tex, 'opacityFactor': 1,
+            'emissiveIgnoreExposure': True, 'emissiveIntensityNits': 6,
+            'instanceEmissive': True,
         }, {}, {}, {}],
-        'castShadows': False, 'doubleSided': True, 'translucent': True, 'translucentBlendOp': 'Add',
+        'castShadows': False, 'doubleSided': False, 'translucent': True, 'translucentBlendOp': 'Add',
+        'alphaTest': False, 'alphaRef': 0,
         'translucentZWrite': False, 'version': 1.5,
     }}
     json.dump(mats, open(os.path.join(OUT, 'aura.materials.json'), 'w', encoding='utf-8'), indent=1)
