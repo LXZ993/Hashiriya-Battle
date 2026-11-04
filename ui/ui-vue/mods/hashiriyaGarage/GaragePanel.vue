@@ -352,6 +352,7 @@ function select(r) {
 }
 function selectId(id) { if (byId(id)) select(byId(id)) }
 const nameOf = id => (byId(id) ? byId(id).name : id)
+const stageName = id => (byId(id) && byId(id).stage ? nameOf(id) + " (Stufe " + byId(id).stage + ")" : nameOf(id))
 const loadedName = computed(() => {
   const r = d.value.loadedId && byId(d.value.loadedId)
   if (r) return r.name
@@ -400,7 +401,8 @@ const condList = computed(() => {
       case "speedTraps": out.push(v === "all" ? "alle Blitzer ausgelöst" : v + " Blitzer ausgelöst"); break
       case "beatenTeam": out.push("Crew " + teamName(v) + " geschlagen"); break
       case "beatenTeams": out.push("Crews geschlagen: " + list(v).map(teamName).join(", ")); break
-      case "beatenRivals": case "requires": out.push("Gegner geschlagen: " + list(v).map(nameOf).join(", ")); break
+      case "beatenRivals": case "requires": out.push("Gegner geschlagen: " + list(v).map(stageName).join(", ")); break
+      case "storyChapter": out.push("Story " + chapterName(v)); break
       case "naOnly": out.push("nur Sauger"); break
       case "forcedInduction": out.push("nur Turbo/Kompressor"); break
       case "manual": out.push("nur Schaltgetriebe"); break
