@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### Unstuck
+- New: "Unstuck" with Shift + U or as a tile in the left menu. If you get caught in a guardrail or object with the car or on foot (some of them on C1 are not fully solid and hold you like a magnet), you are moved back 0.5 m along your own path, facing the way you were and without momentum.
+- Still stuck? Pressing again shortly after moves you back further (1.5 m, 3 m, 6 m).
+- Damage and fuel stay, it is free. Blocked during battles, conversations, in shops, above 15 km/h and when the car is on its roof (get towed then). Short cooldown between uses. Everything adjustable in world.json ("unstuck").
+
 ### Wanderer Builder to send around
 - New Wanderer Builder: a single HTML file that helpers and testers open in their browser with a double click (offline, English and German). They build their own Wanderer with it and send back one file.
 - Inside: name, Japanese name, nickname, backstory, sign for the Wanderer seal, the new Bob avatar with all parts including beards and an own colour, the car config (just drag in the .pc), Japanese license plate with preview, driving style, strength, conditions and three lines.

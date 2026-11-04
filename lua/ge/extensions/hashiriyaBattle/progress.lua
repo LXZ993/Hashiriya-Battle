@@ -253,6 +253,7 @@ function M.getStatsUi()
       { k = 'stats.fuel', v = string.format('%.0f l', s.fuelLiters or 0) },
       { k = 'stats.repairs', v = s.repairs or 0 },
       { k = 'stats.tows', v = s.tows or 0 },
+      { k = 'stats.unstucks', v = s.unstucks or 0 },
     } },
   }
   return { groups = groups, rank = M.rankName(save), nick = M.nickname(save), rep = save.rep or 0 }

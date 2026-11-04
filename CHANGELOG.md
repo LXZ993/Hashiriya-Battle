@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Befreien, wenn man festhängt
+- Neu: „Befreien“ mit Shift + U oder als Kachel im Menü links. Wer mit dem Auto oder zu Fuß in einer Leitplanke oder einem Objekt hängen bleibt (manche sind auf der C1 nicht ganz fest und halten fest wie ein Magnet), wird 0,5 m auf dem eigenen Weg zurückgesetzt, in der Richtung von damals und ohne Schwung.
+- Hängt man danach immer noch, bringt ein weiterer Druck kurz danach einen größeren Schritt zurück (1,5 m, 3 m, 6 m).
+- Schaden und Tank bleiben, es kostet nichts. Gesperrt im Battle, im Gespräch, im Shop, über 15 km/h und wenn das Auto auf dem Dach liegt (dann abschleppen). Kurze Wartezeit zwischen zwei Benutzungen. Alles einstellbar in world.json ("unstuck").
+
 ### Wanderer-Builder zum Verschicken
 - Neuer Wanderer-Builder: eine einzige HTML-Datei, die Helfer und Tester per Doppelklick im Browser öffnen (offline, Englisch und Deutsch). Damit bauen sie ihren eigenen Wanderer und schicken eine Datei zurück.
 - Drin: Name, japanischer Name, Spitzname, Geschichte, Zeichen fürs Wanderer-Siegel, der neue Bob-Avatar mit allen Teilen inklusive Bärten und eigener Farbe, die Auto-Config (.pc einfach hineinziehen), japanisches Kennzeichen mit Vorschau, Fahrstil, Stärke, Bedingungen und drei Sprüche.
