@@ -147,6 +147,7 @@
 
 ### Rival garage (developer tool)
 - New in the dev version: entry "Gegner-Garage (Dev)" in the BeamNG main menu under More, right next to Hashiriya Battle. It starts the regular BeamNG garage with all its features (parts, tune, paint, decals, vehicles, photo, lights, camera) and puts the "Rival garage" panel on top. Search rivals or filter by crews, leaders, wanderers, bosses, own configs and missing configs, click one, and his car loads in the garage with his config (as in game with plate and fixed paint, or the plain config).
+- The aura now really glows around the car: a soft flame shell in the aura colour, rising glowing haze and the ground light. In a battle it gets taller, brighter and pulses. Applies to rivals, your own aura and the preview in the rival garage. Adjustable in aura.json (shell, haze).
 - Loading a rival now also sets his licence plate number (before, the old car's number stayed and only the plate design changed).
 - Next to it: description, crew with all members and their cars, conditions in plain words, driving style, reward and lines. That keeps a car in character while tuning it, e.g. the company cars of Zangyō Express.
 - "Save to rival" writes the tuned config back: own mod configs are overwritten (with a backup), BeamNG configs stay untouched and the rival gets his own hashiriya_r_<id>.pc, rivals.json is only changed at that one spot.
