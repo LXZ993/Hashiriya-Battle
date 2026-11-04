@@ -305,6 +305,7 @@ function M.getHudState()
     text = lineText(line), name = sp.name, nick = sp.nick, portrait = sp.portrait, side = sp.side,
     kind = current.phone and 'phone' or 'story', tag = current.phone and 'phone' or sp.tag,
     step = current.index, steps = #lines,
+    phoneTag = current.phone and c.t('story.phoneTag') or nil,
     topic = current.phone and c.t('story.phone') or (current.chapter and loc(current.chapter.title)) or nil,
     key = extensions.hashiriyaBattle_talk.keyName(), next = c.t(last and 'talk.end' or 'talk.next'),
     timer = current.phone and math.max(0, 1 - current.t / phoneSeconds(lineText(line))) or nil,
@@ -355,7 +356,11 @@ local function checkPa(c)
   local list = md and (md.talkSpots or md.napSpots) or {}
   for _, pa in ipairs(list) do
     local inside = wpos and (wpos - vec3(pa.pos[1], pa.pos[2], pa.pos[3])):length() < cfg().paRadius or false
-    if inside and not paInside[pa.name] then M.onEvent('pa', { place = pa.name }) end
+    if inside and not paInside[pa.name] then
+      -- besuchte PAs merken (Rivalen-Bedingungen visitedPa / minPaVisited)
+      if c.save then c.save.paVisited = c.save.paVisited or {}; c.save.paVisited[pa.name] = c.save.paVisited[pa.name] or (c.save.day or 1) end
+      M.onEvent('pa', { place = pa.name })
+    end
     paInside[pa.name] = inside or nil
   end
 end

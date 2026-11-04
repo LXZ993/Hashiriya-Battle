@@ -78,7 +78,7 @@ function M.disengage(cooldown)
   if veh then
     -- weiterfahren, aber erst nach einer Pause wieder herausforderbar
     e.cooldown = cooldown or (data and data.settings and data.settings.rechallengeSeconds) or 60
-    setCruise(veh, e.data)
+    M.resume(e)
   end
 end
 
@@ -220,6 +220,178 @@ local function playerModel()
   return veh and veh:getJBeamFilename() or nil
 end
 
+-- Erweiterte Bedingungen (04.11.2026) -------------------------------------------
+local function playerConfig()
+  local ok, cfg = pcall(function() return extensions.hashiriyaBattle_shop.currentConfig() end)
+  if ok and type(cfg) == 'table' then return cfg end
+end
+
+local function anyPart(cfg, words)
+  for _, part in pairs(cfg and cfg.parts or {}) do
+    if type(part) == 'string' and part ~= '' then
+      local p = part:lower()
+      for _, w in ipairs(words) do if p:find(w, 1, true) then return true end end
+    end
+  end
+  return false
+end
+
+-- Saugmotor: kein Turbo und kein Kompressor verbaut
+local function isNaturallyAspirated()
+  local cfg = playerConfig()
+  if not cfg then return false end
+  return not anyPart(cfg, { 'turbo', 'supercharger', 'twincharger', 'roots', 'centrifugal' })
+end
+
+-- Schalter: Getriebe-Teil enthält manual/sequential (keine Automatik, DCT oder CVT)
+local function hasManualGearbox()
+  local cfg = playerConfig()
+  if not cfg then return false end
+  for slot, part in pairs(cfg.parts or {}) do
+    if type(slot) == 'string' and slot:lower():find('transmission', 1, true) and type(part) == 'string' and part ~= '' then
+      local p = part:lower()
+      if p:find('manual', 1, true) or p:find('sequential', 1, true) then return true end
+    end
+  end
+  return false
+end
+
+-- Lackfarbe in grobe Farbnamen: red, orange, yellow, green, blue, purple, pink, white, silver, grey, black
+local function colorName(col)
+  if type(col) ~= 'table' then return nil end
+  local r, g, b = tonumber(col[1] or col.r) or 0, tonumber(col[2] or col.g) or 0, tonumber(col[3] or col.b) or 0
+  if r > 1 or g > 1 or b > 1 then r, g, b = r / 255, g / 255, b / 255 end
+  local mx, mn = math.max(r, g, b), math.min(r, g, b)
+  local sat = mx > 0 and (mx - mn) / mx or 0
+  if sat < 0.18 then
+    if mx > 0.85 then return 'white' elseif mx > 0.55 then return 'silver' elseif mx > 0.2 then return 'grey' else return 'black' end
+  end
+  local h
+  if mx == r then h = ((g - b) / (mx - mn)) % 6 elseif mx == g then h = (b - r) / (mx - mn) + 2 else h = (r - g) / (mx - mn) + 4 end
+  h = h * 60
+  if h < 15 or h >= 340 then return 'red' elseif h < 45 then return 'orange' elseif h < 70 then return 'yellow'
+  elseif h < 170 then return 'green' elseif h < 255 then return 'blue' elseif h < 300 then return 'purple' else return 'pink' end
+end
+
+local function playerPaintName()
+  local cfg = playerConfig()
+  local p = cfg and type(cfg.paints) == 'table' and cfg.paints[1]
+  return p and colorName(p.baseColor) or nil
+end
+M.colorName = colorName
+
+local function activeCarEntry(save)
+  return save and save.cars and save.cars[save.activeCar or 1] or nil
+end
+
+-- Kilometerstand des aktiven Autos (höchster Teile-Kilometerstand, sonst Kaufzustand)
+local function carOdometerKm(save)
+  local car = activeCarEntry(save)
+  if not car then return 0 end
+  local best = 0
+  for _, p in pairs(car.parts or {}) do
+    if type(p) == 'table' and tonumber(p.o) then best = math.max(best, tonumber(p.o) / 1000) end
+  end
+  if best <= 0 and car.wear then best = tonumber(car.wear.odometerKm) or 0 end
+  return best
+end
+
+local function statsOf(save) return save.stats or {} end
+
+-- Werte des Autos (PS, kg) kommen asynchron aus dem Fahrzeug; fehlen sie, wird nachgefragt und die Bedingung gilt noch nicht
+local function carStat(key)
+  local shop = extensions.hashiriyaBattle_shop
+  local st = shop and shop.getCarStats and shop.getCarStats()
+  if not st then
+    local now = os.clock()
+    if shop and shop.requestStats and now - (M._statsAsked or -10) > 5 then M._statsAsked = now; pcall(shop.requestStats) end
+    return nil
+  end
+  return st[key]
+end
+
+local function extraConditionsMet(c, save)
+  local st = statsOf(save)
+  if c.minStreak and (save.streak or 0) < c.minStreak then return false end
+  if c.minMoney and (save.money or 0) < c.minMoney then return false end
+  if c.minCars and #(save.cars or {}) < c.minCars then return false end
+  if c.maxLosses and (save.losses or 0) > c.maxLosses then return false end
+  if c.naOnly and not isNaturallyAspirated() then return false end
+  if c.forcedInduction and isNaturallyAspirated() then return false end
+  if c.manual and not hasManualGearbox() then return false end
+  if c.noPart and playerHasPart(c.noPart) then return false end
+  if c.paintColor then
+    local want = type(c.paintColor) == 'table' and c.paintColor or { c.paintColor }
+    local have, ok = playerPaintName(), false
+    for _, w in ipairs(want) do if have == w then ok = true end end
+    if not ok then return false end
+  end
+  if c.plateContains then
+    local car = activeCarEntry(save)
+    local plate = car and tostring(car.plate or '') or ''
+    if not plate:find(tostring(c.plateContains), 1, true) then return false end
+  end
+  if c.minPower or c.maxPower then
+    local ps = carStat('ps')
+    if not ps then return false end
+    if c.minPower and ps < c.minPower then return false end
+    if c.maxPower and ps > c.maxPower then return false end
+  end
+  if c.minWeight or c.maxWeight then
+    local kg = carStat('kg')
+    if not kg then return false end
+    if c.minWeight and kg < c.minWeight then return false end
+    if c.maxWeight and kg > c.maxWeight then return false end
+  end
+  if c.minOdometerKm and carOdometerKm(save) < c.minOdometerKm then return false end
+  if c.maxOdometerKm and carOdometerKm(save) > c.maxOdometerKm then return false end
+  if c.minTopSpeed and (st.topKmh or 0) < c.minTopSpeed then return false end
+  if c.weekday then
+    -- Spieltag 1 = Montag; weekday 1-7 (Mo-So) oder Liste
+    local wd = ((save.day or 1) - 1) % 7 + 1
+    local list = type(c.weekday) == 'table' and c.weekday or { c.weekday }
+    local ok = false
+    for _, d in ipairs(list) do if tonumber(d) == wd then ok = true end end
+    if not ok then return false end
+  end
+  if c.nickname then
+    local ok, nick = pcall(progress().nicknameId, save)
+    if not ok or nick ~= c.nickname then return false end
+  end
+  if c.playerLogo and save.playerLogo ~= c.playerLogo then return false end
+  -- Tage ohne Niederlage (ohne Niederlage seit Spielbeginn zählt ab Tag 1)
+  if c.minDaysNoLoss and ((save.day or 1) - (save.lastLossDay or 0)) < c.minDaysNoLoss then return false end
+  -- Auto fast unbeschädigt: Reparaturpreis höchstens so viel Yen
+  if c.maxDamageYen then
+    local okP, cost = pcall(function() return extensions.hashiriyaBattle_parking.repairCost() end)
+    if not okP or (tonumber(cost) or 0) > c.maxDamageYen then return false end
+  end
+  -- PA besucht (zu Fuß, Name enthält den Text) bzw. Mindestanzahl besuchter PAs
+  if c.visitedPa then
+    local list = type(c.visitedPa) == 'table' and c.visitedPa or { c.visitedPa }
+    for _, want in ipairs(list) do
+      local found = false
+      for name in pairs(save.paVisited or {}) do if tostring(name):lower():find(tostring(want):lower(), 1, true) then found = true end end
+      if not found then return false end
+    end
+  end
+  if c.minPaVisited then
+    local n = 0
+    for _ in pairs(save.paVisited or {}) do n = n + 1 end
+    if n < c.minPaVisited then return false end
+  end
+  -- beliebige Statistik: "stat": {"key": "pinkWins", "min": 3} oder Liste davon
+  if c.stat then
+    local list = c.stat.key and { c.stat } or c.stat
+    for _, s in ipairs(list) do
+      local v = tonumber(st[s.key]) or 0
+      if s.min and v < s.min then return false end
+      if s.max and v > s.max then return false end
+    end
+  end
+  return true
+end
+
 local function conditionsMet(c, save)
   if not c then return true end
   local rank = progress().rankIndex(save)
@@ -241,6 +413,7 @@ local function conditionsMet(c, save)
   if c.beatenTeam and not teamBeaten(c.beatenTeam, save) then return false end
   for _, id in ipairs(c.beatenTeams or {}) do if not teamBeaten(id, save) then return false end end
   for _, id in ipairs(c.beatenRivals or c.requires or {}) do if not save.defeated[id] then return false end end
+  if not extraConditionsMet(c, save) then return false end
   -- Story (Alpha 0.6): erst ab diesem Kapitel (ID aus story.json)
   if c.storyChapter then
     local st = extensions.hashiriyaBattle_story
@@ -599,6 +772,96 @@ function setCruise(veh, rival)
 end
 M.setCruise = setCruise
 
+-- Begleiter (crew.lua, Alpha 0.9.3): fahren im Konvoi hinter ihrem Leader/Boss her ('follow' auf den Vordermann).
+-- Wer in der Kette geschlagen wurde (leftGroup) oder dessen Vordermann fehlt, fährt normal im Verkehr.
+local function crew() return extensions.hashiriyaBattle_crew end
+
+function M.resume(e)
+  local veh = entryVeh(e)
+  if not veh then return end
+  -- Vordermann: der Begleiter vor ihm, außer der fährt gerade selbst ein Battle oder ist raus; dann der Leader
+  local f = e.followEntry
+  if f and (f == engaged or f.leftGroup or not entryVeh(f)) then f = e.escortOf end
+  local ahead = e.escortOf and not e.leftGroup and entryVeh(f) or nil
+  local cc = crew() and crew().cfg('escorts')
+  if ahead and cc and cc.ai == 'follow' then
+    local lead = e.escortOf.data
+    local speed = ((lead.cruiseKmh or 100) + (cc.followExtraKmh or 10)) / 3.6
+    veh:queueLuaCommand(string.format(
+      "ai.setMode('follow') ai.setTargetObjectID(%d) ai.setAggressionMode('off') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
+      ahead:getID(), speed, cruiseAggression))
+  else
+    setCruise(veh, e.data)
+  end
+end
+
+-- Alle Fahrzeuge einer Gruppe (Leader zuerst, dann die Begleiter von vorne nach hinten)
+function M.groupMembers(group)
+  local out = {}
+  if not group then return out end
+  if group.leader then out[1] = group.leader end
+  for _, e in ipairs(group.escorts or {}) do out[#out + 1] = e end
+  return out
+end
+
+-- Kette gerissen oder vorbei: alle wieder zusammen (geschlagene Begleiter fahren wieder mit), mit Pause
+function M.regroup(group, cooldown)
+  for _, e in ipairs(M.groupMembers(group)) do
+    e.leftGroup = nil
+    if cooldown then e.cooldown = math.max(e.cooldown or 0, cooldown) end
+    if e ~= engaged then M.resume(e) end
+  end
+end
+
+-- Hängt sich ans Ende: Begleiter-Autos direkt hinter dem Leader spawnen (gleiche Spur, spacing m Abstand)
+local spawnCar -- weiter unten
+local function spawnEscorts(entry, rival, dist, player, save)
+  local c = crew()
+  if not c then return end
+  local list = c.escortsFor(rival, save, function(r) return not isOnRoad(r.id) and not reserved[r.id] end)
+  if #list == 0 then return end
+  local cc = c.cfg('escorts')
+  local group = { leader = entry, escorts = {} }
+  entry.group = group
+  local prev = entry
+  for i, r in ipairs(list) do
+    local d = dist - (cc.spacing or 20) * i
+    local pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), d)
+    if pos and spawnFree(pos, 6) then
+      local veh = spawnCar(r, pos, dir)
+      if veh then
+        local e = { data = r, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false,
+          group = group, escortOf = entry, followEntry = prev, escortIndex = i }
+        table.insert(onRoad, e)
+        table.insert(group.escorts, e)
+        M.resume(e)
+        prev = e
+      end
+    end
+  end
+  if #group.escorts == 0 then entry.group = nil; return end
+  log('I', logTag, string.format('Begleiter für %s: %d', tostring(rival.id), #group.escorts))
+  return #group.escorts
+end
+
+-- Auto eines Rivalen an pos/dir spawnen (eigene Config mit Kennzeichen und Lack, zur Not die Original-Config)
+function spawnCar(rival, pos, dir)
+  local model, cfg, paints, plateText = M.carFor(rival)
+  local opts = { config = cfg, pos = pos, rot = quatFromDir(dir, vec3(0, 0, 1)), autoEnterVehicle = false, licenseText = plateText }
+  if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
+  local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
+  if (not okSpawn or not veh) and type(cfg) == 'table' then
+    -- Ersatz: Original-Config ohne Kennzeichen-Design und Lack
+    log('W', logTag, 'Rivale mit eigener Config nicht gespawnt, nehme Original: ' .. tostring(rival.id) .. ' ' .. tostring(veh))
+    opts.config, opts.paint, opts.paint2, opts.paint3 = rival.config, nil, nil, nil
+    okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
+  end
+  if not okSpawn then veh = nil end
+  if veh and plateText then pcall(core_vehicles.setPlateText, plateText, veh:getID()) end
+  if not veh then log('E', logTag, 'Konnte Rivalen-Auto nicht spawnen: ' .. tostring(model)) end
+  return veh
+end
+
 -- Dev-Tool: Rivale per ID oder (Teil vom) Namen finden
 function M.findRival(q)
   if not data then M.loadData() end
@@ -677,31 +940,24 @@ function M.spawnNext(force, forced)
     return
   end
 
-  local model, cfg, paints, plateText = M.carFor(rival)
-  local opts = { config = cfg, pos = pos, rot = quatFromDir(dir, vec3(0, 0, 1)), autoEnterVehicle = false, licenseText = plateText }
-  if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
-  local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
-  if (not okSpawn or not veh) and type(cfg) == 'table' then
-    -- Ersatz: Original-Config ohne Kennzeichen-Design und Lack
-    log('W', logTag, 'Rivale mit eigener Config nicht gespawnt, nehme Original: ' .. tostring(rival.id) .. ' ' .. tostring(veh))
-    opts.config, opts.paint, opts.paint2, opts.paint3 = rival.config, nil, nil, nil
-    okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
-  end
-  if not okSpawn then veh = nil end
-  if veh and plateText then pcall(core_vehicles.setPlateText, plateText, veh:getID()) end
-  if not veh then
-    log('E', logTag, 'Konnte Rivalen-Auto nicht spawnen: ' .. tostring(model))
-    return
-  end
+  local veh = spawnCar(rival, pos, dir)
+  if not veh then return end
 
   local entry = { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false }
   table.insert(onRoad, entry)
   setCruise(veh, rival)
+  -- Leader und Bosse bringen Begleiter mit (crew.lua, data/crewbattle.json)
+  local escorts = nil
+  if rival.leader or rival.boss or type(rival.escorts) == 'table' then
+    local okE, n = pcall(spawnEscorts, entry, rival, dist, player, save)
+    if okE then escorts = n else log('E', logTag, 'Begleiter: ' .. tostring(n)) end
+  end
   if force or dist > 0 then
     local nick = progress().loc(rival.nick)
     core().msg(core().t('msg.rivalSpotted', rival.name .. (nick ~= '' and (' "' .. nick .. '"') or ''))
       .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or '') .. (rival.boss and core().t('msg.boss') or '')
-      .. (rival.rematch and core().t('msg.rematch') or '') .. (home().isWatched(rival.id) and core().t('msg.watched') or ''))
+      .. (rival.rematch and core().t('msg.rematch') or '') .. (home().isWatched(rival.id) and core().t('msg.watched') or '')
+      .. (escorts and core().t('msg.escorts', escorts) or ''))
   end
   log('I', logTag, 'Rivale gespawnt: ' .. rival.id .. string.format(' (%d m, %d unterwegs)', math.floor(dist), #onRoad))
   return entry
@@ -824,6 +1080,16 @@ local function despawn(e)
   if veh then veh:delete() end
   for i, x in ipairs(onRoad) do if x == e then table.remove(onRoad, i); break end end
   if engaged == e then engaged = nil end
+  -- Konvoi: wer diesem Auto gefolgt ist, sucht sich einen neuen Vordermann (oder fährt normal weiter)
+  if e.group then
+    for _, m in ipairs(M.groupMembers(e.group)) do
+      if m ~= e and (m.followEntry == e or m.escortOf == e) and m ~= engaged then
+        if m.followEntry == e then m.followEntry = (e ~= e.group.leader) and e.followEntry or nil end
+        if m.escortOf == e then m.leftGroup = true end
+        M.resume(m)
+      end
+    end
+  end
 end
 
 -- Rivale aus dem Battle (oder der nächste) verschwindet, z. B. beim Abschleppen
@@ -938,7 +1204,7 @@ local function onUpdate(dtReal, dtSim)
         if veh:getDirectionVector():dot(e.spawnDir) < 0 then
           log('W', logTag, 'Rivale stand falsch herum, wird gedreht')
           setRotation(veh, e.spawnPos, e.spawnDir * -1)
-          setCruise(veh, e.data)
+          M.resume(e)
         end
       end
       -- Gleich nach dem Spawn mit Reisetempo losrollen lassen, statt aus dem Stand zu starten
@@ -962,9 +1228,11 @@ local function onUpdate(dtReal, dtSim)
         veh:queueLuaCommand(string.format('if (electrics.values.lights_state or 0) ~= %d then electrics.setLightsState(%d) end', want, want))
       end
       -- Hängt fest (steht oder fährt kaum, ohne Battle): erst neu anschieben, dann verschwinden lassen, wenn weit genug weg
-      if e ~= engaged and e.launched then
+      -- (nicht bei Crew-Blockern: die fährt gerade der eigene Fahrer, crew.lua)
+      local drv = extensions.hashiriyaBattle_driver
+      if e ~= engaged and e.launched and not (drv and drv.isRunning(e.vehId)) then
         if veh:getVelocity():length() < 3 then e.stuck = (e.stuck or 0) + dtSim else e.stuck = 0 end
-        if e.stuck > stuckSeconds * 0.5 and not e.nudged then e.nudged = true; setCruise(veh, e.data) end
+        if e.stuck > stuckSeconds * 0.5 and not e.nudged then e.nudged = true; M.resume(e) end
         if e.stuck > stuckSeconds and player and (veh:getPosition() - player:getPosition()):length() > 120 then
           log('I', logTag, 'Rivale hing fest und wird entfernt: ' .. tostring(e.data.id))
           despawn(e)

@@ -18,6 +18,33 @@
 - The taxi does not count as your car: your fuel, damage and wear stay untouched, and there are no battles in the taxi.
 - New: the delivery round. Drive 3 to 4 stops in a row with your own car under one overall time. If time runs out, only delivered stops are paid.
 - Now five offers per day on the board (complete at most four). New dev menu place types: "Taxi: Fahrgast-Punkt" (passenger point) and "Taxi-Depot".
+### Crew battles, declining and bets
+- New, like in TXR 2025: leaders and bosses drive with two escorts in a convoy. Challenge anyone in the group and you race them all in a row: first the escorts from back to front, then the leader or boss. The display shows "CHAIN 1/3". After each win the next one waits for you.
+- A loss (or a false start) breaks the chain: the group regroups and next time it starts over. Leaders bring members of their crew, bosses bring the leaders of the crews you had to beat before.
+- Crew tactics: while you race someone from the group, the other escorts block for him. They pull in just ahead of you, brake with you and close the line. Against a leader his crew members on the road block too. The display then shows "BLOCKING".
+- Rivals now decline visibly: if one doesn't want to (just raced you, night limit reached or simply not in the mood), he sets his turn signal and a stop sign with a cross and the reason appears in the middle of the screen. If you decline yourself, the sign shows in orange.
+- Bets: while matching speed the rival sometimes offers a bet in yen. Hazards = accept, flash = raise the stake (up to triple), do nothing = no bet. Win = stake on top, loss = stake gone. Never more than half your money, not in pink slip races.
+- Everything is adjustable in the new file data/crewbattle.json.
+### Nicknames, trophies and phone messages
+- 89 nicknames instead of 7, in the groups Battle, Driving style, Road and Life & garage: e.g. Sideways (50 drifts), Slipstreamer, Hairline, Witching Hour (wins between 2 and 4 am), Kamikaze, Mile Eater, Radar Terror, Wrench Head, Chatterbox. Many come in several tiers.
+- New: titles per car model like in TXR 2025, e.g. "Covet Driver" after 10 wins with the Covet, then Expert (25), Master (50) and Legend (100).
+- Every nickname you earn stays yours and can be picked: Trophy wall > "Nicknames" tab (or tap your nickname on the menu card). "Automatic" always wears the newest. Open ones show their progress, e.g. 13 / 25.
+- New on the trophy wall: "Trophies" tab. Every crew leader you beat gives a plaque, every boss a cup, the final boss the big cup. Tap one for the day, car and battle time of the win.
+- Phone messages are now easy to spot: green "Phone message" tab with a phone icon on the speech bubble and a ringing phone on the portrait.
+
+### More wanderer conditions
+- 22 new condition types for rivals and wanderers (like in TXR): win streak, money, number of cars, at most X losses, naturally aspirated only or forced induction only, manual gearbox only, a part that must not be fitted, paint colour, characters in the plate, power and weight, odometer of the car, top speed already reached, in-game weekday, active nickname, chosen logo, days without a loss, car almost undamaged, PAs visited and any value from the statistics (e.g. pink slips won or side jobs done).
+- The rival builder in the dev menu keeps the new conditions when editing.
+
+### Buy rival cars
+- New: beat a crew leader, boss or wanderer and their car shows up at the car dealer under "Rival cars", in their paint, with picture and previous owner. A message after the win tells you.
+- Each car is sold only once and it's expensive: leader 5x, wanderer 7x, boss 10x the BeamNG price. Adjustable in dealer.json ("rivalCars"), per rival also an own factor or not for sale at all.
+
+### Maintenance: oil, coolant, tires
+- New: every car has engine oil, coolant and tires from 100 % to 0 %. They drop with every kilometre.
+- In the garage (Service tab) you see all three with a bar and price and service them one by one or all at once.
+- Below 50 % you feel it: old oil costs power, low coolant overheats the engine faster, worn tires have less grip. Below 20 % you get a warning on the road.
+- Used cars start at 35 to 90 %, rival cars fresh. New tires from the shop count as fresh. Everything adjustable in maintenance.json.
 
 ### Trophy wall (logo collection)
 - New, like in TXR: beat a crew leader and you get the crew logo. Beat a wanderer or boss and you get their seal or emblem. A message after the win tells you which logo is new.
@@ -45,6 +72,7 @@
 - New Wanderer Builder: a single HTML file that helpers and testers open in their browser with a double click (offline, English and German). They build their own Wanderer with it and send back one file.
 - Inside: name, Japanese name, nickname, backstory, sign for the Wanderer seal, the new Bob avatar with all parts including beards and an own colour, the car config (just drag in the .pc), Japanese license plate with preview, driving style, strength, conditions and three lines.
 - Submitted Wanderers come into the game with avatar, seal, plate, config and credits entry, exactly as the builder shows them.
+- The Wanderer Builder now knows all 29 condition types (weekday, NA/turbo, manual gearbox, paint colour, power, weight, mileage, win streak, money, nickname, emblem, statistics, visited parking areas and more), sorted into five groups. The build date is shown at the bottom.
 
 ### New left menu
 - The left menu (Home key) is tidied up: a card at the top with money, time, rank and reputation bar, plus small fields for record and "Nearby". The main entries (save, lexicon, dealer, stats, nap, tow) are tiles instead of a long list.

@@ -765,6 +765,8 @@ local function statsUi()
   return rows
 end
 M.requestStats = requestStats
+-- Letzte bekannte Werte des Spielerautos (für Rivalen-Bedingungen wie minPower); nil = noch nicht gemessen
+function M.getCarStats() return carStats end
 
 local function ensureCart()
   if cart then return true end

@@ -18,6 +18,33 @@
 - Das Taxi zählt nicht als dein Auto: dein Tank, Schaden und Zustand bleiben unberührt, Battles gibt es im Taxi nicht.
 - Neu: die Lieferrunde. Mit dem eigenen Auto 3 bis 4 Stopps nacheinander anfahren, eine Gesamtzeit. Läuft die Zeit ab, werden nur die gelieferten Stopps bezahlt.
 - Jetzt fünf Aufträge pro Tag am Brett (höchstens vier erledigen). Neue Ort-Typen im Dev-Menü: „Taxi: Fahrgast-Punkt“ und „Taxi-Depot“.
+### Crew-Battles, Ablehnen und Wetten
+- Neu wie in TXR 2025: Leader und Bosse fahren mit zwei Begleitern im Konvoi. Forderst du einen aus der Gruppe heraus, fährst du nacheinander gegen alle: erst die Begleiter von hinten nach vorne, zuletzt der Leader oder Boss. Oben steht „KETTE 1/3“. Nach jedem Sieg wartet der nächste auf dich.
+- Eine Niederlage (oder ein Frühstart) lässt die Kette reißen: die Gruppe fährt wieder zusammen, beim nächsten Mal geht es von vorn los. Leader nehmen Leute aus ihrer Crew mit, Bosse die Leader der Crews, die du vorher schlagen musstest.
+- Crew-Taktik: Während du gegen jemanden aus der Gruppe fährst, blocken die anderen Begleiter für ihn. Sie setzen sich knapp vor dich, bremsen mit und machen die Linie zu. Gegen einen Leader blocken auch seine Crew-Mitglieder, die gerade unterwegs sind. Unten steht dann „BLOCKT“.
+- Rivalen lehnen jetzt sichtbar ab: will einer nicht (gerade erst gegen dich gefahren, Nacht-Limit erreicht oder einfach keine Lust), setzt er den Blinker und in der Bildschirmmitte erscheint ein Stopp-Zeichen mit Kreuz und dem Grund. Lehnst du selbst ab, kommt das Zeichen in Orange.
+- Wetten: Beim Tempo-Angleichen bietet der Rivale manchmal eine Wette in Yen an. Warnblinker = annehmen, Lichthupe = Einsatz erhöhen (bis dreifach), nichts tun = keine Wette. Sieg = Einsatz obendrauf, Niederlage = Einsatz weg. Nie mehr als die Hälfte deines Geldes, nicht bei Pink Slip.
+- Alles einstellbar in der neuen Datei data/crewbattle.json (siehe Handbuch „Crew-Battles, Ablehnen und Wetten“).
+### Spitznamen, Trophäen und Handy-Nachrichten
+- 89 Spitznamen statt 7, in den Gruppen Battle, Fahrstil, Straße und Leben & Garage: z. B. Querfahrer (50 Drifts), Windschatten, Haarscharf, Geisterstunde (Siege zwischen 2 und 4 Uhr), Kamikaze, Kilometerfresser, Radarschreck, Schrauber, Plaudertasche. Viele in mehreren Stufen.
+- Neu: Titel pro Automodell wie in TXR 2025, z. B. „Covet-Fahrer“ nach 10 Siegen mit dem Covet, dann Kenner (25), Meister (50) und Legende (100).
+- Jeder verdiente Spitzname bleibt und ist wählbar: Trophäenwand > Reiter „Spitznamen“ (oder deinen Spitznamen auf der Karte im Menü antippen). „Automatisch“ trägt immer den neuesten. Offene zeigen ihren Fortschritt, z. B. 13 / 25.
+- Neu in der Trophäenwand: Reiter „Trophäen“. Jeder besiegte Crew-Leader gibt eine Plakette, jeder Boss einen Pokal, der Endboss den großen Pokal. Antippen zeigt Tag, Auto und Battle-Zeit des Siegs.
+- Handy-Nachrichten sind jetzt klar zu erkennen: grüner Reiter „Handy-Nachricht“ mit Handy-Symbol an der Sprechblase und ein klingelndes Handy am Porträt.
+
+### Mehr Bedingungen für Wanderer
+- 22 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo, Tage ohne Niederlage, Auto fast unbeschädigt, besuchte PAs und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).
+- Alle Bedingungen samt Beispielen stehen im Handbuch unter „Bedingungen (conditions)“. Der Rivalen-Builder im Dev-Menü behält die neuen Bedingungen beim Bearbeiten bei.
+
+### Rivalen-Autos kaufen
+- Neu: Besiegst du einen Crew-Leader, Boss oder Wanderer, steht sein Auto danach beim Autohändler unter „Rivalen-Autos“, mit seinem Lack, Bild und Vorbesitzer. Eine Meldung nach dem Sieg sagt Bescheid.
+- Jedes Auto gibt es nur einmal und es ist teuer: Leader 5-fach, Wanderer 7-fach, Boss 10-fach des BeamNG-Preises. Einstellbar in dealer.json („rivalCars“), pro Rivale auch eigener Faktor oder gar nicht zu kaufen.
+
+### Wartung: Öl, Kühlwasser, Reifen
+- Neu: Jedes Auto hat Motoröl, Kühlwasser und Reifen von 100 % bis 0 %. Die Werte sinken mit jedem Kilometer.
+- In der Garage (Reiter Service) siehst du alle drei mit Balken und Preis und machst einzeln oder komplett Service.
+- Unter 50 % merkst du es: altes Öl kostet Leistung, wenig Kühlwasser lässt den Motor schneller überhitzen, abgefahrene Reifen haben weniger Grip. Unter 20 % kommt unterwegs eine Warnung.
+- Gebrauchte Autos starten mit 35 bis 90 %, Rivalen-Autos frisch. Neue Reifen aus dem Shop zählen als frisch. Alles einstellbar in maintenance.json.
 
 ### Trophäenwand (Logo-Sammlung)
 - Neu, wie in TXR: Besiegst du den Leader einer Crew, bekommst du das Crew-Logo. Besiegst du einen Wanderer oder Boss, bekommst du sein Siegel oder Emblem. Nach dem Sieg sagt eine Meldung, welches Logo neu ist.
@@ -45,6 +72,7 @@
 - Neuer Wanderer-Builder: eine einzige HTML-Datei, die Helfer und Tester per Doppelklick im Browser öffnen (offline, Englisch und Deutsch). Damit bauen sie ihren eigenen Wanderer und schicken eine Datei zurück.
 - Drin: Name, japanischer Name, Spitzname, Geschichte, Zeichen fürs Wanderer-Siegel, der neue Bob-Avatar mit allen Teilen inklusive Bärten und eigener Farbe, die Auto-Config (.pc einfach hineinziehen), japanisches Kennzeichen mit Vorschau, Fahrstil, Stärke, Bedingungen und drei Sprüche.
 - Eingesendete Wanderer kommen mit Avatar, Siegel, Kennzeichen, Config und Credits-Eintrag ins Spiel, genau so, wie der Builder sie zeigt.
+- Der Wanderer-Builder kennt jetzt alle 29 Bedingungsarten (Wochentag, Saugmotor/Turbo, Schaltgetriebe, Lackfarbe, PS, Gewicht, Kilometerstand, Siegesserie, Geld, Spitzname, Wappen, Statistik, besuchte PAs und mehr), sortiert in fünf Gruppen. Unten steht das Baudatum der Datei.
 
 ### Menü links neu
 - Das linke Menü (Pos1) ist aufgeräumt: oben eine Karte mit Geld, Uhrzeit, Rang und Ruf-Balken, darunter kleine Felder für Bilanz und „In der Nähe“. Die Hauptpunkte (Speichern, Lexikon, Autohändler, Statistik, Nickerchen, Abschleppen) sind Kacheln statt einer langen Liste.

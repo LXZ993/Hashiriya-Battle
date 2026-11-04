@@ -28,9 +28,14 @@
     "talk": "event:>UI>Missions>Info_Open",
     "talkHint": "event:>UI>Career>Progress_LevelUp",
     "photo": "/art/sound/hashiriya/sfx/camera_digital_shutter.wav",
-    "jobPickup": "event:>UI>Career>Buy_01"
+    "jobPickup": "event:>UI>Career>Buy_01",
+    "declined": "event:>UI>Main>Cancel",
+    "bet": "event:>UI>Career>Buy_01"
   },
   "messages": {
+    "msg.betWon": "money",
+    "msg.betLost": "denied",
+    "msg.chainBroken": "lose",
     "msg.partInstalled": "buy",
     "msg.repaired": "buy",
     "msg.plateChanged": "buy",
