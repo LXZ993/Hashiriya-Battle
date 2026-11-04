@@ -1,0 +1,675 @@
+{
+  "_hinweis": "Schwarzes Brett (HashiNet-Forum). settings: rumorsPerDay = Gerüchte pro Tag, rumorRankAhead = Gerüchte auch über Gegner bis so viele Ränge über dir, crewPostsMax = höchstens so viele Crew-News, crewNewMax = davon höchstens so viele 'Neu in der Szene', scenePerDay/factsPerDay/adsPerDay = so viele Beiträge aus 'posts' je Kategorie pro Tag, newsNights = Crew-besiegt-Meldung so viele Nächte lang, readRadius = Meter zum Aushang zu Fuß, readRadiusCar/readCarKmh = im stehenden Auto, jobAds = Anzeigen zu den heutigen Nebenjobs. templates = Textbausteine (mehrere Varianten je Schlüssel, {platzhalter} werden ersetzt). posts = eigene Beiträge: cat scene (Szene), fact (Wissen), ad (Kleinanzeige); minRank/maxRank/minDay schränken ein, priceYen zeigt einen Preis, author = fester Name. Erklärung im Handbuch, Kapitel 'Schwarzes Brett'.",
+  "settings": {
+    "enabled": true,
+    "rumorsPerDay": 4,
+    "rumorRankAhead": 1,
+    "crewPostsMax": 6,
+    "crewNewMax": 2,
+    "scenePerDay": 4,
+    "factsPerDay": 1,
+    "adsPerDay": 2,
+    "newsNights": 2,
+    "readRadius": 3.5,
+    "readRadiusCar": 9,
+    "readCarKmh": 4,
+    "jobAds": true
+  },
+  "authors": [
+    "NightOwl_C1",
+    "ShibauraSam",
+    "GaitoKid",
+    "TatsumiTom",
+    "RedLine88",
+    "Kantetsu",
+    "Mirror_Ghost",
+    "BlueLotus",
+    "WanganLover",
+    "OldSchoolEG",
+    "pa_cat_daikoku",
+    "BoostBaby",
+    "Chiyoda_Rin",
+    "KeiCarKing",
+    "Hachiroku_dad",
+    "Yokohama_Ken",
+    "SlowCarFast",
+    "LXZ_watcher"
+  ],
+  "templates": {
+    "when": {
+      "early": {
+        "de": "gleich nach Einbruch der Nacht",
+        "en": "right after nightfall"
+      },
+      "late": {
+        "de": "kurz vor Mitternacht",
+        "en": "just before midnight"
+      },
+      "midnight": {
+        "de": "kurz nach Mitternacht",
+        "en": "just after midnight"
+      },
+      "deep": {
+        "de": "in den ganz toten Stunden der Nacht",
+        "en": "in the dead hours of the night"
+      },
+      "dawn": {
+        "de": "kurz bevor es hell wird",
+        "en": "just before dawn"
+      }
+    },
+    "parts": {
+      "turbo": {
+        "de": "Es soll pfeifen, wenn du aufs Gas gehst.",
+        "en": "It has to whistle when you hit the throttle."
+      },
+      "supercharger": {
+        "de": "Unter der Haube muss es heulen, wie bei einem Kompressor.",
+        "en": "Something under the hood has to whine, like a supercharger."
+      }
+    },
+    "rumorTitle": [
+      {
+        "de": "Wer kennt {nick}?",
+        "en": "Anyone know {nick}?"
+      },
+      {
+        "de": "{nick} schon wieder gesehen",
+        "en": "{nick} spotted again"
+      },
+      {
+        "de": "Gerücht: {nick}",
+        "en": "Rumour: {nick}"
+      },
+      {
+        "de": "Frage zu {nick}",
+        "en": "Question about {nick}"
+      },
+      {
+        "de": "„{title}“ wieder unterwegs?",
+        "en": "\"{title}\" back on the road?"
+      }
+    ],
+    "rumorTitleBoss": [
+      {
+        "de": "Die Legende {nick}",
+        "en": "The legend {nick}"
+      },
+      {
+        "de": "{nick} - Märchen oder echt?",
+        "en": "{nick} - myth or real?"
+      }
+    ],
+    "rumorSight": [
+      {
+        "de": "Ein Kumpel schwört, er hat {nick} auf der C1 gesehen. Irgendwas von {brand}, viel zu schnell.",
+        "en": "A buddy swears he saw {nick} on the C1. Something from {brand}, way too fast."
+      },
+      {
+        "de": "Ich hab {nick} letzte Woche kurz im Spiegel gehabt. Dann war der {brand} weg.",
+        "en": "Had {nick} in my mirror for a second last week. Then the {brand} was gone."
+      },
+      {
+        "de": "Man redet wieder über {nick}.",
+        "en": "People are talking about {nick} again."
+      },
+      {
+        "de": "Hat jemand Infos zu {nick}? Fährt angeblich einen {brand}.",
+        "en": "Anyone got info on {nick}? Supposedly drives a {brand}."
+      }
+    ],
+    "clueHours": [
+      {
+        "de": "Angeblich nur {when} unterwegs.",
+        "en": "Supposedly only out {when}."
+      },
+      {
+        "de": "Wer {nick} sucht, muss {when} fahren, heißt es.",
+        "en": "If you want {nick}, drive {when}, they say."
+      }
+    ],
+    "clueModel": [
+      {
+        "de": "Soll nur Leute herausfordern, die selbst einen {brand} fahren.",
+        "en": "Only challenges people who drive a {brand} themselves, they say."
+      },
+      {
+        "de": "Mit dem falschen Auto schaut {nick} dich nicht mal an. Irgendwas mit {brand}.",
+        "en": "With the wrong car {nick} won't even look at you. Something about {brand}."
+      }
+    ],
+    "cluePart": [
+      {
+        "de": "Angeblich achtet {nick} darauf, was unter deiner Haube steckt.",
+        "en": "Apparently {nick} cares about what's under your hood."
+      }
+    ],
+    "cluePartKnown": [
+      {
+        "de": "{sound} Sonst kein Interesse.",
+        "en": "{sound} Otherwise no interest."
+      }
+    ],
+    "clueTeam": [
+      {
+        "de": "Wartet angeblich, bis jemand die {team} geschlagen hat.",
+        "en": "Supposedly waiting for someone to beat {team}."
+      },
+      {
+        "de": "Seit die {team} groß reden, ist {nick} auf sie fixiert. Wer die schlägt, bekommt Besuch.",
+        "en": "Ever since {team} started talking big, {nick} has been fixated on them. Beat them and you'll get a visitor."
+      }
+    ],
+    "clueTeams": [
+      {
+        "de": "Man sagt, erst wer {teams} geschlagen hat, ist es wert.",
+        "en": "They say only someone who beat {teams} is worth it."
+      }
+    ],
+    "clueRivals": [
+      {
+        "de": "Hat wohl noch eine Rechnung mit {names} offen.",
+        "en": "Still has a score to settle with {names}, apparently."
+      },
+      {
+        "de": "Taucht erst auf, wenn {names} verloren hat.",
+        "en": "Only shows up once {names} has lost."
+      }
+    ],
+    "clueTraps": [
+      {
+        "de": "Fährt nur gegen Leute, die oft genug geblitzt wurden. Kein Witz.",
+        "en": "Only races people who got flashed by speed cameras often enough. No joke."
+      }
+    ],
+    "clueDay": [
+      {
+        "de": "Neulinge interessieren {nick} nicht. Wer länger dabei ist, hat bessere Chancen.",
+        "en": "{nick} doesn't care about newcomers. Stick around longer and your chances improve."
+      }
+    ],
+    "clueStory": [
+      {
+        "de": "Wartet auf irgendwas Großes in der Szene. Was genau, weiß keiner.",
+        "en": "Waiting for something big to happen in the scene. Nobody knows what."
+      }
+    ],
+    "clueRank": [
+      {
+        "de": "Fährt nur gegen Leute mit Ruf. Ab {rank} schaut {nick} mal hin.",
+        "en": "Only races people with a reputation. From {rank} on, {nick} might take a look."
+      }
+    ],
+    "crewProgressTitle": [
+      {
+        "de": "{team}: Stand der Dinge",
+        "en": "{team}: current status"
+      }
+    ],
+    "crewProgress": [
+      {
+        "de": "{beaten} von {total} Leuten aus unserer Crew haben gegen {player} verloren. Das bleibt nicht so.",
+        "en": "{beaten} of our {total} drivers have lost to {player}. That won't stay that way."
+      }
+    ],
+    "crewAngryTitle": [
+      {
+        "de": "Wer ist dieser {car}-Fahrer?",
+        "en": "Who is this {car} driver?"
+      },
+      {
+        "de": "{team} ist sauer",
+        "en": "{team} is angry"
+      }
+    ],
+    "crewAngry": [
+      {
+        "de": "Schon wieder einer von uns weg. Jetzt {beaten} von {total}. {player}, wir sehen uns auf der C1.",
+        "en": "Another one of us gone. Now {beaten} of {total}. {player}, see you on the C1."
+      },
+      {
+        "de": "{player} im {car} hat letzte Nacht bei uns aufgeräumt. {beaten} von {total}. Leute, reißt euch zusammen.",
+        "en": "{player} in the {car} cleaned house last night. {beaten} of {total}. Get it together, people."
+      }
+    ],
+    "crewLeaderNextTitle": [
+      {
+        "de": "{leader} kommt",
+        "en": "{leader} is coming"
+      }
+    ],
+    "crewLeaderNext": [
+      {
+        "de": "Alle aus der {team} sind geschlagen. {leader} fährt ab morgen Nacht selbst raus.",
+        "en": "Everyone from {team} has been beaten. {leader} goes out personally from tomorrow night."
+      }
+    ],
+    "crewLeaderOutTitle": [
+      {
+        "de": "{leader} ist unterwegs",
+        "en": "{leader} is out there"
+      }
+    ],
+    "crewLeaderOut": [
+      {
+        "de": "{leader} sucht nachts nach {player}. Wer ein {team}-Logo im Rückspiegel sieht: Lichthupe.",
+        "en": "{leader} is looking for {player} at night. If you see a {team} logo in your mirror: flash your lights."
+      }
+    ],
+    "crewBeatenTitle": [
+      {
+        "de": "{team} geschlagen",
+        "en": "{team} beaten"
+      }
+    ],
+    "crewBeaten": [
+      {
+        "de": "{leader} hat gegen {player} verloren. Die {team} sind erst mal still. Respekt.",
+        "en": "{leader} lost to {player}. {team} is quiet for now. Respect."
+      },
+      {
+        "de": "Es ist offiziell: {player} hat die {team} samt {leader} geschlagen.",
+        "en": "It's official: {player} beat {team}, {leader} included."
+      }
+    ],
+    "crewNewTitle": [
+      {
+        "de": "Neu in der Szene: {team}",
+        "en": "New in the scene: {team}"
+      }
+    ],
+    "crewNew": [
+      {
+        "de": "{desc}",
+        "en": "{desc}"
+      }
+    ],
+    "newsTitle": [
+      {
+        "de": "Nachtbericht C1",
+        "en": "C1 night report"
+      },
+      {
+        "de": "Was letzte Nacht los war",
+        "en": "What happened last night"
+      }
+    ],
+    "news": [
+      {
+        "de": "{player} im {car} hat {count} Battle(s) gewonnen. Verloren haben: {names}.",
+        "en": "{player} in the {car} won {count} battle(s). Losers: {names}."
+      },
+      {
+        "de": "Laut Funk: {names} gegen {player} verloren. Der {car} wird langsam bekannt.",
+        "en": "Word on the radio: {names} lost to {player}. That {car} is getting famous."
+      }
+    ],
+    "adTaxiTitle": [
+      {
+        "de": "{company} sucht Aushilfsfahrer",
+        "en": "{company} is looking for temp drivers"
+      }
+    ],
+    "adTaxi": [
+      {
+        "de": "Tagschicht, Firmenwagen wird gestellt. Sanft fahren, Tempolimit einhalten, Fahrgäste geben Trinkgeld. Am Jobbrett in der Garage annehmen.",
+        "en": "Day shift, company car provided. Drive smoothly, keep to the speed limit, passengers tip. Accept it at the job board in the garage."
+      }
+    ],
+    "adRouteTitle": [
+      {
+        "de": "Fahrer für Lieferrunde gesucht",
+        "en": "Driver wanted for a delivery round"
+      }
+    ],
+    "adRoute": [
+      {
+        "de": "{stops} Stopps auf einer Runde, eigenes Auto. Wer alle schafft, bekommt {pay}. Jobbrett in der Garage.",
+        "en": "{stops} stops on one round, your own car. Make all of them and get {pay}. Job board in the garage."
+      }
+    ]
+  },
+  "posts": [
+    {
+      "id": "s_daikoku",
+      "cat": "scene",
+      "title": {
+        "de": "Treffen am Wochenende?",
+        "en": "Meet this weekend?"
+      },
+      "text": {
+        "de": "Wer ist Samstag an der großen PA? Bringt Kaffee mit, der Automat ist wieder leer.",
+        "en": "Who's at the big PA on Saturday? Bring coffee, the vending machine is empty again."
+      }
+    },
+    {
+      "id": "s_police",
+      "cat": "scene",
+      "title": {
+        "de": "Achtung Polizei",
+        "en": "Heads up: police"
+      },
+      "text": {
+        "de": "Die Streife steht wieder an der Ausfahrt nach dem Tunnel. Nicht provozieren.",
+        "en": "The patrol car is parked at the exit after the tunnel again. Don't provoke them."
+      }
+    },
+    {
+      "id": "s_rain",
+      "cat": "scene",
+      "title": {
+        "de": "Nasse C1",
+        "en": "Wet C1"
+      },
+      "text": {
+        "de": "Bei Regen sind die Fugen auf den Brücken wie Eis. Lieber zehn km/h weniger.",
+        "en": "In the rain the joints on the bridges are like ice. Better ten km/h slower."
+      }
+    },
+    {
+      "id": "s_lights",
+      "cat": "scene",
+      "title": {
+        "de": "Lichthupe ohne Grund",
+        "en": "Flashing for no reason"
+      },
+      "text": {
+        "de": "Bitte nicht jeden mit der Lichthupe anblinken. Manche Leute wollen einfach nur nach Hause.",
+        "en": "Please don't flash everyone. Some people just want to go home."
+      }
+    },
+    {
+      "id": "s_tires",
+      "cat": "scene",
+      "title": {
+        "de": "Reifen-Frage",
+        "en": "Tyre question"
+      },
+      "text": {
+        "de": "Lohnen sich Semislicks auf der C1 oder reichen gute Straßenreifen? Bei Nacht ist der Asphalt eh kalt.",
+        "en": "Are semi-slicks worth it on the C1, or are good street tyres enough? The asphalt is cold at night anyway."
+      }
+    },
+    {
+      "id": "s_rookie",
+      "cat": "scene",
+      "title": {
+        "de": "Erste Nacht",
+        "en": "First night"
+      },
+      "text": {
+        "de": "Bin gestern zum ersten Mal mitgefahren. Drei Mal verloren, aber was für ein Gefühl.",
+        "en": "Went out for the first time last night. Lost three times, but what a feeling."
+      },
+      "maxRank": 2
+    },
+    {
+      "id": "s_streak",
+      "cat": "scene",
+      "title": {
+        "de": "Siegesserie",
+        "en": "Win streak"
+      },
+      "text": {
+        "de": "Wer mehrere Battles hintereinander gewinnt, kassiert mehr. Also nicht nach dem ersten Sieg nach Hause.",
+        "en": "Win several battles in a row and you earn more. So don't go home after the first win."
+      }
+    },
+    {
+      "id": "s_damage",
+      "cat": "scene",
+      "title": {
+        "de": "Werkstatt ist teuer",
+        "en": "The shop is expensive"
+      },
+      "text": {
+        "de": "Jeder Kratzer kostet Geld. Wer sauber fährt, hat am Ende mehr für Teile übrig.",
+        "en": "Every scratch costs money. Drive clean and you'll have more left for parts."
+      }
+    },
+    {
+      "id": "s_wanderer",
+      "cat": "scene",
+      "title": {
+        "de": "Wanderer",
+        "en": "Wanderers"
+      },
+      "text": {
+        "de": "Die Wanderer gehören zu keiner Crew. Manche kommen nur zu bestimmten Zeiten oder bei bestimmten Autos. Hört euch an den PAs um.",
+        "en": "Wanderers don't belong to any crew. Some only show up at certain times or for certain cars. Ask around at the PAs."
+      }
+    },
+    {
+      "id": "s_tunnel",
+      "cat": "scene",
+      "title": {
+        "de": "Tunnel-Sound",
+        "en": "Tunnel sound"
+      },
+      "text": {
+        "de": "Fenster runter im Tunnel und einmal runterschalten. Mehr muss ich nicht sagen.",
+        "en": "Window down in the tunnel and drop a gear. Nothing more to say."
+      }
+    },
+    {
+      "id": "s_sleep",
+      "cat": "scene",
+      "title": {
+        "de": "Müde Augen",
+        "en": "Tired eyes"
+      },
+      "text": {
+        "de": "Wer die ganze Nacht fährt, sollte zwischendurch an einer PA ein Nickerchen machen. Ernsthaft.",
+        "en": "If you drive all night, take a nap at a PA in between. Seriously."
+      }
+    },
+    {
+      "id": "s_fuel",
+      "cat": "scene",
+      "title": {
+        "de": "Tank leer",
+        "en": "Empty tank"
+      },
+      "text": {
+        "de": "Gestern mit leerem Tank im Battle liegen geblieben. Das war peinlich. Vorher tanken!",
+        "en": "Ran dry in the middle of a battle last night. Embarrassing. Fill up first!"
+      }
+    },
+    {
+      "id": "s_boss",
+      "cat": "scene",
+      "title": {
+        "de": "Die ganz Großen",
+        "en": "The big names"
+      },
+      "text": {
+        "de": "Über die Bosse redet keiner gern. Wer die sehen will, muss erst die Crews der Gegend schlagen.",
+        "en": "Nobody likes to talk about the bosses. If you want to see them, beat the crews of the area first."
+      },
+      "minRank": 4
+    },
+    {
+      "id": "s_pink",
+      "cat": "scene",
+      "title": {
+        "de": "Pink Slip",
+        "en": "Pink slip"
+      },
+      "text": {
+        "de": "Hab um mein Auto gefahren und verloren. Jetzt fährt jemand anders meinen Wagen. Ich hol ihn mir zurück.",
+        "en": "Raced for my car and lost. Now someone else drives it. I'm getting it back."
+      },
+      "minRank": 3
+    },
+    {
+      "id": "f_c1_1962",
+      "cat": "fact",
+      "title": {
+        "de": "Wissen: Die erste Strecke",
+        "en": "Trivia: the first section"
+      },
+      "text": {
+        "de": "Die erste Strecke des Shuto Expressway (Kyobashi bis Shibaura) wurde im Dezember 1962 eröffnet. Gebaut wurde mit Blick auf die Olympischen Spiele 1964 in Tokio.",
+        "en": "The first section of the Shuto Expressway (Kyobashi to Shibaura) opened in December 1962. It was built with the 1964 Tokyo Olympics in mind."
+      }
+    },
+    {
+      "id": "f_c1_rivers",
+      "cat": "fact",
+      "title": {
+        "de": "Wissen: Straße über dem Wasser",
+        "en": "Trivia: a road over water"
+      },
+      "text": {
+        "de": "Große Teile der C1 wurden über Flüsse, Kanäle und alte Burggräben gebaut. So musste man kaum Grundstücke kaufen und kam schneller voran.",
+        "en": "Large parts of the C1 were built over rivers, canals and old moats. That avoided buying land and made construction faster."
+      }
+    },
+    {
+      "id": "f_nihonbashi",
+      "cat": "fact",
+      "title": {
+        "de": "Wissen: Nihonbashi",
+        "en": "Trivia: Nihonbashi"
+      },
+      "text": {
+        "de": "Die Hochstraße verläuft direkt über der historischen Nihonbashi-Brücke von 1911. Dieser Abschnitt soll in den kommenden Jahrzehnten unter die Erde verlegt werden.",
+        "en": "The elevated road runs directly above the historic Nihonbashi bridge from 1911. That section is planned to move underground in the coming decades."
+      }
+    },
+    {
+      "id": "f_plates",
+      "cat": "fact",
+      "title": {
+        "de": "Wissen: Kennzeichen",
+        "en": "Trivia: licence plates"
+      },
+      "text": {
+        "de": "Auf japanischen Kennzeichen steht ein Hiragana-Zeichen. わ und れ bedeuten Mietwagen. Manche Zeichen wie し oder へ werden nie verwendet.",
+        "en": "Japanese plates carry a hiragana character. わ and れ mean rental car. Some characters like し or へ are never used."
+      }
+    },
+    {
+      "id": "f_shaken",
+      "cat": "fact",
+      "title": {
+        "de": "Wissen: Shaken",
+        "en": "Trivia: shaken"
+      },
+      "text": {
+        "de": "Die japanische Fahrzeugprüfung heißt Shaken. Sie ist teuer und kommt alle zwei Jahre, darum sind gebrauchte Autos in Japan oft günstig.",
+        "en": "The Japanese vehicle inspection is called shaken. It's expensive and comes every two years, which is why used cars in Japan are often cheap."
+      }
+    },
+    {
+      "id": "f_taxi_door",
+      "cat": "fact",
+      "title": {
+        "de": "Wissen: Taxitüren",
+        "en": "Trivia: taxi doors"
+      },
+      "text": {
+        "de": "In japanischen Taxis öffnet und schließt der Fahrer die hintere Tür per Hebel. Bitte nicht selbst zuknallen.",
+        "en": "In Japanese taxis the driver opens and closes the rear door with a lever. Please don't slam it yourself."
+      }
+    },
+    {
+      "id": "f_left",
+      "cat": "fact",
+      "title": {
+        "de": "Wissen: Linksverkehr",
+        "en": "Trivia: driving on the left"
+      },
+      "text": {
+        "de": "In Japan fährt man links. Darum sitzt man rechts im Auto, und Importe mit Lenkrad links fallen sofort auf.",
+        "en": "Japan drives on the left. So you sit on the right, and left-hand-drive imports stand out immediately."
+      }
+    },
+    {
+      "id": "f_pa",
+      "cat": "fact",
+      "title": {
+        "de": "Wissen: Parkplätze",
+        "en": "Trivia: parking areas"
+      },
+      "text": {
+        "de": "Die Parkplätze an japanischen Autobahnen heißen PA (Parking Area), größere mit Tankstelle und Restaurant SA (Service Area).",
+        "en": "Parking spots on Japanese expressways are called PA (parking area); larger ones with fuel and restaurants are SA (service area)."
+      }
+    },
+    {
+      "id": "a_rims",
+      "cat": "ad",
+      "title": {
+        "de": "Verkaufe Felgen",
+        "en": "Rims for sale"
+      },
+      "text": {
+        "de": "Vier Felgen, kaum gefahren, leider passen sie nicht auf meinen Kei-Car. Nur Abholung.",
+        "en": "Four rims, barely used, sadly don't fit my kei car. Pick-up only."
+      },
+      "priceYen": 120000
+    },
+    {
+      "id": "a_team",
+      "cat": "ad",
+      "title": {
+        "de": "Crew sucht Fahrer",
+        "en": "Crew looking for drivers"
+      },
+      "text": {
+        "de": "Kleine Crew sucht Leute mit eigenem Auto und Nerven. Keine Angeber.",
+        "en": "Small crew looking for people with their own car and nerves. No show-offs."
+      }
+    },
+    {
+      "id": "a_seat",
+      "cat": "ad",
+      "title": {
+        "de": "Suche Schalensitz",
+        "en": "Looking for a bucket seat"
+      },
+      "text": {
+        "de": "Suche einen Schalensitz für mein Projekt. Gern mit Konsole.",
+        "en": "Looking for a bucket seat for my project. Bracket welcome."
+      }
+    },
+    {
+      "id": "a_garage",
+      "cat": "ad",
+      "title": {
+        "de": "Stellplatz frei",
+        "en": "Parking space free"
+      },
+      "text": {
+        "de": "Stellplatz in einer Garage in Koto frei. Ruhige Nachbarn, keine Fragen.",
+        "en": "Garage space free in Koto. Quiet neighbours, no questions asked."
+      },
+      "priceYen": 35000
+    },
+    {
+      "id": "a_lost",
+      "cat": "ad",
+      "title": {
+        "de": "Verloren: Glücksbringer",
+        "en": "Lost: lucky charm"
+      },
+      "text": {
+        "de": "Hab an der PA meinen Omamori verloren. Wer ihn findet: bitte melden.",
+        "en": "Lost my omamori charm at the PA. If you find it, please get in touch."
+      }
+    },
+    {
+      "id": "a_photo",
+      "cat": "ad",
+      "title": {
+        "de": "Fotograf sucht Autos",
+        "en": "Photographer looking for cars"
+      },
+      "text": {
+        "de": "Ich mache Fotos für ein Magazin. Wer tagsüber Zeit hat, schaut ans Jobbrett.",
+        "en": "I shoot for a magazine. If you have time during the day, check the job board."
+      }
+    }
+  ]
+}

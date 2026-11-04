@@ -2,6 +2,23 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Schwarzes Brett (HashiNet-Forum)
+- Neu: Im Garagen-PC gibt es den Reiter „Schwarzes Brett“, das Forum der Szene. Die Zahl am Reiter zeigt neue Beiträge.
+- Gerüchte über Wanderer und Bosse, die du bald treffen kannst. Jeden Tag verrät ein Gerücht etwas anderes (Uhrzeit, Automarke, gesuchtes Teil, welche Crew erst fallen muss), nie die ganze Bedingung. Wer mitliest, kann sich den Rest zusammenreimen. Gekaufte Tipps bleiben trotzdem genauer.
+- Crew-News: wie viele Fahrer einer Crew du schon geschlagen hast, wann der Leader selbst rausfährt, wer gerade besiegt wurde und welche Crew neu in der Szene ist (mit Crew-Logo).
+- Nachtbericht: wen du in der letzten Nacht geschlagen hast. Dazu Szene-Beiträge, Wissen über Japan und die C1, Kleinanzeigen und Anzeigen zu den heutigen Nebenjobs.
+- Filter: Alle, Gerüchte, Crews, Szene, Jobs, dazu die Suche oben im Terminal.
+- Auch an den PAs lesbar: Mit dem neuen Ort-Typ „Schwarzes Brett (Aushang)“ im Dev-Menü setzt du Aushänge. Dort steht „[T] Schwarzes Brett lesen“ (zu Fuß oder im stehenden Auto), das Brett öffnet sich im Menü links. Weggehen schließt es.
+- Alle Texte und Einstellungen in data\board.json.
+
+### Neue Nebenjobs: Taxischicht und Lieferrunde
+- Neu am Jobbrett: die Taxischicht. Ein Firmentaxi (Pessima mit Shinonome- oder Gekkō-Lackierung) steht neben dir, dein Auto bleibt stehen. Drei Fahrgäste abholen und hinbringen, danach das Taxi zurück zum Depot.
+- Bezahlt wird per Taxameter (Grundpreis + Kilometer) plus Trinkgeld. Trinkgeld kosten: zu schnell fahren (Tempolimit 80 km/h, die Statusanzeige warnt), ruckartiges Bremsen und Beschleunigen, Schaden und Verspätung. Jede Fahrt bekommt 1 bis 5 Sterne, und der Fahrgast sagt dir seine Meinung.
+- Zu viel Schaden in einer Fahrt: der Fahrgast steigt aus und zahlt nichts. Die Reparatur des Taxis zieht die Firma am Schichtende vom Lohn ab. Abbrechen zahlt aus, was du bis dahin verdient hast.
+- Das Taxi zählt nicht als dein Auto: dein Tank, Schaden und Zustand bleiben unberührt, Battles gibt es im Taxi nicht.
+- Neu: die Lieferrunde. Mit dem eigenen Auto 3 bis 4 Stopps nacheinander anfahren, eine Gesamtzeit. Läuft die Zeit ab, werden nur die gelieferten Stopps bezahlt.
+- Jetzt fünf Aufträge pro Tag am Brett (höchstens vier erledigen). Neue Ort-Typen im Dev-Menü: „Taxi: Fahrgast-Punkt“ und „Taxi-Depot“.
+
 ### Trophäenwand (Logo-Sammlung)
 - Neu, wie in TXR: Besiegst du den Leader einer Crew, bekommst du das Crew-Logo. Besiegst du einen Wanderer oder Boss, bekommst du sein Siegel oder Emblem. Nach dem Sieg sagt eine Meldung, welches Logo neu ist.
 - Neue Kachel „Trophäenwand“ im Menü links (unterwegs und zuhause) mit deinem aktuellen Logo und wie viele du schon hast (z. B. 16 / 73). Darin alle Logos nach Crews, Wanderern und Bossen. Gesperrte Crew-Logos sind grau, Siegel und Embleme bleiben „?“, bis du sie geschlagen hast. Antippen zeigt, was du dafür tun musst.

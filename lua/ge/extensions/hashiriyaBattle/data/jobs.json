@@ -1,8 +1,8 @@
 {
-  "_hinweis": "Nebenjobs am Tag (Alpha 0.7). settings = Regeln, types = Lohn und Zeit pro Auftragsart (Yen, Sekunden pro km Luftlinie), cargo = Ladungen pro Art, photoSubjects = Motive der Fotojobs. Tipps: tipPriceWanderer/tipPriceBoss = Grundpreis, tipRankFactor = +10 % pro Rangstufe; angeboten werden nur Wanderer und Bosse, die vom Fortschritt her (Rang, Teams, Kapitel, Tag) schon kommen können. Erklärung im Handbuch, Kapitel 'Nebenjobs'.",
+  "_hinweis": "Nebenjobs am Tag (Alpha 0.7). settings = Regeln, types = Lohn und Zeit pro Auftragsart (Yen, Sekunden pro km Luftlinie), cargo = Ladungen pro Art, photoSubjects = Motive der Fotojobs. Tipps: tipPriceWanderer/tipPriceBoss = Grundpreis, tipRankFactor = +10 % pro Rangstufe; angeboten werden nur Wanderer und Bosse, die vom Fortschritt her (Rang, Teams, Kapitel, Tag) schon kommen können. Erklärung im Handbuch, Kapitel 'Nebenjobs'. Taxischicht (types.taxi): cars = Firmentaxis (model, config, company = Firmenname, text), fares = Fahrgäste pro Schicht, flagFall = Grundpreis je Fahrt, payPerKm = Taxameter je km Luftlinie, tipMax = höchstes Trinkgeld je Fahrt, speedLimitKmh = Tempolimit mit Fahrgast, speedPenaltySeconds = so viele Sekunden zu schnell = kein Trinkgeld, joltG = ab dieser Beschleunigung (g) gilt es als Ruckler, joltPenalty = Trinkgeld-Abzug je Ruckler (0.15 = 15 %), damagePenalty = Abzug bei jedem Schaden, latePayFactor = Fahrpreis bei Verspätung (0.6 = 60 %, kein Trinkgeld), failDamageYen = so viel Schaden in einer Fahrt und der Fahrgast steigt aus, yenPerDamage/repairShare = Werkstattrechnung der Firma am Schichtende. passengers = Sätze beim Einsteigen, passengerBye good/bad = beim Aussteigen. Lieferrunde (types.route): minStops/maxStops, payPerStop, payPerKm, stopSeconds = Extrazeit je Stopp, partialFactor = Anteil pro gelieferten Stopp, wenn die Zeit abläuft; cargo.route = Ladungen.",
   "settings": {
     "enabled": true,
-    "offersPerDay": 4,
+    "offersPerDay": 5,
     "maxPerDay": 4,
     "minDistance": 800,
     "arriveRadius": 25,
@@ -47,6 +47,64 @@
       "payBase": 22000,
       "weight": 1,
       "speaker": "photo"
+    },
+    "taxi": {
+      "fares": 3,
+      "flagFall": 3000,
+      "payPerKm": 3600,
+      "tipMax": 4000,
+      "secondsPerKm": 80,
+      "minSeconds": 120,
+      "speedLimitKmh": 80,
+      "speedPenaltySeconds": 25,
+      "joltG": 0.55,
+      "joltPenalty": 0.15,
+      "damagePenalty": 0.5,
+      "latePayFactor": 0.6,
+      "failDamageYen": 30000,
+      "yenPerDamage": 2,
+      "repairShare": 1,
+      "weight": 2,
+      "speaker": "taxi",
+      "cars": [
+        {
+          "model": "pessima",
+          "config": "vehicles/pessima/hashiriya_taxi_shinonome.pc",
+          "company": {
+            "de": "Shinonome Kōtsū (東雲交通)",
+            "en": "Shinonome Kotsu (東雲交通)"
+          },
+          "text": {
+            "de": "Grün-weißes Firmentaxi. Die Zentrale funkt dir die Fahrgäste durch.",
+            "en": "Green and cream company taxi. Dispatch radios the passengers through."
+          }
+        },
+        {
+          "model": "pessima",
+          "config": "vehicles/pessima/hashiriya_taxi_gekko.pc",
+          "company": {
+            "de": "Gekkō Taxi (月光タクシー)",
+            "en": "Gekko Taxi (月光タクシー)"
+          },
+          "text": {
+            "de": "Gelbes Taxi mit Schachbrett. Der Chef will pünktliche, sanfte Fahrten.",
+            "en": "Yellow taxi with checker stripe. The boss wants punctual, smooth rides."
+          }
+        }
+      ]
+    },
+    "route": {
+      "minStops": 3,
+      "maxStops": 4,
+      "payPerStop": 7000,
+      "payPerKm": 2000,
+      "secondsPerKm": 70,
+      "stopSeconds": 25,
+      "minSeconds": 200,
+      "damageFactor": 1,
+      "partialFactor": 0.6,
+      "weight": 2,
+      "speaker": "postman"
     }
   },
   "cargo": {
@@ -155,6 +213,38 @@
           "en": "Dishes for a restaurant. Every scratch on the car is one on a plate."
         }
       }
+    ],
+    "route": [
+      {
+        "title": {
+          "de": "Konbini-Nachschub",
+          "en": "Convenience store restock"
+        },
+        "text": {
+          "de": "Onigiri, Getränke und Zeitungen für mehrere Läden an der Strecke.",
+          "en": "Onigiri, drinks and newspapers for several shops along the route."
+        }
+      },
+      {
+        "title": {
+          "de": "Paketrunde",
+          "en": "Parcel round"
+        },
+        "text": {
+          "de": "Ein Kofferraum voller Pakete, jeder Stopp will seins pünktlich.",
+          "en": "A boot full of parcels, every stop wants theirs on time."
+        }
+      },
+      {
+        "title": {
+          "de": "Werkstatt-Runde",
+          "en": "Workshop round"
+        },
+        "text": {
+          "de": "Ölfilter und Zündkerzen für ein paar kleine Werkstätten.",
+          "en": "Oil filters and spark plugs for a few small workshops."
+        }
+      }
     ]
   },
   "photoSubjects": [
@@ -178,5 +268,105 @@
         "en": "A magazine wants pictures of street cars at the parking areas."
       }
     }
-  ]
+  ],
+  "passengers": [
+    {
+      "text": {
+        "de": "Guten Tag. Bitte zügig, aber ich hab gerade gegessen.",
+        "en": "Good afternoon. Quickly please, but I've just eaten."
+      }
+    },
+    {
+      "text": {
+        "de": "Ich muss zu einem Termin. Ganz ruhig fahren, ja?",
+        "en": "I have an appointment. Nice and calm, okay?"
+      }
+    },
+    {
+      "text": {
+        "de": "Oh, ein Pessima. Mein Vater hatte genau so einen.",
+        "en": "Oh, a Pessima. My father had exactly this one."
+      }
+    },
+    {
+      "text": {
+        "de": "Sie sind doch nicht einer von diesen Nachtrasern, oder?",
+        "en": "You're not one of those night racers, are you?"
+      }
+    },
+    {
+      "text": {
+        "de": "Bitte nicht über die Fugen poltern, ich hab Kuchen dabei.",
+        "en": "Please don't bang over the joints, I've got cake with me."
+      }
+    },
+    {
+      "text": {
+        "de": "Ich bin Tourist. Ist das hier die berühmte C1?",
+        "en": "I'm a tourist. Is this the famous C1?"
+      }
+    },
+    {
+      "text": {
+        "de": "Schnell bitte, mein Zug wartet nicht.",
+        "en": "Quickly please, my train won't wait."
+      }
+    },
+    {
+      "text": {
+        "de": "Ich schlaf ein bisschen. Wecken Sie mich, wenn wir da sind.",
+        "en": "I'll get some sleep. Wake me when we're there."
+      }
+    },
+    {
+      "text": {
+        "de": "Die Klimaanlage ist perfekt. Fahren Sie einfach.",
+        "en": "The air conditioning is perfect. Just drive."
+      }
+    },
+    {
+      "text": {
+        "de": "Mein Chef wartet. Aber lieber heil als schnell.",
+        "en": "My boss is waiting. But safe beats fast."
+      }
+    }
+  ],
+  "passengerBye": {
+    "good": [
+      {
+        "de": "Das war die angenehmste Fahrt seit Wochen. Danke!",
+        "en": "Smoothest ride in weeks. Thank you!"
+      },
+      {
+        "de": "Stimmt so. Sie fahren wie auf Schienen.",
+        "en": "Keep the change. You drive like you're on rails."
+      },
+      {
+        "de": "Perfekt. Ich nehme beim nächsten Mal wieder Ihre Firma.",
+        "en": "Perfect. I'll call your company again next time."
+      },
+      {
+        "de": "Pünktlich und sanft. Mehr will ich nicht.",
+        "en": "On time and smooth. That's all I want."
+      }
+    ],
+    "bad": [
+      {
+        "de": "Ich glaube, mir ist schlecht.",
+        "en": "I think I feel sick."
+      },
+      {
+        "de": "Das war eine Fahrt... ich gehe den Rest lieber zu Fuß.",
+        "en": "Some ride... I'll walk the rest next time."
+      },
+      {
+        "de": "Ich beschwere mich bei der Zentrale.",
+        "en": "I'm complaining to dispatch."
+      },
+      {
+        "de": "Sie sind doch einer von diesen Nachtrasern!",
+        "en": "You ARE one of those night racers!"
+      }
+    ]
+  }
 }

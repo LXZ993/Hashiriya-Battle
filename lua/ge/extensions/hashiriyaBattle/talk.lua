@@ -1161,7 +1161,10 @@ function M.interact()
     end
     return
   end
-  if nearest then M.startTalk(nearest) end
+  if nearest then M.startTalk(nearest) return end
+  -- Kein Fahrer in der Nähe: Schwarzes Brett am PA-Aushang lesen (board.lua)
+  local bd = extensions.hashiriyaBattle_board
+  if bd and bd.interact then pcall(bd.interact) end
 end
 
 function M.isTalking() return convo ~= nil end
