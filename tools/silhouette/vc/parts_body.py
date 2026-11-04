@@ -46,6 +46,15 @@ def body_shell(doc, A):
     return out
 
 
+# Halsbereich (Körper-System) oberhalb des Kragens: was hier liegt, ist "hinter dem Hals"
+NECK_HOLE = "M277,280 L323,280 L325.5,371 L274.5,371 Z"
+
+
+def behind_neck(doc, body):
+    """Teile, die hinter dem Hals liegen (Kapuze, Fellkragen hinten, Kopfhörerbügel, Handtuch): Hals bleibt frei."""
+    return f'<g {doc.clip("M-50,-50 L700,-50 L700,700 L-50,700 Z " + NECK_HOLE, evenodd=True)}>{body}</g>'
+
+
 def grad(doc, tone, a=0, b=1):
     return doc.lin([(a, tone[0], 1), (b, tone[1], 1)])
 
@@ -106,8 +115,8 @@ def finish(doc, d, body, bust_on, female):
 def g_hoodie(doc, A, tone, ctx):
     d = bean_n(10, 30, 20)
     hood = "M208,400 C196,350 236,318 300,318 C364,318 404,350 392,400 C370,380 338,372 300,372 C262,372 230,380 208,400 Z"
-    out = f'<path d="{hood}" fill="{grad(doc, tone)}" stroke="#000" stroke-opacity=".45" stroke-width="1.5"/>'
-    out += doc.soft("M230,392 C250,376 350,376 370,392 C350,386 250,386 230,392 Z", "#000", 4, .5)
+    out = behind_neck(doc, f'<path d="{hood}" fill="{grad(doc, tone)}" stroke="#000" stroke-opacity=".45" stroke-width="1.5"/>'
+                      + doc.soft("M230,392 C250,376 350,376 370,392 C350,386 250,386 230,392 Z", "#000", 4, .5))
     out += cloth(doc, d, tone, A, [ell(185, 560, 10, 70), ell(415, 560, 10, 70), ell(300, 470, 60, 6)])
     out += doc.soft("M226,404 C250,430 350,430 374,404 C350,416 250,416 226,404 Z", "#000", 5, .55)
     out += line("M228,402 C252,428 348,428 372,402", "#000", 4, .35)
@@ -139,15 +148,16 @@ def g_pelz(doc, A, tone, ctx):
     fur_col = ctx.get("fur", ("#fbf6ee", "#e2d6c4", "#a8977f"))
     furfill = doc.rad([(0, fur_col[0], 1), (.6, fur_col[1], 1), (1, fur_col[2], 1)], .38, .3, .75)
     stole = "M236,344 C128,352 150,468 290,548 L310,548 C450,468 472,352 364,344 C350,362 324,372 300,372 C276,372 250,362 236,344 Z"
-    out += doc.soft(stole, "#000", 12, .5, 'transform="translate(0,10)"')
-    out += f'<g fill="{furfill}">' + "".join(f'<circle cx="{f(x)}" cy="{f(y)}" r="{f(r)}"/>' for x, y, r in tufts) + "</g>"
-    out += f'<g {doc.clip(stole)}>' + doc.soft("M150,470 C220,520 380,520 450,470 L450,560 L150,560 Z", "#5b4a36", 14, .45) + "</g>"
+    fur = doc.soft(stole, "#000", 12, .5, 'transform="translate(0,10)"')
+    fur += f'<g fill="{furfill}">' + "".join(f'<circle cx="{f(x)}" cy="{f(y)}" r="{f(r)}"/>' for x, y, r in tufts) + "</g>"
+    fur += f'<g {doc.clip(stole)}>' + doc.soft("M150,470 C220,520 380,520 450,470 L450,560 L150,560 Z", "#5b4a36", 14, .45) + "</g>"
     for x, y, r in tufts[::2]:
         for _ in range(2):
             a = rnd.uniform(0, 2 * math.pi)
             sx, sy = x + math.cos(a) * r * .8, y + math.sin(a) * r * .8
-            out += line(f"M{f(sx)},{f(sy)} l{f(math.cos(a) * 6)},{f(math.sin(a) * 6 + 2)}", fur_col[0], 1.4, .7)
-    out += doc.soft("M200,372 C220,354 248,348 264,352 C240,362 222,374 210,392 Z", "#ffffff", 6, .6)
+            fur += line(f"M{f(sx)},{f(sy)} l{f(math.cos(a) * 6)},{f(math.sin(a) * 6 + 2)}", fur_col[0], 1.4, .7)
+    fur += doc.soft("M200,372 C220,354 248,348 264,352 C240,362 222,374 210,392 Z", "#ffffff", 6, .6)
+    out += behind_neck(doc, fur)
     return doc.shadowed(out, 0, 4, 6, 30)
 
 
@@ -354,8 +364,8 @@ def g_parka(doc, A, tone, ctx):
         out += line(f"M{x - 34},576 L{x - 34},640 M{x + 34},576 L{x + 34},640", "#000", 1.4, .35)
     rnd = random.Random(11)
     ruff = "M196,410 C200,346 256,326 300,326 C344,326 400,346 404,410 C380,388 346,374 300,374 C254,374 220,388 196,410 Z"
-    out += doc.soft(ruff, "#000", 8, .5, 'transform="translate(0,6)"')
-    out += f'<path d="{ruff}" fill="{grad(doc, tone)}" stroke="#000" stroke-opacity=".5" stroke-width="1.3"/>'
+    rf = doc.soft(ruff, "#000", 8, .5, 'transform="translate(0,6)"')
+    rf += f'<path d="{ruff}" fill="{grad(doc, tone)}" stroke="#000" stroke-opacity=".5" stroke-width="1.3"/>'
     tufts = []
     for i in range(60):
         t = i / 59
@@ -366,11 +376,11 @@ def g_parka(doc, A, tone, ctx):
                 continue
             tufts.append((x + rnd.uniform(-2, 2), y + rnd.uniform(-2, 2), rnd.uniform(9, 13)))
     furfill = doc.rad([(0, "#e6dccb", 1), (1, "#8a7c66", 1)], .4, .3, .8)
-    out += f'<g fill="{furfill}">' + "".join(f'<circle cx="{f(x)}" cy="{f(y)}" r="{f(r)}"/>' for x, y, r in tufts) + "</g>"
+    rf += f'<g fill="{furfill}">' + "".join(f'<circle cx="{f(x)}" cy="{f(y)}" r="{f(r)}"/>' for x, y, r in tufts) + "</g>"
     for x, y, r in tufts:
         a = math.atan2(y - 392, x - 300) + rnd.uniform(-.4, .4)
-        out += line(f"M{f(x)},{f(y)} l{f(math.cos(a) * 8)},{f(math.sin(a) * 8)}", "#f1e9da", 1.2, .6)
-    return out
+        rf += line(f"M{f(x)},{f(y)} l{f(math.cos(a) * 8)},{f(math.sin(a) * 8)}", "#f1e9da", 1.2, .6)
+    return out + behind_neck(doc, rf)
 
 
 def g_weste(doc, A, tone, ctx):
@@ -438,6 +448,69 @@ def g_mantel(doc, A, tone, ctx):
 # print = Aufdruck, stick = Stickerei. None = kein Abzeichen (Pelzmantel, Bluse, Pullover; Tokkou hat
 # den Crewnamen schon eingestickt). Leader tragen dasselbe Abzeichen in Gold.
 # id: Name, Funktion, Halsausschnitt, Plätze, Gewicht m, Gewicht f, passende Farben
+
+def _sakura(x, y, r, col, op):
+    pet = "".join(f'<ellipse cx="{f(x + math.cos(a) * r * .55)}" cy="{f(y + math.sin(a) * r * .55)}" rx="{f(r * .42)}" ry="{f(r * .3)}" '
+                  f'transform="rotate({f(math.degrees(a))} {f(x + math.cos(a) * r * .55)} {f(y + math.sin(a) * r * .55)})"/>'
+                  for a in [math.pi * (-.5 + .4 * i) for i in range(5)])
+    return f'<g fill="{col}" fill-opacity="{op}">{pet}<circle cx="{x}" cy="{y}" r="{f(r * .18)}" fill="#ffd54f"/></g>'
+
+
+def g_kimono(doc, A, tone, ctx):
+    """Kimono: links über rechts gewickelt (von vorn ein „y“), weißer Unterkragen, breiter Obi mit Kordel."""
+    d = bean_n(8, 30, 20)
+    out = cloth(doc, d, tone, A, [ell(196, 580, 9, 60), ell(404, 580, 9, 60)], light=.5)
+    pat = ""
+    if ctx.get("female"):
+        rnd = random.Random(11)
+        for i in range(16):
+            x, y = 150 + rnd.random() * 300, 410 + rnd.random() * 220
+            pat += _sakura(round(x, 1), round(y, 1), 10 + rnd.random() * 8, "#ffffff", .35 + rnd.random() * .25)
+    else:
+        pat = "".join(line(f"M{x},380 L{x},640", "#000", 1.2, .12) for x in range(140, 470, 14))  # feine Streifen
+    out += f'<g {doc.clip(d)}>{pat}</g>'
+    # Unterkragen (Juban) und Kragen (Eri): rechte Seite des Trägers liegt unten, linke oben
+    under = "M274,368 L292,368 L304,420 L296,428 Z"
+    out += f'<path d="{under}" fill="#f4f1ea" stroke="#000" stroke-opacity=".3"/>'
+    over_eri = "M326,368 L342,370 L292,500 L268,500 Z"
+    out += f'<path d="M312,368 L326,368 L278,492 L266,486 Z" fill="#f4f1ea" stroke="#000" stroke-opacity=".3"/>'
+    out += f'<path d="{over_eri}" fill="{grad(doc, (tone[1], tone[0]))}" stroke="#000" stroke-opacity=".5" stroke-width="1.3"/>'
+    out += doc.soft("M342,372 L292,500 L306,500 L350,380 Z", "#000", 5, .35)
+    # Obi
+    obi = "M136,480 C200,470 400,470 464,480 L466,544 C400,536 200,536 134,544 Z"
+    oc = ctx.get("obi", (A, "#000"))
+    out += f'<g {doc.clip(d)}><path d="{obi}" fill="{doc.lin([(0, oc[0], 1), (1, oc[1], 1)], 0, 0, 0, 1)}" stroke="#000" stroke-opacity=".5" stroke-width="1.4"/>'
+    out += line("M136,492 C200,482 400,482 464,492", "#ffffff", 1.4, .3) + line("M134,532 C200,524 400,524 466,532", "#000", 1.4, .3)
+    out += line("M136,512 C200,504 400,504 464,512", "#f4f1ea", 4, .9) + "</g>"
+    out += f'<circle cx="300" cy="507" r="8" fill="#f4f1ea" stroke="#000" stroke-opacity=".4"/>'
+    return finish(doc, d, out, True, ctx["female"])
+
+
+def g_happi(doc, A, tone, ctx):
+    """Happi: offene Festjacke (Matsuri) mit breitem Kragenband und Schriftzeichen, darunter Haramaki/Shirt."""
+    d = bean_n(10, 34, 22)
+    out = f'<path d="{bean_n(2, 30, 18)}" fill="{grad(doc, ("#f4f5f7", "#b9bec7"))}"/>'
+    out += line("M300,400 L300,640", "#000", 1.2, .15)
+    out += cloth(doc, d, tone, A, [ell(196, 570, 9, 60), ell(404, 570, 9, 60)], light=.5)
+    # Innen sichtbares Hemd (Jacke vorn offen)
+    open_ = "M282,372 L318,372 L322,640 L278,640 Z"
+    out += f'<path d="{open_}" fill="{grad(doc, ("#f4f5f7", "#b9bec7"))}" stroke="#000" stroke-opacity=".3"/>'
+    out += f'<path d="M280,560 L320,560 L322,640 L278,640 Z" fill="{grad(doc, ("#2c2f36", "#0c0d10"))}"/>'  # Haramaki (Bauchbinde)
+    # Wellenmuster am Saum
+    wave = "".join(f'<path d="M{x},640 a14,14 0 0 1 28,0" fill="none" stroke="#ffffff" stroke-opacity=".5" stroke-width="2"/>' for x in range(124, 480, 28))
+    out += f'<g {doc.clip(d)}>{wave}</g>'
+    col = ctx.get("band", (A, "#000"))
+    for sd in (-1, 1):
+        band = f"M{300 + sd * 18},368 L{300 + sd * 46},372 L{300 + sd * 48},640 L{300 + sd * 20},640 Z"
+        out += f'<path d="{band}" fill="{doc.lin([(0, col[0], 1), (1, col[1], 1)], 0, 0, 0, 1)}" stroke="#000" stroke-opacity=".5" stroke-width="1.2"/>'
+    for i, ch in enumerate("祭"):
+        out += f'<text x="267" y="{470 + i * 40}" text-anchor="middle" font-size="22" font-weight="700" font-family="Yu Gothic, Meiryo, Noto Sans JP, sans-serif" fill="#ffffff">{ch}</text>'
+    txt = (ctx.get("jp") or "走り屋")[:3]
+    for i, ch in enumerate(txt):
+        out += f'<text x="333" y="{440 + i * 34}" text-anchor="middle" font-size="22" font-weight="700" font-family="Yu Gothic, Meiryo, Noto Sans JP, sans-serif" fill="#ffffff">{ch}</text>'
+    return finish(doc, d, out, True, ctx["female"])
+
+
 GARMENTS = {
     "hoodie": ("Hoodie", g_hoodie, "hood", {"patch": (372, 468, "patch")}, 8, 5,
                ["schwarz", "anthrazit", "marine", "grau", "weinrot", "oliv", "rosa", "lila"]),
@@ -451,7 +524,7 @@ GARMENTS = {
                ["oliv", "schwarz", "marine", "weinrot"]),
     "anzug": ("Anzug mit Krawatte", g_anzug, "tie", {"patch": (344, 422, "pin")}, 5, 0,
               ["schwarz", "anthrazit", "marine", "weiss", "weinrot"]),
-    "kostuem": ("Kostüm", g_kostuem, "v", {"patch": (344, 422, "pin")}, 0, 5,
+    "kostuem": ("Damen-Anzug (Blazer)", g_kostuem, "v", {"patch": (344, 422, "pin")}, 0, 5,
                 ["schwarz", "weiss", "creme", "weinrot", "marine", "rosa"]),
     "tokkou": ("Tokkou-Mantel", g_tokkou, "stand", {"patch": None}, 3, 2,
                ["weiss", "schwarz", "lila", "royal", "rot"]),
@@ -477,6 +550,8 @@ GARMENTS = {
               ["creme", "weiss", "rosa", "schwarz"]),
     "warnweste": ("Warnweste", g_warnweste, "open", {"patch": None}, 2, 1, ["neongelb", "neonorange"]),
     "mantel": ("Trenchcoat", g_mantel, "high", {"patch": (344, 430, "pin")}, 3, 3, ["sand", "schwarz", "anthrazit", "oliv"]),
+    "kimono": ("Kimono mit Obi", g_kimono, "kimono", {"patch": None}, 1, 3, ["weinrot", "marine", "lila", "schwarz", "rosa", "petrol", "creme"]),
+    "happi": ("Happi (Festjacke)", g_happi, "open", {"patch": None}, 2, 2, ["royal", "rot", "marine", "weiss", "schwarz", "petrol"]),
 }
 TONES["braun_leder"] = ("#6b4128", "#22120a")
 TONES["neongelb"] = ("#e8f53a", "#9aa80c")
@@ -488,11 +563,14 @@ TONES["neonorange"] = ("#ff9a2e", "#b4500a")
 
 
 def n_kopfhoerer(doc, A):
-    out = line("M244,352 C254,388 346,388 356,352", "#0d0f13", 9) + line("M244,352 C254,388 346,388 356,352", "#ffffff", 2, .15)
+    # Bügel liegt hinten um den Hals, die Muscheln vorn auf dem Schlüsselbein, schräg angelegt
+    band = "M252,366 C254,332 346,332 348,366"
+    out = behind_neck(doc, line(band, "#0d0f13", 9) + line(band, "#ffffff", 2, .15))
     for sd in (-1, 1):
-        x = 300 + sd * 60
-        out += f'<rect x="{x - 17}" y="338" width="34" height="46" rx="14" fill="{doc.lin([(0, "#2b313b", 1), (1, "#07080b", 1)])}" stroke="{A}" stroke-width="3"/>'
-        out += f'<rect x="{x - 9}" y="346" width="18" height="30" rx="8" fill="{A}" fill-opacity=".25"/>'
+        x = 300 + sd * 50
+        rot = f'transform="rotate({-sd * 18} {x} 374)"'
+        out += f'<rect x="{x - 16}" y="352" width="32" height="44" rx="13" {rot} fill="{doc.lin([(0, "#2b313b", 1), (1, "#07080b", 1)])}" stroke="{A}" stroke-width="3"/>'
+        out += f'<rect x="{x - 8}" y="360" width="16" height="28" rx="7" {rot} fill="{A}" fill-opacity=".25"/>'
     return doc.shadowed(out, 0, 6, 8, 45)
 
 
@@ -529,13 +607,16 @@ def n_choker(doc, A):
 
 def n_handtuch(doc, A):
     col = doc.lin([(0, "#ffffff", 1), (1, "#c9ced6", 1)])
+    # liegt hinten um den Hals (Mitte verdeckt der Hals), beide Enden hängen vorn herunter
+    back = f'<path d="M262,352 C278,334 322,334 338,352 L334,366 C318,352 282,352 266,366 Z" fill="{col}" stroke="#000" stroke-opacity=".3" stroke-width="1.2"/>'
     out = ""
     for sd in (-1, 1):
-        p = f"M{300 + sd * 20},350 C{300 + sd * 44},356 {300 + sd * 48},380 {300 + sd * 46},480 L{300 + sd * 20},484 C{300 + sd * 22},420 {300 + sd * 16},380 {300 + sd * 8},360 Z"
+        p = (f"M{300 + sd * 24},346 C{300 + sd * 46},352 {300 + sd * 50},380 {300 + sd * 48},486 "
+             f"C{300 + sd * 40},492 {300 + sd * 28},492 {300 + sd * 20},488 C{300 + sd * 22},420 {300 + sd * 18},380 {300 + sd * 14},360 Z")
         out += f'<path d="{p}" fill="{col}" stroke="#000" stroke-opacity=".3" stroke-width="1.2"/>'
-        out += line(f"M{300 + sd * 22},470 L{300 + sd * 45},468", A, 3)
-    out += f'<path d="M278,346 C290,356 310,356 322,346 L324,360 C310,368 290,368 276,360 Z" fill="{col}" stroke="#000" stroke-opacity=".3"/>'
-    return doc.shadowed(out, 0, 4, 5, 35)
+        out += line(f"M{300 + sd * 21},472 L{300 + sd * 48},470", A, 3)
+        out += line(f"M{300 + sd * 20},480 L{300 + sd * 48},478", A, 1.6, .7)
+    return doc.shadowed(behind_neck(doc, back + out), 0, 4, 5, 35)
 
 
 # id: Name, Funktion, erlaubte Halsausschnitte, Gewicht m, Gewicht f

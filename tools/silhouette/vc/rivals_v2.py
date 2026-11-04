@@ -18,7 +18,7 @@ from make import compose, allowed_hats, allowed_glasses, allowed_necks, wpick, p
 
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 SEED = "hashiriya-v2"
-SPEC_KEYS = ("garment", "tone", "hair", "haircolor", "hat", "hattone", "glasses", "ear", "neck", "mask", "mouth", "eyes", "emblem", "crew", "beard", "beardcolor")
+SPEC_KEYS = ("garment", "tone", "hair", "haircolor", "hat", "hattone", "glasses", "ear", "neck", "mask", "mouth", "eyes", "emblem", "crew", "beard", "beardcolor", "lips")
 
 # Crew-Stil: welche Teile die Mitglieder meistens tragen (passend zum Crew-Thema)
 CREW = {
@@ -116,6 +116,15 @@ def rng(*parts):
     return random.Random(int(h[:16], 16))
 
 
+# Teile, die nur per Vorgabe (FIXED/silhouette/Builder) vorkommen: der Zufall kennt sie nicht, damit alte Porträts gleich bleiben.
+# Neue Teile hier eintragen (Wanderer-Builder 04.11.2026).
+NUR_VORGABE = {"gekreuzt", "herzen", "sterne", "kneifen", "regent_xl", "pompadour", "punch", "kimono", "happi"}
+
+
+def _alt(table):
+    return {k: v for k, v in table.items() if k not in NUR_VORGABE}
+
+
 def auto_spec(r, team, salt):
     fem = r.get("figur") == "f"
     R = rng(SEED, r["id"], salt)
@@ -128,11 +137,11 @@ def auto_spec(r, team, salt):
         return lst
 
     gp = pool("garment", PB.GARMENTS, gi)
-    g = R.choice(gp) if gp and R.random() < .75 else wpick(R, [(k, v[gi]) for k, v in PB.GARMENTS.items()], gi)
+    g = R.choice(gp) if gp and R.random() < .75 else wpick(R, [(k, v[gi]) for k, v in _alt(PB.GARMENTS).items()], gi)
     tones = st.get("tone") or PB.GARMENTS[g][6]
-    spec = dict(female=fem, garment=g, tone=R.choice(tones), eyes=R.choice(list(PH.EYES)))
+    spec = dict(female=fem, garment=g, tone=R.choice(tones), eyes=R.choice(list(_alt(PH.EYES))))
     hp = pool("hair", PH.HAIRS, hi)
-    spec["hair"] = R.choice(hp) if hp and R.random() < .6 else wpick(R, [(k, v[hi]) for k, v in PH.HAIRS.items()], hi)
+    spec["hair"] = R.choice(hp) if hp and R.random() < .6 else wpick(R, [(k, v[hi]) for k, v in _alt(PH.HAIRS).items()], hi)
     hc = st.get("haircolor")
     spec["haircolor"] = R.choice(hc) if hc and R.random() < .6 else (R.choice(["schwarz", "schwarz", "dunkelbraun", "braun"]) if R.random() < .72 else R.choice(list(PH.HAIR_COLORS)))
     spec["hattone"] = R.choice(["schwarz", "marine", "weinrot", "oliv", "weiss", "grau", "rot", "royal"])
@@ -193,8 +202,9 @@ def finish_spec(spec, R, st, fixed):
     else:
         pref = st.get("mouth", [])
         spec["mouth"] = R.choice(pref) if pref and R.random() < .3 else (R.choice(list(PH.MOUTHS)) if not fem and R.random() < .05 else None)
+    spec["lips"] = fixed.get("lips")  # Mundform nur, wenn vorgegeben (kein Zufall: alte Porträts bleiben gleich)
     if spec["mask"]:
-        spec["mouth"] = None
+        spec["mouth"] = spec["lips"] = None
     return spec
 
 

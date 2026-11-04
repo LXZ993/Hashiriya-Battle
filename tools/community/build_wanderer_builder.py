@@ -48,7 +48,8 @@ def main():
             (leaders if r.get('leader') else members).append([r['id'], name_of(r), tname.get(r['team'], r['team'])])
     roster = {'teams': teams, 'leaders': leaders, 'members': members, 'wanderers': wanderers, 'bosses': bosses,
               'wandererColors': rivals_v2.WANDERER_COLORS,
-              'nicknames': [{'id': n['id'], 'name': n.get('name')} for n in data.get('nicknames', [])],
+              'nicknames': [{'id': n['id'], 'name': n.get('name'), 'desc': n.get('desc')} for n in data.get('nicknames', [])],
+              'ranks': [r.get('name') for r in data.get('ranks', [])],
               'pas': [p.get('name') for p in json.load(open(C1, encoding='utf-8')).get('napSpots', []) if p.get('name')]}
     payload = {'meta': meta, 'frags': frags, 'roster': roster}
     tpl = open(os.path.join(HERE, 'wanderer_builder_template.html'), encoding='utf-8').read()

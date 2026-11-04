@@ -123,6 +123,35 @@ def _e_cool(gx, gy):
     return any(abs(gx - e) <= 2 and gy == -1 for e in (-4, 4)) or any(abs(gx - e) <= 1 and gy == 0 for e in (-4, 4))
 
 
+def _e_cross(gx, gy):
+    return any(abs(gx - e) == abs(gy) and abs(gy) <= 2 for e in (-4, 4))
+
+
+def _e_heart(gx, gy):
+    for e in (-4, 4):
+        dx = abs(gx - e)
+        if (gy == -2 and dx in (1, 2)) or (gy == -1 and dx <= 2) or (gy == 0 and dx <= 1) or (gy == 1 and dx == 0):
+            return True
+    return False
+
+
+def _e_star(gx, gy):
+    for e in (-4, 4):
+        dx = gx - e
+        if (dx == 0 and abs(gy) <= 2) or (gy == 0 and abs(dx) <= 2) or (abs(dx) == 1 and abs(gy) == 1):
+            return True
+    return False
+
+
+def _e_squeeze(gx, gy):
+    # > <  (zusammengekniffen)
+    for e, sd in ((-4, 1), (4, -1)):
+        dx = (gx - e) * sd
+        if abs(gy) <= 2 and dx == 1 - abs(gy) * 1 and dx >= -1:
+            return True
+    return False
+
+
 EYES = {
     "normal": ("Normal", _e_normal),
     "grimmig": ("Grimmig", _e_grim),
@@ -132,6 +161,10 @@ EYES = {
     "wuetend": ("Wütend", _e_angry),
     "rund": ("Große Augen", _e_round),
     "cool": ("Cool", _e_cool),
+    "gekreuzt": ("Gekreuzt (X X)", _e_cross),
+    "herzen": ("Herzen", _e_heart),
+    "sterne": ("Sterne", _e_star),
+    "kneifen": ("Zugekniffen (> <)", _e_squeeze),
 }
 
 # ---------------------------------------------------------------------------
@@ -208,8 +241,9 @@ def h_zurueck(doc, A, c):
     d = ("M214,190 C206,124 248,104 300,104 C352,104 394,124 386,190 C376,170 366,156 352,150 "
          "C334,144 318,146 300,146 C282,146 266,144 248,150 C234,156 224,170 214,190 Z")
     out = paint(doc, d, c, A, "M236,136 C262,114 338,112 364,134 L360,142 C334,124 266,124 240,146 Z")
-    for x in (240, 262, 284, 316, 338, 360):
-        out += line(f"M{x},{150 - abs(300 - x) * .05} C{x + (x - 300) * .1},126 {x + (x - 300) * .2},112 {x + (x - 300) * .25},106", "#ffffff", 1.4, .2)
+    st = "".join(line(f"M{x},{150 - abs(300 - x) * .05} C{x + (x - 300) * .1},126 {x + (x - 300) * .2},112 {x + (x - 300) * .25},106", "#ffffff", 1.4, .2)
+                 for x in (240, 262, 284, 316, 338, 360))
+    out += f'<g {doc.clip(d)}>{st}</g>'  # Kammspuren bleiben im Haar
     return "", doc.shadowed(out, 0, 4, 6, 45)
 
 
@@ -324,9 +358,10 @@ def h_bob(doc, A, c):
 
 
 def h_pferdeschwanz(doc, A, c):
-    tail = "M352,150 C410,150 432,220 426,300 C422,360 404,420 380,460 C386,400 390,330 382,270 C376,220 364,190 346,176 Z"
+    # hängt hinten am Kopf herunter und fällt hinter der Schulter nah am Hals
+    tail = "M350,150 C394,154 410,206 404,262 C400,316 384,368 360,420 C362,366 368,316 364,270 C360,226 352,194 338,174 Z"
     b = paint(doc, tail, c, A, None)
-    b += strands(["M372,190 C400,240 404,330 392,430", "M362,200 C384,260 386,330 380,400"], "#ffffff", .14, 2)
+    b += strands(["M366,190 C390,236 394,310 380,390", "M358,202 C376,250 378,310 370,370"], "#ffffff", .14, 2)
     top = ("M212,206 C204,134 250,108 300,108 C352,108 398,134 388,206 C378,186 366,170 352,164 "
            "C330,170 300,160 270,170 C250,164 230,180 212,206 Z")
     fr = paint(doc, top, c, A, SHEEN_TOP)
@@ -377,12 +412,72 @@ def h_glatze(doc, A, c):
     return "", ""
 
 
+
+SLICK_SIDES = ("M214,192 C206,128 248,108 300,108 C352,108 394,128 386,192 C376,172 366,160 352,154 "
+               "C334,148 318,150 300,150 C282,150 266,148 248,154 C234,160 224,172 214,192 Z")
+
+
+def _slick_sides(doc, A, c):
+    """Glatt nach hinten gegelte Seiten mit Kammspuren (Basis für Pompadour/Riesen-Regent)."""
+    out = paint(doc, SLICK_SIDES, c, A, None)
+    st = "".join(line(f"M{x},{186 - abs(300 - x) * .1} C{x - (300 - x) * .05},160 {x + (x - 300) * .15},136 {x + (x - 300) * .3},118", "#ffffff", 1.3, .2)
+                 for x in (222, 232, 242, 358, 368, 378))
+    return out + f'<g {doc.clip(SLICK_SIDES)}>{st}</g>'
+
+
+def h_regent_xl(doc, A, c):
+    """Riesen-Regent (Bōsōzoku/Yankii): hoch aufgetürmte, nach oben/vorn ausladende Haarwand, Seiten glatt nach hinten gegelt."""
+    out = _slick_sides(doc, A, c)
+    tower = ("M236,158 C230,120 214,78 212,52 C210,26 246,14 300,14 C354,14 390,26 388,52 C386,78 370,120 364,158 "
+             "C346,168 254,168 236,158 Z")
+    out += paint(doc, tower, c, A, "M232,30 C262,20 338,20 368,30 L366,40 C336,30 264,30 234,40 Z")
+    st = "".join(line(f"M{300 + (x - 300) * .9},160 C{x},120 {300 + (x - 300) * 1.15},84 {300 + (x - 300) * 1.3},50", "#ffffff", 1.5, .2)
+                 for x in range(246, 360, 13))
+    shade = doc.soft("M206,56 C250,82 350,82 394,56 L394,74 C350,96 250,96 206,74 Z", "#000", 6, .35)  # Unterkante der überstehenden Front
+    shade += doc.soft("M230,140 C260,170 340,170 370,140 L370,170 L230,170 Z", "#000", 6, .45)
+    out += f'<g {doc.clip(tower)}>{st}{shade}</g>'
+    out += strands(["M216,54 C250,72 350,72 384,54"], "#000", .25, 1.4)
+    return "", doc.shadowed(out, 0, 7, 9, 50)
+
+
+def h_pompadour(doc, A, c):
+    """Pompadour (Rockabilly/Elvis): hohe, schräg nach hinten gekämmte Welle, eine Locke fällt in die Stirn."""
+    out = _slick_sides(doc, A, c)
+    q = ("M216,168 C202,120 216,66 258,48 C294,32 350,38 374,66 C392,90 396,128 388,168 C380,152 368,142 352,138 "
+         "C336,132 316,136 300,140 C280,138 262,142 248,148 C232,154 222,160 216,168 Z")
+    out += paint(doc, q, c, A, "M246,70 C272,48 334,48 360,70 L354,80 C330,62 274,64 250,84 Z")
+    st = "".join(line(f"M{x},{156 - (x - 216) * .08} C{x - 4},116 {x + 18},76 {x + 52},56", "#ffffff", 1.4, .2) for x in (230, 250, 272, 296, 320, 344))
+    out += f'<g {doc.clip(q)}>{st}' + doc.soft("M216,150 C260,160 340,154 390,146 L390,170 L216,170 Z", "#000", 6, .4) + "</g>"
+    curl = "M276,140 C266,154 268,170 280,178 C286,182 290,176 284,172 C276,166 276,154 282,144 Z"
+    out += f'<path d="{curl}" fill="{c[0]}" stroke="#000" stroke-opacity=".5" stroke-width="1.2"/>'
+    return "", doc.shadowed(out, 0, 6, 8, 45)
+
+
+def h_punch(doc, A, c):
+    """Punch-Perm (Panchi-Pāma): kurze, enge Löckchen, typisch Yakuza/Yankii."""
+    d = ("M210,196 C202,126 246,100 300,100 C354,100 398,126 390,196 C380,180 370,170 356,166 "
+         "C336,160 318,162 300,162 C282,162 264,160 244,166 C230,170 220,180 210,196 Z")
+    out = paint(doc, d, c, A, None)
+    curls = ""
+    for row, y in enumerate(range(108, 196, 9)):
+        for x in range(206 + (row % 2) * 5, 398, 10):
+            curls += f'<circle cx="{x}" cy="{y}" r="4.2" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="1.5"/>'
+            curls += f'<path d="M{x - 3},{y - 1} a3.4,3.4 0 0 1 5,-2" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.2"/>'
+    out += f'<g {doc.clip(d)}>{curls}' + doc.soft(ell(268, 122, 40, 14), "#ffffff", 7, .18) + "</g>"
+    edge = "".join(f'<circle cx="{f(300 + math.cos(a) * 92)}" cy="{f(196 + math.sin(a) * 96 * .98)}" r="5" fill="{c[0]}" stroke="#000" stroke-opacity=".35"/>'
+                   for a in [math.pi * (1.06 + .88 * i / 16) for i in range(17)])
+    return "", doc.shadowed(edge + out, 0, 4, 6, 40)
+
+
 # id: (Name, Funktion, Volumen flat|mid|tall, lang?, Gewicht m, Gewicht f)
 HAIRS = {
     "kurz": ("Kurzhaar", h_kurz, "flat", False, 10, 1),
     "stachelig": ("Stachelig", h_stachelig, "tall", False, 6, 1),
     "zurueck": ("Zurückgegelt", h_zurueck, "flat", False, 6, 1),
     "tolle": ("Tolle (Regent)", h_tolle, "tall", False, 4, 0),
+    "regent_xl": ("Riesen-Regent (Bōsōzoku)", h_regent_xl, "tall", False, 2, 0),
+    "pompadour": ("Pompadour (Elvis)", h_pompadour, "tall", False, 3, 1),
+    "punch": ("Punch-Perm (Löckchen)", h_punch, "mid", False, 2, 0),
     "mittel": ("Zerzaust", h_mittel, "mid", False, 8, 2),
     "scheitel": ("Undercut", h_scheitel, "mid", False, 6, 1),
     "irokese": ("Irokese", h_irokese, "tall", False, 2, 1),
@@ -505,7 +600,7 @@ def gl_sonne(doc, A):
     d = "M216,196 C216,180 250,176 300,178 C350,176 384,180 384,196 C384,222 358,230 330,228 C314,226 306,214 300,214 C294,214 286,226 270,228 C242,230 216,222 216,196 Z"
     out = f'<path d="{d}" fill="{doc.lin([(0, "#2a2e38", .92), (1, "#050608", .96)])}" stroke="#0a0b0e" stroke-width="3"/>'
     out += f'<g {doc.clip(d)}><path d="M222,186 C260,180 340,180 378,186 L376,196 C340,190 260,190 224,196 Z" fill="#fff" fill-opacity=".25"/>' + doc.soft("M340,190 L380,190 L380,226 L340,226 Z", A, 6, .35) + "</g>"
-    out += line("M216,196 L204,198 M384,196 L396,198", "#0a0b0e", 4)
+    out += line("M216,196 L213,197 M384,196 L387,197", "#0a0b0e", 4)
     return doc.shadowed(out, 0, 3, 4, 45)
 
 
@@ -518,7 +613,7 @@ def gl_pilot(doc, A):
         out += line(f"M{x - 22},200 l18,-14", "#ffffff", 2.6, .3)
     out += line("M286,186 C294,182 306,182 314,186", "#c9a54a", 2.6)
     out += line("M266,182 L334,182", "#c9a54a", 1.8, .9)
-    out += line("M266,192 L210,196 M334,192 L390,196", "#c9a54a", 2.4)
+    out += line("M226,190 L213,192 M374,190 L387,192", "#c9a54a", 2.4)  # Bügel vom Glasrand zum Kopfrand
     return doc.shadowed(out, 0, 3, 4, 40)
 
 
@@ -528,7 +623,7 @@ def gl_rund(doc, A):
         out += f'<circle cx="{300 + sd * 36}" cy="208" r="26" fill="#ffffff" fill-opacity=".06" stroke="#1a1a1e" stroke-width="3"/>'
         out += line(f"M{300 + sd * 36 - 14},196 l10,-8", "#ffffff", 2, .3)
     out += line("M290,204 C296,198 304,198 310,204", "#1a1a1e", 3)
-    out += line("M262,206 L210,200 M338,206 L390,200", "#1a1a1e", 2.6)
+    out += line("M238,205 L213,200 M362,205 L387,200", "#1a1a1e", 2.6)
     return doc.shadowed(out, 0, 2, 3, 35)
 
 
@@ -539,7 +634,7 @@ def gl_eckig(doc, A):
         out += f'<rect x="{x - 32}" y="188" width="64" height="38" rx="6" fill="#ffffff" fill-opacity=".05" stroke="#111216" stroke-width="4"/>'
         out += line(f"M{x - 20},198 l12,-6", "#ffffff", 2, .3)
     out += line("M292,200 L308,200", "#111216", 4)
-    out += line("M260,198 L210,196 M340,198 L390,196", "#111216", 3)
+    out += line("M228,198 L213,196 M372,198 L387,196", "#111216", 3)
     return doc.shadowed(out, 0, 2, 3, 35)
 
 
@@ -633,6 +728,47 @@ def mo_zigarette(doc, A):
 def mo_zahnstocher(doc, A):
     return line("M330,284 L362,276", "#d8b98a", 2.6) + line("M330,284 L362,276", "#000", .6, .3)
 
+
+# Mundform (Mundwinkel), lässt sich mit Zigarette/Zahnstocher kombinieren; rechter Mundwinkel bei 324,~284
+def _lip(d, fill=None):
+    if fill:
+        return f'<path d="{d}" fill="{fill}" stroke="#15181d" stroke-width="2.6" stroke-linejoin="round"/>'
+    return line(d, "#15181d", 3.2) + line(d, "#ffffff", 1, .12)
+
+
+def li_neutral(doc, A):
+    return _lip("M284,286 L322,286")
+
+
+def li_grinsen(doc, A):
+    return _lip("M282,279 C292,294 314,294 324,279")
+
+
+def li_schmunzeln(doc, A):
+    return _lip("M284,288 C298,291 314,289 325,278")
+
+
+def li_schief(doc, A):
+    return _lip("M282,278 C290,288 306,291 324,288")
+
+
+def li_grimmig(doc, A):
+    return _lip("M283,292 C294,281 314,281 325,292")
+
+
+def li_zaehne(doc, A):
+    d = "M282,280 C294,296 314,296 324,280 Z"
+    return _lip(d, "#f4f1ea") + line("M287,284 L319,284 M296,281 L296,291 M304,281 L304,293 M312,281 L312,291", "#9aa0a8", 1)
+
+
+LIPS = {
+    "neutral": ("Gerade", li_neutral),
+    "grinsen": ("Grinsen", li_grinsen),
+    "schmunzeln": ("Schmunzeln (Mundwinkel hoch)", li_schmunzeln),
+    "schief": ("Schief (Mundwinkel links hoch)", li_schief),
+    "grimmig": ("Grimmig (Mundwinkel runter)", li_grimmig),
+    "zaehne": ("Zähne zeigen", li_zaehne),
+}
 
 MOUTHS = {
     "zigarette": ("Zigarette", mo_zigarette, 2, 1),

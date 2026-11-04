@@ -60,6 +60,9 @@ textarea{resize:vertical;min-height:70px}
 .chip{padding:5px 11px;border-radius:999px;background:#0f1218;border:1px solid var(--line);font-size:13.5px;line-height:1.3}
 .chip.on{background:var(--acc);border-color:var(--acc);color:#111;font-weight:700}
 .chip:disabled{opacity:.33;cursor:not-allowed;border-style:dashed}
+.chip.lock{opacity:.42;border-style:dashed;cursor:help}
+.lockwhy{grid-column:2;color:var(--dim);font-size:12.5px;margin-top:-4px;line-height:1.45}
+.desc{color:var(--acc2);font-size:13.5px;margin-top:6px;min-height:18px}
 .sw{width:30px;height:30px;border-radius:50%;padding:0;border:2px solid #0b0d12;box-shadow:0 0 0 1px var(--line)}
 .sw.on{box-shadow:0 0 0 2px var(--acc);transform:scale(1.08)}
 .sw.none{background:repeating-linear-gradient(45deg,#2a303c 0 4px,#151922 4px 8px)}
@@ -190,9 +193,9 @@ code{word-break:break-all}
 
     <section class="step" id="s5">
       <h2><span class="n">5</span><span data-t="s5"></span><span class="st ok" data-t="always"></span></h2>
-      <div class="f"><label><span data-t="aggr"></span>: <span class="rangeval" id="aggrV"></span></label><input type="range" id="aggr" min="1" max="8" step="1"><div class="hint" data-t="aggrH"></div></div>
-      <div class="f"><div class="lab" data-t="cruise"></div><div class="chips" id="cruise"></div><div class="hint" data-t="cruiseH"></div></div>
-      <div class="f"><div class="lab" data-t="tier"></div><div class="chips" id="tier"></div><div class="hint" data-t="tierH"></div></div>
+      <div class="f"><div class="lab" data-t="aggr"></div><div class="chips" id="aggr"></div><div class="desc" id="aggrD"></div><div class="hint" data-t="aggrH"></div></div>
+      <div class="f"><div class="lab" data-t="cruise"></div><div class="chips" id="cruise"></div><div class="desc" id="cruiseD"></div><div class="hint" data-t="cruiseH"></div></div>
+      <div class="f"><div class="lab" data-t="tier"></div><div class="chips" id="tier"></div><div class="desc" id="tierD"></div><div class="hint" data-t="tierH"></div></div>
     </section>
 
     <section class="step" id="s6">
@@ -213,6 +216,7 @@ code{word-break:break-all}
     <section class="step" id="s8">
       <h2><span class="n">8</span><span data-t="s8"></span></h2>
       <p class="lead" data-t="s8L"></p>
+      <div class="f" style="margin-top:0"><label><span data-t="wish"></span> <span class="cnt" id="wishC"></span></label><textarea id="wish" maxlength="1500" style="min-height:90px"></textarea><div class="hint" data-t="wishH"></div></div>
       <ul id="todo"></ul>
       <div id="done" data-t="allDone"></div>
       <label class="consent"><input type="checkbox" id="consent"><span data-t="consent"></span></label>
@@ -249,7 +253,7 @@ jp:"Name in Japanese (optional)",jpH:"Kanji, katakana or hiragana, shown small n
 nick:"Nickname / title",nickH:"Shown under your name. Example: The Heat Veil",
 desc:"Your backstory",descH:"One or two sentences for the rival list. Who are you, and why do you drive the expressway at night?",
 sealL:"Sign on your seal",sealH:"Every Wanderer has a round seal (like a sticker) that the player wins by beating you. 1 or 2 kanji (or up to 3 letters). Its colour is your avatar colour.",
-s3:"Your avatar",s3L:"Every driver appears as a figure in the style of Bob, BeamNG's NPC: a smooth head with a dark visor, the eyes are pixels on the display. Your avatar shows up next to the speech bubble and in the rival list. Greyed-out items don't fit the rest (hover for the reason).",
+s3:"Your avatar",s3L:"Every driver appears as a figure in the style of Bob, BeamNG's NPC: a smooth head with a dark visor, the eyes are pixels on the display. Your avatar shows up next to the speech bubble and in the rival list. Greyed-out items don't fit the rest right now; the reason is shown below them (or click the item).",
 always:"",optional:"optional",
 s4:"Your car and plate",
 s4L:`In BeamNG, build your car (parts, tuning, paint) and save it with the <b>Vehicle Config</b> menu under any name. Then load that saved <b>.pc</b> file here.`,
@@ -262,9 +266,13 @@ modName:"Mod name",modLink:"Mod link",modH:"Mod cars are not guaranteed: if the 
 skin:"Custom skin (optional)",skinH:"Only if you made your own skin. Name it here and send me the files. Your paint colours are already in the config.",
 plateH:"License plate",plateL:"Uses Agent's Japanese Plates Pack. The hiragana character is set randomly in the game.",
 region:"Region",ptype:"Type",ptop:"Top number",ptopE:"2 or 3 digits, e.g. 330",pmain:"Main number",pmainE:"Format 12-34, or with dots: .. .1",pmainH:"Low numbers use dots and a space instead of the dash, e.g. \".. .1\" or \".. 12\".",
-s5:"Your driving style",aggr:"How aggressive do you drive?",aggrH:"1 = careful, 8 = pushy, takes every risk. Most Wanderers sit at 6.",
+s5:"Your driving style",aggr:"How aggressive do you drive?",aggrH:"How hard your AI driver pushes in a battle: how late it brakes, how close it gets and how much risk it takes in traffic. Most Wanderers sit at 6.",
+aggrN:["Very careful","Careful","Calm","Balanced","Sporty","Aggressive","Pushy","Kamikaze"],
+aggrT:["Brakes early, keeps big gaps, never risks a crash.","Plays it safe, overtakes only with plenty of room.","Smooth and steady, rarely surprises anyone.","Fair racer: pushes on the straights, careful in traffic.","Brakes late, takes the inside line when it opens.","Typical Wanderer: hunts gaps, squeezes past traffic, keeps the pressure on.","Tailgates, dives into every gap, forces the player to react.","Every risk, every gap, full throttle through traffic. Crashes included."],
+cruiseT:{"80":"Rolls along slowly, easy to catch.","90":"Relaxed cruising.","100":"Moves with the traffic.","110":"A little quicker than traffic.","115":"Typical Wanderer pace.","120":"Brisk, the player has to chase a bit.","130":"Fast, hard to catch up with.","140":"Flat out, only fast cars get close."},
+tierT:["The player meets you from rank {r} on. Beginners can beat you.","From rank {r} on. Needs a little tuning.","From rank {r} on. A real challenge mid-game.","From rank {r} on. Needs a well-tuned car.","From rank {r} on. One of the hardest Wanderers."],
 cruise:"Cruising speed before a battle (km/h)",cruiseH:"How fast you roll in traffic before the player flashes you.",
-tier:"How strong are you?",tierH:"Decides from which rank on the player meets you. I balance the exact numbers at the end.",
+tier:"How strong are you?",tierH:"Decides from which rank on the player meets you and how much SP you have. I balance the exact numbers at the end.",
 tiers:["Easy","Medium","Tough","Strong","Brutal"],
 s6:"When do you show up?",s6L:"Wanderers only appear under certain conditions. Tick one or more. Battles happen at night, between 20:00 and 06:00 in-game time.",
 from:"from",to:"until",cMin:"min",cMax:"max",cRangeH:"Fill in one or both.",cAtLeast:"at least",condsN:"conditions available",
@@ -272,6 +280,8 @@ pick:"– choose –",leaders:"Crew leaders",members:"Crew members",wanderers:"W
 idea:"Your own idea for a condition",ideaH:"e.g. only in rain, only after the player lost to you 3 times …",
 s7:"Your lines",s7L:"Short lines in the speech bubble next to your avatar, max 90 characters each. Make them sound like you.",
 lChallenge:"When you challenge the player",lWin:"When you win",lLose:"When you lose",
+wish:"Anything else? Wishes and changes",wishH:"Write anything the builder can't do (yet): a hairstyle or piece of clothing you miss, a special colour, a change to your Wanderer later on. No need to wait for a new builder: just write it here, save again and send me the new file.",
+nickH:"The player earns nicknames through achievements and picks the active one in the menu. Only the active nickname counts.",
 s8:"Save and send",s8L:"Check the list below, tick the box and save. Then send me the file.",
 consent:"I agree that my credit name, my Wanderer and my config appear in Hashiriya Battle and are released publicly with the mod.",
 save:"💾 Save my Wanderer",allDone:"✓ Everything needed is filled in.",
@@ -280,23 +290,24 @@ t_credit:"Credit name (step 1)",t_contact:"Contact (step 1)",t_name:"Wanderer na
 missing:"Still missing:",saved:"Saved! Now send the file to me.",loaded:"Loaded.",loadErr:"Could not read this file: ",ok:"done",todoN:n=>n+" missing",
 fixed:"Adjusted so it fits: ",
 foot:"Hashiriya Battle by JDMArsch (LXZ aka. LXZockt) · Avatar parts made for Hashiriya Battle · Works offline, nothing is uploaded.",
-L:{female:"Figure",garment:"Top",tone:"Fabric colour",neck:"Around the neck",hair:"Hair",haircolor:"Hair colour",eyes:"Eyes on the visor",hat:"Headwear",hattone:"Headwear colour",glasses:"Glasses",beard:"Beard",beardcolor:"Beard colour",ear:"Ears",mund:"Mouth",A:"Your colour"},
+L:{female:"Figure",garment:"Top",tone:"Fabric colour",neck:"Around the neck",hair:"Hair",haircolor:"Hair colour",eyes:"Eyes on the visor",hat:"Headwear",hattone:"Headwear colour",glasses:"Glasses",beard:"Beard",beardcolor:"Beard colour",ear:"Ears",mund:"Mouth (extra)",lips:"Mouth shape",A:"Your colour"},
 G:{body:"Body",head:"Head",extras:"Extras"},
-none:"none",nothing:"nothing",likeHair:"like hair",man:"Man",woman:"Woman",mask:"Mask",
-W:{onlyM:"men only",onlyF:"women only",tone:"doesn't fit this top",hatHair:"doesn't fit this hairstyle",hatField:"field jacket only",hatHut:"elegant clothes only",hatFormal:"not with elegant clothes",glTop:"in the hair only without headwear",glHair:"needs hair",neck:"doesn't fit the collar",mask:"not under the mask"},
-N:{hoodie:"Hoodie",pelz:"Coat with fur collar",militaer:"Field jacket",leder:"Leather jacket",bomber:"Bomber jacket",anzug:"Suit and tie",kostuem:"Blazer suit",tokkou:"Tokkō coat",trainings:"Track jacket",rennanzug:"Racing suit",jeans:"Denim jacket with fur collar",tshirt:"Printed T-shirt",rollkragen:"Turtleneck",overall:"Mechanic overalls",sukajan:"Sukajan",parka:"Parka with fur hood",weste:"Vest with bow tie",bluse:"Blouse with bow",warnweste:"Hi-vis vest",mantel:"Trench coat",
-kurz:"Short",stachelig:"Spiky",zurueck:"Slicked back",tolle:"Pompadour",mittel:"Messy",scheitel:"Undercut",irokese:"Mohawk",afro:"Afro",glatze:"Bald",lang_m:"Shoulder-length",lang_wellig:"Long waves",hime:"Long with bangs",bob:"Bob",pferdeschwanz:"Ponytail",dutt:"Bun",zoepfe:"Pigtails",
+none:"none",nothing:"nothing",likeHair:"like hair",man:"Man",woman:"Woman",mask:"Mask",locked:"Not available right now",lipsMask:"hidden under the mask",
+W:{onlyM:"men only",onlyF:"women only",tone:"doesn't fit this top",hatHair:"doesn't fit this hairstyle (too high or long)",hatField:"needs Top: Field jacket",hatHut:"needs elegant clothes ({f})",hatFormal:"not with elegant clothes ({f})",glTop:"in the hair only without headwear",glHair:"needs hair",neck:"doesn't fit the collar of this top",mask:"not under the mask"},
+N:{hoodie:"Hoodie",pelz:"Coat with fur collar",militaer:"Field jacket",leder:"Leather jacket",bomber:"Bomber jacket",anzug:"Suit and tie",kostuem:"Women's suit (blazer)",kimono:"Kimono with obi",happi:"Happi (festival coat)",tokkou:"Tokkō coat",trainings:"Track jacket",rennanzug:"Racing suit",jeans:"Denim jacket with fur collar",tshirt:"Printed T-shirt",rollkragen:"Turtleneck",overall:"Mechanic overalls",sukajan:"Sukajan",parka:"Parka with fur hood",weste:"Vest with bow tie",bluse:"Blouse with bow",warnweste:"Hi-vis vest",mantel:"Trench coat",
+kurz:"Short",stachelig:"Spiky",zurueck:"Slicked back",tolle:"Quiff (regent)",regent_xl:"Giant regent (bōsōzoku)",pompadour:"Pompadour (Elvis)",punch:"Punch perm (tight curls)",mittel:"Messy",scheitel:"Undercut",irokese:"Mohawk",afro:"Afro",glatze:"Bald",lang_m:"Shoulder-length",lang_wellig:"Long waves",hime:"Long with bangs",bob:"Bob",pferdeschwanz:"Ponytail",dutt:"Bun",zoepfe:"Pigtails",
 cap:"Cap",cap_rueck:"Cap backwards",muetze:"Beanie",feldmuetze:"Field cap",stirnband:"Headband (hachimaki)",bandana:"Bandana",hut:"Hat (trilby)",
 sonnenbrille:"Sunglasses",pilot:"Aviators",rund:"Round glasses",eckig:"Square glasses",oben:"Sunglasses in the hair",
 creolen:"Hoop earrings",stecker:"Ear studs",haenger:"Drop earrings",headset:"Radio headset",
 kopfhoerer:"Headphones",hundemarken:"Dog tags",kette:"Gold chain",schal:"Scarf",choker:"Choker",handtuch:"Towel",
 zigarette:"Cigarette",zahnstocher:"Toothpick",
+neutral:"Straight",grinsen:"Grin",schmunzeln:"Smirk (corner up)",schief:"Crooked (left corner up)",grimmig:"Grim (corners down)",zaehne:"Showing teeth",
 stoppeln:"Stubble",schnurrbart:"Moustache",kinnbart:"Chin beard",spitzbart:"Goatee",koteletten:"Sideburns",vollbart:"Full beard",ziegenbart:"Billy-goat beard",konturbart:"Contour beard",kinnriemen:"Chinstrap",ankerbart:"Anchor beard",kurzvoll:"Short full beard",
-e_normal:"Normal",e_grimmig:"Grim",e_laecheln:"Smile",e_muede:"Tired",e_zwinkern:"Wink",e_wuetend:"Angry",e_rund:"Big eyes",e_cool:"Cool"},
+e_normal:"Normal",e_grimmig:"Grim",e_laecheln:"Smile",e_muede:"Tired",e_zwinkern:"Wink",e_wuetend:"Angry",e_rund:"Big eyes",e_cool:"Cool",e_gekreuzt:"Crossed (X X)",e_herzen:"Hearts",e_sterne:"Stars",e_kneifen:"Squeezed (> <)"},
 C:{schwarz:"black",anthrazit:"anthracite",marine:"navy",weinrot:"burgundy",oliv:"olive",sand:"sand",weiss:"white",grau:"grey",lila:"purple",royal:"royal blue",rot:"red",senf:"mustard",petrol:"petrol",denim:"denim",creme:"cream",rosa:"pink",braun_leder:"leather brown",neongelb:"neon yellow",neonorange:"neon orange",dunkelbraun:"dark brown",braun:"brown",blond:"blond",platin:"platinum",pink:"pink",blau:"blue",gruen:"green",silber:"silver",pflaume:"plum",rotblond:"strawberry blond",pfeffer_salz:"salt and pepper"},
-regions:["Shinagawa (Tokyo)","Sapporo (Hokkaido)","Toyota (Aichi)","Shizuoka","Himeji (Hyōgo)","Kōchi","Kumamoto","Kagoshima"],
-ptypes:["Private","Kei (light vehicle)","Commercial","Commercial kei","Special: Shinagawa temporary plate","Special: Shinagawa illuminated plate","Special: Shinagawa Olympic","Special: Shinagawa Olympic commercial","Special: Okinawa US Air Force"],
-specialNote:"Special plates exist in one region only; the region above is ignored."
+regions:["Shinagawa (Tokyo)","Sapporo (Hokkaido)","Toyota (Aichi)","Shizuoka","Himeji (Hyōgo)","Kōchi","Kumamoto","Kagoshima","Okinawa (US Air Force only)"],
+ptypes:["Private","Kei (light vehicle up to 660 cc)","Commercial","Commercial kei","Special: temporary plate","Special: illuminated plate","Special: Olympic","Special: Olympic commercial","US Air Force"],
+specialNote:"Only the types that exist for this region are offered. The special plates exist for Shinagawa only, the US Air Force plate for Okinawa only."
 },
 de:{sub:"Wanderer-Builder",open:"Gespeicherte Datei öffnen…",random:"🎲 Zufälliger Look",png:"Avatar als PNG",
 introH:"Werde ein Wanderer",
@@ -312,7 +323,7 @@ jp:"Name auf Japanisch (optional)",jpH:"Kanji, Katakana oder Hiragana, steht kle
 nick:"Spitzname / Titel",nickH:"Steht unter deinem Namen. Beispiel: Der Hitzeschleier",
 desc:"Deine Geschichte",descH:"Ein, zwei Sätze für die Rivalenliste. Wer bist du, und warum fährst du nachts die Stadtautobahn?",
 sealL:"Zeichen auf deinem Siegel",sealH:"Jeder Wanderer hat ein rundes Siegel (wie ein Sticker), das der Spieler gewinnt, wenn er dich schlägt. 1 oder 2 Kanji (oder bis zu 3 Buchstaben). Die Farbe ist deine Avatar-Farbe.",
-s3:"Dein Avatar",s3L:"Jeder Fahrer erscheint als Figur im Stil von Bob, BeamNGs NPC: glatter Kopf mit dunklem Visier, die Augen sind Pixel auf dem Display. Dein Avatar steht neben der Sprechblase und in der Rivalenliste. Ausgegraute Teile passen nicht zum Rest (Maus drüber zeigt den Grund).",
+s3:"Dein Avatar",s3L:"Jeder Fahrer erscheint als Figur im Stil von Bob, BeamNGs NPC: glatter Kopf mit dunklem Visier, die Augen sind Pixel auf dem Display. Dein Avatar steht neben der Sprechblase und in der Rivalenliste. Ausgegraute Teile passen gerade nicht zum Rest; der Grund steht darunter (oder Teil anklicken).",
 always:"",optional:"optional",
 s4:"Dein Auto und Kennzeichen",
 s4L:`Bau dein Auto in BeamNG (Teile, Tuning, Lack) und speichere es im Menü <b>Vehicle Config</b> unter einem beliebigen Namen. Dann lädst du die gespeicherte <b>.pc</b>-Datei hier.`,
@@ -325,9 +336,13 @@ modName:"Name der Mod",modLink:"Link zur Mod",modH:"Mod-Autos sind nicht garanti
 skin:"Eigener Skin (optional)",skinH:"Nur wenn du selbst einen Skin gemacht hast. Hier benennen und mir die Dateien schicken. Deine Lackfarben stecken schon in der Config.",
 plateH:"Kennzeichen",plateL:"Nutzt Agent's Japanese Plates Pack. Das Hiragana-Zeichen setzt das Spiel zufällig.",
 region:"Region",ptype:"Art",ptop:"Obere Nummer",ptopE:"2 oder 3 Ziffern, z. B. 330",pmain:"Hauptnummer",pmainE:"Format 12-34, oder mit Punkten: .. .1",pmainH:"Kleine Nummern haben Punkte und ein Leerzeichen statt Strich, z. B. \".. .1\" oder \".. 12\".",
-s5:"Dein Fahrstil",aggr:"Wie aggressiv fährst du?",aggrH:"1 = vorsichtig, 8 = drängelt, geht jedes Risiko ein. Die meisten Wanderer liegen bei 6.",
+s5:"Dein Fahrstil",aggr:"Wie aggressiv fährst du?",aggrH:"Wie hart dein KI-Fahrer im Battle fährt: wie spät er bremst, wie dicht er auffährt und wie viel Risiko er im Verkehr eingeht. Die meisten Wanderer liegen bei 6.",
+aggrN:["Sehr vorsichtig","Vorsichtig","Ruhig","Ausgeglichen","Sportlich","Angriffslustig","Drängler","Kamikaze"],
+aggrT:["Bremst früh, hält viel Abstand, riskiert nie einen Unfall.","Fährt auf Nummer sicher, überholt nur mit viel Platz.","Gleichmäßig und ruhig, überrascht selten.","Fairer Racer: Vollgas auf den Geraden, vorsichtig im Verkehr.","Bremst spät, nimmt die Innenbahn, wenn sie frei wird.","Typischer Wanderer: sucht Lücken, quetscht sich am Verkehr vorbei, macht Druck.","Fährt dicht auf, sticht in jede Lücke, zwingt den Spieler zu reagieren.","Jedes Risiko, jede Lücke, Vollgas durch den Verkehr. Unfälle inklusive."],
+cruiseT:{"80":"Bummelt, leicht einzuholen.","90":"Entspanntes Rollen.","100":"Schwimmt im Verkehr mit.","110":"Etwas flotter als der Verkehr.","115":"Typisches Wanderer-Tempo.","120":"Zügig, der Spieler muss etwas jagen.","130":"Schnell, schwer einzuholen.","140":"Vollgas, nur schnelle Autos kommen ran."},
+tierT:["Der Spieler trifft dich ab Rang {r}. Auch Anfänger können dich schlagen.","Ab Rang {r}. Braucht etwas Tuning.","Ab Rang {r}. Eine echte Herausforderung in der Spielmitte.","Ab Rang {r}. Braucht ein gut getuntes Auto.","Ab Rang {r}. Einer der härtesten Wanderer."],
 cruise:"Reisetempo vor dem Battle (km/h)",cruiseH:"So schnell rollst du im Verkehr, bevor der Spieler dich anblinkt.",
-tier:"Wie stark bist du?",tierH:"Bestimmt, ab welchem Rang der Spieler dich trifft. Die genauen Werte balanciere ich am Ende.",
+tier:"Wie stark bist du?",tierH:"Bestimmt, ab welchem Rang der Spieler dich trifft und wie viel SP du hast. Die genauen Werte balanciere ich am Ende.",
 tiers:["Leicht","Mittel","Zäh","Stark","Brutal"],
 s6:"Wann tauchst du auf?",s6L:"Wanderer erscheinen nur unter bestimmten Bedingungen. Hak eine oder mehrere an. Battles gibt es nachts, zwischen 20:00 und 06:00 Spielzeit.",
 from:"von",to:"bis",cMin:"mindestens",cMax:"höchstens",cRangeH:"Eins oder beides ausfüllen.",cAtLeast:"mindestens",condsN:"Bedingungen zur Auswahl",
@@ -335,6 +350,8 @@ pick:"– auswählen –",leaders:"Crew-Leader",members:"Crew-Mitglieder",wander
 idea:"Deine eigene Idee für eine Bedingung",ideaH:"z. B. nur bei Regen, erst nachdem der Spieler 3-mal gegen dich verloren hat …",
 s7:"Deine Sprüche",s7L:"Kurze Sätze in der Sprechblase neben deinem Avatar, je höchstens 90 Zeichen. Sie sollen nach dir klingen.",
 lChallenge:"Wenn du den Spieler herausforderst",lWin:"Wenn du gewinnst",lLose:"Wenn du verlierst",
+wish:"Sonst noch was? Wünsche und Änderungen",wishH:"Schreib hier alles rein, was der Builder (noch) nicht kann: eine Frisur oder ein Kleidungsstück, das dir fehlt, eine besondere Farbe, eine spätere Änderung an deinem Wanderer. Du musst nicht auf einen neuen Builder warten: einfach hier reinschreiben, neu speichern und mir die neue Datei schicken.",
+nickH:"Spitznamen verdient sich der Spieler durch Erfolge und wählt den aktiven im Menü. Es zählt nur der aktive Spitzname.",
 s8:"Speichern und schicken",s8L:"Prüf die Liste unten, setz den Haken und speichere. Dann schick mir die Datei.",
 consent:"Ich bin einverstanden, dass mein Credit-Name, mein Wanderer und meine Config in Hashiriya Battle vorkommen und mit der Mod öffentlich veröffentlicht werden.",
 save:"💾 Meinen Wanderer speichern",allDone:"✓ Alles Nötige ist ausgefüllt.",
@@ -343,15 +360,15 @@ t_credit:"Credit-Name (Schritt 1)",t_contact:"Kontakt (Schritt 1)",t_name:"Name 
 missing:"Es fehlt noch:",saved:"Gespeichert! Jetzt die Datei an mich schicken.",loaded:"Geladen.",loadErr:"Datei konnte nicht gelesen werden: ",ok:"fertig",todoN:n=>n+" fehlt",
 fixed:"Angepasst, damit es zusammenpasst: ",
 foot:"Hashiriya Battle von JDMArsch (LXZ aka. LXZockt) · Avatar-Teile für Hashiriya Battle gemacht · Läuft offline, nichts wird hochgeladen.",
-L:{female:"Figur",garment:"Oberteil",tone:"Stofffarbe",neck:"Am Hals",hair:"Frisur",haircolor:"Haarfarbe",eyes:"Augen auf dem Visier",hat:"Kopfbedeckung",hattone:"Farbe Kopfbedeckung",glasses:"Brille",beard:"Bart",beardcolor:"Bartfarbe",ear:"Ohren",mund:"Mund",A:"Deine Farbe"},
+L:{female:"Figur",garment:"Oberteil",tone:"Stofffarbe",neck:"Am Hals",hair:"Frisur",haircolor:"Haarfarbe",eyes:"Augen auf dem Visier",hat:"Kopfbedeckung",hattone:"Farbe Kopfbedeckung",glasses:"Brille",beard:"Bart",beardcolor:"Bartfarbe",ear:"Ohren",mund:"Mund (Extra)",lips:"Mundform",A:"Deine Farbe"},
 G:{body:"Figur",head:"Kopf",extras:"Extras"},
-none:"keine",nothing:"nichts",likeHair:"wie die Haare",man:"Mann",woman:"Frau",mask:"Maske",
-W:{onlyM:"nur für Männer",onlyF:"nur für Frauen",tone:"passt nicht zu diesem Oberteil",hatHair:"passt nicht auf diese Frisur",hatField:"nur zur Feldjacke",hatHut:"nur zu eleganter Kleidung",hatFormal:"nicht zu eleganter Kleidung",glTop:"im Haar nur ohne Kopfbedeckung",glHair:"braucht Haare",neck:"passt nicht zum Kragen",mask:"nicht unter der Maske"},
+none:"keine",nothing:"nichts",likeHair:"wie die Haare",man:"Mann",woman:"Frau",mask:"Maske",locked:"Gerade nicht wählbar",lipsMask:"unter der Maske nicht sichtbar",
+W:{onlyM:"nur für Männer",onlyF:"nur für Frauen",tone:"passt nicht zu diesem Oberteil",hatHair:"passt nicht auf diese Frisur (zu hoch oder zu lang)",hatField:"braucht Oberteil: Feldjacke",hatHut:"braucht elegante Kleidung ({f})",hatFormal:"nicht zu eleganter Kleidung ({f})",glTop:"im Haar nur ohne Kopfbedeckung",glHair:"braucht Haare",neck:"passt nicht zum Kragen dieses Oberteils",mask:"nicht unter der Maske"},
 N:null,
 C:{schwarz:"schwarz",anthrazit:"anthrazit",marine:"marine",weinrot:"weinrot",oliv:"oliv",sand:"sand",weiss:"weiß",grau:"grau",lila:"lila",royal:"königsblau",rot:"rot",senf:"senf",petrol:"petrol",denim:"denim",creme:"creme",rosa:"rosa",braun_leder:"lederbraun",neongelb:"neongelb",neonorange:"neonorange",dunkelbraun:"dunkelbraun",braun:"braun",blond:"blond",platin:"platin",pink:"pink",blau:"blau",gruen:"grün",silber:"silber",pflaume:"pflaume",rotblond:"rotblond",pfeffer_salz:"Pfeffer und Salz"},
-regions:["Shinagawa (Tokio)","Sapporo (Hokkaidō)","Toyota (Aichi)","Shizuoka","Himeji (Hyōgo)","Kōchi","Kumamoto","Kagoshima"],
-ptypes:["Privat","Kei (Kleinwagen)","Gewerblich","Gewerblich Kei","Sonder: Shinagawa Kurzzeitkennzeichen","Sonder: Shinagawa beleuchtet","Sonder: Shinagawa Olympia","Sonder: Shinagawa Olympia gewerblich","Sonder: Okinawa US Air Force"],
-specialNote:"Sonderkennzeichen gibt es nur in einer Region; die Region oben zählt dann nicht."
+regions:["Shinagawa (Tokio)","Sapporo (Hokkaidō)","Toyota (Aichi)","Shizuoka","Himeji (Hyōgo)","Kōchi","Kumamoto","Kagoshima","Okinawa (nur US Air Force)"],
+ptypes:["Privat","Kei (Kleinwagen bis 660 cm³)","Gewerblich","Gewerblich Kei","Sonder: Kurzzeitkennzeichen","Sonder: beleuchtet","Sonder: Olympia","Sonder: Olympia gewerblich","US Air Force"],
+specialNote:"Es werden nur Arten angeboten, die es in dieser Region gibt. Sonderkennzeichen gibt es nur in Shinagawa, das US-Air-Force-Kennzeichen nur in Okinawa."
 }};
 let LANG=(navigator.language||"en").toLowerCase().startsWith("de")?"de":"en";
 const t=k=>TX[LANG][k]??TX.en[k]??k;
@@ -361,7 +378,7 @@ function pname(kind,id){
   if(kind==="eyes")return LANG==="de"?M.eyes[id]:(TX.en.N["e_"+id]||id);
   if(["tone","haircolor","beardcolor","hattone"].includes(kind))return t("C")[id]||id;
   if(LANG==="en"&&TX.en.N[id])return TX.en.N[id];
-  const tbl={garment:M.garments,hair:M.hairs,hat:M.hats,glasses:M.glasses,ear:M.ears,neck:M.necks,mouth:M.mouths,beard:M.beards}[kind];
+  const tbl={garment:M.garments,hair:M.hairs,hat:M.hats,glasses:M.glasses,ear:M.ears,neck:M.necks,mouth:M.mouths,beard:M.beards,lips:M.lips}[kind];
   return tbl&&tbl[id]?tbl[id].name:id;
 }
 
@@ -391,7 +408,7 @@ function compose(s){
   L("Visier",["visor"],true);
   L("Augen",[`eyes:${s.eyes}:${fem?1:0}`,"shine"],true);
   if(s.mask)L("Maske",["mask"],true);
-  else if(s.mouth)L("Mund",["mouth:"+s.mouth],true);
+  else{if(s.lips&&FR["lips:"+s.lips])L("Mundform",["lips:"+s.lips],true);if(s.mouth)L("Mund",["mouth:"+s.mouth],true)}
   L("Haare",["hairf:"+s.hair],true);
   if(s.ear)L("Ohren",["ear:"+s.ear],true);
   if(s.hat)L("Kopfbedeckung",["hat:"+s.hat],true);
@@ -414,12 +431,13 @@ function why(s,key,v){
   switch(key){
     case "garment":{const w=M.garments[v][s.female?"wf":"wm"];return w>0?"":(s.female?W.onlyM:W.onlyF)}
     case "hair":{const w=M.hairs[v][s.female?"wf":"wm"];return w>0?"":(s.female?W.onlyM:W.onlyF)}
-    case "tone":return g.tones.includes(v)?"":W.tone;
+    case "tone":return "";  // alle Stofffarben bei allen Oberteilen (Alex 04.11.2026)
     case "hat":{if(!v)return "";
       if(!M.hats[v].vols.includes(h.vol))return W.hatHair;
       if(v==="feldmuetze"&&s.garment!=="militaer")return W.hatField;
-      if(v==="hut"&&!FORMAL.has(s.garment))return W.hatHut;
-      if(["cap","cap_rueck","bandana"].includes(v)&&FORMAL.has(s.garment))return W.hatFormal;return ""}
+      const fl=[...FORMAL].map(x=>pname("garment",x)).join(", ");
+      if(v==="hut"&&!FORMAL.has(s.garment))return W.hatHut.replace("{f}",fl);
+      if(["cap","cap_rueck","bandana"].includes(v)&&FORMAL.has(s.garment))return W.hatFormal.replace("{f}",fl);return ""}
     case "glasses":{if(!v||!M.glasses[v].top)return "";
       if(s.hat)return W.glTop;if(h.vol==="none")return W.glHair;return ""}
     case "neck":{if(!v)return "";return M.necks[v].ok.includes(g.neck)?"":W.neck}
@@ -431,7 +449,7 @@ const OPTS={
   garment:()=>Object.keys(M.garments), hair:()=>Object.keys(M.hairs), tone:()=>Object.keys(M.tones), hattone:()=>Object.keys(M.tones),
   haircolor:()=>Object.keys(M.haircolors), eyes:()=>Object.keys(M.eyes), hat:()=>[null,...Object.keys(M.hats)],
   glasses:()=>[null,...Object.keys(M.glasses)], ear:()=>[null,...Object.keys(M.ears)], neck:()=>[null,...Object.keys(M.necks)],
-  beard:()=>[null,...Object.keys(M.beards)], beardcolor:()=>[null,...Object.keys(M.beardcolors)]
+  beard:()=>[null,...Object.keys(M.beards)], beardcolor:()=>[null,...Object.keys(M.beardcolors)], lips:()=>[null,...Object.keys(M.lips)]
 };
 function fix(s){
   const out=[];
@@ -443,7 +461,7 @@ function fix(s){
     }
   }
   if(s.female){s.beard=null}
-  if(s.mask)s.mouth=null;
+  if(s.mask){s.mouth=null;s.lips=null}
   if(!s.beard)s.beardcolor=null;
   return out;
 }
@@ -452,7 +470,7 @@ const any1=a=>a[Math.floor(Math.random()*a.length)];
 function randomLook(s){
   const wk=s.female?"wf":"wm";
   s.garment=pickw(Object.entries(M.garments).map(([k,v])=>[k,v[wk]]).filter(x=>x[1]>0));
-  s.tone=any1(M.garments[s.garment].tones);
+  s.tone=Math.random()<.8?any1(M.garments[s.garment].tones):any1(Object.keys(M.tones));
   s.hair=pickw(Object.entries(M.hairs).map(([k,v])=>[k,v[wk]]).filter(x=>x[1]>0));
   s.haircolor=Math.random()<.6?any1(["schwarz","schwarz","dunkelbraun","braun"]):any1(Object.keys(M.haircolors));
   s.eyes=any1(Object.keys(M.eyes));
@@ -463,6 +481,7 @@ function randomLook(s){
   s.beard=!s.female&&!s.mask&&Math.random()<.35?any1(Object.keys(M.beards)):null;
   s.beardcolor=null;
   s.mouth=!s.mask&&Math.random()<.12?any1(Object.keys(M.mouths)):null;
+  s.lips=!s.mask&&Math.random()<.4?any1(Object.keys(M.lips)):null;
   fix(s);
 }
 
@@ -470,13 +489,13 @@ function randomLook(s){
 const COLORS=[...R.wandererColors,"#ff7a1a","#ffb347","#ffd54f","#c6ff60","#54c46a","#7fe0c8","#4fc3f7","#5c8cf0","#8d7cff","#ce93d8","#ff6f91","#ff4040","#e0e0e0"];
 function freshSpec(){
   const s={female:false,garment:"hoodie",tone:"schwarz",hair:"kurz",haircolor:"schwarz",hat:null,hattone:"schwarz",glasses:null,ear:null,neck:null,
-    mask:false,mouth:null,eyes:"cool",emblem:"stern",crew:false,beard:null,beardcolor:null,leader:false,A:any1(R.wandererColors),jp:"放浪者",nick:"",tape:""};
+    mask:false,mouth:null,lips:null,eyes:"cool",emblem:"stern",crew:false,beard:null,beardcolor:null,leader:false,A:any1(R.wandererColors),jp:"放浪者",nick:"",tape:""};
   randomLook(s);return s;
 }
 const F0={credit:"",contact:"",role:"Testing",name:"",jp:"",nick:"",desc:"",sign:"",source:"stock",pcText:"",model:"",modName:"",modLink:"",skin:"",
   region:0,ptype:0,ptop:"",pmain:"",aggr:6,cruise:"115",tier:2,
   cOn:{},cVal:{},
-  idea:"",lChallenge:"",lWin:"",lLose:"",consent:false};
+  idea:"",wish:"",lChallenge:"",lWin:"",lLose:"",consent:false};
 let st={f:{...F0},s:freshSpec()};
 try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(j&&j.f&&j.s){st.f=migrate({...F0,...j.f});st.s={...st.s,...j.s}}}catch(e){}
 let saveT=null;
@@ -490,13 +509,14 @@ function chips(el,list,cur,onPick){
   el.innerHTML="";
   for(const [v,label,reason] of list){
     const b=document.createElement("button");b.type="button";b.className="chip"+(String(v)===String(cur)?" on":"");b.textContent=label;
-    if(reason){b.disabled=true;b.title=reason}
-    b.onclick=()=>onPick(v);el.appendChild(b);
+    if(reason){b.classList.add("lock");b.title=reason;b.textContent="🔒 "+label;b.onclick=()=>toast(`${label}: ${reason}`)}
+    else b.onclick=()=>onPick(v);
+    el.appendChild(b);
   }
 }
 
 // ================= Avatar-Editor =================
-const AV=[["body",["female","garment","tone","neck","A"]],["head",["hair","haircolor","eyes","hat","hattone","glasses"]],["extras",["beard","beardcolor","ear","mund"]]];
+const AV=[["body",["female","garment","tone","neck","A"]],["head",["hair","haircolor","eyes","hat","hattone","glasses"]],["extras",["beard","beardcolor","ear","mund","lips"]]];
 function renderAvatar(){
   const s=st.s, el=$("avatar");el.innerHTML="";
   for(const [g,keys] of AV){
@@ -512,6 +532,9 @@ function renderAvatar(){
       if(key==="mund"){
         const cur=s.mask?"@mask":(s.mouth||"");
         chips(box,[["",t("nothing")],["@mask",t("mask")],...Object.keys(M.mouths).map(m=>[m,pname("mouth",m)])],cur,v=>{s.mask=v==="@mask";s.mouth=v&&v!=="@mask"?v:null;changed()});continue}
+      if(key==="lips"){
+        if(s.mask){box.innerHTML=`<span style="color:var(--dim);font-size:13px;padding-top:5px">${t("lipsMask")}</span>`;continue}
+        chips(box,OPTS.lips().map(v=>[v,v==null?t("none"):pname("lips",v)]),s.lips,v=>setS("lips",v==="null"?null:v));continue}
       if(key==="A"){
         for(const c of COLORS){const b=document.createElement("button");b.type="button";b.className="sw"+(c.toLowerCase()===String(s.A).toLowerCase()?" on":"");b.style.background=c;b.title=c;b.onclick=()=>setS("A",c);box.appendChild(b)}
         const inp=document.createElement("input");inp.type="color";inp.value=/^#[0-9a-f]{6}$/i.test(s.A)?s.A:"#9fb4c7";inp.title="#";inp.style.cssText="width:36px;height:32px;border:0;background:none;padding:0;cursor:pointer";
@@ -529,7 +552,11 @@ function renderAvatar(){
         }
         continue;
       }
-      chips(box,OPTS[key]().map(v=>[v,v==null?(key==="beard"||key==="hat"||key==="glasses"?t("none"):t("nothing")):pname(key,v),why(s,key,v)]),s[key],v=>setS(key,v==="null"?null:v));
+      const list=OPTS[key]().map(v=>[v,v==null?(key==="beard"||key==="hat"||key==="glasses"?t("none"):t("nothing")):pname(key,v),why(s,key,v)]);
+      chips(box,list,s[key],v=>setS(key,v==="null"?null:v));
+      const locked=list.filter(x=>x[2]);
+      if(locked.length){const w=document.createElement("div");w.className="lockwhy";const by={};for(const x of locked)(by[x[2]]=by[x[2]]||[]).push(x[1]);
+        w.textContent="🔒 "+Object.entries(by).map(([why,ns])=>`${ns.join(", ")}: ${why}`).join(" · ");el.append(document.createElement("div"),w)}
     }
   }
 }
@@ -543,8 +570,12 @@ function syncSpec(){
 }
 
 // ================= Karte rechts: Bild, Siegel, Kennzeichen =================
-const REGION_IDS=["shinagawa","sapporo","toyota","shizuoka","himeji","kochi","kumamoto","kagoshima"];
-const REGION_JP=["品川","札幌","豊田","静岡","姫路","高知","熊本","鹿児島"];
+const REGION_IDS=["shinagawa","sapporo","toyota","shizuoka","himeji","kochi","kumamoto","kagoshima","okinawa"];
+const REGION_JP=["品川","札幌","豊田","静岡","姫路","高知","熊本","鹿児島","沖縄"];
+// Welche Kennzeichen-Arten gibt es pro Region? (geprüft am japan_plates_am5.zip: alle 8 Regionen haben die 4 normalen Arten,
+// Sonderkennzeichen nur Shinagawa, US Air Force nur Okinawa)
+const validTypes=reg=>reg===8?[8]:reg===0?[0,1,2,3,4,5,6,7]:[0,1,2,3];
+function fixPlate(f){f.region=+f.region||0;f.ptype=+f.ptype||0;if(f.ptype===8)f.region=8;if(!validTypes(f.region).includes(f.ptype))f.ptype=validTypes(f.region)[0];return f}
 const TYP_IDS=["standard","kei","commercial","keicommercial","am5jp_shinagawa_temporary","am5jp_shinagawa_glow","am5jp_shinagawa_olympic","am5jp_shinagawa_olympiccommercial","am5jp_okinawa_airforce"];
 function sealSign(){const f=st.f,g=(f.sign||"").trim(),lat=[...g].every(c=>c.charCodeAt(0)<0x300);if(g)return lat?g.slice(0,3).toUpperCase():[...g].slice(0,2).join("");return [...(f.jp||"").trim()][0]||(f.name||"?").trim().charAt(0).toUpperCase()||"?"}
 function renderCard(){
@@ -568,7 +599,7 @@ function renderCard(){
    <text font-size="28" font-family="${LF}" font-weight="900" fill="#fff" letter-spacing="2"><textPath href="#arcB" startOffset="50%" text-anchor="middle">${esc(nm.slice(0,22))}</textPath></text>`;
   // Kennzeichen
   const ti=+f.ptype, typ=TYP_IDS[ti], special=typ.startsWith("am5jp_");
-  const reg=special?(typ.includes("okinawa")?"沖縄":"品川"):REGION_JP[+f.region]||"品川";
+  const reg=REGION_JP[+f.region]||"品川";
   const col={standard:["#f7f7f2","#11673a","#11673a"],kei:["#f2d21b","#161616","#161616"],commercial:["#11673a","#f7f7f2","#f7f7f2"],keicommercial:["#161616","#f2d21b","#f2d21b"]};
   let [bg,fg,bd]=col[special?(typ.includes("commercial")?"commercial":"standard"):typ]||col.standard;
   if(typ.includes("temporary")){bg="#f7f7f2";fg="#161616";bd="#c62828"}
@@ -640,8 +671,9 @@ function bindInputs(){
     el.oninput=()=>{st.f[id]=el.value;if(["name","nick","jp","sign"].includes(id)){syncSpec();renderCard()}else if(["ptop","pmain"].includes(id))renderCard();validate();persist()};
     el.onblur=()=>{touched.add(id);validate()}}
   $("pcText").value=st.f.pcText;$("pcText").oninput=()=>{loadPcText($("pcText").value)};
-  for(const id of ["region","ptype"]){$(id).onchange=()=>{st.f[id]=+$(id).value;renderCard();persist()}}
-  $("aggr").value=st.f.aggr;$("aggr").oninput=()=>{st.f.aggr=+$("aggr").value;$("aggrV").textContent=st.f.aggr;persist()};
+  $("region").onchange=()=>{st.f.region=+$("region").value;if(!validTypes(st.f.region).includes(st.f.ptype))st.f.ptype=validTypes(st.f.region)[0];renderChoices();renderCard();persist()};
+  $("ptype").onchange=()=>{st.f.ptype=+$("ptype").value;renderCard();persist()};
+  $("wish").value=st.f.wish||"";$("wish").oninput=()=>{st.f.wish=$("wish").value;$("wishC").textContent=`${[...st.f.wish].length}/1500`;persist()};$("wishC").textContent=`${[...(st.f.wish||"")].length}/1500`;
   $("consent").checked=st.f.consent;$("consent").onchange=()=>{st.f.consent=$("consent").checked;validate();persist()};
 }
 function renderChoices(){
@@ -649,11 +681,15 @@ function renderChoices(){
   chips($("role"),Object.entries(t("roles")).map(([k,v])=>[k,v]),f.role,v=>{f.role=v;renderChoices();persist()});
   chips($("source"),Object.entries(t("sources")).map(([k,v])=>[k,v]),f.source,v=>{f.source=v;renderChoices();validate();persist()});
   $("modbox").style.display=f.source==="mod"?"block":"none";
-  chips($("cruise"),["80","90","100","110","115","120","130","140"].map(v=>[v,v]),f.cruise,v=>{f.cruise=v;renderChoices();persist()});
+  chips($("aggr"),t("aggrN").map((n,i)=>[i+1,`${i+1} · ${n}`]),f.aggr,v=>{f.aggr=+v;renderChoices();persist()});
+  $("aggrD").textContent=t("aggrT")[(+f.aggr||6)-1]||"";
+  chips($("cruise"),["80","90","100","110","115","120","130","140"].map(v=>[v,v+" km/h"]),f.cruise,v=>{f.cruise=v;renderChoices();persist()});
+  $("cruiseD").textContent=t("cruiseT")[f.cruise]||"";
   chips($("tier"),t("tiers").map((n,i)=>[i,`${i+1} · ${n}`]),f.tier,v=>{f.tier=+v;renderChoices();persist()});
-  $("aggrV").textContent=f.aggr;
+  {const tr=TIERS[f.tier]||TIERS[2], rk=(R.ranks||[])[tr.minRank-1];$("tierD").textContent=(t("tierT")[f.tier]||"").replace("{r}",tr.minRank+(rk?` (${lz(rk)})`:""))}
+  fixPlate(f);
   $("region").innerHTML=t("regions").map((r,i)=>`<option value="${i}">${esc(r)}</option>`).join("");$("region").value=f.region;
-  $("ptype").innerHTML=t("ptypes").map((r,i)=>`<option value="${i}">${esc(r)}</option>`).join("");$("ptype").value=f.ptype;
+  $("ptype").innerHTML=validTypes(f.region).map(i=>`<option value="${i}">${esc(t("ptypes")[i])}</option>`).join("");$("ptype").value=f.ptype;
   $("ptype").title=t("specialNote");
 }
 const NIGHT=[20,21,22,23,0,1,2,3,4,5,6];
@@ -689,7 +725,7 @@ const CG=[
   {k:"maxDamageYen",ty:"int",min:0,unit:"¥",l:L2("Only if the car is almost undamaged (repair costs at most …)","Nur wenn das Auto fast heil ist (Reparatur höchstens …)")},
   {k:"minTopSpeed",ty:"int",min:50,unit:"km/h",l:L2("Only if the player has ever driven at least …","Nur wenn der Spieler schon mindestens … schnell war")},
   {k:"speedTraps",ty:"int",min:1,l:L2("Only after … speed cameras triggered","Erst nach … ausgelösten Radarfallen")},
-  {k:"nickname",ty:"select",opts:()=>R.nicknames.map(n=>[n.id,n.name]),l:L2("Only with a certain player nickname","Nur mit einem bestimmten Spitznamen des Spielers")},
+  {k:"nickname",ty:"select",opts:()=>R.nicknames.map(n=>[n.id,{en:`${lz2(n.name,"en")}${n.desc?" – "+lz2(n.desc,"en"):""}`,de:`${lz2(n.name,"de")}${n.desc?" – "+lz2(n.desc,"de"):""}`}]),l:L2("Only with a certain player nickname","Nur mit einem bestimmten Spitznamen des Spielers"),h:{en:()=>`${R.nicknames.length} nicknames. `+TX.en.nickH,de:()=>`${R.nicknames.length} Spitznamen. `+TX.de.nickH}},
   {k:"playerLogo",ty:"select",opts:()=>R.teams.map(x=>[x.id,x.name]).concat(R.wanderers,R.bosses),l:L2("Only if the player shows a certain emblem","Nur wenn der Spieler ein bestimmtes Wappen zeigt"),h:L2("The emblem the player picked in the trophy wall.","Das Wappen, das der Spieler an der Trophäenwand gewählt hat.")},
   {k:"stat",ty:"stat",l:L2("Only after a certain statistic","Erst ab einem bestimmten Statistik-Wert")}]],
  [L2("Who the player has beaten","Wen der Spieler geschlagen hat"),[
@@ -700,7 +736,8 @@ const CG=[
   {k:"minPaVisited",ty:"int",min:1,l:L2("Only after visiting … parking areas on foot","Erst nach … zu Fuß besuchten PAs")}]]
 ];
 const CDEF={};CG.forEach(g=>g[1].forEach(d=>CDEF[d.k]=d));
-const lz=x=>x&&typeof x==="object"?(x[LANG]||x.en||x.de):x;
+const lz=x=>{const v=x&&typeof x==="object"?(x[LANG]||x.en||x.de):x;return typeof v==="function"?v():v};
+const lz2=(x,l)=>x&&typeof x==="object"?(x[l]||x.en||x.de||""):String(x||"");
 function condBody(d){
   const v=st.f.cVal[d.k];
   const num=(id,val,ph)=>`<input type="number" data-c="${id}" value="${val??""}" ${d.min!=null?`min="${d.min}"`:""} ${d.max!=null?`max="${d.max}"`:""} placeholder="${ph||""}" style="max-width:150px">`;
@@ -775,7 +812,8 @@ function migrate(f){
   if(f.c_rival){f.cOn.beatenRivals=true;f.cVal.beatenRivals=f.rival}
   if(f.c_day){f.cOn.minDay=true;f.cVal.minDay=+f.minDay}
   for(const k of ["c_hours","hFrom","hTo","c_model","playerModel","c_part","playerPart","c_team","team","c_rival","rival","c_day","minDay"])delete f[k];
-  return f;
+  if(typeof f.aggr!=="number"||f.aggr<1||f.aggr>8)f.aggr=6;
+  return fixPlate(f);
 }
 function applyLang(){
   document.documentElement.lang=LANG;
@@ -788,7 +826,7 @@ function applyLang(){
 // ================= Export =================
 const TIERS=[{minRank:1,maxSp:1100,rewardUsd:7000,rep:70},{minRank:2,maxSp:1250,rewardUsd:9000,rep:90},{minRank:3,maxSp:1350,rewardUsd:10000,rep:100},{minRank:5,maxSp:1450,rewardUsd:12000,rep:120},{minRank:6,maxSp:1600,rewardUsd:14000,rep:130}];
 const both=v=>{v=String(v||"").trim();return v?{de:v,en:v}:undefined};
-const SPEC_KEYS=["garment","tone","hair","haircolor","hat","hattone","glasses","ear","neck","mask","mouth","eyes","emblem","crew","beard","beardcolor"];
+const SPEC_KEYS=["garment","tone","hair","haircolor","hat","hattone","glasses","ear","neck","mask","mouth","eyes","emblem","crew","beard","beardcolor","lips"];
 function buildRival(){
   const f=st.f,s=st.s, tier=TIERS[f.tier]||TIERS[2], id="w_"+slug(f.name), model=f.model.toLowerCase();
   const c=Object.assign({minRank:tier.minRank},condOut());
@@ -803,7 +841,7 @@ function buildRival(){
   r.conditions=c;
   r.desc=both(f.desc)||{de:"",en:""};
   const top=f.ptop.trim(), typ=TYP_IDS[+f.ptype]||"standard";
-  r.plate={text:(top.length===2?top+"//":top+"/")+f.pmain,design:typ.startsWith("am5jp_")?typ:`am5jp_${REGION_IDS[+f.region]||"shinagawa"}_${typ}`};
+  r.plate={text:(top.length===2?top+"//":top+"/")+f.pmain,design:typ.startsWith("am5jp_")?typ:`am5jp_${REGION_IDS[+f.region]||"shinagawa"}_${typ}`};  // Kombi ist durch validTypes immer gültig
   r.figur=s.female?"f":"m";
   const sil={};for(const k of SPEC_KEYS)sil[k]=s[k]??null;sil.A=s.A;r.silhouette=sil;
   r.seal={sign:sealSign(),color:s.A};
@@ -813,6 +851,7 @@ function buildRival(){
   if(f.skin.trim())r.skin=f.skin.trim();
   if(f.source==="mod")r.requires={mods:[{name:f.modName.trim()||"?",link:f.modLink.trim()}]};
   if(f.idea.trim())r._idee=f.idea.trim();
+  if(String(f.wish||"").trim())r._wunsch=String(f.wish).trim();
   r._kontakt=f.contact.trim();
   r._eingang=new Date().toISOString().slice(0,10);
   return r;
