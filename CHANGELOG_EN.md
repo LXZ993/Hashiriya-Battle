@@ -3,13 +3,14 @@
 ## Alpha 0.9.2 (as of 2026-11-04)
 
 ### Speed cameras and police
-- New: speed limits apply during the day. Checkpoints have either speed cameras or laser checks, nothing is measured at night.
-- Speed camera: drive past too fast and you get flashed and fined, the faster the pricier. Counted per game day: 1st and 2nd time only money, from the 3rd time the police come as well.
-- Laser check: a patrol car waits there. Too fast and it chases you right away.
+- New: speed limits apply during the day. Speed cameras are the 45 fixed speed traps on C1, and now and then the police run laser checks. Nothing is measured at night.
+- Speed camera: drive past a speed trap too fast and you get flashed and fined, the faster the pricier. Counted per game day: 1st and 2nd time only money, from the 3rd time the police come as well.
+- Laser check: on each day a patrol car waits at a few police spots for a few hours. Too fast there and it chases you right away. At first there are 1 to 2 checks a day, more as your rank rises because word of the night races gets around.
+- The minimap and radar only show a check once you have seen it that day. Patrol cars in a chase flash red and blue there.
 - Chase with 1 to 3 stars in the status at the top right. 1 star: the police follow you and want you to stop (ticket). 2 stars (kept fleeing, crashes, flashed again or already ticketed today): they overtake you and brake you down. 3 stars: they ram you. Stopping at 3 stars = arrest, a big fine and a tow to the garage.
-- Escape: stay out of sight long enough and the police give up.
+- Escape: stay out of sight long enough and the police give up. That earns a little REP (less than beating a rival, only 3 times a day).
 - During a chase, saving, napping, towing, parking menus and challenges are blocked.
-- Checkpoints are placed in the dev menu (type "Police / checkpoint": camera or laser, speed limit, direction). All values in data\police.json, test buttons in the dev menu under Tools.
+- Police spots are placed in the dev menu (type "Police / checkpoint": laser or own camera, speed limit, direction, "always manned" for testing; today's roster is under Tools). All values in data\police.json, test buttons in the dev menu under Tools.
 
 ### Stickers
 - New in the garage: "Stickers" tab. Put the logos from your trophy wall on your car, like the stickers in TXR: crew logos and symbols (also in leader gold), wanderer seals, boss emblems and the 走.

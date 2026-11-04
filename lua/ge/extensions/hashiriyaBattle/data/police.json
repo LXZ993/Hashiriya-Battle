@@ -1,8 +1,9 @@
 {
-  "_hinweis": "Blitzer, Laserkontrollen und Polizei-Fahndung (police.lua). Messstellen = Orte vom Typ 'Polizei / Messstelle' (Dev-Menü > Orte) oder policeSpots in der Kartendatei maps/<level>.json. Je Messstelle im Dev-Menü: Art (Blitzer oder Laserkontrolle), Tempolimit (leer = defaultLimitKmh) und Richtung (nur in Fahrtrichtung beim Merken oder beide). Alles nur tagsüber (nicht zwischen nightFrom und nightTo aus world.json); eine laufende Fahndung geht aber auch in die Nacht weiter. enabled = false schaltet alles ab.",
+  "_hinweis": "Blitzer, Laserkontrollen und Polizei-Fahndung (police.lua). Blitzer = die festen Radarfallen der Karte (BeamNG, auf C1 45 Stück; mapSpeedTraps = false schaltet sie ab). Polizeistellen = Orte vom Typ 'Polizei / Messstelle' (Dev-Menü > Orte) oder policeSpots in der Kartendatei maps/<level>.json; dort steht nur ab und an ein Streifenwagen mit Laser (siehe laser). Je Stelle im Dev-Menü: Art (Laserkontrolle oder eigener Blitzer), immer besetzt (nur zum Testen), Tempolimit (leer = defaultLimitKmh) und Richtung (nur in Fahrtrichtung beim Merken oder beide). Alles nur tagsüber (nicht zwischen nightFrom und nightTo aus world.json); eine laufende Fahndung geht aber auch in die Nacht weiter. enabled = false schaltet alles ab.",
   "enabled": true,
+  "mapSpeedTraps": true,
 
-  "_hinweisMessen": "defaultLimitKmh = Tempolimit, wenn die Messstelle keins hat. toleranceKmh = so viel darüber wird noch nicht geblitzt (ausgelöst ab Limit + Toleranz + 1). camWidth = Meter seitlich vom Messpunkt, in denen gemessen wird (Fahrbahnbreite). camHeight = Höhenunterschied in Metern (Brücken übereinander). camCooldownSeconds = dieselbe Messstelle löst danach so lange nicht noch einmal aus. laserRange = Meter, in denen eine Laserkontrolle misst (Kreis um den Streifenwagen). laserSpawnRange/laserDespawnRange = ab welcher Entfernung der Streifenwagen der Laserkontrolle erscheint bzw. wieder verschwindet. defaultKind = Art einer Messstelle ohne eigene Angabe (speedcam = Blitzer, laser = Laserkontrolle).",
+  "_hinweisMessen": "defaultLimitKmh = Tempolimit, wenn die Messstelle keins hat. toleranceKmh = so viel darüber wird noch nicht geblitzt (ausgelöst ab Limit + Toleranz + 1). camWidth = Meter seitlich vom Messpunkt, in denen gemessen wird (Fahrbahnbreite). camHeight = Höhenunterschied in Metern (Brücken übereinander). camCooldownSeconds = dieselbe Messstelle löst danach so lange nicht noch einmal aus. laserRange = Meter, in denen eine Laserkontrolle misst (Kreis um den Streifenwagen). laserSpawnRange/laserDespawnRange = ab welcher Entfernung der Streifenwagen der Laserkontrolle erscheint bzw. wieder verschwindet. defaultKind = Art einer Polizeistelle ohne eigene Angabe (laser = Laserkontrolle, speedcam = eigener Blitzer). Die Radarfallen der Karte messen selbst (BeamNG: ab Limit + 10 %, nur in ihrer Fahrtrichtung), dort gelten camWidth/toleranceKmh nicht.",
   "defaultLimitKmh": 60,
   "toleranceKmh": 10,
   "camWidth": 14,
@@ -11,7 +12,10 @@
   "laserRange": 110,
   "laserSpawnRange": 600,
   "laserDespawnRange": 800,
-  "defaultKind": "speedcam",
+  "defaultKind": "laser",
+
+  "_hinweisLaser": "Wie oft Polizeistellen besetzt sind. perDayByRank = Liste {ab Rang (0 = erster Rang), min, max}: so viele Stellen sind an einem Spieltag besetzt (zufällig zwischen min und max, je Spielstand und Tag fest). Je höher der Rang, desto mehr hat sich herumgesprochen, dass nachts auf dem Expressway Rennen laufen. shiftHours = wie lange eine Schicht dauert (min, max Spielstunden), hours = frühester Schichtbeginn und spätestes Schichtende (Uhrzeit). seeRange = ab so viel Meter Nähe gilt eine besetzte Stelle als gesehen; erst dann erscheint sie für den Rest des Spieltags auf Minimap und Radar.",
+  "laser": { "perDayByRank": [[0, 1, 2], [3, 2, 3], [7, 3, 4], [11, 4, 5], [15, 5, 7]], "shiftHours": [3, 6], "hours": [7, 19], "seeRange": 200 },
 
   "_hinweisBlitzer": "Bußgeld beim Blitzer: baseYen + perKmhYen je km/h über dem Limit, mal repeatFactor (1. Blitzer des Spieltags = erster Wert, 2. = zweiter, ab dem letzten Wert bleibt er gleich). dispatchFrom = ab dem wievielten Blitzer am selben Spieltag zusätzlich die Polizei kommt (3 = beim 3. Mal). Geld, das fehlt, wird nicht abgebucht (Konto geht nie ins Minus).",
   "speedcam": { "baseYen": 6000, "perKmhYen": 400, "repeatFactor": [1, 1.5, 2], "dispatchFrom": 3 },
@@ -33,6 +37,9 @@
   "_hinweisEntkommen": "Entkommen: kein Streifenwagen sieht den Spieler (weiter weg als sightRange Meter oder Sicht verdeckt) für evadeSeconds je Stufe. Danach geben die Streifenwagen auf, schalten das Blaulicht aus und fahren weg. Wer entkommt, zahlt nichts; die Blitzer des Tages bleiben gezählt.",
   "sightRange": 350,
   "evadeSeconds": [20, 30, 40],
+  "_hinweisRuf": "escapeRep = Ruf fürs Abhängen der Polizei je Stufe (1, 2, 3 Sterne), bewusst etwas unter dem Durchschnitt eines Rivalensiegs (ca. 70), damit man tagsüber nicht damit grinden kann. escapeRepMaxPerDay = nur so viele Fluchten pro Spieltag bringen Ruf.",
+  "escapeRep": [40, 55, 65],
+  "escapeRepMaxPerDay": 3,
 
   "_hinweisFahrzeuge": "Streifenwagen (Modell + Config, Configs liegen im Mod unter vehicles/). spawnBehind = Meter hinter dem Spieler, wo die Polizei bei einem Einsatz auftaucht (mehrere Versuche). reinforceSeconds = Abstand, in dem Verstärkung kommt, solange weniger Streifenwagen da sind als units für die Stufe. wreckDamage = ab so viel Schaden ist ein Streifenwagen aus dem Spiel. lostRange = weiter weg als das (und nicht zu sehen) = Streifenwagen wird entfernt. leaveSeconds = so lange fahren die Streifenwagen nach Ende der Fahndung noch, bevor sie verschwinden (außer sie sind vorher außer Sicht).",
   "vehicles": [

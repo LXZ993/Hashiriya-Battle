@@ -3,13 +3,14 @@
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
 ### Blitzer und Polizei
-- Neu: Tagsüber gelten Tempolimits. An Messstellen stehen Blitzer oder Laserkontrollen, nachts wird nicht gemessen.
-- Blitzer: wer zu schnell vorbeifährt, wird geblitzt und zahlt ein Bußgeld, je schneller desto teurer. Gezählt wird pro Spieltag: 1. und 2. Mal nur Geld, ab dem 3. Mal kommt zusätzlich die Polizei.
-- Laserkontrolle: dort steht ein Streifenwagen. Wer zu schnell ist, wird sofort verfolgt.
+- Neu: Tagsüber gelten Tempolimits. Blitzer sind die 45 festen Radarfallen der C1, dazu macht die Polizei ab und an Laserkontrollen. Nachts wird nicht gemessen.
+- Blitzer: wer zu schnell an einer Radarfalle vorbeifährt, wird geblitzt und zahlt ein Bußgeld, je schneller desto teurer. Gezählt wird pro Spieltag: 1. und 2. Mal nur Geld, ab dem 3. Mal kommt zusätzlich die Polizei.
+- Laserkontrolle: an ein paar Polizeistellen steht pro Tag für ein paar Stunden ein Streifenwagen. Wer dort zu schnell ist, wird sofort verfolgt. Am Anfang sind es 1 bis 2 Kontrollen am Tag, mit steigendem Rang werden es mehr, weil sich die nächtlichen Rennen herumsprechen.
+- Minimap und Radar zeigen eine Kontrolle erst, wenn du sie an dem Tag schon gesehen hast. Streifenwagen einer Fahndung blinken dort rot und blau.
 - Fahndung mit 1 bis 3 Sternen oben rechts im Status. 1 Stern: die Polizei fährt hinterher und will, dass du anhältst (Strafzettel). 2 Sterne (weiter geflohen, Unfälle, noch mal geblitzt oder heute schon einen Strafzettel): sie überholt dich und bremst dich aus. 3 Sterne: sie rammt dich. Anhalten bei 3 Sternen = Festnahme, hohe Strafe und Abschleppen zur Garage.
-- Entkommen: bleib lange genug außer Sicht, dann gibt die Polizei auf.
+- Entkommen: bleib lange genug außer Sicht, dann gibt die Polizei auf. Das bringt etwas Ruf (weniger als ein Rivalensieg, nur 3 Mal pro Tag).
 - Während einer Fahndung gehen Speichern, Nickerchen, Abschleppen, Parkplatz-Menüs und Herausfordern nicht.
-- Messstellen setzt du im Dev-Menü (Typ „Polizei / Messstelle“: Blitzer oder Laser, Tempolimit, Richtung). Alle Werte in data\police.json, Testknöpfe im Dev-Menü unter Werkzeuge.
+- Polizeistellen setzt du im Dev-Menü (Typ „Polizei / Messstelle“: Laser oder eigener Blitzer, Tempolimit, Richtung, „immer besetzt“ zum Testen; der Dienstplan von heute steht unter Werkzeuge). Alle Werte in data\police.json, Testknöpfe im Dev-Menü unter Werkzeuge.
 
 ### Aufkleber
 - Neu in der Garage: Reiter „Aufkleber“. Klebe die Logos aus deiner Trophäenwand auf dein Auto, wie die Sticker in TXR: Crew-Logos und -Symbole (auch in Leader-Gold), Wanderer-Siegel, Boss-Embleme und das 走.
