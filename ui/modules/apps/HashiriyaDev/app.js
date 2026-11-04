@@ -180,6 +180,10 @@ angular.module('beamng.apps')
             '<span class="hbd-btn" ng-click="act(\'dumpParts\')">Teile des Autos exportieren</span>' +
           '</div>' +
           '<div class="hbd-note">Exporte landen in BeamNG-Userordner/settings/hashiriya_battle/.</div>' +
+          '<div class="hbd-sec">Gegner-Garage <em>Hauptmenü > Mehr > Garage</em></div>' +
+          '<div class="hbd-row hbd-toggle" ng-if="d.garageTool" ng-click="dev(\'garageTool\', {on: !d.garageTool.auto})" title="Panel mit Gegnerliste, Lore und Speichern-Knopf in der BeamNG-Garage">' +
+            '<span>Gegner-Panel in der BeamNG-Garage</span><b ng-class="{\'is-on\': d.garageTool.auto}">{{ d.garageTool.auto ? \'AN\' : \'AUS\' }}</b></div>' +
+          '<div class="hbd-note" ng-if="!d.garageTool">garagetool.lua fehlt im Mod.</div>' +
         '</div>' +
       '</div>' +
       '<style>' +

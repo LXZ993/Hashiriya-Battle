@@ -105,6 +105,9 @@ local function readPc(path)
   return pcCache[path] or nil
 end
 
+-- Gegner-Garage (garagetool.lua): nach dem Speichern einer Config den Zwischenspeicher leeren
+function M.clearPcCache() pcCache = {} end
+
 local function hasLivery(parts)
   for slot, part in pairs(parts or {}) do
     if type(slot) == 'string' and slot:match('paint_design$') and type(part) == 'string' and part ~= '' then return true end
@@ -165,6 +168,8 @@ local function spawnSetup(rival)
   if paint then cfg.paints = paints end
   return cfg, paints
 end
+
+M.spawnSetup = spawnSetup
 
 local function leaderOf(teamId)
   for _, r in ipairs(data.rivals) do if r.team == teamId and r.leader then return r end end
