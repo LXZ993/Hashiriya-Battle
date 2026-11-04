@@ -23,6 +23,8 @@ local cur = nil           -- { id, vol, target, age, loop, file }
 local fading = {}         -- Liste ausblendender Quellen
 local playlist, plIndex, introPending = {}, 0, nil
 local menuPaused = false
+local pauseRegistered = false -- Eintrag im Pausenmenü (Esc > Mods) angemeldet?
+local pauseRetry = 0
 
 local function core() return extensions.hashiriyaBattle_core end
 
@@ -910,8 +912,6 @@ function M.skipAndSend()
 end
 
 -- Pausenmenü (Esc) > Reiter "Mods" > "Hashiriya Battle" (wie Beam Turismo, BeamNG 0.40 ui_pause_actions)
-local pauseRegistered = false
-local pauseRetry = 0
 function M.registerPauseButton()
   local pa = extensions.ui_pause_actions
   if not pa and extensions.load then
