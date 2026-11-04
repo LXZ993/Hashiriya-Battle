@@ -14,6 +14,8 @@ FONT = {
     'dela': FONTS + 'DelaGothicOne-Regular.ttf',
     'mincho': FONTS + 'ShipporiMincho-ExtraBold.ttf',
     'latin': FONTS + 'RobotoCondensed.ttf',
+    'kaushan': FONTS + 'KaushanScript-Regular.ttf',
+    'racing': FONTS + 'RacingSansOne-Regular.ttf',
 }
 _fc = {}
 def font(name, px):
