@@ -1,0 +1,437 @@
+<title>Hashiriya Battle Testliste</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@1,700;1,900&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one column checklist, sticky summary bar, groups as HUD-style bands (single dark look, like the in-game HUD) */
+:root {
+  --bg: #121214;
+  --panel: #1b1b1f;
+  --line: #2c2c33;
+  --fg: #ecebe8;
+  --dim: #9a98a3;
+  --accent: #ff6600;
+  --ok: #4fd36a;
+  --fail: #ff4d3d;
+  --todo: #6d6b76;
+  --display: "Exo 2", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+html, body { background: var(--bg); color: var(--fg); }
+body { font-family: var(--body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 860px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 64px; }
+header h1 { font-family: var(--display); font-style: italic; font-weight: 900; font-size: 30px; letter-spacing: .5px; margin: 0; text-wrap: balance; }
+header h1 span { color: var(--accent); }
+header p { color: var(--dim); margin: 6px 0 0; max-width: 65ch; }
+.meta { font-family: var(--mono); font-size: 12px; color: var(--dim); margin-top: 8px; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 12px; margin-top: 16px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.counts { display: flex; gap: 14px; font-family: var(--mono); font-size: 13px; }
+.counts b { font-weight: 500; }
+.c-ok { color: var(--ok); } .c-fail { color: var(--fail); } .c-todo { color: var(--dim); }
+.progress { flex: 1 1 160px; height: 6px; background: var(--line); display: flex; overflow: hidden; min-width: 120px; }
+.progress i { display: block; height: 100%; }
+.filters { display: flex; flex-wrap: wrap; gap: 4px; }
+.filters button { font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase; color: var(--dim); background: transparent; border: 1px solid var(--line); padding: 5px 10px; cursor: pointer; }
+.filters button[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.filters button:focus-visible, .st button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.notice { margin-top: 12px; color: var(--dim); font-size: 13px; }
+.divider { margin-top: 40px; padding-top: 10px; border-top: 2px solid var(--line); font-family: var(--display); font-style: italic; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); }
+section { margin-top: 28px; }
+section h2 { font-family: var(--display); font-style: italic; font-weight: 700; font-size: 17px; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+section h2 small { font-family: var(--mono); font-style: normal; font-weight: 500; font-size: 12px; color: var(--dim); letter-spacing: 0; text-transform: none; }
+section h2 .neu { font-family: var(--mono); font-style: normal; font-size: 11px; letter-spacing: .5px; color: var(--bg); background: var(--accent); padding: 1px 6px; align-self: center; }
+section h2::before { content: ""; width: 4px; height: 15px; background: var(--accent); transform: skewX(-14deg); align-self: center; }
+.test { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; padding: 12px 0; border-top: 1px solid var(--line); }
+.test:last-child { border-bottom: 1px solid var(--line); }
+.st { display: flex; gap: 4px; grid-row: span 2; align-self: start; }
+.st button { width: 34px; height: 34px; font-size: 17px; font-weight: 700; line-height: 1; border: 1px solid var(--line); background: var(--panel); color: var(--todo); cursor: pointer; }
+.st button.on-ok { background: var(--ok); border-color: var(--ok); color: #0d1a10; }
+.st button.on-fail { background: var(--fail); border-color: var(--fail); color: #1d0907; }
+.st button.on-todo { background: var(--todo); border-color: var(--todo); color: var(--bg); }
+.txt { min-width: 0; }
+.txt .t { font-weight: 600; }
+.txt .t code { font-family: var(--mono); font-size: 12px; color: var(--accent); margin-right: 6px; }
+.txt .how { color: var(--dim); margin-top: 2px; max-width: 70ch; }
+.note { grid-column: 2; min-width: 0; }
+textarea { width: 100%; box-sizing: border-box; min-height: 34px; resize: vertical; font: inherit; font-size: 13px; color: var(--fg); background: var(--panel); border: 1px solid var(--line); padding: 6px 8px; }
+textarea::placeholder { color: var(--todo); }
+.saved { font-family: var(--mono); font-size: 11px; color: var(--dim); margin-top: 2px; min-height: 14px; }
+@media (max-width: 520px) {
+  .test { grid-template-columns: 1fr; }
+  .st { grid-row: auto; }
+  .note { grid-column: 1; }
+}
+@media (prefers-reduced-motion: no-preference) { .st button { transition: background .12s, color .12s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>HASHIRIYA <span>BATTLE</span> Testliste</h1>
+    <p>Setz bei jedem Punkt ✓ (funktioniert), ✗ (funktioniert nicht) oder – (noch nicht getestet). Bei ✗ kurz notieren, was passiert ist. Ich lese die Ergebnisse direkt hier aus.</p>
+    <p>Oben stehen die neuen Tests vom 01. bis 04.11.2026 (Alpha 0.3.2 bis 0.9.2, markiert mit NEU). Darunter die alten Tests vom 28.10., deine Haken und Notizen dort bleiben erhalten. Tipp: Mit dem Dev-Menü (Umschalt+Ende) setzt du Rang, Uhrzeit, Tag und Geld oder spawnst einen bestimmten Rivalen, so kommst du schnell an spätere Inhalte.</p>
+    <div class="meta">Stand: Branch prototype-0.1 · Commit a6d12c3 (PR #123) · alte Tests: Commit 7a3d374</div>
+  </header>
+
+  <div class="bar">
+    <div class="counts"><span class="c-ok">✓ <b id="n-ok">0</b></span><span class="c-fail">✗ <b id="n-fail">0</b></span><span class="c-todo">– <b id="n-todo">0</b></span></div>
+    <div class="progress" aria-hidden="true"><i id="p-ok" style="background:var(--ok)"></i><i id="p-fail" style="background:var(--fail)"></i></div>
+    <div class="filters" role="group" aria-label="Filter">
+      <button id="f-all" aria-pressed="true" data-f="all">Alle</button>
+      <button id="f-neu" aria-pressed="false" data-f="neu">Neu</button>
+      <button id="f-todo" aria-pressed="false" data-f="todo">Offen</button>
+      <button id="f-fail" aria-pressed="false" data-f="fail">Fehler</button>
+    </div>
+  </div>
+  <div class="notice" id="notice">Lade gespeicherte Ergebnisse …</div>
+  <div id="list"></div>
+</div>
+
+<script>
+const GROUPS = [
+  // ===== NEU 01.–04.11.2026 =====
+  { neu: true, name: 'Drei Spielstände', tests: [
+    ['slotnew', 'Neues Spiel fragt nach Platz 1 bis 3', 'Titel > Neues Spiel: zuerst Platz wählen. Belegter Platz: Rückfrage, und er wird erst überschrieben, wenn du den Assistenten abschließt (vorher abbrechen = alter Stand noch da).'],
+    ['slotload', 'Spielstand laden', 'Titel > „Spielstand laden“: jeder Platz zeigt Fahrername, Rang, Auto, Tag, Geld und letzte Speicherung. „Weiterspielen“ lädt den zuletzt gespielten Platz.'],
+    ['slotdel', 'Löschen und Wechseln', 'Im Titel einen Platz löschen (mit Rückfrage). Mitten im Spiel den Platz wechseln: der laufende Stand wird vorher gespeichert.'],
+    ['slotold', 'Alter Spielstand ist Platz 1', 'Dein bisheriger Spielstand steht nach dem Update auf Platz 1 und lädt normal.'],
+  ]},
+  { neu: true, name: 'Speichern am Standort', tests: [
+    ['parksave', 'Hier parken & speichern', 'Unterwegs an den Rand oder in eine PA, anhalten, Zündung aus, Menü > „Hier parken & speichern“. Neu laden: gleiche Stelle, Richtung, Uhrzeit, Tank und Schaden.'],
+    ['motoraus', 'Speichern mit laufendem Motor', 'Motor anlassen und speichern: Hinweis „MOTOR AUS!“ mit Umwelt-Spruch. Mehrmals probieren: Extra-Spruch.'],
+    ['savestate', 'Speicher-Status im Menü', 'Unter „Speichern“ steht, wo du gespeichert bist, rot wenn du gerade nicht geparkt bist.'],
+    ['savehome', 'Zuhause und Garage', 'Zu Hause speichern oder schlafen bzw. in der Garage speichern: Laden startet dort.'],
+    ['unsaved', 'Beenden ohne Parken', 'Fahren und das Spiel ohne Speichern beenden. Laden: zu Hause, Auto in der Garage, Abschleppgebühr + 20.000 ¥ Bußgeld. Beim nächsten Mal 40.000 ¥.'],
+    ['damagesave', 'Schaden bleibt nach dem Laden', 'Auto verbeulen (gern ein Teil abreißen), speichern, neu laden: Beulen und fehlende Teile sind noch da, Reparaturpreis wie vorher. Erst Reparieren macht es heil.'],
+  ]},
+  { neu: true, name: 'Menü, Tasten, Befreien', tests: [
+    ['menu2', 'Neues Menü links', 'Pos1: oben Karte mit Geld, Uhrzeit, Rang und Ruf-Balken, darunter Bilanz und „In der Nähe“. Hauptpunkte als Kacheln, Seltenes unter „Werkzeuge“ zum Aufklappen.'],
+    ['menuhome2', 'Menü zuhause', 'Zuhause: „Schlafen“ als breite Kachel mit Hinweis, darunter Speichern, Lexikon, Jobbrett und Tutorial.'],
+    ['lex2', 'Neues Rivalen-Lexikon', 'Crews als Liste mit Logo und Fortschrittsbalken, Crew aufklappen. Rivale in einer Zeile, Beschreibung erst beim Anklicken. Suche (Name, Auto, Crew) und Filter Alle/Offen/Besiegt/Merkliste. Stern vor dem Namen = Merkliste.'],
+    ['keycheck', 'Tasten-Check beim neuen Spiel', 'Zeigt alle Mod-Tasten nach Battle, Hashiriya Battle, Unterwegs, Entwickler. Rot = fehlt und wird gebraucht, grau = optional.'],
+    ['keytab', 'Tasten im Pausenmenü', 'Esc > Mods > Hashiriya Battle > Reiter „Tasten“: alle Belegungen. „Belegen“ öffnet die BeamNG-Steuerung genau für diese Taste.'],
+    ['unstuck', 'Befreien (Shift + U)', 'Mit dem Auto in einer Leitplanke hängen bleiben, Shift + U: 0,5 m zurück auf deinem Weg, ohne Schwung. Gleich noch mal: größerer Schritt (1,5 / 3 / 6 m). Schaden und Tank bleiben.'],
+    ['unstuckfoot', 'Befreien zu Fuß und Kachel', 'Zu Fuß in einem Objekt hängen: Kachel „Befreien“ im Menü links hilft genauso.'],
+    ['unstucklock', 'Befreien gesperrt', 'Im Battle, im Gespräch, im Shop, über 15 km/h und auf dem Dach geht es nicht (Meldung). Kurze Wartezeit zwischen zwei Benutzungen.'],
+    ['chlog', 'Changelog im Titel', 'Titelbildschirm > „Changelog“: alle Versionen aufklappbar.'],
+  ]},
+  { neu: true, name: 'HUD und Tuning-Stufen', tests: [
+    ['hud2', 'Neue HUD-Apps', 'Meldungen, Aufgaben und Scoreboard oben links, Minimap im Querformat, Tacho, Ladedruck, Antrieb. Gang-Anzeige ohne Fehlerwert, Minimap lädt immer.'],
+    ['minimapcol', 'Minimap-Farben', 'Rivalen auf der Minimap in denselben Farben wie im Radar. Der Rivale im Battle pulsiert. Dein eigener Pfeil ist weiß.'],
+    ['lv6', 'Tuning LV1 bis LV6', 'Shop zeigt Teile in 6 Stufen. Wird eine Stufe frei (Rang hochsetzen), kommt eine Meldung mit den neuen Teilen, auch zu Fuß.'],
+    ['sleeplock', 'Schlafsperre 6 Stunden', 'Nach Schlafen oder Nickerchen geht 6 Spielstunden lang kein neues Schlafen.'],
+  ]},
+  { neu: true, name: 'Leute an den PAs', tests: [
+    ['patalk', 'Fahrer ansprechen', 'Nachts an Shibaura oder Tatsumi PA stehen 3 bis 6 Fahrer, tagsüber 1 bis 2. Zu Fuß hin: „[T] Reden“. T = nächster Satz oder Ende. Sie drehen sich zu dir.'],
+    ['paknow', 'Wissens-Texte', 'Wissens-Texte haben einen blauen Rand und unten das Thema (z. B. „Wissen · Shutoko“, „Wissen · BeamNG“). Nochmal ansprechen: oft eine neue Geschichte.'],
+    ['pahint', 'Hinweise ins Lexikon', 'Ein Hinweis auf einen Wanderer oder Boss schaltet den Hinweis im Rivalen-Lexikon frei.'],
+    ['pasame', 'Gleiche Nacht, gleiche Leute', 'In derselben Nacht stehen dieselben Leute da, in der nächsten andere. Zweimal ansprechen: er sagt dir das auch.'],
+    ['pacars', 'Passende Autos und Kennzeichen', 'Mechaniker, Lkw-Fahrer, Kurier, Taxifahrer usw. stehen bei Agent-JP-Autos mit Agents Lack und japanischem Kennzeichen (Taxis und Lieferwagen grün). Oberteil-Farbe der Bobs passt zum Porträt.'],
+    ['paspot', 'Niemand steckt in Autos', 'Fahrer stehen auf ihren festen Plätzen, kein Bob steckt in einem Auto, kein Parkverkehr-Auto in der Bucht eines PA-Fahrers.'],
+    ['panew', '10 neue PA-Leute', 'Postbote, Müllwerker, Straßenarbeiter, Elektriker, Wachmann, Reinigungskraft, Familienvater, Rentner im Camper, Otaku, Kartenfahrer: eigenes Auto, Porträt, Smalltalk.'],
+    ['traffic152', 'Verkehr bunt gemischt', 'Im fließenden und geparkten Verkehr sieht man viele verschiedene japanische Autos, nicht immer dieselben paar.'],
+  ]},
+  { neu: true, name: 'PA-Rivalen und Pink Slip', tests: [
+    ['parival', 'Rivale an der PA', 'Nachts steht an einer PA ein Rivale oder Wanderer mit Porträt und Spruch. T = ansprechen, nochmal T = Battle, weggehen = nein.'],
+    ['parivalexit', 'Rivale fährt sichtbar los', 'Nach dem Annehmen steigt er ein, Motor an, nachts Licht, rollt langsam aus der PA auf den C1 und bummelt, bis du dran bist. Dann Lichthupe, Battle wie gewohnt.'],
+    ['pinkslip', 'Pink Slip annehmen', 'Ab Rang 3 und mit mindestens 2 Autos: manche Rivalen bieten Pink Slip, annehmen mit G. Im SP-HUD steht „PINK SLIP“.'],
+    ['pinkwin', 'Pink Slip gewonnen', 'Sein Auto steht mit seiner Config, Lack und Kennzeichen in deiner Garage.'],
+    ['pinklose', 'Pink Slip verloren', 'Dein Auto ist weg, er fährt es ab jetzt selbst. Du fährst mit dem nächsten Auto zuhause weiter. Ein Sieg gegen ihn holt es zurück.'],
+    ['gameover', 'Game Over', 'Letztes Auto im Pink Slip verloren: zu Fuß an der Garage, mit genug Geld beim Händler neu kaufen. Ohne Geld: Game Over mit Rang, Tagen und Bilanz.'],
+  ]},
+  { neu: true, name: 'Story und Handy', tests: [
+    ['story', 'Prolog und Kapitelkarte', 'Neues Spiel: Prolog, Kapitelkarte mit Titel auf Deutsch und Japanisch. Szenen in der Sprechblase, weiter mit T. Kapitelziel steht unter dem Geld.'],
+    ['storylex', 'Story im Lexikon', 'Lexikon > Seite „Story“: alle Kapitel und gesehenen Szenen zum Nachlesen.'],
+    ['phone', 'Handy-Nachrichten', 'Beim Fahren laufen kurze Nachrichten von selbst weiter. Grüner Reiter „Handy-Nachricht“, Handy-Symbol an der Sprechblase, klingelndes Handy am Porträt.'],
+    ['chapterwait', 'Kapitelkarte wartet', 'Nach einem wichtigen Sieg kommt die Kapitelkarte erst nach dem Battle und dem Spruch des Gegners.'],
+    ['genzo', 'Genzō mit Porträt', 'Genzō zeigt in Szenen und Nachrichten sein Porträt.'],
+  ]},
+  { neu: true, name: 'Nebenjobs', tests: [
+    ['jobboard', 'Jobbrett', 'In Garage oder zuhause, tagsüber: 5 Aufträge am Brett, höchstens 4 erledigen. Nachts keine. Lohn steigt mit dem Rang.'],
+    ['courier', 'Kurier und Express', 'Erst abholen, dann liefern, Zeit läuft ab dem Abholen. Orange Bodenmarkierung und Navi-Route auf der Minimap. Status zeigt Ziel, Richtung, Entfernung, Restzeit. Schaden wird vom Lohn abgezogen.'],
+    ['fragile', 'Zerbrechlich', 'Schaden zählt dreifach. Zu viel Schaden: der Auftrag platzt.'],
+    ['photojob', 'Fotojob', 'Grüner Foto-Spot, Auto dort abstellen, im Zeitfenster: Verschluss-Sound und kurzer Blitz. Statuszeile wird nicht abgeschnitten.'],
+    ['delivery', 'Lieferrunde', '3 bis 4 Stopps nacheinander mit dem eigenen Auto, eine Gesamtzeit. Zeit abgelaufen: nur gelieferte Stopps werden bezahlt.'],
+    ['taxi', 'Taxischicht', 'Firmentaxi (Shinonome oder Gekkō) steht neben dir, dein Auto bleibt stehen. 3 Fahrgäste abholen und hinbringen, dann zurück zum Depot. Taxameter + Trinkgeld, 1 bis 5 Sterne und Meinung des Fahrgasts.'],
+    ['taxirules', 'Taxi: Fahrweise zählt', 'Über 80 km/h warnt der Status, ruckartiges Bremsen kostet Trinkgeld. Zu viel Schaden: Fahrgast steigt aus und zahlt nichts. Abbrechen zahlt das bisher Verdiente.'],
+    ['taxiown', 'Taxi ist nicht dein Auto', 'Nach der Schicht: Tank, Schaden und Zustand deines Autos unverändert. Im Taxi gibt es keine Battles.'],
+    ['tips', 'Tipps kaufen', 'Nur Tipps zu Wanderern und Bossen, die du schon treffen kannst, ab 250.000 ¥ (Bosse ab 750.000). Danach Handy-Nachricht von Genzō und Hinweis im Lexikon.'],
+  ]},
+  { neu: true, name: 'Garage, Teile, Händler, Wartung', tests: [
+    ['partout', 'Teile ausbauen', 'Garagen-PC: fast jedes Teil, auch Serienteile, auf „Ausgebaut“ stellen. Pflichtteile bleiben drin.'],
+    ['partsell', 'Teile verkaufen', 'Teilelager: „Verkaufen“ mit Preis, zweimal klicken, Teil weg, 40 % Geld. Verkaufte Serienteile gibt es im Shop wieder.'],
+    ['carsell', 'Auto verkaufen', 'Garage: jedes Auto außer dem aktiven hat „Verkaufen“. Preis hängt von Wert, Teilen, Zustand und Kilometern ab. Lagerteile des Autos gehen mit.'],
+    ['dealerservice', 'Händler im Service-Reiter', 'Garage > Service: Autohändler direkt im Menü.'],
+    ['shoprepair', 'Shop mit beschädigtem Auto', 'Beschädigt in den Shop: erst Reparieren-Knopf mit Preis, dann Teile anprobieren. Lackieren geht trotzdem. Teiletausch repariert nicht heimlich, Verschleiß bleibt.'],
+    ['rivalcar', 'Rivalen-Autos kaufen', 'Leader, Wanderer oder Boss besiegen: Meldung, sein Auto steht beim Händler unter „Rivalen-Autos“ mit Lack, Bild, Vorbesitzer. Teuer und nur einmal.'],
+    ['maint', 'Wartung im Service', 'Garage > Service: Öl, Kühlwasser und Reifen mit Balken und Preis. Einzeln oder komplett warten. Die Werte sinken beim Fahren.'],
+    ['maintlow', 'Wartung spürbar', 'Unter 50 %: weniger Leistung, Motor schneller heiß, weniger Grip. Unter 20 % kommt unterwegs eine Warnung. Neue Reifen aus dem Shop zählen als frisch.'],
+    ['starterpool', 'Startautos', 'Neues Spiel: nur Covet, Miramar, Sunburst, 200BX/Diana, Pessima Mk1/Mk2, nach Preis sortiert (günstigstes zuerst). Gebraucht, Tank mindestens 25 %.'],
+  ]},
+  { neu: true, name: 'Rivalen: Fahrstil, Crew-Battles, Wetten', tests: [
+    ['drivestyle', 'Fahrstil der Rivalen', 'Lexikon zeigt Fährt sauber / Blocker / Rempler. Blocker machen vorne die Linie zu, Rempler suchen kurz Kontakt und machen Bremstests.'],
+    ['chain', 'Kette gegen Leader oder Boss', 'Leader/Boss fährt mit 2 Begleitern. Herausfordern: „KETTE 1/3“, erst die Begleiter von hinten nach vorne, zuletzt der Leader. Nach jedem Sieg wartet der nächste.'],
+    ['chainbreak', 'Kette reißt', 'Niederlage oder Frühstart in der Kette: Gruppe fährt wieder zusammen, nächstes Mal von vorn.'],
+    ['block', 'Begleiter blocken', 'Während du gegen einen aus der Gruppe fährst, setzen sich die anderen vor dich und bremsen. Unten steht „BLOCKT“.'],
+    ['refuse', 'Sichtbares Ablehnen', 'Rivale will nicht (gerade gefahren, Nacht-Limit, keine Lust): Blinker und Stopp-Zeichen mit Kreuz und Grund in der Mitte. Lehnst du ab: Zeichen in Orange.'],
+    ['bet', 'Wetten', 'Beim Tempo-Angleichen manchmal Wettangebot: Warnblinker = annehmen, Lichthupe = erhöhen (bis 3-fach), nichts = keine Wette. Sieg = Einsatz drauf, Niederlage = weg. Nie über die Hälfte deines Geldes, nie bei Pink Slip.'],
+    ['conditions', 'Neue Wanderer-Bedingungen', 'Ein Wanderer mit neuer Bedingung (z. B. Wochentag, nur Schaltgetriebe, Antrieb) taucht nur auf, wenn sie erfüllt ist. Lexikon-Hinweis passt dazu.'],
+    ['stages', 'Gegner kehren stärker zurück', 'Ab Kapitel 4 (Rang hochsetzen): Genzō kündigt per Handy eine Rückkehr an, auf der Straße steht „(Stufe 2)“ mit neuem Spitznamen und Sprüchen.'],
+  ]},
+  { neu: true, name: 'Logos, Trophäenwand, Spitznamen', tests: [
+    ['logosp', 'Logos im Duell', 'SP-Anzeige: links 走, rechts das Crew-Symbol. Logo als Sticker am Porträt bei Herausforderung, Sieg und Niederlage, in PA-Gesprächen und im Lexikon.'],
+    ['trophywall', 'Trophäenwand', 'Leader besiegen: Meldung mit neuem Logo. Menü-Kachel „Trophäenwand“ mit Zähler (z. B. 16 / 73). Gesperrte Crew-Logos grau, Siegel und Embleme „?“. Antippen zeigt, was zu tun ist.'],
+    ['mylogo', 'Eigenes Logo wählen', 'Freies Logo antippen: es steht im Battle oben links statt 走. „Standard“ setzt zurück. Jeder Spielstand hat eigene Wahl.'],
+    ['ranks20', '20 Ränge', 'Die neuen Zwischenränge (Spurwechsler, Mitternachtsklinge, Ringbrecher, Sturmläufer, Phantom des Rings) kommen. Alter Spielstand passt ohne Fehler.'],
+    ['nick', 'Spitznamen wählen', 'Trophäenwand > „Spitznamen“ (oder Spitzname auf der Menü-Karte antippen): verdiente wählbar, „Automatisch“ = neuester, offene zeigen Fortschritt (13 / 25).'],
+    ['cartitle', 'Titel pro Automodell', 'Nach 10 Siegen mit einem Modell: z. B. „Covet-Fahrer“, später Kenner, Meister, Legende.'],
+    ['trophies', 'Trophäen', 'Trophäenwand > „Trophäen“: Plakette pro besiegtem Leader, Pokal pro Boss. Antippen zeigt Tag, Auto und Battle-Zeit.'],
+    ['beards', 'Bärte an Porträts', 'Einige Gegner und PA-Fahrer tragen Bärte, z. B. Boss Mugen einen silbernen Spitzbart. Alle sehen sauber aus.'],
+  ]},
+  { neu: true, name: 'Aura und Aufkleber', tests: [
+    ['aurariv', 'Aura bei Rivalen', 'Nachts einen Aura-Träger spawnen (z. B. Reika Hoshino, Neon-Leaderin, oder Shinkirō): Flammen-Hülle, Leucht-Nebel und Bodenlicht in seiner Farbe. Normale Crew-Fahrer haben keine Aura.'],
+    ['aurabattle', 'Aura im Battle', 'Im Battle wird die Aura höher, heller und pulsiert. Mit sinkenden SP wird der Nebel dünner, fast leere SP = weg.'],
+    ['auramine', 'Eigene Aura', 'Aura-Träger besiegen, dann Trophäenwand > „Auren“: anlegen, wann (nachts immer / nur Battle / aus) und Stärke. An deinem Auto sichtbar. Vorher gesperrt.'],
+    ['sticker', 'Aufkleber kleben', 'Garage > Reiter „Aufkleber“: Logo aus der Trophäenwand, Ansicht, Größe, Drehung, Lage, aufkleben für 3.000 ¥. Entfernen kostenlos.'],
+    ['stickerkeep', 'Aufkleber bleibt', 'Speichern, neu laden: Aufkleber ist noch drauf und lässt sich weiter bearbeiten.'],
+  ]},
+  { neu: true, name: 'Schwarzes Brett', tests: [
+    ['board', 'Forum im Garagen-PC', 'Reiter „Schwarzes Brett“ mit Zahl für neue Beiträge. Gerüchte, Crew-News (mit Logo), Nachtbericht, Szene, Kleinanzeigen, Job-Anzeigen. Filter und Suche funktionieren.'],
+    ['boardday', 'Jeden Tag neu', 'Nächster Tag: neues Gerücht mit einem anderen Teil der Bedingung. Nachtbericht nennt die Siege der letzten Nacht.'],
+    ['boardpa', 'Aushang an der PA', 'Im Dev-Menü einen Ort „Schwarzes Brett (Aushang)“ setzen. Dort „[T] Schwarzes Brett lesen“ (zu Fuß oder im stehenden Auto), öffnet links. Weggehen schließt.'],
+  ]},
+  { neu: true, name: 'Blitzer und Polizei (tagsüber)', tests: [
+    ['speedcam', 'Blitzer', 'Tagsüber zu schnell an einer der 45 Radarfallen: Bußgeld, je schneller desto teurer. Nachts passiert nichts.'],
+    ['speedcam3', '3. Blitzer am Tag', '1. und 2. Mal nur Geld, ab dem 3. Mal am selben Spieltag kommt zusätzlich die Polizei.'],
+    ['laser', 'Laserkontrolle', 'Dev-Menü: Polizeistelle auf „immer besetzt“. Zu schnell vorbei: sofort Verfolgung. Minimap und Radar zeigen die Kontrolle erst, nachdem du sie gesehen hast.'],
+    ['star1', 'Fahndung 1 Stern', 'Sterne oben rechts. Polizei fährt hinterher, anhalten = Strafzettel. Streifenwagen blinken rot-blau auf Minimap und Radar.'],
+    ['star23', 'Fahndung 2 und 3 Sterne', '2 Sterne: überholt und bremst dich aus. 3 Sterne: rammt. Anhalten bei 3 = Festnahme, hohe Strafe, Abschleppen zur Garage.'],
+    ['escape', 'Entkommen', 'Lange genug außer Sicht: Polizei gibt auf, etwas Ruf (höchstens 3-mal pro Tag).'],
+    ['chaselock', 'Gesperrt während Fahndung', 'Speichern, Nickerchen, Abschleppen, PA-Menüs und Herausfordern gehen nicht.'],
+  ]},
+  { neu: true, name: 'Lackierungen', tests: [
+    ['jplivery', 'Japan-Liveries', 'Konfigurator > Lackdesign: „Hashiriya: … (Colorable)“ auf allen 9 Japan-Autos (Pessima Mk1/Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4), 7 Stile.'],
+    ['jpcolor', 'Farben 1/2/3', 'Farbe 1 = Grundlack, Farbe 2 und 3 färben die Livery. Wechseln wirkt sofort.'],
+    ['jpvariant', 'Varianten und Marken', 'Gleicher Stil auf zwei Autos: andere Form, eigene Marke (Ibishu oder Hirochi) und Texte, BeamNG-Lore-Sponsoren. Design läuft sauber über Säule, Dach und Haube. Notiere, welche du überarbeiten willst.'],
+    ['jobliv', 'Taxi- und Polizei-Lack', 'Taxis (Shinonome, Gekkō) bei den Taxifahrern an den PAs. Polizei 首都警察 auf Pessima Mk2 und Sunburst.'],
+  ]},
+  { neu: true, name: 'Musik', tests: [
+    ['music', 'Musik je Situation', 'Titel (Daikoku in WAV), Tag, Nacht, PA, Garage, Zuhause, Shop, Battle, Leader/Boss, Wanderer, Pink Slip. Weich überblendet. In der freien Fahrt spielt ein Song zu Ende.'],
+    ['musicmenu', 'Musik im Pausenmenü', 'Esc > Mods > Hashiriya Battle > „Musik“: jeden Song pro Situation an/aus, Quelle (Beides/Mod/Eigene/Aus), Reihenfolge zufällig oder fest, Nächster Song, Ordner öffnen, Neu einlesen, Standard.'],
+    ['musicown', 'Eigene Musik', 'Lied in hashiriya_musik im BeamNG-Benutzerordner (Unterordner der Situation), „Neu einlesen“: es läuft.'],
+    ['musicskip', 'Musik überspringen', 'Taste Ende springt zum nächsten Song. Menü > Werkzeuge zeigt das aktuelle Stück.'],
+    ['musicsound', 'Ton nach dem Titel', 'Nach dem Titelbildschirm: Motor und Reifen normal laut. BeamNG-Menümusik aus, im normalen Hauptmenü wieder an. Im Titel ist der Verkehr leise.'],
+  ]},
+  { neu: true, name: 'Release-Build (neu)', note: 'Wie unten: data/build.json "release": true, BeamNG neu starten, danach wieder false.', tests: [
+    ['relqt', 'Keine Schnellreise', 'Große Karte: keine Quicktravel-Punkte, kein Knopf „Quick Travel“.'],
+    ['relclick', 'Menü klickbar', 'Hashiriya-Menü links und alle Apps lassen sich anklicken.'],
+    ['relgarage', 'Gegner-Garage fehlt', 'Unter More gibt es keinen Eintrag „Gegner-Garage (Dev)“.'],
+  ]},
+  { neu: true, name: 'Entwickler-Werkzeuge', tests: [
+    ['wbuilder', 'Wanderer-Builder', 'Hashiriya-Wanderer-Builder.html doppelklicken (offline, DE/EN): Avatar mit neuen Teilen (Kimono, Bärte, Mundform), .pc hineinziehen, Kennzeichen-Vorschau, alle 30 Bedingungen, Aura- und Rückkehr-Wunsch, Datei exportieren.'],
+    ['ggarage', 'Gegner-Garage', 'More > „Gegner-Garage (Dev)“: Gegner suchen, Filter (auch „Stufen“), laden mit Kennzeichen und Lack, Lore rechts. Original More > Garage bleibt ohne Panel.'],
+    ['ggsave', 'Gegner-Garage speichern', '„Auf Gegner speichern“ (2 Klicks) bei einem Test-Gegner, im Spiel fährt er die neue Config. Bei einer Stufe entsteht eine eigene Config.'],
+    ['ggaura', 'Aura-Editor', 'Reiter „Aura“: pro Gegner an/aus, Farbe, Stärke mit Live-Vorschau, speichern. Im Spiel trägt er die Aura so.'],
+    ['handlinks', 'Handbuch-Links', 'Im Handbuch einen Datei- und einen Ordner-Link anklicken: öffnet die Datei bzw. den Ordner (Explorer/Editor nach tools\\Handbuch-Links-einrichten.bat).'],
+  ]},
+
+  // ===== Alte Tests vom 28.10.2026 =====
+  { name: 'Start & Neues Spiel', tests: [
+    ['load', 'Mod lädt ohne Fehler', 'BeamNG komplett neu starten, Karriere über „Mehr …“ starten. Im beamng.log keine Fehler mit „hashiriya“.'],
+    ['exp', 'Auswahl Neuling / Erfahren', 'Neues Spiel: erst kommt die Auswahl mit zwei Karten. Erfahren springt direkt zur Fahrerwahl.'],
+    ['tut', 'Tutorial blättern', 'Als Neuling: 3 Seiten, Weiter / Zurück / Überspringen funktionieren, letzte Seite „Los geht\'s“.'],
+    ['tuthome', 'Tutorial zu Hause erneut', 'Zu Hause im Menü „Tutorial ansehen“, danach „Fertig“ schließt es wieder.'],
+    ['price', 'Starterauto kostet Geld', 'Übersicht zeigt Startkapital, Kaufpreis und Kontostand. Im Spiel ist der Kaufpreis abgezogen.'],
+    ['start', 'Start um 20:00 zu Fuß', 'Nach dem Start ist es 20:00 Uhr, du stehst zu Fuß neben der Garage.'],
+  ]},
+  { name: 'HUD & Menü', tests: [
+    ['clock', 'Uhr, Wochentag, Datum', 'Rechts oben immer sichtbar. Nachts ist die Uhrzeit blau, tagsüber gelb. Tag 1 = Fr 03.04.2026.'],
+    ['radar', 'Radar mit farbigen Dreiecken', 'Rivale orange, Leader gelb, Wanderer lila, Boss rot, geschlagen grau, verloren blau.'],
+    ['back', 'Zurück-Knopf oben', 'In jedem Untermenü oben „Zurück“, ohne Scrollen.'],
+    ['stats', 'Statistik-Seite', 'Linkes Menü → Statistik. Werte zählen mit (km, Battles, Geld, Serie, Combo).'],
+    ['lex', 'Lexikon überall im Menü', 'Linkes Menü → Rivalen-Lexikon, auch unterwegs. Teams aufklappbar.'],
+    ['watch', 'Merkliste mit Haken', 'Im Lexikon Haken setzen, maximal 5. Der 6. zeigt „Merkliste ist voll“. Liste erscheint rechts im HUD.'],
+  ]},
+  { name: 'Zeit & Verkehr', tests: [
+    ['day', 'Ein Tag ≈ 24 Minuten', 'Uhr läuft in etwa 1 Spielstunde pro echter Minute.'],
+    ['sleep', 'Schlafen → 20:00', 'Zu Hause schlafen: Uhr springt auf 20:00, Tag zählt richtig weiter.'],
+    ['trafficon', 'Verkehr startet immer', 'Im BeamNG-Hauptmenü Verkehr ausschalten, dann Hashiriya starten: Verkehr ist trotzdem da.'],
+    ['traffic', 'Verkehr nach Uhrzeit', 'Tagsüber sichtbar mehr Autos, nachts weniger. Im Log „Verkehr: … aktiv“.'],
+  ]},
+  { name: 'Tankstelle', tests: [
+    ['fuel', 'Tanken per Gedrückthalten', 'Knopf gedrückt halten, Liter und Preis laufen mit. Nachts ist der Liter teurer.'],
+    ['fuelsetup', 'Tank nicht im Garagen-Setup', 'Garage → Setup: kein Regler mehr für die Tankfüllung.'],
+    ['fuelkeep', 'Tankinhalt bleibt erhalten', 'Halb leer fahren, dann Teil kaufen, Setup ändern, reparieren und R drücken: Tank bleibt halb leer.'],
+  ]},
+  { name: 'Rivalen', tests: [
+    ['multi', 'Mehrere Rivalen unterwegs', 'Nachts tauchen nach und nach bis zu 4 Rivalen auf, nicht direkt vor der Nase.'],
+    ['lights', 'Rivalen mit Licht', 'Nachts fahren Rivalen mit Abblendlicht.'],
+    ['roll', 'Rivalen rollen mit Tempo los', 'Neu gespawnte Rivalen fahren sofort im Reisetempo, keiner steht auf der Fahrbahn.'],
+    ['stuck', 'Festhängende verschwinden', 'Bleibt ein Rivale hängen, fährt er nach ein paar Sekunden weiter oder verschwindet außer Sicht.'],
+    ['rematch', 'Revanche gegen Geschlagene', 'Geschlagene Rivalen tauchen später wieder auf („Revanche“), stärker als vorher.'],
+    ['watchspawn', 'Gemerkte Rivalen erkennen', 'Taucht ein gemerkter Rivale auf: Meldung „Auf deiner Liste!“, Eintrag im HUD leuchtet. Nach dem Sieg von der Liste gestrichen.'],
+  ]},
+  { name: 'Battle', tests: [
+    ['toofast', 'Zu schnell / Zu langsam', 'Mit mehr als 30 km/h Unterschied lichthupen: Meldung, kein Battle.'],
+    ['sync', 'Tempo angleichen', 'Nach dem Lichthupen blinkt „Tempo angleichen …“, der Tempomat bringt dich auf das Tempo des Rivalen.'],
+    ['cruise', 'Countdown: Gas gesperrt', 'Während 3-2-1 bringt Gasgeben nichts, bei GO geht der Tempomat aus.'],
+    ['falsestart', 'Frühstart', 'Im Countdown vorfahren oder überholen: „Frühstart!“, Rivale lehnt ab.'],
+    ['battle', 'SP-Battle, Sieg und Niederlage', 'Battle läuft wie bisher. Sieg bringt Geld und Ruf, Niederlage kostet Ruf.'],
+  ]},
+  { name: 'Siegesserie & Combo', tests: [
+    ['streak', 'Siegesserie', 'Zweiter Sieg in Folge: Meldung „Siegesserie 2! +10 % Preisgeld“, im HUD „Serie 2“.'],
+    ['streakend', 'Serie endet', 'In Garage oder nach Hause fahren: „Siegesserie beendet“.'],
+    ['nearmiss', 'Combo: knapp vorbei', 'Ab 80 km/h knapp an Verkehr vorbei: „Knapp vorbei“ bzw. „Hauchdünn“ mit Punkten.'],
+    ['combo2', 'Combo: Windschatten, Drift, Vollgas', 'Windschatten hinter einem Auto, Drift, über 200 km/h im Verkehr: jeweils Punkte, Multiplikator steigt.'],
+    ['bank', 'Combo auszahlen', 'Nach 4 Sekunden ohne Manöver: „+… ¥“ in Grün, Geld kommt drauf.'],
+    ['crash', 'Unfall löscht Combo', 'Während einer Combo anecken: „Combo verloren“.'],
+  ]},
+  { name: 'Shop', tests: [
+    ['shopcam', 'Shop zu Fuß, Kamera aufs Auto', 'Zu Fuß am Eingang Menü öffnen, Kamera zeigt das Auto, kein Teleport ins Auto.'],
+    ['cart', 'Warenkorb mit mehreren Teilen', 'Mehrere Teile und einen Lack anklicken: alle gleichzeitig verbaut, Liste mit Preisen und Gesamtbetrag.'],
+    ['cartremove', 'Teil aus dem Warenkorb', 'Mit × oder erneutem Klick auf das Teil entfernen, Auto wird zurückgebaut.'],
+    ['checkout', 'Alles kaufen', '„Alles kaufen“ zieht genau den Gesamtbetrag ab, Teile gehören dir danach.'],
+    ['cartleave', 'Wegfahren baut zurück', 'Mit vollem Warenkorb wegfahren: alles wieder Serie bzw. wie vorher.'],
+    ['carstats', 'Fahrzeugwerte grün/rot', 'PS, Nm, kg, kg/PS und Bremsmoment werden angezeigt, mit Warenkorb grüne bzw. rote Änderung.'],
+  ]},
+  { name: 'Händler, Position, Speedtraps', tests: [
+    ['dealer', 'Auktion scrollt bis unten', 'Händler im linken Menü: alle Angebote erreichbar.'],
+    ['pos', 'Position merken', '„Position merken“ speichert die echte Position, nicht den Garagen-Spawn.'],
+    ['trap', 'Speedtrap zählt nur beim Blitzen', 'Langsam durch eine Radarfalle: nichts. Zu schnell durch: Meldung mit km/h, Zähler in der Statistik steigt.'],
+  ]},
+  { name: 'Release-Schalter', note: 'Nur zum Testen: in data/build.json "release": true setzen, BeamNG neu starten. Danach wieder auf false.', tests: [
+    ['relreset', 'Zurücksetzen gesperrt', 'R, Einfügen und Bergen tun nichts. Reparieren in der Garage geht weiter.'],
+    ['relconsole', 'Konsole und Editor gesperrt', 'Konsole (~) und World Editor öffnen sich nicht.'],
+    ['reltime', 'Uhrzeit nicht verstellbar', 'Im Time-&-Weather-Menü die Uhrzeit ändern: Sie springt sofort zurück.'],
+    ['relgrab', 'Node Grabber geht noch', 'Mit dem Node Grabber eine festhängende Stoßstange lösen.'],
+  ]},
+];
+
+const results = {};       // id -> { status, note }
+let filter = 'all';
+let db = null;
+const list = document.getElementById('list');
+const notice = document.getElementById('notice');
+const ALL = GROUPS.flatMap(g => g.tests.map(t => t[0]));
+const NEU = new Set(GROUPS.filter(g => g.neu).flatMap(g => g.tests.map(t => t[0])));
+const STATES = [['ok', '✓', 'Funktioniert'], ['fail', '✗', 'Funktioniert nicht'], ['todo', '–', 'Noch nicht getestet']];
+
+function statusOf(id) { return (results[id] && results[id].status) || 'todo'; }
+
+function build() {
+  list.textContent = '';
+  let dividerDone = false;
+  for (const g of GROUPS) {
+    if (!g.neu && !dividerDone) {
+      const d = document.createElement('div'); d.className = 'divider'; d.id = 'alt-divider';
+      d.textContent = 'Ältere Tests vom 28.10.2026';
+      list.append(d); dividerDone = true;
+    }
+    const sec = document.createElement('section');
+    const h = document.createElement('h2');
+    h.append(g.name);
+    if (g.neu) { const n = document.createElement('span'); n.className = 'neu'; n.textContent = 'NEU'; h.append(n); }
+    const small = document.createElement('small');
+    small.dataset.group = g.name;
+    h.append(small);
+    sec.append(h);
+    if (g.note) { const p = document.createElement('p'); p.className = 'notice'; p.textContent = g.note; sec.append(p); }
+    for (const [id, title, how] of g.tests) {
+      const row = document.createElement('div');
+      row.className = 'test'; row.dataset.id = id;
+      const st = document.createElement('div'); st.className = 'st';
+      for (const [s, sym, label] of STATES) {
+        const b = document.createElement('button');
+        b.type = 'button'; b.id = 'b-' + id + '-' + s; b.textContent = sym; b.title = label; b.setAttribute('aria-label', title + ': ' + label);
+        b.addEventListener('click', () => setStatus(id, s));
+        st.append(b);
+      }
+      const txt = document.createElement('div'); txt.className = 'txt';
+      const t = document.createElement('div'); t.className = 't';
+      const code = document.createElement('code'); code.textContent = id;
+      t.append(code, title);
+      const hw = document.createElement('div'); hw.className = 'how'; hw.textContent = how;
+      txt.append(t, hw);
+      const note = document.createElement('div'); note.className = 'note';
+      const ta = document.createElement('textarea'); ta.id = 'n-' + id; ta.rows = 1; ta.placeholder = 'Notiz (was ist passiert?)';
+      ta.addEventListener('change', () => setNote(id, ta.value));
+      const saved = document.createElement('div'); saved.className = 'saved'; saved.id = 's-' + id;
+      note.append(ta, saved);
+      row.append(st, txt, note);
+      sec.append(row);
+    }
+    list.append(sec);
+  }
+}
+
+function visible(id) {
+  if (filter === 'all') return true;
+  if (filter === 'neu') return NEU.has(id);
+  return statusOf(id) === filter;
+}
+
+function render() {
+  const n = { ok: 0, fail: 0, todo: 0 };
+  for (const id of ALL) n[statusOf(id)]++;
+  for (const k of ['ok', 'fail', 'todo']) document.getElementById('n-' + k).textContent = n[k];
+  document.getElementById('p-ok').style.width = (n.ok / ALL.length * 100) + '%';
+  document.getElementById('p-fail').style.width = (n.fail / ALL.length * 100) + '%';
+  for (const row of list.querySelectorAll('.test')) {
+    const id = row.dataset.id, s = statusOf(id);
+    for (const [k] of STATES) document.getElementById('b-' + id + '-' + k).className = k === s ? 'on-' + k : '';
+    const ta = document.getElementById('n-' + id);
+    if (document.activeElement !== ta) ta.value = (results[id] && results[id].note) || '';
+    row.hidden = !visible(id);
+  }
+  for (const sec of list.querySelectorAll('section')) {
+    const rows = [...sec.querySelectorAll('.test')];
+    const done = rows.filter(r => statusOf(r.dataset.id) !== 'todo').length;
+    sec.querySelector('h2 small').textContent = done + ' / ' + rows.length;
+    sec.hidden = rows.every(r => r.hidden);
+  }
+  const div = document.getElementById('alt-divider');
+  if (div) div.hidden = filter === 'neu';
+}
+
+async function save(id) {
+  const r = results[id];
+  const el = document.getElementById('s-' + id);
+  if (!db) { el.textContent = 'Nicht gespeichert (Speicher nicht verfügbar)'; return; }
+  try {
+    await db.doc('results/' + id).set({ status: r.status || 'todo', note: r.note || '', updatedAt: new Date().toISOString() });
+    el.textContent = 'Gespeichert';
+  } catch (e) {
+    el.textContent = 'Speichern fehlgeschlagen: ' + (e && e.code || 'Fehler');
+  }
+}
+
+function setStatus(id, s) {
+  results[id] = Object.assign({}, results[id], { status: s });
+  render(); save(id);
+}
+function setNote(id, v) {
+  results[id] = Object.assign({ status: 'todo' }, results[id], { note: v.trim() });
+  save(id);
+}
+
+for (const b of document.querySelectorAll('.filters button')) {
+  b.addEventListener('click', () => {
+    filter = b.dataset.f;
+    for (const x of document.querySelectorAll('.filters button')) x.setAttribute('aria-pressed', String(x === b));
+    render();
+  });
+}
+
+build(); render();
+
+(async () => {
+  try { db = window.claude ? await window.claude.use('db') : null; } catch (e) { db = null; }
+  if (!db) { notice.textContent = 'Ergebnisse können hier gerade nicht gespeichert werden. Öffne die Seite angemeldet in claude.ai.'; return; }
+  notice.textContent = '';
+  db.collection('results').onSnapshot(snap => {
+    for (const d of snap.docs) results[d.id] = d.data();
+    render();
+  }, () => { notice.textContent = 'Verbindung zum Speicher verloren. Seite neu laden.'; });
+})();
+</script>
