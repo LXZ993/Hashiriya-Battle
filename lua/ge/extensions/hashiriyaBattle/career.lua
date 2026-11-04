@@ -176,6 +176,7 @@ local keyActions = {
   { id = 'menu', action = 'hashiriyaToggleMenu' },
   { id = 'talk', action = 'hashiriyaTalk' },
   { id = 'talkAlt', action = 'hashiriyaTalkAlt' },
+  { id = 'unstuck', action = 'hashiriyaUnstuck' },
 }
 
 -- Lesbare Tastennamen: "comma" -> ",", "modifier2 btn_lt" -> "Mod2 + LT"

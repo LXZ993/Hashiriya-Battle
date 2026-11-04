@@ -10,7 +10,7 @@ local saveDir = 'settings/hashiriya_battle/'
 local savePath = saveDir .. 'save.json'
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -956,6 +956,8 @@ local function buildUiState()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
     if st.night and left then st.battlesLeft = left end
     st.job = extensions.hashiriyaBattle_jobs.getHudState()
+    local okU, un = pcall(function() return extensions.hashiriyaBattle_unstuck.getUiState() end)
+    st.unstuck = okU and un or nil
     local okSv, sv = pcall(function() return extensions.hashiriyaBattle_savepoint.getUiState() end)
     if okSv then st.saveState = sv end
     st.noCar = M.save.noCar and #M.save.cars == 0 or nil
@@ -1202,6 +1204,8 @@ function M.uiAction(action, arg)
     M.toggleDevMenu()
   elseif action == 'titleCamera' then
     M.captureTitleCamera(true)
+  elseif action == 'unstuck' then
+    M.unstuck()
   elseif action == 'save' then
     extensions.hashiriyaBattle_savepoint.manualSave()
   elseif action == 'savePopupClose' then
@@ -1396,6 +1400,12 @@ function M.toggleDevMenu()
   if M.isRelease() then return end
   if extensions.hashiriyaBattle_devtools then extensions.hashiriyaBattle_devtools.toggle()
   else msg('Dev-Menü fehlt (devtools.lua nicht im Mod)', 4) end
+end
+
+-- Befreien (Taste Shift+U oder Kachel im Menü): festgehangen an Leitplanke/Objekt, ein Stück zurück. Siehe unstuck.lua.
+function M.unstuck()
+  if extensions.hashiriyaBattle_unstuck then extensions.hashiriyaBattle_unstuck.unstuck() end
+  M.sendUiState()
 end
 
 function M.skipMusic()

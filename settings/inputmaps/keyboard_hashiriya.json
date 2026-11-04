@@ -4,6 +4,7 @@
     {"control":"t", "action":"hashiriyaTalk"},
     {"control":"g", "action":"hashiriyaTalkAlt"},
     {"control":"end", "action":"hashiriyaMusicSkip"},
+    {"control":"shift u", "action":"hashiriyaUnstuck"},
     {"control":"shift home", "action":"hashiriyaCaptureCamera"},
     {"control":"shift end", "action":"hashiriyaDevMenu"}
   ]
