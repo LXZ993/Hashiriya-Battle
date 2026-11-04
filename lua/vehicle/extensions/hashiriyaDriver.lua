@@ -84,6 +84,7 @@ local defaults = {
   shoulderSideGap = 0.3, -- m mehr Abstand zu Autos, solange er auf dem Standstreifen ist
   shoulderWallGap = 0.2, -- m mehr Abstand zur Leitplanke am Standstreifen
   brakePassCost = 4,     -- Strafe pro m/s² Bremsen bei der Wegwahl (lieber vorbei als bremsen)
+  relSpeedGap = 0.025,   -- knapp vorbei: m mehr Seitenabstand pro m/s, die er schneller ist (ab 30 km/h Unterschied, höchstens 0,7 m)
   passCloseGap = 0.3,    -- m Luft (bei Mut 0.5), mit der er knapp vorbeifährt, statt fürs Überholen zu bremsen (0 = aus)
   edgeMarginSpeed = 0.012, -- m mehr Abstand zum Rand pro m/s über 20 m/s (230 km/h: +0,5 m)
   -- Duell (Stufe 3)
@@ -666,8 +667,15 @@ planLattice = function(pl, courage, list, egoLat)
           -- Ideallinie nur, wenn der Verkehr gar nicht im Weg ist (Ausweichen machen die Spurwechsel)
           if kind == 'free' then need = need + 0.8 end
           need = need + shoulderX -- auf dem Standstreifen: Leitplanke daneben, also mehr Luft zum Auto
+          -- viel schneller als das Auto (z. B. 130 gegen 30 km/h): langsame Autos ziehen oft unberechenbar rüber.
+          -- Gilt nur fürs freiwillige "knapp vorbei" (sonst wird ein laufendes Überholen plötzlich unmöglich).
+          local relX = clamp((v - ob.vAlong - 8) * p.relSpeedGap, 0, 0.7)
           -- schon zu dicht dran: nur noch echte Berührung zählt (lieber knapp vorbei als hart bremsen)
-          if tight then need = (ob.wid + ego.width) * 0.5 + 0.12 + closeExtra + shoulderX * 0.5 + abs(dShift) * 0.3 end
+          if tight then
+            need = (ob.wid + ego.width) * 0.5 + 0.12 + closeExtra + shoulderX * 0.5 + abs(dShift) * 0.3
+            -- "knapp vorbei statt bremsen" ist freiwillig (es gibt den Bremsweg): bei viel Tempo-Unterschied mehr Luft
+            if closeExtra > 0 then need = need + relX end
+          end
           -- schon jetzt zu eng: in Ordnung, solange es weiter auseinander geht
           if ob.conf0 and t < 2 and lat >= ob.lat0 - 0.05 then need = min(need, lat) end
           if lat < need and not tColl then
