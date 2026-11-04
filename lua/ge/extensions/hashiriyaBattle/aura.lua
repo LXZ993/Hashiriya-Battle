@@ -35,7 +35,18 @@ local function cfg()
   end
   return data
 end
-function M.reload() data = nil; M.clear() end
+function M.reload() data = nil; failed = false; M.clear() end
+
+-- Vorschau ohne Karriere (Gegner-Garage, garagetool.lua): Aura am Spielerauto, egal ob Nacht oder Battle.
+-- p = { color = '#rrggbb', rim = '#rrggbb' oder nil, ground = bool, battle = bool, sp = 0..1, level = 1..3,
+--       boost = Faktor nur für die Vorschau (hell beleuchtete Halle) } oder nil = aus
+local preview = nil
+function M.setPreview(p)
+  preview = p
+  failed = false
+  if not p then M.clear() end
+end
+function M.getPreview() return preview end
 
 -- Farbe -> Licht-Farbe (0..1). Blasse Farben werden für das Licht kräftiger gemacht.
 local function lightColor(hex)
@@ -359,6 +370,20 @@ local function update(dt)
   end
   clock = clock + (dt or 0)
   used = {}
+  if preview then
+    local veh = getPlayerVehicle and getPlayerVehicle(0)
+    if veh then
+      local lv = levelOf(preview.level or 2)
+      local boost = tonumber(preview.boost) or 1
+      drawAura('preview', veh, {
+        color = lightColor(preview.color), level = (lv.ground or 0.9) * boost, battleLevel = (lv.battle or 1.4) * boost,
+        ground = preview.ground and true or false, battle = preview.battle and true or false, sp = preview.sp or 1,
+        rimColor = preview.rim and lightColor(preview.rim) or nil,
+      })
+    end
+    dropUnused()
+    return
+  end
   local cr = core()
   if not cr or not cr.active or not cr.save then dropUnused(); return end
   local save = cr.save
