@@ -7,6 +7,12 @@
 - Red means needed and missing. Grey means just handy and may stay free.
 - New in the pause menu: Esc > Mods > Hashiriya Battle now has the tabs "Keys" and "Music". "Keys" shows all bindings any time, "Bind" opens the BeamNG controls straight for that key.
 
+### Three save slots
+- New: up to three saves side by side. "New game" now asks for a slot (1 to 3) first. An occupied slot is only overwritten after you confirm, and only once you finish the setup.
+- New "Load game" entry on the title screen: all slots with driver name, rank, car, day, money and last save time. "Continue" loads the slot you played last.
+- Saves can be deleted on the title screen (with confirmation). Switching slots mid-game saves the running game first.
+- Your existing save automatically becomes slot 1.
+
 ### Unstuck
 - New: "Unstuck" with Shift + U or as a tile in the left menu. If you get caught in a guardrail or object with the car or on foot (some of them on C1 are not fully solid and hold you like a magnet), you are moved back 0.5 m along your own path, facing the way you were and without momentum.
 - Still stuck? Pressing again shortly after moves you back further (1.5 m, 3 m, 6 m).

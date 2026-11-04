@@ -147,6 +147,7 @@ function M.context()
   add('level', try(function() return getLevelName() end))
   if core then
     add('aktiv', core.active)
+    add('platz', try(function() return core.currentSlot() end))
     local s = core.save
     if s then
       add('tag', s.day)
@@ -295,8 +296,11 @@ function M.writeReport(note)
   out[#out + 1] = 'Zustand: ' .. M.context()
   if note and note ~= '' then out[#out + 1] = 'Notiz: ' .. tostring(note) end
   out[#out + 1] = ''
-  out[#out + 1] = '---------- Spielstand (save.json) ----------'
-  out[#out + 1] = (pcall(readFile, 'settings/hashiriya_battle/save.json') and readFile('settings/hashiriya_battle/save.json')) or '(kein Spielstand)'
+  local core = rawget(_G, 'hashiriyaBattle_core')
+  local sp = (core and core.savePath and try(core.savePath)) or 'settings/hashiriya_battle/save.json'
+  local slot = core and core.currentSlot and try(core.currentSlot) or 1
+  out[#out + 1] = '---------- Spielstand Platz ' .. tostring(slot) .. ' (' .. sp:match('[^/]+$') .. ') ----------'
+  out[#out + 1] = (pcall(readFile, sp) and readFile(sp)) or '(kein Spielstand)'
   out[#out + 1] = ''
   out[#out + 1] = '---------- Log (ältere Datei, Ende) ----------'
   for _, l in ipairs(tailLines(logDir .. 'hashiriya.1.log', 300)) do out[#out + 1] = l end

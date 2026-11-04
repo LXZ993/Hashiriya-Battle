@@ -1856,6 +1856,13 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>Rot heißt: wird gebraucht und fehlt. Grau heißt: nur praktisch, darf frei bleiben.</li>
 <li>Neu im Pausenmenü: Esc &gt; Mods &gt; Hashiriya Battle hat jetzt die Reiter „Tasten“ und „Musik“. Unter „Tasten“ siehst du jederzeit alle Belegungen, „Belegen“ öffnet die BeamNG-Steuerung direkt für diese Taste.</li>
 </ul>
+<h4>Drei Spielstände</h4>
+<ul>
+<li>Neu: Bis zu drei Spielstände nebeneinander. „Neues Spiel“ fragt jetzt zuerst nach einem Platz (1 bis 3). Ein belegter Platz wird nur nach Rückfrage überschrieben, und erst wenn du den Assistenten abschließt.</li>
+<li>Neuer Punkt „Spielstand laden“ im Titel: alle Plätze mit Fahrername, Rang, Auto, Tag, Geld und letzter Speicherung. „Weiterspielen“ lädt direkt den zuletzt gespielten Platz.</li>
+<li>Spielstände lassen sich im Titel löschen (mit Rückfrage). Wechselst du mitten im Spiel den Platz, wird der laufende Spielstand vorher gespeichert.</li>
+<li>Dein bisheriger Spielstand ist automatisch Platz 1.</li>
+</ul>
 <h4>Befreien, wenn man festhängt</h4>
 <ul>
 <li>Neu: „Befreien“ mit Shift + U oder als Kachel im Menü links. Wer mit dem Auto oder zu Fuß in einer Leitplanke oder einem Objekt hängen bleibt (manche sind auf der C1 nicht ganz fest und halten fest wie ein Magnet), wird 0,5 m auf dem eigenen Weg zurückgesetzt, in der Richtung von damals und ohne Schwung.</li>
@@ -2380,14 +2387,26 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h2><span class="n">23</span> Spielstand</h2>
 <table>
 <tr><th>Datei in <span class="path">F:\BeamNG\current\settings\hashiriya_battle\</span></th><th>Inhalt</th></tr>
-<tr><td><code>save.json</code></td><td>Der Spielstand: Geld, Ruf, Siege, geschlagene Rivalen (<code>defeated</code>), Autos, Uhrzeit, Tag, Speicherort (<code>resume</code>, siehe <a href="#speicherort">Speichern am Standort</a>), PA-Gespräche (<code>talk</code>), Pink Slip (<code>pinkHeld</code>, <code>pinkWon</code>), Story (<code>story</code>), Nebenjobs (<code>jobs</code>), <code>noCar</code>/<code>gameOver</code></td></tr>
+<tr><td><code>save.json</code>, <code>save_2.json</code>, <code>save_3.json</code></td><td>Die drei Spielstand-Plätze (Platz 1, 2, 3). Jeder enthält: Geld, Ruf, Siege, geschlagene Rivalen (<code>defeated</code>), Autos, Uhrzeit, Tag, Speicherort (<code>resume</code>, siehe <a href="#speicherort">Speichern am Standort</a>), PA-Gespräche (<code>talk</code>), Pink Slip (<code>pinkHeld</code>, <code>pinkWon</code>), Story (<code>story</code>), Nebenjobs (<code>jobs</code>), <code>noCar</code>/<code>gameOver</code></td></tr>
+<tr><td><code>slots.json</code></td><td>Welcher Platz gerade läuft bzw. zuletzt gespielt wurde: <code>{ "active": 2 }</code>. Fehlt die Datei, gilt Platz 1.</td></tr>
+<tr><td><code>damage\</code></td><td>Unfallschaden je Auto (<code>&lt;uid&gt;.json</code>, siehe Schaden). Die <code>uid</code> ist pro Auto einmalig, darum teilen sich alle drei Plätze den Ordner ohne Überschneidung.</td></tr>
 <tr><td><code>dev_places.json</code></td><td>Im Dev-Menü (Reiter „Orte“) gemerkte Orte mit Name, Typ und Notiz, je Map</td></tr>
 <tr><td><code>captured_positions.json</code></td><td>Alte Positionen aus „Position merken“ (bis Alpha 0.4); werden ins Dev-Menü übernommen</td></tr>
 <tr><td><code>title_camera.json</code></td><td>Titelbild-Kamera je Map (Position, Blickrichtung, Uhrzeit). Versehentlich überschrieben? Jede Speicherung steht mit allen Werten in <code>logs/hashiriya.log</code> (Suche nach „Titelbild-Kamera gespeichert“), die alten Werte kann man von dort zurückkopieren.</td></tr>
 <tr><td><code>config_dump.json</code></td><td>Export aller Configs</td></tr>
 <tr><td><code>logs\</code></td><td>Mod-Log und Fehlerbericht (siehe <a href="#log">Log-System</a>)</td></tr>
 </table>
+<h3 id="spielstaende">Drei Spielstand-Plätze (seit 0.9.2)</h3>
+<p>Es gibt bis zu drei Spielstände nebeneinander. Gebaut in <span class="path">lua/ge/extensions/hashiriyaBattle/core.lua</span> (Abschnitt „Spielstand-Plätze“), der Titelbildschirm in <span class="path">lua/ge/extensions/hashiriyaBattle/career.lua</span> (Schritt <code>slots</code>) und <span class="path">ui/modules/apps/HashiriyaTitle/app.js</span>.</p>
 <ul>
+<li><b>Neues Spiel:</b> Erst kommt die Platzwahl mit allen drei Plätzen. Freier Platz = gleich weiter zum Assistenten. Belegter Platz = Rückfrage „Überschreiben?“. Der alte Spielstand wird erst überschrieben, wenn du den Assistenten mit „Los geht's“ abschließt; brichst du vorher ab, bleibt er heil.</li>
+<li><b>Weiterspielen:</b> lädt ohne Umweg den zuletzt gespielten Platz (steht klein unter dem Menüpunkt mit „Platz 2“, Name, Auto, Geld).</li>
+<li><b>Spielstand laden:</b> zeigt alle Plätze mit Name, Rang, Auto, Anzahl Autos, Tag, Geld und Zeitpunkt der letzten Speicherung (<code>savedAt</code> im Spielstand). Oben kann man zwischen „Neues Spiel“ und „Laden“ umschalten.</li>
+<li><b>Löschen:</b> Knopf „Löschen“ rechts am Platz, mit Rückfrage. Die Schadensdateien der Autos dieses Spielstands werden mit gelöscht. Der Spielstand, der gerade läuft (Titel aus dem Spiel heraus geöffnet), lässt sich nicht löschen und ist mit „Läuft gerade“ markiert.</li>
+<li><b>Wechsel mitten im Spiel:</b> Öffnest du den Titel über Hashiriya-Menü &gt; Karriere und lädst einen anderen Platz oder startest dort neu, wird der laufende Spielstand vorher ordentlich gespeichert und beendet (wie „Modus beenden“, mit Speicherort wie beim Verlassen).</li>
+<li><b>Alte Spielstände:</b> der bisherige <code>save.json</code> ist einfach Platz 1, es geht nichts verloren.</li>
+<li><b>Mehr oder weniger Plätze:</b> <code>M.maxSlots = 3</code> oben in <span class="path">lua/ge/extensions/hashiriyaBattle/core.lua</span>. Platz <i>n</i> heißt <code>save_n.json</code>, die Liste im Titel wächst von selbst mit.</li>
+<li><b>Fehlerbericht:</b> enthält den Spielstand des aktiven Platzes und im Zustand <code>platz=</code>.</li>
 </ul>
 <h3 id="speicherort">Speichern am Standort (seit 0.9.2)</h3>
 <p>Wo man beim Laden startet, hängt davon ab, <b>wie</b> gespeichert wurde. Das macht <span class="path">lua/ge/extensions/hashiriyaBattle/savepoint.lua</span>, gemerkt wird es in <code>save.json</code> unter <code>resume</code> (<code>kind</code>, <code>pos</code>, <code>rot</code>, zu Fuß <code>footPos</code>/<code>footDir</code>, <code>level</code>).</p>
@@ -2408,7 +2427,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <div class="box"><b>Einstellungen in <span class="path">lua/ge/extensions/hashiriyaBattle/data/world.json</span>, Block <code>saving</code></b><code>unsavedExit</code> (<code>"tow"</code> oder <code>"resume"</code>), <code>snapshotSeconds</code> (30), <code>writeSeconds</code> (60), <code>leaveRadius</code> (20 m), <code>maxSpeedKmh</code> (2), <code>towFineYen</code> (20000), <code>towFineFactor</code> (2), <code>towFineMaxYen</code> (0), <code>gagSeconds</code> (14, so lange bleibt der Hinweis offen). Beispiel: ohne Bußgeld abschleppen = <code>"towFineYen": 0</code>.</div>
 <div class="box warn"><b>Noch ungetestet im Spiel</b>Offline geprüft: Lua und JSON, Popup-Design. Im Spiel noch nicht. Beim ersten Test wichtig: Erkennt das Spiel „Motor aus“ richtig (Zündung mit der BeamNG-Taste ausschalten)? Steht das Auto nach dem Laden an derselben Stelle und richtig herum (nicht ein paar Meter versetzt oder im Boden)?</div>
 <ul>
-<li><b>Neu anfangen:</b> <code>save.json</code> umbenennen (z. B. <code>save_alt.json</code>), dann startet "Neues Spiel" frisch. Zurück: wieder umbenennen.</li>
+<li><b>Neu anfangen:</b> im Titel „Neues Spiel“ und einen freien Platz wählen (oder einen belegten überschreiben). Von Hand geht es weiterhin: Datei umbenennen (z. B. <code>save_alt.json</code>), dann ist der Platz frei. Zurück: wieder umbenennen.</li>
 <li><b>Werte direkt ändern:</b> geht bei geschlossenem Spiel, z. B. <code>"money": 9000000</code>. Vorher eine Kopie machen.</li>
 <li>Rivalen-IDs stehen im Spielstand. Wenn du eine <code>id</code> in <code>rivals.json</code> umbenennst, gilt er wieder als ungeschlagen.</li>
 </ul>
@@ -2505,6 +2524,9 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
   var DATA = 'lua/ge/extensions/hashiriyaBattle/data/';
   var USERFILES = {
     'save.json': 'settings/hashiriya_battle/save.json',
+    'save_2.json': 'settings/hashiriya_battle/save_2.json',
+    'save_3.json': 'settings/hashiriya_battle/save_3.json',
+    'slots.json': 'settings/hashiriya_battle/slots.json',
     'save_alt.json': 'settings/hashiriya_battle/',
     'hashiriya.log': 'settings/hashiriya_battle/logs/hashiriya.log',
     'bugreport.txt': 'settings/hashiriya_battle/logs/bugreport.txt',
