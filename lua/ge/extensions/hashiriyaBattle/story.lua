@@ -355,7 +355,11 @@ local function checkPa(c)
   local list = md and (md.talkSpots or md.napSpots) or {}
   for _, pa in ipairs(list) do
     local inside = wpos and (wpos - vec3(pa.pos[1], pa.pos[2], pa.pos[3])):length() < cfg().paRadius or false
-    if inside and not paInside[pa.name] then M.onEvent('pa', { place = pa.name }) end
+    if inside and not paInside[pa.name] then
+      -- besuchte PAs merken (Rivalen-Bedingungen visitedPa / minPaVisited)
+      if c.save then c.save.paVisited = c.save.paVisited or {}; c.save.paVisited[pa.name] = c.save.paVisited[pa.name] or (c.save.day or 1) end
+      M.onEvent('pa', { place = pa.name })
+    end
     paInside[pa.name] = inside or nil
   end
 end

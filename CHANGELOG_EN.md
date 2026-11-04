@@ -3,7 +3,7 @@
 ## Alpha 0.9.2 (as of 2026-11-04)
 
 ### More wanderer conditions
-- 18 new condition types for rivals and wanderers (like in TXR): win streak, money, number of cars, at most X losses, naturally aspirated only or forced induction only, manual gearbox only, a part that must not be fitted, paint colour, characters in the plate, power and weight, odometer of the car, top speed already reached, in-game weekday, active nickname, chosen logo and any value from the statistics (e.g. pink slips won or side jobs done).
+- 22 new condition types for rivals and wanderers (like in TXR): win streak, money, number of cars, at most X losses, naturally aspirated only or forced induction only, manual gearbox only, a part that must not be fitted, paint colour, characters in the plate, power and weight, odometer of the car, top speed already reached, in-game weekday, active nickname, chosen logo, days without a loss, car almost undamaged, PAs visited and any value from the statistics (e.g. pink slips won or side jobs done).
 - The rival builder in the dev menu keeps the new conditions when editing.
 
 ### Trophy wall (logo collection)
