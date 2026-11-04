@@ -141,6 +141,7 @@
 - Next to it: description, crew with all members and their cars, conditions in plain words, driving style, reward and lines. That keeps a car in character while tuning it, e.g. the company cars of Zangyō Express.
 - "Save to rival" writes the tuned config back: own mod configs are overwritten (with a backup), BeamNG configs stay untouched and the rival gets his own hashiriya_r_<id>.pc, rivals.json is only changed at that one spot.
 - The original garage stays unchanged: the mod only switches to its own UI layout while the garage is open. On/off in Dev menu > Tools. Not in the release.
+- Fixed: the panel did not show in the garage because BeamNG hides all UI apps there. It is now shown at runtime on top of the garage menus (photo mode and vehicle selector stay clear).
 
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.

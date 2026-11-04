@@ -81,6 +81,30 @@ function M.onGameStateUpdate(state)
   end
 end
 
+-- Die BeamNG-Garage blendet UI-Apps aus (Route "garage": uiApps.shown = false, bei jedem Routenwechsel neu).
+-- Solange unser Layout aktiv ist, schalten wir die Apps-Ebene immer wieder sichtbar (nur zur Laufzeit,
+-- keine Datei der Garage wird geändert). Im Fotomodus und in der Fahrzeugauswahl bleibt sie aus.
+local showTimer = 0
+local function currentRouteName()
+  local r = rawget(_G, 'ui_router') or extensions.ui_router
+  local ok, e = pcall(function() return r and r.getCurrent() end)
+  if not ok or type(e) ~= 'table' then return '' end
+  local n = e.name or (e.toRoute and e.toRoute.name) or (e.resolved and e.resolved.name) or (e.request and e.request.name)
+  return tostring(n or '')
+end
+
+function M.onUpdate(dtReal)
+  showTimer = showTimer + (dtReal or 0)
+  if showTimer < 0.2 then return end
+  showTimer = 0
+  local gs = rawget(_G, 'core_gamestate')
+  local st = gs and gs.state
+  if not st or st.state ~= 'garage' or st.appLayout ~= layoutName then return end
+  local route = currentRouteName()
+  if route:find('photomode', 1, true) or route:find('selector', 1, true) then return end
+  guihooks.trigger('UiAppsRouteUpdate', { shown = true })
+end
+
 function M.onEndGarageMode()
   loadedId, loadedMode = nil, nil
 end
