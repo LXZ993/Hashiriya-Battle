@@ -86,13 +86,14 @@ angular.module('beamng.apps')
             '</div>' +
             '<div class="hbd-pol" ng-if="nw.type == \'police\'">' +
               '<span class="hbd-lbl">Messstelle</span>' +
-              '<span class="hbd-chip" ng-class="{\'is-on\': nw.police.kind != \'laser\'}" ng-click="nw.police.kind = \'speedcam\'">Blitzer</span>' +
-              '<span class="hbd-chip" ng-class="{\'is-on\': nw.police.kind == \'laser\'}" ng-click="nw.police.kind = \'laser\'">Laserkontrolle</span>' +
+              '<span class="hbd-chip" ng-class="{\'is-on\': nw.police.kind != \'speedcam\'}" ng-click="nw.police.kind = \'laser\'">Laserkontrolle</span>' +
+              '<span class="hbd-chip" ng-class="{\'is-on\': nw.police.kind == \'speedcam\'}" ng-click="nw.police.kind = \'speedcam\'">eigener Blitzer</span>' +
               '<input class="hbd-num" type="number" min="10" max="300" step="10" ng-model="nw.police.limit" placeholder="{{ d.policeDefaultLimit || 60 }}" title="Tempolimit in km/h (leer = Standard aus data/police.json)"><span class="hbd-lbl">km/h</span>' +
               '<span class="hbd-check" ng-click="nw.police.both = !nw.police.both" ng-class="{\'is-on\': nw.police.both}"><i></i>beide Richtungen</span>' +
               '<span class="hbd-check" ng-click="nw.police.off = !nw.police.off" ng-class="{\'is-on\': nw.police.off}"><i></i>aus</span>' +
+              '<span class="hbd-check" ng-click="nw.police.always = !nw.police.always" ng-class="{\'is-on\': nw.police.always}" title="Zum Testen: jeden Tag den ganzen Tag besetzt"><i></i>immer besetzt</span>' +
             '</div>' +
-            '<div class="hbd-note" ng-if="nw.type == \'police\'">Blitzer: Auto in die Fahrspur stellen, Blick in Fahrtrichtung (gemessen wird beim Vorbeifahren). Laserkontrolle: Auto dorthin stellen, wo der Streifenwagen stehen soll (Seitenstreifen/Bucht); gemessen wird im Umkreis.</div>' +
+            '<div class="hbd-note" ng-if="nw.type == \'police\'">Laserkontrolle: Auto dorthin stellen, wo der Streifenwagen stehen soll (Seitenstreifen/Bucht), Blick in die gemessene Richtung; gemessen wird im Umkreis, besetzt nur nach Dienstplan. Die festen Blitzer sind die Radarfallen der Map; ein eigener Blitzer misst beim Vorbeifahren.</div>' +
             '<div class="hbd-form">' +
               '<span class="hbd-check" ng-click="nw.useCam = !nw.useCam" ng-class="{\'is-on\': nw.useCam || (d.player && d.player.freecam)}">' +
                 '<i></i>Kamera-Position (Freecam){{ d.player && d.player.freecam ? \' \u00b7 aktiv\' : \'\' }}</span>' +
@@ -162,13 +163,14 @@ angular.module('beamng.apps')
                 '</div>' +
                 '<div class="hbd-pol" ng-if="edit.type == \'police\'">' +
                   '<span class="hbd-lbl">Messstelle</span>' +
-                  '<span class="hbd-chip" ng-class="{\'is-on\': edit.police.kind != \'laser\'}" ng-click="edit.police.kind = \'speedcam\'">Blitzer</span>' +
-                  '<span class="hbd-chip" ng-class="{\'is-on\': edit.police.kind == \'laser\'}" ng-click="edit.police.kind = \'laser\'">Laserkontrolle</span>' +
+                  '<span class="hbd-chip" ng-class="{\'is-on\': edit.police.kind != \'speedcam\'}" ng-click="edit.police.kind = \'laser\'">Laserkontrolle</span>' +
+                  '<span class="hbd-chip" ng-class="{\'is-on\': edit.police.kind == \'speedcam\'}" ng-click="edit.police.kind = \'speedcam\'">eigener Blitzer</span>' +
                   '<input class="hbd-num" type="number" min="10" max="300" step="10" ng-model="edit.police.limit" placeholder="{{ d.policeDefaultLimit || 60 }}" title="Tempolimit in km/h (leer = Standard aus data/police.json)"><span class="hbd-lbl">km/h</span>' +
                   '<span class="hbd-check" ng-click="edit.police.both = !edit.police.both" ng-class="{\'is-on\': edit.police.both}"><i></i>beide Richtungen</span>' +
                   '<span class="hbd-check" ng-click="edit.police.off = !edit.police.off" ng-class="{\'is-on\': edit.police.off}"><i></i>aus</span>' +
+                  '<span class="hbd-check" ng-click="edit.police.always = !edit.police.always" ng-class="{\'is-on\': edit.police.always}" title="Zum Testen: jeden Tag den ganzen Tag besetzt"><i></i>immer besetzt</span>' +
                 '</div>' +
-                '<div class="hbd-note" ng-if="edit.type == \'police\'">Blitzer: Auto in die Fahrspur stellen, Blick in Fahrtrichtung (gemessen wird beim Vorbeifahren). Laserkontrolle: Auto dorthin stellen, wo der Streifenwagen stehen soll (Seitenstreifen/Bucht); gemessen wird im Umkreis.</div>' +
+                '<div class="hbd-note" ng-if="edit.type == \'police\'">Laserkontrolle: Auto dorthin stellen, wo der Streifenwagen stehen soll (Seitenstreifen/Bucht), Blick in die gemessene Richtung; gemessen wird im Umkreis, besetzt nur nach Dienstplan. Die festen Blitzer sind die Radarfallen der Map; ein eigener Blitzer misst beim Vorbeifahren.</div>' +
                 '<div class="hbd-note" ng-if="p.map">Ort aus der Kartendatei: nur der Anzeigename lässt sich hier ändern (leer = Standardname).</div>' +
                 '<div class="hbd-grid">' +
                   '<span class="hbd-btn hbd-main" ng-click="saveEdit(p)">Speichern</span>' +
@@ -204,6 +206,8 @@ angular.module('beamng.apps')
             '<div class="hbd-note">Messstellen auf dieser Map: <b>{{ d.police.places }}</b> (davon Laser {{ d.police.laser }}) \u00b7 ' +
               'Blitzer heute: <b>{{ d.police.camHits }}</b> \u00b7 Strafzettel heute: <b>{{ d.police.tickets }}</b> \u00b7 {{ d.police.day ? \'Tag: Messungen an\' : \'Nacht: Messungen aus\' }}' +
               '<span ng-if="d.police.level"> \u00b7 Fahndung <b>{{ d.police.level }} \u2605</b> (Druck {{ d.police.heat }}, Streifenwagen {{ d.police.units }})</span></div>' +
+            '<div class="hbd-note">Laserkontrollen heute (Rang {{ d.police.rank }}): <b>{{ d.police.manned.length || 0 }}</b> besetzt, gerade im Dienst: <b>{{ d.police.mannedNow }}</b>' +
+              '<span ng-repeat="m in d.police.manned"><br>{{ m.name }} \u00b7 {{ m.text }}{{ m.on ? \' \u00b7 jetzt\' : \'\' }}{{ m.seen ? \' \u00b7 gesehen\' : \'\' }}</span></div>' +
             '<div class="hbd-grid">' +
               '<span class="hbd-btn" ng-click="dev(\'policeCam\')">Blitzer auslösen (Limit +30)</span>' +
               '<span class="hbd-btn" ng-click="dev(\'policeLaser\')">Laserkontrolle auslösen</span>' +
@@ -308,7 +312,7 @@ angular.module('beamng.apps')
       scope.tab = 'save'
       scope.inp = {}
       scope.q = { rival: '', place: '', type: null }
-      scope.nw = { name: '', note: '', type: 'pa', useCam: false, police: { kind: 'speedcam', limit: null, both: false, off: false } }
+      scope.nw = { name: '', note: '', type: 'pa', useCam: false, police: { kind: 'laser', limit: null, both: false, off: false, always: false } }
       scope.edit = { id: null }
       scope.sortNear = true
       scope.ui = { colors: false }
@@ -465,16 +469,16 @@ angular.module('beamng.apps')
       // Messstelle (Typ police): Einstellungen als eigenes Objekt (Art, Limit, beide Richtungen, aus)
       function polCopy(pc) {
         pc = pc || {}
-        return { kind: pc.kind === 'laser' ? 'laser' : 'speedcam', limit: pc.limit || null, both: !!pc.both, off: !!pc.off }
+        return { kind: pc.kind === 'speedcam' ? 'speedcam' : 'laser', limit: pc.limit || null, both: !!pc.both, off: !!pc.off, always: !!pc.always }
       }
       function polOut(pc) {
         var lim = parseInt(pc.limit, 10)
-        return { kind: pc.kind, limit: isNaN(lim) ? null : lim, both: pc.both, off: pc.off }
+        return { kind: pc.kind, limit: isNaN(lim) ? null : lim, both: pc.both, off: pc.off, always: pc.always }
       }
       scope.polText = function (p) {
         if (p.type !== 'police') return ''
         var pc = p.police || {}
-        return ' \u00b7 ' + (pc.kind === 'laser' ? 'Laser' : 'Blitzer') + ' ' + (pc.limit ? pc.limit + ' km/h' : 'Standard') + (pc.both ? ' \u2195' : '') + (pc.off ? ' (aus)' : '')
+        return ' \u00b7 ' + (pc.kind === 'speedcam' ? 'Blitzer' : 'Laser') + ' ' + (pc.limit ? pc.limit + ' km/h' : 'Standard') + (pc.both ? ' \u2195' : '') + (pc.off ? ' (aus)' : '') + (pc.always ? ' (immer)' : '')
       }
       scope.toggleEdit = function (p) {
         if (scope.edit.id === p.id) { scope.edit = { id: null }; return }

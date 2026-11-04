@@ -990,6 +990,7 @@
   "police.ticket": "Ticket: %s.",
   "police.arrest": "Arrested! Fine %s, your car is towed to the garage.",
   "police.escaped": "You lost the police.",
+  "police.escapedRep": "You lost the police. +%d REP.",
   "police.hitTraffic": "Crash right in front of the police!",
   "police.hitPolice": "You hit a patrol car!",
   "police.hud.tag": "Police",

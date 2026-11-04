@@ -57,7 +57,21 @@ angular.module('beamng.apps')
       scope.mode = 'rect'
       scope.shown = true
       scope.tx = function (k, fallback) { return strings[k] || fallback || k }
-      scope.$on('HashiriyaState', function (e, d) { if (d && d.t) strings = d.t })
+      var ownPolice = null
+      function policeMode() {
+        if (ownPolice) {
+          if (ownPolice === 'evading') return 'hiddenFromPolice'
+          if (ownPolice === 'chase' || ownPolice === 'stopping' || ownPolice === 'check' || ownPolice === 'approach') return 'visibleToPolice'
+        }
+        return streamPolice
+      }
+      var streamPolice = 'disabled'
+      scope.$on('HashiriyaState', function (e, d) {
+        if (d && d.t) strings = d.t
+        // Eigene Polizei (police.lua): Rahmen blinkt bei Verfolgung, wie bei der BeamNG-Polizei
+        var st = (d && d.police && d.police.status) || null
+        if (st !== ownPolice) scope.$evalAsync(function () { ownPolice = st; scope.info.policeMode = policeMode() })
+      })
 
       function lua(cmd, cb) { try { bngApi.engineLua(cmd, cb) } catch (e) {} }
 
@@ -107,7 +121,8 @@ angular.module('beamng.apps')
           streamVisible = m.visible !== false
           scope.info.locationName = m.locationName || null
           scope.info.distToTarget = m.distToTarget || null
-          scope.info.policeMode = m.policeMode || 'disabled'
+          streamPolice = m.policeMode || 'disabled'
+          scope.info.policeMode = policeMode()
         })
       })
       scope.$on('onCefVisibilityChanged', function (e, v) { cefVisible = v !== false; send(true) })

@@ -1,14 +1,17 @@
 -- Hashiriya Battle: Blitzer, Laserkontrollen und Polizei-Fahndung (tagsüber)
 --
--- Messstellen = Orte vom Typ 'police' (Dev-Menü > Orte, "Polizei / Messstelle") plus policeSpots aus der
--- Kartendatei. Jede Messstelle ist entweder ein Blitzer (speedcam) oder eine Laserkontrolle (laser), mit eigenem
--- Tempolimit oder dem Standard aus data/police.json. Gemessen wird nur tagsüber (world.json nightFrom/nightTo).
+-- Gemessen wird nur tagsüber (world.json nightFrom/nightTo).
 --
--- Blitzer: man fährt am Messpunkt vorbei (in Fahrtrichtung, oder beide Richtungen) und ist schneller als
---   Limit + Toleranz -> weißer Blitz, Bußgeld. Die Blitzer werden pro Spieltag gezählt: 1. und 2. Mal nur Geld,
---   ab dem 3. Mal (speedcam.dispatchFrom) kommt zusätzlich die Polizei.
--- Laserkontrolle: ein Streifenwagen steht an der Messstelle (erscheint, wenn man in die Nähe kommt). Wer im
---   Messbereich zu schnell ist, wird sofort verfolgt; der Streifenwagen der Kontrolle fährt los.
+-- Blitzer = die festen Radarfallen der Map (BeamNG speedTraps, auf der C1 45 Stück, Hook onSpeedTrapTriggered;
+--   BeamNG löst ab Limit + 10 % aus). Bußgeld je km/h zu schnell. Die Blitzer werden pro Spieltag gezählt:
+--   1. und 2. Mal nur Geld, ab dem 3. Mal (speedcam.dispatchFrom) kommt zusätzlich die Polizei.
+-- Laserkontrolle = Orte vom Typ 'police' (Dev-Menü > Orte, "Polizei / Messstelle") plus policeSpots aus der
+--   Kartendatei. Nur ab und zu besetzt: pro Spieltag werden ein paar Messstellen ausgewürfelt (Anzahl nach Rang,
+--   laser.perDayByRank, am Anfang 1-2), jede für eine Schicht von ein paar Stunden (laser.shiftHours) zwischen laser.hours. Ist sie besetzt, steht dort ein
+--   Streifenwagen; wer im Messbereich zu schnell ist, wird sofort verfolgt.
+--   (Eine Messstelle kann im Dev-Menü auch ein eigener Blitzer sein: kind = 'speedcam', löst beim Vorbeifahren aus.)
+-- Minimap und Radar zeigen eine besetzte Kontrolle erst, wenn man sie an dem Tag schon gesehen hat.
+-- Entkommen gibt etwas Ruf (escapeRep, etwas unter einem normalen Sieg, höchstens escapeRepMaxPerDay-mal am Tag).
 --
 -- Fahndung (Sterne wie bei GTA, aber "indirekt": man sieht die Stufe, nicht die Punkte):
 --   1 Stern  = Streifenwagen fährt mit Blaulicht hinterher und fordert zum Anhalten auf. Anhalten = Strafzettel.
@@ -39,7 +42,10 @@ local function battle() return extensions.hashiriyaBattle_battle end
 local defaults = {
   enabled = true,
   defaultLimitKmh = 60, toleranceKmh = 10, camWidth = 14, camHeight = 6, camCooldownSeconds = 30,
-  laserRange = 110, laserSpawnRange = 600, laserDespawnRange = 800, defaultKind = 'speedcam',
+  laserRange = 110, laserSpawnRange = 600, laserDespawnRange = 800, defaultKind = 'laser',
+  mapSpeedTraps = true,
+  laser = { perDayByRank = { { 0, 1, 2 }, { 3, 2, 3 }, { 7, 3, 4 }, { 11, 4, 5 }, { 15, 5, 7 } }, shiftHours = { 3, 6 }, hours = { 7, 19 }, seeRange = 200 },
+  escapeRep = { 40, 55, 65 }, escapeRepMaxPerDay = 3,
   speedcam = { baseYen = 6000, perKmhYen = 400, repeatFactor = { 1, 1.5, 2 }, dispatchFrom = 3 },
   heat = { level2Heat = 100, level3Heat = 260, fleePerSecond = 2, fleeMinKmh = 30, hitTraffic = 30, hitPolice = 60, speeding = 40 },
   startLevelAfterTicket = 2,
@@ -60,7 +66,7 @@ function M.cfg()
   local out = {}
   for k, v in pairs(defaults) do
     if type(v) == 'table' and v[1] == nil and type(d[k]) == 'table' then
-      -- Unter-Tabelle (speedcam, heat, offenseYen): fehlende Werte aus den Standards
+      -- Unter-Tabelle (speedcam, heat, offenseYen, laser): fehlende Werte aus den Standards
       local sub = {}
       for k2, v2 in pairs(v) do sub[k2] = d[k][k2] ~= nil and d[k][k2] or v2 end
       out[k] = sub
@@ -108,6 +114,7 @@ local frozen = false      -- Spielerauto während der Kontrolle gesperrt
 local lastFine = nil      -- { text, t } letzte Strafe fürs HUD
 local clock = 0
 local placesSrc, placesList = nil, {}
+local planCache = {}      -- Dienstplan der Laserkontrollen: [day] = { count, rank, shifts = { [placeKey] = { start, stop } } }
 
 local function msg(text, secs) local c = core() if c then c.msg(text, secs or 5) end end
 local function t(key, ...) local c = core() return c and c.t(key, ...) or key end
@@ -138,6 +145,7 @@ local function places()
   if src == placesSrc then return placesList end
   placesSrc = src
   placesList = {}
+  planCache = {} -- Messstellen geändert: Dienstplan neu
   local cf = M.cfg()
   for i, e in ipairs(src) do
     if type(e.pos) == 'table' then
@@ -154,6 +162,7 @@ local function places()
         limit = tonumber(pc.limit or e.limit) or cf.defaultLimitKmh,
         both = (pc.both or e.both) and true or false,
         off = pc.off and true or false,
+        always = pc.always and true or false, -- Dev: jeden Tag den ganzen Tag besetzt
       })
     end
   end
@@ -174,7 +183,10 @@ local function dayState()
     p.day = day
     p.camHits = 0
     p.tickets = 0
+    p.seen = {}      -- heute schon gesehene Laserkontrollen (Minimap/Radar)
+    p.escapeRep = 0  -- heute schon für Entkommen belohnt
   end
+  if type(p.seen) ~= 'table' then p.seen = {} end
   p.camHits = p.camHits or 0
   p.tickets = p.tickets or 0
   return p
@@ -333,6 +345,79 @@ local function canSee(veh, ppos)
   return true, d
 end
 
+-- Laserkontrollen: Dienstplan -----------------------------------------------------------
+-- Pro Spieltag und Messstelle fest ausgewürfelt (Spielstand-Seed + Tag + Messstelle): gleiche Antwort,
+-- egal wann man nachschaut oder neu lädt.
+
+local function hashStr(str)
+  local h = 5381
+  for i = 1, #str do h = (h * 33 + str:byte(i)) % 2147483647 end
+  return h
+end
+
+local function rand01(str)
+  local x = hashStr(str)
+  for _ = 1, 3 do x = (x * 1103515245 + 12345) % 2147483648 end
+  return x / 2147483648
+end
+
+
+-- Wie viele Kontrollen heute? Hängt vom Rang ab: es spricht sich herum, dass nachts auf dem Expressway
+-- Rennen gefahren werden (laser.perDayByRank = Liste { abRang, min, max }, Rang 0 = Anfänger).
+local function perDay(rank)
+  local list = M.cfg().laser.perDayByRank or { { 0, 1, 2 } }
+  local best = list[1]
+  for _, e in ipairs(list) do if rank >= (tonumber(e[1]) or 0) then best = e end end
+  return tonumber(best[2]) or 1, tonumber(best[3]) or tonumber(best[2]) or 1
+end
+
+-- Dienstplan des Tages: welche Laserkontrollen besetzt sind und von wann bis wann
+function M.dayPlan()
+  local c = core()
+  local day = home() and home().getDay() or 1
+  if planCache[day] then return planCache[day] end
+  local seed = tostring(c and c.save and c.save.dealerSeed or 1)
+  local rank = 0
+  pcall(function() rank = extensions.hashiriyaBattle_progress.rankIndex(c.save) end)
+  local lo, hi = perDay(rank)
+  local list = {}
+  for _, pl in ipairs(places()) do
+    if pl.kind == 'laser' and not pl.off then table.insert(list, { pl = pl, r = rand01(seed .. '|' .. day .. '|' .. pl.key .. '|pick') }) end
+  end
+  table.sort(list, function(x, y) return x.r < y.r end)
+  local count = lo + math.floor(rand01(seed .. '|' .. day .. '|count') * (hi - lo + 1))
+  count = math.max(0, math.min(count, hi, #list))
+  local lc = M.cfg().laser
+  local sh = lc.shiftHours or { 2, 5 }
+  local hrs = lc.hours or { 7, 19 }
+  local from, to = hrs[1] or 7, hrs[2] or 19
+  local plan = { count = count, rank = rank, shifts = {} }
+  for i = 1, count do
+    local key = list[i].pl.key
+    local id = key .. '#' .. day
+    local len = (sh[1] or 2) + rand01(seed .. '|' .. id .. '|len') * math.max(0, (sh[2] or sh[1] or 2) - (sh[1] or 2))
+    local start = from + rand01(seed .. '|' .. id .. '|start') * math.max(0, to - from - len)
+    plan.shifts[key] = { start = start, stop = math.min(to, start + len) }
+  end
+  planCache = { [day] = plan }
+  log('I', logTag, string.format('Laserkontrollen Tag %d: %d besetzt (Rang %d, %d Messstellen)', day, count, rank, #list))
+  return plan
+end
+
+function M.shift(pl)
+  if pl.always then return { start = 0, stop = 24 } end
+  return M.dayPlan().shifts[pl.key]
+end
+
+local function mannedNow(pl)
+  if pl.off or not isDaytime() then return false end
+  local s = M.shift(pl)
+  if not s then return false end
+  local h = home() and home().hour() or 12
+  return h >= s.start and h < s.stop
+end
+M.mannedNow = mannedNow
+
 -- Laserkontrollen: Streifenwagen an der Messstelle erscheinen lassen / entfernen ---------
 
 local function updateLaserCars(ppos)
@@ -343,10 +428,14 @@ local function updateLaserCars(ppos)
       local id = laserCars[pl.key]
       local d = (pl.pos - ppos):length()
       if id and not units[id] then laserCars[pl.key] = nil; id = nil end
+      local manned = day and mannedNow(pl)
       if id then
         local u = units[id]
-        if u.role == 'laser' and (d > cf.laserDespawnRange or not day or pl.off) then deleteUnit(id) end
-      elseif day and not pl.off and d < cf.laserSpawnRange and d > 150 then
+        -- Schichtende: erst wegräumen, wenn man nicht hinschaut (oder weit weg ist)
+        local veh = be:getObjectByID(id)
+        local gone = not veh or d > cf.laserDespawnRange or (not manned and (d > 300 or not canSee(veh, ppos)))
+        if u.role == 'laser' and gone then deleteUnit(id) end
+      elseif manned and d < cf.laserSpawnRange and d > 150 then
         -- erst erscheinen lassen, wenn man noch nicht direkt davor ist (kein Auftauchen vor der Nase)
         local veh = spawnPoliceCar(pl.pos + vec3(0, 0, 0.3), pl.dir)
         if veh then
@@ -355,6 +444,25 @@ local function updateLaserCars(ppos)
           laserCars[pl.key] = u.id
           setMode(u, veh, 'parked')
           log('I', logTag, 'Laserkontrolle besetzt: ' .. pl.name)
+        end
+      end
+    end
+  end
+end
+
+-- Gesehen? Besetzte Kontrolle in Sichtweite = ab jetzt (heute) auf Minimap und Radar
+local function updateSeen(ppos)
+  local p = dayState()
+  if not p then return end
+  local range = M.cfg().laser.seeRange or 200
+  for key, id in pairs(laserCars) do
+    if not p.seen[key] then
+      local veh = be:getObjectByID(id)
+      if veh then
+        local ok, d = canSee(veh, ppos)
+        if ok and d < range then
+          p.seen[key] = true
+          log('I', logTag, 'Laserkontrolle gesehen: ' .. tostring(key))
         end
       end
     end
@@ -460,7 +568,20 @@ local function endPursuit(result)
   if result == 'escape' and p then
     p.escapes = (p.escapes or 0) + 1
     stat('policeEscapes')
-    msg(t('police.escaped'), 6)
+    -- Ruf fürs Entkommen: etwas unter einem normalen Sieg, nur ein paar Mal am Tag (kein Grinden)
+    local cf = M.cfg()
+    local rep = 0
+    if (p.escapeRep or 0) < (tonumber(cf.escapeRepMaxPerDay) or 0) then
+      rep = math.floor(pick(cf.escapeRep, lvl))
+    end
+    local save = core().save
+    if rep > 0 and save then
+      p.escapeRep = (p.escapeRep or 0) + 1
+      save.rep = (save.rep or 0) + rep
+      msg(t('police.escapedRep', rep), 6)
+    else
+      msg(t('police.escaped'), 6)
+    end
     pcall(function() core().sound('win') end)
   end
   log('I', logTag, 'Fahndung beendet: ' .. tostring(result) .. ' (' .. lvl .. ' Sterne)')
@@ -699,12 +820,27 @@ local function checkCams(dt, player)
       local inside = d < cf.laserRange and math.abs(rel.z) < cf.camHeight
       -- Laser misst Fahrzeuge, die in Fahrtrichtung der Kontrolle unterwegs sind (oder beide Richtungen)
       local dirOk = pl.both or vel:dot(pl.dir) > 0
-      if inside and dirOk and st.cooldown <= 0 and kmh > pl.limit + cf.toleranceKmh then
+      local manned = laserCars[pl.key] ~= nil and units[laserCars[pl.key]] ~= nil and units[laserCars[pl.key]].role == 'laser'
+      if inside and dirOk and manned and st.cooldown <= 0 and kmh > pl.limit + cf.toleranceKmh then
         st.cooldown = cf.camCooldownSeconds
         onLaser(pl, kmh)
       end
     end
   end
+end
+
+-- Feste Radarfallen der Map (BeamNG gameplay/speedTraps.lua) = die Blitzer ---------------
+-- Feuert für jedes Fahrzeug, nur in Fahrtrichtung und nur über Limit + 10 %. speedLimit in m/s.
+function M.onSpeedTrapTriggered(data, vehSpeed)
+  if type(data) ~= 'table' or not aktiv() or not M.cfg().mapSpeedTraps then return end
+  local car = playerVeh()
+  if not car or (data.subjectID and data.subjectID ~= car:getID()) then return end
+  if not isDaytime() then return end
+  if battle() and battle().isBusy() then return end
+  if pursuit and pursuit.phase == 'check' then return end
+  local kmh = (tonumber(vehSpeed) or car:getVelocity():length()) * 3.6
+  local limit = math.floor((tonumber(data.speedLimit) or 0) * 3.6 + 0.5)
+  onSpeedcam({ name = tostring(data.triggerName or data.triggerID or 'Radarfalle'), limit = limit, key = 'trap' }, kmh)
 end
 
 -- Zusammenstöße während der Fahndung (die Polizei sieht zu) --------------------------------
@@ -735,6 +871,81 @@ local function checkCollisions(dt, player)
   end
 end
 
+-- Minimap und Radar ----------------------------------------------------------------------
+-- Gezeigt werden: Streifenwagen einer laufenden Fahndung (die sieht man ja) und besetzte Laserkontrollen,
+-- die man heute schon gesehen hat (auch wenn der Streifenwagen gerade nicht gespawnt ist).
+
+local function markers()
+  local out = {}
+  if not aktiv() then return out end
+  local p = dayState()
+  for id, u in pairs(units) do
+    if u.role == 'pursuit' then
+      local veh = be:getObjectByID(id)
+      if veh then table.insert(out, { pos = veh:getPosition(), dir = veh:getDirectionVector(), chase = true }) end
+    end
+  end
+  if p then
+    for _, pl in ipairs(places()) do
+      if pl.kind == 'laser' and p.seen[pl.key] and mannedNow(pl) then
+        local id = laserCars[pl.key]
+        local u = id and units[id]
+        if not u or u.role == 'laser' then table.insert(out, { pos = pl.pos, dir = pl.dir, laser = true }) end
+      end
+    end
+  end
+  return out
+end
+
+-- Punkte fürs Radar oben rechts (HashiriyaStatus), gleiches Format wie rivals.radarInfo
+function M.radarItems(range)
+  local player = playerVeh()
+  if not player then return nil end
+  local fwd = player:getDirectionVector(); fwd.z = 0
+  if fwd:length() < 0.01 then return nil end
+  fwd = fwd:normalized()
+  local right = vec3(fwd.y, -fwd.x, 0)
+  local list = {}
+  for _, m in ipairs(markers()) do
+    local d = m.pos - player:getPosition()
+    local x, y = d:dot(right), d:dot(fwd)
+    local dist = math.sqrt(x * x + y * y)
+    if m.chase or dist < range * 2 then
+      local scale = math.min(1, range / math.max(dist, 1))
+      table.insert(list, { kind = 'police', engaged = m.chase or nil, x = x / range * scale, y = y / range * scale, edge = dist > range,
+        heading = math.deg(math.atan2(m.dir:dot(right), m.dir:dot(fwd))),
+        dist = dist < 1000 and string.format('%d m', math.floor(dist)) or string.format('%.1f km', dist / 1000), d = dist })
+    end
+  end
+  return #list > 0 and list or nil
+end
+
+local mmPos, mmFwd = vec3(), vec3()
+local function onDrawOnMinimap(td)
+  if not td or not aktiv() then return end
+  local list = markers()
+  if #list == 0 then return end
+  local utils, minimap = ui_apps_minimap_utils, ui_apps_minimap_minimap
+  if not utils or not minimap or not utils.getWorldToMapTransform then return end
+  local scale = minimap.getScale and minimap.getScale()
+  if not scale then return end
+  local style = utils.getCurrentStyleColors and utils.getCurrentStyleColors() or utils.colors
+  local bg = style and (style.navBg or style.navBgBlack)
+  local dpi = (utils.dpi or 1) * (globalDpi or 1)
+  local xx, xy, yx, yy, xo, yo = utils.getWorldToMapTransform()
+  local blink = math.floor(os.clock() * 3) % 2 == 0
+  for _, m in ipairs(list) do
+    mmPos:set(m.pos.x, m.pos.y, m.pos.z)
+    mmFwd:set(m.dir.x, m.dir.y, 0)
+    if mmFwd:length() > 0.001 then
+      mmFwd:normalize()
+      -- Fahndung: blinkt blau/rot; Laserkontrolle: ruhiges Blau
+      local col = (m.chase and not blink) and color(227, 38, 43, 255) or color(30, 64, 255, 255)
+      td:vehicleMarker(mmPos.x, mmPos.y, mmFwd.x, mmFwd.y, col, bg, m.laser and 0.85 or 1.0, false, scale, dpi, xx, xy, yx, yy, xo, yo, 96)
+    end
+  end
+end
+
 -- Öffentlich ---------------------------------------------------------------------------
 
 function M.isActive() return pursuit ~= nil end
@@ -748,6 +959,7 @@ function M.reset()
   for id in pairs(units) do deleteUnit(id) end
   units, laserCars, camState, nearPlaces, recentHits = {}, {}, {}, {}, {}
   placesSrc, placesList, cfgCache, lastFine = nil, {}, nil, nil
+  planCache = {}
 end
 
 -- HUD (HashiriyaStatus): Sterne, Lage, Fortschritt Anhalten/Entkommen, Blitzer heute
@@ -803,7 +1015,18 @@ function M.devInfo()
   local p = dayState() or {}
   local n, laser = 0, 0
   for _, pl in ipairs(places()) do n = n + 1; if pl.kind == 'laser' then laser = laser + 1 end end
-  return { places = n, laser = laser, camHits = p.camHits or 0, tickets = p.tickets or 0, level = M.level(),
+  local plan = M.dayPlan()
+  local manned, nowOn = {}, 0
+  for _, pl in ipairs(places()) do
+    local sh = plan.shifts[pl.key] or (pl.always and { start = 0, stop = 24 })
+    if sh then
+      local on = mannedNow(pl)
+      if on then nowOn = nowOn + 1 end
+      table.insert(manned, { name = pl.name, text = string.format('%02d:%02d-%02d:%02d', math.floor(sh.start), math.floor(sh.start % 1 * 60), math.floor(sh.stop), math.floor(sh.stop % 1 * 60)), on = on or nil,
+        seen = (dayState() or { seen = {} }).seen[pl.key] or nil })
+    end
+  end
+  return { manned = manned, mannedNow = nowOn, rank = plan.rank, places = n, laser = laser, camHits = p.camHits or 0, tickets = p.tickets or 0, level = M.level(),
     heat = pursuit and math.floor(pursuit.heat) or 0, units = unitCount('pursuit'), day = isDaytime() }
 end
 
@@ -843,6 +1066,7 @@ local function onUpdate(dtReal, dtSim)
       if not still and (camState[k].cooldown or 0) <= 0 then camState[k] = nil end
     end
     updateLaserCars(ppos)
+    updateSeen(ppos)
   end
 
   -- Sperrzeiten der Messstellen laufen immer ab (auch wenn man gerade weit weg ist)
@@ -877,5 +1101,6 @@ M.onUpdate = onUpdate
 M.onClientEndMission = onClientEndMission
 M.onExtensionUnloaded = onExtensionUnloaded
 M.onVehicleSwitched = onVehicleSwitched
+M.onDrawOnMinimap = onDrawOnMinimap
 
 return M

@@ -1046,6 +1046,7 @@
   "police.ticket": "Strafzettel: %s.",
   "police.arrest": "Festgenommen! Strafe %s, dein Auto wird zur Garage abgeschleppt.",
   "police.escaped": "Polizei abgehängt.",
+  "police.escapedRep": "Polizei abgehängt. +%d Ruf.",
   "police.hitTraffic": "Unfall vor den Augen der Polizei!",
   "police.hitPolice": "Streifenwagen gerammt!",
   "police.hud.tag": "Polizei",
