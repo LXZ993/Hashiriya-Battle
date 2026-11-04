@@ -63,6 +63,8 @@ local function entries(save)
   return cache.list
 end
 function M.invalidate() cache.list = nil end
+-- Für stickers.lua: dieselbe Liste wie in der Trophäenwand
+function M.entries(save) return entries(save) end
 
 local function find(save, id)
   if not id then return nil end
