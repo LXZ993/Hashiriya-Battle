@@ -407,6 +407,8 @@ function M.onHighbeam(vehId, value)
     return
   end
   if state ~= 'idle' then return end
+  -- Fahndung läuft (police.lua): keine Herausforderung per Lichthupe
+  if extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.isActive() then return end
 
   local player = core().getPlayerVehicle()
   if not player or player:getID() ~= vehId then return end

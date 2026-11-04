@@ -199,6 +199,7 @@ function M.towInfo()
   local reason = nil
   if current == garage then reason = 'atGarage'
   elseif extensions.hashiriyaBattle_battle.isBusy() then reason = 'battle'
+  elseif (extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.isActive()) then reason = 'police' -- keine Flucht per Abschleppdienst
   elseif veh:getVelocity():length() > towMaxSpeed then reason = 'moving'
   elseif c.save.money < cost then reason = 'money' end
   return { cost = cost, km = km, reason = reason }
@@ -613,7 +614,8 @@ local function onUpdate(dtReal)
   end
   if not current then bayHint = nil end
   if current and not arrived and veh:getVelocity():length() < enterSpeed
-    and not extensions.hashiriyaBattle_battle.isBusy() then
+    and not extensions.hashiriyaBattle_battle.isBusy()
+    and not (extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.isActive()) then -- während einer Fahndung öffnet sich kein Parkplatz-Menü
     arrived = true
     if current.type == 'shop' then pcall(M.dumpParts, false) end
     c.onParkingArrived(current)

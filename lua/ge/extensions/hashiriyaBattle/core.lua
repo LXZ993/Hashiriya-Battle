@@ -23,7 +23,7 @@ end
 local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura', 'hashiriyaBattle_stickers' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura', 'hashiriyaBattle_stickers', 'hashiriyaBattle_police' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -346,9 +346,11 @@ end
 -- kind 'paexit' = Ausfahrt-Routen aus PAs (paExitRoutes / Dev-Typ paexit, mit points = Liste von Punkten)
 -- kind 'board' = Aushänge des Schwarzen Bretts (boardSpots / Dev-Typ board), 'taxi' = Fahrgast-Punkte der Taxischicht
 -- (taxiSpots / Dev-Typ taxi), 'taxidepot' = Taxi-Depot, dort steht das Firmentaxi (taxiDepots / Dev-Typ taxidepot)
+-- kind 'police' = Messstellen für Blitzer und Laserkontrollen (policeSpots / Dev-Typ police, Einstellungen in police = { kind, limit, both, off })
 local spotKinds = { stand = { list = 'standSpots', dev = 'npc' }, photo = { list = 'photoSpots', dev = 'photo' },
   paexit = { list = 'paExitRoutes', dev = 'paexit' }, board = { list = 'boardSpots', dev = 'board' },
-  taxi = { list = 'taxiSpots', dev = 'taxi' }, taxidepot = { list = 'taxiDepots', dev = 'taxidepot' } }
+  taxi = { list = 'taxiSpots', dev = 'taxi' }, taxidepot = { list = 'taxiDepots', dev = 'taxidepot' },
+  police = { list = 'policeSpots', dev = 'police' } }
 local spotCache = {}
 function M.resetSpotCache() spotCache = {} end
 function M.spots(kind)
@@ -368,7 +370,7 @@ function M.spots(kind)
       for _, e in ipairs(out) do
         if not e.dev and math.abs(e.pos[1] - p.pos[1]) < 0.5 and math.abs(e.pos[2] - p.pos[2]) < 0.5 then dup = true break end
       end
-      if not dup then table.insert(out, { name = p.name, pos = p.pos, dir = p.dir, points = p.points, dev = true }) end
+      if not dup then table.insert(out, { id = p.id, name = p.name, pos = p.pos, dir = p.dir, points = p.points, police = p.police, dev = true }) end
     end
   end
   spotCache[kind] = out
@@ -1105,6 +1107,8 @@ local function buildUiState()
     local left = extensions.hashiriyaBattle_rivals.battlesLeftTonight()
     if st.night and left then st.battlesLeft = left end
     st.job = extensions.hashiriyaBattle_jobs.getHudState()
+    local okPo, po = pcall(function() return extensions.hashiriyaBattle_police.getHudState() end)
+    st.police = okPo and po or nil
     local okU, un = pcall(function() return extensions.hashiriyaBattle_unstuck.getUiState() end)
     st.unstuck = okU and un or nil
     local okSv, sv = pcall(function() return extensions.hashiriyaBattle_savepoint.getUiState() end)
