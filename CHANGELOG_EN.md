@@ -2,9 +2,9 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
-### Battle crests (logo collection)
+### Trophy wall (logo collection)
 - New, like in TXR: beat a crew leader and you get the crew logo. Beat a wanderer or boss and you get their seal or emblem. A message after the win tells you which logo is new.
-- New "Battle crests" tile in the left menu (on the road and at home) with your current logo and how many you have (e.g. 16 / 73). Inside are all logos by crews, wanderers and bosses. Locked crew logos are grey, seals and emblems stay "?" until you beat them. Tap one to see what it takes.
+- New "Trophy wall" tile in the left menu (on the road and at home) with your current logo and how many you have (e.g. 16 / 73). Inside are all logos by crews, wanderers and bosses. Locked crew logos are grey, seals and emblems stay "?" until you beat them. Tap one to see what it takes.
 - Tap an unlocked logo to make it yours: it then shows at the top left of the SP display during battles instead of the Hashiriya mark 走. "Default" switches back.
 - Every save slot has its own collection and choice. Old saves get the logos of every opponent already beaten right away.
 
