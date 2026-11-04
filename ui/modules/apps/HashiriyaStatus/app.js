@@ -114,6 +114,8 @@ angular.module('beamng.apps')
           '.hbt-radar-dot svg{width:11px;height:11px;display:block;fill:var(--k-rival);filter:drop-shadow(0 0 2px rgba(0,0,0,.9));}' +
           '.hbt-radar-dot.k-leader svg{fill:var(--k-leader);} .hbt-radar-dot.k-wanderer svg{fill:var(--k-wanderer);}' +
           '.hbt-radar-dot.k-boss svg{fill:var(--k-boss);} .hbt-radar-dot.k-beaten svg{fill:var(--k-beaten);} .hbt-radar-dot.k-lost svg{fill:var(--k-lost);}' +
+          '.hbt-radar-dot.k-police svg{fill:#3f6bff;} .hbt-radar-dot.k-police.is-engaged svg{animation:hbtPolRadar .35s steps(1) infinite alternate;}' +
+          '@keyframes hbtPolRadar{from{fill:#3f6bff;}to{fill:#ff3b30;}}' +
           '.hbt-radar-dot.is-edge{opacity:.6;}' +
           '.hbt-radar-dot.is-engaged svg{animation:hbtPing .4s ease-in-out infinite alternate;}' +
           '.hbt-radar-dist{position:absolute;left:0;right:0;bottom:-14px;text-align:center;font-size:9px;letter-spacing:1px;color:rgba(244,244,244,.6);}' +

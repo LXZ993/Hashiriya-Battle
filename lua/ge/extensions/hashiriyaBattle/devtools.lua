@@ -489,15 +489,17 @@ end
 
 -- Orte -----------------------------------------------------------------------------------
 
--- Messstelle (Typ police): Art (speedcam = Blitzer, laser = Laserkontrolle), Tempolimit in km/h (nil = Standard aus
--- data/police.json), both = misst in beide Richtungen, off = vorübergehend aus. Gelesen von police.lua.
+-- Messstelle (Typ police): Art (laser = Laserkontrolle, Standard; speedcam = eigener Blitzer), Tempolimit in km/h
+-- (nil = Standard aus data/police.json), both = misst in beide Richtungen, off = aus, always = immer besetzt (Test).
+-- Gelesen von police.lua.
 cleanPolice = function(a)
   if type(a) ~= 'table' then a = {} end
-  local out = { kind = a.kind == 'laser' and 'laser' or 'speedcam' }
+  local out = { kind = a.kind == 'speedcam' and 'speedcam' or 'laser' }
   local lim = tonumber(a.limit)
   if lim and lim >= 10 and lim <= 300 then out.limit = math.floor(lim + 0.5) end
   if a.both then out.both = true end
   if a.off then out.off = true end
+  if a.always then out.always = true end
   return out
 end
 
@@ -761,7 +763,7 @@ local function buildDrawList()
       local r, g, b = hexColor(typeColor(p.type))
       local label = p.name
       if p.type == 'police' and type(p.police) == 'table' then
-        label = label .. ' (' .. (p.police.kind == 'laser' and 'Laser' or 'Blitzer') .. ', ' .. (p.police.limit and (p.police.limit .. ' km/h') or 'Standard') .. ')'
+        label = label .. ' (' .. (p.police.kind == 'speedcam' and 'Blitzer' or 'Laser') .. ', ' .. (p.police.limit and (p.police.limit .. ' km/h') or 'Standard') .. ')'
       end
       table.insert(list, { pos = v3(p.pos), name = label, r = r, g = g, b = b, map = p.map })
     end

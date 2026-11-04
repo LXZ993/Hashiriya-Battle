@@ -1062,6 +1062,12 @@ local function buildUiState()
     st.rival = rival and rival.data.name or nil
     st.rivalKind = rival and extensions.hashiriyaBattle_rivals.markerKind(rival.data) or nil
     st.radar = extensions.hashiriyaBattle_rivals.radarInfo(600)
+    -- Polizei: Streifenwagen der Fahndung und gesehene Laserkontrollen auch im Radar
+    local okP, polRadar = pcall(function() return extensions.hashiriyaBattle_police.radarItems(600) end)
+    if okP and polRadar then
+      st.radar = st.radar or { list = {} }
+      for _, it in ipairs(polRadar) do table.insert(st.radar.list, it) end
+    end
     st.battle = extensions.hashiriyaBattle_battle.getHudState()
     local talkHud = extensions.hashiriyaBattle_talk.getHudState()
     if talkHud then st.talk, st.talkPrompt = talkHud.talk, talkHud.prompt end
