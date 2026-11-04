@@ -23,12 +23,12 @@ SPEC_KEYS = ("garment", "tone", "hair", "haircolor", "hat", "hattone", "glasses"
 # Crew-Stil: welche Teile die Mitglieder meistens tragen (passend zum Crew-Thema)
 CREW = {
     "t_lantern":    dict(emblem="flamme", garment=["hoodie", "bomber", "tshirt", "sukajan"], hair=["stachelig", "kurz", "mittel", "pferdeschwanz", "zoepfe"], neck=["kopfhoerer", "kette"], hat=["cap_rueck"]),
-    "t_zangyo":     dict(emblem="raute", garment=["anzug", "kostuem", "weste", "mantel"], glasses=["eckig", "rund"], hair=["scheitel", "kurz", "bob", "dutt", "zurueck"]),
+    "t_zangyo":     dict(beard=["kurzvoll", "konturbart"], beardchance=.2, emblem="raute", garment=["anzug", "kostuem", "weste", "mantel"], glasses=["eckig", "rund"], hair=["scheitel", "kurz", "bob", "dutt", "zurueck"]),
     "t_showa":      dict(beard=["vollbart", "spitzbart", "schnurrbart"], beardchance=.5, emblem="kreis", garment=["weste", "mantel", "rollkragen", "anzug", "kostuem"], hair=["scheitel", "tolle", "glatze", "dutt"], haircolor=["silber", "silber", "schwarz"]),
     "t_diana":      dict(emblem="fluegel", garment=["bluse", "kostuem", "sukajan", "pelz", "jeans"], ear=["creolen", "haenger"], neck=["choker", "kette"]),
     "t_yamagumi":   dict(beard=["stoppeln", "vollbart"], beardchance=.45, emblem="raute", garment=["warnweste", "overall", "parka", "rollkragen"], hat=["muetze", "bandana", "stirnband", "cap"], neck=["handtuch"]),
     "t_bxboys":     dict(emblem="blitz", garment=["jeans", "bomber", "tshirt", "trainings"], hat=["cap", "cap_rueck"], hair=["kurz", "stachelig"]),
-    "t_neon":       dict(emblem="stern", garment=["pelz", "anzug", "kostuem", "weste", "leder"], glasses=["sonnenbrille", "pilot"], neck=["kette"], ear=["creolen", "stecker"], mouth=["zigarette"]),
+    "t_neon":       dict(beard=["konturbart", "ankerbart"], beardchance=.3, emblem="stern", garment=["pelz", "anzug", "kostuem", "weste", "leder"], glasses=["sonnenbrille", "pilot"], neck=["kette"], ear=["creolen", "stecker"], mouth=["zigarette"]),
     "t_kombi":      dict(beard=["kinnbart", "stoppeln"], beardchance=.25, emblem="kreis", garment=["weste", "tshirt", "parka", "rollkragen"], glasses=["rund", "eckig"], hair=["kurz", "scheitel", "glatze"], hat=["cap"]),
     "t_kitsune":    dict(emblem="flamme", garment=["anzug", "mantel", "rollkragen", "kostuem"], glasses=["sonnenbrille", "pilot"], mask=True),
     "t_pocket":     dict(emblem="blitz", garment=["tshirt", "hoodie", "rennanzug", "sukajan"], hair=["stachelig", "zoepfe", "bob", "mittel"], hat=["cap_rueck"]),
@@ -39,7 +39,7 @@ CREW = {
     "t_sbr":        dict(beard=["stoppeln", "schnurrbart"], beardchance=.3, emblem="flamme", garment=["overall", "warnweste", "trainings"], hat=["cap"], hair=["kurz"]),
     "t_yokota":     dict(beard=["stoppeln", "schnurrbart"], beardchance=.3, emblem="fluegel", garment=["militaer", "tshirt", "bomber"], neck=["hundemarken"], hair=["kurz", "glatze"], hat=["feldmuetze", "cap"]),
     "t_kurogane":   dict(emblem="raute", garment=["mantel", "anzug", "leder", "kostuem"], glasses=["sonnenbrille"], tone=["schwarz", "anthrazit"]),
-    "t_muscle73":   dict(beard=["koteletten", "schnurrbart", "vollbart"], beardchance=.45, emblem="stern", garment=["leder", "jeans", "tshirt", "weste"], hair=["lang_m", "tolle", "lang_wellig", "zurueck"], glasses=["sonnenbrille", "pilot"]),
+    "t_muscle73":   dict(beard=["koteletten", "schnurrbart", "vollbart", "ankerbart"], beardchance=.45, emblem="stern", garment=["leder", "jeans", "tshirt", "weste"], hair=["lang_m", "tolle", "lang_wellig", "zurueck"], glasses=["sonnenbrille", "pilot"]),
     "t_raijin":     dict(beard=["stoppeln", "ziegenbart"], beardchance=.3, emblem="blitz", garment=["overall", "sukajan", "tshirt", "tokkou"], mouth=["zigarette"], hat=["bandana", "stirnband"], hair=["stachelig"]),
     "t_hotrod":     dict(beard=["koteletten", "kinnbart"], beardchance=.35, emblem="flamme", garment=["leder", "jeans"], hair=["tolle", "zurueck", "hime", "pferdeschwanz"], mouth=["zigarette", "zahnstocher"]),
     "t_bolide":     dict(emblem="fluegel", garment=["rennanzug", "anzug", "kostuem", "rollkragen"], glasses=["sonnenbrille", "pilot"], neck=["schal"]),

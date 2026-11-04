@@ -697,7 +697,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Kopf und Gesicht: 8 Augen, 16 Frisuren (z. B. Tolle, Undercut, Irokese, Afro, Bob, Hime-Schnitt, Dutt, Zöpfe), 7 Kopfbedeckungen (Cap, Cap rückwärts, Strickmütze, Feldmütze, Hachimaki, Bandana, Trilby), 5 Brillen, 4 Ohrteile und eine Maske.</li>
 <li>Kleidung: 20 Oberteile, z. B. Hoodie, Pelzmantel, Feldjacke, Lederjacke, Bomber, Anzug, Kostüm, Tokkou-Mantel, Trainingsjacke, Rennanzug, Jeansjacke, Sukajan, Parka, Weste, Bluse, Warnweste, Trenchcoat.</li>
 <li>Dazu 6 Halsteile (Kopfhörer, Hundemarken, Goldkette, Schal, Halsband, Handtuch) und im Mund Zigarette oder Zahnstocher.</li>
-<li>7 Bärte (seit 03.11.2026, Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart, Ziegenbart. Bartfarbe frei wählbar aus allen Haarfarben plus Grau, Weiß, Rotblond und Pfeffer-Salz, oder "wie die Haare". Der Bart sitzt unter dem Visier und liegt unter Maske, Zigarette und Zahnstocher.</li>
+<li>11 Bärte (seit 03.11.2026, Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart, Ziegenbart, dazu seit 04.11. Konturbart (schmale Linie an der Kinnlinie mit dünnem Schnurrbart und Kinnbart), Kinnriemen, Ankerbart und kurzer Vollbart. Bartfarbe frei wählbar aus allen Haarfarben plus Grau, Weiß, Rotblond und Pfeffer-Salz, oder "wie die Haare". Der Bart sitzt unter dem Visier und liegt unter Maske, Zigarette und Zahnstocher.</li>
 </ul></li>
 <li><b>Logisch statt zufällig:</b>
 <ul>
@@ -705,7 +705,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <li>Halsteile gibt es nur bei passendem Ausschnitt, zum Beispiel keine Hundemarken über Pelz oder Krawatte.</li>
 <li>Hüte gibt es nur bei passender Frisur und Kleidung: keine Cap über Tolle oder Dutt, die Feldmütze nur zur Feldjacke, den Trilby nur zu eleganter Kleidung, keine Cap zum Anzug.</li>
 <li>Eine Sonnenbrille im Haar gibt es nur ohne Hut.</li>
-<li>Bärte nur bei Männern und nie unter der Maske. Etwa jeder sechste Gegner hat einen, Wanderer öfter (etwa jeder dritte). Manche Crews haben mehr Bärte und eigene Lieblingsbärte (<code>beard</code> und <code>beardchance</code> in <code>CREW</code>), z. B. Showa mit Vollbart und Spitzbart, die 73er Muscle-Crew mit Koteletten und Schnurrbart, Yamagumi-Arbeiter mit Dreitagebart. An den PAs tragen Lkw-Fahrer, Rentner, Mechaniker und Straßenarbeiter öfter Bart. Der Bart wird mit eigenem Zufall gewürfelt, alle anderen Teile der Figuren bleiben dadurch gleich.</li>
+<li>Bärte nur bei Männern und nie unter der Maske. Etwa jeder sechste Gegner hat einen, Wanderer öfter (etwa jeder dritte). Manche Crews haben mehr Bärte und eigene Lieblingsbärte (<code>beard</code> und <code>beardchance</code> in <code>CREW</code>), z. B. Showa mit Vollbart und Spitzbart, Ginza Neon mit Konturbart, Zangyō Express mit kurzem Vollbart, die 73er Muscle-Crew mit Koteletten und Schnurrbart, Yamagumi-Arbeiter mit Dreitagebart. An den PAs tragen Lkw-Fahrer, Rentner, Mechaniker und Straßenarbeiter öfter Bart. Der Bart wird mit eigenem Zufall gewürfelt, alle anderen Teile der Figuren bleiben dadurch gleich.</li>
 <li>Die Regeln stehen in <code>make.py</code> (<code>allowed_hats</code>, <code>allowed_glasses</code>, <code>allowed_necks</code>).</li>
 </ul></li>
 <li><b>Bauen:</b> <code>python tools\silhouette\vc\make.py AUSGABEORDNER</code> erzeugt 12 Musterfiguren und den Katalog. Mit <code>--uebersicht</code> kommt je Teil eine Beispielfigur dazu. Rendern geht so: <code>vectorcraft-cli run --in X.svg --commands X_steps.json --export X.png --export X.psd --scale 2</code>.</li>
@@ -1777,8 +1777,8 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <div>
 <h4>Porträts: Bärte</h4>
 <ul>
-<li>Die Bob-Porträts können jetzt Bärte tragen (Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart und Ziegenbart, in vielen Farben (Haarfarben plus Grau, Weiß, Rotblond, Pfeffer-Salz).</li>
-<li>45 Gegner und 20 PA-Fahrer haben jetzt einen Bart, darunter einige Wanderer. Boss Mugen trägt einen silbernen Spitzbart, Boss Shirotora einen platinblonden Kinnbart. Alle anderen Figuren sehen aus wie vorher.</li>
+<li>Die Bob-Porträts können jetzt Bärte tragen (Idee von Henry): Dreitagebart, Schnurrbart, Kinnbart, Spitzbart, Koteletten, Vollbart, Ziegenbart, Konturbart, Kinnriemen, Ankerbart und kurzer Vollbart, in vielen Farben (Haarfarben plus Grau, Weiß, Rotblond, Pfeffer-Salz).</li>
+<li>49 Gegner und 20 PA-Fahrer haben jetzt einen Bart, darunter einige Wanderer. Boss Mugen trägt einen silbernen Spitzbart, Boss Shirotora einen platinblonden Kinnbart. Alle anderen Figuren sehen aus wie vorher.</li>
 <li>Im Silhouetten-Tool gibt es unter „Extras“ die Felder „Bart“ und „Bartfarbe“.</li>
 </ul>
 <h4>Speichern am Standort</h4>
