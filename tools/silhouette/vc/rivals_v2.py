@@ -87,7 +87,7 @@ def v1_to_v2(d, fem):
     """Übersetzt alte Teile ({jacke, haare, brille, hals, extra, haarfarbe}) in v2-Vorgaben."""
     out = {}
     for k, v in (d or {}).items():
-        if k in SPEC_KEYS:
+        if k in SPEC_KEYS or k == "A":  # A = eigene Farbe (Wanderer-Builder)
             out[k] = v
             continue
         m = V1.get(k, {})

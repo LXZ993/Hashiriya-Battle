@@ -220,7 +220,8 @@ def team_logo(team, leader=False, icon=False):
 
 
 def wanderer_logo(r):
-    sign, col = WANDERERS[r["id"]]
+    # feste Liste oben, sonst "seal" aus rivals.json (Community-Wanderer aus dem Wanderer-Builder)
+    sign, col = WANDERERS.get(r["id"]) or (r["seal"]["sign"], r["seal"]["color"])
     layers = []
     outer = circle(256, 256, 232)
     layers.append(("schnitt", stroked(outer, DARK2, 30, DARK2) + stroked(outer, CUT, 18, CUT)))
@@ -304,7 +305,7 @@ def main():
                 written.append(name)
     for r in data["rivals"]:
         if r.get("wanderer"):
-            if r["id"] not in WANDERERS:
+            if r["id"] not in WANDERERS and not (r.get("seal") or {}).get("sign"):
                 print("WARNUNG: kein Siegel für Wanderer", r["id"])
                 continue
             open(os.path.join(OUT, r["id"] + ".svg"), "w", encoding="utf-8").write(wanderer_logo(r))

@@ -1,14 +1,19 @@
-"""Übernimmt den Export des Google-Formulars (Ordner "Hashiriya Battle – Community Import") in die Mod.
+"""Übernimmt Community-Wanderer in die Mod: aus dem Wanderer-Builder oder aus dem alten Google-Formular.
 
-    python3 tools/community/import_wanderer.py <ordner oder zip>
+    python3 tools/community/import_wanderer.py <datei.json ...>          Dateien aus dem Wanderer-Builder
+    python3 tools/community/import_wanderer.py <ordner oder zip>         Ordner/ZIP mit Builder-Dateien
+                                                                          oder Export des Google-Formulars
 
+Wanderer-Builder (tools/community/Hashiriya-Wanderer-Builder.html): jede Datei hashiriya_wanderer_<name>.json
+enthält den fertigen rivals.json-Eintrag (mit Avatar "silhouette", Siegel "seal", Kennzeichen, Credits) und die .pc-Config.
 Was passiert:
   - community_wanderer.json  -> neue/aktualisierte Wanderer in data/rivals.json (nach id; vorhandene werden ersetzt)
   - vehicles/<model>/*.pc    -> vehicles/<model>/ im Mod-Ordner (BeamNG findet die Configs dort)
   - credits.json             -> "community" in data/credits.json (nach id)
 Kontaktdaten (_kontakt) kommen nicht in die Mod. Neue Wanderer zählen für tools/generator/protect.py als Handeintrag
 und bleiben beim nächsten Generatorlauf erhalten.
-Danach: Porträts neu erzeugen (tools/silhouette/build_data.py, dann tools/silhouette/vc/rivals_v2.py und tools/silhouette/vc/build_tool.py).
+Danach: Porträts neu erzeugen (tools/silhouette/build_data.py, dann tools/silhouette/vc/rivals_v2.py und tools/silhouette/vc/build_tool.py)
+und die Siegel (tools/logos/build_logos.py, liest "seal" aus rivals.json).
 """
 import json, os, re, shutil, sys, tempfile, zipfile
 
@@ -29,22 +34,89 @@ def find(root, name):
     return None
 
 
-def main(src):
+def builder_files(paths):
+    """Alle Dateien aus dem Wanderer-Builder (format == hashiriya-wanderer) in Dateien/Ordnern."""
+    out = []
+    for p in paths:
+        files = [p] if os.path.isfile(p) else [os.path.join(d, f) for d, _, fs in os.walk(p) for f in fs if f.lower().endswith('.json')]
+        for f in sorted(files):
+            try:
+                j = load(f)
+            except (ValueError, UnicodeDecodeError):
+                continue
+            if isinstance(j, dict) and j.get('format') == 'hashiriya-wanderer' and isinstance(j.get('rival'), dict):
+                out.append((f, j))
+    return out
+
+
+HOURS = lambda h: f'{h:02d}:00'
+
+
+def make_hint(r, names):
+    """Tipp-Text (für Tipps/Lexikon) aus den Bedingungen, wenn der Eintrag keinen hat."""
+    c = r.get('conditions') or {}
+    de, en = [], []
+    if c.get('beatenTeam'):
+        n = names.get(c['beatenTeam'], c['beatenTeam'])
+        de.append(f'Erst nach dem Sieg über {n}'); en.append(f'Only after beating {n}')
+    for rid in c.get('beatenRivals') or []:
+        n = names.get(rid, rid)
+        de.append(f'Erst nach dem Sieg gegen {n}'); en.append(f'Only after beating {n}')
+    if c.get('playerModel'):
+        de.append(f'nur wenn du einen {c["playerModel"]} fährst'); en.append(f'only if you drive a {c["playerModel"]}')
+    if c.get('playerPart'):
+        de.append(f'nur mit „{c["playerPart"]}“ verbaut'); en.append(f'only with "{c["playerPart"]}" installed')
+    if c.get('minDay'):
+        de.append(f'ab Nacht {c["minDay"]}'); en.append(f'from night {c["minDay"]} on')
+    if c.get('hours'):
+        a, b = c['hours']
+        de.append(f'zwischen {HOURS(a)} und {HOURS(b)} Uhr'); en.append(f'between {HOURS(a)} and {HOURS(b)}')
+    if not de:
+        return {'de': 'Fährt nachts allein auf der C1.', 'en': 'Drives the C1 alone at night.'}
+    cap = lambda xs: (xs[0][0].upper() + xs[0][1:] + (', ' + ', '.join(xs[1:]) if xs[1:] else '') + '.')
+    return {'de': cap(de), 'en': cap(en)}
+
+
+def main(src, *more):
     tmp = None
     if zipfile.is_zipfile(src):
         tmp = tempfile.mkdtemp()
         zipfile.ZipFile(src).extractall(tmp)
         src = tmp
     try:
-        wpath = find(src, 'community_wanderer.json')
-        if not wpath:
-            raise SystemExit('community_wanderer.json nicht gefunden')
-        base = os.path.dirname(wpath)
-        new = load(wpath)
+        pcs = {}  # id -> .pc-Inhalt (Builder)
+        built = builder_files([src, *more])
+        if built:
+            base = None
+            new = []
+            for f, j in built:
+                r = dict(j['rival'])
+                if not re.match(r'^w_[a-z0-9_]+$', r.get('id', '')):
+                    print(f'  ÜBERSPRUNGEN {os.path.basename(f)}: ungültige id {r.get("id")}')
+                    continue
+                if isinstance(j.get('pc'), dict):
+                    pcs[r['id']] = j['pc']
+                new.append(r)
+            print(f'{len(new)} Datei(en) aus dem Wanderer-Builder')
+        else:
+            wpath = find(src, 'community_wanderer.json')
+            if not wpath:
+                raise SystemExit('Weder Wanderer-Builder-Dateien noch community_wanderer.json gefunden')
+            base = os.path.dirname(wpath)
+            new = load(wpath)
 
-        # Configs kopieren
+        # Configs kopieren / schreiben
         copied, missing = [], []
         for r in new:
+            if r['id'] in pcs:
+                rel = r['config'].replace('\\', '/')
+                dst = os.path.join(ROOT, *rel.split('/'))
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                with open(dst, 'w', encoding='utf-8') as f:
+                    json.dump(pcs[r['id']], f, ensure_ascii=False, indent=2)
+                    f.write('\n')
+                copied.append(rel)
+                continue
             cfg = r.get('config')
             if not cfg:
                 missing.append(r['id'] + ' (kein config-Pfad)')
@@ -69,8 +141,15 @@ def main(src):
         lst = rivals['rivals']
         ids = {x['id']: i for i, x in enumerate(lst)}
         added, replaced, warn = 0, 0, []
+        names = {t['id']: (t['name'] if isinstance(t['name'], str) else t['name'].get('en')) for t in rivals['teams']}
+        names.update({x['id']: x.get('name') for x in lst})
+        credits_new = []
         for r in new:
             r = {k: v for k, v in r.items() if k != '_kontakt'}
+            if not r.get('hint'):
+                r['hint'] = make_hint(r, names)
+            if r.get('credit'):
+                credits_new.append({'name': r['credit'].get('name', ''), 'role': r['credit'].get('role', ''), 'wanderer': r.get('name'), 'id': r['id']})
             if not PLATE.match(r.get('plate', {}).get('text', '')):
                 warn.append(f"{r['id']}: Kennzeichen {r.get('plate')} prüfen")
             if r['id'] in ids and not lst[ids[r['id']]].get('community'):
@@ -91,10 +170,11 @@ def main(src):
         # credits.json
         cpath = os.path.join(DATA, 'credits.json')
         credits = load(cpath)
-        cpath_new = find(src, 'credits.json')
-        if cpath_new:
+        cpath_new = None if built else find(src, 'credits.json')
+        incoming = load(cpath_new).get('community', []) if cpath_new else (credits_new if built else [])
+        if incoming:
             have = {c.get('id'): i for i, c in enumerate(credits.get('community', []))}
-            for c in load(cpath_new).get('community', []):
+            for c in incoming:
                 if c.get('id') in have:
                     credits['community'][have[c['id']]] = c
                 else:
@@ -119,4 +199,4 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print(__doc__)
         sys.exit(1)
-    main(sys.argv[1])
+    main(*sys.argv[1:])
