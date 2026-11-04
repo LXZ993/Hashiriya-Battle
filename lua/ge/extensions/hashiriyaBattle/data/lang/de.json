@@ -784,5 +784,16 @@
   "pause.order": "Reihenfolge",
   "pause.shuffle": "Zufällig",
   "pause.list": "Feste Reihenfolge",
-  "pause.listHint": "Mit ▲ ▼ sortieren. Die Songs laufen von oben nach unten und danach wieder von vorn."
+  "pause.listHint": "Mit ▲ ▼ sortieren. Die Songs laufen von oben nach unten und danach wieder von vorn.",
+  "menu.recordShort": "Bilanz",
+  "menu.battlesShort": "Battles übrig",
+  "menu.rivalShort": "In der Nähe",
+  "lex.search": "Name, Auto oder Crew suchen …",
+  "lex.f.all": "Alle",
+  "lex.f.open": "Offen",
+  "lex.f.beaten": "Besiegt",
+  "lex.f.watch": "Merkliste",
+  "lex.noHits": "Keine Treffer.",
+  "lex.watch": "Auf die Merkliste",
+  "lex.unwatch": "Von der Merkliste nehmen"
 }
