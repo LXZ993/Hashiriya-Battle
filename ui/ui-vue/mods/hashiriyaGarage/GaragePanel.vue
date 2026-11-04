@@ -139,8 +139,19 @@
               <span v-for="sp in [1, 0.6, 0.3, 0.1]" :key="sp" class="hbg-chip" :class="{ 'is-on': aura.sp === sp }" @click="setAura({ sp })">{{ Math.round(sp * 100) }} %</span>
             </b>
           </div>
+          <div class="hbg-kv"><span>Halle</span>
+            <b class="hbg-chips hbg-inline">
+              <span class="hbg-chip" :class="{ 'is-on': !d.night }" @click="act('night', { on: false })">Tag</span>
+              <span class="hbg-chip" :class="{ 'is-on': d.night }" @click="act('night', { on: true })">Nacht</span>
+            </b>
+          </div>
+          <div class="hbg-kv"><span>Vorschau heller</span>
+            <b class="hbg-chips hbg-inline">
+              <span v-for="b in [1, 3, 10]" :key="b" class="hbg-chip" :class="{ 'is-on': aura.boost === b }" @click="setAura({ boost: b })">{{ b === 1 ? "wie im Spiel" : b + "×" }}</span>
+            </b>
+          </div>
           <div class="hbg-note" v-if="auraOn && d.aura && d.aura.id !== sel.id">Gerade an: Aura von {{ nameOf(d.aura.id) }}. Ein Klick auf eine Art zeigt die Aura von {{ sel.name }}.</div>
-          <div class="hbg-note">Die Aura folgt dem Auto, das gerade in der Garage steht. Besser sichtbar mit ausgeschaltetem Hallenlicht (rechts: Garage-Funktionen &gt; Licht West/Mitte/Ost). Werte stehen in lua/ge/extensions/hashiriyaBattle/data/aura.json.</div>
+          <div class="hbg-note">Die Aura folgt dem Auto, das gerade in der Garage steht. In der hellen Halle am besten mit „Nacht“ und ausgeschaltetem Hallenlicht (rechts: Garage-Funktionen &gt; Licht). „Vorschau heller“ gilt nur hier, nicht im Spiel. Werte stehen in lua/ge/extensions/hashiriyaBattle/data/aura.json.</div>
           <div class="hbg-btns">
             <span class="hbg-btn" @click="act('auraReload')" title="aura.json neu einlesen, nachdem du Werte geändert hast">aura.json neu laden</span>
           </div>
@@ -355,7 +366,7 @@ function appearText(a) {
 function save() { if (sel.value) act("save", { id: sel.value.id, ownFile: ui.ownFile }) }
 
 // --- Aura ---------------------------------------------------------------------------------------
-const aura = reactive({ mode: "ground", level: 2, sp: 1 })
+const aura = reactive({ mode: "ground", level: 2, sp: 1, boost: 1 })
 const auraOn = computed(() => !!(d.value.aura && d.value.aura.id))
 function setAura(p) {
   Object.assign(aura, p)
@@ -363,7 +374,7 @@ function setAura(p) {
   if (!p.mode && !auraOn.value) return // Stufe/SP nur merken, solange keine Aura an ist
   // Stufe/SP ändern, während eine Aura an ist: die laufende Aura bleibt beim gleichen Gegner
   const id = p.mode || !auraOn.value ? sel.value.id : d.value.aura.id
-  act("aura", { id, mode: aura.mode, level: aura.level, sp: aura.sp })
+  act("aura", { id, mode: aura.mode, level: aura.level, sp: aura.sp, boost: aura.boost })
 }
 function auraOff() { act("aura", { mode: "off" }) }
 
@@ -380,6 +391,7 @@ function onData(msg) {
     aura.mode = msg.aura.mode || aura.mode
     if (msg.aura.level) aura.level = msg.aura.level
     if (msg.aura.sp !== undefined && msg.aura.sp !== null) aura.sp = msg.aura.sp
+    if (msg.aura.boost) aura.boost = msg.aura.boost
   }
   d.value = msg
 }

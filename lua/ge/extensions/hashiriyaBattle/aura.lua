@@ -38,7 +38,8 @@ end
 function M.reload() data = nil; failed = false; M.clear() end
 
 -- Vorschau ohne Karriere (Gegner-Garage, garagetool.lua): Aura am Spielerauto, egal ob Nacht oder Battle.
--- p = { color = '#rrggbb', rim = '#rrggbb' oder nil, ground = bool, battle = bool, sp = 0..1, level = 1..3 } oder nil = aus
+-- p = { color = '#rrggbb', rim = '#rrggbb' oder nil, ground = bool, battle = bool, sp = 0..1, level = 1..3,
+--       boost = Faktor nur für die Vorschau (hell beleuchtete Halle) } oder nil = aus
 local preview = nil
 function M.setPreview(p)
   preview = p
@@ -373,8 +374,9 @@ local function update(dt)
     local veh = getPlayerVehicle and getPlayerVehicle(0)
     if veh then
       local lv = levelOf(preview.level or 2)
+      local boost = tonumber(preview.boost) or 1
       drawAura('preview', veh, {
-        color = lightColor(preview.color), level = lv.ground or 0.9, battleLevel = lv.battle or 1.4,
+        color = lightColor(preview.color), level = (lv.ground or 0.9) * boost, battleLevel = (lv.battle or 1.4) * boost,
         ground = preview.ground and true or false, battle = preview.battle and true or false, sp = preview.sp or 1,
         rimColor = preview.rim and lightColor(preview.rim) or nil,
       })
