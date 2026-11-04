@@ -2,8 +2,8 @@
  "HBAuraP_42a5f5": {
   "name": "HBAuraP_42a5f5",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.013673469387755044,
@@ -56,8 +56,8 @@
  "HBAuraP_4f9fd9": {
   "name": "HBAuraP_4f9fd9",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.1414746543778802,
@@ -110,8 +110,8 @@
  "HBAuraP_4fc3f7": {
   "name": "HBAuraP_4fc3f7",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.0817813765182186,
@@ -164,8 +164,8 @@
  "HBAuraP_54c46a": {
   "name": "HBAuraP_54c46a",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.22857142857142854,
@@ -218,8 +218,8 @@
  "HBAuraP_5c6bc0": {
   "name": "HBAuraP_5c6bc0",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.296875,
@@ -272,8 +272,8 @@
  "HBAuraP_5c8cf0": {
   "name": "HBAuraP_5c8cf0",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.16749999999999987,
@@ -326,8 +326,8 @@
  "HBAuraP_64b5f6": {
   "name": "HBAuraP_64b5f6",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.198780487804878,
@@ -380,8 +380,8 @@
  "HBAuraP_6fb8ff": {
   "name": "HBAuraP_6fb8ff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.23764705882352932,
@@ -434,8 +434,8 @@
  "HBAuraP_7cb342": {
   "name": "HBAuraP_7cb342",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.5851955307262571,
@@ -488,8 +488,8 @@
  "HBAuraP_7fd6ff": {
   "name": "HBAuraP_7fd6ff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.3223529411764705,
@@ -542,8 +542,8 @@
  "HBAuraP_7fe0c8": {
   "name": "HBAuraP_7fe0c8",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.41540178571428565,
@@ -596,8 +596,8 @@
  "HBAuraP_80deea": {
   "name": "HBAuraP_80deea",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.3884615384615385,
@@ -650,8 +650,8 @@
  "HBAuraP_81d4fa": {
   "name": "HBAuraP_81d4fa",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.3466,
@@ -704,8 +704,8 @@
  "HBAuraP_8cc070": {
   "name": "HBAuraP_8cc070",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.6343750000000001,
@@ -758,8 +758,8 @@
  "HBAuraP_8d7cff": {
   "name": "HBAuraP_8d7cff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.39647058823529413,
@@ -812,8 +812,8 @@
  "HBAuraP_8fa3b8": {
   "name": "HBAuraP_8fa3b8",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.6991847826086957,
@@ -866,8 +866,8 @@
  "HBAuraP_90a4ae": {
   "name": "HBAuraP_90a4ae",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.7672413793103448,
@@ -920,8 +920,8 @@
  "HBAuraP_9ccc3d": {
   "name": "HBAuraP_9ccc3d",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.6823529411764706,
@@ -974,8 +974,8 @@
  "HBAuraP_9ccc65": {
   "name": "HBAuraP_9ccc65",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.6823529411764706,
@@ -1028,8 +1028,8 @@
  "HBAuraP_9e9e9e": {
   "name": "HBAuraP_9e9e9e",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -1082,8 +1082,8 @@
  "HBAuraP_9fb6c8": {
   "name": "HBAuraP_9fb6c8",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.7232500000000001,
@@ -1136,8 +1136,8 @@
  "HBAuraP_a1887f": {
   "name": "HBAuraP_a1887f",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -1190,8 +1190,8 @@
  "HBAuraP_a3c94f": {
   "name": "HBAuraP_a3c94f",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.7447761194029849,
@@ -1244,8 +1244,8 @@
  "HBAuraP_a7f3ff": {
   "name": "HBAuraP_a7f3ff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.5341176470588236,
@@ -1298,8 +1298,8 @@
  "HBAuraP_b070ff": {
   "name": "HBAuraP_b070ff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.581764705882353,
@@ -1352,8 +1352,8 @@
  "HBAuraP_b0b0b0": {
   "name": "HBAuraP_b0b0b0",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -1406,8 +1406,8 @@
  "HBAuraP_b0bec5": {
   "name": "HBAuraP_b0bec5",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.8560913705583755,
@@ -1460,8 +1460,8 @@
  "HBAuraP_bcaaa4": {
   "name": "HBAuraP_bcaaa4",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -1514,8 +1514,8 @@
  "HBAuraP_c0c8d0": {
   "name": "HBAuraP_c0c8d0",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.8961538461538462,
@@ -1568,8 +1568,8 @@
  "HBAuraP_c6a46c": {
   "name": "HBAuraP_c6a46c",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -1622,8 +1622,8 @@
  "HBAuraP_c6ff60": {
   "name": "HBAuraP_c6ff60",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.6982352941176471,
@@ -1676,8 +1676,8 @@
  "HBAuraP_c8813c": {
   "name": "HBAuraP_c8813c",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -1730,8 +1730,8 @@
  "HBAuraP_ce93d8": {
   "name": "HBAuraP_ce93d8",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.9375,
@@ -1784,8 +1784,8 @@
  "HBAuraP_cfd8ff": {
   "name": "HBAuraP_cfd8ff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.7458823529411764,
@@ -1838,8 +1838,8 @@
  "HBAuraP_d4a373": {
   "name": "HBAuraP_d4a373",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -1892,8 +1892,8 @@
  "HBAuraP_d4b25c": {
   "name": "HBAuraP_d4b25c",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -1946,8 +1946,8 @@
  "HBAuraP_d9a066": {
   "name": "HBAuraP_d9a066",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2000,8 +2000,8 @@
  "HBAuraP_e0c060": {
   "name": "HBAuraP_e0c060",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2054,8 +2054,8 @@
  "HBAuraP_e0f4ff": {
   "name": "HBAuraP_e0f4ff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.8358823529411764,
@@ -2108,8 +2108,8 @@
  "HBAuraP_e53935": {
   "name": "HBAuraP_e53935",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2162,8 +2162,8 @@
  "HBAuraP_e8c25a": {
   "name": "HBAuraP_e8c25a",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2216,8 +2216,8 @@
  "HBAuraP_e9f2ff": {
   "name": "HBAuraP_e9f2ff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     0.8835294117647059,
@@ -2270,8 +2270,8 @@
  "HBAuraP_ef5350": {
   "name": "HBAuraP_ef5350",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2324,8 +2324,8 @@
  "HBAuraP_ef6c50": {
   "name": "HBAuraP_ef6c50",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2378,8 +2378,8 @@
  "HBAuraP_f0d890": {
   "name": "HBAuraP_f0d890",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2432,8 +2432,8 @@
  "HBAuraP_f48fb1": {
   "name": "HBAuraP_f48fb1",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2486,8 +2486,8 @@
  "HBAuraP_ff3030": {
   "name": "HBAuraP_ff3030",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2540,8 +2540,8 @@
  "HBAuraP_ff3b4e": {
   "name": "HBAuraP_ff3b4e",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2594,8 +2594,8 @@
  "HBAuraP_ff4040": {
   "name": "HBAuraP_ff4040",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2648,8 +2648,8 @@
  "HBAuraP_ff4fd8": {
   "name": "HBAuraP_ff4fd8",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2702,8 +2702,8 @@
  "HBAuraP_ff5252": {
   "name": "HBAuraP_ff5252",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2756,8 +2756,8 @@
  "HBAuraP_ff5a28": {
   "name": "HBAuraP_ff5a28",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2810,8 +2810,8 @@
  "HBAuraP_ff5a4f": {
   "name": "HBAuraP_ff5a4f",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2864,8 +2864,8 @@
  "HBAuraP_ff5f7a": {
   "name": "HBAuraP_ff5f7a",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2918,8 +2918,8 @@
  "HBAuraP_ff6600": {
   "name": "HBAuraP_ff6600",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -2972,8 +2972,8 @@
  "HBAuraP_ff6a1a": {
   "name": "HBAuraP_ff6a1a",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3026,8 +3026,8 @@
  "HBAuraP_ff6f91": {
   "name": "HBAuraP_ff6f91",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3080,8 +3080,8 @@
  "HBAuraP_ff7043": {
   "name": "HBAuraP_ff7043",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3134,8 +3134,8 @@
  "HBAuraP_ff7a30": {
   "name": "HBAuraP_ff7a30",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3188,8 +3188,8 @@
  "HBAuraP_ff8a3d": {
   "name": "HBAuraP_ff8a3d",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3242,8 +3242,8 @@
  "HBAuraP_ff8a50": {
   "name": "HBAuraP_ff8a50",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3296,8 +3296,8 @@
  "HBAuraP_ff8fd8": {
   "name": "HBAuraP_ff8fd8",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3350,8 +3350,8 @@
  "HBAuraP_ff9ad5": {
   "name": "HBAuraP_ff9ad5",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3404,8 +3404,8 @@
  "HBAuraP_ff9f40": {
   "name": "HBAuraP_ff9f40",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3458,8 +3458,8 @@
  "HBAuraP_ffb300": {
   "name": "HBAuraP_ffb300",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3512,8 +3512,8 @@
  "HBAuraP_ffb347": {
   "name": "HBAuraP_ffb347",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3566,8 +3566,8 @@
  "HBAuraP_ffcc4d": {
   "name": "HBAuraP_ffcc4d",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3620,8 +3620,8 @@
  "HBAuraP_ffcf70": {
   "name": "HBAuraP_ffcf70",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3674,8 +3674,8 @@
  "HBAuraP_ffd040": {
   "name": "HBAuraP_ffd040",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3728,8 +3728,8 @@
  "HBAuraP_ffd257": {
   "name": "HBAuraP_ffd257",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3782,8 +3782,8 @@
  "HBAuraP_ffd54f": {
   "name": "HBAuraP_ffd54f",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3836,8 +3836,8 @@
  "HBAuraP_ffe14d": {
   "name": "HBAuraP_ffe14d",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3890,8 +3890,8 @@
  "HBAuraP_fff27a": {
   "name": "HBAuraP_fff27a",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,
@@ -3944,8 +3944,8 @@
  "HBAuraP_ffffff": {
   "name": "HBAuraP_ffffff",
   "class": "ParticleData",
-  "textureName": "art/shapes/hashiriya/aura_glow.color.png",
-  "animTexName": "art/shapes/hashiriya/aura_glow.color.png",
+  "textureName": "art/shapes/particles/particle_smoke_soft_01.dds",
+  "animTexName": "art/shapes/particles/particle_smoke_soft_01.dds",
   "colors": [
    [
     1.0,

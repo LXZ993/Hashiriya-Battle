@@ -20,6 +20,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 OUT = os.path.join(ROOT, 'art', 'shapes', 'hashiriya')
 DATA = os.path.join(ROOT, 'lua', 'ge', 'extensions', 'hashiriyaBattle', 'data')
 VFS = 'art/shapes/hashiriya/'
+# weiche Rauch-Textur des Spiels (eigene PNG-Sprites lädt das Partikelsystem nicht zuverlässig)
+SMOKE = 'art/shapes/particles/particle_smoke_soft_01.dds'
 
 
 def smooth(e0, e1, x):
@@ -185,7 +187,7 @@ def main():
         'name': mat, 'mapTo': mat, 'class': 'Material',
         'Stages': [{
             # nur Leuchten (kein beleuchteter Grundton, sonst wird es in heller Umgebung grau); Schwarz = durchsichtig
-            'baseColorFactor': [0, 0, 0, 1], 'roughnessFactor': 1, 'metallicFactor': 0,
+            'baseColorFactor': [0, 0, 0, 1], 'roughnessFactor': 1, 'metallicFactor': 1,  # Metall mit Schwarz = keine Spiegelung (sonst graue Flächen vor hellen Fenstern)
             'emissive': True, 'emissiveMap': tex, 'emissiveFactor': [1, 1, 1],
             'emissiveIgnoreExposure': True, 'emissiveIntensityNits': 6,
             'instanceEmissive': True,
@@ -203,7 +205,7 @@ def main():
         pn, en = 'HBAuraP_' + key, 'HBAuraE_' + key
         pdata[pn] = {
             'name': pn, 'class': 'ParticleData',
-            'textureName': VFS + 'aura_glow.color.png', 'animTexName': VFS + 'aura_glow.color.png',
+            'textureName': SMOKE, 'animTexName': SMOKE,
             'colors': [[r, g, b, 0], [r, g, b, 0.35], [r, g, b, 0.18], [r, g, b, 0]],
             'sizes': [0.4, 0.8, 1.2, 1.5], 'times': [0, 0.15, 0.6, 1],
             'lifetimeMS': 1300, 'lifetimeVarianceMS': 400,
