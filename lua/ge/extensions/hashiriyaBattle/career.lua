@@ -166,18 +166,28 @@ function M.close()
 end
 
 -- Tasten-Check -------------------------------------------------------------------
--- Ohne diese Tasten ist das Spiel nicht spielbar: Lichthupe (Herausfordern), Warnblinker (Annehmen),
--- Blinker links/rechts (Ablehnen) und unser Menü (Pos1).
+-- Alle Tasten, die die Mod braucht oder anbietet. Gezeigt beim neuen Spielstand (Schritt "Tasten prüfen")
+-- und im Pausenmenü unter Esc > Mods > Hashiriya Battle > Tasten.
+--   group: battle (BeamNG-Fahrzeugtasten fürs Battle), mod (eigene Tasten), drive (BeamNG unterwegs), dev
+--   need:  true = ohne die Taste geht es nicht (rot, wenn frei). Sonst grau.
+--   probe: Aktionsname ist von BeamNG, Zeile nur zeigen, wenn es die Aktion im Spiel wirklich gibt.
+--   dev:   nur wenn das Dev-Menü (devtools.lua) im Mod ist, also nie im Release.
+-- Texte: keys.<id> und keys.<id>.d in data/lang/de.json / en.json
 local keyActions = {
-  { id = 'highbeam', action = 'highbeam' },
-  { id = 'hazard', action = 'toggle_hazard_signal' },
-  { id = 'left', action = 'toggle_left_signal' },
-  { id = 'right', action = 'toggle_right_signal' },
-  { id = 'menu', action = 'hashiriyaToggleMenu' },
-  { id = 'talk', action = 'hashiriyaTalk' },
-  { id = 'talkAlt', action = 'hashiriyaTalkAlt' },
-  { id = 'unstuck', action = 'hashiriyaUnstuck' },
+  { id = 'highbeam', action = 'highbeam', group = 'battle', need = true },
+  { id = 'hazard', action = 'toggle_hazard_signal', group = 'battle', need = true },
+  { id = 'left', action = 'toggle_left_signal', group = 'battle', need = true },
+  { id = 'right', action = 'toggle_right_signal', group = 'battle', need = true },
+  { id = 'menu', action = 'hashiriyaToggleMenu', group = 'mod', need = true },
+  { id = 'talk', action = 'hashiriyaTalk', group = 'mod', need = true },
+  { id = 'talkAlt', action = 'hashiriyaTalkAlt', group = 'mod', need = true },
+  { id = 'unstuck', action = 'hashiriyaUnstuck', group = 'mod', need = true },
+  { id = 'music', action = 'hashiriyaMusicSkip', group = 'mod' },
+  { id = 'walk', action = 'toggleWalkingMode', group = 'drive', need = true, probe = true },
+  { id = 'camera', action = 'hashiriyaCaptureCamera', group = 'dev', dev = true },
+  { id = 'dev', action = 'hashiriyaDevMenu', group = 'dev', dev = true },
 }
+local keyGroups = { 'battle', 'mod', 'drive', 'dev' }
 
 -- Lesbare Tastennamen: "comma" -> ",", "modifier2 btn_lt" -> "Mod2 + LT"
 local keyNames = { comma = ',', period = '.', slash = '/', backslash = '\\', semicolon = ';', apostrophe = "'",
@@ -214,6 +224,15 @@ local function deviceLabel(devname)
   return 'Pad '
 end
 
+-- Gibt es eine BeamNG-Aktion im Spiel? nil = lässt sich nicht prüfen
+local function actionExists(action)
+  local ia = rawget(_G, 'core_input_actions')
+  if not ia or not ia.getActiveActions then return nil end
+  local ok, list = pcall(ia.getActiveActions)
+  if not ok or type(list) ~= 'table' or next(list) == nil then return nil end
+  return list[action] ~= nil
+end
+
 local function keyStatus()
   local bound = {}
   local b = rawget(_G, 'core_input_bindings')
@@ -228,11 +247,19 @@ local function keyStatus()
       end
     end
   end
+  local release = core().isRelease and core().isRelease()
+  local hasDev = extensions.hashiriyaBattle_devtools ~= nil and not release
   local list, missing = {}, 0
   for _, k in ipairs(keyActions) do
-    local keys = bound[k.action]
-    if not keys then missing = missing + 1 end
-    table.insert(list, { id = k.id, keys = keys and table.concat(keys, ' / ') or nil })
+    local show = true
+    if k.dev and not hasDev then show = false end
+    if k.probe and actionExists(k.action) ~= true then show = false end
+    if show then
+      local keys = bound[k.action]
+      if not keys and k.need then missing = missing + 1 end
+      table.insert(list, { id = k.id, action = k.action, group = k.group, need = k.need or nil,
+        keys = keys and table.concat(keys, ' / ') or nil })
+    end
   end
   return list, missing
 end
@@ -258,11 +285,31 @@ local function openControls(id)
   local router = extensions.ui_router or rawget(_G, 'ui_router')
   if not router or not router.navigate then return end
   local action
-  for _, k in ipairs(keyActions) do if k.id == id then action = k.action end end
+  for _, k in ipairs(keyActions) do if k.id == id or k.action == id then action = k.action end end
   if action then
     if pcall(router.navigate, 'menu.options.controls.bindings.edit', { action = action }) then return end
   end
   pcall(router.navigate, 'menu.options.controls.bindings', nil, nil)
+end
+M.openControls = openControls
+
+-- Tastenübersicht fürs Pausenmenü (ui/ui-vue/mods/hashiriyaBattle/PauseCard.vue, Reiter "Tasten")
+function M.keyOverview()
+  local list, missing = keyStatus()
+  local c = core()
+  local t = {}
+  for _, k in ipairs(list) do
+    t['keys.' .. k.id] = c.t('keys.' .. k.id)
+    t['keys.' .. k.id .. '.d'] = c.t('keys.' .. k.id .. '.d')
+  end
+  for _, g in ipairs(keyGroups) do t['keys.group.' .. g] = c.t('keys.group.' .. g) end
+  for _, k in ipairs({ 'keys.unbound', 'keys.optional', 'keys.bind', 'keys.open', 'keys.missing', 'keys.allOk',
+    'keys.pauseTitle', 'keys.pauseSub', 'keys.pauseHint', 'pause.tab.keys', 'pause.tab.music' }) do t[k] = c.t(k) end
+  return { keys = list, missing = missing, groups = keyGroups, t = t }
+end
+
+function M.sendKeys()
+  if guihooks then guihooks.trigger('HashiriyaKeys', M.keyOverview()) end
 end
 
 -- Tutorial ---------------------------------------------------------------------
@@ -702,7 +749,7 @@ function M.getUiState()
   local st = { step = flow.step, name = flow.name, plate = flow.plate, platePick = flow.platePick, busy = spawnTimer > 0,
     experience = flow.experience, fromHome = flow.fromHome }
   st.steps = flow.experience == 'newbie' and { 'experience', 'keys', 'tutorial', 'driver', 'car', 'confirm' } or { 'experience', 'keys', 'driver', 'car', 'confirm' }
-  if flow.step == 'keys' then st.keys, st.keysMissing = keyStatus() end
+  if flow.step == 'keys' then st.keys, st.keysMissing = keyStatus(); st.keyGroups = keyGroups end
   if flow.step == 'tutorial' then
     local pages = tutorialPages()
     local i = math.min(math.max(flow.page or 1, 1), math.max(#pages, 1))

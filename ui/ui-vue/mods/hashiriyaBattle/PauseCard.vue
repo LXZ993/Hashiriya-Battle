@@ -4,11 +4,43 @@
       <img class="hb-logo" src="/ui/ui-vue/mods/hashiriyaBattle/assets/icon.png" alt="" />
       <div>
         <div class="hb-name">Hashiriya Battle</div>
-        <div class="hb-title">{{ tx('pause.title') }}</div>
+        <div class="hb-title">{{ tab === 'keys' ? tx('keys.pauseTitle', 'Tasten') : tx('pause.title') }}</div>
       </div>
     </div>
-    <p class="hb-sub">{{ tx('pause.sub') }}</p>
+    <div class="hb-tabs">
+      <button :class="{ 'is-sel': tab === 'keys' }" @click="setTab('keys')">{{ tx('pause.tab.keys', 'Tasten') }}</button>
+      <button :class="{ 'is-sel': tab === 'music' }" @click="setTab('music')">{{ tx('pause.tab.music', 'Musik') }}</button>
+    </div>
 
+    <template v-if="tab === 'keys'">
+      <p class="hb-sub">{{ tx('keys.pauseSub') }}</p>
+      <div v-if="!keys" class="hb-sub">…</div>
+      <template v-else>
+        <template v-for="g in keyGroups" :key="g">
+          <div class="hb-label">{{ tx('keys.group.' + g) }}</div>
+          <div class="hb-list">
+            <div v-for="k in keysOf(g)" :key="k.id" class="hb-key"
+              :class="{ 'is-missing': !k.keys && k.need, 'is-free': !k.keys && !k.need }">
+              <span class="hb-key-main">
+                <span class="hb-song-title">{{ tx('keys.' + k.id) }}</span>
+                <small>{{ tx('keys.' + k.id + '.d') }}</small>
+              </span>
+              <span class="hb-kbd" :title="k.keys">{{ k.keys || tx('keys.unbound') }}</span>
+              <button class="hb-btn hb-ghost" @click="bind(k)">{{ tx('keys.bind') }}</button>
+            </div>
+          </div>
+        </template>
+        <p class="hb-note hb-warn" v-if="keys.missing > 0">{{ tx('keys.missing') }}</p>
+        <p class="hb-note" v-else>{{ tx('keys.allOk') }}</p>
+        <p class="hb-note">{{ tx('keys.pauseHint') }}</p>
+        <div class="hb-foot">
+          <button class="hb-btn" @click="bind(null)">{{ tx('keys.open') }}</button>
+        </div>
+      </template>
+    </template>
+
+    <template v-if="tab === 'music'">
+    <p class="hb-sub">{{ tx('pause.sub') }}</p>
     <div v-if="!data" class="hb-sub">…</div>
     <template v-else>
       <div class="hb-now" v-if="data.now">
@@ -86,6 +118,7 @@
         <button class="hb-btn hb-ghost" @click="call('resetAssign()')">{{ tx('pause.reset') }}</button>
       </div>
     </template>
+    </template>
   </div>
 </template>
 
@@ -99,7 +132,41 @@ const sel = ref(null)
 const modes = ["both", "mod", "own", "off"]
 
 const q = v => JSON.stringify(String(v))
-const tx = k => (data.value && data.value.t && data.value.t[k]) || k
+const keys = ref(null)
+const tx = (k, fb) => (keys.value && keys.value.t && keys.value.t[k]) || (data.value && data.value.t && data.value.t[k]) || fb || k
+
+// Reiter Tasten / Musik, der zuletzt offene bleibt gemerkt
+const TAB_KEY = "hashiriyaPauseTab"
+function readTab() {
+  try { const v = window.localStorage.getItem(TAB_KEY); if (v === "keys" || v === "music") return v } catch (e) {}
+  return "keys"
+}
+const tab = ref(readTab())
+function setTab(t) {
+  tab.value = t
+  try { window.localStorage.setItem(TAB_KEY, t) } catch (e) {}
+  if (t === "keys") askKeys()
+}
+
+function askKeys() {
+  api.engineLua("if extensions.hashiriyaBattle_career then extensions.hashiriyaBattle_career.sendKeys() end")
+}
+const keyGroups = computed(() => {
+  if (!keys.value) return []
+  return arr(keys.value.groups).filter(g => keysOf(g).length > 0)
+})
+function keysOf(g) { return keys.value ? keys.value.keys.filter(k => k.group === g) : [] }
+// öffnet den BeamNG-Dialog "Taste belegen" für diese Aktion (ohne Aktion: die ganze Steuerung)
+function bind(k) {
+  const arg = k ? JSON.stringify(String(k.id)) : "nil"
+  api.engineLua("if extensions.hashiriyaBattle_career then extensions.hashiriyaBattle_career.openControls(" + arg + ") end")
+}
+function onKeys(d) {
+  if (!d) return
+  d.keys = arr(d.keys)
+  keys.value = d
+}
+let keyTimer = null
 
 function call(fn) {
   api.engineLua("if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music." + fn + " end")
@@ -159,9 +226,17 @@ function onMatrix(d) {
 
 onMounted(() => {
   events.on("HashiriyaMusicMatrix", onMatrix)
+  events.on("HashiriyaKeys", onKeys)
   call("sendMatrix()")
+  askKeys()
+  // Belegung neu holen, solange der Reiter offen ist (z. B. nach Rückkehr aus der Steuerung)
+  keyTimer = setInterval(() => { if (tab.value === "keys") askKeys() }, 2000)
 })
-onUnmounted(() => events.off("HashiriyaMusicMatrix", onMatrix))
+onUnmounted(() => {
+  events.off("HashiriyaMusicMatrix", onMatrix)
+  events.off("HashiriyaKeys", onKeys)
+  if (keyTimer) clearInterval(keyTimer)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -211,6 +286,32 @@ onUnmounted(() => events.off("HashiriyaMusicMatrix", onMatrix))
   &.hb-ghost { background: rgba(255, 255, 255, 0.07); color: #e6e6e6; font-weight: 600; &:hover { background: rgba(255, 255, 255, 0.14); } }
 }
 .hb-note { color: #9a9a9a; font-size: 0.8rem; margin: 0.5rem 0; }
+.hb-warn { color: #ff9a3c; }
+.hb-tabs {
+  display: flex; gap: 0; margin: 0.9rem 0 0.2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  button {
+    border: 0; background: transparent; color: #b9b9b9; padding: 0.45rem 1rem; cursor: pointer; font-size: 0.85rem;
+    font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    &:hover { color: #fff; }
+    &.is-sel { color: #fff; border-bottom-color: #ff6600; }
+  }
+}
+.hb-key {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.4rem 0.6rem;
+  background: rgba(255, 255, 255, 0.03); border-left: 3px solid #3fbf6f;
+  &.is-missing { border-left-color: #e23b3b; background: rgba(226, 59, 59, 0.1); }
+  &.is-free { border-left-color: rgba(255, 255, 255, 0.22); }
+  .hb-key-main { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .hb-song-title { font-weight: 600; }
+  small { color: #a8a8a8; font-size: 0.75rem; }
+}
+.hb-kbd {
+  flex: none; min-width: 6.5rem; max-width: 10rem; text-align: center; padding: 0.2rem 0.6rem; font-weight: 800; font-size: 0.85rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #3fbf6f;
+  border: 1px solid rgba(63, 191, 111, 0.45); border-bottom-width: 3px; border-radius: 0.25rem; background: rgba(0, 0, 0, 0.25);
+  .is-missing & { color: #ff6b6b; border-color: rgba(255, 107, 107, 0.45); font-size: 0.75rem; }
+  .is-free & { color: #9a9a9a; border-color: rgba(255, 255, 255, 0.18); font-size: 0.75rem; }
+}
 .hb-path { word-break: break-all; }
 .hb-list { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 2px; }
 .hb-song {

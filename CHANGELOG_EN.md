@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### Clear key overview
+- The key check when starting a new save now shows every key of the mod, sorted into Battle, Hashiriya Battle, On the road and Developer. New: skip music, get out/get in and (dev version only) title camera and dev menu.
+- Red means needed and missing. Grey means just handy and may stay free.
+- New in the pause menu: Esc > Mods > Hashiriya Battle now has the tabs "Keys" and "Music". "Keys" shows all bindings any time, "Bind" opens the BeamNG controls straight for that key.
+
 ### Unstuck
 - New: "Unstuck" with Shift + U or as a tile in the left menu. If you get caught in a guardrail or object with the car or on foot (some of them on C1 are not fully solid and hold you like a magnet), you are moved back 0.5 m along your own path, facing the way you were and without momentum.
 - Still stuck? Pressing again shortly after moves you back further (1.5 m, 3 m, 6 m).
