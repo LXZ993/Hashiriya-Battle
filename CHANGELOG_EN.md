@@ -137,11 +137,10 @@
 - Your own arrow on the minimap is now white (like your dot in the middle of the radar), so it stands out from orange rivals.
 
 ### Rival garage (developer tool)
-- New in the dev version: the BeamNG garage (main menu > More > Garage) gets a "Rival garage" panel on the right. Search rivals or filter by crews, leaders, wanderers, bosses, own configs and missing configs, click one, and his car loads in the garage with his config (as in game with plate and fixed paint, or the plain config).
+- New in the dev version: own mode "Gegner-Garage (Dev)" in the BeamNG main menu under More, right next to Hashiriya Battle. It loads the garage hall as plain freeroam with the "Rival garage" panel on the right. Search rivals or filter by crews, leaders, wanderers, bosses, own configs and missing configs, click one, and his car loads in the garage with his config (as in game with plate and fixed paint, or the plain config).
 - Next to it: description, crew with all members and their cars, conditions in plain words, driving style, reward and lines. That keeps a car in character while tuning it, e.g. the company cars of Zangyō Express.
 - "Save to rival" writes the tuned config back: own mod configs are overwritten (with a backup), BeamNG configs stay untouched and the rival gets his own hashiriya_r_<id>.pc, rivals.json is only changed at that one spot.
-- The original garage stays unchanged: the mod only switches to its own UI layout while the garage is open. On/off in Dev menu > Tools. Not in the release.
-- Fixed: the panel did not show in the garage because BeamNG hides all UI apps there. It is now shown at runtime on top of the garage menus (photo mode and vehicle selector stay clear).
+- The original BeamNG garage (More > Garage) stays completely unchanged. Tuning happens in the dev garage with the normal menus (Esc > Vehicle config: parts, tuning, paint); Esc and HUD editing work there as usual. Not in the release.
 
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.
