@@ -1,7 +1,7 @@
 from vcsvg import Doc
 from txt import text
 from vcsvg import KEYC
-D = Doc('bx')
+D = Doc()
 def P(pts): return 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + ' Z'
 def PL(pts): return 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts)
 # Geteilter Lack wie auf deinem pink/blau-Bild: vorne Farbe 2, hinten Farbe 1, Grenze = Zickzack-Pfeil nach vorne

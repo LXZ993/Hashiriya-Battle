@@ -1,5 +1,5 @@
 from vcsvg import Doc
-D = Doc('bx')
+D = Doc()
 KS = 'KaushanScript-Regular.ttf'; RB = 'RobotoCondensed.ttf'
 def P(pts): return 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + ' Z'
 # Werksstreifen unter der Fensterlinie: duenn ab Vordertuer, breiter nach hinten, mit Blitz-Unterbrechung

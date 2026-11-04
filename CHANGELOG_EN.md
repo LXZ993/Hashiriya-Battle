@@ -3,10 +3,10 @@
 ## Alpha 0.9.2 (as of 2026-11-04)
 
 ### Colorable Japan liveries
-- New: 54 paint designs for all 9 Japanese cars (Pessima Mk1 and Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 6 styles: Street Drift Tribal, Factory Sports, Bosozoku, Kaido Racer, Factory Two-Tone and Factory Race Team.
-- Colorable like the vanilla "Custom" skin: paint 1 is the base coat, paints 2 and 3 color the livery. Found in the configurator under Paint Design as "Hashiriya: ... (Colorable)".
-- Every car gets its own variant per style (different tribal, split, race number, teams, drivers and sponsors). All sponsors are made up or BeamNG lore.
-- Every livery comes with a layered PSD for fine-tuning, also for the taxi, police and worker cars.
+- New: 63 paint designs for all 9 Japanese cars (Pessima Mk1 and Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 styles: Street Drift Flames, Street Drift Team, Factory Sports, Bosozoku, Kaido Racer, Factory Two-Tone and Factory Race Team.
+- All designs are drawn in VectorCraft after references by JDMArsch (LXZ aka. LXZockt) and run cleanly over pillars, roof and hood.
+- Colorable like the vanilla "Custom" skin: paint 1 is the base coat, paints 2 and 3 color the livery. Found in the configurator under Paint Design as "Hashiriya: ... (Colorable)". All sponsors are made up or BeamNG lore.
+- Every livery comes with a .vectorcraft file and a layered PSD for fine-tuning.
 
 ### Speed cameras and police
 - New: speed limits apply during the day. Speed cameras are the 45 fixed speed traps on C1, and now and then the police run laser checks. Nothing is measured at night.

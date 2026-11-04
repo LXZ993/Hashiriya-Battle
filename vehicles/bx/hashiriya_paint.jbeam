@@ -2,7 +2,7 @@
   "bx_skin_hb_streetdrift": {
     "information": {
       "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Street Drift Tribal (Colorable)",
+      "name": "Hashiriya: Street Drift Flames (Colorable)",
       "value": 3000
     },
     "slotType": "paint_design",
@@ -52,5 +52,14 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_raceteam"
+  },
+  "bx_skin_hb_streetdrift_team": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Street Drift Team (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_streetdrift_team"
   }
 }

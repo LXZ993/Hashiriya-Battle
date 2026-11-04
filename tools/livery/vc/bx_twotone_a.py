@@ -1,5 +1,5 @@
 from vcsvg import Doc
-D = Doc('bx')
+D = Doc()
 def P(pts): return 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + ' Z'
 # Werks-Zweifarbenlack: unterhalb der Karosserielinie Farbe 2 (rundum, auch Front-/Heckschuerze),
 # genau auf der Trennkante ein Zierstreifen in Farbe 3

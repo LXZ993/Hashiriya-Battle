@@ -1,7 +1,7 @@
 from vcsvg import Doc
 from flame import tongue
 from txt import text
-D = Doc('bx')
+D = Doc()
 KS, RC, RB = 'KaushanScript-Regular.ttf', 'RacingSansOne-Regular.ttf', 'RobotoCondensed.ttf'
 # --- Seite: duennes Flammen-Tribal in Farbe 3 hinter dem Schriftzug, fliesst nach hinten ---
 tri = [

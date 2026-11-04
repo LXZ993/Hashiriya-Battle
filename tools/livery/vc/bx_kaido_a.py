@@ -1,6 +1,6 @@
 from vcsvg import Doc
 from txt import text
-D = Doc('bx')
+D = Doc()
 SM, ZK = 'ShipporiMincho-ExtraBold.ttf', 'ZenKakuGothicNew-Black.ttf'
 def P(pts): return 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + ' Z'
 # Farbe 3: duenner Seitenstreifen auf der Karosserielinie, durchgehend von Stossstange zu Stossstange

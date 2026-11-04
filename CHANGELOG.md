@@ -3,10 +3,10 @@
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
 ### Lackierbare Japan-Liveries
-- Neu: 54 Lackdesigns für alle 9 Japan-Autos (Pessima Mk1 und Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 6 Stilen: Street-Drift Tribal, Werks-Sportstreifen, Bosozoku, Kaido-Racer, Werks-Zweifarben und Werks-Rennteam.
-- Lackierbar wie der Vanilla-Skin „Custom“: Farbe 1 ist der Grundlack, Farbe 2 und Farbe 3 färben die Livery. Zu finden im Konfigurator unter Lackdesign als „Hashiriya: … (Colorable)“.
-- Jedes Auto bekommt je Stil eine eigene Variante (anderer Tribal, andere Teilung, andere Startnummer, Teams, Fahrer und Sponsoren). Alle Sponsoren sind erfunden oder BeamNG-Lore.
-- Zu jeder Lackierung gibt es eine PSD mit Ebenen zum Feinjustieren, auch für Taxi, Polizei und Arbeiter-Autos. Zurück ins Spiel geht es per Drag-and-drop auf tools\livery\PSD-zu-Skin.bat (Details im Handbuch, Kapitel 12g).
+- Neu: 63 Lackdesigns für alle 9 Japan-Autos (Pessima Mk1 und Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 Stilen: Street-Drift Flammen, Street-Drift Team, Werks-Sportstreifen, Bosozoku, Kaido-Racer, Werks-Zweifarben und Werks-Rennteam.
+- Alle Entwürfe sind in VectorCraft nach den Vorlagen von JDMArsch (LXZ aka. LXZockt) gezeichnet und laufen sauber über Säule, Dach und Haube.
+- Lackierbar wie der Vanilla-Skin „Custom“: Farbe 1 ist der Grundlack, Farbe 2 und Farbe 3 färben die Livery. Zu finden im Konfigurator unter Lackdesign als „Hashiriya: … (Colorable)“. Alle Sponsoren sind erfunden oder BeamNG-Lore.
+- Zu jeder Lackierung gibt es eine .vectorcraft-Datei und eine PSD mit Ebenen zum Feinjustieren (Details im Handbuch, Kapitel 12g).
 
 ### Blitzer und Polizei
 - Neu: Tagsüber gelten Tempolimits. Blitzer sind die 45 festen Radarfallen der C1, dazu macht die Polizei ab und an Laserkontrollen. Nachts wird nicht gemessen.

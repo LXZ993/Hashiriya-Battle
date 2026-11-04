@@ -16,7 +16,13 @@ Nicht Teil des Spiels.
 `sideview.py <modell>` zeigt eine Seitenansicht mit Maßlinien, um Positionen in `GEO` (designs.py) abzulesen.
 
 ## Lackierbare Japan-Liveries (Farbe 1/2/3)
-Neuer Weg seit 04.11.2026, für Liveries, die man im Spiel selbst einfärbt (wie der Vanilla-Skin "Custom").
+**Aktuell (VectorCraft, 04.11.2026):** die Entwürfe liegen in `vc/`. `vc/bx_<stil>.py` zeichnet auf dem 200BX (Seite links/rechts + Draufsicht, 200 px/m) über `vcsvg.Doc`;
+`vc/landmarks.py` liefert Radlauf/Gürtel/Schweller je Modell für die Übertragung. `vc/build_all.sh <modell>` macht PNG/PSD/.vectorcraft
+(VectorCraft-CLI 0.19, `--hidden-objects layer`), `vc/bake_all.py [modell...]` projiziert das PNG (`vc_bake.bake_key`) und schreibt per
+`export_paint.write_maps/write_defs` Texturen, jbeam und Materialien. Braucht `HB_LIVERY_WORK` (Positionskarten) und `HB_LIVERY_SRC` (Vanilla-Skins).
+Der Python-Weg unten (`styles.py`) ist der ältere Stand.
+
+Älterer Weg seit 04.11.2026, für Liveries, die man im Spiel selbst einfärbt (wie der Vanilla-Skin "Custom").
 - `styles.py`: 6 Stile mit je 3 Varianten, Formen in Fahrzeug-Einheiten (u = Vorderrad 0 … Hinterrad 1, v = Schweller 0 … Fensterlinie 1),
   Maße je Modell in `GEO`, Teams/Sponsoren/Fahrer/Gangs als Listen. Welche Variante ein Modell bekommt: `variant()`.
 - `paint.py`: Ebenen-Backer. Jede Ebene hat einen Schlüssel (1/2/3 = Lackfarbe, 'k' = festes Schwarz) und wird in das Schlüsselbild

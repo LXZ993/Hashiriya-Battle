@@ -5,7 +5,7 @@ from PIL import Image
 from livery import Ctx
 from paint import preview_tex, PaintCtx
 import preview
-def bake_key(model, png, SX=0, SY=0, RY=260, TX=950, TY=0, ppm0=200, scale=1.5, dilate=8):
+def bake_key(model, png, SX=0, SY=0, RY=300, TX=1000, TY=0, ppm0=200, scale=1.5, dilate=8):
     c = Ctx(model); P = c.P; lo, hi = c.lo, c.hi
     im = np.asarray(Image.open(png).convert('RGBA')).astype(np.float32) / 255
     Hh, Ww = im.shape[:2]; p = ppm0 * scale
