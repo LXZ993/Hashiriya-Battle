@@ -2,6 +2,12 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Logo-Sammlung
+- Neu, wie in TXR: Besiegst du den Leader einer Crew, bekommst du das Crew-Logo. Besiegst du einen Wanderer oder Boss, bekommst du sein Siegel oder Emblem. Nach dem Sieg sagt eine Meldung, welches Logo neu ist.
+- Neue Kachel „Logo-Sammlung“ im Menü links (unterwegs und zuhause) mit deinem aktuellen Logo und wie viele du schon hast (z. B. 16 / 73). Darin alle Logos nach Crews, Wanderern und Bossen. Gesperrte Crew-Logos sind grau, Siegel und Embleme bleiben „?“, bis du sie geschlagen hast. Antippen zeigt, was du dafür tun musst.
+- Ein freies Logo antippen macht es zu deinem Logo: es steht dann im Battle oben links in der SP-Anzeige statt dem Hashiriya-Zeichen 走. Zurück geht es mit „Standard“.
+- Jeder Spielstand hat seine eigene Sammlung und Wahl. Alte Spielstände bekommen alle Logos der schon besiegten Gegner sofort.
+
 ### Tastenbelegung übersichtlich
 - Der Tasten-Check beim neuen Spielstand zeigt jetzt alle Tasten der Mod, sortiert nach Battle, Hashiriya Battle, Unterwegs und Entwickler. Neu dabei: Musik überspringen, Aussteigen/Einsteigen und (nur in der Dev-Version) Titelbild-Kamera und Dev-Menü.
 - Rot heißt: wird gebraucht und fehlt. Grau heißt: nur praktisch, darf frei bleiben.

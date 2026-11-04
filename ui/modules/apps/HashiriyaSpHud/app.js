@@ -49,8 +49,8 @@ angular.module('beamng.apps')
               '</div>' +
           '</div>' +
 
-          // Embleme fest in der Anzeige: links dein Zeichen (走), rechts Crew-Symbol / Wanderer-Siegel / Boss-Emblem
-          '<img class="hbh-slot hbh-slot-l" ng-src="{{ playerMark }}" alt="">' +
+          // Embleme fest in der Anzeige: links dein Logo (Logo-Sammlung, ohne Wahl das Zeichen 走), rechts Crew-Symbol / Wanderer-Siegel / Boss-Emblem
+          '<img class="hbh-slot hbh-slot-l" ng-class="{\'hbh-slot-own\': b.playerLogo && b.playerLogo != playerMark}" ng-src="{{ b.playerLogo || playerMark }}" alt="">' +
           '<img class="hbh-slot hbh-slot-r" ng-if="b.rivalLogo" ng-src="{{ b.rivalLogo }}" alt="">' +
           '<div class="hbh-sync" ng-if="b.state == \'sync\'">{{ t[\'hud.sync\'] }}</div>' +
           '<div class="hbh-count" ng-if="b.state == \'countdown\'"><span ng-attr-key="{{ b.countdown }}">{{ b.countdown }}</span></div>' +
@@ -114,6 +114,7 @@ angular.module('beamng.apps')
           '.hbh{padding-left:108px !important;padding-right:108px !important;}' +
           '.hbh-slot{position:absolute;top:4px;width:84px;height:84px;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,.85));}' +
           '.hbh-slot-l{left:14px;width:64px;height:64px;top:14px;}' +
+          '.hbh-slot-l.hbh-slot-own{left:12px;width:84px;height:84px;top:4px;}' +
           '.hbh-slot-r{right:12px;animation:hbhEmblem .35s ease-out;}' +
           '@keyframes hbhEmblem{from{opacity:0;transform:scale(.8) rotate(-6deg);}to{opacity:1;transform:none;}}' +
           '.hbh-gap{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--o2);padding:1px 10px 0;' +
