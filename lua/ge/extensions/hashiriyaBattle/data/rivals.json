@@ -4917,6 +4917,7 @@
     },
     {
       "id": "t_neon_leader",
+      "auraOn": true,
       "name": "Reika Hoshino",
       "nick": {
         "de": "Königin der Lichter",
