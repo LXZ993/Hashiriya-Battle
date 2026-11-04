@@ -124,7 +124,7 @@ nav label.lm select { width: 100%; margin-top: 3px; padding: 5px 6px; border-rad
     <a href="#configdoc">Config-Liste mit Buchstaben</a>
     <a href="#silhouetten">Silhouetten-Tool (Prototyp)</a>
     <a href="#logos">Team-Logos, Wanderer-Siegel, Boss-Embleme</a>
-    <a class="l2" href="#logosammlung">Logo-Sammlung (dein Logo)</a>
+    <a class="l2" href="#logosammlung">Trophäenwand (dein Logo)</a>
     <div class="grp">Karriere</div>
     <a href="#autos">Startautos und Startgeld</a>
     <a href="#haendler">Autohändler</a>
@@ -720,7 +720,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <p>Wie in der TXR-Reihe hat jede Crew ein eigenes Logo, jeder Wanderer ein eigenes Zeichen und jeder Boss ein eigenes Emblem. In TXR sind das Aufkleber: Die Crew trägt ihr Teamlogo, Wanderer und Bosse haben persönliche Sticker, die man nach dem Sieg freischaltet. Bei uns sind alle Logos <b>eigene Entwürfe</b> im Stil von Vinyl-Aufklebern. Crew-Logos sind freigestellt (dein Wunsch): nur das Motiv und der Schriftzug, ohne Grundform dahinter, mit weißer Schneidekante und dunkler Kontur. Leader haben eine goldene Kante und einen Stern. Wanderer-Siegel (rund, mit Zeichen) und Boss-Embleme (Stern) behalten ihre Form. Kein Logo aus einem Spiel ist nachgebaut.</p>
 <h3>Wo die Logos im Spiel stehen</h3>
 <ul>
-<li><b>Im Duell (SP-Anzeige):</b> fest in der Anzeige: links dein Logo (aus der <a href="#logosammlung">Logo-Sammlung</a>, ohne Wahl das Zeichen 走), rechts das Crew-Symbol (ohne Schrift), das Wanderer-Siegel oder das Boss-Emblem. Unter dem Namen des Rivalen steht der Crew-Name. Größe ändern: <code>.hbh-slot</code> in <span class="path">ui\modules\apps\HashiriyaSpHud\app.js</span>.</li>
+<li><b>Im Duell (SP-Anzeige):</b> fest in der Anzeige: links dein Logo (aus der <a href="#logosammlung">Trophäenwand</a>, ohne Wahl das Zeichen 走), rechts das Crew-Symbol (ohne Schrift), das Wanderer-Siegel oder das Boss-Emblem. Unter dem Namen des Rivalen steht der Crew-Name. Größe ändern: <code>.hbh-slot</code> in <span class="path">ui\modules\apps\HashiriyaSpHud\app.js</span>.</li>
 <li><b>Sprechblase:</b> als schräg aufgeklebter Sticker auf der Ecke des Porträts, bei Herausforderung, Sieg und Niederlage und in PA-Gesprächen mit Rivalen.</li>
 <li><b>Rivalen-Lexikon:</b> jede Crew zeigt ihr Logo vorne in ihrer Zeile (gesperrte Crews grau). Leader haben das goldene Logo neben dem Namen. Wanderer und Bosse zeigen ihr Siegel erst, wenn du sie geschlagen hast (vorher "???").</li>
 </ul>
@@ -744,7 +744,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </section>
 
 <section id="logosammlung">
-<h2><span class="n">5d</span> Logo-Sammlung: dein eigenes Logo <span class="tag">logos.lua</span></h2>
+<h2><span class="n">5d</span> Trophäenwand: dein eigenes Logo <span class="tag">logos.lua</span></h2>
 <p>Wie in TXR sammelst du die Logos der Gegner, die du geschlagen hast, und wählst eins davon als <b>dein Logo</b>. Es steht dann im Battle oben links in der SP-Anzeige, dort wo sonst das Hashiriya-Zeichen 走 steht.</p>
 <h3>Was man wofür bekommt</h3>
 <table>
@@ -754,10 +754,10 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td>Boss-Emblem (<span class="path">art\logos\b_….svg</span>)</td><td>du den Boss besiegt hast</td><td>„?“</td></tr>
 <tr><td>Hashiriya-Zeichen 走</td><td>immer</td><td>Standard</td></tr>
 </table>
-<p>Revanchen zählen nicht extra, das Logo gibt es beim ersten Sieg. Nach dem Sieg kommt die Meldung „Neues Logo für deine Sammlung: …“ (Text <code>msg.logoUnlocked</code> in <span class="path">lua\ge\extensions\hashiriyaBattle\data\lang\de.json</span>).</p>
+<p>Revanchen zählen nicht extra, das Logo gibt es beim ersten Sieg. Nach dem Sieg kommt die Meldung „Neue Trophäe an der Wand: …“ (Text <code>msg.logoUnlocked</code> in <span class="path">lua\ge\extensions\hashiriyaBattle\data\lang\de.json</span>).</p>
 <h3>Im Spiel</h3>
 <ul>
-<li><b>Menü links</b> (Pos1, unterwegs und zuhause): Kachel <b>„Logo-Sammlung“</b> mit deinem aktuellen Logo und der Zahl, z. B. 16 / 73.</li>
+<li><b>Menü links</b> (Pos1, unterwegs und zuhause): Kachel <b>„Trophäenwand“</b> mit deinem aktuellen Logo und der Zahl, z. B. 16 / 73.</li>
 <li>Oben steht dein Logo groß mit Fortschrittsbalken, darunter alle Logos in vier Spalten: Standard, Crews, Wanderer, Bosse (je mit „frei / alle“).</li>
 <li>Ein freies Logo antippen = als dein Logo wählen (orange Rahmen und Ecke). Ein gesperrtes antippen zeigt oben, was du dafür tun musst.</li>
 <li>Im Battle zeigt die SP-Anzeige links dein Logo (bei Crews das Symbol ohne Schrift, <code>&lt;crew&gt;_icon.svg</code>, 84 px wie das Logo des Gegners rechts).</li>
@@ -1819,7 +1819,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <p>Ideen, die wir besprochen haben. „Meilenstein“ sagt, wo sie eingeplant sind. Was TXR, TXR Drift, Racing Battle: C1 Grand Prix und Wangan Midnight Maximum Tune noch voraushaben, steht im <a href="https://claude.ai/artifact/7ZxvAtWHURRvtP5xVzRaFr" target="_blank">Feature-Abgleich (04.11.2026)</a>; die Punkte daraus stehen unten, mit deinen Entscheidungen vom 04.11.2026.</p>
 <table>
 <tr><th>Idee</th><th>Meilenstein</th><th>Stand</th></tr>
-<tr><td>Team-Logos auch auf den Autos der Rivalen (als Aufkleber/Lackdesign) und gewonnene Siegel als eigene Aufkleber für dein Auto, wie die Sticker in TXR.</td><td>noch keiner</td><td>Idee. Erster Teil gebaut (04.11.2026): <a href="#logosammlung">Logo-Sammlung</a>, gewonnenes Logo als dein Logo im Battle. Aufkleber aufs Auto fehlt noch.</td></tr>
+<tr><td>Team-Logos auch auf den Autos der Rivalen (als Aufkleber/Lackdesign) und gewonnene Siegel als eigene Aufkleber für dein Auto, wie die Sticker in TXR.</td><td>noch keiner</td><td>Idee. Erster Teil gebaut (04.11.2026): <a href="#logosammlung">Trophäenwand</a>, gewonnenes Logo als dein Logo im Battle. Aufkleber aufs Auto fehlt noch.</td></tr>
 <tr><td>Team-Logos auf den Crew-Abzeichen der Porträts und als farbige Markierung auf dem Radar.</td><td>noch keiner</td><td>Idee</td></tr>
 <tr><td>Eigene japanische Liveries für die Arbeiter-Autos an den PAs (Taxi, Werkstatt, Spedition, Kurier, Krankenwagen) und für Polizei, die später tagsüber am Straßenrand wartet.</td><td>Alpha 0.9.x</td><td>12 Liveries gebaut (03.11.2026, <a href="#liveries">Kapitel 12f</a>), Configs macht JDMArsch. Polizei am Straßenrand braucht noch die Markierungen.</td></tr>
 <tr><td>PA-Gespräche: zu Fuß mit Fahrern neben ihren Autos reden (Smalltalk, Gerüchte, Hinweise auf Wanderer und wartende Rivalen). Figuren = BeamNG-„Bobs“.</td><td>Alpha 0.4</td><td>gebaut (01.11.2026), im Spiel getestet: kein Ruckeln, Fahrer stehen still. Ob sie sich zu dir drehen und eigene Autos haben, noch offen.</td></tr>
@@ -1904,10 +1904,10 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <details class="cl">
 <summary><b>Alpha 0.9.2</b> <small>Stand 04.11.2026</small></summary>
 <div>
-<h4>Logo-Sammlung</h4>
+<h4>Trophäenwand (Logo-Sammlung)</h4>
 <ul>
 <li>Neu, wie in TXR: Besiegst du den Leader einer Crew, bekommst du das Crew-Logo. Besiegst du einen Wanderer oder Boss, bekommst du sein Siegel oder Emblem. Nach dem Sieg sagt eine Meldung, welches Logo neu ist.</li>
-<li>Neue Kachel „Logo-Sammlung“ im Menü links (unterwegs und zuhause) mit deinem aktuellen Logo und wie viele du schon hast (z. B. 16 / 73). Darin alle Logos nach Crews, Wanderern und Bossen. Gesperrte Crew-Logos sind grau, Siegel und Embleme bleiben „?“, bis du sie geschlagen hast. Antippen zeigt, was du dafür tun musst.</li>
+<li>Neue Kachel „Trophäenwand“ im Menü links (unterwegs und zuhause) mit deinem aktuellen Logo und wie viele du schon hast (z. B. 16 / 73). Darin alle Logos nach Crews, Wanderern und Bossen. Gesperrte Crew-Logos sind grau, Siegel und Embleme bleiben „?“, bis du sie geschlagen hast. Antippen zeigt, was du dafür tun musst.</li>
 <li>Ein freies Logo antippen macht es zu deinem Logo: es steht dann im Battle oben links in der SP-Anzeige statt dem Hashiriya-Zeichen 走. Zurück geht es mit „Standard“.</li>
 <li>Jeder Spielstand hat seine eigene Sammlung und Wahl. Alte Spielstände bekommen alle Logos der schon besiegten Gegner sofort.</li>
 </ul>
