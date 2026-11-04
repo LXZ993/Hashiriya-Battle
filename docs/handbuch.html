@@ -540,7 +540,27 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>beatenTeams</code></td><td>Alle diese Crews geschlagen</td><td><code>"beatenTeams": ["t_lantern", "t_neon"]</code></td></tr>
 <tr><td><code>beatenRivals</code></td><td>Alle diese Fahrer geschlagen</td><td><code>"beatenRivals": ["w_ojisan", "t_neon_leader"]</code></td></tr>
 <tr><td><code>storyChapter</code></td><td>Erst ab diesem Story-Kapitel (ID aus <a href="#story">story.json</a>)</td><td><code>"storyChapter": "ch3"</code></td></tr>
+<tr><th colspan="3">Neu seit 04.11.2026 (Feature-Abgleich mit TXR)</th></tr>
+<tr><td><code>minStreak</code></td><td>Mindestens so viele Siege in Folge (aktuelle Siegesserie)</td><td><code>"minStreak": 10</code></td></tr>
+<tr><td><code>minMoney</code></td><td>Mindestens so viel Geld (Yen)</td><td><code>"minMoney": 30000000</code></td></tr>
+<tr><td><code>minCars</code></td><td>Mindestens so viele Autos in deiner Garage</td><td><code>"minCars": 5</code></td></tr>
+<tr><td><code>maxLosses</code></td><td>Höchstens so viele Niederlagen insgesamt</td><td><code>"maxLosses": 3</code></td></tr>
+<tr><td><code>naOnly</code></td><td>Nur mit Saugmotor: kein Turbo und kein Kompressor verbaut</td><td><code>"naOnly": true</code></td></tr>
+<tr><td><code>forcedInduction</code></td><td>Nur mit Turbo oder Kompressor</td><td><code>"forcedInduction": true</code></td></tr>
+<tr><td><code>manual</code></td><td>Nur mit Schaltgetriebe (manuell oder sequenziell)</td><td><code>"manual": true</code></td></tr>
+<tr><td><code>noPart</code></td><td>Nur wenn KEIN verbautes Teil dieses Wort im Namen hat</td><td><code>"noPart": "slick"</code></td></tr>
+<tr><td><code>paintColor</code></td><td>Nur mit dieser Lackfarbe (grob erkannt): red, orange, yellow, green, blue, purple, pink, white, silver, grey, black. Auch als Liste.</td><td><code>"paintColor": "white"<br>"paintColor": ["black", "grey"]</code></td></tr>
+<tr><td><code>plateContains</code></td><td>Dein Kennzeichen enthält diese Zeichen</td><td><code>"plateContains": "86"</code></td></tr>
+<tr><td><code>minPower / maxPower</code></td><td>Leistung deines Autos in PS (gemessen wie im Tuning-Shop)</td><td><code>"maxPower": 150</code></td></tr>
+<tr><td><code>minWeight / maxWeight</code></td><td>Gewicht deines Autos in kg</td><td><code>"maxWeight": 1100</code></td></tr>
+<tr><td><code>minOdometerKm / maxOdometerKm</code></td><td>Kilometerstand deines aktuellen Autos</td><td><code>"minOdometerKm": 200000</code></td></tr>
+<tr><td><code>minTopSpeed</code></td><td>Du warst schon mindestens so schnell (Statistik Höchsttempo, km/h)</td><td><code>"minTopSpeed": 280</code></td></tr>
+<tr><td><code>weekday</code></td><td>Nur an diesem Spiel-Wochentag (1 = Montag … 7 = Sonntag, Tag 1 ist ein Montag). Auch als Liste.</td><td><code>"weekday": [5, 6]</code></td></tr>
+<tr><td><code>nickname</code></td><td>Nur mit diesem aktiven Spitznamen (ID aus nicknames in rivals.json)</td><td><code>"nickname": "clean"</code></td></tr>
+<tr><td><code>playerLogo</code></td><td>Nur wenn du dieses Logo als dein Logo gewählt hast (Logo-Sammlung)</td><td><code>"playerLogo": "t_neon"</code></td></tr>
+<tr><td><code>stat</code></td><td>Beliebiger Statistik-Wert aus der Statistik-Seite (Schlüssel z. B. cleanWins, closeWins, quickWins, leaderWins, bossWins, rematchWins, pinkWins, jobsDone, nights, nearMisses, distanceKm, tows, repairs, carsBought) mit min und/oder max. Auch als Liste.</td><td><code>"stat": {"key": "pinkWins", "min": 3}</code></td></tr>
 </table>
+<p>Leistung und Gewicht misst die Mod im Auto; direkt nach dem Spawn fehlen sie ein paar Sekunden, dann zählt die Bedingung noch als nicht erfüllt. Der Rivalen-Builder im Spiel (Dev-Menü) hat dafür noch keine Felder, behält sie aber beim Bearbeiten bei.</p>
 <h4>Beispiele zum Kopieren</h4>
 <pre><code>// Kommt nur zwischen 2 und 4 Uhr nachts, ab Rang 6
 "conditions": {"minRank": 6, "hours": [2, 4]}
@@ -549,7 +569,13 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 "conditions": {"minDay": 5, "playerModel": "covet", "playerPart": "turbo"}
 
 // Erst wenn zwei bestimmte Wanderer geschlagen sind
-"conditions": {"beatenRivals": ["w_ojisan", "w_kaminari"]}</code></pre>
+"conditions": {"beatenRivals": ["w_ojisan", "w_kaminari"]}
+
+// Nur weiße Saugmotor-Autos mit Schaltgetriebe, nach 10 Siegen in Folge
+"conditions": {"paintColor": "white", "naOnly": true, "manual": true, "minStreak": 10}
+
+// Nur am Wochenende, für Reiche mit mindestens 3 gewonnenen Pink Slips
+"conditions": {"weekday": [6, 7], "minMoney": 30000000, "stat": {"key": "pinkWins", "min": 3}}</code></pre>
 
 <h3 id="kennzeichen">Kennzeichen (plate)</h3>
 <p>Dafür braucht man die Mod <b>Agent's Japanese Plates Pack</b>. Jeder Rivale hat:</p>
@@ -1842,7 +1868,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Tag-Events auf Rennstrecken (Tsukuba, Ebisu usw.).</td><td>nach 1.0</td><td>wartet auf Erlaubnis der Map-Autoren</td></tr>
 <tr><td>Eigene Gegner-KI später auch als eigene Mod anbieten.</td><td>nach 1.0</td><td>offen</td></tr>
 <tr><td>Eigene Sounds und Songs (Eurobeat, GT-Stil, ohne Gesang).</td><td>nach 1.0</td><td>Probe 1 fertig</td></tr>
-<tr><td>Mehr Wanderer-Bedingungen: Siegesserie, Geldstand, Anzahl Autos, nur Saugmotor, Lackfarbe, Kennzeichen-Nummer, Logo am Auto, Unfall an bestimmter Stelle, Fahrtrichtung innen/außen, Nebel/Regen (wie TXR 2025/TXR 3).</td><td>vor 1.0</td><td>JDMArsch: ja, deutlich mehr (04.11.2026), wird gebaut</td></tr>
+<tr><td>Mehr Wanderer-Bedingungen: Siegesserie, Geldstand, Anzahl Autos, nur Saugmotor, Lackfarbe, Kennzeichen-Nummer, Logo am Auto, Unfall an bestimmter Stelle, Fahrtrichtung innen/außen, Nebel/Regen (wie TXR 2025/TXR 3).</td><td>vor 1.0</td><td>gebaut (04.11.2026): 18 neue Bedingungsarten, siehe <a href="#bedingungen">Bedingungen</a>; welche Wanderer sie bekommen, legt JDMArsch fest</td></tr>
 <tr><td>Boss-Battles gegen mehrere: Leader/Boss mit 2 Begleitern nacheinander, Verlust = Kette neu (wie TXR 2025).</td><td>vor 1.0</td><td>JDMArsch: ja (04.11.2026), wird gebaut</td></tr>
 <tr><td>Fahrer-Skills (Perk-Baum) mit eigenen Punkten pro Sieg; nur Spiellogik (SP-Abzug, Rabatte, Ruf, Tipps), keine Physik.</td><td>offen</td><td>erst besprechen, was Sinn macht</td></tr>
 <tr><td>Titel und Erfolge: Erfolgsliste im Lexikon, Titel nach meistgefahrenem Auto („Fahrer des …“), als Anzeige wählbar.</td><td>offen</td><td>Titel pro Automodell erst besprechen; Spitznamen-Auswahl wird gebaut</td></tr>
@@ -1904,6 +1930,11 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <details class="cl">
 <summary><b>Alpha 0.9.2</b> <small>Stand 04.11.2026</small></summary>
 <div>
+<h4>Mehr Bedingungen für Wanderer</h4>
+<ul>
+<li>18 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).</li>
+<li>Alle Bedingungen samt Beispielen stehen im Handbuch unter „Bedingungen (conditions)“. Der Rivalen-Builder im Dev-Menü behält die neuen Bedingungen beim Bearbeiten bei.</li>
+</ul>
 <h4>Logo-Sammlung</h4>
 <ul>
 <li>Neu, wie in TXR: Besiegst du den Leader einer Crew, bekommst du das Crew-Logo. Besiegst du einen Wanderer oder Boss, bekommst du sein Siegel oder Emblem. Nach dem Sieg sagt eine Meldung, welches Logo neu ist.</li>
