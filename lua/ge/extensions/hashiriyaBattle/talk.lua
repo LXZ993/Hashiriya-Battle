@@ -46,7 +46,7 @@ local defaults = {
   loreChance = 0.6, ownTopicWeight = 3, otherTopicWeight = 0.5, placeWeight = 3, moreChance = 0.5,
   rivalNight = { 0, 2 }, rivalDay = { 0, 0 }, rivalWaitDistance = 250, rivalWaitSpeed = 30,
   rivalWeightNew = 3, rivalWeightBeaten = 1, rivalWeightHolder = 6,
-  rivalLeave = true, rivalBoardSeconds = 2.5, rivalLeaveKmh = 25, rivalExitDistance = 110, rivalLeaveTimeout = 90,
+  rivalLeave = true, rivalBoardSeconds = 2.5, rivalLeaveKmh = 20, rivalLeaveTimeout = 90,
   rivalWaitCruiseKmh = 70, rivalCatchUpDistance = 250,
 }
 
@@ -329,7 +329,34 @@ local function speakerCars(s)
   return carCache[s.id]
 end
 
-local function spawnCar(model, config, ps, rand, paints, plate, design)
+-- Ausfahrt-Routen (Dev-Menü > Orte > PA-Ausfahrt aufnehmen, bzw. paExitRoutes in der Kartendatei), die an dieser PA beginnen
+local function exitRoutesFor(center)
+  local out = {}
+  local reach = (cfg().spotRadius or 70) + 40
+  for _, e in ipairs(core().spots('paexit')) do
+    if type(e.points) == 'table' and #e.points >= 2 then
+      local pts = {}
+      for _, q in ipairs(e.points) do table.insert(pts, toVec(q)) end
+      if (pts[1] - center):length() <= reach then table.insert(out, { name = e.name, points = pts }) end
+    end
+  end
+  return out
+end
+
+-- nächster Routenpunkt zu pos (über alle Routen): Punkt, Index, Route
+local function nearestRoutePoint(routes, pos)
+  local best, bi, br = math.huge, nil, nil
+  for _, r in ipairs(routes) do
+    for i, q in ipairs(r.points) do
+      local d = (q - pos):length()
+      if d < best then best, bi, br = d, i, r end
+    end
+  end
+  return br and br.points[bi] or nil, bi, br, best
+end
+
+-- forwardTo = Punkt, zu dem die Nase zeigen soll (Gasse): Rivalen stehen rückwärts eingeparkt (in Japan üblich)
+local function spawnCar(model, config, ps, rand, paints, plate, design, forwardTo)
   config = withPlateDesign(model, config, design, rand)
   if not paints and type(config) == 'table' and type(config.paints) == 'table' and config.paints[1] then paints = config.paints end
   local opts = { pos = ps.pos, rot = ps.rot, autoEnterVehicle = false, removeTraffic = false,
@@ -347,8 +374,13 @@ local function spawnCar(model, config, ps, rand, paints, plate, design)
   if plate then pcall(core_vehicles.setPlateText, plate, id) end
   veh.playerUsable = false -- nicht einsteigbar
   -- sauber in die Bucht stellen (wie der BeamNG-Parkverkehr), Motor aus, Bremse fest
+  local backwards = rand() < 0.3
+  if forwardTo then
+    local fwd = ps.rot * vec3(0, 1, 0)
+    backwards = vec3(fwd.x, fwd.y, 0):dot(vec3(forwardTo.x - ps.pos.x, forwardTo.y - ps.pos.y, 0)) < 0
+  end
   pcall(function()
-    ps:moveResetVehicleTo(id, false, rand() < 0.3, nil, nil, true, false, nil, { skipVehicleIntersectionCheck = true })
+    ps:moveResetVehicleTo(id, false, backwards, nil, nil, true, false, nil, { skipVehicleIntersectionCheck = true })
   end)
   pcall(function() veh:queueLuaCommand('electrics.setIgnitionLevel(0)') end)
   core().freezeCar(veh, true)
@@ -435,7 +467,10 @@ local function spawnRivalNpc(r, ps, rand, pa)
   local model, config, paints, plate = rivals().carFor(r)
   local n = { rival = r, speaker = 'rival', variant = 1, heard = {}, place = pa.name,
     color = type(r.paint) == 'table' and r.paint.color or nil }
-  n.carId = spawnCar(model, config, ps, rand, paints, plate, r.plate and r.plate.design)
+  -- Nase zur Gasse: nächster Punkt der Ausfahrt-Route, sonst Richtung PA-Mitte
+  local center = toVec(pa.pos)
+  local q = nearestRoutePoint(exitRoutesFor(center), ps.pos)
+  n.carId = spawnCar(model, config, ps, rand, paints, plate, r.plate and r.plate.design, q or center)
   if not n.carId then return nil end
   placeBeside(n, ps, rand)
   if not n.figId then
@@ -850,7 +885,7 @@ acceptBattle = function(n, pink)
   convo = nil
   nearest = nil
   rivals().setReserved(r.id, true) -- bis er auf der Straße ist
-  pending = { rival = copy, pink = pink, paPos = paPos, night = home().nightId(), tries = 0, wait = 0 }
+  pending = { rival = copy, pink = pink, paPos = paPos, place = n.place, night = home().nightId(), tries = 0, wait = 0 }
   local car = n.carId and be:getObjectByID(n.carId)
   if cfg().rivalLeave and car and n.figId then
     -- sichtbar einsteigen und losfahren
@@ -905,13 +940,50 @@ local function startEngine(car, r)
   vehCmd(car, string.format('electrics.setLightsState(%d)', lights))
 end
 
-local function driveOut(car)
+-- Fahrweg aus der Bucht: geradeaus raus (Nase zeigt zur Gasse), dann ab dem nächsten Routenpunkt vor ihm
+-- die aufgenommene Route bis zum Ende. nil = keine Route an dieser PA.
+local function buildExitPath(car, paPos)
+  local routes = exitRoutesFor(paPos)
+  if #routes == 0 then return nil end
+  local okC, ctr = pcall(function() return vec3(car:getSpawnWorldOOBB():getCenter()) end)
+  local p0 = okC and ctr or vec3(car:getPosition())
+  local fwd = car:getDirectionVector()
+  fwd = vec3(fwd.x, fwd.y, 0)
+  fwd = fwd:length() > 0.01 and fwd:normalized() or vec3(0, 1, 0)
+  local p1 = p0 + fwd * 4
+  local _, k, route = nearestRoutePoint(routes, p1)
+  if not route then return nil end
+  local pts = route.points
+  -- erster Routenpunkt, der weit genug weg ist (sonst lenkt er auf der Stelle ein)
+  local j = k
+  while j < #pts and (pts[j] - p1):length() < 7 do j = j + 1 end
+  local path = { p0, p1 }
+  for i = j, #pts do table.insert(path, pts[i]) end
+  return path, route.name
+end
+
+-- Zeitplan für die Script-KI (BeamNG scriptai: Punkt + Zeit): langsam anrollen, dann rivalLeaveKmh
+local function timedPath(path)
+  local vmax = (cfg().rivalLeaveKmh or 25) / 3.6
+  local out, t, s = {}, 0, 0
+  for i, p in ipairs(path) do
+    if i > 1 then
+      local seg = (p - path[i - 1]):length()
+      s = s + seg
+      local v = math.min(vmax, 1.5 + s * 0.35)
+      t = t + seg / v
+    end
+    table.insert(out, string.format('{x=%.3f,y=%.3f,z=%.3f,t=%.2f}', p.x, p.y, p.z, t + 0.5))
+  end
+  return '{' .. table.concat(out, ',') .. '}'
+end
+
+local function driveOut(car, path)
   vehCmd(car, 'electrics.setIgnitionLevel(2)')
   core().freezeCar(car, false)
   vehCmd(car, 'if input and input.event then input.event("parkingbrake", 0, 1) end')
-  vehCmd(car, string.format(
-    "ai.setMode('traffic') ai.setAggressionMode('off') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(0.2) ai.driveInLane('on')",
-    (cfg().rivalLeaveKmh or 25) / 3.6))
+  -- 'none' = kein Zurücksetzen an den Startpunkt (er steht ja schon dort)
+  vehCmd(car, 'ai.startFollowing({path=' .. timedPath(path) .. '}, 0, 1, "none")')
 end
 
 -- Bucht freigeben, sobald er losfährt (sonst hält guardSpots sie weiter fest)
@@ -970,22 +1042,35 @@ local function updatePending(dt, c, veh, wpos)
     elseif phase == 'start' then
       pending.timer = pending.timer - dt
       if pending.timer <= 0 then
+        local path, routeName = buildExitPath(car, pending.paPos)
+        if not path then
+          -- keine Ausfahrt-Route an dieser PA: Motor läuft, er wartet, bis du weg bist, dann vor dir auf dem C1
+          log('W', logTag, 'Keine PA-Ausfahrt-Route bei ' .. tostring(pending.place) .. ' (Dev-Menü > Orte > PA-Ausfahrt aufnehmen)')
+          pending.phase = 'stuck'
+          return
+        end
         releaseSpot(pending.carId)
-        driveOut(car)
+        driveOut(car, path)
+        pending.path = path
         pending.phase, pending.timer, pending.still, pending.startPos = 'leave', conf.rivalLeaveTimeout or 90, 0, carPos
-        log('I', logTag, 'PA-Rivale fährt aus der PA: ' .. tostring(pending.rival.id))
+        log('I', logTag, 'PA-Rivale fährt aus der PA: ' .. tostring(pending.rival.id) .. ' (Route ' .. tostring(routeName) .. ', ' .. #path .. ' Punkte)')
       end
     elseif phase == 'leave' then
       pending.timer = pending.timer - dt
       local v = vec3(car:getVelocity()):length()
       if v < 1 then pending.still = pending.still + dt else pending.still = 0 end
-      local out = (carPos - pending.paPos):length() > (conf.rivalExitDistance or 110)
+      -- am Ende der Route angekommen = auf der Fahrbahn
+      local okC, ctr = pcall(function() return vec3(car:getSpawnWorldOOBB():getCenter()) end)
+      local last = pending.path[#pending.path]
+      local out = ((okC and ctr or carPos) - last):length() < 8
       if out then
+        vehCmd(car, 'ai.scriptStop(false, false)')
         local entry = rivals().adoptVehicle(pending.rival, pending.carId)
         if entry then
           pending.phase, pending.entry, pending.catchUp = 'road', entry, nil
           rivals().setReserved(pending.rival.id, false)
-          -- erstmal gemütlich, damit du hinterherkommst
+          -- ab jetzt BeamNG-Verkehrs-KI auf der Fahrbahn, erstmal gemütlich, damit du hinterherkommst
+          rivals().setCruise(car, pending.rival)
           vehCmd(car, string.format('ai.setSpeed(%f)', (conf.rivalWaitCruiseKmh or 70) / 3.6))
           log('I', logTag, 'PA-Rivale ist auf der Straße: ' .. tostring(pending.rival.id))
         else
@@ -995,7 +1080,7 @@ local function updatePending(dt, c, veh, wpos)
       end
       if pending.still > 12 or pending.timer <= 0 then
         pending.phase = 'stuck'
-        vehCmd(car, "ai.setMode('disabled')")
+        vehCmd(car, 'ai.scriptStop(true, true)')
         log('W', logTag, 'PA-Rivale kommt nicht aus der PA (kein Weg?): ' .. tostring(pending.rival.id))
       end
     elseif phase == 'stuck' then
