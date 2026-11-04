@@ -26,6 +26,7 @@
 - Wetten: Beim Tempo-Angleichen bietet der Rivale manchmal eine Wette in Yen an. Warnblinker = annehmen, Lichthupe = Einsatz erhöhen (bis dreifach), nichts tun = keine Wette. Sieg = Einsatz obendrauf, Niederlage = Einsatz weg. Nie mehr als die Hälfte deines Geldes, nicht bei Pink Slip.
 - Alles einstellbar in der neuen Datei data/crewbattle.json (siehe Handbuch „Crew-Battles, Ablehnen und Wetten“).
 ### Spitznamen, Trophäen und Handy-Nachrichten
+- 20 Ränge statt 15: fünf neue Zwischenränge (Spurwechsler, Mitternachtsklinge, Ringbrecher, Sturmläufer, Phantom des Rings). Alles andere wird beim gleichen Ruf frei wie vorher, du steigst nur öfter auf. Alte Spielstände passen von selbst.
 - 89 Spitznamen statt 7, in den Gruppen Battle, Fahrstil, Straße und Leben & Garage: z. B. Querfahrer (50 Drifts), Windschatten, Haarscharf, Geisterstunde (Siege zwischen 2 und 4 Uhr), Kamikaze, Kilometerfresser, Radarschreck, Schrauber, Plaudertasche. Viele in mehreren Stufen.
 - Neu: Titel pro Automodell wie in TXR 2025, z. B. „Covet-Fahrer“ nach 10 Siegen mit dem Covet, dann Kenner (25), Meister (50) und Legende (100).
 - Jeder verdiente Spitzname bleibt und ist wählbar: Trophäenwand > Reiter „Spitznamen“ (oder deinen Spitznamen auf der Karte im Menü antippen). „Automatisch“ trägt immer den neuesten. Offene zeigen ihren Fortschritt, z. B. 13 / 25.

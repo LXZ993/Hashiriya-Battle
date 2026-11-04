@@ -35,9 +35,9 @@ local updateMarkers -- weiter unten (Markierungen und Navi-Route)
 
 local defaults = {
   enabled = true, offersPerDay = 4, maxPerDay = 4, minDistance = 800, arriveRadius = 25, arriveKmh = 8,
-  rankBonus = 0.08, photoRadius = 60, photoWindowHours = 2, failMoney = 0,
+  rankBonus = 0.06, photoRadius = 60, photoWindowHours = 2, failMoney = 0,
   pickup = true, pickupMaxDistance = 2500, photoSpotRadius = 7, photoStopKmh = 2, markers = true, navRoute = true,
-  tipPriceWanderer = 250000, tipPriceBoss = 750000, tipRankFactor = 0.1,
+  tipPriceWanderer = 250000, tipPriceBoss = 750000, tipRankFactor = 0.075,
 }
 local typeDefaults = {
   courier = { payBase = 8000, payPerKm = 2500, secondsPerKm = 75, minSeconds = 150, damageFactor = 1, weight = 3 },

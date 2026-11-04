@@ -690,73 +690,73 @@
     {
       "model": "barstow",
       "config": "tracksport",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.02
     },
     {
       "model": "bastion",
       "config": "sport_A",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.059
     },
     {
       "model": "bastion",
       "config": "sport_M",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.059
     },
     {
       "model": "bastion",
       "config": "sport_gt_A",
-      "minRank": 8,
+      "minRank": 10,
       "rarity": 0.058
     },
     {
       "model": "bastion",
       "config": "sport_gt_M",
-      "minRank": 8,
+      "minRank": 10,
       "rarity": 0.058
     },
     {
       "model": "bluebuck",
       "config": "423a_2door_hardtop",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.017
     },
     {
       "model": "bluebuck",
       "config": "423m_roadsport",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.017
     },
     {
       "model": "bolide",
       "config": "350",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.024
     },
     {
       "model": "bolide",
       "config": "350_targa",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.022
     },
     {
       "model": "bolide",
       "config": "390gt",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.02
     },
     {
       "model": "bolide",
       "config": "390gt_strada",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.009
     },
     {
       "model": "bolide",
       "config": "390gt_targa",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.019
     },
     {
@@ -780,37 +780,37 @@
     {
       "model": "etk800",
       "config": "846_340_M",
-      "minRank": 5,
+      "minRank": 6,
       "rarity": 0.056
     },
     {
       "model": "etk800",
       "config": "856x_340_A",
-      "minRank": 5,
+      "minRank": 6,
       "rarity": 0.056
     },
     {
       "model": "etk800",
       "config": "846x_ttsport_plus_DCT",
-      "minRank": 8,
+      "minRank": 10,
       "rarity": 0.05
     },
     {
       "model": "etk800",
       "config": "856_ttsport_DCT",
-      "minRank": 8,
+      "minRank": 10,
       "rarity": 0.052
     },
     {
       "model": "etkc",
       "config": "kc8_ttsport_DCT",
-      "minRank": 8,
+      "minRank": 10,
       "rarity": 0.052
     },
     {
       "model": "etkc",
       "config": "kc8x_ttsport_plus_DCT",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.05
     },
     {
@@ -864,7 +864,7 @@
     {
       "model": "fullsize",
       "config": "roadsport",
-      "minRank": 5,
+      "minRank": 6,
       "rarity": 0.04
     },
     {
@@ -912,19 +912,19 @@
     {
       "model": "moonhawk",
       "config": "v8a_sport_alt",
-      "minRank": 4,
+      "minRank": 5,
       "rarity": 0.024
     },
     {
       "model": "moonhawk",
       "config": "v8m_sport_alt",
-      "minRank": 4,
+      "minRank": 5,
       "rarity": 0.024
     },
     {
       "model": "moonhawk",
       "config": "v8special",
-      "minRank": 6,
+      "minRank": 7,
       "rarity": 0.024
     },
     {
@@ -960,85 +960,85 @@
     {
       "model": "pickup",
       "config": "d10_423sport_A",
-      "minRank": 5,
+      "minRank": 6,
       "rarity": 0.033
     },
     {
       "model": "pickup",
       "config": "d15_423sport_A",
-      "minRank": 5,
+      "minRank": 6,
       "rarity": 0.033
     },
     {
       "model": "roamer",
       "config": "sport",
-      "minRank": 5,
+      "minRank": 6,
       "rarity": 0.038
     },
     {
       "model": "scintilla",
       "config": "gt",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.045
     },
     {
       "model": "scintilla",
       "config": "gt_spider",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.043
     },
     {
       "model": "scintilla",
       "config": "gts",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.042
     },
     {
       "model": "scintilla",
       "config": "gts_corse",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.031
     },
     {
       "model": "scintilla",
       "config": "gts_corse_spider",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.029
     },
     {
       "model": "scintilla",
       "config": "gts_spider",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.04
     },
     {
       "model": "scintilla",
       "config": "gtx",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.038
     },
     {
       "model": "scintilla",
       "config": "gtx_spider",
-      "minRank": 12,
+      "minRank": 16,
       "rarity": 0.036
     },
     {
       "model": "vivace",
       "config": "vivace_S_350q_DCT",
-      "minRank": 5,
+      "minRank": 6,
       "rarity": 0.058
     },
     {
       "model": "vivace",
       "config": "ardente_S_410Q_DCT",
-      "minRank": 8,
+      "minRank": 10,
       "rarity": 0.058
     },
     {
       "model": "vivace",
       "config": "vivace_S_410q_DCT",
-      "minRank": 8,
+      "minRank": 10,
       "rarity": 0.056
     },
     {
