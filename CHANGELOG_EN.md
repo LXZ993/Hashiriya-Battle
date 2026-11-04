@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### Stickers
+- New in the garage: "Stickers" tab. Put the logos from your trophy wall on your car, like the stickers in TXR: crew logos and symbols (also in leader gold), wanderer seals, boss emblems and the 走.
+- Pick a view, set size, rotation and position, then apply. Each sticker costs 3,000 yen, removing is free.
+- Stickers stay on the car and can be edited again later.
+
 ### Aura
 - New, like in TXR: at night rivals have an aura in their colour, a soft glow under the car. Crews in their crew colour, leaders with a golden rim, wanderers and bosses in the colour of their seal.
 - In battle the aura gets brighter, pulses and gets a glowing rim around the body. The fewer SP the driver has left, the weaker it glows.

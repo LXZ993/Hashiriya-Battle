@@ -100,7 +100,7 @@ angular.module('beamng.apps')
             '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.car\'] }}</span><b>{{ s.carName }}</b></div>' +
             '<div class="hbm-tabs" ng-if="s.screen == \'garage\'">' +
-              '<div class="hbm-tab" ng-repeat="g in [\'service\', \'parts\', \'setup\']" ng-class="{\'is-on\': g == s.garageTab}" ' +
+              '<div class="hbm-tab" ng-repeat="g in [\'service\', \'parts\', \'setup\', \'stickers\']" ng-class="{\'is-on\': g == s.garageTab}" ' +
                 'ng-click="act(\'garageTab\', g); open.slot = null"><i class="hbm-ico" ng-bind-html="ico(tabIcons[g])"></i>{{ s.t[\'garage.tab.\' + g] }}</div>' +
             '</div>' +
             '<div ng-if="s.screen == \'garage\' && s.garageTab == \'service\'">' +
@@ -151,6 +151,42 @@ angular.module('beamng.apps')
               '<div class="hbm-plate">' +
                 '<span class="hbm-btn hbm-btn-main" style="flex:1;text-align:center" ng-class="{\'hbm-dis\': !plateChanged()}" ' +
                   'ng-click="plateChanged() && plateSubmit()">{{ s.t[\'garage.plateChange\'] }} \u00b7 {{ s.platePrice }}</span>' +
+              '</div>' +
+            '</div>' +
+
+            // Aufkleber (stickers.lua): Logos aus der Trophäenwand aufs eigene Auto, 3.000 ¥ pro Stück
+            '<div ng-if="s.screen == \'garage\' && s.garageTab == \'stickers\' && s.stickers">' +
+              '<div class="hbm-note" ng-if="s.stickers.unsupported">{{ s.t[\'stickers.unsupported.\' + s.stickers.unsupported] }}</div>' +
+              '<div ng-if="!s.stickers.unsupported">' +
+                '<div class="hbm-note hbm-note-s">{{ s.t[\'stickers.note\'].replace(\'%s\', s.stickers.price) }}</div>' +
+                '<div class="hbm-stk-bar">' +
+                  '<span class="hbm-label">{{ s.t[\'stickers.view\'] }}</span>' +
+                  '<span class="hbm-aura-seg"><i ng-repeat="v in [\'left\', \'right\', \'front\', \'back\', \'top\']" ng-class="{\'is-on\': s.stickers.view == v}" ng-click="act(\'stickerView\', v)">{{ s.t[\'stickers.v.\' + v] }}</i></span>' +
+                  '<span class="hbm-label">{{ s.t[\'stickers.turn\'] }}</span>' +
+                  '<span class="hbm-aura-seg"><i ng-click="act(\'stickerAdj\', \'yaw|-1\')">\u21b6</i><i ng-click="act(\'stickerAdj\', \'yaw|1\')">\u21b7</i><i ng-click="act(\'stickerAdj\', \'pitch|1\')">\u2191</i><i ng-click="act(\'stickerAdj\', \'pitch|-1\')">\u2193</i></span>' +
+                '</div>' +
+                '<div class="hbm-stk-edit" ng-class="{\'hbm-dis\': !s.stickers.sel}">' +
+                  '<div class="hbm-var"><span class="hbm-opt-name">{{ s.t[\'stickers.size\'] }}</span><span class="hbm-step" ng-click="act(\'stickerAdj\', \'size|-1\')">&#8722;</span><span class="hbm-var-val">{{ s.stickers.scale }} cm</span><span class="hbm-step" ng-click="act(\'stickerAdj\', \'size|1\')">+</span></div>' +
+                  '<div class="hbm-var"><span class="hbm-opt-name">{{ s.t[\'stickers.rot\'] }}</span><span class="hbm-step" ng-click="act(\'stickerAdj\', \'rot|-1\')">&#8722;</span><span class="hbm-var-val">{{ s.stickers.rot }}\u00b0</span><span class="hbm-step" ng-click="act(\'stickerAdj\', \'rot|1\')">+</span></div>' +
+                  '<div class="hbm-var"><span class="hbm-opt-name">{{ s.t[\'stickers.move\'] }}</span>' +
+                    '<span class="hbm-aura-seg hbm-stk-move"><i ng-click="act(\'stickerAdj\', \'x|-1\')">\u2190</i><i ng-click="act(\'stickerAdj\', \'y|-1\')">\u2191</i><i ng-click="act(\'stickerAdj\', \'y|1\')">\u2193</i><i ng-click="act(\'stickerAdj\', \'x|1\')">\u2192</i><i ng-click="act(\'stickerAdj\', \'reset|0\')">\u27f2</i></span></div>' +
+                '</div>' +
+                '<div class="hbm-actions">' +
+                  '<span class="hbm-btn hbm-btn-main" ng-class="{\'hbm-dis\': !s.stickers.sel || !s.stickers.canPay}" ng-click="s.stickers.sel && s.stickers.canPay && act(\'stickerPlace\')">{{ s.t[\'stickers.place\'] }} \u00b7 {{ s.stickers.price }}</span>' +
+                  '<span class="hbm-btn" ng-class="{\'hbm-dis\': !s.stickers.count}" ng-click="s.stickers.count && act(\'stickerUndo\')">{{ s.t[\'stickers.undo\'] }}</span>' +
+                  '<span class="hbm-btn" ng-click="act(\'stickerDone\')">{{ s.t[\'stickers.done\'] }}</span>' +
+                '</div>' +
+                '<div class="hbm-logo-head"><span>{{ s.t[\'stickers.onCar\'] }}</span><small>{{ s.stickers.count }}</small></div>' +
+                '<div class="hbm-scroll hbm-stk-list">' +
+                  '<div ng-repeat="g in s.stickers.groups" ng-if="g.total">' +
+                    '<div class="hbm-logo-head"><span>{{ g.name }}</span><small>{{ g.have }} / {{ g.total }}</small></div>' +
+                    '<div class="hbm-logo-grid">' +
+                      '<div class="hbm-logo" ng-repeat="k in g.list" ng-class="{\'is-locked\': !k.unlocked, \'is-sel\': k.selected}" ng-click="k.unlocked && act(\'stickerSel\', k.id)" title="{{ k.name }}">' +
+                        '<img ng-if="k.img" ng-src="{{ k.img }}" alt=""><span class="hbm-logo-q" ng-if="!k.img">?</span>' +
+                        '<span class="hbm-logo-tick" ng-if="k.selected"></span></div>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
               '</div>' +
             '</div>' +
 
@@ -930,6 +966,11 @@ angular.module('beamng.apps')
           '.hbm-logo-tick{position:absolute;right:-1px;top:-1px;width:0;height:0;border-style:solid;border-width:0 18px 18px 0;border-color:transparent var(--o) transparent transparent;}' +
           '.hbm-wall-tabs{padding:4px 12px 6px;}' +
           '.hbm-aura{overflow:hidden;}' +
+          '.hbm-stk-bar{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:center;margin:0 12px 6px;}' +
+          '.hbm-stk-edit{margin:0 6px 4px;}' +
+          '.hbm-stk-edit.hbm-dis{opacity:.4;pointer-events:none;}' +
+          '.hbm-stk-move{flex:1 1 auto;margin-left:8px;}' +
+          '.hbm-stk-list{max-height:330px;}' +
           '.hbm-aura img{position:relative;max-width:62%;max-height:62%;}' +
           '.hbm-aura-orb{position:absolute;left:50%;bottom:-14px;width:110%;height:46px;transform:translateX(-50%);border-radius:50%;pointer-events:none;' +
             'opacity:.85;}' +
@@ -1070,7 +1111,7 @@ angular.module('beamng.apps')
         return iconCache[name]
       }
       scope.maintIcons = {'oil': 'oilCan', 'coolant': 'coolant', 'tires': 'wheelDisc'}
-      scope.tabIcons = {'service': 'wrench', 'parts': 'engine', 'setup': 'adjust', 'engine': 'engine', 'drivetrain': 'drivetrainGeneric', 'chassis': 'suspension01', 'wheels': 'wheelDisc', 'body': 'carSideOutlineLarge', 'misc': 'vehicleFeatures01', 'paint': 'sprayCan'}
+      scope.tabIcons = {'service': 'wrench', 'parts': 'engine', 'setup': 'adjust', 'engine': 'engine', 'drivetrain': 'drivetrainGeneric', 'chassis': 'suspension01', 'wheels': 'wheelDisc', 'body': 'carSideOutlineLarge', 'misc': 'vehicleFeatures01', 'paint': 'sprayCan', 'stickers': 'medal'}
       // Hover-Sound (BeamNG-Standard), einmal je Element
       var hoverEl = null
       element[0].addEventListener('mouseover', function (e) {

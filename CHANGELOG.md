@@ -2,6 +2,11 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Aufkleber
+- Neu in der Garage: Reiter „Aufkleber“. Klebe die Logos aus deiner Trophäenwand auf dein Auto, wie die Sticker in TXR: Crew-Logos und -Symbole (auch in Leader-Gold), Wanderer-Siegel, Boss-Embleme und das 走.
+- Ansicht wählen, Größe, Drehung und Lage einstellen, dann aufkleben. Jeder Aufkleber kostet 3.000 ¥, Entfernen ist kostenlos.
+- Die Aufkleber bleiben dauerhaft auf dem Auto und lassen sich später weiter bearbeiten.
+
 ### Aura
 - Neu wie in TXR: Rivalen haben nachts eine Aura in ihrer Farbe, ein weicher Schein unter dem Auto. Crews in Crew-Farbe, Leader mit goldenem Saum, Wanderer und Bosse in der Farbe ihres Siegels.
 - Im Battle wird die Aura heller, pulsiert und bekommt einen Leuchtsaum um die Karosserie. Je weniger SP der Fahrer hat, desto schwächer leuchtet sie.

@@ -1,0 +1,14 @@
+{
+  "_info": "Aufkleber (stickers.lua), Handbuch Kapitel 5f. Größen in Metern (Breite = Höhe), Drehung in Grad, Verschieben in Bildanteilen.",
+  "price": 3000,
+  "defaultScale": 0.5,
+  "minScale": 0.1,
+  "maxScale": 2.5,
+  "scaleStep": 1.15,
+  "rotStep": 15,
+  "moveStep": 0.03,
+  "turnStep": 15,
+  "applyTimeout": 8,
+  "paletteMapId": 1,
+  "defaultSticker": "/ui/ui-vue/mods/hashiriyaBattle/assets/icon.png"
+}

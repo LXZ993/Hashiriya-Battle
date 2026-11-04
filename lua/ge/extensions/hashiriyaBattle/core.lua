@@ -23,7 +23,7 @@ end
 local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura', 'hashiriyaBattle_stickers' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -120,6 +120,12 @@ local function getLevelName()
 end
 
 -- Das Auto, in dem der Spieler sitzt. Zu Fuß (Einrad von BeamNG) gibt es keins.
+-- Aufkleber-Reiter in der Garage offen? (stickers.lua beendet den Sticker-Modus, sobald nicht mehr)
+function M.stickerTabOpen()
+  local area = M.active and extensions.hashiriyaBattle_parking.isArrived() and extensions.hashiriyaBattle_parking.getCurrent() or nil
+  return garageTab == 'stickers' and area ~= nil and area.type == 'garage' or false
+end
+
 function M.getPlayerVehicle()
   local veh = getPlayerVehicle and getPlayerVehicle(0) or be:getPlayerVehicle(0)
   if veh and veh:getJBeamFilename() == 'unicycle' then return nil end
@@ -1162,6 +1168,10 @@ local function buildUiState()
       if area.type == 'garage' then
         st.garageTab = garageTab
         if garageTab == 'setup' then st.setup = extensions.hashiriyaBattle_setup.getUiState() end
+        if garageTab == 'stickers' then
+          local okSt, stk = pcall(function() return extensions.hashiriyaBattle_stickers.getUiState() end)
+          st.stickers = okSt and stk or nil
+        end
       end
     end
   end
@@ -1484,7 +1494,24 @@ function M.uiAction(action, arg)
       extensions.hashiriyaBattle_shop.openTerminal('garage')
     else
       garageTab = tostring(arg)
+      -- Aufkleber: Sticker-Modus starten (beendet sich selbst, sobald der Reiter zu ist, stickers.onUpdate)
+      if garageTab == 'stickers' then extensions.hashiriyaBattle_stickers.start() end
     end
+  elseif action == 'stickerSel' then
+    extensions.hashiriyaBattle_stickers.select(arg and tostring(arg) or nil)
+  elseif action == 'stickerAdj' then
+    local what, dir = tostring(arg or ''):match('^(%a+)|(-?%d+)$')
+    if what then extensions.hashiriyaBattle_stickers.adjust(what, tonumber(dir)) end
+  elseif action == 'stickerView' then
+    extensions.hashiriyaBattle_stickers.view(tostring(arg or ''))
+  elseif action == 'stickerPlace' then
+    extensions.hashiriyaBattle_stickers.place()
+  elseif action == 'stickerUndo' then
+    extensions.hashiriyaBattle_stickers.removeLast()
+  elseif action == 'stickerClear' then
+    extensions.hashiriyaBattle_stickers.removeAll()
+  elseif action == 'stickerDone' then
+    garageTab = 'service'
   elseif action == 'garagePc' then
     local area = arrivedArea()
     if area and area.type == 'garage' then extensions.hashiriyaBattle_shop.openTerminal('garage') end
