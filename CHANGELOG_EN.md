@@ -25,7 +25,7 @@
 - The taxi configs (Shinonome, Gekko) and police configs (Pessima Mk2, Sunburst) are now part of the mod. The taxis park next to the taxi drivers at the PAs.
 
 ### PA rivals
-- Rivals at the PAs now visibly leave: after you accept, the rival gets into their car, starts the engine, turns the lights on at night and rolls slowly out of the PA onto the C1. There they are a normal rival on the radar. They cruise slowly at first so you can catch up. If they can't get out of the PA, they wait ahead of you like before.
+- Rivals at the PAs now visibly leave: after you accept, the rival gets into their car, starts the engine, turns the lights on at night and rolls slowly out of the PA onto the C1. There they are a normal rival on the radar. They cruise slowly at first so you can catch up. They follow an exit route that is recorded once per PA in the dev menu (Places > record PA exit) and always park backed in, nose towards the lane. Without a route, or if they get stuck, they wait ahead of you like before.
 
 ### Liveries
 - New Japanese liveries (own, made-up companies) as paint designs in the configurator: two taxis on the Pessima Mk1 (Shinonome Kotsu, Gekko), police on the Pessima Mk2 and Sunburst, plus mechanic, freight, courier and ambulance on the Gavril D-Series and H-Series. Configs for the PA drivers follow.

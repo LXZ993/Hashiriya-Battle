@@ -224,7 +224,9 @@ end
 
 -- Eigene Punkte: Kartendatei (maps/<level>.json) plus im Dev-Menü gemerkte Orte (dev_places.json) ------
 -- kind 'stand' = Stehplätze der PA-Fahrer (standSpots / Dev-Typ npc), 'photo' = Foto-Spots (photoSpots / Dev-Typ photo)
-local spotKinds = { stand = { list = 'standSpots', dev = 'npc' }, photo = { list = 'photoSpots', dev = 'photo' } }
+-- kind 'paexit' = Ausfahrt-Routen aus PAs (paExitRoutes / Dev-Typ paexit, mit points = Liste von Punkten)
+local spotKinds = { stand = { list = 'standSpots', dev = 'npc' }, photo = { list = 'photoSpots', dev = 'photo' },
+  paexit = { list = 'paExitRoutes', dev = 'paexit' } }
 local spotCache = {}
 function M.resetSpotCache() spotCache = {} end
 function M.spots(kind)
@@ -244,7 +246,7 @@ function M.spots(kind)
       for _, e in ipairs(out) do
         if not e.dev and math.abs(e.pos[1] - p.pos[1]) < 0.5 and math.abs(e.pos[2] - p.pos[2]) < 0.5 then dup = true break end
       end
-      if not dup then table.insert(out, { name = p.name, pos = p.pos, dir = p.dir, dev = true }) end
+      if not dup then table.insert(out, { name = p.name, pos = p.pos, dir = p.dir, points = p.points, dev = true }) end
     end
   end
   spotCache[kind] = out

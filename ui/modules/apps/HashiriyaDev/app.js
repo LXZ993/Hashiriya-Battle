@@ -90,6 +90,18 @@ angular.module('beamng.apps')
               '<span class="hbd-btn hbd-main hbd-wide" ng-click="capture()">Hier merken</span>' +
             '</div>' +
           '</div>' +
+          '<div class="hbd-card">' +
+            '<div class="hbd-sec">PA-Ausfahrt aufnehmen <em>Im Auto die Gasse der PA entlang bis auf die Fahrbahn fahren. PA-Rivalen fahren diese Route später ab.</em></div>' +
+            '<div class="hbd-form" ng-if="!d.rec">' +
+              '<input type="text" ng-model="nw.routeName" placeholder="Name (leer = Ausfahrt + PA + Nummer)">' +
+              '<span class="hbd-btn hbd-main" ng-click="dev(\'routeStart\')">Aufnahme starten</span>' +
+            '</div>' +
+            '<div class="hbd-form" ng-if="d.rec">' +
+              '<span class="hbd-lbl">Aufnahme läuft: {{ d.rec }} Punkte</span>' +
+              '<span class="hbd-btn hbd-main" ng-click="dev(\'routeStop\', {name: nw.routeName}); nw.routeName = \'\'">Aufnahme beenden</span>' +
+              '<span class="hbd-btn" ng-click="dev(\'routeCancel\')">Verwerfen</span>' +
+            '</div>' +
+          '</div>' +
           '<div class="hbd-card hbd-mk">' +
             '<div class="hbd-sec">Markierungen <em>Säulen auf der Map, solange das Dev-Menü offen ist</em></div>' +
             '<div class="hbd-chips">' +
@@ -427,6 +439,7 @@ angular.module('beamng.apps')
           if (msg.open === false) { scope.d.open = false; return }
           if (msg.tick) {
             scope.d.player = msg.player
+            scope.d.rec = msg.rec
             scope.d.hour = msg.hour
             scope.d.moneyText = msg.moneyText
             scope.d.active = msg.active

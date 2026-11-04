@@ -286,7 +286,7 @@ PA = {
              'placeWeight = Faktor für Wissen über genau diese PA. moreChance = Chance, beim zweiten Ansprechen noch Wissen zu bekommen statt "Hab dir schon alles erzählt". '
              'rivalNight/rivalDay = wie viele Rivalen und Wanderer pro PA nachts/tagsüber neben ihrem Auto stehen (von, bis). rivalWaitDistance/rivalWaitSpeed = so weit weg (m) und so schnell (km/h) musst du sein, bis der verabredete Rivale vor dir auftaucht. '
              'rivalWeightNew/rivalWeightBeaten/rivalWeightHolder = wie oft neue, geschlagene und Rivalen mit deinem Auto (Pink Slip) an der PA stehen.'
-             ' rivalLeave = true: der Rivale steigt nach dem Annehmen sichtbar ein (rivalBoardSeconds s), startet den Motor und fährt mit rivalLeaveKmh km/h aus der PA; ab rivalExitDistance m von der PA-Mitte ist er ein normaler Rivale auf der Straße und fährt erst mit rivalWaitCruiseKmh km/h, bis du auf rivalCatchUpDistance m dran bist. Kommt er in rivalLeaveTimeout s nicht raus (oder steht 12 s), verschwindet er, sobald du weg bist, und wartet wie früher vor dir. rivalLeave = false: er verschwindet sofort (alte Art).',
+             ' rivalLeave = true: der Rivale steigt nach dem Annehmen sichtbar ein (rivalBoardSeconds s), startet den Motor und fährt mit rivalLeaveKmh km/h die PA-Ausfahrt-Route ab (Dev-Menü > Orte > PA-Ausfahrt aufnehmen, bzw. paExitRoutes in der Kartendatei; Rivalen parken dafür rückwärts ein, Nase zur Gasse). Am Ende der Route ist er ein normaler Rivale auf der Straße und fährt erst mit rivalWaitCruiseKmh km/h, bis du auf rivalCatchUpDistance m dran bist. Ohne Route oder wenn er in rivalLeaveTimeout s nicht ankommt (oder 12 s steht), bleibt er stehen, verschwindet, sobald du weg bist, und wartet wie früher vor dir. rivalLeave = false: er verschwindet sofort (alte Art).',
  'nightCount': [3, 6], 'dayCount': [1, 2],
  'spawnDistance': 230, 'despawnDistance': 330, 'spotRadius': 70,
  'talkDistance': 2.8, 'lookDistance': 9,
@@ -294,7 +294,7 @@ PA = {
  'loreChance': 0.6, 'ownTopicWeight': 3, 'otherTopicWeight': 0.5, 'placeWeight': 3, 'moreChance': 0.5,
  'rivalNight': [0, 2], 'rivalDay': [0, 0], 'rivalWaitDistance': 250, 'rivalWaitSpeed': 30,
  'rivalWeightNew': 3, 'rivalWeightBeaten': 1, 'rivalWeightHolder': 6,
- 'rivalLeave': True, 'rivalBoardSeconds': 2.5, 'rivalLeaveKmh': 25, 'rivalExitDistance': 110, 'rivalLeaveTimeout': 90,
+ 'rivalLeave': True, 'rivalBoardSeconds': 2.5, 'rivalLeaveKmh': 20, 'rivalLeaveTimeout': 90,
  'rivalWaitCruiseKmh': 70, 'rivalCatchUpDistance': 250,
  'portraitVariants': 3,
  'excludeConfigs': ['police', 'pursuit', 'interceptor', 'undercover', 'race', 'rally', 'drag', 'track', 'gymkhana', 'safety', 'baja', 'stunt', 'derby', 'prerunner', 'crawler', 'ambulance', 'fire', 'taxi', 'hashiriya_'],
