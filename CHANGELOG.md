@@ -23,7 +23,7 @@
 
 ### Team-Logos (Entwürfe)
 - Jede Crew hat jetzt ein eigenes Logo im Stil eines freigestellten Vinyl-Aufklebers (nur Motiv und Schriftzug), Leader haben dieselbe Version mit Goldrand. Jeder Wanderer hat ein eigenes Siegel mit seinem Zeichen, die drei Bosse haben eigene Embleme. Alles eigene Entwürfe.
-- Die Logos stehen im Duell neben dem Namen des Rivalen (SP-Anzeige), in der Sprechblase bei Herausforderung, Sieg und Niederlage, in PA-Gesprächen mit Rivalen und im Rivalen-Lexikon bei jeder Crew. Siegel von Wanderern und Bossen siehst du im Lexikon erst, wenn du sie geschlagen hast.
+- Die Logos stehen im Duell groß unter dem Namen des Rivalen (SP-Anzeige), in der Sprechblase bei Herausforderung, Sieg und Niederlage, in PA-Gesprächen mit Rivalen und im Rivalen-Lexikon bei jeder Crew. Siegel von Wanderern und Bossen siehst du im Lexikon erst, wenn du sie geschlagen hast.
 
 ### Verkehr und PA-Fahrer
 - Der Verkehr nutzt jetzt wirklich alle 152 japanischen Fahrzeuge der Agent-Traffic-Mod. Vorher kamen immer nur die ersten paar Autos aus Agents Liste. Jetzt wird die Liste nach Häufigkeit gemischt, schon gezogene Autos werden seltener, und zusätzliche versteckte Autos wechseln sich mit den fahrenden ab. Auch die geparkten Autos sind jetzt viel bunter gemischt.
