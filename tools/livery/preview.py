@@ -8,9 +8,17 @@ DAE={'pessima':(SRC+'pessima/vehicles/pessima/pessima.dae',['pessima','pessima_a
      'midsize':(SRC+'midsize/vehicles/midsize/midsize.dae',['midsize_body'],'midsize_glass'),
      'sunburst2':(SRC+'sunburst2/vehicles/sunburst2/sunburst2.dae',['sunburst2_main'],'sunburst2_glass'),
      'pickup':(SRC+'pickup/vehicles/pickup/pickup.dae',['pickup'],'pickup_glass'),
-     'van':(SRC+'van/vehicles/van/van.DAE',['van'],'van_glass')}
+     'van':(SRC+'van/vehicles/van/van.DAE',['van'],'van_glass'),
+     'bx':(SRC+'bx/vehicles/bx/bx.dae',['bx_main'],'bx_glass'),
+     'covet':(SRC+'covet/vehicles/covet/covet.dae',['covet'],'covet_glass'),
+     'hopper':(SRC+'hopper/vehicles/hopper/hopper.DAE',['hopper'],'hopper_glass'),
+     'miramar':(SRC+'miramar/vehicles/miramar/miramar.dae',['miramar'],'miramar_glass'),
+     'pigeon':(SRC+'pigeon/vehicles/pigeon/pigeon.dae',['pigeon'],'pigeon_glass'),
+     'sbr':(SRC+'sbr/vehicles/sbr/sbr.dae',['sbr'],'sbr_glass')}
 WHEEL={'pessima':(-1.40,1.36,0.29,0.29,0.72),'midsize':(-1.42,1.35,0.30,0.31,0.76),'sunburst2':(-1.38,1.25,0.30,0.31,0.74),
-       'pickup':(-1.42,2.0,0.45,0.38,0.80),'van':(-1.42,2.12,0.40,0.37,0.86)}
+       'pickup':(-1.42,2.0,0.45,0.38,0.80),'van':(-1.42,2.12,0.40,0.37,0.86),
+       'bx':(-1.45,1.20,0.30,0.30,0.72),'covet':(-1.40,1.15,0.29,0.29,0.76),'hopper':(-1.10,1.10,0.38,0.36,0.70),
+       'miramar':(-1.25,1.20,0.32,0.30,0.70),'pigeon':(-0.95,1.00,0.26,0.25,0.50),'sbr':(-1.40,1.30,0.30,0.31,0.78)}
 VARIANT_SKIP={'pessima':(['pessima_aftermarket'],['Mesh_133-mesh','Mesh_019-mesh','Plane_113-mesh','Mesh_002-mesh','Mesh_127-mesh','Circle_006-mesh','Mesh_023-mesh'])}
 def wheels(m):
     yf,yr,z,r,x=WHEEL[m]; ms=[]
