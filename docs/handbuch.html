@@ -2502,6 +2502,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h4>Gegner-Garage (Entwickler-Werkzeug)</h4>
 <ul>
 <li>Neu für die Dev-Version: Eintrag „Gegner-Garage (Dev)“ im BeamNG-Hauptmenü unter More, direkt neben Hashiriya Battle. Er startet die ganz normale BeamNG-Garage mit allen Funktionen (Teile, Tune, Lack, Decals, Fahrzeuge, Foto, Licht, Kamera) und legt rechts das Panel „Gegner-Garage“ darüber. Gegner suchen oder nach Crews, Leadern, Wanderern, Bossen, eigenen Configs und fehlenden Configs filtern, anklicken, und sein Auto wird mit seiner Config in der Garage geladen (wahlweise wie im Spiel mit Kennzeichen und festem Lack oder nur die Config).</li>
+<li>Beim Laden bekommt das Auto jetzt auch das Kennzeichen des Gegners (vorher blieb die Nummer des alten Autos stehen, nur das Design wechselte).</li>
 <li>Daneben stehen Beschreibung, Crew mit allen Mitgliedern und ihren Autos, Bedingungen in Klartext, Fahrstil, Belohnung und Sprüche. So bleibt ein Auto beim Anpassen beim Charakter, z. B. die Firmenwagen von Zangyō Express.</li>
 <li>„Auf Gegner speichern“ schreibt die angepasste Config zurück: eigene Mod-Configs werden überschrieben (mit Sicherung), BeamNG-Configs bleiben unangetastet und der Gegner bekommt eine eigene hashiriya_r_&lt;id&gt;.pc, rivals.json wird nur an dieser Stelle angepasst.</li>
 <li>Reiter „Aura“: die Aura eines Gegners direkt am Auto in der Garage ansehen (Boden, Battle, Stufe, SP), mit heller Vorschau und „aura.json neu laden“.</li>
@@ -2965,7 +2966,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>BeamNG starten, im Hauptmenü <b>More &gt; Gegner-Garage (Dev)</b>. Die Garage lädt, das Panel erscheint von selbst (nur in der Dev-Version, nie im Release). Läuft gerade die Karriere, erst zurück ins Hauptmenü.</li>
 <li>Oben suchen (Name, Spitzname, ID, Crew, Automodell oder Config-Name) oder filtern: <b>Alle, Crews, Leader, Wanderer, Bosse, Eigene Configs, Config fehlt</b>. Bei Crews/Leader erscheinen die Crews als Knöpfe zum Eingrenzen.</li>
 <li>Gegner anklicken. Unten stehen: Modell und Config (Name und Pfad, rot wenn die Datei fehlt), PS/Gewicht/Wert, Kennzeichen, fester Lack, wer dieselbe Config noch fährt, Beschreibung, Hinweis, Bedingungen (in Klartext), Fahrstil, Belohnung, Sprüche und die ganze Crew mit ihren Autos (anklicken springt zu dem Fahrer).</li>
-<li><b>Laden (wie im Spiel)</b> lädt das Auto so, wie es auf der Strecke auftaucht: Config plus Kennzeichen-Design und fester Lack aus <code>rivals.json</code>. <b>Nur Config laden</b> lädt nur die <code>.pc</code>-Datei.</li>
+<li><b>Laden (wie im Spiel)</b> lädt das Auto so, wie es auf der Strecke auftaucht: Config plus Kennzeichen (Design und Nummer) und fester Lack aus <code>rivals.json</code>. <b>Nur Config laden</b> lädt nur die <code>.pc</code>-Datei, die Kennzeichen-Nummer des Gegners bekommt das Auto trotzdem.</li>
 <li>Mit den Garage-Menüs anpassen (Parts, Tune, Paint, Decals). Das Panel bleibt dabei stehen.</li>
 <li><b>Auf &lt;Name&gt; speichern</b> (zweimal klicken). Grün oben = gespeichert, rot = Fehler mit Grund.</li>
 <li>BeamNG neu starten, damit die Karriere die neue Config sicher nutzt.</li>
