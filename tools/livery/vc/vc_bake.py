@@ -13,11 +13,14 @@ def bake_key(model, png, SX=0, SY=0, RY=260, TX=950, TY=0, ppm0=200, scale=1.5, 
         x = np.clip(np.round(x).astype(int), 0, Ww - 1); y = np.clip(np.round(y).astype(int), 0, Hh - 1)
         return im[y, x]
     rgba = np.zeros((len(P), 4), np.float32)
-    side = c.cls == 0
+    # Front/Heck-Flaechen: Seitenansicht der jeweiligen Haelfte fortsetzen (Farbe laeuft um die Ecke)
+    low = P[:, 2] < lo[2] + (hi[2] - lo[2]) * 0.45   # untere Flaechen (Schweller, Schuerzen) nie von oben
+    fb = (c.cls == 3) | (c.cls == 4) | ((c.cls == 2) & low)
+    side = (c.cls == 0) | (fb & (P[:, 0] > 0))
     rgba[side] = samp(SX * scale + (P[side, 1] - lo[1]) * p, SY * scale + (hi[2] - P[side, 2]) * p)
-    rs = c.cls == 1   # rechte Seite: eigene Ansicht bei RY, Front rechts
+    rs = (c.cls == 1) | (fb & (P[:, 0] <= 0))   # rechte Seite: eigene Ansicht bei RY, Front rechts
     rgba[rs] = samp(SX * scale + (hi[1] - P[rs, 1]) * p, (SY + RY) * scale + (hi[2] - P[rs, 2]) * p)
-    top = c.cls == 2
+    top = (c.cls == 2) & ~low
     rgba[top] = samp(TX * scale + (-P[top, 0] + (hi[0] - lo[0]) / 2) * p, TY * scale + (P[top, 1] - lo[1]) * p)
     a = rgba[:, 3:4]
     w = rgba[:, :3] * a + np.array([1, 0, 0], np.float32) * (1 - a)
