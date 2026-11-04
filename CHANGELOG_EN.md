@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### More wanderer conditions
+- 18 new condition types for rivals and wanderers (like in TXR): win streak, money, number of cars, at most X losses, naturally aspirated only or forced induction only, manual gearbox only, a part that must not be fitted, paint colour, characters in the plate, power and weight, odometer of the car, top speed already reached, in-game weekday, active nickname, chosen logo and any value from the statistics (e.g. pink slips won or side jobs done).
+- The rival builder in the dev menu keeps the new conditions when editing.
+
 ### Trophy wall (logo collection)
 - New, like in TXR: beat a crew leader and you get the crew logo. Beat a wanderer or boss and you get their seal or emblem. A message after the win tells you which logo is new.
 - New "Trophy wall" tile in the left menu (on the road and at home) with your current logo and how many you have (e.g. 16 / 73). Inside are all logos by crews, wanderers and bosses. Locked crew logos are grey, seals and emblems stay "?" until you beat them. Tap one to see what it takes.
