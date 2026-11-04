@@ -102,7 +102,7 @@ angular.module('beamng.apps')
       '</div>' +
       '<style>' +
         '.hbg-root{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;}' +
-        '.hbg-root.hbg-portal{position:fixed;z-index:9000;}' +
+        '.hbg-root.hbg-portal{position:fixed;z-index:12500;}' +
         '.hbg{--o:#ff6600;--o2:#ff9a3c;--w:#f4f4f4;--dim:rgba(244,244,244,.58);position:absolute;width:440px;max-height:calc(100% - 110px);' +
           'display:flex;flex-direction:column;pointer-events:auto;font-family:"Overpass","Noto Sans","Segoe UI",sans-serif;color:var(--w);' +
           'background:linear-gradient(160deg,rgba(26,26,29,.95),rgba(14,14,16,.93));box-shadow:0 8px 24px rgba(0,0,0,.55);border-left:4px solid var(--o);}' +
@@ -188,17 +188,17 @@ angular.module('beamng.apps')
       // Fensterposition und Einklappen merken (Browser-Speicher)
       var win = scope.win = { x: 0, y: 0 }
       try {
-        var saved = JSON.parse(localStorage.getItem('hashiriyaGarageWin') || 'null')
+        var saved = JSON.parse(localStorage.getItem('hashiriyaGarageWin2') || 'null')
         if (saved) { win.x = saved.x; win.y = saved.y; scope.ui.min = !!saved.min }
       } catch (e) {}
       function clampWin() {
         var w = window.innerWidth || 1920, h = window.innerHeight || 1080
-        if (!win.x && !win.y) { win.x = Math.max(10, w - 520); win.y = 120 } // rechts, aber links von den Garage-Knöpfen am Rand
+        if (!win.x && !win.y) { win.x = Math.max(10, w - 600); win.y = 130 } // rechts, mit Abstand zur Knopfleiste "Garage features" am Rand
         win.x = Math.min(Math.max(0, win.x), w - 120); win.y = Math.min(Math.max(0, win.y), h - 60)
       }
       clampWin()
       scope.remember = function () {
-        try { localStorage.setItem('hashiriyaGarageWin', JSON.stringify({ x: win.x, y: win.y, min: scope.ui.min })) } catch (e) {}
+        try { localStorage.setItem('hashiriyaGarageWin2', JSON.stringify({ x: win.x, y: win.y, min: scope.ui.min })) } catch (e) {}
       }
       var drag = null
       scope.dragStart = function (e) {
@@ -216,13 +216,47 @@ angular.module('beamng.apps')
       scope.$on('$destroy', function () { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) })
 
       // Die Garage-Oberfläche (Vue) liegt über der Apps-Ebene und würde Klicks abfangen:
-      // das Panel deshalb direkt an <body> hängen, über die Garage. Beim Entfernen der App wieder weg.
+      // das Panel deshalb direkt an <body> hängen, über die Garage (z-index 12500: über .vue-app-main, unter dem Ladebildschirm 13000). Beim Entfernen der App wieder weg.
       var rootEl = element[0]
       if (rootEl && document.body) {
         rootEl.classList.add('hbg-portal')
         document.body.appendChild(rootEl)
         scope.$on('$destroy', function () { if (rootEl.parentNode) rootEl.parentNode.removeChild(rootEl) })
       }
+
+      // Diagnose fürs Log (beamng.log, Tag hashiriyaGarage): was liegt über dem Panel, falls Klicks nicht ankommen
+      function describe(el) {
+        var out = []
+        for (var i = 0; el && i < 6; i++, el = el.parentElement) {
+          var cs = window.getComputedStyle ? getComputedStyle(el) : {}
+          out.push((el.tagName || '?').toLowerCase() + (el.id ? '#' + el.id : '') + (typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\s+/).slice(0, 3).join('.') : '') +
+            '[z=' + cs.zIndex + ',pe=' + cs.pointerEvents + ']')
+        }
+        return out.join(' < ')
+      }
+      function diag(what) {
+        try {
+          var panel = rootEl.querySelector('.hbg')
+          if (!panel) return
+          var r = panel.getBoundingClientRect()
+          var top = document.elementFromPoint(r.left + r.width / 2, r.top + 60)
+          var text = what + ': parent=' + (rootEl.parentNode === document.body ? 'body' : (rootEl.parentNode && rootEl.parentNode.tagName)) +
+            ' rect=' + Math.round(r.left) + ',' + Math.round(r.top) + ',' + Math.round(r.width) + 'x' + Math.round(r.height) +
+            ' win=' + window.innerWidth + 'x' + window.innerHeight + ' oben: ' + describe(top) + ' panelOk=' + (top ? panel.contains(top) : false)
+          bngApi.engineLua('log("I", "hashiriyaGarage", ' + luaStr(text) + ')')
+        } catch (e) {}
+      }
+      setTimeout(function () { diag('Start') }, 2500)
+      function onDownDiag(e) {
+        var panel = rootEl.querySelector('.hbg')
+        if (!panel) return
+        var r = panel.getBoundingClientRect()
+        if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom && !panel.contains(e.target)) {
+          bngApi.engineLua('log("W", "hashiriyaGarage", ' + luaStr('Klick aufs Panel landet bei: ' + describe(e.target)) + ')')
+        }
+      }
+      window.addEventListener('mousedown', onDownDiag, true)
+      scope.$on('$destroy', function () { window.removeEventListener('mousedown', onDownDiag, true) })
 
       // --- Lua -------------------------------------------------------------------------------
       function luaStr(s) {
