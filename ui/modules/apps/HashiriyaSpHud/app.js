@@ -49,8 +49,9 @@ angular.module('beamng.apps')
               '</div>' +
           '</div>' +
 
-          // Team-Logo / Siegel groß unter dem Rivalennamen, das ganze Duell über sichtbar
-          '<img class="hbh-emblem" ng-if="b.rivalLogo" ng-src="{{ b.rivalLogo }}" alt="">' +
+          // Embleme fest in der Anzeige: links dein Zeichen (走), rechts Crew-Symbol / Wanderer-Siegel / Boss-Emblem
+          '<img class="hbh-slot hbh-slot-l" ng-src="{{ playerMark }}" alt="">' +
+          '<img class="hbh-slot hbh-slot-r" ng-if="b.rivalLogo" ng-src="{{ b.rivalLogo }}" alt="">' +
           '<div class="hbh-sync" ng-if="b.state == \'sync\'">{{ t[\'hud.sync\'] }}</div>' +
           '<div class="hbh-count" ng-if="b.state == \'countdown\'"><span ng-attr-key="{{ b.countdown }}">{{ b.countdown }}</span></div>' +
           '<div class="hbh-result" ng-if="b.state == \'result\'" ng-class="b.won ? \'hbh-win\' : \'hbh-lose\'">' +
@@ -110,9 +111,11 @@ angular.module('beamng.apps')
           '.hbh-rname small{font-size:10px;letter-spacing:.8px;opacity:.8;}' +
           /* Team-Logo / Wanderer-Siegel: dezent, ragt etwas über die Zeile, leichter Schatten wie ein Aufkleber */
           '.hbh{position:relative;}' +
-          '.hbh-emblem{position:absolute;top:calc(100% + 6px);right:18px;width:116px;height:116px;object-fit:contain;' +
-            'filter:drop-shadow(0 2px 6px rgba(0,0,0,.85));animation:hbhEmblem .35s ease-out;}' +
-          '@keyframes hbhEmblem{from{opacity:0;transform:translateY(-8px) scale(.9);}to{opacity:1;transform:none;}}' +
+          '.hbh{padding-left:108px !important;padding-right:108px !important;}' +
+          '.hbh-slot{position:absolute;top:4px;width:84px;height:84px;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,.85));}' +
+          '.hbh-slot-l{left:14px;width:64px;height:64px;top:14px;}' +
+          '.hbh-slot-r{right:12px;animation:hbhEmblem .35s ease-out;}' +
+          '@keyframes hbhEmblem{from{opacity:0;transform:scale(.8) rotate(-6deg);}to{opacity:1;transform:none;}}' +
           '.hbh-gap{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--o2);padding:1px 10px 0;' +
             'background:rgba(0,0,0,.45);border-radius:2px;}' +
           '.hbh-gap b{font-size:14px;margin-left:8px;letter-spacing:0;color:var(--w);}' +
@@ -148,6 +151,7 @@ angular.module('beamng.apps')
       scope.hitP = false
       scope.hitR = false
       scope.abs = Math.abs
+      scope.playerMark = '/ui/ui-vue/mods/hashiriyaBattle/assets/icon.png'
       scope.pct = function (v, max) { return Math.max(0, Math.min(100, (v / (max || 1)) * 100)) + '%' }
       scope.low = function (v, max) { return v / (max || 1) < 0.2 }
       scope.fmtTime = function (t) {

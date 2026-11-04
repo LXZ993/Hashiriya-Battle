@@ -729,14 +729,22 @@ local function findLogo(key, custom)
   return found
 end
 
-function M.teamLogo(teamId, leader)
+-- icon = true: zuerst das Symbol ohne Schrift (<id>_icon.*) für HUD und Sprechblase, sonst das volle Logo
+function M.teamLogo(teamId, leader, icon)
   if not teamId or not data then return nil end
   local team = teamById(teamId)
+  local keys = {}
   if leader then
-    local p = findLogo(teamId .. '_leader', team and team.logoLeader)
+    if icon then keys[#keys + 1] = { teamId .. '_leader_icon' } end
+    keys[#keys + 1] = { teamId .. '_leader', team and team.logoLeader }
+  end
+  if icon then keys[#keys + 1] = { teamId .. '_icon' } end
+  keys[#keys + 1] = { teamId, team and team.logo }
+  for _, k in ipairs(keys) do
+    local p = findLogo(k[1], k[2])
     if p then return p end
   end
-  return findLogo(teamId, team and team.logo)
+  return nil
 end
 
 function M.teamName(teamId)
@@ -745,11 +753,11 @@ function M.teamName(teamId)
 end
 
 -- Logo für einen Rivalen: Wanderer/Boss eigenes Siegel, sonst das Logo seiner Crew
-function M.logoOf(rival)
+function M.logoOf(rival, icon)
   if not rival then return nil end
   local id = rival.baseId or rival.id
   if rival.wanderer or rival.boss then return findLogo(id, rival.logo) end
-  if rival.team then return M.teamLogo(rival.team, rival.leader) end
+  if rival.team then return M.teamLogo(rival.team, rival.leader, icon) end
   return nil
 end
 

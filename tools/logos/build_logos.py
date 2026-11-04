@@ -87,6 +87,26 @@ BOSSES = {
 }
 
 
+def fit_doc(svg, box=476):
+    """Inhalt automatisch mittig einpassen (nur Symbole): misst die sichtbare Fläche per cairosvg."""
+    try:
+        import cairosvg, io
+        from PIL import Image
+    except ImportError:
+        return svg
+    im = Image.open(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode("utf-8"), output_width=512, output_height=512)))
+    bb = im.getchannel("A").getbbox()
+    if not bb:
+        return svg
+    x0, y0, x1, y1 = bb
+    k = min(box / (x1 - x0), box / (y1 - y0))
+    tx = 256 - k * (x0 + x1) / 2
+    ty = 256 - k * (y0 + y1) / 2
+    head, rest = svg.split("</defs>", 1)
+    body, tail = rest.rsplit("</svg>", 1)
+    return f'{head}</defs><g transform="translate({f(tx)} {f(ty)}) scale({k:.4f})">{body}</g></svg>{tail}'
+
+
 def doc(layers, defs=""):
     body = "".join(f'<g id="{n}">{c}</g>' for n, c in layers if c)
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">'
@@ -170,27 +190,33 @@ def motif_paths(name, cx, cy, s, color):
     return out
 
 
-def team_logo(team, leader=False):
+def team_logo(team, leader=False, icon=False):
     """Freigestellt (Alex 2026-11-03): keine Grundform, nur das Objekt und der Schriftzug,
     mit Aufkleber-Schnittkante (weiß, Leader gold) und dunkler Kontur, damit es auf jedem Hintergrund steht."""
     kind, motif, short = TEAMS[team["id"]]
     col = team["color"]
     cutc = GOLD if leader else CUT
-    parts = motif_paths(motif, 256, 196, 138, col)
-    name = tp.line(short, "latin", 48, 256, 404, track=4, maxw=470)
-    jp = tp.line(team["jp"], "jp", 30, 256, 458, track=4, maxw=330)
-    shapes_all = [(d, 26, 12) for d, fill, _ in parts if fill is not None] + [(name, 15, 7), (jp, 11, 5)]
+    if icon:
+        # Symbol ohne Schrift für kleine Anzeigen (HUD, Sprechblase): Motiv groß, dickere Schnittkante
+        parts = motif_paths(motif, 256, 262, 196, col)
+        shapes_all = [(d, 34, 16) for d, fill, _ in parts if fill is not None]
+        name = jp = ""
+    else:
+        parts = motif_paths(motif, 256, 196, 138, col)
+        name = tp.line(short, "latin", 48, 256, 404, track=4, maxw=470)
+        jp = tp.line(team["jp"], "jp", 30, 256, 458, track=4, maxw=330)
+        shapes_all = [(d, 26, 12) for d, fill, _ in parts if fill is not None] + [(name, 15, 7), (jp, 11, 5)]
     if leader:
         shapes_all.append((star(456, 48, 22, 9), 20, 9))
     cut = "".join(stroked(d, cutc, w1, cutc) for d, w1, w2 in shapes_all)
     edge = "".join(stroked(d, DARK2, w2, DARK2) for d, w1, w2 in shapes_all)
     layers = [("schnitt", cut), ("grund", edge)]
     layers.append(("motiv", "".join(f'<path d="{d}"' + (f' fill="{fill}"' if fill else "") + f'{x}/>' for d, fill, x in parts)))
-    txt = p(name, WHITE) + p(jp, col)
+    txt = (p(name, WHITE) + p(jp, col)) if name else ""
     if leader:
         txt += p(star(456, 48, 22, 9), GOLD)
     layers.append(("schrift", txt))
-    return doc(layers)
+    return fit_doc(doc(layers)) if icon else doc(layers)
 
 
 def wanderer_logo(r):
@@ -272,9 +298,10 @@ def main():
             print("WARNUNG: kein Logo-Eintrag für Crew", t["id"])
             continue
         for leader in (False, True):
-            name = t["id"] + ("_leader" if leader else "") + ".svg"
-            open(os.path.join(OUT, name), "w", encoding="utf-8").write(team_logo(t, leader))
-            written.append(name)
+            for icon in (False, True):
+                name = t["id"] + ("_leader" if leader else "") + ("_icon" if icon else "") + ".svg"
+                open(os.path.join(OUT, name), "w", encoding="utf-8").write(team_logo(t, leader, icon))
+                written.append(name)
     for r in data["rivals"]:
         if r.get("wanderer"):
             if r["id"] not in WANDERERS:

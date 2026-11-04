@@ -611,7 +611,7 @@ function M.getHudState()
     state = state,
     rivalName = battle.rival.name,
     -- Team-Logo bzw. Wanderer-Siegel/Boss-Emblem, immer sichtbar im Duell (art/logos, siehe rivals.logoOf)
-    rivalLogo = rivals().logoOf and rivals().logoOf(battle.rival) or nil,
+    rivalLogo = rivals().logoOf and rivals().logoOf(battle.rival, true) or nil,
     rivalTeam = battle.rival.team and rivals().teamName and rivals().teamName(battle.rival.team) or nil,
     playerSp = math.max(math.floor(battle.playerSp), 0),
     playerMaxSp = cfg.playerMaxSp,
