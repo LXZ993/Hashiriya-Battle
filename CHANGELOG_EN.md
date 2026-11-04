@@ -174,6 +174,7 @@
 
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.
+- Chapter "Testing" links the tick-off test list, now with 114 new tests for all features from 1 to 4 Nov 2026.
 - Links open in the browser, in Explorer or directly in the editor (set up Explorer/editor once with tools\Handbuch-Links-einrichten.bat).
 
 ### Bug fixes

@@ -174,6 +174,7 @@
 
 ### Handbuch
 - Jeder Datei- und Ordnername im Handbuch ist jetzt ein Link: Klick öffnet die Datei, das Ordner-Symbol dahinter den Ordner. Neu im Kapitel „Ordner und Dateien“: Schnellzugriff auf die wichtigsten Dateien und Ordner.
+- Kapitel „Testen“ verlinkt die Testliste zum Abhaken, jetzt mit 114 neuen Tests zu allen Features vom 01. bis 04.11.2026.
 - Links wahlweise im Browser, im Explorer oder direkt im Editor öffnen (Explorer/Editor einmal mit tools\Handbuch-Links-einrichten.bat einrichten).
 
 ### Fehler behoben
