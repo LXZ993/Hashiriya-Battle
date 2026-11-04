@@ -78,7 +78,7 @@ function M.disengage(cooldown)
   if veh then
     -- weiterfahren, aber erst nach einer Pause wieder herausforderbar
     e.cooldown = cooldown or (data and data.settings and data.settings.rechallengeSeconds) or 60
-    setCruise(veh, e.data)
+    M.resume(e)
   end
 end
 
@@ -599,6 +599,96 @@ function setCruise(veh, rival)
 end
 M.setCruise = setCruise
 
+-- Begleiter (crew.lua, Alpha 0.9.3): fahren im Konvoi hinter ihrem Leader/Boss her ('follow' auf den Vordermann).
+-- Wer in der Kette geschlagen wurde (leftGroup) oder dessen Vordermann fehlt, fährt normal im Verkehr.
+local function crew() return extensions.hashiriyaBattle_crew end
+
+function M.resume(e)
+  local veh = entryVeh(e)
+  if not veh then return end
+  -- Vordermann: der Begleiter vor ihm, außer der fährt gerade selbst ein Battle oder ist raus; dann der Leader
+  local f = e.followEntry
+  if f and (f == engaged or f.leftGroup or not entryVeh(f)) then f = e.escortOf end
+  local ahead = e.escortOf and not e.leftGroup and entryVeh(f) or nil
+  local cc = crew() and crew().cfg('escorts')
+  if ahead and cc and cc.ai == 'follow' then
+    local lead = e.escortOf.data
+    local speed = ((lead.cruiseKmh or 100) + (cc.followExtraKmh or 10)) / 3.6
+    veh:queueLuaCommand(string.format(
+      "ai.setMode('follow') ai.setTargetObjectID(%d) ai.setAggressionMode('off') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
+      ahead:getID(), speed, cruiseAggression))
+  else
+    setCruise(veh, e.data)
+  end
+end
+
+-- Alle Fahrzeuge einer Gruppe (Leader zuerst, dann die Begleiter von vorne nach hinten)
+function M.groupMembers(group)
+  local out = {}
+  if not group then return out end
+  if group.leader then out[1] = group.leader end
+  for _, e in ipairs(group.escorts or {}) do out[#out + 1] = e end
+  return out
+end
+
+-- Kette gerissen oder vorbei: alle wieder zusammen (geschlagene Begleiter fahren wieder mit), mit Pause
+function M.regroup(group, cooldown)
+  for _, e in ipairs(M.groupMembers(group)) do
+    e.leftGroup = nil
+    if cooldown then e.cooldown = math.max(e.cooldown or 0, cooldown) end
+    if e ~= engaged then M.resume(e) end
+  end
+end
+
+-- Hängt sich ans Ende: Begleiter-Autos direkt hinter dem Leader spawnen (gleiche Spur, spacing m Abstand)
+local spawnCar -- weiter unten
+local function spawnEscorts(entry, rival, dist, player, save)
+  local c = crew()
+  if not c then return end
+  local list = c.escortsFor(rival, save, function(r) return not isOnRoad(r.id) and not reserved[r.id] end)
+  if #list == 0 then return end
+  local cc = c.cfg('escorts')
+  local group = { leader = entry, escorts = {} }
+  entry.group = group
+  local prev = entry
+  for i, r in ipairs(list) do
+    local d = dist - (cc.spacing or 20) * i
+    local pos, dir = findRoadSpawn(player:getPosition(), player:getDirectionVector(), d)
+    if pos and spawnFree(pos, 6) then
+      local veh = spawnCar(r, pos, dir)
+      if veh then
+        local e = { data = r, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false,
+          group = group, escortOf = entry, followEntry = prev, escortIndex = i }
+        table.insert(onRoad, e)
+        table.insert(group.escorts, e)
+        M.resume(e)
+        prev = e
+      end
+    end
+  end
+  if #group.escorts == 0 then entry.group = nil; return end
+  log('I', logTag, string.format('Begleiter für %s: %d', tostring(rival.id), #group.escorts))
+  return #group.escorts
+end
+
+-- Auto eines Rivalen an pos/dir spawnen (eigene Config mit Kennzeichen und Lack, zur Not die Original-Config)
+function spawnCar(rival, pos, dir)
+  local model, cfg, paints, plateText = M.carFor(rival)
+  local opts = { config = cfg, pos = pos, rot = quatFromDir(dir, vec3(0, 0, 1)), autoEnterVehicle = false, licenseText = plateText }
+  if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
+  local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
+  if (not okSpawn or not veh) and type(cfg) == 'table' then
+    -- Ersatz: Original-Config ohne Kennzeichen-Design und Lack
+    log('W', logTag, 'Rivale mit eigener Config nicht gespawnt, nehme Original: ' .. tostring(rival.id) .. ' ' .. tostring(veh))
+    opts.config, opts.paint, opts.paint2, opts.paint3 = rival.config, nil, nil, nil
+    okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
+  end
+  if not okSpawn then veh = nil end
+  if veh and plateText then pcall(core_vehicles.setPlateText, plateText, veh:getID()) end
+  if not veh then log('E', logTag, 'Konnte Rivalen-Auto nicht spawnen: ' .. tostring(model)) end
+  return veh
+end
+
 -- Dev-Tool: Rivale per ID oder (Teil vom) Namen finden
 function M.findRival(q)
   if not data then M.loadData() end
@@ -677,31 +767,24 @@ function M.spawnNext(force, forced)
     return
   end
 
-  local model, cfg, paints, plateText = M.carFor(rival)
-  local opts = { config = cfg, pos = pos, rot = quatFromDir(dir, vec3(0, 0, 1)), autoEnterVehicle = false, licenseText = plateText }
-  if paints then opts.paint, opts.paint2, opts.paint3 = paints[1], paints[2], paints[3] end
-  local okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
-  if (not okSpawn or not veh) and type(cfg) == 'table' then
-    -- Ersatz: Original-Config ohne Kennzeichen-Design und Lack
-    log('W', logTag, 'Rivale mit eigener Config nicht gespawnt, nehme Original: ' .. tostring(rival.id) .. ' ' .. tostring(veh))
-    opts.config, opts.paint, opts.paint2, opts.paint3 = rival.config, nil, nil, nil
-    okSpawn, veh = pcall(core_vehicles.spawnNewVehicle, model, opts)
-  end
-  if not okSpawn then veh = nil end
-  if veh and plateText then pcall(core_vehicles.setPlateText, plateText, veh:getID()) end
-  if not veh then
-    log('E', logTag, 'Konnte Rivalen-Auto nicht spawnen: ' .. tostring(model))
-    return
-  end
+  local veh = spawnCar(rival, pos, dir)
+  if not veh then return end
 
   local entry = { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = false }
   table.insert(onRoad, entry)
   setCruise(veh, rival)
+  -- Leader und Bosse bringen Begleiter mit (crew.lua, data/crewbattle.json)
+  local escorts = nil
+  if rival.leader or rival.boss or type(rival.escorts) == 'table' then
+    local okE, n = pcall(spawnEscorts, entry, rival, dist, player, save)
+    if okE then escorts = n else log('E', logTag, 'Begleiter: ' .. tostring(n)) end
+  end
   if force or dist > 0 then
     local nick = progress().loc(rival.nick)
     core().msg(core().t('msg.rivalSpotted', rival.name .. (nick ~= '' and (' "' .. nick .. '"') or ''))
       .. (rival.leader and core().t('msg.leader') or '') .. (rival.wanderer and core().t('msg.wanderer') or '') .. (rival.boss and core().t('msg.boss') or '')
-      .. (rival.rematch and core().t('msg.rematch') or '') .. (home().isWatched(rival.id) and core().t('msg.watched') or ''))
+      .. (rival.rematch and core().t('msg.rematch') or '') .. (home().isWatched(rival.id) and core().t('msg.watched') or '')
+      .. (escorts and core().t('msg.escorts', escorts) or ''))
   end
   log('I', logTag, 'Rivale gespawnt: ' .. rival.id .. string.format(' (%d m, %d unterwegs)', math.floor(dist), #onRoad))
   return entry
@@ -824,6 +907,16 @@ local function despawn(e)
   if veh then veh:delete() end
   for i, x in ipairs(onRoad) do if x == e then table.remove(onRoad, i); break end end
   if engaged == e then engaged = nil end
+  -- Konvoi: wer diesem Auto gefolgt ist, sucht sich einen neuen Vordermann (oder fährt normal weiter)
+  if e.group then
+    for _, m in ipairs(M.groupMembers(e.group)) do
+      if m ~= e and (m.followEntry == e or m.escortOf == e) and m ~= engaged then
+        if m.followEntry == e then m.followEntry = (e ~= e.group.leader) and e.followEntry or nil end
+        if m.escortOf == e then m.leftGroup = true end
+        M.resume(m)
+      end
+    end
+  end
 end
 
 -- Rivale aus dem Battle (oder der nächste) verschwindet, z. B. beim Abschleppen
@@ -938,7 +1031,7 @@ local function onUpdate(dtReal, dtSim)
         if veh:getDirectionVector():dot(e.spawnDir) < 0 then
           log('W', logTag, 'Rivale stand falsch herum, wird gedreht')
           setRotation(veh, e.spawnPos, e.spawnDir * -1)
-          setCruise(veh, e.data)
+          M.resume(e)
         end
       end
       -- Gleich nach dem Spawn mit Reisetempo losrollen lassen, statt aus dem Stand zu starten
@@ -962,9 +1055,11 @@ local function onUpdate(dtReal, dtSim)
         veh:queueLuaCommand(string.format('if (electrics.values.lights_state or 0) ~= %d then electrics.setLightsState(%d) end', want, want))
       end
       -- Hängt fest (steht oder fährt kaum, ohne Battle): erst neu anschieben, dann verschwinden lassen, wenn weit genug weg
-      if e ~= engaged and e.launched then
+      -- (nicht bei Crew-Blockern: die fährt gerade der eigene Fahrer, crew.lua)
+      local drv = extensions.hashiriyaBattle_driver
+      if e ~= engaged and e.launched and not (drv and drv.isRunning(e.vehId)) then
         if veh:getVelocity():length() < 3 then e.stuck = (e.stuck or 0) + dtSim else e.stuck = 0 end
-        if e.stuck > stuckSeconds * 0.5 and not e.nudged then e.nudged = true; setCruise(veh, e.data) end
+        if e.stuck > stuckSeconds * 0.5 and not e.nudged then e.nudged = true; M.resume(e) end
         if e.stuck > stuckSeconds and player and (veh:getPosition() - player:getPosition()):length() > 120 then
           log('I', logTag, 'Rivale hing fest und wird entfernt: ' .. tostring(e.data.id))
           despawn(e)

@@ -1,0 +1,44 @@
+{
+  "_hinweis": "Crew-Battles (Alpha 0.9.3): Leader und Bosse mit Begleitern (Kette), Crew blockt für ihren Leader, Rivale lehnt sichtbar ab, Yen-Wette vor dem Battle. Alles im Handbuch unter 'Crew-Battles, Ablehnen und Wetten'. Zeiten in Sekunden, Abstände in Metern, Tempo in km/h, Chancen 0 bis 1.",
+  "escorts": {
+    "_hinweis": "Leader und Bosse fahren mit Begleitern im Konvoi. Du fährst nacheinander gegen alle (erst die Begleiter von hinten nach vorne, zuletzt der Leader/Boss). Eine Niederlage = die Kette reißt, beim nächsten Mal wieder von vorne. Pro Rivale in rivals.json: \"escorts\": [\"id1\", \"id2\"] (feste Begleiter) oder \"escorts\": [] (allein). Ohne Eintrag: Leader nehmen Mitglieder der eigenen Crew, Bosse die Leader der Crews aus conditions.beatenTeams, sonst die Rivalen aus conditions.beatenRivals.",
+    "enabled": true,
+    "leaders": true,
+    "bosses": true,
+    "count": 2,
+    "spacing": 20,
+    "ai": "follow",
+    "followExtraKmh": 10,
+    "chainWaitSeconds": 60,
+    "chainStartDistance": 45,
+    "chainPauseSeconds": 3
+  },
+  "blocking": {
+    "_hinweis": "Crew-Taktik: während du gegen einen Leader, Boss oder Begleiter fährst, blocken die übrigen Begleiter (und Crew-Mitglieder des Leaders auf der Straße) für ihn. Sie fahren knapp vor dir (targetGap) und machen die Linie zu. range = so nah müssen sie bei dir sein, maxHelpers = höchstens so viele gleichzeitig.",
+    "enabled": true,
+    "range": 180,
+    "maxHelpers": 2,
+    "targetGap": 12,
+    "releaseDistance": 320
+  },
+  "decline": {
+    "_hinweis": "Rivale lehnt deine Lichthupe sichtbar ab: er setzt den Blinker (links oder rechts) und in der Bildschirmmitte erscheint ein Stopp-Zeichen mit dem Grund. Gründe: gerade erst gefahren (Pause), Battle-Limit der Nacht erreicht, oder einfach keine Lust (chance je Art, nicht bei PA-Verabredungen). Nach einem Nein aus Laune fragt derselbe Rivale moodCooldown Sekunden lang nicht neu.",
+    "enabled": true,
+    "chance": { "rival": 0.08, "leader": 0, "wanderer": 0, "boss": 0 },
+    "moodCooldown": 90,
+    "blinkSeconds": 3.5,
+    "showSeconds": 2.6
+  },
+  "bet": {
+    "_hinweis": "Yen-Wette vor dem Battle: beim Tempo-Angleichen bietet der Rivale manchmal eine Wette an. Warnblinker = annehmen, Lichthupe = Einsatz erhöhen (Stufen in raise, Vielfache des Grundeinsatzes), nichts tun = keine Wette. Grundeinsatz = stakeOfReward x Preisgeld des Rivalen, gerundet auf round Yen, höchstens maxMoneyShare deines Geldes. Gewinnst du, bekommst du den Einsatz zusätzlich, verlierst du, ist er weg. Nicht bei Pink Slip und nicht bei Begleitern einer Kette (nur beim Leader/Boss am Ende).",
+    "enabled": true,
+    "minRank": 1,
+    "chance": { "rival": 0.3, "leader": 0.6, "wanderer": 0.5, "boss": 1.0 },
+    "stakeOfReward": 0.5,
+    "raise": [1, 2, 3],
+    "maxMoneyShare": 0.5,
+    "minStake": 5000,
+    "round": 1000,
+    "offerSeconds": 7
+  }
+}

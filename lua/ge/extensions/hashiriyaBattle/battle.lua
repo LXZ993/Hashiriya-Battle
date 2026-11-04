@@ -64,7 +64,7 @@ local cfg = {
 }
 M.cfg = cfg
 
--- Zustand: idle | countdown | battle | result
+-- Zustand: idle | sync | countdown | battle | result | chainWait (Kette: wartet auf den nächsten Gegner)
 local state = 'idle'
 local timer = 0
 local battle = nil
@@ -76,9 +76,12 @@ local declined = {}       -- vehId -> s Sperre nach Ablehnen
 local offerPause = 0
 local offerCheck = 0
 local pollTimer = 0
+-- Crew-Battle-Kette (Alpha 0.9.3): { group, order = { Begleiter von hinten nach vorne ..., Leader }, step, target }
+local chain = nil
 
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
+local function crew() return extensions.hashiriyaBattle_crew end
 
 function M.getState() return state end
 
@@ -105,8 +108,10 @@ local function falseStartCooldown()
   return d.falseStartRechallengeSeconds or 30
 end
 
-function M.reset(cooldown)
+-- keepChain = true: nur dieses eine Battle ist vorbei, die Kette geht mit dem nächsten Gegner weiter
+function M.reset(cooldown, keepChain)
   offer = nil
+  if crew() then pcall(crew().releaseHelpers) end
   -- Battle abgebrochen: eigenen Fahrer stoppen, BeamNG-KI fährt im Verkehr weiter
   if battle and battle.ownAi then
     local veh = rivals() and rivals().getRivalVehicle()
@@ -122,7 +127,14 @@ function M.reset(cooldown)
   end
   state = 'idle'
   battle = nil
+  -- Kette vorbei oder gerissen (Niederlage, Frühstart, Gegner weg): die Gruppe fährt wieder zusammen,
+  -- beim nächsten Mal geht es wieder beim ersten Begleiter los
+  local group = (not keepChain) and chain and chain.group or nil
+  if not keepChain then chain = nil end
   if rivals() and rivals().disengage then rivals().disengage(cooldown) end
+  if group and rivals().regroup then
+    rivals().regroup(group, cooldown or (rivals().getSettings().rechallengeSeconds or 60))
+  end
 end
 
 -- Lichthupe ---------------------------------------------------------------------
@@ -212,7 +224,19 @@ local function startCountdown(rival, rivalVeh, playerAhead)
     rivalCar = vehicleDisplayName(rival.model),
     pinkSlip = rival.pinkSlip or nil,
     playerAhead = playerAhead or nil,
+    chainStep = chain and chain.step or nil,
+    chainTotal = chain and #chain.order or nil,
   }
+  -- Wette (crew.lua): nicht bei Pink Slip, in einer Kette nur gegen den Leader/Boss am Ende
+  if not battle.pinkSlip and (not chain or chain.step == #chain.order) and crew() then
+    local okB, bet = pcall(crew().betOffer, rival)
+    if okB and bet then
+      battle.bet = bet
+      core().msg(core().t('msg.betOffer', rival.name, crew().formatYen(bet.stake)), bet.timer + 1)
+    elseif not okB then
+      log('E', logTag, 'Wette: ' .. tostring(bet))
+    end
+  end
   local save = core().save
   local car = save and save.cars[save.activeCar or 1]
   battle.playerCar = car and car.name or ''
@@ -232,6 +256,47 @@ local function startCountdown(rival, rivalVeh, playerAhead)
   log('I', logTag, 'Challenge gegen ' .. rival.id)
 end
 
+-- Kette: nächster Gegner wartet (vorne langsamer) bzw. holt auf (hinten), bis er nah genug ist
+local function chainWaitFor(e)
+  rivals().engage(e)
+  state = 'chainWait'
+  local cc = crew().cfg('escorts')
+  timer = cc.chainWaitSeconds or 60
+  chain.target = e
+  chain.pause = cc.chainPauseSeconds or 3
+  chain.relock = 0
+  core().msg(core().t('msg.chainNext', e.data.name, chain.step, #chain.order), 5)
+  log('I', logTag, string.format('Kette %d/%d: wartet auf %s', chain.step, #chain.order, tostring(e.data.id)))
+end
+
+-- Herausforderung beginnt. Gehört der Rivale zu einem Konvoi (Leader/Boss mit Begleitern), wird daraus eine Kette:
+-- erst die Begleiter von hinten nach vorne, zuletzt der Leader/Boss.
+local function beginChallenge(e, playerAhead)
+  local rivalVeh = be:getObjectByID(e.vehId)
+  if not rivalVeh then return end
+  chain = nil
+  local group = e.group
+  local leader = group and group.leader
+  if group and leader and be:getObjectByID(leader.vehId) and crew() and crew().cfg('escorts').enabled then
+    local order = {}
+    local esc = group.escorts or {}
+    for i = #esc, 1, -1 do
+      local m = esc[i]
+      if not m.leftGroup and be:getObjectByID(m.vehId) then order[#order + 1] = m end
+    end
+    if #order > 0 then
+      order[#order + 1] = leader
+      chain = { group = group, order = order, step = 1 }
+      local c = core()
+      c.msg(c.t('msg.chainStart', leader.data.name, #order), 5)
+      log('I', logTag, 'Kette gegen ' .. tostring(leader.data.id) .. ': ' .. #order .. ' Gegner')
+      if order[1] ~= e then chainWaitFor(order[1]); return end
+    end
+  end
+  rivals().engage(e)
+  startCountdown(rivals().challengeData(e), rivalVeh, playerAhead)
+end
+
 local function endOffer(answer)
   if not offer then return end
   local o = offer
@@ -240,12 +305,14 @@ local function endOffer(answer)
   local c = core()
   local rivalVeh = be:getObjectByID(o.vehId)
   if answer == 'accept' and rivalVeh and state == 'idle' then
-    rivals().engage(o.entry)
-    startCountdown(rivals().challengeData(o.entry), rivalVeh, true)
+    beginChallenge(o.entry, true)
     return
   end
   declined[o.vehId] = cfg.rivalChallengeDeclined
-  if answer == 'decline' then c.msg(c.t('msg.rivalDeclined', o.entry.data.name), 3) end
+  if answer == 'decline' then
+    c.msg(c.t('msg.rivalDeclined', o.entry.data.name), 3)
+    if crew() then crew().showFx('decline', 'player', o.entry.data.name, c.t('fx.decline.player')) end
+  end
 end
 
 function M.getOffer()
@@ -257,6 +324,18 @@ function M.onLights(vehId, hb, hazard, left, right)
   M.onHighbeam(vehId, hb)
   local prev = signals[vehId] or { hazard = hazard, left = left, right = right }
   signals[vehId] = { hazard = hazard, left = left, right = right }
+  -- Wett-Angebot beim Angleichen: Warnblinker = Wette angenommen
+  if state == 'sync' and battle and battle.bet and battle.bet.offer then
+    local player = core().getPlayerVehicle()
+    if player and player:getID() == vehId and hazard == 1 and prev.hazard == 0 then
+      battle.bet.offer = false
+      battle.bet.accepted = true
+      core().msg(core().t('msg.betAccepted', crew().formatYen(battle.bet.stake)), 3)
+      core().sound('bet')
+      log('I', logTag, 'Wette angenommen: ' .. tostring(battle.bet.stake))
+    end
+    return
+  end
   if not offer then return end
   local player = core().getPlayerVehicle()
   if not player or player:getID() ~= vehId then return end
@@ -292,7 +371,8 @@ local function updateRivalChallenge(dt, player)
   offerCheck = 0.5
   for _, e in ipairs(rivals().getOnRoad()) do
     local rivalVeh = be:getObjectByID(e.vehId)
-    if rivalVeh and not e.cooldown and not declined[e.vehId] and rivalBehindPlayer(player, rivalVeh) then
+    -- Begleiter fordern nicht selbst heraus (sie fahren im Konvoi ihres Leaders)
+    if rivalVeh and not e.cooldown and not e.escortOf and not declined[e.vehId] and rivalBehindPlayer(player, rivalVeh) then
       tail[e.vehId] = (tail[e.vehId] or 0) + 0.5
       if offerPause <= 0 and tail[e.vehId] >= cfg.rivalChallengeTail then
         tail[e.vehId] = cfg.rivalChallengeTail - 2 -- nächster Versuch frühestens in 2 s
@@ -317,6 +397,15 @@ function M.onHighbeam(vehId, value)
   local prev = highbeam[vehId] or 0
   highbeam[vehId] = value
   if not (value > 0 and prev == 0) then return end -- nur beim Einschalten
+  -- Wett-Angebot beim Angleichen: Lichthupe = Einsatz erhöhen
+  if state == 'sync' and battle and battle.bet and battle.bet.offer then
+    local p = core().getPlayerVehicle()
+    if p and p:getID() == vehId then
+      crew().raiseBet(battle.bet)
+      core().msg(core().t('msg.betRaise', crew().formatYen(battle.bet.stake)), 3)
+    end
+    return
+  end
   if state ~= 'idle' then return end
 
   local player = core().getPlayerVehicle()
@@ -324,14 +413,19 @@ function M.onHighbeam(vehId, value)
   -- den Rivalen herausfordern, hinter dem man gerade fährt
   for _, e in ipairs(rivals().getOnRoad()) do
     local rivalVeh = be:getObjectByID(e.vehId)
-    if rivalVeh and not e.cooldown and playerBehindRival(player, rivalVeh) then
+    if rivalVeh and playerBehindRival(player, rivalVeh) then
+      -- Rivale lehnt sichtbar ab (Blinker + Stopp-Zeichen): gerade erst gefahren, Nacht-Limit oder keine Lust
+      local reason = crew() and crew().declineReason(e)
+      if reason then
+        crew().showDecline(e, reason)
+        return
+      end
       local diff = (player:getVelocity():length() - rivalVeh:getVelocity():length()) * 3.6
       if math.abs(diff) > cfg.maxChallengeDiffKmh then
         core().msg(core().t(diff > 0 and 'msg.tooFast' or 'msg.tooSlow'), 2)
         return
       end
-      rivals().engage(e)
-      startCountdown(rivals().challengeData(e), rivalVeh)
+      beginChallenge(e)
       return
     end
   end
@@ -435,8 +529,25 @@ local function finishBattle(won)
     if battle.ownAi then driver().stop(rivalVeh); battle.ownAi = false end
     rivals().setCruise(rivalVeh, battle.rival)
   end
+  if crew() then pcall(crew().releaseHelpers) end
   core().onBattleResult(battle.rival, won, {
     time = battle.time, playerSp = battle.playerSp, playerMaxSp = cfg.playerMaxSp, damageSp = battle.damageTaken or 0 })
+  -- Wette auszahlen bzw. Einsatz abziehen
+  if battle.bet and battle.bet.accepted then
+    local okB, err = pcall(crew().settleBet, battle.bet, won, battle.rival.name)
+    if not okB then log('E', logTag, 'Wette: ' .. tostring(err)) end
+  end
+  -- Kette: geschlagener Begleiter fällt zurück; eine Niederlage lässt die Kette reißen (M.reset nach dem Ergebnis)
+  if chain then
+    local c = core()
+    if not won then
+      c.msg(c.t('msg.chainBroken', chain.group.leader and chain.group.leader.data.name or ''), 7)
+    elseif chain.step < #chain.order then
+      chain.order[chain.step].leftGroup = true
+    else
+      c.msg(c.t('msg.chainDone', battle.rival.name), 7)
+    end
+  end
   -- PA-Verabredung und Pink Slip gelten nur für dieses eine Battle
   battle.rival.paChallenge, battle.rival.pinkSlip = nil, nil
   local e = rivals().getActiveRival()
@@ -514,6 +625,15 @@ local function updateBattle(dt, player, rivalVeh)
 
   if battle.ownAi then
     driver().update(dt, rivalVeh, gap, battle.rivalSp / math.max(battle.rivalMaxSp, 1), battle.playerSp / math.max(cfg.playerMaxSp, 1))
+  end
+
+  -- Crew-Taktik: Begleiter und Crew-Mitglieder in der Nähe blocken für ihren Leader (crew.lua)
+  if crew() then
+    local okH, err = pcall(crew().updateHelpers, dt, player, rivals().getActiveRival())
+    if not okH and not battle.helperWarned then
+      battle.helperWarned = true
+      log('W', logTag, 'Crew-Blocker: ' .. tostring(err))
+    end
   end
 
   if not battle.ownAi and aiMode(rivalVeh) == 'fleeGuard' and battle.rivalMode == 'flee' then
@@ -629,6 +749,13 @@ function M.getHudState()
     rivalTag = battle.rival.boss and 'boss' or (battle.rival.leader and 'leader' or (battle.rival.wanderer and 'wanderer' or 'rival')),
     rivalNick = extensions.hashiriyaBattle_progress.loc(battle.rival.nick),
     pinkSlip = battle.pinkSlip,
+    -- Wette: Angebot (offer, Restzeit) oder angenommener Einsatz
+    bet = battle.bet and (battle.bet.offer or battle.bet.accepted) and {
+      stake = crew().formatYen(battle.bet.stake), offer = battle.bet.offer or nil, accepted = battle.bet.accepted or nil,
+      timer = battle.bet.offer and math.ceil(battle.bet.timer) or nil } or nil,
+    -- Kette: Gegner Nr. step von total
+    chain = battle.chainTotal and { step = battle.chainStep, total = battle.chainTotal } or nil,
+    blockers = (crew() and crew().helperCount() > 0) and crew().helperCount() or nil,
     playerTitle = extensions.hashiriyaBattle_progress.nickname() or extensions.hashiriyaBattle_progress.rankName(),
   }
 end
@@ -649,6 +776,8 @@ local function onUpdate(dtReal, dtSim)
     pollHighbeam(player)
   end
 
+  if crew() then crew().tick(dtSim) end
+
   if state == 'idle' then
     updateRivalChallenge(dtSim, player)
     return
@@ -656,6 +785,45 @@ local function onUpdate(dtReal, dtSim)
 
   local rivalVeh = rivals().getRivalVehicle()
   if not rivalVeh then M.reset(); return end
+
+  if state == 'chainWait' then
+    local target = chain and chain.target
+    if not target or not be:getObjectByID(target.vehId) or rivals().getActiveRival() ~= target then
+      core().msg(core().t('msg.chainLost'), 5)
+      M.reset()
+      return
+    end
+    rivalVeh = be:getObjectByID(target.vehId)
+    timer = timer - dtSim
+    chain.pause = (chain.pause or 0) - dtSim
+    local gap = getGap(player, rivalVeh)
+    local cc = crew().cfg('escorts')
+    if chain.pause <= 0 and math.abs(gap) <= (cc.chainStartDistance or 45) then
+      startCountdown(rivals().challengeData(target), rivalVeh, gap < 0)
+      return
+    end
+    if timer <= 0 then
+      core().msg(core().t('msg.chainLost'), 5)
+      M.reset()
+      return
+    end
+    chain.relock = (chain.relock or 0) - dtSim
+    if chain.relock <= 0 then
+      chain.relock = 1
+      local cruise = (target.data.cruiseKmh or 100) / 3.6
+      local pv = player:getVelocity():length()
+      if gap > 0 then
+        -- vorne: er wartet auf dich (fährt langsamer)
+        local v = math.max(math.min(cruise, pv) * 0.75, 50 / 3.6)
+        rivalVeh:queueLuaCommand(string.format("ai.setMode('traffic') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.driveInLane('on')", v))
+      else
+        -- hinten: er holt auf
+        local v = math.max(pv, cruise) + 25 / 3.6
+        rivalVeh:queueLuaCommand(string.format("ai.setMode('traffic') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.driveInLane('off')", v))
+      end
+    end
+    return
+  end
 
   if state == 'sync' or state == 'countdown' then
     -- echtes Tempo des Rivalen (geglättet): die KI bremst für Verkehr und Kurven, dein Tempomat folgt ihr
@@ -671,6 +839,16 @@ local function onUpdate(dtReal, dtSim)
 
   if state == 'sync' then
     battle.quoteLeft = math.max(0, (battle.quoteLeft or 0) - dtSim)
+    -- Wett-Angebot läuft: Countdown wartet, bis du annimmst (Warnblinker) oder die Zeit um ist
+    local bet = battle.bet
+    if bet and bet.offer then
+      bet.timer = bet.timer - dtSim
+      if bet.timer <= 0 then
+        bet.offer = false
+        core().msg(core().t('msg.betNone'), 3)
+      end
+    end
+    local betPending = bet and bet.offer
     -- Tempo angleichen: Tempomat gibt Gas bzw. lässt ausrollen (er bremst nicht), dann startet der Countdown
     timer = timer - dtSim
     local gap = getGap(player, rivalVeh)
@@ -691,7 +869,7 @@ local function onUpdate(dtReal, dtSim)
       end
       battle.lockSpeed = battle.rivalSpeed
       local diff = math.abs(player:getVelocity():length() - battle.rivalSpeed) * 3.6
-      if ((behind <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 then
+      if ((behind <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 and not betPending then
         state = 'countdown'
         timer = cfg.countdown
         battle.startGap = gap
@@ -713,7 +891,7 @@ local function onUpdate(dtReal, dtSim)
     local catchUp = math.min(cfg.syncCatchUpKmh, math.max(0, gap - cfg.syncTargetGap) * cfg.syncCatchUpPerMeter) / 3.6
     battle.lockSpeed = battle.rivalV + catchUp
     local diff = math.abs(player:getVelocity():length() - battle.rivalV) * 3.6
-    if ((gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 then
+    if ((gap <= cfg.syncMaxGap and diff <= cfg.syncToleranceKmh) or timer <= 0) and battle.quoteLeft <= 0 and not betPending then
       state = 'countdown'
       timer = cfg.countdown
       battle.startGap = gap
@@ -776,6 +954,19 @@ local function onUpdate(dtReal, dtSim)
   elseif state == 'result' then
     timer = timer - dtSim
     if timer <= 0 then
+      -- Kette: gewonnen und noch Gegner übrig -> der nächste wartet
+      if chain and battle and battle.won and chain.step < #chain.order then
+        M.reset(nil, true)
+        chain.step = chain.step + 1
+        local nxt = chain.order[chain.step]
+        if nxt and be:getObjectByID(nxt.vehId) then
+          chainWaitFor(nxt)
+        else
+          core().msg(core().t('msg.chainLost'), 5)
+          M.reset()
+        end
+        return
+      end
       -- der Rivale fährt weiter (TXR-Stil); geschlagen = später Revanche möglich
       M.reset()
     end

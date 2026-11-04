@@ -3,6 +3,8 @@
 // darunter Titel/Rivalenname und Abstand. Die Balken leeren sich von außen zur Mitte; ein heller
 // Nachlauf-Balken zeigt kurz, wie viel SP gerade verloren ging.
 // Daten: Hook 'HashiriyaState' (battle = battle.lua getHudState()). Der Spruch des Rivalen steht in der Sprechblase unten (App HashiriyaTalk).
+// Alpha 0.9.3: Hook 'HashiriyaBattleFx' (crew.lua showFx) = Stopp-Zeichen in der Bildschirmmitte, wenn ein Rivale ablehnt;
+// Kette (KETTE 2/3), Wette (Angebot und Einsatz) und Crew-Blocker als Plaketten.
 angular.module('beamng.apps')
 .directive('hashiriyaSpHud', [function () {
   return {
@@ -20,6 +22,8 @@ angular.module('beamng.apps')
               '<div class="hbh-car">{{ b.rivalCar | uppercase }}</div>' +
               '<div class="hbh-badge hbh-badge-r" ng-class="{\'hbh-badge-lead\': b.rivalTag == \'leader\', \'hbh-badge-wand\': b.rivalTag == \'wanderer\', \'hbh-badge-boss\': b.rivalTag == \'boss\'}">{{ t[\'hud.tag.\' + b.rivalTag] }}</div>' +
               '<div class="hbh-badge hbh-badge-r hbh-badge-pink" ng-if="b.pinkSlip">{{ t[\'hud.tag.pink\'] }}</div>' +
+              '<div class="hbh-badge hbh-badge-r hbh-badge-chain" ng-if="b.chain">{{ t[\'hud.chain\'] }} {{ b.chain.step }}/{{ b.chain.total }}</div>' +
+              '<div class="hbh-badge hbh-badge-r hbh-badge-bet" ng-if="b.bet && b.bet.accepted">{{ t[\'hud.bet\'] }} {{ b.bet.stake }}</div>' +
             '</div>' +
           '</div>' +
 
@@ -53,10 +57,23 @@ angular.module('beamng.apps')
           '<img class="hbh-slot hbh-slot-l" ng-class="{\'hbh-slot-own\': b.playerLogo && b.playerLogo != playerMark}" ng-src="{{ b.playerLogo || playerMark }}" alt="">' +
           '<img class="hbh-slot hbh-slot-r" ng-if="b.rivalLogo" ng-src="{{ b.rivalLogo }}" alt="">' +
           '<div class="hbh-sync" ng-if="b.state == \'sync\'">{{ t[\'hud.sync\'] }}</div>' +
+          '<div class="hbh-betoffer" ng-if="b.state == \'sync\' && b.bet && b.bet.offer">' +
+            '<b>{{ t[\'hud.bet\'] }} {{ b.bet.stake }}?</b><span class="hbh-bet-t">{{ b.bet.timer }}</span>' +
+            '<small>{{ t[\'hud.betHint\'] }}</small></div>' +
+          '<div class="hbh-blockers" ng-if="b.state == \'battle\' && b.blockers">{{ t[\'hud.blockers\'] }} &times;{{ b.blockers }}</div>' +
           '<div class="hbh-count" ng-if="b.state == \'countdown\'"><span ng-attr-key="{{ b.countdown }}">{{ b.countdown }}</span></div>' +
           '<div class="hbh-result" ng-if="b.state == \'result\'" ng-class="b.won ? \'hbh-win\' : \'hbh-lose\'">' +
             '<div class="hbh-result-band"><span>{{ b.won ? t[\'hud.win\'] : t[\'hud.lose\'] }}</span></div>' +
           '</div>' +
+        '</div>' +
+
+        // Rivale lehnt ab: Stopp-Zeichen (Kreuz im Ring) in der Bildschirmmitte, kurz eingeblendet
+        '<div class="hbh-fx" ng-if="fx" ng-class="{\'hbh-fx-out\': fxOut, \'hbh-fx-player\': fx.who == \'player\'}">' +
+          '<div class="hbh-fx-sign"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" class="hbh-fx-ring"/>' +
+            '<path d="M32 32 L68 68 M68 32 L32 68" class="hbh-fx-x"/></svg></div>' +
+          '<div class="hbh-fx-band"><span>{{ t[\'hud.decline\'] }}</span></div>' +
+          '<div class="hbh-fx-who" ng-if="fx.name">{{ fx.name }}</div>' +
+          '<div class="hbh-fx-text" ng-if="fx.text">{{ fx.text }}</div>' +
         '</div>' +
 
         '<style>' +
@@ -78,6 +95,31 @@ angular.module('beamng.apps')
           '.hbh-badge-wand{border-color:#b98cff;color:#b98cff;}' +
           '.hbh-badge-boss{border-color:#ff5a36;color:#ff5a36;}' +
           '.hbh-badge-pink{border-color:#ff7eb6;color:#ff7eb6;}' +
+          '.hbh-badge-chain{border-color:#ffd23f;color:#ffd23f;}' +
+          '.hbh-badge-bet{border-color:#8fe388;color:#8fe388;}' +
+          /* Wett-Angebot unter "Tempo angleichen" */
+          '.hbh-betoffer{text-align:center;margin-top:6px;font-style:italic;animation:hbhFade .3s ease-out;}' +
+          '.hbh-betoffer b{font-size:15px;font-weight:900;letter-spacing:1.5px;color:#8fe388;}' +
+          '.hbh-bet-t{display:inline-block;margin-left:8px;min-width:20px;font-size:12px;font-weight:800;color:var(--dim);font-style:normal;}' +
+          '.hbh-betoffer small{display:block;font-size:10px;letter-spacing:1px;color:var(--dim);font-style:normal;margin-top:1px;}' +
+          '.hbh-blockers{text-align:center;margin-top:6px;font-size:10px;font-weight:800;letter-spacing:2px;color:#ffd23f;}' +
+          /* Stopp-Zeichen */
+          '.hbh-fx{position:fixed;left:0;right:0;top:34%;display:flex;flex-direction:column;align-items:center;z-index:40;pointer-events:none;' +
+            'font-family:"Overpass","Noto Sans","Segoe UI",sans-serif;color:#f4f4f4;text-shadow:0 1px 3px rgba(0,0,0,.9);animation:hbhFxIn .28s ease-out;}' +
+          '.hbh-fx-out{animation:hbhFxOut .35s ease-in forwards;}' +
+          '.hbh-fx-sign{width:96px;height:96px;filter:drop-shadow(0 0 14px rgba(224,30,18,.55)) drop-shadow(0 2px 4px rgba(0,0,0,.9));}' +
+          '.hbh-fx-sign svg{width:100%;height:100%;}' +
+          '.hbh-fx-ring{fill:rgba(12,12,14,.55);stroke:#e01e12;stroke-width:8;}' +
+          '.hbh-fx-x{stroke:#f4f4f4;stroke-width:10;stroke-linecap:round;fill:none;}' +
+          '.hbh-fx-player .hbh-fx-ring{stroke:#ff6600;}' +
+          '.hbh-fx-band{margin-top:8px;padding:2px 46px;transform:skewX(-20deg);' +
+            'background:linear-gradient(to right,rgba(224,30,18,0),rgba(224,30,18,.9) 18%,rgba(224,30,18,.9) 82%,rgba(224,30,18,0));}' +
+          '.hbh-fx-player .hbh-fx-band{background:linear-gradient(to right,rgba(255,102,0,0),rgba(255,102,0,.9) 18%,rgba(255,102,0,.9) 82%,rgba(255,102,0,0));}' +
+          '.hbh-fx-band span{display:inline-block;transform:skewX(20deg);font-size:20px;font-weight:900;font-style:italic;letter-spacing:4px;}' +
+          '.hbh-fx-who{margin-top:5px;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;}' +
+          '.hbh-fx-text{margin-top:2px;font-size:12px;font-style:italic;color:rgba(244,244,244,.75);}' +
+          '@keyframes hbhFxIn{0%{opacity:0;transform:scale(1.35);}60%{opacity:1;transform:scale(.96);}100%{transform:none;}}' +
+          '@keyframes hbhFxOut{to{opacity:0;transform:scale(.9);}}' +
           '.hbh-car{font-size:13px;font-weight:700;letter-spacing:1.6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
           '.hbh-clock{font-family:"Overpass Mono","Roboto Mono",monospace;font-size:21px;font-weight:700;font-style:italic;' +
             'letter-spacing:1px;font-variant-numeric:tabular-nums;}' +
@@ -168,6 +210,22 @@ angular.module('beamng.apps')
         scope[key] = true
         setTimeout(function () { scope.$evalAsync(function () { scope[key] = false }) }, 200)
       }
+
+      // Stopp-Zeichen (Rivale lehnt ab): ttl Sekunden sichtbar, dann ausblenden
+      scope.fx = null
+      scope.fxOut = false
+      var fxTimer = null, fxOutTimer = null
+      scope.$on('HashiriyaBattleFx', function (event, data) {
+        scope.$evalAsync(function () {
+          if (!data || data.kind !== 'decline') return
+          clearTimeout(fxTimer); clearTimeout(fxOutTimer)
+          scope.fx = data
+          scope.fxOut = false
+          var ms = Math.max(800, (data.ttl || 2.6) * 1000)
+          fxOutTimer = setTimeout(function () { scope.$evalAsync(function () { scope.fxOut = true }) }, ms - 350)
+          fxTimer = setTimeout(function () { scope.$evalAsync(function () { scope.fx = null; scope.fxOut = false }) }, ms)
+        })
+      })
 
       scope.$on('HashiriyaState', function (event, data) {
         scope.$evalAsync(function () {
