@@ -12,7 +12,7 @@ angular.module('beamng.apps')
   return {
     template:
       '<div class="bngApp hbk-root">' +
-        '<div class="hbk-flash" ng-if="flash"></div>' +
+        '<div class="hbk-flash" ng-if="flash" ng-class="{\'is-cam\': flashKind == \'speedcam\'}"></div>' +
         '<div class="hbk" ng-if="line" ng-class="[\'hbk-\' + line.side, \'hbk-k-\' + line.kind, \'hbk-t-\' + line.tag]">' +
           '<div class="hbk-picw" ng-if="line.side == \'left\'"><div class="hbk-pic"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
             '<i class="hbk-pic-phone" ng-if="line.kind == \'phone\'"><svg viewBox="0 0 24 24"><rect x="6" y="1.5" width="12" height="21" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8.2" y="4.6" width="7.6" height="12.4" rx=".6" fill="currentColor" opacity=".35"/><circle cx="12" cy="19.6" r="1.1" fill="currentColor"/></svg></i>' +
@@ -114,6 +114,7 @@ angular.module('beamng.apps')
           '.hbk-timer{position:absolute;left:164px;right:0;bottom:22px;height:2px;background:rgba(255,255,255,.08);}' +
           '.hbk-timer i{display:block;height:100%;background:#4fd18b;transition:width .4s linear;}' +
           '.hbk-flash{position:fixed;left:0;top:0;right:0;bottom:0;z-index:60;background:#fff;pointer-events:none;animation:hbkFlash .45s ease-out forwards;}' +
+          '.hbk-flash.is-cam{background:radial-gradient(ellipse at 50% 40%,#fff 0%,#ffe9e6 45%,rgba(255,120,110,.85) 100%);animation:hbkFlash .35s ease-out forwards;}' +
           '@keyframes hbkFlash{0%{opacity:.85}100%{opacity:0}}' +
           '.hbk-card{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:50;' +
             'background:radial-gradient(ellipse at center,rgba(8,8,10,.92) 0,rgba(0,0,0,.97) 70%);animation:hbkFade .8s ease-out;}' +
@@ -142,8 +143,10 @@ angular.module('beamng.apps')
       // Fotojob: kurzer weißer Blitz (Hook HashiriyaFlash aus jobs.lua)
       scope.flash = false
       var flashTimer = null
-      scope.$on('HashiriyaFlash', function () {
-        scope.$evalAsync(function () { scope.flash = false })
+      // Blitzer (police.lua): Hook HashiriyaFlash { kind: 'speedcam' } = kürzerer, rötlich-weißer Blitz
+      scope.flashKind = null
+      scope.$on('HashiriyaFlash', function (event, data) {
+        scope.$evalAsync(function () { scope.flash = false; scope.flashKind = (data && data.kind) || null })
         setTimeout(function () { scope.$evalAsync(function () { scope.flash = true }) }, 20)
         if (flashTimer) clearTimeout(flashTimer)
         flashTimer = setTimeout(function () { scope.$evalAsync(function () { scope.flash = false }) }, 600)

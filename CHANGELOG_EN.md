@@ -2,6 +2,15 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### Speed cameras and police
+- New: speed limits apply during the day. Checkpoints have either speed cameras or laser checks, nothing is measured at night.
+- Speed camera: drive past too fast and you get flashed and fined, the faster the pricier. Counted per game day: 1st and 2nd time only money, from the 3rd time the police come as well.
+- Laser check: a patrol car waits there. Too fast and it chases you right away.
+- Chase with 1 to 3 stars in the status at the top right. 1 star: the police follow you and want you to stop (ticket). 2 stars (kept fleeing, crashes, flashed again or already ticketed today): they overtake you and brake you down. 3 stars: they ram you. Stopping at 3 stars = arrest, a big fine and a tow to the garage.
+- Escape: stay out of sight long enough and the police give up.
+- During a chase, saving, napping, towing, parking menus and challenges are blocked.
+- Checkpoints are placed in the dev menu (type "Police / checkpoint": camera or laser, speed limit, direction). All values in data\police.json, test buttons in the dev menu under Tools.
+
 ### Stickers
 - New in the garage: "Stickers" tab. Put the logos from your trophy wall on your car, like the stickers in TXR: crew logos and symbols (also in leader gold), wanderer seals, boss emblems and the 走.
 - Pick a view, set size, rotation and position, then apply. Each sticker costs 3,000 yen, removing is free.

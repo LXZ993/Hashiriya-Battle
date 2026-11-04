@@ -737,6 +737,8 @@ local function findRoadSpawn(pos, dir, distance)
   return nil, string.format('Netz: %s / Ziel: %s', tostring(why1), tostring(d))
 end
 
+M.findRoadSpawn = findRoadSpawn -- auch für die Polizei (police.lua)
+
 -- Kein anderes Fahrzeug (Verkehr) in der Nähe des Spawnpunkts?
 local function spawnFree(pos, radius)
   local ok, free = pcall(function()
@@ -749,6 +751,8 @@ local function spawnFree(pos, radius)
   if not ok then return true end
   return free
 end
+
+M.spawnFree = spawnFree
 
 -- Abstand zum nächsten Fahrzeug vor einem Punkt in Fahrtrichtung (für das Losrollen)
 local function gapAhead(veh, dir, range)

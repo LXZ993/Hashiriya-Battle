@@ -1,4 +1,4 @@
-// Hashiriya Battle: kleine Statusanzeige (Geld, Rivale in der Nähe, nächster Parkplatz), sichtbar solange der Modus läuft.
+// Hashiriya Battle: kleine Statusanzeige (Geld, Rivale in der Nähe, nächster Parkplatz, Polizei), sichtbar solange der Modus läuft.
 // Daten: Hook 'HashiriyaState'. Story-Ziel: data.storyGoal = { chapter, title, text } (story.lua).
 angular.module('beamng.apps')
 .directive('hashiriyaStatus', [function () {
@@ -14,6 +14,19 @@ angular.module('beamng.apps')
             '<span class="hbt-rank-nick" ng-if="s.progress.nick">{{ s.progress.nick }}</span>' +
           '</div>' +
           '<div class="hbt-money">{{ s.money }}</div>' +
+          // Polizei (police.lua): Fahndungssterne, Lage, Fortschritt Anhalten/Entkommen, Blitzer heute, letzte Strafe
+          '<div class="hbt-police" ng-if="s.police" ng-class="\'lv-\' + (s.police.level || 0)">' +
+            '<div class="hbt-police-head" ng-if="s.police.level">' +
+              '<span class="hbt-police-tag">{{ s.t[\'police.hud.tag\'] }}</span>' +
+              '<span class="hbt-police-stars"><svg ng-repeat="n in [1, 2, 3]" ng-class="{\'is-on\': n <= s.police.level}" viewBox="0 0 12 12">' +
+                '<path d="M6 .6l1.6 3.5 3.8.4-2.9 2.5.9 3.8L6 8.8 2.6 10.8l.9-3.8L.6 4.5l3.8-.4z"/></svg></span>' +
+            '</div>' +
+            '<div class="hbt-police-line" ng-if="s.police.level"><b>{{ s.police.label }}</b><span>{{ s.police.statusText }}</span></div>' +
+            '<div class="hbt-police-bar" ng-if="s.police.pct != null" ng-class="\'st-\' + s.police.status"><span ng-style="{width: s.police.pct + \'%\'}"></span></div>' +
+            '<div class="hbt-police-cams" ng-if="s.police.cams">{{ s.police.camsText }}' +
+              '<i ng-repeat="n in camPips(s.police.camsMax) track by $index" ng-class="{\'is-on\': $index < s.police.cams}"></i></div>' +
+            '<div class="hbt-police-fine" ng-if="s.police.fine">{{ s.police.fine }}</div>' +
+          '</div>' +
           // Story (Alpha 0.6): aktuelles Kapitelziel, unauffällig unter dem Geld
           '<div class="hbt-goal" ng-if="s.storyGoal && !(s.battle && s.battle.state !== \'idle\')"><span>{{ s.storyGoal.chapter }}</span>{{ s.storyGoal.text }}</div>' +
           '<div class="hbt-streak" ng-if="s.style && s.style.streak >= 2">{{ s.t[\'hud.streak\'] }} <b>{{ s.style.streak }}</b></div>' +
@@ -136,6 +149,29 @@ angular.module('beamng.apps')
           '.hbt-watch-row.k-boss i{background:var(--k-boss);} .hbt-watch-row.k-beaten i{background:var(--k-beaten);} .hbt-watch-row.k-lost i{background:var(--k-lost);}' +
           '.hbt-watch-row.is-near{color:#f4f4f4;font-weight:800;}' +
           '.hbt-watch-row.is-near i{animation:hbtPing .4s ease-in-out infinite alternate;}' +
+          '.hbt-police{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.12);}' +
+          '.hbt-police-head{display:flex;align-items:center;justify-content:flex-end;gap:7px;}' +
+          '.hbt-police-tag{font-size:9px;font-weight:900;font-style:italic;letter-spacing:.8px;text-transform:uppercase;color:#fff;padding:1px 5px 0;border-radius:2px;' +
+            'background:#1e40ff;animation:hbtSiren .9s steps(1) infinite;}' +
+          '.hbt-police-stars{display:flex;gap:2px;}' +
+          '.hbt-police-stars svg{width:13px;height:13px;fill:rgba(255,255,255,.16);display:block;}' +
+          '.hbt-police-stars svg.is-on{fill:#ffd23f;filter:drop-shadow(0 0 3px rgba(255,210,63,.55));}' +
+          '.hbt-police.lv-3 .hbt-police-stars svg.is-on{fill:#ff3b30;filter:drop-shadow(0 0 3px rgba(255,59,48,.6));}' +
+          '.hbt-police-line{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;margin-top:2px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;}' +
+          '.hbt-police-line b{font-weight:900;font-style:italic;color:#8fb8ff;}' +
+          '.hbt-police.lv-2 .hbt-police-line b{color:#ff9a3c;}' +
+          '.hbt-police.lv-3 .hbt-police-line b{color:#ff3b30;}' +
+          '.hbt-police-line span{color:rgba(244,244,244,.75);}' +
+          '.hbt-police-bar{height:2px;margin-top:3px;background:rgba(255,255,255,.12);}' +
+          '.hbt-police-bar span{display:block;height:100%;margin-left:auto;background:#8fb8ff;transition:width .2s linear;}' +
+          '.hbt-police-bar.st-evading span{background:#5ae673;}' +
+          '.hbt-police-bar.st-check span,.hbt-police-bar.st-stopping span{background:#ffd23f;}' +
+          '.hbt-police-cams{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:3px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(244,244,244,.6);}' +
+          '.hbt-police-cams i{width:6px;height:6px;border-radius:50%;border:1px solid rgba(255,255,255,.35);box-sizing:border-box;}' +
+          '.hbt-police-cams i:first-of-type{margin-left:3px;}' +
+          '.hbt-police-cams i.is-on{background:#ff3b30;border-color:#ff3b30;}' +
+          '.hbt-police-fine{font-size:13px;font-weight:900;font-style:italic;color:#ff3b30;font-variant-numeric:tabular-nums;animation:hbtPop .25s ease-out;}' +
+          '@keyframes hbtSiren{0%{background:#1e40ff;}50%{background:#e3262b;}}' +
           '@keyframes hbtPop{from{transform:scale(1.25);opacity:0;}to{transform:scale(1);opacity:1;}}' +
           '@keyframes hbtPing{from{opacity:1;}to{opacity:.25;}}' +
         '</style>' +
@@ -144,6 +180,8 @@ angular.module('beamng.apps')
     link: function (scope) {
       'use strict'
       scope.s = null
+      var pipCache = {}
+      scope.camPips = function (n) { n = Math.max(1, Math.min(9, n || 3)); return pipCache[n] || (pipCache[n] = new Array(n)) }
       scope.$on('HashiriyaState', function (event, data) {
         scope.$evalAsync(function () { scope.s = data })
       })
