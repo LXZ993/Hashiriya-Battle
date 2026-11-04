@@ -797,5 +797,19 @@
   "keys.pauseSub": "Every key Hashiriya Battle uses. \"Bind\" opens the BeamNG controls straight for that key, then press the new key there.",
   "keys.pauseHint": "The mod's own keys are in the BeamNG options under Controls, category Debug, as \"Hashiriya Battle: …\". You can also reset them to default there.",
   "pause.tab.keys": "Keys",
-  "pause.tab.music": "Music"
+  "pause.tab.music": "Music",
+  "logos.menu": "Logo collection",
+  "logos.yours": "Your logo",
+  "logos.collected": "Collected",
+  "logos.note": "Beat a crew leader, a wanderer or a boss and their logo joins your collection. Tap a logo to make it yours: it then shows at the top left during battles.",
+  "logos.active": "This is your current logo.",
+  "logos.default": "Hashiriya mark",
+  "logos.g.default": "Default",
+  "logos.g.crew": "Crews",
+  "logos.g.wanderer": "Wanderers",
+  "logos.g.boss": "Bosses",
+  "logos.hint.crew": "Beat the leader %s to get the crew logo.",
+  "logos.hint.wanderer": "Beat this wanderer to get their seal.",
+  "logos.hint.boss": "Beat this boss to get their emblem.",
+  "msg.logoUnlocked": "New logo for your collection: %s. Pick it as your logo in the menu under \"Logo collection\"."
 }

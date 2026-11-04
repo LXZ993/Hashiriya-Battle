@@ -612,6 +612,8 @@ function M.getHudState()
     rivalName = battle.rival.name,
     -- Team-Logo bzw. Wanderer-Siegel/Boss-Emblem, immer sichtbar im Duell (art/logos, siehe rivals.logoOf)
     rivalLogo = rivals().logoOf and rivals().logoOf(battle.rival, true) or nil,
+    -- eigenes Logo oben links (Logo-Sammlung, logos.lua); ohne Wahl das Hashiriya-Zeichen
+    playerLogo = extensions.hashiriyaBattle_logos and extensions.hashiriyaBattle_logos.playerLogo() or nil,
     rivalTeam = battle.rival.team and rivals().teamName and rivals().teamName(battle.rival.team) or nil,
     playerSp = math.max(math.floor(battle.playerSp), 0),
     playerMaxSp = cfg.playerMaxSp,

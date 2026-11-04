@@ -23,7 +23,7 @@ end
 local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -35,6 +35,7 @@ local showMenu = true
 local showDealer = false   -- Autohändler (aus dem Menü links)
 local showStats = false    -- Statistik (aus dem Menü links)
 local showLexicon = false  -- Rivalen-Lexikon (aus dem Menü links, überall)
+local showLogos = false    -- Logo-Sammlung (aus dem Menü links, überall)
 local showJobs = false     -- Jobbrett (Nebenjobs und Tipps, Alpha 0.7; Garage und Zuhause)
 local homeTab = 'main'     -- Zuhause: main | lexicon
 local showCarSelect = false
@@ -835,6 +836,11 @@ function M.onBattleResult(rival, won, result)
     msg(M.t('msg.lose', rival.name), 6)
   end
   M.writeSave()
+  -- Logo-Sammlung: Crew-Logo (Leader besiegt), Wanderer-Siegel oder Boss-Emblem neu freigeschaltet
+  if won then
+    local okL, newLogo = pcall(function() return extensions.hashiriyaBattle_logos.newlyUnlocked(rival) end)
+    if okL and newLogo then msg(M.t('msg.logoUnlocked', newLogo), 7) end
+  end
   -- Story (Alpha 0.6): Szenen nach einem Battle
   pcall(function() extensions.hashiriyaBattle_story.onEvent(won and 'win' or 'lose', { rival = rival }) end)
 end
@@ -1072,6 +1078,8 @@ local function buildUiState()
     st.unstuck = okU and un or nil
     local okSv, sv = pcall(function() return extensions.hashiriyaBattle_savepoint.getUiState() end)
     if okSv then st.saveState = sv end
+    local okLg, lg = pcall(function() return extensions.hashiriyaBattle_logos.tileInfo() end)
+    st.logoTile = okLg and lg or nil
     st.noCar = M.save.noCar and #M.save.cars == 0 or nil
     if M.save.gameOver then
       -- Alpha 0.8: Karriere vorbei (kein Auto, kein Geld)
@@ -1082,6 +1090,9 @@ local function buildUiState()
     elseif showJobs then
       st.screen = 'jobs'
       st.jobs = extensions.hashiriyaBattle_jobs.getUiState()
+    elseif showLogos then
+      st.screen = 'logos'
+      st.logos = extensions.hashiriyaBattle_logos.getUiState()
     elseif showLexicon then
       st.screen = 'lexicon'
       st.home = extensions.hashiriyaBattle_home.getUiState('lexicon')
@@ -1245,27 +1256,42 @@ function M.uiAction(action, arg)
     showDealer = false
     showStats = false
     showLexicon = false
+    showLogos = false
     showJobs = false
     extensions.hashiriyaBattle_parking.leaveFootShop()
   elseif action == 'dealer' then
     showDealer = true
+    showLogos = false
     showMenu = true
     M.sound('dealer')
   elseif action == 'dealerBack' then
     showDealer = false
   elseif action == 'stats' then
     showStats = true
+    showLogos = false
     showDealer = false
     showMenu = true
   elseif action == 'statsBack' then
     showStats = false
   elseif action == 'lexicon' then
     showLexicon = true
+    showLogos = false
     showStats = false
     showDealer = false
     showMenu = true
   elseif action == 'lexiconBack' then
     showLexicon = false
+  elseif action == 'logos' then
+    showLogos = true
+    showLexicon = false
+    showStats = false
+    showDealer = false
+    showJobs = false
+    showMenu = true
+  elseif action == 'logosBack' then
+    showLogos = false
+  elseif action == 'logoPick' then
+    extensions.hashiriyaBattle_logos.choose(arg and tostring(arg) or nil)
   elseif action == 'musicSkip' then
     if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.skip() end
   elseif action == 'musicSource' then
@@ -1277,6 +1303,7 @@ function M.uiAction(action, arg)
     if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.openFolder() end
   elseif action == 'jobs' then
     showJobs = true
+    showLogos = false
     showStats = false
     showDealer = false
     showLexicon = false

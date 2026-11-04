@@ -67,6 +67,8 @@ angular.module('beamng.apps')
                 '<i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i><span class="hbm-tile-t">{{ (s.saveState && s.saveState.label) || s.t[\'menu.save\'] }}</span>' +
                 '<span class="hbm-tile-s" ng-if="s.saveState && s.saveState.reason">{{ s.saveState.reason }}</span></div>' +
               '<div class="hbm-tile" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i><span class="hbm-tile-t">{{ s.t[\'home.lexicon\'] }}</span></div>' +
+              '<div class="hbm-tile hbm-tile-logo" ng-if="s.logoTile" ng-click="act(\'logos\')"><img class="hbm-tile-logoimg" ng-src="{{ s.logoTile.logo }}" alt="">' +
+                '<span class="hbm-tile-t">{{ s.t[\'logos.menu\'] }}</span><span class="hbm-tile-s">{{ s.logoTile.have }} / {{ s.logoTile.total }}</span></div>' +
               '<div class="hbm-tile" ng-click="act(\'dealer\')"><i class="hbm-ico" ng-bind-html="ico(\'carDealer\')"></i><span class="hbm-tile-t">{{ s.t[\'dealer.menu\'] }}</span></div>' +
               '<div class="hbm-tile" ng-click="act(\'stats\')"><i class="hbm-ico" ng-bind-html="ico(\'medal\')"></i><span class="hbm-tile-t">{{ s.t[\'menu.stats\'] }}</span></div>' +
               '<div class="hbm-tile" ng-if="s.nap" ng-class="{\'hbm-off\': !s.nap.can}" ng-click="s.nap.can && act(\'nap\')" title="{{ s.nap.reason }}"><i class="hbm-ico" ng-bind-html="ico(\'night\')"></i>' +
@@ -255,6 +257,8 @@ angular.module('beamng.apps')
               '<div class="hbm-grid">' +
                 '<div class="hbm-tile" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i><span class="hbm-tile-t">{{ s.t[\'menu.save\'] }}</span></div>' +
                 '<div class="hbm-tile" ng-click="act(\'lexicon\')"><i class="hbm-ico" ng-bind-html="ico(\'helmets\')"></i><span class="hbm-tile-t">{{ s.t[\'home.lexicon\'] }}</span></div>' +
+              '<div class="hbm-tile hbm-tile-logo" ng-if="s.logoTile" ng-click="act(\'logos\')"><img class="hbm-tile-logoimg" ng-src="{{ s.logoTile.logo }}" alt="">' +
+                '<span class="hbm-tile-t">{{ s.t[\'logos.menu\'] }}</span><span class="hbm-tile-s">{{ s.logoTile.have }} / {{ s.logoTile.total }}</span></div>' +
                 '<div class="hbm-tile" ng-click="act(\'jobs\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i><span class="hbm-tile-t">{{ s.t[\'jobs.menu\'] }}</span><span class="hbm-tile-s hbm-tile-live" ng-if="s.job">{{ s.t[\'jobs.running\'] }}</span></div>' +
                 '<div class="hbm-tile" ng-click="act(\'tutorial\')"><i class="hbm-ico" ng-bind-html="ico(\'raceFlag\')"></i><span class="hbm-tile-t">{{ s.t[\'home.tutorial\'] }}</span></div>' +
                 '<div class="hbm-tile hbm-tile-wide hbm-off" title="{{ s.t[\'home.travelSoon\'] }}"><i class="hbm-ico" ng-bind-html="ico(\'fastTravel\')"></i><span class="hbm-tile-t">{{ s.t[\'home.travel\'] }}</span><span class="hbm-tile-s">{{ s.t[\'home.travelSoon\'] }}</span></div>' +
@@ -345,6 +349,36 @@ angular.module('beamng.apps')
           '</div>' +
 
           // Tankstelle ----------------------------------------------------------------
+          // Logo-Sammlung (logos.lua): besiegte Crews, Wanderer und Bosse geben ihr Logo, eins wird dein Logo im Battle
+          '<div class="hbm-body hbm-v2 hbm-logov" ng-if="s.screen == \'logos\' && s.logos">' +
+            '<div class="hbm-card hbm-logo-card">' +
+              '<div class="hbm-logo-cur"><img ng-src="{{ s.logos.currentLogo }}" alt=""></div>' +
+              '<div class="hbm-logo-curtext"><span class="hbm-label">{{ s.t[\'logos.yours\'] }}</span><b>{{ s.logos.currentName }}</b>' +
+                '<span class="hbm-logo-count">{{ s.t[\'logos.collected\'] }} <b>{{ s.logos.have }}</b> / {{ s.logos.total }}</span>' +
+                '<span class="hbm-fuelbar hbm-repbar"><i ng-style="{width: (s.logos.total ? s.logos.have * 100 / s.logos.total : 0) + \'%\'}"></i></span></div>' +
+            '</div>' +
+            '<div class="hbm-note hbm-note-s">{{ s.t[\'logos.note\'] }}</div>' +
+            '<div class="hbm-logo-info" ng-if="logoInfo()">' +
+              '<b>{{ logoInfo().name }}<small ng-if="logoInfo().jp"> {{ logoInfo().jp }}</small><em ng-if="logoInfo().nick"> \u201e{{ logoInfo().nick }}\u201c</em></b>' +
+              '<span ng-if="!logoInfo().unlocked">{{ logoInfo().hint }}</span>' +
+              '<span ng-if="logoInfo().unlocked && logoInfo().selected">{{ s.t[\'logos.active\'] }}</span></div>' +
+            '<div class="hbm-logo-list">' +
+              '<div class="hbm-logo-head"><span>{{ s.t[\'logos.g.default\'] }}</span></div>' +
+              '<div class="hbm-logo-grid">' +
+                '<div class="hbm-logo" ng-class="{\'is-sel\': s.logos.current == \'default\'}" ng-click="logoPick(null)" title="{{ s.t[\'logos.default\'] }}">' +
+                  '<img ng-src="{{ s.logos.defaultMark }}" alt=""><span class="hbm-logo-tick" ng-if="s.logos.current == \'default\'"></span></div>' +
+              '</div>' +
+              '<div ng-repeat="g in s.logos.groups">' +
+                '<div class="hbm-logo-head"><span>{{ g.name }}</span><small>{{ g.have }} / {{ g.total }}</small></div>' +
+                '<div class="hbm-logo-grid">' +
+                  '<div class="hbm-logo" ng-repeat="l in g.list" ng-class="{\'is-locked\': !l.unlocked, \'is-sel\': l.selected, \'is-hidden\': !l.logo, \'is-info\': logoSelId == l.id}" ng-click="logoPick(l)" title="{{ l.unlocked ? l.name : l.hint }}">' +
+                    '<img ng-if="l.logo" ng-src="{{ l.logo }}" alt=""><span class="hbm-logo-q" ng-if="!l.logo">?</span>' +
+                    '<span class="hbm-logo-tick" ng-if="l.selected"></span></div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+
           '<div class="hbm-body" ng-if="s.screen == \'gas\'">' +
             '<div class="hbm-area"><span class="hbm-area-tag hbm-tag-gas" ng-bind-html="ico(\'fuelPump\')"></span>{{ s.area }}</div>' +
             '<div class="hbm-money"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><span class="hbm-yen">{{ s.money }}</span></div>' +
@@ -695,6 +729,30 @@ angular.module('beamng.apps')
           '.hbm-grid .hbm-tile-wide{grid-column:1 / -1;margin:0;}' +
           '.hbm-tile-wide .hbm-ico{grid-row:1 / span 2;margin:0;}' +
           '.hbm-tile-wide .hbm-tile-t,.hbm-tile-wide .hbm-tile-s{grid-column:2;}' +
+          '.hbm-tile-logo{padding-left:56px;justify-content:center;}' +
+          '.hbm-tile-logoimg{position:absolute;left:6px;top:50%;width:44px;height:44px;margin-top:-22px;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));}' +
+          '.hbm-logo-card{display:flex;align-items:center;gap:14px;}' +
+          '.hbm-logo-cur{flex:none;width:96px;height:96px;display:flex;align-items:center;justify-content:center;}' +
+          '.hbm-logo-cur img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(0,0,0,.85));}' +
+          '.hbm-logo-curtext{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}' +
+          '.hbm-logo-curtext > b{font-size:16px;font-weight:900;font-style:italic;letter-spacing:.3px;}' +
+          '.hbm-logo-count{font-size:11px;color:var(--dim);}' +
+          '.hbm-logo-count b{color:var(--o2);font-size:13px;}' +
+          '.hbm-logo-info{margin:0 12px 6px;padding:6px 10px;border-left:3px solid var(--o);background:rgba(255,102,0,.08);display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--dim);}' +
+          '.hbm-logo-info b{font-size:12.5px;color:var(--w);}' +
+          '.hbm-logo-info small{font-weight:400;color:var(--dim);}' +
+          '.hbm-logo-info em{font-weight:400;color:var(--o2);}' +
+          '.hbm-logo-head{display:flex;align-items:baseline;justify-content:space-between;margin:8px 14px 4px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
+          '.hbm-logo-head small{letter-spacing:.5px;color:var(--o2);}' +
+          '.hbm-logo-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:0 12px 4px;}' +
+          '.hbm-logo{position:relative;min-width:0;height:64px;display:flex;align-items:center;justify-content:center;padding:6px;cursor:pointer;' +
+            'background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.05);transition:background .12s,border-color .12s;}' +
+          '.hbm-logo:hover,.hbm-logo.is-info{background:linear-gradient(135deg,rgba(255,102,0,.22),rgba(255,102,0,.04));border-color:rgba(255,102,0,.5);}' +
+          '.hbm-logo img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 1px 3px rgba(0,0,0,.8));}' +
+          '.hbm-logo.is-locked img{filter:grayscale(1) brightness(.35);opacity:.6;}' +
+          '.hbm-logo-q{font-size:26px;font-weight:900;font-style:italic;color:rgba(244,244,244,.18);}' +
+          '.hbm-logo.is-sel{border-color:var(--o);box-shadow:inset 0 0 0 1px var(--o);background:rgba(255,102,0,.14);}' +
+          '.hbm-logo-tick{position:absolute;right:-1px;top:-1px;width:0;height:0;border-style:solid;border-width:0 18px 18px 0;border-color:transparent var(--o) transparent transparent;}' +
           '.hbm-tile.hbm-off{opacity:.45;cursor:default;}' +
           '.hbm-tile.hbm-off:hover{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.05);}' +
           '.hbm-tile.hbm-off:after{display:none;}' +
@@ -973,12 +1031,27 @@ angular.module('beamng.apps')
       window.addEventListener('mouseup', function () { if (fuelHolding) scope.$evalAsync(function () { scope.fuelHold(false) }) })
 
       // Zurück-Knopf oben: geht eine Ebene zurück, auf der obersten Ebene schließt er das Menü
+      // Logo-Sammlung: Klick auf ein freies Logo wählt es, auf ein gesperrtes zeigt den Hinweis
+      scope.logoSelId = null
+      scope.logoInfo = function () {
+        var gs = (scope.s && scope.s.logos && scope.s.logos.groups) || []
+        if (!scope.logoSelId) return null
+        for (var i = 0; i < gs.length; i++) for (var j = 0; j < gs[i].list.length; j++) if (gs[i].list[j].id === scope.logoSelId) return gs[i].list[j]
+        return null
+      }
+      scope.logoPick = function (l) {
+        if (!l) { scope.logoSelId = null; return scope.act('logoPick', 'default') }
+        scope.logoSelId = l.id
+        if (l.unlocked) scope.act('logoPick', l.id)
+      }
+
       scope.goBack = function () {
         var s = scope.s || {}
         if (s.screen == 'carSelect') return scope.act('back')
         if (s.screen == 'dealer') return scope.act('dealerBack')
         if (s.screen == 'stats') return scope.act('statsBack')
         if (s.screen == 'lexicon') return scope.act('lexiconBack')
+        if (s.screen == 'logos') return scope.act('logosBack')
         if (s.screen == 'jobs') return scope.act('jobsBack')
         if (s.screen == 'home' && s.home && s.home.tab != 'main') return scope.act('homeTab', 'main')
         if (scope.open && scope.open.slot) { scope.open.slot = null; scope.act('focusSlot', ''); return }
@@ -986,11 +1059,11 @@ angular.module('beamng.apps')
       }
       scope.isTopLevel = function () {
         var s = scope.s || {}
-        return !(s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') || (scope.open && scope.open.slot))
+        return !(s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'logos' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') || (scope.open && scope.open.slot))
       }
       scope.backLabel = function () {
         var s = scope.s || {}, t = s.t || {}
-        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
+        var sub = s.screen == 'carSelect' || s.screen == 'dealer' || s.screen == 'stats' || s.screen == 'lexicon' || s.screen == 'logos' || s.screen == 'jobs' || (s.screen == 'home' && s.home && s.home.tab != 'main') ||
           (scope.open && scope.open.slot)
         return sub ? t['menu.back'] : t['menu.hide']
       }
