@@ -1,5 +1,5 @@
 {
-  "_info": "Aura = Licht um das Auto (aura.lua). Handbuch Kapitel 5e. intensity = Helligkeit in Lumen, radius in Metern. Farben der Wanderer/Bosse erzeugt tools/logos/aura_colors.py, Crews nehmen teams[].color aus rivals.json.",
+  "_info": "Aura (aura.lua): leuchtende Hülle (shell), Leucht-Nebel (haze) und Lichter (ground/battle/rim). Handbuch Kapitel 5e. shell: Deckkraft 0..1 und Höhe als Vielfaches der Autohöhe; haze: Nebel-Punkte am Boden; intensity = Helligkeit der Lichter in Lumen, radius in Metern. Farben der Wanderer/Bosse erzeugt tools/logos/aura_colors.py, Crews nehmen teams[].color aus rivals.json. Nach neuen Farben tools/aura/build_aura_assets.py laufen lassen (Nebel-Datablocks).",
   "enabled": true,
   "rivals": {
     "ground": true,
@@ -45,6 +45,23 @@
     "side": 1.05,
     "length": 2.0,
     "intensity": 900
+  },
+  "shell": {
+    "enabled": true,
+    "ground": 0.25,
+    "battle": 0.7,
+    "height": 1.2,
+    "battleHeight": 1.6,
+    "widthPad": 1.1,
+    "lengthPad": 1.0,
+    "pulseDepth": 0.3,
+    "flicker": 0.12
+  },
+  "haze": {
+    "enabled": true,
+    "ground": true,
+    "groundPoints": 2,
+    "battlePoints": 4
   },
   "leaderRimColor": "#ffd257",
   "defaultColor": "#ff6600",
