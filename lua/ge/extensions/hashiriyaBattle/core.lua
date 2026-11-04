@@ -833,6 +833,7 @@ function M.onBattleResult(rival, won, result)
     extensions.hashiriyaBattle_progress.leaderHint(rival)
   else
     M.save.losses = M.save.losses + 1
+    M.save.lastLossDay = M.save.day or 1 -- Bedingung minDaysNoLoss
     msg(M.t('msg.lose', rival.name), 6)
   end
   M.writeSave()

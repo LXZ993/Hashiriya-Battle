@@ -359,6 +359,27 @@ local function extraConditionsMet(c, save)
     if not ok or nick ~= c.nickname then return false end
   end
   if c.playerLogo and save.playerLogo ~= c.playerLogo then return false end
+  -- Tage ohne Niederlage (ohne Niederlage seit Spielbeginn zählt ab Tag 1)
+  if c.minDaysNoLoss and ((save.day or 1) - (save.lastLossDay or 0)) < c.minDaysNoLoss then return false end
+  -- Auto fast unbeschädigt: Reparaturpreis höchstens so viel Yen
+  if c.maxDamageYen then
+    local okP, cost = pcall(function() return extensions.hashiriyaBattle_parking.repairCost() end)
+    if not okP or (tonumber(cost) or 0) > c.maxDamageYen then return false end
+  end
+  -- PA besucht (zu Fuß, Name enthält den Text) bzw. Mindestanzahl besuchter PAs
+  if c.visitedPa then
+    local list = type(c.visitedPa) == 'table' and c.visitedPa or { c.visitedPa }
+    for _, want in ipairs(list) do
+      local found = false
+      for name in pairs(save.paVisited or {}) do if tostring(name):lower():find(tostring(want):lower(), 1, true) then found = true end end
+      if not found then return false end
+    end
+  end
+  if c.minPaVisited then
+    local n = 0
+    for _ in pairs(save.paVisited or {}) do n = n + 1 end
+    if n < c.minPaVisited then return false end
+  end
   -- beliebige Statistik: "stat": {"key": "pinkWins", "min": 3} oder Liste davon
   if c.stat then
     local list = c.stat.key and { c.stat } or c.stat

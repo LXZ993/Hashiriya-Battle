@@ -558,6 +558,10 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>weekday</code></td><td>Nur an diesem Spiel-Wochentag (1 = Montag … 7 = Sonntag, Tag 1 ist ein Montag). Auch als Liste.</td><td><code>"weekday": [5, 6]</code></td></tr>
 <tr><td><code>nickname</code></td><td>Nur mit diesem aktiven Spitznamen (ID aus nicknames in rivals.json)</td><td><code>"nickname": "clean"</code></td></tr>
 <tr><td><code>playerLogo</code></td><td>Nur wenn du dieses Logo als dein Logo gewählt hast (Logo-Sammlung)</td><td><code>"playerLogo": "t_neon"</code></td></tr>
+<tr><td><code>minDaysNoLoss</code></td><td>So viele Spieltage ohne Niederlage (seit der letzten verlorenen Battle)</td><td><code>"minDaysNoLoss": 7</code></td></tr>
+<tr><td><code>maxDamageYen</code></td><td>Auto fast unbeschädigt: Reparaturpreis höchstens so viel Yen</td><td><code>"maxDamageYen": 5000</code></td></tr>
+<tr><td><code>visitedPa</code></td><td>Diese PA schon zu Fuß besucht (Teil des Namens reicht, z. B. aus napSpots in c1.json). Auch als Liste.</td><td><code>"visitedPa": "Shibaura"</code></td></tr>
+<tr><td><code>minPaVisited</code></td><td>Mindestens so viele verschiedene PAs zu Fuß besucht</td><td><code>"minPaVisited": 2</code></td></tr>
 <tr><td><code>stat</code></td><td>Beliebiger Statistik-Wert aus der Statistik-Seite (Schlüssel z. B. cleanWins, closeWins, quickWins, leaderWins, bossWins, rematchWins, pinkWins, jobsDone, nights, nearMisses, distanceKm, tows, repairs, carsBought) mit min und/oder max. Auch als Liste.</td><td><code>"stat": {"key": "pinkWins", "min": 3}</code></td></tr>
 </table>
 <p>Leistung und Gewicht misst die Mod im Auto; direkt nach dem Spawn fehlen sie ein paar Sekunden, dann zählt die Bedingung noch als nicht erfüllt. Der Rivalen-Builder im Spiel (Dev-Menü) hat dafür noch keine Felder, behält sie aber beim Bearbeiten bei.</p>
@@ -1868,10 +1872,10 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Tag-Events auf Rennstrecken (Tsukuba, Ebisu usw.).</td><td>nach 1.0</td><td>wartet auf Erlaubnis der Map-Autoren</td></tr>
 <tr><td>Eigene Gegner-KI später auch als eigene Mod anbieten.</td><td>nach 1.0</td><td>offen</td></tr>
 <tr><td>Eigene Sounds und Songs (Eurobeat, GT-Stil, ohne Gesang).</td><td>nach 1.0</td><td>Probe 1 fertig</td></tr>
-<tr><td>Mehr Wanderer-Bedingungen: Siegesserie, Geldstand, Anzahl Autos, nur Saugmotor, Lackfarbe, Kennzeichen-Nummer, Logo am Auto, Unfall an bestimmter Stelle, Fahrtrichtung innen/außen, Nebel/Regen (wie TXR 2025/TXR 3).</td><td>vor 1.0</td><td>gebaut (04.11.2026): 18 neue Bedingungsarten, siehe <a href="#bedingungen">Bedingungen</a>; welche Wanderer sie bekommen, legt JDMArsch fest</td></tr>
+<tr><td>Mehr Wanderer-Bedingungen: Siegesserie, Geldstand, Anzahl Autos, nur Saugmotor, Lackfarbe, Kennzeichen-Nummer, Logo am Auto, Unfall an bestimmter Stelle, Fahrtrichtung innen/außen, Nebel/Regen (wie TXR 2025/TXR 3).</td><td>vor 1.0</td><td>gebaut (04.11.2026): 22 neue Bedingungsarten, siehe <a href="#bedingungen">Bedingungen</a>; welche Wanderer sie bekommen, legt JDMArsch fest</td></tr>
 <tr><td>Boss-Battles gegen mehrere: Leader/Boss mit 2 Begleitern nacheinander, Verlust = Kette neu (wie TXR 2025).</td><td>vor 1.0</td><td>JDMArsch: ja (04.11.2026), wird gebaut</td></tr>
 <tr><td>Fahrer-Skills (Perk-Baum) mit eigenen Punkten pro Sieg; nur Spiellogik (SP-Abzug, Rabatte, Ruf, Tipps), keine Physik.</td><td>offen</td><td>erst besprechen, was Sinn macht</td></tr>
-<tr><td>Titel und Erfolge: Erfolgsliste im Lexikon, Titel nach meistgefahrenem Auto („Fahrer des …“), als Anzeige wählbar.</td><td>offen</td><td>Titel pro Automodell erst besprechen; Spitznamen-Auswahl wird gebaut</td></tr>
+<tr><td>Titel und Erfolge: Erfolgsliste im Lexikon, Titel nach meistgefahrenem Auto („Fahrer des …“), als Anzeige wählbar.</td><td>offen</td><td>JDMArsch: Titel pro Automodell ja, unbedingt (z. B. „Covet-Fahrer“ nach 10 Siegen); kommt mit der Spitznamen-Auswahl</td></tr>
 <tr><td>Wahres Ende erst nach allen Wanderern, danach Post-Game mit „Rekord“-Gegnern; Neues Spiel+ mit Logos, Titeln, Skills.</td><td>offen</td><td>Ende + Post-Game erst besprechen, NG+ später</td></tr>
 <tr><td>Auren als Belohnung: Neon-/Unterbodenlicht am eigenen Auto, Farbe nach besiegtem Boss oder Wanderer.</td><td>nach 1.0</td><td>später; Idee: Punktlicht unter dem Auto ohne Teile-Slot</td></tr>
 <tr><td>Rivalen-Autos kaufen: nach Sieg gegen Leader/Boss steht dessen Config (ohne Livery) teuer beim Händler.</td><td>vor 1.0</td><td>JDMArsch: ja, Crew-Leader/Bosse/Wanderer zum 5- bis 10-fachen BeamNG-Preis, wird gebaut</td></tr>
@@ -1880,7 +1884,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Crew-Taktik: Crew-Mitglieder in der Nähe blocken für ihren Leader (wie TXR 2025).</td><td>vor 1.0</td><td>JDMArsch: ja, wird gebaut</td></tr>
 <tr><td>Gymkhana zwischen Pylonen auf PAs als legale Tages-Herausforderung (wie TXR Drift).</td><td>nach 1.0</td><td>nur auf DLC-Maps, PAs auf der C1 zu klein</td></tr>
 <tr><td>Start-PA wählen: beim Losfahren aus der Garage an einer schon besuchten PA auf die Strecke.</td><td>mit Reise-System</td><td>JDMArsch: ja, zusammen mit seinen Auf-/Abfahrten; Reisen spult Zeit vor und kostet Sprit</td></tr>
-<tr><td>Touge-Battle-Arten wie TXR Drift (hinten starten und Abstand holen, vorne starten und zuerst ins Ziel, Zeit schlagen) und eigene Drift-Wertung.</td><td>nach 1.0 (DLC-Maps)</td><td>Drift-Battles gegen Punktzahl des Rivalen, ohne sichtbaren Gegner (BeamNG-KI driftet nicht)</td></tr>
+<tr><td>Touge-Battle-Arten wie TXR Drift (hinten starten und Abstand holen, vorne starten und zuerst ins Ziel, Zeit schlagen) und eigene Drift-Wertung.</td><td>nach 1.0 (DLC-Maps)</td><td>Drift-Battles gegen Punktzahl des Rivalen, ohne sichtbaren Gegner (BeamNG-KI driftet nicht); JDMArsch: alle Arten (SA, TF, TA, CA, TAC, CAT) brauchen wir</td></tr>
 <tr><td>Schwarzes Brett im HashiNet (Garagen-PC): Gerüchte, Crew-News, Hinweise auf Wanderer, wächst mit dem Fortschritt (wie das BBS in C1 Grand Prix).</td><td>vor 1.0</td><td>JDMArsch: ja, auch an PA-Markierungen, wird gebaut</td></tr>
 <tr><td>Trophäen-Regal: Trophäe oder Plakette pro besiegtem Leader/Boss als Seite im Menü.</td><td>vor 1.0</td><td>JDMArsch: ja, als 2D-Bilder in einer Sammlung, wird gebaut</td></tr>
 <tr><td>Wartung in der Garage: Reifen, Öl, Wasser anzeigen und gegen Geld warten.</td><td>vor 1.0</td><td>JDMArsch: ja, wird gebaut</td></tr>
@@ -1932,7 +1936,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <div>
 <h4>Mehr Bedingungen für Wanderer</h4>
 <ul>
-<li>18 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).</li>
+<li>22 neue Bedingungsarten für Rivalen und Wanderer (wie in TXR): Siegesserie, Geldstand, Anzahl Autos, höchstens X Niederlagen, nur Saugmotor oder nur mit Turbo/Kompressor, nur Schaltgetriebe, bestimmtes Teil nicht verbaut, Lackfarbe, Zeichen im Kennzeichen, Leistung und Gewicht, Kilometerstand des Autos, schon erreichtes Höchsttempo, Spiel-Wochentag, aktiver Spitzname, gewähltes Logo, Tage ohne Niederlage, Auto fast unbeschädigt, besuchte PAs und jeder Wert aus der Statistik (z. B. gewonnene Pink Slips oder erledigte Nebenjobs).</li>
 <li>Alle Bedingungen samt Beispielen stehen im Handbuch unter „Bedingungen (conditions)“. Der Rivalen-Builder im Dev-Menü behält die neuen Bedingungen beim Bearbeiten bei.</li>
 </ul>
 <h4>Trophäenwand (Logo-Sammlung)</h4>
