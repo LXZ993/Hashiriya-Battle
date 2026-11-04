@@ -721,6 +721,14 @@ local function portraitOf(rival)
   return found
 end
 
+-- Für die Aura (aura.lua): wer gerade gegen wen fährt und wie viel SP beide noch haben (0..1)
+function M.auraInfo()
+  if not battle then return nil end
+  return { state = state, rival = battle.rival,
+    rivalSp = math.max(battle.rivalSp or 0, 0) / math.max(battle.rivalMaxSp or 1, 1),
+    playerSp = math.max(battle.playerSp or 0, 0) / math.max(cfg.playerMaxSp or 1, 1) }
+end
+
 function M.getHudState()
   if not battle then return nil end
   local quote, quoteKind = rivalQuote()
