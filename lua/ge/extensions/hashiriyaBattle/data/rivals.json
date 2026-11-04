@@ -2094,7 +2094,73 @@
       "desc": {
         "de": "Hat das Auto von ihrer Oma geerbt. Die Oma fährt angeblich schneller.",
         "en": "Inherited the car from her grandma. Grandma is said to be faster."
-      }
+      },
+      "stages": [
+        {
+          "_info": "Config 2 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
+          "chapter": "ch3",
+          "nick": {
+            "de": "Omas Schülerin",
+            "en": "Grandma's Student"
+          },
+          "desc": {
+            "de": "Hinata hat die Lanterns verlassen. Ihre Oma bringt ihr jetzt jeden Morgen um vier auf dem leeren Ring das Fahren bei, und der Covet hat zum ersten Mal neue Teile bekommen.",
+            "en": "Hinata has left the Lanterns. Her grandma now teaches her to drive on the empty ring at four every morning, and the Covet has got new parts for the first time."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Oma hat gesagt, ich darf heute nicht bremsen.",
+              "en": "Grandma said I am not allowed to brake today."
+            },
+            "win": {
+              "de": "Oma wird stolz sein.",
+              "en": "Grandma will be proud."
+            },
+            "lose": {
+              "de": "Oma hat gesagt, dass das passieren kann.",
+              "en": "Grandma said this might happen."
+            }
+          },
+          "announce": {
+            "de": "Hinata Oda fährt nicht mehr mit den Lanterns. Ihre Oma soll ihr etwas beigebracht haben, sagen die Leute an der PA.",
+            "en": "Hinata Oda no longer drives with the Lanterns. People at the PA say her grandma has been teaching her something."
+          },
+          "spFactor": 1.3
+        },
+        {
+          "_info": "Config 3 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
+          "chapter": "ch5",
+          "nick": {
+            "de": "Erbin der Laterne",
+            "en": "Heir of the Lantern"
+          },
+          "desc": {
+            "de": "Jetzt ist es heraus: Hinatas Oma war in den 70ern eine Legende auf dem C1. Hinata fährt den Covet in Omas alten Farben weiter und trägt das Licht der Laterne allein.",
+            "en": "Now it is out: Hinata's grandma was a C1 legend in the 70s. Hinata drives the Covet on in her grandma's old colours and carries the lantern's light alone."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Oma sagt, du bist der Letzte, den sie sehen will. Also los.",
+              "en": "Grandma says you are the last one she wants to see. So let's go."
+            },
+            "win": {
+              "de": "Die Laterne brennt weiter.",
+              "en": "The lantern keeps burning."
+            },
+            "lose": {
+              "de": "Oma hätte dich gemocht.",
+              "en": "Grandma would have liked you."
+            }
+          },
+          "announce": {
+            "de": "Ich habe ein altes Foto gefunden, Hinatas Oma 1974 auf dem C1. Und Hinata fährt jetzt genauso. Sie wartet auf dich.",
+            "en": "I found an old photo, Hinata's grandma on the C1 in 1974. And Hinata now drives just like her. She is waiting for you."
+          },
+          "auraOn": true,
+          "auraLevel": 3,
+          "spFactor": 1.3
+        }
+      ]
     },
     {
       "id": "t_lantern_leader",
@@ -2192,7 +2258,73 @@
       "desc": {
         "de": "Fährt seit 14 Jahren dieselbe Strecke. Heute zum ersten Mal schneller als 80.",
         "en": "Has driven the same route for 14 years. Tonight is the first time above 80."
-      }
+      },
+      "stages": [
+        {
+          "_info": "Config 2 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
+          "chapter": "ch3",
+          "nick": {
+            "de": "Feierabend",
+            "en": "Clocked Out"
+          },
+          "desc": {
+            "de": "Tadashi fährt nach Feierabend nicht mehr nach Hause. Vom Bonus hat er den Sunburst umbauen lassen, und die Pendlerstrecke ist jetzt seine Rennstrecke.",
+            "en": "Tadashi no longer drives home after work. He used his bonus to have the Sunburst modified, and his commute is now his race track."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Ich habe heute pünktlich Feierabend gemacht. Nur für dich.",
+              "en": "I left work on time today. Just for you."
+            },
+            "win": {
+              "de": "Überstunden haben sich noch nie so gut angefühlt.",
+              "en": "Overtime never felt this good."
+            },
+            "lose": {
+              "de": "Morgen ist auch noch ein Arbeitstag.",
+              "en": "Tomorrow is another working day."
+            }
+          },
+          "announce": {
+            "de": "Tadashi aus dem Zangyō Express kommt nachts nicht mehr nach Hause, sagt seine Frau. Er fährt.",
+            "en": "Tadashi from the Zangyō Express does not come home at night any more, his wife says. He drives."
+          },
+          "spFactor": 1.3
+        },
+        {
+          "_info": "Config 3 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
+          "chapter": "ch5",
+          "nick": {
+            "de": "Der Aussteiger",
+            "en": "The Dropout"
+          },
+          "desc": {
+            "de": "Tadashi hat gekündigt. Krawatte und Visitenkarten liegen im Fluss, der Sunburst ist komplett neu aufgebaut. Er lebt jetzt nur noch nachts.",
+            "en": "Tadashi has quit. His tie and business cards are in the river, the Sunburst is completely rebuilt. He only lives at night now."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Kein Chef. Keine Bahn. Nur noch du und ich.",
+              "en": "No boss. No train. Just you and me."
+            },
+            "win": {
+              "de": "So fühlt sich Freiheit an.",
+              "en": "This is what freedom feels like."
+            },
+            "lose": {
+              "de": "Bereue ich nichts. Auch das nicht.",
+              "en": "I regret nothing. Not even this."
+            }
+          },
+          "announce": {
+            "de": "Tadashi Hirota hat seinen Job hingeschmissen. Er fährt jetzt jede Nacht den Ring und sucht nach dir.",
+            "en": "Tadashi Hirota has quit his job. He drives the ring every night now, looking for you."
+          },
+          "auraOn": true,
+          "auraLevel": 3,
+          "spFactor": 1.3
+        }
+      ]
     },
     {
       "id": "t_zangyo_2",
@@ -4024,7 +4156,74 @@
       "desc": {
         "de": "Hat in Sapporo nur auf Eis gelernt. Trockener Asphalt verwirrt ihn bis heute.",
         "en": "Only ever learned to drive on ice in Sapporo. Dry asphalt still confuses him."
-      }
+      },
+      "stages": [
+        {
+          "_info": "Config 2 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
+          "chapter": "ch3",
+          "nick": {
+            "de": "Tauwetter",
+            "en": "Thaw"
+          },
+          "desc": {
+            "de": "Taiga hat den trockenen Asphalt endlich verstanden. Der BX hat jetzt ein Sperrdifferenzial und Schalter, und Taiga fährt durch die Kurven, als läge Schnee.",
+            "en": "Taiga has finally figured out dry asphalt. The BX now has a limited-slip differential and a manual gearbox, and Taiga drives through corners as if there were snow."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Ich tu einfach so, als wäre es Eis. Funktioniert.",
+              "en": "I just pretend it is ice. It works."
+            },
+            "win": {
+              "de": "Es taut.",
+              "en": "It is thawing."
+            },
+            "lose": {
+              "de": "Zu warm heute.",
+              "en": "Too warm today."
+            }
+          },
+          "announce": {
+            "de": "Taiga von den Nihyaku Boys hat den Asphalt geknackt. Er fährt jetzt quer, und zwar mit Absicht.",
+            "en": "Taiga from the Nihyaku Boys has cracked the asphalt. He drives sideways now, on purpose."
+          },
+          "spFactor": 1.3
+        },
+        {
+          "_info": "Config 3 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
+          "chapter": "ch5",
+          "nick": {
+            "de": "Schneesturm",
+            "en": "Blizzard"
+          },
+          "desc": {
+            "de": "Taiga ist kein Nihyaku Boy mehr. Aus Sapporo hat er einen BX mitgebracht, den er im Winter auf Eis abgestimmt hat. Wo er quer durch den C1 fährt, scheint die Luft zu frieren.",
+            "en": "Taiga is no longer a Nihyaku Boy. He brought back a BX from Sapporo that he tuned on ice over the winter. Wherever he slides through the C1, the air seems to freeze."
+          },
+          "lines": {
+            "challenge": {
+              "de": "In Sapporo schneit es. Hier jetzt auch.",
+              "en": "It is snowing in Sapporo. Now here too."
+            },
+            "win": {
+              "de": "Eiszeit.",
+              "en": "Ice age."
+            },
+            "lose": {
+              "de": "Du bist der Erste, der mich auftaut.",
+              "en": "You are the first one to thaw me out."
+            }
+          },
+          "announce": {
+            "de": "Taiga Shimizu ist aus Sapporo zurück. Wer ihn gesehen hat, sagt, um seinen BX schneie es.",
+            "en": "Taiga Shimizu is back from Sapporo. Those who saw him say it snows around his BX."
+          },
+          "auraOn": true,
+          "auraLevel": 3,
+          "aura": "#9fe8ff",
+          "spFactor": 1.3
+        }
+      ]
     },
     {
       "id": "t_bxboys_3",
@@ -12617,7 +12816,6 @@
     },
     {
       "id": "w_kemuri",
-      "auraOn": true,
       "name": "Kemuri",
       "nick": {
         "de": "Großvaters Rauch",
@@ -12660,7 +12858,40 @@
       "hint": {
         "de": "Erst nach dem Sieg über die Kasumi Drift Union.",
         "en": "Only after beating the Kasumi Drift Union."
-      }
+      },
+      "stages": [
+        {
+          "chapter": "ch4",
+          "nick": {
+            "de": "Großvaters Sturm",
+            "en": "Grandpa's Storm"
+          },
+          "desc": {
+            "de": "Kemuri ist zurück, und der Bluebuck raucht jetzt so, dass die Leitplanken verschwinden. Er sagt, sein Großvater habe ihm im Traum den letzten Trick gezeigt.",
+            "en": "Kemuri is back, and the Bluebuck now smokes so much the guardrails disappear. He says his grandfather showed him the last trick in a dream."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Opa sagt, diesmal nehmen wir dich ernst.",
+              "en": "Grandpa says this time we take you seriously."
+            },
+            "win": {
+              "de": "Opa lacht. Das hat er lange nicht mehr.",
+              "en": "Grandpa is laughing. He has not done that in a long time."
+            },
+            "lose": {
+              "de": "Opa nickt. Du darfst weiterfahren.",
+              "en": "Grandpa nods. You may drive on."
+            }
+          },
+          "announce": {
+            "de": "Kemuri ist wieder da. Auf der Shiodome-Kurve hängt seit gestern Nacht Rauch, der nicht weggeht.",
+            "en": "Kemuri is back. There has been smoke hanging over the Shiodome curve since last night that will not clear."
+          },
+          "auraOn": true,
+          "auraLevel": 3
+        }
+      ]
     },
     {
       "id": "w_rentner",
@@ -12853,7 +13084,6 @@
     },
     {
       "id": "w_noir",
-      "auraOn": true,
       "name": "Noir",
       "nick": {
         "de": "Die Schwarze Katze",
@@ -12909,7 +13139,40 @@
       "hint": {
         "de": "Nur zwischen 1 und 3 Uhr.",
         "en": "Only between 1 and 3 am."
-      }
+      },
+      "stages": [
+        {
+          "chapter": "ch5",
+          "nick": {
+            "de": "Neun Leben",
+            "en": "Nine Lives"
+          },
+          "desc": {
+            "de": "Noir kreuzt deinen Weg wieder, aber diesmal nicht zufällig. Man sagt, sie habe acht ihrer neun Leben auf dem Ring verbraucht und hebe das letzte für dich auf.",
+            "en": "Noir crosses your path again, but not by chance this time. They say she has used eight of her nine lives on the ring and is saving the last one for you."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Acht Leben habe ich verbraucht. Eins habe ich für dich aufgehoben.",
+              "en": "I have used eight lives. I saved one for you."
+            },
+            "win": {
+              "de": "Miau. Das war das letzte.",
+              "en": "Meow. That was the last one."
+            },
+            "lose": {
+              "de": "Du hast mehr Glück als eine schwarze Katze.",
+              "en": "You have more luck than a black cat."
+            }
+          },
+          "announce": {
+            "de": "Eine schwarze Katze ist mir heute vor die Garage gelaufen. Noir ist zurück, und diesmal sucht sie dich.",
+            "en": "A black cat ran past my garage today. Noir is back, and this time she is looking for you."
+          },
+          "auraOn": true,
+          "auraLevel": 3
+        }
+      ]
     },
     {
       "id": "w_tetsujin",
@@ -13056,7 +13319,6 @@
     },
     {
       "id": "w_kazekiri",
-      "auraOn": true,
       "name": "Kazekiri",
       "nick": {
         "de": "Windschneider",
@@ -13099,7 +13361,40 @@
       "hint": {
         "de": "Erst wenn du alle Radarfallen gefunden hast.",
         "en": "Only once you have found every speed trap."
-      }
+      },
+      "stages": [
+        {
+          "chapter": "ch4",
+          "nick": {
+            "de": "Sturmschneider",
+            "en": "Storm Cutter"
+          },
+          "desc": {
+            "de": "Kazekiri hat jede Radarfalle der Stadt neu vermessen und seinen Wagen leichter gemacht. Er schneidet jetzt nicht mehr durch den Verkehr, sondern durch den Wind selbst.",
+            "en": "Kazekiri has re-measured every speed trap in the city and made his car lighter. He no longer cuts through traffic, he cuts through the wind itself."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Ich habe meine Klinge geschliffen. Du auch?",
+              "en": "I have sharpened my blade. Have you?"
+            },
+            "win": {
+              "de": "Sauber geschnitten.",
+              "en": "A clean cut."
+            },
+            "lose": {
+              "de": "Deine Klinge ist schärfer geworden.",
+              "en": "Your blade has grown sharper."
+            }
+          },
+          "announce": {
+            "de": "Die Blitzer auf dem C1 haben letzte Nacht nur einen Schatten erwischt. Kazekiri ist zurück.",
+            "en": "The speed cameras on the C1 caught nothing but a shadow last night. Kazekiri is back."
+          },
+          "auraOn": true,
+          "auraLevel": 3
+        }
+      ]
     },
     {
       "id": "w_pastor",
@@ -13529,7 +13824,6 @@
     },
     {
       "id": "w_gruppe5",
-      "auraOn": true,
       "name": "Gruppe Fünf",
       "nick": {
         "de": "Silhouette",
@@ -13572,7 +13866,40 @@
       "hint": {
         "de": "Erst nach dem Sieg über Rosso Ottantuno.",
         "en": "Only after beating Rosso Ottantuno."
-      }
+      },
+      "stages": [
+        {
+          "chapter": "epilog",
+          "nick": {
+            "de": "Letzte Runde",
+            "en": "Final Lap"
+          },
+          "desc": {
+            "de": "Gruppe Fünf ist nicht verschwunden. Der Bolide fährt wieder, mit derselben Startnummer, aber jetzt so, als müsse er die Runde von 1984 endlich zu Ende fahren.",
+            "en": "Gruppe Fünf has not vanished. The car is back, with the same number, but now it drives as if it finally has to finish the 1984 lap."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Eine Runde fehlt noch. Fahr sie mit mir.",
+              "en": "One lap is still missing. Drive it with me."
+            },
+            "win": {
+              "de": "Jetzt ist das Rennen vorbei.",
+              "en": "Now the race is over."
+            },
+            "lose": {
+              "de": "Danke. Jetzt kann ich die Zielflagge sehen.",
+              "en": "Thank you. Now I can see the chequered flag."
+            }
+          },
+          "announce": {
+            "de": "Alte Leute aus Fuji erzählen, die Startnummer von 1984 sei wieder auf dem Ring gesehen worden. Gruppe Fünf ist zurück.",
+            "en": "Old folks from Fuji say the 1984 race number has been seen on the ring again. Gruppe Fünf is back."
+          },
+          "auraOn": true,
+          "auraLevel": 3
+        }
+      ]
     },
     {
       "id": "w_hakone",
@@ -13768,7 +14095,6 @@
     },
     {
       "id": "w_fukurou",
-      "auraOn": true,
       "name": "Fukurō",
       "nick": {
         "de": "Die dunkle Eule",
@@ -13814,7 +14140,40 @@
       "hint": {
         "de": "Nur zwischen 1 und 4 Uhr.",
         "en": "Only between 1 and 4 am."
-      }
+      },
+      "stages": [
+        {
+          "chapter": "epilog",
+          "nick": {
+            "de": "Director's Cut",
+            "en": "Director's Cut"
+          },
+          "desc": {
+            "de": "Die Fortsetzung wird gedreht. Fukurō fährt jetzt die Szene, die damals aus dem Film geschnitten wurde, und die Kamera läuft wirklich.",
+            "en": "The sequel is being shot. Fukurō now drives the scene that was cut from the film back then, and this time the camera is really rolling."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Fortsetzung. Diesmal ohne Stuntdouble.",
+              "en": "The sequel. No stunt double this time."
+            },
+            "win": {
+              "de": "Das ist der Director's Cut.",
+              "en": "That is the director's cut."
+            },
+            "lose": {
+              "de": "Du hast die Hauptrolle verdient.",
+              "en": "You earned the lead role."
+            }
+          },
+          "announce": {
+            "de": "Auf dem Ring wird angeblich nachts gefilmt. Fukurō ist zurück, die dunkle Eule dreht die Fortsetzung.",
+            "en": "They say someone is filming on the ring at night. Fukurō is back, the dark owl is shooting the sequel."
+          },
+          "auraOn": true,
+          "auraLevel": 3
+        }
+      ]
     },
     {
       "id": "w_corsa",
@@ -13864,7 +14223,6 @@
     },
     {
       "id": "w_benikaze",
-      "auraOn": true,
       "name": "Benikaze",
       "nick": {
         "de": "Roter Wind",
@@ -13917,7 +14275,40 @@
       "hint": {
         "de": "Erst nach dem Sieg über die Takane Yama-Gumi.",
         "en": "Only after beating Takane Yama-Gumi."
-      }
+      },
+      "stages": [
+        {
+          "chapter": "ch5",
+          "nick": {
+            "de": "Roter Taifun",
+            "en": "Red Typhoon"
+          },
+          "desc": {
+            "de": "Benikaze hat die Viertelmeile hinter sich gelassen. Ihr Hopper ist jetzt für den ganzen Ring gebaut, und sie will nicht mehr nur schneller sein als ihr Bruder, sondern als alle.",
+            "en": "Benikaze has left the quarter mile behind. Her Hopper is now built for the whole ring, and she no longer just wants to be faster than her brother, but faster than everyone."
+          },
+          "lines": {
+            "challenge": {
+              "de": "Jiro hat mich angerufen. Er sagt, ich soll aufpassen. Du solltest aufpassen.",
+              "en": "Jiro called me. He says I should be careful. You should be careful."
+            },
+            "win": {
+              "de": "Jetzt weiß es die ganze Stadt.",
+              "en": "Now the whole city knows."
+            },
+            "lose": {
+              "de": "Gut. Dann bin ich wenigstens nicht die Einzige, die gegen dich verliert.",
+              "en": "Fine. At least I am not the only one who loses to you."
+            }
+          },
+          "announce": {
+            "de": "Benikaze ist zurück und hat den Hopper komplett neu aufgebaut. Ihr Bruder sagt, so habe er sie noch nie gesehen.",
+            "en": "Benikaze is back and has rebuilt the Hopper from scratch. Her brother says he has never seen her like this."
+          },
+          "auraOn": true,
+          "auraLevel": 3
+        }
+      ]
     },
     {
       "id": "w_tractor",

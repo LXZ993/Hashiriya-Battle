@@ -148,6 +148,11 @@
 
 ### Rival garage (developer tool)
 - New in the dev version: entry "Gegner-Garage (Dev)" in the BeamNG main menu under More, right next to Hashiriya Battle. It starts the regular BeamNG garage with all its features (parts, tune, paint, decals, vehicles, photo, lights, camera) and puts the "Rival garage" panel on top. Search rivals or filter by crews, leaders, wanderers, bosses, own configs and missing configs, click one, and his car loads in the garage with his config (as in game with plate and fixed paint, or the plain config).
+- New: stages like the rematch versions in TXR 2025. A rival can come back stronger in a later chapter, with a new nickname, new lines, their own config and often only then with an aura. Genzō announces the comeback by phone, on the road it says "(stage 2)".
+- Coming back with an aura: Kemuri and Kazekiri (from chapter 4), Benikaze and Noir (from chapter 5), Gruppe Fünf and Fukurō (epilogue). Shinkirō, Tsukiyomi, Yūrei, Hotaru, Kaminari and Afterburner have their aura from the start.
+- Three crew members rise to wanderer in two stages: Hinata Oda ("Heir of the Lantern"), Tadashi Hirota ("The Dropout") and Taiga Shimizu ("Blizzard"), stage 3 with an aura.
+- Rival garage: filter "Stufen" (stages). Saving on a stage creates its own config and writes it to the stage. The aura editor works per stage.
+- Wanderer Builder: new choice "Comeback (wish)" with the chapter.
 - Aura editor in the "Aura" tab: per rival aura on/off, colour (hex field and sliders) and strength, with live preview on the car, saved to rivals.json. Plus sliders for shell, haze and light and the rule for who gets an aura automatically, saved to aura.json. Both with backup.
 - Like in TXR 2025, only a few rivals carry an aura now: the three bosses and 12 special wanderers (including all with Powerglow paint: Shinkirō, Tsukiyomi, Yūrei, Hotaru). More can be switched on in the editor. Crew, leader, wanderer and boss auras in the trophy wall now only come from rivals who carry one themselves.
 - The glowing haze gets thinner in battle as SP drops and disappears when SP is almost empty.

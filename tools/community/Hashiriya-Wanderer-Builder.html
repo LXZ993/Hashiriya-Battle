@@ -149,6 +149,7 @@ code{word-break:break-all}
       <div class="f"><label data-t="desc"></label><textarea id="desc" maxlength="400"></textarea><div class="hint" data-t="descH"></div></div>
       <div class="f"><label data-t="sealL"></label><input type="text" id="sign" maxlength="3" style="max-width:140px"><div class="hint" data-t="sealH"></div></div>
       <div class="f"><div class="lab" data-t="auraL"></div><div class="chips" id="auraW"></div><div class="hint" data-t="auraH"></div></div>
+      <div class="f"><div class="lab" data-t="stageL"></div><div class="chips" id="stageW"></div><div class="hint" data-t="stageH"></div></div>
     </section>
 
     <section class="step" id="s3">
@@ -253,7 +254,7 @@ name:"Wanderer name",nameH:"Your driver name in Latin letters, as shown in the g
 jp:"Name in Japanese (optional)",jpH:"Kanji, katakana or hiragana, shown small next to your name. Example: 陽炎",
 nick:"Nickname / title",nickH:"Shown under your name. Example: The Heat Veil",
 desc:"Your backstory",descH:"One or two sentences for the rival list. Who are you, and why do you drive the expressway at night?",
-auraL:"Aura (wish)",auraOpts:{"none":"No aura","wish":"I would like an aura in my avatar colour"},auraH:"Like in TXR 2025, only a few special rivals carry an aura (a glowing haze around the car). The player wins it by beating you. The mod author decides who gets one, so this is only a wish.",sealL:"Sign on your seal",sealH:"Every Wanderer has a round seal (like a sticker) that the player wins by beating you. 1 or 2 kanji (or up to 3 letters). Its colour is your avatar colour.",
+stageL:"Comeback (wish)",stageOpts:{"none":"No comeback","ch3":"From chapter 3","ch4":"From chapter 4","ch5":"From chapter 5","epilog":"In the epilogue"},stageH:"Like the rematch versions in TXR 2025: after the player beats you, you come back stronger in a later story chapter (stronger car, new lines, maybe with an aura). If you want this, you can send a second, stronger config later. Only a wish, the mod author decides.",auraL:"Aura (wish)",auraOpts:{"none":"No aura","wish":"I would like an aura in my avatar colour"},auraH:"Like in TXR 2025, only a few special rivals carry an aura (a glowing haze around the car). The player wins it by beating you. The mod author decides who gets one, so this is only a wish.",sealL:"Sign on your seal",sealH:"Every Wanderer has a round seal (like a sticker) that the player wins by beating you. 1 or 2 kanji (or up to 3 letters). Its colour is your avatar colour.",
 s3:"Your avatar",s3L:"Every driver appears as a figure in the style of Bob, BeamNG's NPC: a smooth head with a dark visor, the eyes are pixels on the display. Your avatar shows up next to the speech bubble and in the rival list. Greyed-out items don't fit the rest right now; the reason is shown below them (or click the item).",
 always:"",optional:"optional",
 s4:"Your car and plate",
@@ -323,7 +324,7 @@ name:"Name des Wanderers",nameH:"Dein Fahrername in lateinischen Buchstaben, so 
 jp:"Name auf Japanisch (optional)",jpH:"Kanji, Katakana oder Hiragana, steht klein neben deinem Namen. Beispiel: 陽炎",
 nick:"Spitzname / Titel",nickH:"Steht unter deinem Namen. Beispiel: Der Hitzeschleier",
 desc:"Deine Geschichte",descH:"Ein, zwei Sätze für die Rivalenliste. Wer bist du, und warum fährst du nachts die Stadtautobahn?",
-auraL:"Aura (Wunsch)",auraOpts:{"none":"Keine Aura","wish":"Ich hätte gern eine Aura in meiner Avatar-Farbe"},auraH:"Wie in TXR 2025 tragen nur wenige besondere Gegner eine Aura (ein leuchtender Schein um das Auto). Der Spieler gewinnt sie, wenn er dich schlägt. Wer eine bekommt, entscheidet der Mod-Autor, das hier ist nur ein Wunsch.",sealL:"Zeichen auf deinem Siegel",sealH:"Jeder Wanderer hat ein rundes Siegel (wie ein Sticker), das der Spieler gewinnt, wenn er dich schlägt. 1 oder 2 Kanji (oder bis zu 3 Buchstaben). Die Farbe ist deine Avatar-Farbe.",
+stageL:"Rückkehr (Wunsch)",stageOpts:{"none":"Keine Rückkehr","ch3":"Ab Kapitel 3","ch4":"Ab Kapitel 4","ch5":"Ab Kapitel 5","epilog":"Im Epilog"},stageH:"Wie die Rückkampf-Versionen in TXR 2025: Nachdem der Spieler dich geschlagen hat, kommst du in einem späteren Story-Kapitel stärker zurück (stärkeres Auto, neue Sprüche, vielleicht mit Aura). Wenn du das willst, kannst du später eine zweite, stärkere Config schicken. Nur ein Wunsch, entscheiden tut der Mod-Autor.",auraL:"Aura (Wunsch)",auraOpts:{"none":"Keine Aura","wish":"Ich hätte gern eine Aura in meiner Avatar-Farbe"},auraH:"Wie in TXR 2025 tragen nur wenige besondere Gegner eine Aura (ein leuchtender Schein um das Auto). Der Spieler gewinnt sie, wenn er dich schlägt. Wer eine bekommt, entscheidet der Mod-Autor, das hier ist nur ein Wunsch.",sealL:"Zeichen auf deinem Siegel",sealH:"Jeder Wanderer hat ein rundes Siegel (wie ein Sticker), das der Spieler gewinnt, wenn er dich schlägt. 1 oder 2 Kanji (oder bis zu 3 Buchstaben). Die Farbe ist deine Avatar-Farbe.",
 s3:"Dein Avatar",s3L:"Jeder Fahrer erscheint als Figur im Stil von Bob, BeamNGs NPC: glatter Kopf mit dunklem Visier, die Augen sind Pixel auf dem Display. Dein Avatar steht neben der Sprechblase und in der Rivalenliste. Ausgegraute Teile passen gerade nicht zum Rest; der Grund steht darunter (oder Teil anklicken).",
 always:"",optional:"optional",
 s4:"Dein Auto und Kennzeichen",
@@ -493,7 +494,7 @@ function freshSpec(){
     mask:false,mouth:null,lips:null,eyes:"cool",emblem:"stern",crew:false,beard:null,beardcolor:null,leader:false,A:any1(R.wandererColors),jp:"放浪者",nick:"",tape:""};
   randomLook(s);return s;
 }
-const F0={credit:"",contact:"",role:"Testing",name:"",jp:"",nick:"",desc:"",sign:"",auraW:"none",source:"stock",pcText:"",model:"",modName:"",modLink:"",skin:"",
+const F0={credit:"",contact:"",role:"Testing",name:"",jp:"",nick:"",desc:"",sign:"",auraW:"none",stageW:"none",source:"stock",pcText:"",model:"",modName:"",modLink:"",skin:"",
   region:0,ptype:0,ptop:"",pmain:"",aggr:6,cruise:"115",tier:2,
   cOn:{},cVal:{},
   idea:"",wish:"",lChallenge:"",lWin:"",lLose:"",consent:false};
@@ -681,6 +682,7 @@ function renderChoices(){
   const f=st.f;
   chips($("role"),Object.entries(t("roles")).map(([k,v])=>[k,v]),f.role,v=>{f.role=v;renderChoices();persist()});
   chips($("auraW"),Object.entries(t("auraOpts")).map(([k,v])=>[k,v]),f.auraW||"none",v=>{f.auraW=v;renderChoices();persist()});
+  chips($("stageW"),Object.entries(t("stageOpts")).map(([k,v])=>[k,v]),f.stageW||"none",v=>{f.stageW=v;renderChoices();persist()});
   chips($("source"),Object.entries(t("sources")).map(([k,v])=>[k,v]),f.source,v=>{f.source=v;renderChoices();validate();persist()});
   $("modbox").style.display=f.source==="mod"?"block":"none";
   chips($("aggr"),t("aggrN").map((n,i)=>[i+1,`${i+1} · ${n}`]),f.aggr,v=>{f.aggr=+v;renderChoices();persist()});
@@ -853,7 +855,8 @@ function buildRival(){
   if(f.skin.trim())r.skin=f.skin.trim();
   if(f.source==="mod")r.requires={mods:[{name:f.modName.trim()||"?",link:f.modLink.trim()}]};
   if(f.idea.trim())r._idee=f.idea.trim();
-  if(f.auraW==="wish")r._auraWunsch=s.A;  // nur ein Wunsch: im Aura-Editor der Gegner-Garage setzen
+  if(f.auraW==="wish")r._auraWunsch=s.A;
+  if(f.stageW&&f.stageW!=="none")r._rueckkehrWunsch=f.stageW;  // Kapitel-ID aus story.json; Stufe trägt Alex unter "stages" ein  // nur ein Wunsch: im Aura-Editor der Gegner-Garage setzen
   if(String(f.wish||"").trim())r._wunsch=String(f.wish).trim();
   r._kontakt=f.contact.trim();
   r._eingang=new Date().toISOString().slice(0,10);

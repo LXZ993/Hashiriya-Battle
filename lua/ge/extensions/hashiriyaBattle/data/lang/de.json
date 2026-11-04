@@ -260,6 +260,8 @@
   "pa.gas": "Tankstelle",
   "hud.tag.boss": "BOSS",
   "msg.rematch": " (Revanche)",
+  "msg.stage": " (Stufe %d)",
+  "msg.stageReturn": "%s ist zurück. Stärker als beim letzten Mal. Halt nachts die Augen offen.",
   "msg.boss": " (Boss)",
   "msg.rankUp": "Neuer Rang: %s",
   "unlock.title": "Neue Teile freigeschaltet",

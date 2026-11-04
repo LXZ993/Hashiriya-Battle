@@ -397,7 +397,9 @@ local function lexicon()
   for _, r in ipairs(data.rivals or {}) do
     local beaten = save and save.defeated and save.defeated[r.id] or false
     local hidden = (r.wanderer or r.boss) and not beaten
-    local e = {
+    -- Stufen (rivals.json "stages") erst zeigen, wenn die Stufe davor geschlagen ist
+    local stageHidden = r.stagePrev and not (save and save.defeated and save.defeated[r.stagePrev])
+    local e = not stageHidden and {
       name = hidden and '???' or r.name,
       nick = hidden and '' or pr.loc(r.nick),
       car = hidden and '???' or (rv.vehicleName and rv.vehicleName(r.model) or r.model),
@@ -411,12 +413,12 @@ local function lexicon()
       -- Siegel/Emblem erst nach dem Sieg (wie die Aufkleber in TXR), Leader zeigen das goldene Crew-Logo
       logo = ((r.wanderer or r.boss) and beaten or r.leader) and rv.logoOf and rv.logoOf(r) or nil,
     }
-    if r.leader and not beaten and rv.leaderStatus then
+    if e and r.leader and not beaten and rv.leaderStatus then
       local ls = rv.leaderStatus(r, save)
       if ls then e.status = c.t('home.leader.' .. ls) end
     end
     local g = (r.boss and bosses) or (r.wanderer and wanderers) or byTeam[r.team]
-    if g then table.insert(g.list, e) end
+    if g and e then table.insert(g.list, e) end
   end
   table.insert(groups, wanderers)
   table.insert(groups, bosses)
