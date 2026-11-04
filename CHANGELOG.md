@@ -42,6 +42,7 @@
 - Neuer Wanderer-Builder: eine einzige HTML-Datei, die Helfer und Tester per Doppelklick im Browser öffnen (offline, Englisch und Deutsch). Damit bauen sie ihren eigenen Wanderer und schicken eine Datei zurück.
 - Drin: Name, japanischer Name, Spitzname, Geschichte, Zeichen fürs Wanderer-Siegel, der neue Bob-Avatar mit allen Teilen inklusive Bärten und eigener Farbe, die Auto-Config (.pc einfach hineinziehen), japanisches Kennzeichen mit Vorschau, Fahrstil, Stärke, Bedingungen und drei Sprüche.
 - Eingesendete Wanderer kommen mit Avatar, Siegel, Kennzeichen, Config und Credits-Eintrag ins Spiel, genau so, wie der Builder sie zeigt.
+- Der Wanderer-Builder kennt jetzt alle 29 Bedingungsarten (Wochentag, Saugmotor/Turbo, Schaltgetriebe, Lackfarbe, PS, Gewicht, Kilometerstand, Siegesserie, Geld, Spitzname, Wappen, Statistik, besuchte PAs und mehr), sortiert in fünf Gruppen. Unten steht das Baudatum der Datei.
 
 ### Menü links neu
 - Das linke Menü (Pos1) ist aufgeräumt: oben eine Karte mit Geld, Uhrzeit, Rang und Ruf-Balken, darunter kleine Felder für Bilanz und „In der Nähe“. Die Hauptpunkte (Speichern, Lexikon, Autohändler, Statistik, Nickerchen, Abschleppen) sind Kacheln statt einer langen Liste.
