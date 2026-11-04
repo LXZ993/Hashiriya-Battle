@@ -137,11 +137,10 @@
 - Dein eigener Pfeil auf der Minimap ist jetzt weiß (wie dein Punkt in der Radar-Mitte) und hebt sich so von orangen Rivalen ab.
 
 ### Gegner-Garage (Entwickler-Werkzeug)
-- Neu für die Dev-Version: In der BeamNG-Garage (Hauptmenü > Mehr > Garage) steht rechts das Panel „Gegner-Garage“. Gegner suchen oder nach Crews, Leadern, Wanderern, Bossen, eigenen Configs und fehlenden Configs filtern, anklicken, und sein Auto wird mit seiner Config in der Garage geladen (wahlweise wie im Spiel mit Kennzeichen und festem Lack oder nur die Config).
+- Neu für die Dev-Version: eigener Modus „Gegner-Garage (Dev)“ im BeamNG-Hauptmenü unter More, direkt neben Hashiriya Battle. Er lädt die Garagenhalle als normales Freeroam mit dem Panel „Gegner-Garage“ rechts. Gegner suchen oder nach Crews, Leadern, Wanderern, Bossen, eigenen Configs und fehlenden Configs filtern, anklicken, und sein Auto wird mit seiner Config in der Garage geladen (wahlweise wie im Spiel mit Kennzeichen und festem Lack oder nur die Config).
 - Daneben stehen Beschreibung, Crew mit allen Mitgliedern und ihren Autos, Bedingungen in Klartext, Fahrstil, Belohnung und Sprüche. So bleibt ein Auto beim Anpassen beim Charakter, z. B. die Firmenwagen von Zangyō Express.
 - „Auf Gegner speichern“ schreibt die angepasste Config zurück: eigene Mod-Configs werden überschrieben (mit Sicherung), BeamNG-Configs bleiben unangetastet und der Gegner bekommt eine eigene hashiriya_r_<id>.pc, rivals.json wird nur an dieser Stelle angepasst.
-- Die Original-Garage bleibt unverändert: Die Mod schaltet in der Garage nur auf ein eigenes UI-Layout um. Ein/aus im Dev-Menü > Werkzeuge. Nicht im Release.
-- Behoben: Das Panel erschien in der Garage nicht, weil BeamNG dort alle UI-Apps ausblendet. Jetzt wird es zur Laufzeit eingeblendet und liegt über den Garage-Menüs (Fotomodus und Fahrzeugauswahl bleiben frei).
+- Die originale BeamNG-Garage (More > Garage) bleibt komplett unverändert. Angepasst wird in der Dev-Garage mit den normalen Menüs (Esc > Fahrzeug-Konfiguration: Teile, Tuning, Lack), Esc und HUD-Bearbeiten funktionieren dort normal. Nicht im Release.
 
 ### Handbuch
 - Jeder Datei- und Ordnername im Handbuch ist jetzt ein Link: Klick öffnet die Datei, das Ordner-Symbol dahinter den Ordner. Neu im Kapitel „Ordner und Dateien“: Schnellzugriff auf die wichtigsten Dateien und Ordner.

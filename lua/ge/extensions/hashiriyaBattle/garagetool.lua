@@ -1,47 +1,33 @@
 -- Hashiriya Battle: Gegner-Garage (Entwickler-Werkzeug, nicht im Release).
--- In der BeamNG-Garage (Hauptmenü > Mehr > Garage) erscheint zusätzlich das Panel HashiriyaGarage:
--- Gegner aus rivals.json wählen, sein Auto mit seiner Config wird in der Garage geladen, daneben stehen
--- Crew, Beschreibung, Bedingungen und Sprüche. Nach dem Anpassen mit den Garage-Menüs (Teile, Tuning, Lack)
--- speichert "Auf Gegner speichern" die Config zurück:
+-- Eigene Dev-Garage, unabhängig von der BeamNG-Garage (die bleibt komplett unangetastet):
+-- BeamNG-Hauptmenü > More > "Gegner-Garage (Dev)" (oder Dev-Menü > Werkzeuge) lädt die Garagen-Halle (Level garage_v2) als
+-- normales Freeroam und zeigt das Panel HashiriyaGarage im eigenen Layout "hashiriyaGarage".
+-- Gegner wählen, sein Auto mit seiner Config wird geladen, daneben stehen Crew, Beschreibung, Bedingungen und Sprüche.
+-- Anpassen mit den normalen BeamNG-Menüs (Esc > Fahrzeug-Konfiguration: Teile, Tuning, Lack).
+-- "Auf Gegner speichern" schreibt die Config zurück:
 --   * eigene Mod-Config (vehicles/<model>/hashiriya_*.pc im Mod-Ordner) wird überschrieben (Sicherung vorher),
 --   * eine BeamNG- oder fremde Config bleibt unangetastet: es entsteht vehicles/<model>/hashiriya_r_<id>.pc im
 --     Mod-Ordner, und rivals.json bekommt beim Gegner den neuen Pfad (und das Modell, falls du das Auto gewechselt hast).
--- Die Original-Garage bleibt unverändert: Wir schalten nur, solange die Garage offen ist, auf unser eigenes
--- UI-Layout "hashiriyaGarage" (Garage-Meldungen + Panel). Datei-Overrides der BeamNG-Garage gibt es nicht.
--- Ein-/Ausschalten: Dev-Menü > Werkzeuge, gemerkt in settings/hashiriya_battle/garagetool.json.
 local M = {}
 
 local logTag = 'hashiriya'
 local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logger') if L then L.log(level, tag, text) else _G.log(level, tag, text) end end
 
 local layoutName = 'hashiriyaGarage' -- settings/ui_apps/originalLayouts/default/hashiriyaGarage.uilayout.json
-local settingsFile = '/settings/hashiriya_battle/garagetool.json'
+local garageLevel = 'garage_v2'      -- die Halle der BeamNG-Garage, hier als normales Freeroam geladen
 local backupDir = '/settings/hashiriya_battle/builder_backups/'
 local dataRel = 'lua/ge/extensions/hashiriyaBattle/data/rivals.json'
 local maxBackups = 20
 
-local cfg = nil
 local loadedId = nil   -- Gegner, dessen Auto gerade in der Garage steht
 local loadedMode = nil -- 'game' (wie im Spiel: Kennzeichen-Design, fester Lack) oder 'pure' (nur die .pc)
+local pending = false  -- Garage wird gerade geladen
+local active = false   -- Dev-Garage läuft (Level garage_v2, über uns gestartet)
 
 local function core() return extensions.hashiriyaBattle_core end
 local function rivals() return extensions.hashiriyaBattle_rivals end
 local function send(data) guihooks.trigger('HashiriyaGarage', data) end
 local function status(ok, text) send({ status = { ok = ok, text = text, time = os.date('%H:%M:%S') } }) end
-
-local function settings()
-  if not cfg then
-    cfg = jsonReadFile(settingsFile) or {}
-    if cfg.auto == nil then cfg.auto = true end
-  end
-  return cfg
-end
-
-local function saveSettings()
-  local dir = settingsFile:match('^(.*/)')
-  if not FS:directoryExists(dir) then FS:directoryCreate(dir, true) end
-  jsonWriteFile(settingsFile, settings(), true)
-end
 
 function M.isAllowed()
   local c = core()
@@ -49,12 +35,14 @@ function M.isAllowed()
   return true
 end
 
-local function garageActive()
-  local g = rawget(_G, 'gameplay_garageMode') or extensions.gameplay_garageMode
-  local ok, on = pcall(function() return g and g.isActive() end)
-  return ok and on or false
+local function levelName()
+  local ok, n = pcall(function() return getCurrentLevelIdentifier and getCurrentLevelIdentifier() end)
+  return ok and n and tostring(n):lower() or ''
 end
+
+local function garageActive() return active and levelName() == garageLevel end
 M.garageActive = garageActive
+M.isActive = garageActive
 
 local function modRoot()
   local b = extensions.hashiriyaBattle_builder
@@ -64,68 +52,79 @@ local function modRoot()
   end
 end
 
--- Layout ----------------------------------------------------------------------------------
+-- Starten / Beenden -------------------------------------------------------------------------
 
 local function setLayout(name)
   local gs = rawget(_G, 'core_gamestate')
-  if gs and gs.setGameState then pcall(gs.setGameState, nil, name) end
+  if gs and gs.setGameState then pcall(gs.setGameState, 'freeroam', name, 'freeroam') end
 end
 
--- BeamNG setzt beim Betreten der Garage state 'garage' + Layout 'garage' (gameplay_garageMode.activateGarageMode,
--- noch bevor isActive() true ist). Dann auf unser Layout umschalten.
-function M.onGameStateUpdate(state)
-  if type(state) ~= 'table' or not M.isAllowed() then return end
-  if state.state == 'garage' and state.appLayout == 'garage' and settings().auto then
+-- Dev-Garage öffnen: Halle laden (oder, wenn sie schon geladen ist, nur das Panel zeigen)
+function M.start()
+  if not M.isAllowed() then return end
+  if core().active then
+    core().msg('Gegner-Garage: erst die Karriere beenden (Titelbildschirm oder Modus beenden)', 6)
+    return
+  end
+  if levelName() == garageLevel then
+    active = true
     setLayout(layoutName)
-    log('I', logTag, 'Gegner-Garage: Panel eingeblendet (Layout ' .. layoutName .. ')')
+    M.refresh()
+    return
+  end
+  -- wie der Hashiriya-Battle-Eintrag im Hauptmenü: Level als normales Freeroam starten
+  if extensions.hashiriyaBattle_music and extensions.hashiriyaBattle_music.pauseMenuMusic then
+    pcall(extensions.hashiriyaBattle_music.pauseMenuMusic, true)
+  end
+  local ff = rawget(_G, 'freeroam_freeroam') or (extensions.load('freeroam_freeroam') and freeroam_freeroam)
+  pending = true
+  local ok, res = pcall(function() return ff and ff.startFreeroamByName and ff.startFreeroamByName(garageLevel, nil, nil, false) end)
+  if not ok or not res then
+    pending = false
+    log('E', logTag, 'Gegner-Garage: Halle nicht geladen: ' .. tostring(res))
+    core().msg('Gegner-Garage: Halle (' .. garageLevel .. ') nicht gefunden', 6)
+    return
+  end
+  log('I', logTag, 'Gegner-Garage: lade ' .. garageLevel)
+end
+
+-- Zurück ins BeamNG-Hauptmenü
+function M.leave()
+  active, pending = false, false
+  loadedId, loadedMode = nil, nil
+  local back = rawget(_G, 'returnToMainMenu') or rawget(_G, 'endActiveGameMode')
+  if back then pcall(back) end
+end
+
+-- Level fertig geladen: in der Halle unser Layout setzen, sonst Dev-Garage aus
+function M.onWorldReadyState(state)
+  if state ~= 2 then return end
+  if pending and levelName() == garageLevel then
+    pending, active = false, true
+    setLayout(layoutName)
+    log('I', logTag, 'Gegner-Garage: geöffnet (Layout ' .. layoutName .. ')')
+  elseif levelName() ~= garageLevel then
+    active, pending = false, false
+    loadedId, loadedMode = nil, nil
   end
 end
 
--- Die BeamNG-Garage blendet UI-Apps aus (Route "garage": uiApps.shown = false, bei jedem Routenwechsel neu).
--- Solange unser Layout aktiv ist, schalten wir die Apps-Ebene immer wieder sichtbar (nur zur Laufzeit,
--- keine Datei der Garage wird geändert). Im Fotomodus und in der Fahrzeugauswahl bleibt sie aus.
-local showTimer = 0
-local function currentRouteName()
-  local r = rawget(_G, 'ui_router') or extensions.ui_router
-  local ok, e = pcall(function() return r and r.getCurrent() end)
-  if not ok or type(e) ~= 'table' then return '' end
-  local n = e.name or (e.toRoute and e.toRoute.name) or (e.resolved and e.resolved.name) or (e.request and e.request.name)
-  return tostring(n or '')
-end
-
+-- Andere Teile der Mod setzen beim Laden evtl. ein anderes Layout: in der Dev-Garage immer wieder unseres nehmen
+local layoutTimer = 0
 function M.onUpdate(dtReal)
-  showTimer = showTimer + (dtReal or 0)
-  if showTimer < 0.2 then return end
-  showTimer = 0
+  if not active then return end
+  layoutTimer = layoutTimer + (dtReal or 0)
+  if layoutTimer < 0.5 then return end
+  layoutTimer = 0
+  if not garageActive() then active = false return end
   local gs = rawget(_G, 'core_gamestate')
   local st = gs and gs.state
-  if not st or st.state ~= 'garage' or st.appLayout ~= layoutName then return end
-  local route = currentRouteName()
-  if route:find('photomode', 1, true) or route:find('selector', 1, true) then return end
-  guihooks.trigger('UiAppsRouteUpdate', { shown = true })
+  if st and st.state ~= 'garage' and st.appLayout ~= layoutName and st.state ~= 'menu' then setLayout(layoutName) end
 end
 
-function M.onEndGarageMode()
-  loadedId, loadedMode = nil, nil
-end
-
--- Auto in der Garage gewechselt (auch über die Garage-Menüs): Anzeige "in der Garage" aktualisieren
+-- Auto gewechselt (auch über Esc > Fahrzeuge): Anzeige "in der Garage" aktualisieren
 function M.onVehicleSpawned()
-  local gs = rawget(_G, 'core_gamestate')
-  if gs and gs.state and gs.state.appLayout == layoutName then M.refresh() end
-end
-
-function M.getAuto() return settings().auto and true or false end
-
-function M.setAuto(on)
-  settings().auto = on and true or false
-  saveSettings()
-  local gs = rawget(_G, 'core_gamestate')
-  local st = gs and gs.state or {}
-  if garageActive() then
-    if on and st.appLayout == 'garage' then setLayout(layoutName)
-    elseif not on and st.appLayout == layoutName then setLayout('garage') end
-  end
+  if active then M.refresh() end
 end
 
 -- Daten fürs Panel ------------------------------------------------------------------------------
@@ -237,7 +236,7 @@ function M.refresh()
   if not M.isAllowed() then return end
   local d = buildData()
   send({
-    full = true, garage = garageActive(), auto = settings().auto,
+    full = true, garage = garageActive(),
     teams = d.teams, rivals = d.rivals, ranks = d.ranks, root = d.root,
     loadedId = loadedId, loadedMode = loadedMode, player = playerInfo(),
   })
@@ -254,7 +253,7 @@ end
 local function loadRival(a)
   local r = findRival(a.id)
   if not r then status(false, 'Gegner nicht gefunden: ' .. tostring(a.id)) return end
-  if not garageActive() then status(false, 'Nur in der BeamNG-Garage (Hauptmenü > Mehr > Garage)') return end
+  if not garageActive() then status(false, 'Nur in der Gegner-Garage (Hauptmenü > More > Gegner-Garage (Dev))') return end
   if not r.config or r.config == '' or not FS:fileExists('/' .. r.config:gsub('^/', '')) then
     status(false, 'Config fehlt: ' .. tostring(r.config))
     return
@@ -346,7 +345,7 @@ end
 local function saveRival(a)
   local r = findRival(a.id)
   if not r then status(false, 'Gegner nicht gefunden') return end
-  if not garageActive() then status(false, 'Nur in der BeamNG-Garage') return end
+  if not garageActive() then status(false, 'Nur in der Gegner-Garage') return end
   local veh = getPlayerVehicle and getPlayerVehicle(0)
   if not veh then status(false, 'Kein Auto in der Garage') return end
   local root = modRoot()
@@ -431,7 +430,7 @@ end
 local actions = {
   load = loadRival,
   save = saveRival,
-  hide = function() M.setAuto(false) end,
+  leave = function() M.leave() end,
   refresh = function() M.refresh() end,
 }
 
