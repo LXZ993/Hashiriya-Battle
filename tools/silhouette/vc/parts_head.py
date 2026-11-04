@@ -776,6 +776,79 @@ def b_ziegenbart(doc, A, c):
     return doc.shadowed(_beard_paint(doc, d, c, A, hair_lines=lines), 0, 2, 3, 35)
 
 
+def _jaw_strip(w_side, w_chin, t0=-.22, n=28, out_rx=89, out_ry=93):
+    """Schmaler Streifen entlang der Kinnlinie (von Koteletten bis Kinn), außen bündig mit dem Kopf."""
+    outer, inner = [], []
+    for i in range(n + 1):
+        t = t0 + (math.pi - 2 * t0) * i / n
+        st = math.sin(t)
+        w = w_side + (w_chin - w_side) * max(0, st) ** 4
+        ox, oy = 300 + out_rx * math.cos(t), 222 + out_ry * st
+        ix, iy = 300 + (out_rx - w) * math.cos(t), 222 + (out_ry - w) * st
+        outer.append((ox, oy))
+        inner.append((ix, iy))
+    pts = outer + inner[::-1]
+    return "M" + " L".join(f"{f(x)},{f(y)}" for x, y in pts) + " Z"
+
+
+def _thin_mustache_d(h=1.0):
+    left = (f"M300,{f(263)} C290,{f(260)} 276,{f(259)} 264,{f(264)} C258,{f(267)} 254,{f(272)} 252,{f(276)} "
+            f"C262,{f(272 - 3 * h)} 276,{f(268 - 2 * h)} 300,{f(268 - 1 * h)}")
+    right = (f"C324,{f(268 - 1 * h)} 338,{f(268 - 2 * h)} 348,{f(272 - 3 * h)} C346,{f(272)} 342,{f(267)} 336,{f(264)} "
+             f"C324,{f(259)} 310,{f(260)} 300,{f(263)} Z")
+    return left + " " + right
+
+
+def b_konturbart(doc, A, c):
+    """Konturbart: schmale Linie an der Kinnlinie, dünner Schnurrbart, Mundwinkel-Linien und Kinnbart."""
+    jaw = _jaw_strip(11, 17, out_rx=88, out_ry=93)
+    must = _thin_mustache_d()
+    sides = ("M252,274 C254,286 262,298 274,304 L280,298 C270,292 262,284 258,274 Z "
+             + "M348,274 C346,286 338,298 326,304 L320,298 C330,292 338,284 342,274 Z")
+    chin = "M288,292 C294,290 306,290 312,292 C316,302 312,312 300,316 C288,312 284,302 288,292 Z"
+    d = jaw + " " + must + " " + sides + " " + chin
+    out = f'<g {doc.clip(egg(HEAD["cx"], HEAD["cy"], HEAD["rx"] + 1, HEAD["ryt"], HEAD["ryb"] + 3))}>'
+    out += _beard_paint(doc, d, c, A, hair_lines=_fan(290, 294, 310, 294, 4, 6))
+    out += "</g>"
+    return doc.shadowed(out, 0, 2, 3, 30)
+
+
+def b_kinnriemen(doc, A, c):
+    """Kinnriemen (Chinstrap): breiterer Streifen an der Kinnlinie, ohne Schnurrbart."""
+    d = _jaw_strip(16, 26, out_rx=88, out_ry=94)
+    out = f'<g {doc.clip(egg(HEAD["cx"], HEAD["cy"], HEAD["rx"] + 1, HEAD["ryt"], HEAD["ryb"] + 3))}>'
+    out += _beard_paint(doc, d, c, A, hair_lines=_fan(232, 290, 368, 290, 10, 5))
+    out += "</g>"
+    return doc.shadowed(out, 0, 2, 3, 30)
+
+
+def b_ankerbart(doc, A, c):
+    """Ankerbart: Schnurrbart plus spitzer Kinnbart, der seitlich an der Kinnlinie ausläuft."""
+    must = _mustache_d()
+    anchor = ("M296,282 L304,282 L306,292 C318,294 334,292 346,284 C342,298 330,310 316,316 "
+              "C310,322 305,330 300,338 C295,330 290,322 284,316 C270,310 258,298 254,284 "
+              "C266,292 282,294 294,292 Z")
+    lines = _fan(258, 263, 296, 263, 6, 4) + _fan(278, 302, 322, 302, 7, 8)
+    return doc.shadowed(_beard_paint(doc, must + " " + anchor, c, A, hair_lines=lines), 0, 2, 3, 35)
+
+
+def b_kurzvoll(doc, A, c):
+    """Kurzer, gepflegter Vollbart: liegt eng am Kopf an, mit sauberer Kante, keine Wölbung unters Kinn."""
+    d = ("M211,200 L223,200 C224,236 246,258 274,264 C284,266 292,266 300,266 C308,266 316,266 326,264 "
+         "C354,258 376,236 377,200 L389,200 C392,250 386,290 360,314 C342,330 322,336 300,336 "
+         "C278,336 258,330 240,314 C214,290 208,250 211,200 Z")
+    must = _thin_mustache_d(1.6)
+    pts = _dots_in(lambda x, y: _in_head_low(x, y, 266, 2), 4, 7)
+    lines = _fan(220, 240, 250, 312, 7, 4) + _fan(380, 240, 350, 312, 7, 4)
+    out = f'<g {doc.clip(egg(HEAD["cx"], HEAD["cy"], HEAD["rx"] + 1, HEAD["ryt"], HEAD["ryb"] + 6))}>'
+    out += _beard_paint(doc, d, c, A, hair_lines=lines)
+    out += f'<g {doc.clip(d)}>' + _stubble(pts, c[0], .35, .9) + "</g>"
+    out += _beard_paint(doc, must, c, A)
+    out += line("M288,282 C294,284 306,284 312,282", "#000", 1.6, .3)
+    out += "</g>"
+    return doc.shadowed(out, 0, 2, 4, 35)
+
+
 # id: (Name, Funktion, Gewicht m)
 BEARDS = {
     "stoppeln": ("Dreitagebart", b_stoppeln, 6),
@@ -785,4 +858,8 @@ BEARDS = {
     "koteletten": ("Koteletten", b_koteletten, 2),
     "vollbart": ("Vollbart", b_vollbart, 4),
     "ziegenbart": ("Ziegenbart", b_ziegenbart, 1),
+    "konturbart": ("Konturbart", b_konturbart, 4),
+    "kinnriemen": ("Kinnriemen", b_kinnriemen, 2),
+    "ankerbart": ("Ankerbart", b_ankerbart, 2),
+    "kurzvoll": ("Kurzer Vollbart", b_kurzvoll, 3),
 }

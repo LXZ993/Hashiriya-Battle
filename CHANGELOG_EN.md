@@ -3,8 +3,8 @@
 ## Alpha 0.9.2 (as of 2026-11-03)
 
 ### Portraits: beards
-- The Bob portraits can now wear beards (Henry's idea): stubble, moustache, chin beard, goatee, sideburns, full beard and long goatee, in many colours (all hair colours plus grey, white, ginger and salt-and-pepper).
-- 45 rivals and 20 PA drivers now have a beard, including some wanderers. Boss Mugen wears a silver goatee, Boss Shirotora a platinum chin beard. All other figures look the same as before.
+- The Bob portraits can now wear beards (Henry's idea): stubble, moustache, chin beard, goatee, sideburns, full beard, long goatee, contour beard, chin strap, anchor beard and short boxed beard, in many colours (all hair colours plus grey, white, ginger and salt-and-pepper).
+- 49 rivals and 20 PA drivers now have a beard, including some wanderers. Boss Mugen wears a silver goatee, Boss Shirotora a platinum chin beard. All other figures look the same as before.
 - The silhouette tool has new "Beard" and "Beard colour" fields under "Extras".
 
 ### Save where you park
