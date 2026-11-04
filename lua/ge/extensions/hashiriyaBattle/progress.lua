@@ -53,6 +53,20 @@ function M.nickname(save)
   return best and M.loc(best.name) or nil
 end
 
+-- ID der aktiven Spitznamen-Regel (für die Rivalen-Bedingung "nickname")
+function M.nicknameId(save)
+  save = save or core().save
+  if not save then return nil end
+  local s = stats(save)
+  local best, bestScore = nil, 0
+  for _, n in ipairs(data().nicknames or {}) do
+    local v = s[n.stat] or (n.stat == 'losses' and save.losses) or 0
+    local score = v / math.max(n.min or 1, 1)
+    if score >= 1 and score > bestScore then best, bestScore = n, score end
+  end
+  return best and best.id or nil
+end
+
 function M.getUiState()
   local save = core().save
   if not save then return nil end
@@ -252,6 +266,8 @@ function M.getStatsUi()
       { k = 'stats.carsOwned', v = #(save.cars or {}) },
       { k = 'stats.fuel', v = string.format('%.0f l', s.fuelLiters or 0) },
       { k = 'stats.repairs', v = s.repairs or 0 },
+      { k = 'stats.services', v = s.services or 0 },
+      { k = 'stats.rivalCarsBought', v = s.rivalCarsBought or 0 },
       { k = 'stats.tows', v = s.tows or 0 },
       { k = 'stats.unstucks', v = s.unstucks or 0 },
     } },

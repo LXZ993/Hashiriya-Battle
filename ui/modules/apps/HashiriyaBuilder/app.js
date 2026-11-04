@@ -230,6 +230,13 @@ angular.module('beamng.apps')
             playerPart: c.playerPart || '', beatenTeam: c.beatenTeam || '',
             beatenTeams: (c.beatenTeams || []).slice(), beatenRivals: (c.beatenRivals || []).slice()
           },
+          // weitere Bedingungen (minStreak, naOnly, paintColor, stat ...) hat das Formular nicht: unverändert behalten
+          condExtra: (function () {
+            var known = ['minRank', 'minWins', 'minDay', 'hours', 'timeWindow', 'speedTraps', 'playerModel', 'playerPart', 'beatenTeam', 'beatenTeams', 'beatenRivals']
+            var x = {}
+            Object.keys(c).forEach(function (k) { if (known.indexOf(k) < 0) x[k] = c[k] })
+            return x
+          })(),
           plateText: (r.plate && r.plate.text) || '', plateRegion: plateRegion, plateType: plateType,
           paintOn: !!r.paint, paintHex: rgbToHex(r.paint && r.paint.color), paintName: (r.paint && r.paint.name) || '',
           metallic: num(r.paint && r.paint.metallic, 0.3), roughness: num(r.paint && r.paint.roughness, 0.3),
@@ -257,6 +264,7 @@ angular.module('beamng.apps')
         if (f.cond.beatenTeam) c.beatenTeam = f.cond.beatenTeam
         if (f.cond.beatenTeams.length) c.beatenTeams = f.cond.beatenTeams.slice()
         if (f.cond.beatenRivals.length) c.beatenRivals = f.cond.beatenRivals.slice()
+        if (f.condExtra) Object.keys(f.condExtra).forEach(function (k) { c[k] = f.condExtra[k] })
         var lines = {}, anyLine = false
         scope.lineKeys.forEach(function (k) { var v = biOut(f.lines[k.id]); if (v) { lines[k.id] = v; anyLine = true } })
         var vals = {

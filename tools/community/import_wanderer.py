@@ -66,6 +66,29 @@ def make_hint(r, names):
         de.append(f'nur wenn du einen {c["playerModel"]} fährst'); en.append(f'only if you drive a {c["playerModel"]}')
     if c.get('playerPart'):
         de.append(f'nur mit „{c["playerPart"]}“ verbaut'); en.append(f'only with "{c["playerPart"]}" installed')
+    if c.get('naOnly'):
+        de.append('nur gegen Saugmotoren'); en.append('only against naturally aspirated cars')
+    if c.get('forcedInduction'):
+        de.append('nur gegen Turbo oder Kompressor'); en.append('only against turbo or supercharged cars')
+    if c.get('manual'):
+        de.append('nur gegen Schaltwagen'); en.append('only against manual gearboxes')
+    if c.get('paintColor'):
+        pc = c['paintColor'] if isinstance(c['paintColor'], list) else [c['paintColor']]
+        FDE = {'red': 'rot', 'yellow': 'gelb', 'green': 'grün', 'blue': 'blau', 'purple': 'lila', 'white': 'weiß', 'silver': 'silber', 'grey': 'grau', 'black': 'schwarz'}
+        de.append('nur gegen Autos in ' + '/'.join(FDE.get(x, x) for x in pc)); en.append('only against ' + '/'.join(pc) + ' cars')
+    if c.get('maxPower'):
+        de.append(f'nur gegen Autos bis {c["maxPower"]} PS'); en.append(f'only against cars up to {c["maxPower"]} hp')
+    if c.get('minPower'):
+        de.append(f'nur gegen Autos ab {c["minPower"]} PS'); en.append(f'only against cars from {c["minPower"]} hp')
+    if c.get('minStreak'):
+        de.append(f'nach {c["minStreak"]} Siegen in Folge'); en.append(f'after {c["minStreak"]} wins in a row')
+    if c.get('weekday'):
+        wd = c['weekday'] if isinstance(c['weekday'], list) else [c['weekday']]
+        D = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']; E = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        de.append('nur ' + '/'.join(D[int(d) - 1] for d in wd)); en.append('only on ' + '/'.join(E[int(d) - 1] for d in wd))
+    if c.get('visitedPa'):
+        v = c['visitedPa'] if isinstance(c['visitedPa'], list) else [c['visitedPa']]
+        de.append('nach einem Besuch in ' + ', '.join(v)); en.append('after a visit to ' + ', '.join(v))
     if c.get('minDay'):
         de.append(f'ab Nacht {c["minDay"]}'); en.append(f'from night {c["minDay"]} on')
     if c.get('hours'):

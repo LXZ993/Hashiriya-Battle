@@ -23,7 +23,7 @@ end
 local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_crew' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -833,6 +833,7 @@ function M.onBattleResult(rival, won, result)
     extensions.hashiriyaBattle_progress.leaderHint(rival)
   else
     M.save.losses = M.save.losses + 1
+    M.save.lastLossDay = M.save.day or 1 -- Bedingung minDaysNoLoss
     msg(M.t('msg.lose', rival.name), 6)
   end
   M.writeSave()
@@ -840,6 +841,8 @@ function M.onBattleResult(rival, won, result)
   if won then
     local okL, newLogo = pcall(function() return extensions.hashiriyaBattle_logos.newlyUnlocked(rival) end)
     if okL and newLogo then msg(M.t('msg.logoUnlocked', newLogo), 7) end
+    -- Rivalen-Autos: Leader, Boss oder Wanderer geschlagen -> sein Auto steht beim Händler
+    pcall(function() extensions.hashiriyaBattle_dealer.onRivalBeaten(rival) end)
   end
   -- Story (Alpha 0.6): Szenen nach einem Battle
   pcall(function() extensions.hashiriyaBattle_story.onEvent(won and 'win' or 'lose', { rival = rival }) end)
@@ -1122,6 +1125,10 @@ local function buildUiState()
       if area.type == 'gas' then st.gas = extensions.hashiriyaBattle_fuel.getUiState() end
       if area.type == 'garage' then st.garageCars = extensions.hashiriyaBattle_dealer.ownedCars() end
       if area.type == 'garage' then
+        local okMt, mt = pcall(function() return extensions.hashiriyaBattle_maintenance.getUiState() end)
+        st.maintenance = okMt and mt or nil
+      end
+      if area.type == 'garage' then
         st.garageTab = garageTab
         if garageTab == 'setup' then st.setup = extensions.hashiriyaBattle_setup.getUiState() end
       end
@@ -1323,6 +1330,12 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_home.toggleWatch(tostring(arg))
   elseif action == 'dealerBuy' then
     extensions.hashiriyaBattle_dealer.buy(tonumber(arg))
+  elseif action == 'rivalCarBuy' then
+    extensions.hashiriyaBattle_dealer.buyRivalCar(tostring(arg))
+  elseif action == 'service' then
+    -- Wartung (Öl, Kühlwasser, Reifen oder alles), nur in der Garage
+    local area = arrivedArea()
+    if area and area.type == 'garage' then extensions.hashiriyaBattle_maintenance.service(tostring(arg or 'all')) end
   elseif action == 'switchCar' then
     extensions.hashiriyaBattle_dealer.switchCar(tonumber(arg))
   elseif action == 'nap' then

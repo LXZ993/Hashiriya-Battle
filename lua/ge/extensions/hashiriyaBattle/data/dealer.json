@@ -9,6 +9,19 @@
     "kmMin": 0.6
   },
   "gameOver": true,
+  "rivalCars": {
+    "_hinweis": "Rivalen-Autos: nach dem Sieg gegen einen Crew-Leader, Boss oder Wanderer steht sein Auto (seine Config mit Lack) unten auf der Händlerseite, jedes nur einmal. Preis = BeamNG-Wert der Config (Value, bei eigenen Configs ohne Wert die teuerste Config des Modells) mal factorLeader / factorWanderer / factorBoss, nie unter minPriceYen. Pro Rivale in rivals.json: carPriceFactor = eigener Faktor, carForSale false = sein Auto wird nie verkauft. integrity/visual/fuel = Zustand beim Kauf (1 = neu), kmFrom/kmTo = Kilometerstand. Wartung ist beim Kauf frisch. enabled false schaltet es ab.",
+    "enabled": true,
+    "factorLeader": 5,
+    "factorWanderer": 7,
+    "factorBoss": 10,
+    "minPriceYen": 1500000,
+    "integrity": 0.97,
+    "visual": 0.95,
+    "fuel": 0.5,
+    "kmFrom": 15000,
+    "kmTo": 60000
+  },
   "powerCap": {
     "enabled": true,
     "factor": 1.1,
