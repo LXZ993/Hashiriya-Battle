@@ -77,6 +77,7 @@ textarea{resize:vertical;min-height:70px}
 details{margin-top:10px}
 details summary{cursor:pointer;color:var(--dim)}
 .cond{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;background:#10141b}
+.cgh{margin:18px 0 4px;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim)}
 .cond>label{display:flex;gap:10px;align-items:center;font-weight:600;cursor:pointer}
 .cond .sub{display:none;margin:10px 0 2px 28px}
 .cond.on .sub{display:block}
@@ -196,7 +197,7 @@ code{word-break:break-all}
 
     <section class="step" id="s6">
       <h2><span class="n">6</span><span data-t="s6"></span><span class="st ok" data-t="optional"></span></h2>
-      <p class="lead" data-t="s6L"></p>
+      <p class="lead"><span data-t="s6L"></span> <span style="color:var(--acc2)"><b id="condCount"></b> <span data-t="condsN"></span>.</span></p>
       <div id="conds"></div>
       <div class="f"><label data-t="idea"></label><textarea id="idea" maxlength="300"></textarea><div class="hint" data-t="ideaH"></div></div>
     </section>
@@ -221,7 +222,7 @@ code{word-break:break-all}
       <div class="hint" style="margin-top:10px;color:var(--dim);font-size:13px" data-th="saveH"></div>
     </section>
   </div>
-  <footer data-t="foot"></footer>
+  <footer><span data-t="foot"></span> · Builder /*__VERSION__*/</footer>
 </main>
 <div id="toast"></div>
 
@@ -266,12 +267,7 @@ cruise:"Cruising speed before a battle (km/h)",cruiseH:"How fast you roll in tra
 tier:"How strong are you?",tierH:"Decides from which rank on the player meets you. I balance the exact numbers at the end.",
 tiers:["Easy","Medium","Tough","Strong","Brutal"],
 s6:"When do you show up?",s6L:"Wanderers only appear under certain conditions. Tick one or more. Battles happen at night, between 20:00 and 06:00 in-game time.",
-c_hours:"Only at certain hours of the night",from:"from",to:"until",
-c_model:"Only against a certain player car",c_modelH:"Model ID of the car the player has to drive, e.g. miramar",
-c_part:"Only if the player has a certain tuning part",c_partH:"A word from the part name, e.g. turbo, supercharger, slick",
-c_team:"Only after the player has beaten a whole crew",
-c_rival:"Only after the player has beaten a certain driver",c_rivalH:"Team leader, crew member, Wanderer or boss.",
-c_day:"Only from a certain in-game night onwards",c_dayH:"Number, e.g. 5",
+from:"from",to:"until",cMin:"min",cMax:"max",cRangeH:"Fill in one or both.",cAtLeast:"at least",condsN:"conditions available",
 pick:"– choose –",leaders:"Crew leaders",members:"Crew members",wanderers:"Wanderers",bosses:"Bosses",
 idea:"Your own idea for a condition",ideaH:"e.g. only in rain, only after the player lost to you 3 times …",
 s7:"Your lines",s7L:"Short lines in the speech bubble next to your avatar, max 90 characters each. Make them sound like you.",
@@ -334,12 +330,7 @@ cruise:"Reisetempo vor dem Battle (km/h)",cruiseH:"So schnell rollst du im Verke
 tier:"Wie stark bist du?",tierH:"Bestimmt, ab welchem Rang der Spieler dich trifft. Die genauen Werte balanciere ich am Ende.",
 tiers:["Leicht","Mittel","Zäh","Stark","Brutal"],
 s6:"Wann tauchst du auf?",s6L:"Wanderer erscheinen nur unter bestimmten Bedingungen. Hak eine oder mehrere an. Battles gibt es nachts, zwischen 20:00 und 06:00 Spielzeit.",
-c_hours:"Nur zu bestimmten Uhrzeiten in der Nacht",from:"von",to:"bis",
-c_model:"Nur gegen ein bestimmtes Spielerauto",c_modelH:"Modell-ID des Autos, das der Spieler fahren muss, z. B. miramar",
-c_part:"Nur wenn der Spieler ein bestimmtes Tuningteil hat",c_partH:"Ein Wort aus dem Teilenamen, z. B. turbo, supercharger, slick",
-c_team:"Erst nachdem der Spieler eine ganze Crew geschlagen hat",
-c_rival:"Erst nachdem der Spieler einen bestimmten Fahrer geschlagen hat",c_rivalH:"Crew-Leader, Crew-Mitglied, Wanderer oder Boss.",
-c_day:"Erst ab einer bestimmten Spielnacht",c_dayH:"Zahl, z. B. 5",
+from:"von",to:"bis",cMin:"mindestens",cMax:"höchstens",cRangeH:"Eins oder beides ausfüllen.",cAtLeast:"mindestens",condsN:"Bedingungen zur Auswahl",
 pick:"– auswählen –",leaders:"Crew-Leader",members:"Crew-Mitglieder",wanderers:"Wanderer",bosses:"Bosse",
 idea:"Deine eigene Idee für eine Bedingung",ideaH:"z. B. nur bei Regen, erst nachdem der Spieler 3-mal gegen dich verloren hat …",
 s7:"Deine Sprüche",s7L:"Kurze Sätze in der Sprechblase neben deinem Avatar, je höchstens 90 Zeichen. Sie sollen nach dir klingen.",
@@ -484,10 +475,10 @@ function freshSpec(){
 }
 const F0={credit:"",contact:"",role:"Testing",name:"",jp:"",nick:"",desc:"",sign:"",source:"stock",pcText:"",model:"",modName:"",modLink:"",skin:"",
   region:0,ptype:0,ptop:"",pmain:"",aggr:6,cruise:"115",tier:2,
-  c_hours:false,hFrom:22,hTo:4,c_model:false,playerModel:"",c_part:false,playerPart:"",c_team:false,team:"",c_rival:false,rival:"",c_day:false,minDay:"",
+  cOn:{},cVal:{},
   idea:"",lChallenge:"",lWin:"",lLose:"",consent:false};
 let st={f:{...F0},s:freshSpec()};
-try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(j&&j.f&&j.s){st.f={...F0,...j.f};st.s={...st.s,...j.s}}}catch(e){}
+try{const j=JSON.parse(localStorage.getItem(LSK)||"null");if(j&&j.f&&j.s){st.f=migrate({...F0,...j.f});st.s={...st.s,...j.s}}}catch(e){}
 let saveT=null;
 function persist(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(LSK,JSON.stringify(st))}catch(e){}},300)}
 
@@ -643,7 +634,7 @@ function validate(all){
   for(const k of ["lChallenge","lWin","lLose"])$(k+"B").textContent=st.f[k];
   return p;
 }
-const TEXT_IDS=["credit","contact","name","jp","nick","desc","sign","model","modName","modLink","skin","ptop","pmain","idea","lChallenge","lWin","lLose","playerModel","playerPart","minDay"];
+const TEXT_IDS=["credit","contact","name","jp","nick","desc","sign","model","modName","modLink","skin","ptop","pmain","idea","lChallenge","lWin","lLose"];
 function bindInputs(){
   for(const id of TEXT_IDS){const el=$(id);if(!el)continue;el.value=st.f[id]??"";
     el.oninput=()=>{st.f[id]=el.value;if(["name","nick","jp","sign"].includes(id)){syncSpec();renderCard()}else if(["ptop","pmain"].includes(id))renderCard();validate();persist()};
@@ -666,22 +657,124 @@ function renderChoices(){
   $("ptype").title=t("specialNote");
 }
 const NIGHT=[20,21,22,23,0,1,2,3,4,5,6];
+// ---- Bedingungen: gleiche Schlüssel wie rivals.lua conditionsMet/extraConditionsMet (Handbuch Kapitel 4, Bedingungen) ----
+const L2=(en,de)=>({en,de});
+const COLORS_C=[["red",L2("red","rot")],["orange",L2("orange","orange")],["yellow",L2("yellow","gelb")],["green",L2("green","grün")],["blue",L2("blue","blau")],["purple",L2("purple","lila")],["pink",L2("pink","pink")],["white",L2("white","weiß")],["silver",L2("silver","silber")],["grey",L2("grey","grau")],["black",L2("black","schwarz")]];
+const DAYS=[[1,L2("Mon","Mo")],[2,L2("Tue","Di")],[3,L2("Wed","Mi")],[4,L2("Thu","Do")],[5,L2("Fri","Fr")],[6,L2("Sat","Sa")],[7,L2("Sun","So")]];
+const STATS=[["cleanWins",L2("wins without a scratch","Siege ohne Kratzer")],["closeWins",L2("close wins","knappe Siege")],["quickWins",L2("quick wins","schnelle Siege")],["leaderWins",L2("wins against leaders","Siege gegen Leader")],["bossWins",L2("wins against bosses","Siege gegen Bosse")],["rematchWins",L2("rematch wins","Revanche-Siege")],["pinkWins",L2("pink slips won","gewonnene Pink Slips")],["jobsDone",L2("side jobs done","erledigte Nebenjobs")],["nights",L2("nights played","gespielte Nächte")],["nearMisses",L2("near misses","Beinahe-Unfälle")],["distanceKm",L2("km driven","gefahrene km")],["tows",L2("times towed","Abschlepp-Vorfälle")],["repairs",L2("repairs","Reparaturen")],["carsBought",L2("cars bought","gekaufte Autos")]];
+const CG=[
+ [L2("Time and calendar","Zeit und Kalender"),[
+  {k:"hours",ty:"hours",l:L2("Only at certain hours of the night","Nur zu bestimmten Uhrzeiten in der Nacht")},
+  {k:"weekday",ty:"multi",opts:DAYS,l:L2("Only on certain in-game weekdays","Nur an bestimmten Spiel-Wochentagen"),h:L2("Night 1 is a Monday.","Nacht 1 ist ein Montag.")},
+  {k:"minDay",ty:"int",min:1,max:999,l:L2("Only from a certain in-game night onwards","Erst ab einer bestimmten Spielnacht"),h:L2("e.g. 5","z. B. 5")}]],
+ [L2("The player's car","Das Auto des Spielers"),[
+  {k:"playerModel",ty:"text",l:L2("Only against a certain car model","Nur gegen ein bestimmtes Automodell"),h:L2("Model ID, e.g. miramar","Modell-ID, z. B. miramar")},
+  {k:"playerPart",ty:"text",l:L2("Only if a certain tuning part is installed","Nur wenn ein bestimmtes Tuningteil verbaut ist"),h:L2("A word from the part name, e.g. turbo, supercharger, slick","Ein Wort aus dem Teilenamen, z. B. turbo, supercharger, slick")},
+  {k:"noPart",ty:"text",l:L2("Only if a certain part is NOT installed","Nur wenn ein bestimmtes Teil NICHT verbaut ist"),h:L2("e.g. slick","z. B. slick")},
+  {k:"induction",ty:"select",opts:[["na",L2("naturally aspirated (no turbo, no supercharger)","Saugmotor (kein Turbo, kein Kompressor)")],["forced",L2("turbo or supercharger","Turbo oder Kompressor")]],l:L2("Only with a certain engine","Nur mit einer bestimmten Motorart")},
+  {k:"manual",ty:"bool",l:L2("Only with a manual or sequential gearbox","Nur mit Schaltgetriebe (manuell oder sequenziell)")},
+  {k:"paintColor",ty:"multi",opts:COLORS_C,l:L2("Only with a certain paint colour","Nur mit einer bestimmten Lackfarbe"),h:L2("Pick one or more.","Eine oder mehrere wählen.")},
+  {k:"plateContains",ty:"text",l:L2("Only if the player's plate contains certain digits","Nur wenn das Kennzeichen des Spielers bestimmte Ziffern enthält"),h:L2("e.g. 86","z. B. 86")},
+  {k:"power",ty:"range",keys:["minPower","maxPower"],unit:"PS",l:L2("Only with a certain engine power","Nur mit einer bestimmten Leistung")},
+  {k:"weight",ty:"range",keys:["minWeight","maxWeight"],unit:"kg",l:L2("Only with a certain car weight","Nur mit einem bestimmten Gewicht")},
+  {k:"odometer",ty:"range",keys:["minOdometerKm","maxOdometerKm"],unit:"km",l:L2("Only with a certain mileage","Nur mit einem bestimmten Kilometerstand")}]],
+ [L2("The player's career","Die Karriere des Spielers"),[
+  {k:"minWins",ty:"int",min:1,l:L2("Only after a number of wins","Erst nach einer Anzahl Siege")},
+  {k:"minStreak",ty:"int",min:1,l:L2("Only during a win streak of at least …","Nur bei einer Siegesserie von mindestens …")},
+  {k:"maxLosses",ty:"int",min:0,l:L2("Only if the player lost at most … times","Nur wenn der Spieler höchstens …-mal verloren hat")},
+  {k:"minDaysNoLoss",ty:"int",min:1,l:L2("Only after … nights without a loss","Erst nach … Nächten ohne Niederlage")},
+  {k:"minMoney",ty:"int",min:1,unit:"¥",l:L2("Only if the player has at least … yen","Nur wenn der Spieler mindestens … Yen hat")},
+  {k:"minCars",ty:"int",min:1,l:L2("Only if the player owns at least … cars","Nur wenn der Spieler mindestens … Autos besitzt")},
+  {k:"maxDamageYen",ty:"int",min:0,unit:"¥",l:L2("Only if the car is almost undamaged (repair costs at most …)","Nur wenn das Auto fast heil ist (Reparatur höchstens …)")},
+  {k:"minTopSpeed",ty:"int",min:50,unit:"km/h",l:L2("Only if the player has ever driven at least …","Nur wenn der Spieler schon mindestens … schnell war")},
+  {k:"speedTraps",ty:"int",min:1,l:L2("Only after … speed cameras triggered","Erst nach … ausgelösten Radarfallen")},
+  {k:"nickname",ty:"select",opts:()=>R.nicknames.map(n=>[n.id,n.name]),l:L2("Only with a certain player nickname","Nur mit einem bestimmten Spitznamen des Spielers")},
+  {k:"playerLogo",ty:"select",opts:()=>R.teams.map(x=>[x.id,x.name]).concat(R.wanderers,R.bosses),l:L2("Only if the player shows a certain emblem","Nur wenn der Spieler ein bestimmtes Wappen zeigt"),h:L2("The emblem the player picked in the trophy wall.","Das Wappen, das der Spieler an der Trophäenwand gewählt hat.")},
+  {k:"stat",ty:"stat",l:L2("Only after a certain statistic","Erst ab einem bestimmten Statistik-Wert")}]],
+ [L2("Who the player has beaten","Wen der Spieler geschlagen hat"),[
+  {k:"beatenTeam",ty:"select",opts:()=>R.teams.map(x=>[x.id,x.name]),l:L2("Only after beating a whole crew","Erst nach dem Sieg über eine ganze Crew")},
+  {k:"beatenRivals",ty:"rival",l:L2("Only after beating a certain driver","Erst nach dem Sieg gegen einen bestimmten Fahrer"),h:L2("Crew leader, crew member, Wanderer or boss.","Crew-Leader, Crew-Mitglied, Wanderer oder Boss.")}]],
+ [L2("Places","Orte"),[
+  {k:"visitedPa",ty:"multi",opts:()=>R.pas.map(p=>[p,L2(p,p)]),l:L2("Only after the player visited a certain parking area on foot","Erst nachdem der Spieler eine bestimmte PA zu Fuß besucht hat")},
+  {k:"minPaVisited",ty:"int",min:1,l:L2("Only after visiting … parking areas on foot","Erst nach … zu Fuß besuchten PAs")}]]
+];
+const CDEF={};CG.forEach(g=>g[1].forEach(d=>CDEF[d.k]=d));
+const lz=x=>x&&typeof x==="object"?(x[LANG]||x.en||x.de):x;
+function condBody(d){
+  const v=st.f.cVal[d.k];
+  const num=(id,val,ph)=>`<input type="number" data-c="${id}" value="${val??""}" ${d.min!=null?`min="${d.min}"`:""} ${d.max!=null?`max="${d.max}"`:""} placeholder="${ph||""}" style="max-width:150px">`;
+  const u=d.unit?` <span style="color:var(--dim)">${esc(d.unit)}</span>`:"";
+  switch(d.ty){
+    case "bool":return "";
+    case "hours":{const hv=v||[22,4];const sel=(i)=>`<select data-c="${i}" style="width:auto">${NIGHT.map(h=>`<option value="${h}"${h===hv[i]?" selected":""}>${String(h).padStart(2,"0")}:00</option>`).join("")}</select>`;
+      return `<div style="display:flex;gap:10px;align-items:center">${t("from")} ${sel(0)} ${t("to")} ${sel(1)}</div>`}
+    case "text":return `<input type="text" data-c="v" maxlength="40" value="${esc(v||"")}" style="max-width:260px">`;
+    case "int":return num("v",v)+u;
+    case "range":{const r=v||{};return `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">${t("cMin")} ${num("min",r.min)} ${t("cMax")} ${num("max",r.max)}${u}</div><div class="hint">${t("cRangeH")}</div>`}
+    case "select":{const o=typeof d.opts==="function"?d.opts():d.opts;return `<select data-c="v"><option value="">${t("pick")}</option>${o.map(x=>`<option value="${esc(x[0])}"${x[0]===v?" selected":""}>${esc(lz(x[1]))}</option>`).join("")}</select>`}
+    case "multi":{const o=typeof d.opts==="function"?d.opts():d.opts;const cur=new Set(v||[]);return `<div class="chips">${o.map(x=>`<button type="button" class="chip${cur.has(x[0])?" on":""}" data-m="${esc(x[0])}">${esc(lz(x[1]))}</button>`).join("")}</div>`}
+    case "rival":{const grp=[[t("leaders"),R.leaders],[t("wanderers"),R.wanderers],[t("bosses"),R.bosses],[t("members"),R.members]];
+      return `<select data-c="v"><option value="">${t("pick")}</option>${grp.map(([lab,list])=>`<optgroup label="${esc(lab)}">${list.map(x=>`<option value="${x[0]}"${x[0]===v?" selected":""}>${esc(x[1])}${x[2]?" – "+esc(x[2]):""}</option>`).join("")}</optgroup>`).join("")}</select>`}
+    case "stat":{const sv=v||{};return `<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><select data-c="key" style="width:auto"><option value="">${t("pick")}</option>${STATS.map(x=>`<option value="${x[0]}"${x[0]===sv.key?" selected":""}>${esc(lz(x[1]))}</option>`).join("")}</select> ${t("cAtLeast")} ${num("min",sv.min)}</div>`}
+  }
+  return "";
+}
+function readCond(d,box){
+  const g=sel=>box.querySelector(`[data-c="${sel}"]`);
+  switch(d.ty){
+    case "hours":return [+g(0).value,+g(1).value];
+    case "text":case "select":case "rival":return g("v").value.trim();
+    case "int":return g("v").value===""?"":+g("v").value;
+    case "range":return {min:g("min").value===""?"":+g("min").value,max:g("max").value===""?"":+g("max").value};
+    case "stat":return {key:g("key").value,min:g("min").value===""?"":+g("min").value};
+    case "multi":return [...box.querySelectorAll(".chip.on")].map(b=>{const x=b.dataset.m;return /^\d+$/.test(x)&&d.k==="weekday"?+x:x});
+  }
+  return true;
+}
 function renderConds(){
   const f=st.f, el=$("conds");
-  const sel=(id,groups)=>`<select id="${id}"><option value="">${t("pick")}</option>${groups.map(([lab,list])=>`<optgroup label="${esc(lab)}">${list.map(x=>`<option value="${x[0]}">${esc(x[1])}${x[2]?" – "+esc(x[2]):""}</option>`).join("")}</optgroup>`).join("")}</select>`;
-  const hours=id=>`<select id="${id}" style="width:auto">${NIGHT.map(h=>`<option value="${h}">${String(h).padStart(2,"0")}:00</option>`).join("")}</select>`;
-  const C=[
-    ["c_hours",`<div style="display:flex;gap:10px;align-items:center">${t("from")} ${hours("hFrom")} ${t("to")} ${hours("hTo")}</div>`],
-    ["c_model",`<input type="text" id="playerModel" maxlength="40" style="max-width:260px"><div class="hint">${t("c_modelH")}</div>`],
-    ["c_part",`<input type="text" id="playerPart" maxlength="40" style="max-width:260px"><div class="hint">${t("c_partH")}</div>`],
-    ["c_team",sel("team",[["Crews",R.teams.map(x=>[x.id,x.name])]])],
-    ["c_rival",sel("rival",[[t("leaders"),R.leaders],[t("wanderers"),R.wanderers],[t("bosses"),R.bosses],[t("members"),R.members]])+`<div class="hint">${t("c_rivalH")}</div>`],
-    ["c_day",`<input type="number" id="minDay" min="1" max="99" style="max-width:120px"><div class="hint">${t("c_dayH")}</div>`]
-  ];
-  el.innerHTML=C.map(([k,body])=>`<div class="cond${f[k]?" on":""}" id="w_${k}"><label><input type="checkbox" id="${k}"${f[k]?" checked":""}> ${esc(t(k))}</label><div class="sub">${body}</div></div>`).join("");
-  for(const [k] of C)$(k).onchange=()=>{f[k]=$(k).checked;$("w_"+k).classList.toggle("on",f[k]);persist()};
-  for(const id of ["hFrom","hTo","team","rival"]){$(id).value=f[id];$(id).onchange=()=>{f[id]=id.startsWith("h")?+$(id).value:$(id).value;persist()}}
-  for(const id of ["playerModel","playerPart","minDay"]){$(id).value=f[id];$(id).oninput=()=>{f[id]=$(id).value;persist()}}
+  let n=0;
+  el.innerHTML=CG.map(([gl,defs])=>`<h3 class="cgh">${esc(lz(gl))}</h3>`+defs.map(d=>{n++;
+    return `<div class="cond${f.cOn[d.k]?" on":""}" data-k="${d.k}"><label><input type="checkbox"${f.cOn[d.k]?" checked":""}> ${esc(lz(d.l))}</label>${d.ty==="bool"?"":`<div class="sub">${condBody(d)}${d.h?`<div class="hint">${esc(lz(d.h))}</div>`:""}</div>`}</div>`}).join("")).join("");
+  $("condCount").textContent=n;
+  el.querySelectorAll(".cond").forEach(box=>{
+    const d=CDEF[box.dataset.k];
+    const upd=()=>{f.cVal[d.k]=readCond(d,box);persist()};
+    box.querySelector("input[type=checkbox]").onchange=e=>{f.cOn[d.k]=e.target.checked;box.classList.toggle("on",f.cOn[d.k]);if(f.cOn[d.k]&&f.cVal[d.k]==null&&d.ty!=="bool")upd();persist()};
+    box.querySelectorAll("[data-c]").forEach(i=>{i.oninput=upd;i.onchange=upd});
+    box.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{b.classList.toggle("on");upd()});
+  });
+}
+function condOut(){
+  const f=st.f,c={},num=x=>x!==""&&x!=null&&isFinite(x);
+  for(const d of Object.values(CDEF)){
+    if(!f.cOn[d.k])continue;
+    const v=f.cVal[d.k];
+    switch(d.ty){
+      case "bool":c[d.k]=true;break;
+      case "hours":c.hours=(v||[22,4]).map(Number);break;
+      case "text":if(v)c[d.k]=String(v).toLowerCase();break;
+      case "int":if(num(v))c[d.k]=Math.round(+v);break;
+      case "range":if(v){if(num(v.min))c[d.keys[0]]=+v.min;if(num(v.max))c[d.keys[1]]=+v.max}break;
+      case "select":if(v){if(d.k==="induction"){if(v==="na")c.naOnly=true;else c.forcedInduction=true}else c[d.k]=v}break;
+      case "rival":if(v)c.beatenRivals=[v];break;
+      case "multi":if(v&&v.length)c[d.k]=v.length===1&&d.k!=="weekday"?v[0]:v;break;
+      case "stat":if(v&&v.key&&num(v.min))c.stat={key:v.key,min:+v.min};break;
+    }
+  }
+  return c;
+}
+// alte Entwürfe (erste Builder-Version) übernehmen
+function migrate(f){
+  f.cOn=f.cOn||{};f.cVal=f.cVal||{};
+  if(f.c_hours){f.cOn.hours=true;f.cVal.hours=[+f.hFrom,+f.hTo]}
+  if(f.c_model){f.cOn.playerModel=true;f.cVal.playerModel=f.playerModel}
+  if(f.c_part){f.cOn.playerPart=true;f.cVal.playerPart=f.playerPart}
+  if(f.c_team){f.cOn.beatenTeam=true;f.cVal.beatenTeam=f.team}
+  if(f.c_rival){f.cOn.beatenRivals=true;f.cVal.beatenRivals=f.rival}
+  if(f.c_day){f.cOn.minDay=true;f.cVal.minDay=+f.minDay}
+  for(const k of ["c_hours","hFrom","hTo","c_model","playerModel","c_part","playerPart","c_team","team","c_rival","rival","c_day","minDay"])delete f[k];
+  return f;
 }
 function applyLang(){
   document.documentElement.lang=LANG;
@@ -697,13 +790,7 @@ const both=v=>{v=String(v||"").trim();return v?{de:v,en:v}:undefined};
 const SPEC_KEYS=["garment","tone","hair","haircolor","hat","hattone","glasses","ear","neck","mask","mouth","eyes","emblem","crew","beard","beardcolor"];
 function buildRival(){
   const f=st.f,s=st.s, tier=TIERS[f.tier]||TIERS[2], id="w_"+slug(f.name), model=f.model.toLowerCase();
-  const c={minRank:tier.minRank};
-  if(f.c_hours)c.hours=[+f.hFrom,+f.hTo];
-  if(f.c_model&&f.playerModel.trim())c.playerModel=f.playerModel.trim().toLowerCase();
-  if(f.c_part&&f.playerPart.trim())c.playerPart=f.playerPart.trim().toLowerCase();
-  if(f.c_team&&f.team)c.beatenTeam=f.team;
-  if(f.c_rival&&f.rival)c.beatenRivals=[f.rival];
-  if(f.c_day&&+f.minDay>0)c.minDay=Math.min(99,Math.round(+f.minDay));
+  const c=Object.assign({minRank:tier.minRank},condOut());
   const r={id,name:f.name.trim()};
   if(f.jp.trim())r.jp=f.jp.trim();
   r.nick=both(f.nick)||both(f.name);
@@ -745,7 +832,7 @@ $("openFile").onchange=async e=>{
   try{
     const j=JSON.parse(await file.text());
     if(j.format!=="hashiriya-wanderer"||!j._builder)throw new Error("not a Hashiriya Wanderer file");
-    st.f={...F0,...j._builder.f,pcText:j.pc?JSON.stringify(j.pc,null,2):""};st.s={...st.s,...j._builder.s};
+    st.f=migrate({...F0,...j._builder.f});st.f.pcText=j.pc?JSON.stringify(j.pc,null,2):"";st.s={...st.s,...j._builder.s};
     bindInputs();applyLang();persist();toast(t("loaded"));
   }catch(err){toast(t("loadErr")+err.message)}
   e.target.value="";

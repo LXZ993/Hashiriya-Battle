@@ -11,9 +11,10 @@ Schreibt:
 
 Die Leute füllen den Builder aus und schicken dir die Datei hashiriya_wanderer_<name>.json.
 Die übernimmt tools/community/import_wanderer.py in die Mod.
-Nach Änderungen an Teilen (parts_*.py) oder am Roster einfach neu bauen.
+REGEL (Alex 04.11.2026): Jede Änderung an Avatar-Teilen, Bedingungen (rivals.lua conditionsMet), Wanderer-Feldern
+oder am Roster muss auch in den Builder (Vorlage: CG-Liste der Bedingungen, Felder) und die Datei neu gebaut werden.
 """
-import json, os, sys
+import datetime, json, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
@@ -22,6 +23,7 @@ import build_tool  # noqa: E402  (Teile + Regeln wie im Silhouetten-Tool)
 import rivals_v2  # noqa: E402
 
 RIVALS = os.path.join(ROOT, 'lua', 'ge', 'extensions', 'hashiriyaBattle', 'data', 'rivals.json')
+C1 = os.path.join(ROOT, 'lua', 'ge', 'extensions', 'hashiriyaBattle', 'data', 'maps', 'c1.json')
 
 
 def name_of(x):
@@ -45,10 +47,13 @@ def main():
         elif r.get('team'):
             (leaders if r.get('leader') else members).append([r['id'], name_of(r), tname.get(r['team'], r['team'])])
     roster = {'teams': teams, 'leaders': leaders, 'members': members, 'wanderers': wanderers, 'bosses': bosses,
-              'wandererColors': rivals_v2.WANDERER_COLORS}
+              'wandererColors': rivals_v2.WANDERER_COLORS,
+              'nicknames': [{'id': n['id'], 'name': n.get('name')} for n in data.get('nicknames', [])],
+              'pas': [p.get('name') for p in json.load(open(C1, encoding='utf-8')).get('napSpots', []) if p.get('name')]}
     payload = {'meta': meta, 'frags': frags, 'roster': roster}
     tpl = open(os.path.join(HERE, 'wanderer_builder_template.html'), encoding='utf-8').read()
-    html = tpl.replace('/*__DATA__*/null', json.dumps(payload, ensure_ascii=False, separators=(',', ':')))
+    version = datetime.date.today().isoformat()
+    html = tpl.replace('/*__DATA__*/null', json.dumps(payload, ensure_ascii=False, separators=(',', ':'))).replace('/*__VERSION__*/', version)
     out = os.path.join(HERE, 'Hashiriya-Wanderer-Builder.html')
     open(out, 'w', encoding='utf-8', newline='\n').write(html)
     print(f'{out}: {len(frags)} Bausteine, {len(teams)} Crews, {len(wanderers)} Wanderer, {len(html) // 1024} KB')
