@@ -125,6 +125,12 @@
 - Rivalen auf der Minimap unten links haben jetzt dieselben Farben wie im Radar oben rechts: orange Rivale, gelb Leader, lila Wanderer, rot Boss, grau besiegt, blau verloren. Der Rivale im laufenden Battle pulsiert leicht.
 - Dein eigener Pfeil auf der Minimap ist jetzt weiß (wie dein Punkt in der Radar-Mitte) und hebt sich so von orangen Rivalen ab.
 
+### Gegner-Garage (Entwickler-Werkzeug)
+- Neu für die Dev-Version: In der BeamNG-Garage (Hauptmenü > Mehr > Garage) steht rechts das Panel „Gegner-Garage“. Gegner suchen oder nach Crews, Leadern, Wanderern, Bossen, eigenen Configs und fehlenden Configs filtern, anklicken, und sein Auto wird mit seiner Config in der Garage geladen (wahlweise wie im Spiel mit Kennzeichen und festem Lack oder nur die Config).
+- Daneben stehen Beschreibung, Crew mit allen Mitgliedern und ihren Autos, Bedingungen in Klartext, Fahrstil, Belohnung und Sprüche. So bleibt ein Auto beim Anpassen beim Charakter, z. B. die Firmenwagen von Zangyō Express.
+- „Auf Gegner speichern“ schreibt die angepasste Config zurück: eigene Mod-Configs werden überschrieben (mit Sicherung), BeamNG-Configs bleiben unangetastet und der Gegner bekommt eine eigene hashiriya_r_<id>.pc, rivals.json wird nur an dieser Stelle angepasst.
+- Die Original-Garage bleibt unverändert: Die Mod schaltet in der Garage nur auf ein eigenes UI-Layout um. Ein/aus im Dev-Menü > Werkzeuge. Nicht im Release.
+
 ### Handbuch
 - Jeder Datei- und Ordnername im Handbuch ist jetzt ein Link: Klick öffnet die Datei, das Ordner-Symbol dahinter den Ordner. Neu im Kapitel „Ordner und Dateien“: Schnellzugriff auf die wichtigsten Dateien und Ordner.
 - Links wahlweise im Browser, im Explorer oder direkt im Editor öffnen (Explorer/Editor einmal mit tools\Handbuch-Links-einrichten.bat einrichten).

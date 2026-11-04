@@ -1624,8 +1624,8 @@ end
 -- Hooks -----------------------------------------------------------------------
 
 local function onExtensionLoaded()
-  -- Builder und Dev-Menü (Entwickler-Werkzeuge) nur laden, wenn die Datei da ist (fehlen im Release-Zip)
-  for file, ext in pairs({ ['builder.lua'] = 'hashiriyaBattle_builder', ['devtools.lua'] = 'hashiriyaBattle_devtools' }) do
+  -- Builder, Dev-Menü und Gegner-Garage (Entwickler-Werkzeuge) nur laden, wenn die Datei da ist (fehlen im Release-Zip)
+  for file, ext in pairs({ ['builder.lua'] = 'hashiriyaBattle_builder', ['devtools.lua'] = 'hashiriyaBattle_devtools', ['garagetool.lua'] = 'hashiriyaBattle_garagetool' }) do
     if FS:fileExists('/lua/ge/extensions/hashiriyaBattle/' .. file) then
       local has = false
       for _, n in ipairs(subExtensions) do if n == ext then has = true end end

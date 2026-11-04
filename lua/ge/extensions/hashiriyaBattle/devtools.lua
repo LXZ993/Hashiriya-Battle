@@ -351,6 +351,7 @@ local function fullState()
     places = allPlaces(), types = typesWithColors(), markers = markerCfg(),
     rivals = c.active and rivalList() or {},
     player = playerInfo(), hour = extensions.hashiriyaBattle_home.hour(), rec = rec and #rec.points or false,
+    garageTool = extensions.hashiriyaBattle_garagetool and { auto = extensions.hashiriyaBattle_garagetool.getAuto() } or nil,
   }
 end
 
@@ -684,6 +685,14 @@ local function drawRoutes()
     end
   end
   if rec then line(rec.points) end
+end
+
+-- Gegner-Garage (garagetool.lua): Panel in der BeamNG-Garage ein/aus
+function actions.garageTool(a)
+  local g = extensions.hashiriyaBattle_garagetool
+  if not g then msg('Gegner-Garage fehlt (garagetool.lua nicht im Mod)', 4) return end
+  g.setAuto(a.on)
+  msg('Gegner-Panel in der BeamNG-Garage: ' .. (a.on and 'an' or 'aus'), 3)
 end
 
 function actions.teleport(a)
