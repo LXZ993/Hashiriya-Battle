@@ -210,7 +210,7 @@
 - Jeder Rivale hat jetzt einen Fahrstil: Fährt sauber, Blocker oder Rempler.
 - Saubere Fahrer lassen dir Platz. Blocker machen dir vorne öfter die Linie zu. Rempler suchen neben dir kurz Kontakt und machen Bremstests.
 - Wer keinen festen Stil hat, bekommt einen passend zu seiner Aggression. Bosse sind nie von selbst Rempler.
-- Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst (seit Alpha 0.9.2 nur in der Dev-Version, im Release findest du ihn selbst heraus).
+- Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst (seit Alpha 0.9.2 als farbloses Symbol, der Text nur in der Dev-Version).
 
 ### Neu: Musik steuern
 - Neue Musik: vier KI-Platzhalter-Songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) laufen vorerst in allen Situationen. Sie sind in den Credits als KI gekennzeichnet, lassen sich pro Situation abschalten und werden durch echte Tracks ersetzt. Die alten Kevin-MacLeod-Stücke sind raus.
