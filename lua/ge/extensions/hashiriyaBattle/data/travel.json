@@ -1,0 +1,19 @@
+{
+  "_hinweis": "Reisen und Haupt-PAs (travel.lua). Reisen geht an einer Ausfahrt (ramps in maps/<level>.json, kind off) oder aus der Garage. Ziele: Garage und Haupt-PAs (napSpots mit main = true). onlyVisited = nur zu PAs, an denen man schon war (in der Dev-Version immer alle). Dauer = Luftlinie mal detour, mit cityKmh km/h, mindestens minMinutes Minuten. Sprit = litersPer100km auf die Strecke; mit weniger als minFuelLiters Rest geht die Reise nicht. Ausfahrt erkannt: näher als rampRadius m und langsamer als rampMaxKmh km/h; das Angebot bleibt offerSeconds s bzw. bis offerDistance m weg. hintSeconds = Anzeigedauer des Hinweises. blackSeconds = so lange bleibt der Bildschirm schwarz, während die Uhr vorspult. bayScale = Größe der eigenen PA-Buchten (Breite, Länge, Höhe in m). mapIcon = Symbol auf der großen Karte (leer = Standard-Dreieck), cardIcon = Symbol in der Ortsliste der Karte. placeholderPreview = Vorschaubild, wenn eine PA keins hat.",
+  "onlyVisited": true,
+  "detour": 1.4,
+  "cityKmh": 35,
+  "minMinutes": 10,
+  "litersPer100km": 9,
+  "minFuelLiters": 1,
+  "rampRadius": 25,
+  "rampMaxKmh": 45,
+  "offerSeconds": 60,
+  "offerDistance": 400,
+  "hintSeconds": 6,
+  "blackSeconds": 6,
+  "bayScale": [2.6, 5.4, 3],
+  "cardIcon": "parking",
+  "placeholderPreview": "/art/pa/platzhalter.jpg",
+  "_hinweisMaps": "Nach 1.0: andere Maps als Reiseziele (z. B. Touge-Maps von Techeyy, nur mit Erlaubnis). Dann kommt hier eine Liste maps mit Level, Name und Ankunftspunkt dazu; zurück auf den C1 geht es über die Auffahrten (ramps, kind on)."
+}

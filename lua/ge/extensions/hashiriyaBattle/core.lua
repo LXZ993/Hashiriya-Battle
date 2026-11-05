@@ -23,7 +23,7 @@ end
 local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura', 'hashiriyaBattle_stickers', 'hashiriyaBattle_police' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura', 'hashiriyaBattle_stickers', 'hashiriyaBattle_police', 'hashiriyaBattle_travel' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -1105,6 +1105,9 @@ local function buildUiState()
       elseif nap.reason then reason = M.t('msg.nap.' .. nap.reason) end
       st.nap = { can = nap.can, reason = reason }
     end
+    -- Reisen: nach dem Abfahren an einer Ausfahrt, oder in der Garage (Start-PA)
+    local okTr, tr = pcall(function() return extensions.hashiriyaBattle_travel.getUiState() end)
+    st.travel = okTr and tr or nil
     st.day = extensions.hashiriyaBattle_home.dayText()
     st.clock = extensions.hashiriyaBattle_home.clockInfo()
     st.watch = extensions.hashiriyaBattle_home.watchHud()
@@ -1423,6 +1426,8 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_dealer.switchCar(tonumber(arg))
   elseif action == 'nap' then
     extensions.hashiriyaBattle_home.nap()
+  elseif action == 'travel' then
+    extensions.hashiriyaBattle_travel.go(tostring(arg))
   elseif action == 'sleep' then
     extensions.hashiriyaBattle_home.sleep()
   elseif action == 'homeTab' then
@@ -1822,6 +1827,9 @@ local function onGetRawPoiListForLevel(levelIdentifier, elements)
       end
     end
   end
+  -- Haupt-PAs mit Vorschaubild (travel.lua); Schnellreise dorthin nur in der Dev-Version
+  local okT, errT = pcall(function() extensions.hashiriyaBattle_travel.addPois(elements) end)
+  if not okT then log('W', logTag, 'Haupt-PAs auf der Karte: ' .. tostring(errT)) end
 end
 
 local function onUpdate(dtReal)

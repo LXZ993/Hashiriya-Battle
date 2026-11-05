@@ -199,12 +199,13 @@ local function freezePlayer(on)
   if veh then veh:queueLuaCommand('controller.setFreeze(' .. (on and 1 or 0) .. ')') end
 end
 
-local function startRest(kind, fromHour, toHour, isNewDay, doneMsg)
+local function startRest(kind, fromHour, toHour, isNewDay, doneMsg, extra)
   local secs = M.world().restSeconds or {}
   rest = { kind = kind, from = fromHour, to = toHour, newDay = isNewDay, msg = doneMsg,
-           black = math.max(1, tonumber(secs[kind]) or (kind == 'home' and 20 or 10)), t = 0 }
+           black = math.max(1, tonumber(extra and extra.black) or tonumber(secs[kind]) or (kind == 'home' and 20 or 10)), t = 0,
+           onDark = extra and extra.onDark, onDone = extra and extra.onDone }
   pcall(extensions.hashiriyaBattle_rivals.despawnActive)
-  if kind == 'nap' then freezePlayer(true) end
+  if kind == 'nap' or kind == 'travel' then freezePlayer(true) end
   local fs = fadeScreen()
   if fs and fs.start then pcall(fs.start, restFade) end
   log('I', logTag, string.format('Ruhephase %s: %.2f -> %.2f Uhr (%d s schwarz)', kind, fromHour, toHour % 24, rest.black))
@@ -215,12 +216,15 @@ local function finishRest()
   rest = nil
   M.applyClock(r.to % 24)
   if r.newDay then newDay() end
-  setRestLock()
   local c = core()
-  -- Speicherort: zu Hause geschlafen -> Start zu Hause; Nickerchen im stehenden Auto -> Start genau dort
-  pcall(function() extensions.hashiriyaBattle_savepoint.mark(r.kind == 'home' and 'home' or 'parked') end)
+  if r.kind ~= 'travel' then
+    setRestLock()
+    -- Speicherort: zu Hause geschlafen -> Start zu Hause; Nickerchen im stehenden Auto -> Start genau dort
+    pcall(function() extensions.hashiriyaBattle_savepoint.mark(r.kind == 'home' and 'home' or 'parked') end)
+  end
   c.writeSave()
-  if r.kind == 'nap' then freezePlayer(false) end
+  if r.kind == 'nap' or r.kind == 'travel' then freezePlayer(false) end
+  if r.onDone then pcall(r.onDone) end
   local fs = fadeScreen()
   if fs and fs.stop then pcall(fs.stop, restFade) end
   if r.msg then c.msg(r.msg(), 5) end
@@ -231,6 +235,13 @@ end
 -- Zeitraffer: erst abblenden, dann die Uhr bis zur Aufwachzeit drehen (weich ein- und auslaufend)
 local function updateRest(dtReal)
   rest.t = rest.t + (dtReal or 0)
+  -- Reisen: sobald es schwarz ist, wird das Auto versetzt (travel.lua)
+  if rest.onDark and rest.t >= restFade then
+    local f = rest.onDark
+    rest.onDark = nil
+    local ok, err = pcall(f)
+    if not ok then log('E', logTag, 'Reise: Versetzen fehlgeschlagen: ' .. tostring(err)) end
+  end
   local p = math.min(1, math.max(0, (rest.t - restFade) / rest.black))
   local e = p * p * (3 - 2 * p)
   if p > 0 then M.applyClock((rest.from + (rest.to - rest.from) * e) % 24) end
@@ -250,6 +261,15 @@ function M.sleep()
   local to = info.wake
   if to <= h then to = to + 24 end
   startRest('home', h, to, info.newDay, function() return c.t('msg.slept', M.getDay()) end)
+end
+
+-- Reisen (travel.lua): abblenden, Auto versetzen (onDark), Uhr um hours vorspulen, aufblenden, dann onDone.
+-- Keine Ruhesperre, kein neuer Speicherort. Gibt false zurück, wenn gerade eine Ruhephase läuft.
+function M.travelRest(hours, blackSeconds, onDark, onDone)
+  if rest then return false end
+  local h = M.hour() or 0
+  startRest('travel', h, h + hours, h + hours >= 24, nil, { black = blackSeconds, onDark = onDark, onDone = onDone })
+  return true
 end
 
 -- Nickerchen im Auto auf einem Parkplatz (napSpots der Kartendatei, sonst an jedem Parkplatz): 0,5 bis 2 h

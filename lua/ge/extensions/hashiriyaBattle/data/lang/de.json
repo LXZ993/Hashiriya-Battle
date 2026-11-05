@@ -1060,5 +1060,20 @@
   "police.hud.stopping": "Anhalten …",
   "police.hud.check": "Kontrolle",
   "police.hud.evading": "Außer Sicht",
-  "police.hud.cams": "Blitzer heute: %d"
+  "police.hud.cams": "Blitzer heute: %d",
+  "travel.menu": "Reisen",
+  "travel.fromRamp": "Ausfahrt %s: Reiseziel wählen",
+  "travel.fromGarage": "Losfahren ab ...",
+  "travel.poiDesc": "Haupt-PA: Fahrer zum Reden, Rivalen, Parkplätze, Nickerchen im Auto.",
+  "travel.rampHint": "%s: C1 verlassen? Menü (%s) > Reisen",
+  "travel.arrived": "Angekommen: %s (%s unterwegs, %s l Sprit)",
+  "travel.note": "Reisen spult die Uhr vor und kostet Sprit. Nur zu PAs, an denen du schon warst.",
+  "travel.no.battle": "Nicht während eines Battles.",
+  "travel.no.police": "Nicht während einer Verfolgung.",
+  "travel.no.job": "Erst den Nebenjob beenden.",
+  "travel.no.noCar": "Reisen geht nur im Auto.",
+  "travel.no.here": "Reisen geht nur an einer Ausfahrt oder aus der Garage.",
+  "travel.no.notVisited": "Noch nicht besucht",
+  "travel.no.fuel": "Zu wenig Sprit",
+  "travel.no.busy": "Gerade unterwegs."
 }
