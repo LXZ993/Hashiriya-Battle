@@ -32,6 +32,6 @@ if __name__ == '__main__':
     views = sys.argv[5].split(';') if len(sys.argv) > 5 else ['40,14', '90,3', '-40,14', '0,70']
     key = bake_key(model, png); np.save(out + '_key.npy', key)
     tp = out + '_tex.png'; preview_tex(key, *cols).save(tp)
-    glb = 'p_vc.glb'; preview.make(model, tp, os.path.join(preview.HERE, 'web', glb))
+    glb = f'p_vc_{os.getpid()}.glb'; preview.make(model, tp, os.path.join(preview.HERE, 'web', glb))
     subprocess.run(['node', os.path.join(preview.HERE, 'web', 'shot.js'), glb, out, *views], check=True)
     os.remove(os.path.join(preview.HERE, 'web', glb))

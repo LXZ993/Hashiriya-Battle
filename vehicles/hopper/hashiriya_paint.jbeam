@@ -1,13 +1,4 @@
 {
-  "hopper_skin_hb_streetdrift": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Street Drift Flames (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_streetdrift"
-  },
   "hopper_skin_hb_factorysports": {
     "information": {
       "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
@@ -17,24 +8,6 @@
     "slotType": "paint_design",
     "skinName": "hb_factorysports"
   },
-  "hopper_skin_hb_bosozoku": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Bosozoku (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_bosozoku"
-  },
-  "hopper_skin_hb_kaido": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Kaido Racer (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_kaido"
-  },
   "hopper_skin_hb_twotone": {
     "information": {
       "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
@@ -43,23 +16,5 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_twotone"
-  },
-  "hopper_skin_hb_raceteam": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Factory Race Team (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_raceteam"
-  },
-  "hopper_skin_hb_streetdrift_team": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Street Drift Team (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_streetdrift_team"
   }
 }

@@ -11,6 +11,8 @@
 - Alle 66 Auf- und Ausfahrten von JDMArsch sind übernommen. Die Auffahrten sind für den Map-Wechsel nach 1.0 vorbereitet.
 
 ### Lackierbare Japan-Liveries
+- Neu: 4 moderne Werks-Tech-Stile nach neuen Vorlagen von JDMArsch (LXZ aka. LXZockt): Keil mit Schrägschnitten, Schicht-Balken, Pfeilband und Zielflagge. Zu finden auf Pessima Mk2, Covet, Sunburst und SBR4.
+- Geändert: Jedes Auto hat nur noch die Stile, die zu Baujahr und Antrieb passen. Kein Drift auf Fronttrieblern, kein Bosozoku, Kaido oder Zweifarben auf modernen Autos, dafür Drift auf dem Sunburst. Insgesamt 44 Lackdesigns.
 - Neu: 63 Lackdesigns für alle 9 Japan-Autos (Pessima Mk1 und Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 Stilen: Street-Drift Flammen, Street-Drift Team, Werks-Sportstreifen, Bosozoku, Kaido-Racer, Werks-Zweifarben und Werks-Rennteam.
 - Alle Entwürfe sind in VectorCraft nach den Vorlagen von JDMArsch (LXZ aka. LXZockt) gezeichnet und laufen sauber über Säule, Dach und Haube.
 - Lackierbar wie der Vanilla-Skin „Custom“: Farbe 1 ist der Grundlack, Farbe 2 und Farbe 3 färben die Livery. Zu finden im Konfigurator unter Lackdesign als „Hashiriya: … (Colorable)“. Alle Sponsoren sind erfunden oder BeamNG-Lore.

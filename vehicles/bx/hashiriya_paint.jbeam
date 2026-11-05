@@ -35,24 +35,6 @@
     "slotType": "paint_design",
     "skinName": "hb_kaido"
   },
-  "bx_skin_hb_twotone": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Factory Two-Tone (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_twotone"
-  },
-  "bx_skin_hb_raceteam": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Factory Race Team (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_raceteam"
-  },
   "bx_skin_hb_streetdrift_team": {
     "information": {
       "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",

@@ -8,15 +8,6 @@
     "slotType": "paint_design",
     "skinName": "hb_kaido"
   },
-  "pessima_skin_hb_streetdrift": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Street Drift Flames (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_streetdrift"
-  },
   "pessima_skin_hb_factorysports": {
     "information": {
       "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
@@ -43,23 +34,5 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_twotone"
-  },
-  "pessima_skin_hb_raceteam": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Factory Race Team (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_raceteam"
-  },
-  "pessima_skin_hb_streetdrift_team": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Street Drift Team (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_streetdrift_team"
   }
 }
