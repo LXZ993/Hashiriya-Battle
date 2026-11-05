@@ -8,6 +8,7 @@
 - Dev version: the main parking areas have a Quick Travel button on the big map, and "Go" in the dev menu takes you to the arrival point.
 - New: travel. Leave the C1 slowly at an exit, then pick a destination in the left menu: the garage or a main parking area you have visited. Travelling skips time and costs fuel.
 - Start PA: in the garage (Service tab) use "Head out from ..." to start at a visited main parking area, at the same cost.
+- Heiwajima PA has a shop for all parts (drive in and stop to open the parts terminal) and a gas station.
 - All 66 on- and off-ramps by JDMArsch are in. The on-ramps are prepared for the map change after 1.0.
 
 ### Colorable Japan liveries

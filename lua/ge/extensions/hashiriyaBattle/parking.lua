@@ -613,6 +613,14 @@ local function onUpdate(dtReal)
     return
   end
   if not current then bayHint = nil end
+  -- Drive-in-Shop (ohne footEntry, z. B. Heiwajima PA): außerhalb der Öffnungszeiten nur ein Hinweis
+  if current and current.type == 'shop' and not arrived and veh:getVelocity():length() < enterSpeed then
+    local isOpen, openText = M.isOpen(current)
+    if not isOpen then
+      if bayHint ~= current then bayHint = current; c.msg(c.t('msg.shopClosed', openText), 5) end
+      return
+    end
+  end
   if current and not arrived and veh:getVelocity():length() < enterSpeed
     and not extensions.hashiriyaBattle_battle.isBusy()
     and not (extensions.hashiriyaBattle_police and extensions.hashiriyaBattle_police.isActive()) then -- während einer Fahndung öffnet sich kein Parkplatz-Menü

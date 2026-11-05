@@ -8,6 +8,7 @@
 - Dev-Version: auf der großen Karte gibt es bei den Haupt-PAs den Knopf Quick Travel, im Dev-Menü bringt „Hin“ dich zum Ankunftspunkt der PA.
 - Neu: Reisen. Fährst du an einer Ausfahrt langsam vom C1 ab, kannst du im Menü links ein Ziel wählen: die Garage oder eine Haupt-PA, an der du schon warst. Die Reise spult die Uhr vor und kostet Sprit.
 - Start-PA: in der Garage (Reiter Service) unter „Losfahren ab …“ an einer besuchten Haupt-PA starten, mit denselben Kosten.
+- Heiwajima PA hat einen Shop für alle Teile (reinfahren und anhalten öffnet das Teile-Terminal) und eine Tankstelle.
 - Alle 66 Auf- und Ausfahrten von JDMArsch sind übernommen. Die Auffahrten sind für den Map-Wechsel nach 1.0 vorbereitet.
 
 ### Lackierbare Japan-Liveries
