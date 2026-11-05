@@ -88,6 +88,21 @@ end
 
 function M.keepAfterRespawn() restoreWindow = 5 end
 
+-- Reisen (travel.lua): so viele Liter aus dem Tank nehmen (nicht unter 0)
+function M.consume(liters)
+  local veh = core().getPlayerVehicle()
+  local car = activeCar()
+  if not veh or not car then return end
+  local have = (info and info.remaining and info.remaining > 0) and info.remaining or tonumber(car.fuel)
+  if not have then return end
+  local left = math.max(0, have - (tonumber(liters) or 0))
+  setTotal(veh, left)
+  car.fuel = left
+  info = nil
+  pollTimer = 0.5
+  log('I', logTag, string.format('Sprit fürs Reisen: %.1f l, noch %.1f l', tonumber(liters) or 0, left))
+end
+
 function M.onVehicleSpawned(vehId)
   if restoreWindow <= 0 then return end
   -- Showroom im Starterkauf: Tank kommt aus dem angezeigten Zustand (condition.previewAfterSpawn)

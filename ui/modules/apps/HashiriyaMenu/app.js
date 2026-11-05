@@ -85,6 +85,15 @@ angular.module('beamng.apps')
               '<div class="hbm-tile" ng-if="s.unstuck" ng-class="{\'hbm-off\': !s.unstuck.can}" ng-click="s.unstuck.can && act(\'unstuck\')" title="{{ s.unstuck.reason || s.t[\'menu.unstuckHint\'] }}"><i class="hbm-ico" ng-bind-html="ico(\'unstuck\')"></i>' +
                 '<span class="hbm-tile-t">{{ s.t[\'menu.unstuck\'] }}<small class="hbm-key" ng-if="s.unstuck.key">{{ s.unstuck.key }}</small></span><span class="hbm-tile-s">{{ s.unstuck.reason || s.t[\'menu.unstuckHint\'] }}</span></div>' +
             '</div>' +
+            // Reisen nach dem Abfahren an einer Ausfahrt (travel.lua)
+            '<div class="hbm-travel" ng-if="s.travel && s.travel.from == \'ramp\'">' +
+              '<div class="hbm-section"><i class="hbm-ico hbm-ico-s" ng-bind-html="ico(\'location1\')"></i>{{ s.travel.title }}</div>' +
+              '<div class="hbm-item hbm-sub" ng-repeat="d in s.travel.list track by d.id" ng-class="{\'hbm-off\': !d.can}" ng-click="d.can && act(\'travel\', d.id)" title="{{ d.reason || d.sub }}">' +
+                '<i class="hbm-ico" ng-bind-html="ico(d.kind == \'garage\' ? \'garage01\' : \'parking\')"></i>' +
+                '<span class="hbm-car-name">{{ d.name }}<small class="hbm-music-now">{{ d.reason || d.sub }}</small></span></div>' +
+              '<div class="hbm-note hbm-warn" ng-if="s.travel.blocked">{{ s.travel.blocked }}</div>' +
+              '<div class="hbm-note hbm-note-s">{{ s.travel.note }}</div>' +
+            '</div>' +
             '<div class="hbm-note hbm-note-s" ng-if="s.saveState && s.saveState.where && s.saveState.unparked" ng-class="{\'hbm-warn\': s.saveState.unparked}">{{ s.saveState.where }}</div>' +
             '<div class="hbm-more" ng-click="more.open = !more.open" ng-class="{\'is-open\': more.open}"><span>{{ s.t[\'menu.tools\'] }}</span><i class="hbm-chev"></i></div>' +
             '<div class="hbm-more-body" ng-if="more.open">' +
@@ -127,6 +136,17 @@ angular.module('beamng.apps')
                 '<div class="hbm-note hbm-note-s">{{ s.t[\'garage.maintNote\'] }}</div>' +
               '</div>' +
               '<div class="hbm-item" ng-click="act(\'save\')"><i class="hbm-ico" ng-bind-html="ico(\'floppyDisk\')"></i>{{ s.t[\'menu.save\'] }}</div>' +
+              // Start-PA: aus der Garage an einer besuchten Haupt-PA losfahren (travel.lua)
+              '<div ng-if="s.travel && s.travel.from == \'garage\' && s.travel.list.length">' +
+                '<div class="hbm-more" ng-click="trv.open = !trv.open" ng-class="{\'is-open\': trv.open}"><span>{{ s.travel.title }}</span><i class="hbm-chev"></i></div>' +
+                '<div class="hbm-more-body" ng-if="trv.open">' +
+                '<div class="hbm-item hbm-sub" ng-repeat="d in s.travel.list track by d.id" ng-class="{\'hbm-off\': !d.can}" ng-click="d.can && act(\'travel\', d.id)" title="{{ d.reason || d.sub }}">' +
+                '<i class="hbm-ico" ng-bind-html="ico(d.kind == \'garage\' ? \'garage01\' : \'parking\')"></i>' +
+                '<span class="hbm-car-name">{{ d.name }}<small class="hbm-music-now">{{ d.reason || d.sub }}</small></span></div>' +
+                '<div class="hbm-note hbm-warn" ng-if="s.travel.blocked">{{ s.travel.blocked }}</div>' +
+                '<div class="hbm-note hbm-note-s">{{ s.travel.note }}</div>' +
+                '</div>' +
+              '</div>' +
               '<div class="hbm-item" ng-click="act(\'jobs\')"><i class="hbm-ico" ng-bind-html="ico(\'location1\')"></i><span class="hbm-car-name">{{ s.t[\'jobs.menu\'] }}</span><span class="hbm-price" ng-if="s.job">{{ s.t[\'jobs.running\'] }}</span></div>' +
               '<div class="hbm-item" ng-click="act(\'dealer\')"><i class="hbm-ico" ng-bind-html="ico(\'carDealer\')"></i>{{ s.t[\'dealer.menu\'] }}</div>' +
               '<div ng-if="s.garageCars.length > 1">' +
@@ -1257,6 +1277,7 @@ angular.module('beamng.apps')
       }
       // Menü v2: Werkzeuge im Hauptmenü eingeklappt
       scope.more = { open: false }
+      scope.trv = { open: false } // Reiseziele in der Garage auf-/zuklappen
       // Lexikon v2: Crews eingeklappt (eine offen), Suche + Filter, Details erst beim Klick auf eine Zeile
       scope.lex = { q: '', f: 'all', g: -1, open: null }
       scope.lexFilters = ['all', 'open', 'beaten', 'watch']

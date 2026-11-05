@@ -150,7 +150,10 @@ local function mapPlaces()
   end
   for i, n in ipairs(md.napSpots or {}) do
     if type(n.pos) == 'table' then
-      table.insert(out, { id = 'map:nap' .. i, name = n.name or ('PA ' .. i), type = 'pa', pos = n.pos, map = true, mapId = 'nap' .. i })
+      -- Haupt-PA: "Hin" bringt dich zum Ankunftspunkt (spawn), sonst zur Mitte
+      local sp = type(n.spawn) == 'table' and n.spawn.pos and n.spawn or nil
+      table.insert(out, { id = 'map:nap' .. i, name = n.name or ('PA ' .. i), type = 'pa', pos = sp and sp.pos or n.pos, dir = sp and sp.dir or n.dir,
+        note = n.main and 'Haupt-PA' or nil, map = true, mapId = 'nap' .. i })
     end
   end
   for i, j in ipairs(md.jobSpots or {}) do

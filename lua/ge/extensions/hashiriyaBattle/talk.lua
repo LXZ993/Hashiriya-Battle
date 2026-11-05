@@ -490,8 +490,10 @@ local function spawnCrowd(i, pa)
   local range = night and c.nightCount or c.dayCount
   local count = math.floor(range[1] + rand() * (range[2] - range[1] + 1))
   local center = toVec(pa.pos)
-  local spots = freeSpots(center, math.min(pa.radius or c.spotRadius, c.spotRadius))
-  buildStands(pa, center, math.min(pa.radius or c.spotRadius, c.spotRadius))
+  -- spotRadius der PA (Kartendatei) für lange PAs mit eigenen Buchten (z. B. Oi PA), sonst wie bisher
+  local spotR = tonumber(pa.spotRadius) or math.min(pa.radius or c.spotRadius, c.spotRadius)
+  local spots = freeSpots(center, spotR)
+  buildStands(pa, center, spotR)
   -- Buchten mischen (fest pro Nacht)
   for k = #spots, 2, -1 do
     local j = math.floor(rand() * k) + 1

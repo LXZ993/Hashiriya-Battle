@@ -2,6 +2,14 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### New main parking areas and travel
+- New: two main parking areas placed by JDMArsch (LXZ aka. LXZockt): **Heiwajima PA** and **Oi PA (Westbound)**, each with 16 parking bays. Cars park there, drivers wait to talk, rivals hang out, and you can nap in your car.
+- All main parking areas (Shibaura and Tatsumi too) are now on the big map (M), with name, description and preview picture. The pictures are still placeholders in `art/pa/`.
+- Dev version: the main parking areas have a Quick Travel button on the big map, and "Go" in the dev menu takes you to the arrival point.
+- New: travel. Leave the C1 slowly at an exit, then pick a destination in the left menu: the garage or a main parking area you have visited. Travelling skips time and costs fuel.
+- Start PA: in the garage (Service tab) use "Head out from ..." to start at a visited main parking area, at the same cost.
+- All 66 on- and off-ramps by JDMArsch are in. The on-ramps are prepared for the map change after 1.0.
+
 ### Colorable Japan liveries
 - New: 63 paint designs for all 9 Japanese cars (Pessima Mk1 and Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 styles: Street Drift Flames, Street Drift Team, Factory Sports, Bosozoku, Kaido Racer, Factory Two-Tone and Factory Race Team.
 - All designs are drawn in VectorCraft after references by JDMArsch (LXZ aka. LXZockt) and run cleanly over pillars, roof and hood.

@@ -2,6 +2,14 @@
 
 ## Alpha 0.9.2 (Stand 04.11.2026)
 
+### Neue Haupt-PAs und Reisen
+- Neu: zwei Haupt-PAs, gesetzt von JDMArsch (LXZ aka. LXZockt): **Heiwajima PA** und **Oi PA (Westbound)**, je mit 16 Parkbuchten. Dort parken Autos, Fahrer stehen zum Reden bereit, Rivalen warten, und man kann im Auto ein Nickerchen machen.
+- Alle Haupt-PAs (auch Shibaura und Tatsumi) stehen jetzt auf der großen Karte (M), mit Name, Beschreibung und Vorschaubild. Die Bilder sind noch Platzhalter in `art/pa/`.
+- Dev-Version: auf der großen Karte gibt es bei den Haupt-PAs den Knopf Quick Travel, im Dev-Menü bringt „Hin“ dich zum Ankunftspunkt der PA.
+- Neu: Reisen. Fährst du an einer Ausfahrt langsam vom C1 ab, kannst du im Menü links ein Ziel wählen: die Garage oder eine Haupt-PA, an der du schon warst. Die Reise spult die Uhr vor und kostet Sprit.
+- Start-PA: in der Garage (Reiter Service) unter „Losfahren ab …“ an einer besuchten Haupt-PA starten, mit denselben Kosten.
+- Alle 66 Auf- und Ausfahrten von JDMArsch sind übernommen. Die Auffahrten sind für den Map-Wechsel nach 1.0 vorbereitet.
+
 ### Lackierbare Japan-Liveries
 - Neu: 63 Lackdesigns für alle 9 Japan-Autos (Pessima Mk1 und Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 Stilen: Street-Drift Flammen, Street-Drift Team, Werks-Sportstreifen, Bosozoku, Kaido-Racer, Werks-Zweifarben und Werks-Rennteam.
 - Alle Entwürfe sind in VectorCraft nach den Vorlagen von JDMArsch (LXZ aka. LXZockt) gezeichnet und laufen sauber über Säule, Dach und Haube.
