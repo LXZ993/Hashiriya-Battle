@@ -52,7 +52,7 @@
   "lostRange": 700,
   "leaveSeconds": 60,
 
-  "_hinweisKi": "Fahrverhalten. 1 Stern: hinterherfahren mit Blaulicht und zum Anhalten auffordern (follow). 2 Sterne: überholen (overtakeExtraKmh schneller als der Spieler) und vor ihm ausbremsen; ist der Streifenwagen vorne, bremst er auf das Tempo des Spielers runter (block). 3 Sterne: rammen (chase, ramAggression). Fährt der Spieler langsamer als calmKmh, nähert sich jeder Streifenwagen ruhig an (follow), damit beim Anhalten niemand mehr reinfährt.",
+  "_hinweisKi": "Fahrverhalten. 1 Stern: hinterherfahren mit Rotlicht und zum Anhalten auffordern (follow). 2 Sterne: überholen (overtakeExtraKmh schneller als der Spieler) und vor ihm ausbremsen; ist der Streifenwagen vorne, bremst er auf das Tempo des Spielers runter (block). 3 Sterne: rammen (chase, ramAggression). Fährt der Spieler langsamer als calmKmh, nähert sich jeder Streifenwagen ruhig an (follow), damit beim Anhalten niemand mehr reinfährt.",
   "overtakeExtraKmh": 30,
   "blockAggression": 0.6,
   "ramAggression": 0.9,

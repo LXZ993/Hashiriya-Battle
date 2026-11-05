@@ -114,8 +114,8 @@ angular.module('beamng.apps')
           '.hbt-radar-dot svg{width:11px;height:11px;display:block;fill:var(--k-rival);filter:drop-shadow(0 0 2px rgba(0,0,0,.9));}' +
           '.hbt-radar-dot.k-leader svg{fill:var(--k-leader);} .hbt-radar-dot.k-wanderer svg{fill:var(--k-wanderer);}' +
           '.hbt-radar-dot.k-boss svg{fill:var(--k-boss);} .hbt-radar-dot.k-beaten svg{fill:var(--k-beaten);} .hbt-radar-dot.k-lost svg{fill:var(--k-lost);}' +
-          '.hbt-radar-dot.k-police svg{fill:#3f6bff;} .hbt-radar-dot.k-police.is-engaged svg{animation:hbtPolRadar .35s steps(1) infinite alternate;}' +
-          '@keyframes hbtPolRadar{from{fill:#3f6bff;}to{fill:#ff3b30;}}' +
+          '.hbt-radar-dot.k-police svg{fill:#c9c9d1;} .hbt-radar-dot.k-police.is-engaged svg{animation:hbtPolRadar .35s steps(1) infinite alternate;}' +
+          '@keyframes hbtPolRadar{from{fill:#5a0c0a;}to{fill:#ff3b30;}}' +
           '.hbt-radar-dot.is-edge{opacity:.6;}' +
           '.hbt-radar-dot.is-engaged svg{animation:hbtPing .4s ease-in-out infinite alternate;}' +
           '.hbt-radar-dist{position:absolute;left:0;right:0;bottom:-14px;text-align:center;font-size:9px;letter-spacing:1px;color:rgba(244,244,244,.6);}' +
@@ -154,18 +154,18 @@ angular.module('beamng.apps')
           '.hbt-police{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.12);}' +
           '.hbt-police-head{display:flex;align-items:center;justify-content:flex-end;gap:7px;}' +
           '.hbt-police-tag{font-size:9px;font-weight:900;font-style:italic;letter-spacing:.8px;text-transform:uppercase;color:#fff;padding:1px 5px 0;border-radius:2px;' +
-            'background:#1e40ff;animation:hbtSiren .9s steps(1) infinite;}' +
+            'background:#e3262b;animation:hbtSiren .9s steps(1) infinite;}' +
           '.hbt-police-stars{display:flex;gap:2px;}' +
           '.hbt-police-stars svg{width:13px;height:13px;fill:rgba(255,255,255,.16);display:block;}' +
           '.hbt-police-stars svg.is-on{fill:#ffd23f;filter:drop-shadow(0 0 3px rgba(255,210,63,.55));}' +
           '.hbt-police.lv-3 .hbt-police-stars svg.is-on{fill:#ff3b30;filter:drop-shadow(0 0 3px rgba(255,59,48,.6));}' +
           '.hbt-police-line{display:flex;align-items:baseline;justify-content:flex-end;gap:6px;margin-top:2px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;}' +
-          '.hbt-police-line b{font-weight:900;font-style:italic;color:#8fb8ff;}' +
+          '.hbt-police-line b{font-weight:900;font-style:italic;color:#ffffff;}' +
           '.hbt-police.lv-2 .hbt-police-line b{color:#ff9a3c;}' +
           '.hbt-police.lv-3 .hbt-police-line b{color:#ff3b30;}' +
           '.hbt-police-line span{color:rgba(244,244,244,.75);}' +
           '.hbt-police-bar{height:2px;margin-top:3px;background:rgba(255,255,255,.12);}' +
-          '.hbt-police-bar span{display:block;height:100%;margin-left:auto;background:#8fb8ff;transition:width .2s linear;}' +
+          '.hbt-police-bar span{display:block;height:100%;margin-left:auto;background:#ffffff;transition:width .2s linear;}' +
           '.hbt-police-bar.st-evading span{background:#5ae673;}' +
           '.hbt-police-bar.st-check span,.hbt-police-bar.st-stopping span{background:#ffd23f;}' +
           '.hbt-police-cams{display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:3px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(244,244,244,.6);}' +
@@ -173,7 +173,7 @@ angular.module('beamng.apps')
           '.hbt-police-cams i:first-of-type{margin-left:3px;}' +
           '.hbt-police-cams i.is-on{background:#ff3b30;border-color:#ff3b30;}' +
           '.hbt-police-fine{font-size:13px;font-weight:900;font-style:italic;color:#ff3b30;font-variant-numeric:tabular-nums;animation:hbtPop .25s ease-out;}' +
-          '@keyframes hbtSiren{0%{background:#1e40ff;}50%{background:#e3262b;}}' +
+          '@keyframes hbtSiren{0%{background:#5a0c0a;}50%{background:#e3262b;}}' +
           '@keyframes hbtPop{from{transform:scale(1.25);opacity:0;}to{transform:scale(1);opacity:1;}}' +
           '@keyframes hbtPing{from{opacity:1;}to{opacity:.25;}}' +
         '</style>' +

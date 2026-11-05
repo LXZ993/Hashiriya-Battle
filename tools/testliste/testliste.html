@@ -91,6 +91,10 @@ textarea::placeholder { color: var(--todo); }
 <script>
 const GROUPS = [
   // ===== NEU 01.–04.11.2026 =====
+  { neu: true, name: 'Nachtest 05.11. (deine Notizen umgesetzt)', tests: [
+    ['polred', 'Polizeilicht nur rot', 'Fahndung auslösen: „POLIZEI“ im Status, Streifenwagen auf Minimap und Radar und der Rahmen der Minimap blinken nur rot. Kontrollen sind weißgrau. Am Sunburst-Streifenwagen sind auch die Blitzlichter rot. Pessima Mk2: sag mir, ob dir dort noch Blau auffällt.'],
+    ['stylerel', 'Fahrstil im Release versteckt', 'data/build.json "release": true, neu starten: im Rivalen-Lexikon steht beim Rivalen kein Fahrstil mehr. In der Dev-Version (false) steht er weiter da.'],
+  ]},
   { neu: true, name: 'Drei Spielstände', tests: [
     ['slotnew', 'Neues Spiel fragt nach Platz 1 bis 3', 'Titel > Neues Spiel: zuerst Platz wählen. Belegter Platz: Rückfrage, und er wird erst überschrieben, wenn du den Assistenten abschließt (vorher abbrechen = alter Stand noch da).'],
     ['slotload', 'Spielstand laden', 'Titel > „Spielstand laden“: jeder Platz zeigt Fahrername, Rang, Auto, Tag, Geld und letzte Speicherung. „Weiterspielen“ lädt den zuletzt gespielten Platz.'],
@@ -205,7 +209,7 @@ const GROUPS = [
     ['speedcam', 'Blitzer', 'Tagsüber zu schnell an einer der 45 Radarfallen: Bußgeld, je schneller desto teurer. Nachts passiert nichts.'],
     ['speedcam3', '3. Blitzer am Tag', '1. und 2. Mal nur Geld, ab dem 3. Mal am selben Spieltag kommt zusätzlich die Polizei.'],
     ['laser', 'Laserkontrolle', 'Dev-Menü: Polizeistelle auf „immer besetzt“. Zu schnell vorbei: sofort Verfolgung. Minimap und Radar zeigen die Kontrolle erst, nachdem du sie gesehen hast.'],
-    ['star1', 'Fahndung 1 Stern', 'Sterne oben rechts. Polizei fährt hinterher, anhalten = Strafzettel. Streifenwagen blinken rot-blau auf Minimap und Radar.'],
+    ['star1', 'Fahndung 1 Stern', 'Sterne oben rechts. Polizei fährt hinterher, anhalten = Strafzettel. Streifenwagen blinken rot auf Minimap und Radar.'],
     ['star23', 'Fahndung 2 und 3 Sterne', '2 Sterne: überholt und bremst dich aus. 3 Sterne: rammt. Anhalten bei 3 = Festnahme, hohe Strafe, Abschleppen zur Garage.'],
     ['escape', 'Entkommen', 'Lange genug außer Sicht: Polizei gibt auf, etwas Ruf (höchstens 3-mal pro Tag).'],
     ['chaselock', 'Gesperrt während Fahndung', 'Speichern, Nickerchen, Abschleppen, PA-Menüs und Herausfordern gehen nicht.'],
