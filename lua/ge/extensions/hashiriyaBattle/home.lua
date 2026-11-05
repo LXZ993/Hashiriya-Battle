@@ -407,7 +407,8 @@ local function lexicon()
       quote = (not hidden and r.lines) and pr.loc(r.lines.challenge) or nil,
       leader = r.leader or false, boss = r.boss or false,
       -- Alpha 0.9: Fahrstil (sauber, Blocker, Rempler), erst wenn man ihn kennt.
-      -- JDMArsch 05.11.2026: soll man selbst herausfinden, darum im Release nicht sichtbar (nur Dev-Version)
+      -- JDMArsch 05.11.2026: Im Release nur ein farbloses Symbol als Andeutung (styleId), der Text nur in der Dev-Version
+      styleId = (not hidden and extensions.hashiriyaBattle_driver) and extensions.hashiriyaBattle_driver.character(r) or nil,
       style = (not hidden and not (c.isRelease and c.isRelease()) and extensions.hashiriyaBattle_driver) and c.t('char.' .. extensions.hashiriyaBattle_driver.character(r)) or nil,
       beaten = beaten,
       id = r.id, watched = M.isWatched(r.id),

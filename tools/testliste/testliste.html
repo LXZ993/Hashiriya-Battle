@@ -93,7 +93,7 @@ const GROUPS = [
   // ===== NEU 01.–04.11.2026 =====
   { neu: true, name: 'Nachtest 05.11. (deine Notizen umgesetzt)', tests: [
     ['polred', 'Polizeilicht nur rot', 'Fahndung auslösen: „POLIZEI“ im Status, Streifenwagen auf Minimap und Radar und der Rahmen der Minimap blinken nur rot. Kontrollen sind weißgrau. Am Sunburst-Streifenwagen sind auch die Blitzlichter rot. Pessima Mk2: sag mir, ob dir dort noch Blau auffällt.'],
-    ['stylerel', 'Fahrstil im Release versteckt', 'data/build.json "release": true, neu starten: im Rivalen-Lexikon steht beim Rivalen kein Fahrstil mehr. In der Dev-Version (false) steht er weiter da.'],
+    ['stylerel', 'Fahrstil als farbloses Symbol', 'Rivalen-Lexikon: hinter dem Auto ein kleines graues Symbol (Linie = sauber, Schild = Blocker, Stern = Rempler). Mit data/build.json "release": true nur das Symbol, in der Dev-Version (false) Symbol und Text.'],
   ]},
   { neu: true, name: 'Drei Spielstände', tests: [
     ['slotnew', 'Neues Spiel fragt nach Platz 1 bis 3', 'Titel > Neues Spiel: zuerst Platz wählen. Belegter Platz: Rückfrage, und er wird erst überschrieben, wenn du den Assistenten abschließt (vorher abbrechen = alter Stand noch da).'],

@@ -210,7 +210,7 @@
 - Every rival now has a driving style: clean racer, blocker or rammer.
 - Clean racers leave you room. Blockers close the line in front of you more often. Rammers look for contact beside you and brake-check.
 - Rivals without a fixed style get one that matches their aggression. Bosses are never rammers on their own.
-- The style is shown in the rival lexicon once you know the rival (dev version only since Alpha 0.9.2; in the release you find it out yourself).
+- The style is shown in the rival lexicon once you know the rival (since Alpha 0.9.2 as a colourless symbol, the text only in the dev version).
 
 ### New: Music controls
 - New music: four AI placeholder songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) play in all situations for now. They are marked as AI in the credits, can be switched off per situation and will be replaced by real tracks. The old Kevin MacLeod tracks are gone.
