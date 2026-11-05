@@ -1,7 +1,7 @@
 #!/bin/bash
 # build_all.sh <model> [styles...] : SVG -> PNG/PSD/.vectorcraft je Stil
 cd "$(dirname "$0")"; VC=../vcdl/x/vectorcraft-0.19.0-linux-x86_64/bin/vectorcraft-cli; m=$1; shift
-ST=${@:-streetdrift_a streetdrift_b factorysports_a bosozoku_a kaido_a twotone_a raceteam_a tech_a tech_b tech_c tech_d}
+ST=${@:-streetdrift_a streetdrift_b factorysports_a bosozoku_a kaido_a twotone_a raceteam_a tech_a tech_b tech_c tech_d sponsor_a d1drift_a shopdemo_a rally_a company_a}
 mkdir -p build
 for s in $ST; do
   [ -f bx_$s.py ] || continue
