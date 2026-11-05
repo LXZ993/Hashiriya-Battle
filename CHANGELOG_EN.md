@@ -16,6 +16,7 @@
 - New: 5 styles using the real BeamNG lore logos as sponsors: Sponsor Race Car (JGTC style), Pro Drift, Tuning Shop Demo Car, Group A Rally and Company Car (Pigeon/Hopper). Only on cars where they fit era and drivetrain; 16 styles and 67 paint designs in total. Every car gets its own layout and main sponsor for these styles, no copies.
 - New: 6 more detailed styles with new inspirations: Wa Pattern (seigaiha, asanoha, kikko, hanko seal), Manga Speed (halftone, speed lines, sound words), Splinter Camo, Group C Retro, GT Waves and Kanjo Loop. Every car has its own layout, 95 paint designs in total.
 - New: liveries can now also contain fixed, non-paintable colors (gold, seals, hazard stripes, sponsors in original colors).
+- Changed: the older Sponsor, Rally, Drift, Shop Demo, Race Team and Company styles now use fixed colors too: white number boards and rally plates, small sponsors as stickers in brand colors, company logos in a fixed company color.
 - Changed: each car now only gets the styles that fit its era and drivetrain. No drift on front-wheel drive cars, no Bosozoku, Kaido or two-tone on modern cars, drift added on the Sunburst.
 - New: 63 paint designs for all 9 Japanese cars (Pessima Mk1 and Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 styles: Street Drift Flames, Street Drift Team, Factory Sports, Bosozoku, Kaido Racer, Factory Two-Tone and Factory Race Team.
 - All designs are drawn in VectorCraft after references by JDMArsch (LXZ aka. LXZockt) and run cleanly over pillars, roof and hood.

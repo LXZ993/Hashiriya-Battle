@@ -2,6 +2,7 @@
 from vcsvg import Doc
 from txt import text
 from cars import variant, CAR, sponsors
+from lore_common import sticker
 D = Doc(); V = variant(D.model, 'raceteam_a'); C = CAR[D.model]; SP = sponsors(D.model)
 RS, RB = 'RacingSansOne-Regular.ttf', 'RobotoCondensed.ttf'
 def P(pts): return 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts) + ' Z'
@@ -17,7 +18,7 @@ if V == 0:
     D.side(O, slash(300, 9), 2); D.side(S, slash(314, 9), 3)
     D.side_text(K, C['rnum'], RS, 64, 480, 150, 'k')
     d, *_ = text(C['rnum'], RS, 38, TW / 2, 52, rot=180); D.top(K, d, 'k')
-    D.side_logo(K, SP[0], 812, 122, 14)
+    sticker(D, 'Fest_Aufkleber', SP[0], 812, 122, 12)
     D.side_text(K, works, RB, 8, 400, 186, 'k', track=0.12)
 elif V == 1:
     # farbige Front bis zur Vordertuer (schraege Kante), Haube farbig, drei Schraegstreifen auf der Tuer
@@ -27,7 +28,7 @@ elif V == 1:
     D.side_text(K, C['rnum'], RS, 60, 520, 150, 'k')
     d, *_ = text(C['rnum'], RS, 40, TW / 2, 140, rot=180); D.top(K, d, 1)
     D.side_text(K, works, RB, 9, 690, 120, 'k', track=0.12)
-    D.side_logo(K, SP[0], 520, 186, 12)
+    sticker(D, 'Fest_Aufkleber', SP[0], 520, 186, 10)
 else:
     # Unterteil in Farbe 2, steigt nach hinten an, Zierlinie Farbe 3 darueber, Nummer auf der Tuer
     edge = [(-20, 182), (260, 176), (L + 20, 126)]
@@ -37,5 +38,5 @@ else:
     D.side_text(K, C['rnum'], RS, 60, 470, 134, 'k')
     d, *_ = text(C['rnum'], RS, 36, TW / 2, 60, rot=180); D.top(K, d, 'k')
     D.side_text(K, works, RB, 9, 240, 120, 'k', track=0.12)
-    D.side_logo(K, SP[0], 800, 112, 13)
+    sticker(D, 'Fest_Aufkleber', SP[0], 800, 112, 11)
 D.write('bx_raceteam_a')
