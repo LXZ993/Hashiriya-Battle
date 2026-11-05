@@ -590,6 +590,38 @@
         0
       ],
       "radius": 5
+    },
+    {
+      "id": "shop_heiwajima",
+      "type": "shop",
+      "name": "Shop Heiwajima PA",
+      "pos": [
+        -102.697,
+        -1555.753,
+        855.594
+      ],
+      "dir": [
+        0.378,
+        -0.926,
+        -0.005
+      ],
+      "radius": 4,
+      "_hinweis": "Drive-in-Shop (Dev-Ort Shop (allgemein) 3, 05.11.2026): reinfahren und anhalten öffnet das Teile-Terminal. Vorerst Shop für alles, später nach Shop-Typen aufteilen."
+    },
+    {
+      "id": "gas_3",
+      "type": "gas",
+      "pos": [
+        -93.439,
+        -1577.139,
+        855.63
+      ],
+      "dir": [
+        0.412,
+        -0.911,
+        -0.005
+      ],
+      "radius": 5
     }
   ],
   "_hinweisStehplaetze": "standSpots = Stehplätze der PA-Fahrer (pos = Füße, dir = Blickrichtung). Von Alex im Dev-Menü gesetzt (03.11.2026: Tatsumi PA 1 und Shibaura PA) und fest übernommen. Neue Plätze im Dev-Menü mit Typ 'PA-Fahrer-Stehplatz' merken; gleiche Positionen werden nicht doppelt genommen.",

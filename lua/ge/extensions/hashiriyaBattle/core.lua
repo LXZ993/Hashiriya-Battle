@@ -785,7 +785,8 @@ function M.onParkingArrived(area)
     M.writeSave()
   end
   -- Shop zu Fuß: gleich das Teile-Terminal
-  if area.type == 'shop' and extensions.hashiriyaBattle_parking.isFootShop() then extensions.hashiriyaBattle_shop.openTerminal('shop') end
+  -- Drive-in-Shop ohne Eingang zu Fuß (z. B. Heiwajima PA): Terminal öffnet sich im Auto
+  if area.type == 'shop' and (extensions.hashiriyaBattle_parking.isFootShop() or not area.footEntry) then extensions.hashiriyaBattle_shop.openTerminal('shop') end
   -- Story (Alpha 0.6): Szenen in der Garage, zuhause, ...
   pcall(function() extensions.hashiriyaBattle_story.onEvent(area.type, { area = area.type }) end)
   M.sendUiState()
