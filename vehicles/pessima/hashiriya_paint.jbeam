@@ -34,5 +34,23 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_twotone"
+  },
+  "pessima_skin_hb_shop_demo": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Tuning Shop Demo Car (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_shop_demo"
+  },
+  "pessima_skin_hb_rally": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Group A Rally (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_rally"
   }
 }

@@ -61,5 +61,32 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_tech_checker"
+  },
+  "midsize_skin_hb_sponsor_race": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Sponsor Race Car (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_sponsor_race"
+  },
+  "midsize_skin_hb_shop_demo": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Tuning Shop Demo Car (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_shop_demo"
+  },
+  "midsize_skin_hb_rally": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Group A Rally (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_rally"
   }
 }

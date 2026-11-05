@@ -7,5 +7,14 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_twotone"
+  },
+  "pigeon_skin_hb_company": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Company Car (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_company"
   }
 }

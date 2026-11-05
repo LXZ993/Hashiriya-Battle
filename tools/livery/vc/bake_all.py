@@ -16,6 +16,11 @@ STYLES = [  # (VectorCraft-Stil, Skin-ID, DE, EN)
     ('tech_b', 'hb_tech_layers', 'Werks-Tech Schicht-Balken', 'Factory Tech Layers'),
     ('tech_c', 'hb_tech_chevron', 'Werks-Tech Pfeilband', 'Factory Tech Chevrons'),
     ('tech_d', 'hb_tech_checker', 'Werks-Tech Zielflagge', 'Factory Tech Checker'),
+    ('sponsor_a', 'hb_sponsor_race', 'Sponsor-Rennwagen', 'Sponsor Race Car'),
+    ('d1drift_a', 'hb_d1_drift', 'D1-Profi-Drift', 'Pro Drift'),
+    ('shopdemo_a', 'hb_shop_demo', 'Tuning-Shop-Demo-Car', 'Tuning Shop Demo Car'),
+    ('rally_a', 'hb_rally', 'Rallye Gruppe A', 'Group A Rally'),
+    ('company_a', 'hb_company', 'Firmenwagen', 'Company Car'),
 ]
 from cars import ALLOWED
 for m in (sys.argv[1:] or list(BASES)):
