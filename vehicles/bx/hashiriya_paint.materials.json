@@ -726,5 +726,551 @@
     "materialTag0": "beamng",
     "materialTag1": "vehicle",
     "version": 1.5
+  },
+  "bx_main.skin.hb_wa": {
+    "name": "bx_main.skin.hb_wa",
+    "mapTo": "bx_main.skin.hb_wa",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_main_b.color.png",
+        "detailNormalMapStrength": 0,
+        "detailScale": [
+          128,
+          64
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_main_m.data.png",
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_main_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_wa_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_wa_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_aftermarket.skin.hb_wa": {
+    "name": "bx_aftermarket.skin.hb_wa",
+    "mapTo": "bx_aftermarket.skin.hb_wa",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_aftermarket_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_aftermarket_m.data.png",
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_aftermarket_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.3,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_wa_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_wa_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_main.skin.hb_manga": {
+    "name": "bx_main.skin.hb_manga",
+    "mapTo": "bx_main.skin.hb_manga",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_main_b.color.png",
+        "detailNormalMapStrength": 0,
+        "detailScale": [
+          128,
+          64
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_main_m.data.png",
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_main_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_manga_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_manga_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_aftermarket.skin.hb_manga": {
+    "name": "bx_aftermarket.skin.hb_manga",
+    "mapTo": "bx_aftermarket.skin.hb_manga",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_aftermarket_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_aftermarket_m.data.png",
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_aftermarket_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.3,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_manga_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_manga_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_main.skin.hb_splinter": {
+    "name": "bx_main.skin.hb_splinter",
+    "mapTo": "bx_main.skin.hb_splinter",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_main_b.color.png",
+        "detailNormalMapStrength": 0,
+        "detailScale": [
+          128,
+          64
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_main_m.data.png",
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_main_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_splinter_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_splinter_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_aftermarket.skin.hb_splinter": {
+    "name": "bx_aftermarket.skin.hb_splinter",
+    "mapTo": "bx_aftermarket.skin.hb_splinter",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_aftermarket_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_aftermarket_m.data.png",
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_aftermarket_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.3,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_splinter_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_splinter_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_main.skin.hb_groupc": {
+    "name": "bx_main.skin.hb_groupc",
+    "mapTo": "bx_main.skin.hb_groupc",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_main_b.color.png",
+        "detailNormalMapStrength": 0,
+        "detailScale": [
+          128,
+          64
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_main_m.data.png",
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_main_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_groupc_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_groupc_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_aftermarket.skin.hb_groupc": {
+    "name": "bx_aftermarket.skin.hb_groupc",
+    "mapTo": "bx_aftermarket.skin.hb_groupc",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_aftermarket_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_aftermarket_m.data.png",
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_aftermarket_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.3,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_groupc_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_groupc_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_main.skin.hb_jgtc": {
+    "name": "bx_main.skin.hb_jgtc",
+    "mapTo": "bx_main.skin.hb_jgtc",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_main_b.color.png",
+        "detailNormalMapStrength": 0,
+        "detailScale": [
+          128,
+          64
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_main_m.data.png",
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_main_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_jgtc_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_jgtc_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_aftermarket.skin.hb_jgtc": {
+    "name": "bx_aftermarket.skin.hb_jgtc",
+    "mapTo": "bx_aftermarket.skin.hb_jgtc",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_aftermarket_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_aftermarket_m.data.png",
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_aftermarket_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.3,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_jgtc_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_jgtc_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_main.skin.hb_kanjo": {
+    "name": "bx_main.skin.hb_kanjo",
+    "mapTo": "bx_main.skin.hb_kanjo",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_main_b.color.png",
+        "detailNormalMapStrength": 0,
+        "detailScale": [
+          128,
+          64
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_main_m.data.png",
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_main_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_main_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_kanjo_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_kanjo_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "bx_aftermarket.skin.hb_kanjo": {
+    "name": "bx_aftermarket.skin.hb_kanjo",
+    "mapTo": "bx_aftermarket.skin.hb_kanjo",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/bx/bx_aftermarket_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/bx/bx_aftermarket_m.data.png",
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "roughnessMap": "/vehicles/bx/bx_aftermarket_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/bx/bx_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/bx/bx_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.3,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/bx/bx_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/bx/bx_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/bx/hashiriya_paint/hb_kanjo_b.color.png",
+        "colorPaletteMap": "/vehicles/bx/hashiriya_paint/hb_kanjo_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
   }
 }

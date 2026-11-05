@@ -438,5 +438,225 @@
     "materialTag0": "beamng",
     "materialTag1": "vehicle",
     "version": 1.5
+  },
+  "midsize_body.skin.hb_wa": {
+    "name": "midsize_body.skin.hb_wa",
+    "mapTo": "midsize_body.skin.hb_wa",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "baseColorMap": "/vehicles/midsize/midsize_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/midsize/midsize_body_m.data.png",
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_cc.data.png",
+        "roughnessMap": "/vehicles/midsize/midsize_body_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "clearCoatMapUseUV": 1,
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/midsize/hashiriya_paint/hb_wa_b.color.png",
+        "colorPaletteMap": "/vehicles/midsize/hashiriya_paint/hb_wa_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "midsize_body.skin.hb_manga": {
+    "name": "midsize_body.skin.hb_manga",
+    "mapTo": "midsize_body.skin.hb_manga",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "baseColorMap": "/vehicles/midsize/midsize_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/midsize/midsize_body_m.data.png",
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_cc.data.png",
+        "roughnessMap": "/vehicles/midsize/midsize_body_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "clearCoatMapUseUV": 1,
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/midsize/hashiriya_paint/hb_manga_b.color.png",
+        "colorPaletteMap": "/vehicles/midsize/hashiriya_paint/hb_manga_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "midsize_body.skin.hb_groupc": {
+    "name": "midsize_body.skin.hb_groupc",
+    "mapTo": "midsize_body.skin.hb_groupc",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "baseColorMap": "/vehicles/midsize/midsize_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/midsize/midsize_body_m.data.png",
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_cc.data.png",
+        "roughnessMap": "/vehicles/midsize/midsize_body_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "clearCoatMapUseUV": 1,
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/midsize/hashiriya_paint/hb_groupc_b.color.png",
+        "colorPaletteMap": "/vehicles/midsize/hashiriya_paint/hb_groupc_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "midsize_body.skin.hb_jgtc": {
+    "name": "midsize_body.skin.hb_jgtc",
+    "mapTo": "midsize_body.skin.hb_jgtc",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "baseColorMap": "/vehicles/midsize/midsize_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/midsize/midsize_body_m.data.png",
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_cc.data.png",
+        "roughnessMap": "/vehicles/midsize/midsize_body_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "clearCoatMapUseUV": 1,
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/midsize/hashiriya_paint/hb_jgtc_b.color.png",
+        "colorPaletteMap": "/vehicles/midsize/hashiriya_paint/hb_jgtc_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "midsize_body.skin.hb_kanjo": {
+    "name": "midsize_body.skin.hb_kanjo",
+    "mapTo": "midsize_body.skin.hb_kanjo",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "baseColorMap": "/vehicles/midsize/midsize_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/midsize/midsize_body_m.data.png",
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_cc.data.png",
+        "roughnessMap": "/vehicles/midsize/midsize_body_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "clearCoatMapUseUV": 1,
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/midsize/hashiriya_paint/hb_kanjo_b.color.png",
+        "colorPaletteMap": "/vehicles/midsize/hashiriya_paint/hb_kanjo_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
   }
 }

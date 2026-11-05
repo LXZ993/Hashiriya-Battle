@@ -27,11 +27,34 @@ def bake_key(model, png, SX=0, SY=0, RY=300, TX=1000, TY=0, ppm0=200, scale=1.5,
     img = np.zeros((c.H, c.W, 3), np.float32); img[..., 0] = 1; img[c.mask] = w
     img = PaintCtx._dilate3(img, c.mask, dilate)
     return (np.clip(img, 0, 1) * 255 + 0.5).astype(np.uint8)
+def bake_fix(model, png, dilate=8, **kw):
+    """Feste Farben (nicht einfaerbbar): RGBA im UV-Raum, gleiche Abbildung wie bake_key."""
+    c = Ctx(model)
+    im = np.asarray(Image.open(png).convert('RGBA')).astype(np.float32) / 255
+    pm = np.concatenate([im[..., :3] * im[..., 3:4], im[..., 3:4]], -1)   # vormultipliziert
+    tmp = png + '.pm.png'
+    Image.fromarray((pm[..., :3] * 255 + 0.5).astype(np.uint8), 'RGB').save(tmp)
+    rgb = bake_key(model, tmp, dilate=dilate, **kw).astype(np.float32) / 255
+    a_im = np.repeat(pm[..., 3:4], 3, -1)
+    Image.fromarray((a_im * 255 + 0.5).astype(np.uint8), 'RGB').save(tmp)
+    a = bake_key(model, tmp, dilate=dilate, **kw).astype(np.float32)[..., 1:2] / 255   # Gruen: Leerflaeche (1,0,0) -> 0
+    os.remove(tmp)
+    # bake_key fuellt Leerflaechen rot (1,0,0): ueberall wo die Alpha 0 ist, Farbe egal
+    col = np.where(a > 1e-3, np.clip(rgb / np.maximum(a, 1e-3), 0, 1), 0)
+    return np.concatenate([col, a], -1)
+def fix_png(png):
+    f = png[:-4] + '_fix.png'
+    return f if os.path.exists(f) else None
 if __name__ == '__main__':
     model, png, out = sys.argv[1:4]; cols = sys.argv[4].split(',') if len(sys.argv) > 4 else ['#c9c9cd', '#e0287a', '#151515']
     views = sys.argv[5].split(';') if len(sys.argv) > 5 else ['40,14', '90,3', '-40,14', '0,70']
     key = bake_key(model, png); np.save(out + '_key.npy', key)
-    tp = out + '_tex.png'; preview_tex(key, *cols).save(tp)
+    tp = out + '_tex.png'; tex = preview_tex(key, *cols)
+    if fix_png(png):
+        fx = bake_fix(model, fix_png(png)); a = fx[..., 3:4]
+        t = np.asarray(tex).astype(np.float32) / 255 * (1 - a) + fx[..., :3] * a
+        tex = Image.fromarray((t * 255 + 0.5).astype(np.uint8), 'RGB')
+    tex.save(tp)
     glb = f'p_vc_{os.getpid()}.glb'; preview.make(model, tp, os.path.join(preview.HERE, 'web', glb))
     subprocess.run(['node', os.path.join(preview.HERE, 'web', 'shot.js'), glb, out, *views], check=True)
     os.remove(os.path.join(preview.HERE, 'web', glb))
