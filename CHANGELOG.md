@@ -13,7 +13,7 @@
 
 ### Lackierbare Japan-Liveries
 - Neu: 4 moderne Werks-Tech-Stile nach neuen Vorlagen von JDMArsch (LXZ aka. LXZockt): Keil mit Schrägschnitten, Schicht-Balken, Pfeilband und Zielflagge. Zu finden auf Pessima Mk2, Covet, Sunburst und SBR4.
-- Neu: 5 Stile mit echten BeamNG-Lore-Logos als Sponsoren: Sponsor-Rennwagen (JGTC-Stil), D1-Profi-Drift, Tuning-Shop-Demo-Car, Rallye Gruppe A und Firmenwagen (Pigeon/Hopper). Je Auto nur, wo es zu Baujahr und Antrieb passt; insgesamt 16 Stile und 67 Lackdesigns.
+- Neu: 5 Stile mit echten BeamNG-Lore-Logos als Sponsoren: Sponsor-Rennwagen (JGTC-Stil), D1-Profi-Drift, Tuning-Shop-Demo-Car, Rallye Gruppe A und Firmenwagen (Pigeon/Hopper). Je Auto nur, wo es zu Baujahr und Antrieb passt; insgesamt 16 Stile und 67 Lackdesigns. Jedes Auto hat bei diesen Stilen ein eigenes Layout und einen eigenen Hauptsponsor, keine Kopie.
 - Geändert: Jedes Auto hat nur noch die Stile, die zu Baujahr und Antrieb passen. Kein Drift auf Fronttrieblern, kein Bosozoku, Kaido oder Zweifarben auf modernen Autos, dafür Drift auf dem Sunburst.
 - Neu: 63 Lackdesigns für alle 9 Japan-Autos (Pessima Mk1 und Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 Stilen: Street-Drift Flammen, Street-Drift Team, Werks-Sportstreifen, Bosozoku, Kaido-Racer, Werks-Zweifarben und Werks-Rennteam.
 - Alle Entwürfe sind in VectorCraft nach den Vorlagen von JDMArsch (LXZ aka. LXZockt) gezeichnet und laufen sauber über Säule, Dach und Haube.
