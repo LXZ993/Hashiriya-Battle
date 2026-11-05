@@ -52,5 +52,23 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_shop_demo"
+  },
+  "miramar_skin_hb_wa": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Wa Pattern (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_wa"
+  },
+  "miramar_skin_hb_splinter": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Splinter Camo (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_splinter"
   }
 }

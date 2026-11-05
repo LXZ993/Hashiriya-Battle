@@ -2,7 +2,7 @@
 import sys, os
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE); sys.path.insert(0, '/home/user/hashiriya-battle/tools/livery')
-from vc_bake import bake_key
+from vc_bake import bake_key, bake_fix, fix_png
 from export_paint import write_maps, write_defs, BASES, MOD
 STYLES = [  # (VectorCraft-Stil, Skin-ID, DE, EN)
     ('streetdrift_a', 'hb_streetdrift', 'Street-Drift Flammen', 'Street Drift Flames'),
@@ -21,6 +21,12 @@ STYLES = [  # (VectorCraft-Stil, Skin-ID, DE, EN)
     ('shopdemo_a', 'hb_shop_demo', 'Tuning-Shop-Demo-Car', 'Tuning Shop Demo Car'),
     ('rally_a', 'hb_rally', 'Rallye Gruppe A', 'Group A Rally'),
     ('company_a', 'hb_company', 'Firmenwagen', 'Company Car'),
+    ('wa_a', 'hb_wa', 'Wa-Muster', 'Wa Pattern'),
+    ('manga_a', 'hb_manga', 'Manga-Speed', 'Manga Speed'),
+    ('splinter_a', 'hb_splinter', 'Splitter-Tarn', 'Splinter Camo'),
+    ('groupc_a', 'hb_groupc', 'Gruppe C Retro', 'Group C Retro'),
+    ('jgtc_a', 'hb_jgtc', 'JGTC-Wellen', 'GT Waves'),
+    ('kanjo_a', 'hb_kanjo', 'Kanjo-Zoku', 'Kanjo Loop'),
 ]
 from cars import ALLOWED
 for m in (sys.argv[1:] or list(BASES)):
@@ -30,7 +36,7 @@ for m in (sys.argv[1:] or list(BASES)):
         png = os.path.join(HERE, 'build', f'{m}_{st}.png')
         if not os.path.exists(png): print('fehlt', png); continue
         key = bake_key(m, png)
-        write_maps(m, sid, key); items.append((sid, de, en)); print('ok', m, sid, flush=True)
+        fp = fix_png(png); write_maps(m, sid, key, bake_fix(m, fp) if fp else None); items.append((sid, de, en)); print('ok', m, sid, flush=True)
     write_defs(m, items)
     # Skins, die nicht (mehr) zu diesem Auto passen, aus jbeam/materials und Texturordner entfernen
     import json

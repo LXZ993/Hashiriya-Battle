@@ -23,7 +23,7 @@ class Doc:
     def _map(p, f):
         return re.sub(r'(-?\d+\.?\d*(?:e-?\d+)?)[ ,](-?\d+\.?\d*(?:e-?\d+)?)', lambda m: '%.1f %.1f' % f(float(m.group(1)), float(m.group(2))), p)
     def _add(self, lid, d, key, stroke, sw, view):
-        self.layer(lid).append((d, KEYC[key] if key in KEYC else key, KEYC.get(stroke), sw, view))
+        self.layer(lid).append((d, KEYC[key] if key in KEYC else key, KEYC.get(stroke, stroke), sw, view))
     def side(self, lid, d, key, stroke=None, sw=0):
         """Form links zeichnen und gespiegelt rechts."""
         self._add(lid, d, key, stroke, sw, 'L')
@@ -37,7 +37,7 @@ class Doc:
             if stroke: self._add(lid, d, stroke, stroke, sw, v)
             self._add(lid, d, key, None, 0, v)
     def _logo(self, lid, name, key, x, y, h, view, rot=0):
-        self.layer(lid).append(('IMG', name, KEYC[key], (x, y, h, rot), view))
+        self.layer(lid).append(('IMG', name, KEYC.get(key, key), (x, y, h, rot), view))
     def side_logo(self, lid, name, x, y, h, key='k', xr=None):
         """Lore-Logo (tools/livery/vc/logos/<name>.png, Alphamaske) mittig bei x,y mit Hoehe h, beide Seiten lesbar."""
         self._logo(lid, name, key, x, y, h, 'L'); self._logo(lid, name, key, self.lw - x if xr is None else xr, y, h, 'R')
@@ -60,7 +60,10 @@ class Doc:
         fR = lambda x, y: (pl(x, XSr, XTr), pl(y, YS, YT) + RY)
         fT = lambda x, y: (TX + t['TW'] / 2 + (x - s['TW'] / 2) * sc, pl(y, XS, XT))
         return {'L': fL, 'R': fR, 'T': fT}
-    def svg(self, guide):
+    @staticmethod
+    def _fixed(c): return isinstance(c, str) and c.startswith('#') and c.lower() not in KEYC.values()
+    def svg(self, guide, mode='full'):
+        """mode: full (Alex/PSD, feste Farben sichtbar), key (feste Farben schwarz), fix (nur feste Farben)."""
         b64 = lambda p: base64.b64encode(open(p, 'rb').read()).decode()
         t = lm(self.model); m = self.model
         vis = '' if guide else ' style="display:none"'
@@ -73,8 +76,13 @@ class Doc:
         for lid, items in self.layers:
             out.append(f'<g id="{lid}">')
             for d, f, s, w, v in items:
+                col = s if d == 'IMG' else f
+                if mode == 'fix' and not self._fixed(col): continue
+                if mode == 'key' and self._fixed(col): col = '#000000'
                 if d == 'IMG':
-                    out.append(self._img(f, s, w, v, wp)); continue
+                    out.append(self._img(f, col, w, v, wp)); continue
+                f = col
+                if s and mode == 'key' and self._fixed(s): s = '#000000'
                 dd = self._map(d, lambda x, y, v=v: wp[v](x, y))
                 out.append(f'<path fill="{f}"' + (f' stroke="{s}" stroke-width="{w}" stroke-linejoin="miter" stroke-miterlimit="3"' if s else '') + f' d="{dd}"/>')
             out.append('</g>')
@@ -98,3 +106,8 @@ class Doc:
         if name.startswith('bx_'): name = self.model + name[2:]
         self.out = name
         open(name + '.svg', 'w').write(self.svg(False)); open(name + '_guide.svg', 'w').write(self.svg(True))
+        open(name + '_key.svg', 'w').write(self.svg(False, 'key'))
+        has_fix = any(self._fixed(it[2] if it[0] == 'IMG' else it[1]) for _, items in self.layers for it in items)
+        import os
+        if has_fix: open(name + '_fix.svg', 'w').write(self.svg(False, 'fix'))
+        elif os.path.exists(name + '_fix.svg'): os.remove(name + '_fix.svg')

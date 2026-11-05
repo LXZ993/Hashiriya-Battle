@@ -34,5 +34,14 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_company"
+  },
+  "hopper_skin_hb_splinter": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Splinter Camo (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_splinter"
   }
 }

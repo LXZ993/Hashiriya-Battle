@@ -5,14 +5,14 @@ SHIFT = {'streetdrift_a': 0, 'streetdrift_b': 1, 'factorysports_a': 2, 'bosozoku
 # Welche Stile zu welchem Auto passen (Baujahr + Antrieb, Alex 2026-11-05): kein Drift auf Fronttrieblern,
 # kein Bosozoku/Kaido/Zweifarben auf modernen Autos, Tech nur auf neueren Modellen.
 ALLOWED = {
-    'bx': ['streetdrift_a', 'streetdrift_b', 'kaido_a', 'bosozoku_a', 'factorysports_a', 'sponsor_a', 'd1drift_a', 'shopdemo_a'],
-    'miramar': ['bosozoku_a', 'kaido_a', 'twotone_a', 'streetdrift_a', 'd1drift_a', 'shopdemo_a'],
-    'pessima': ['bosozoku_a', 'kaido_a', 'twotone_a', 'factorysports_a', 'shopdemo_a', 'rally_a'],
-    'midsize': ['twotone_a', 'factorysports_a', 'raceteam_a', 'tech_a', 'tech_b', 'tech_c', 'tech_d', 'sponsor_a', 'shopdemo_a', 'rally_a'],
-    'covet': ['factorysports_a', 'raceteam_a', 'tech_a', 'tech_b', 'tech_c', 'tech_d', 'sponsor_a', 'shopdemo_a', 'rally_a'],
-    'sunburst2': ['raceteam_a', 'factorysports_a', 'streetdrift_a', 'streetdrift_b', 'tech_a', 'tech_b', 'tech_c', 'tech_d', 'sponsor_a', 'd1drift_a', 'shopdemo_a', 'rally_a'],
-    'sbr': ['tech_a', 'tech_b', 'tech_c', 'tech_d', 'raceteam_a', 'streetdrift_a', 'streetdrift_b', 'sponsor_a', 'd1drift_a', 'shopdemo_a'],
-    'hopper': ['twotone_a', 'factorysports_a', 'rally_a', 'company_a'],
+    'bx': ['streetdrift_a', 'streetdrift_b', 'kaido_a', 'bosozoku_a', 'factorysports_a', 'sponsor_a', 'd1drift_a', 'shopdemo_a', 'wa_a', 'manga_a', 'splinter_a', 'groupc_a', 'jgtc_a', 'kanjo_a'],
+    'miramar': ['bosozoku_a', 'kaido_a', 'twotone_a', 'streetdrift_a', 'd1drift_a', 'shopdemo_a', 'wa_a', 'splinter_a'],
+    'pessima': ['bosozoku_a', 'kaido_a', 'twotone_a', 'factorysports_a', 'shopdemo_a', 'rally_a', 'wa_a', 'groupc_a', 'kanjo_a'],
+    'midsize': ['twotone_a', 'factorysports_a', 'raceteam_a', 'tech_a', 'tech_b', 'tech_c', 'tech_d', 'sponsor_a', 'shopdemo_a', 'rally_a', 'wa_a', 'manga_a', 'groupc_a', 'jgtc_a', 'kanjo_a'],
+    'covet': ['factorysports_a', 'raceteam_a', 'tech_a', 'tech_b', 'tech_c', 'tech_d', 'sponsor_a', 'shopdemo_a', 'rally_a', 'wa_a', 'jgtc_a', 'kanjo_a'],
+    'sunburst2': ['raceteam_a', 'factorysports_a', 'streetdrift_a', 'streetdrift_b', 'tech_a', 'tech_b', 'tech_c', 'tech_d', 'sponsor_a', 'd1drift_a', 'shopdemo_a', 'rally_a', 'wa_a', 'manga_a', 'splinter_a', 'jgtc_a'],
+    'sbr': ['tech_a', 'tech_b', 'tech_c', 'tech_d', 'raceteam_a', 'streetdrift_a', 'streetdrift_b', 'sponsor_a', 'd1drift_a', 'shopdemo_a', 'wa_a', 'manga_a', 'splinter_a', 'jgtc_a'],
+    'hopper': ['twotone_a', 'factorysports_a', 'rally_a', 'company_a', 'splinter_a'],
     'pigeon': ['twotone_a', 'company_a'],
 }
 def variant(model, style):

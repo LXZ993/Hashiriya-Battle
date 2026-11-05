@@ -79,11 +79,22 @@ def material(tpl, base, sid, model):
     return name, m
 
 
-def write_maps(model, sid, key):
+def write_maps(model, sid, key, fix=None):
+    """fix: optional HxWx4 float (RGB + Alpha) fuer feste, nicht einfaerbbare Farben (Logos, Muster).
+    Dort ist die Paletten-Karte schwarz, damit die Farbe der baseColorMap unveraendert erscheint."""
     tdir = os.path.join(MOD, 'vehicles', model, 'hashiriya_paint'); os.makedirs(tdir, exist_ok=True)
     pal, base = key_to_maps(key)
-    pal.save(os.path.join(tdir, f'{sid}_p.color.png'), optimize=True)
-    base.convert('L').convert('RGB').save(os.path.join(tdir, f'{sid}_b.color.png'), optimize=True)
+    if fix is None:
+        pal.save(os.path.join(tdir, f'{sid}_p.color.png'), optimize=True)
+        base.convert('L').convert('RGB').save(os.path.join(tdir, f'{sid}_b.color.png'), optimize=True)
+        return
+    import numpy as np
+    from PIL import Image
+    a = fix[..., 3:4]
+    p = np.asarray(pal).astype(np.float32) / 255 * (1 - a)
+    bb = np.asarray(base.convert('L').convert('RGB')).astype(np.float32) / 255 * (1 - a) + fix[..., :3] * a
+    Image.fromarray((p * 255 + 0.5).astype(np.uint8), 'RGB').save(os.path.join(tdir, f'{sid}_p.color.png'), optimize=True)
+    Image.fromarray((np.clip(bb, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGB').save(os.path.join(tdir, f'{sid}_b.color.png'), optimize=True)
 
 
 def write_defs(model, items):
