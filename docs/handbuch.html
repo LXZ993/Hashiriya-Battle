@@ -1232,13 +1232,13 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <ul>
 <li><b>Nicht jede Polizeistelle ist besetzt.</b> Pro Spieltag würfelt das Spiel einen <b>Dienstplan</b> aus: wie viele Stellen besetzt sind, hängt vom <b>Rang</b> ab (es spricht sich herum, dass nachts auf dem Expressway Rennen laufen). Jede besetzte Stelle hat eine Schicht von 3 bis 6 Spielstunden zwischen 7 und 19 Uhr. Der Plan ist je Spielstand und Tag fest, Neuladen ändert ihn nicht.
 <table><tr><th>Rang (Nr.)</th><th>besetzt pro Tag</th></tr><tr><td>ab 1 (Anfang)</td><td>1 bis 2</td></tr><tr><td>ab 4</td><td>2 bis 3</td></tr><tr><td>ab 8</td><td>3 bis 4</td></tr><tr><td>ab 12</td><td>4 bis 5</td></tr><tr><td>ab 16</td><td>5 bis 7</td></tr></table></li>
-<li><b>Minimap und Radar:</b> eine besetzte Kontrolle erscheint dort (blauer Pfeil) erst, wenn du sie an dem Tag schon gesehen hast (auf 200 m in Sicht, <code>laser.seeRange</code>). Vorher nicht. Streifenwagen einer Fahndung siehst du immer, sie blinken rot/blau, und der Rahmen der Minimap blinkt, solange dich die Polizei sieht.</li>
+<li><b>Minimap und Radar:</b> eine besetzte Kontrolle erscheint dort (weißgrauer Pfeil) erst, wenn du sie an dem Tag schon gesehen hast (auf 200 m in Sicht, <code>laser.seeRange</code>). Vorher nicht. Streifenwagen einer Fahndung siehst du immer, sie blinken rot/blau, und der Rahmen der Minimap blinkt, solange dich die Polizei sieht.</li>
 <li>An einer besetzten Laserkontrolle steht ein <b>Streifenwagen</b> (Pessima Mk2 oder Sunburst mit deiner 首都警察-Lackierung). Er erscheint, wenn du dich auf 600 m näherst (nicht direkt vor deiner Nase), und verschwindet wieder, wenn du 800 m weg bist, die Schicht vorbei ist (erst wenn du nicht hinschaust) oder die Nacht anfängt.</li>
 <li>Bist du im Umkreis von 110 m (<code>laserRange</code>) zu schnell, gibt es <b>kein Bußgeld, sondern sofort eine Verfolgung</b>: der Streifenwagen der Kontrolle schaltet das Blaulicht an und fährt dir hinterher.</li>
 </ul>
 
 <h3 id="fahndung">Fahndung: 1 bis 3 Sterne</h3>
-<p>Oben rechts im Status erscheint während einer Fahndung „POLIZEI“ (blinkt blau/rot) mit 1 bis 3 Sternen, darunter was die Polizei gerade tut und ein Balken fürs Anhalten oder Entkommen. Die Sterne steigen „indirekt“: hinter den Kulissen sammelt sich <b>Fahndungsdruck</b>, du siehst nur die Stufe.</p>
+<p>Oben rechts im Status erscheint während einer Fahndung „POLIZEI“ (blinkt rot, wie das japanische Rotlicht) mit 1 bis 3 Sternen, darunter was die Polizei gerade tut und ein Balken fürs Anhalten oder Entkommen. Die Sterne steigen „indirekt“: hinter den Kulissen sammelt sich <b>Fahndungsdruck</b>, du siehst nur die Stufe.</p>
 <table>
 <tr><th>Stufe</th><th>Was die Polizei tut</th><th>Wann</th></tr>
 <tr><td><b>1 Stern</b> „Anhalten“</td><td>Fährt mit Blaulicht hinter dir her und fordert dich zum Anhalten auf. Hältst du an: Kontrolle, <b>Strafzettel</b> 15.000 ¥.</td><td>3. Blitzer am Tag oder Laserkontrolle</td></tr>
@@ -2162,7 +2162,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <pre><code>// rivals.json, einzelner Rivale: Fiesling mit viel Mut
 "driver": { "fairness": 0.2, "courage": 0.95 },</code></pre>
 <h3 id="fahrcharakter">Fahrcharakter: sauber, Blocker, Rempler (Alpha 0.9)</h3>
-<p>Jeder Rivale hat einen Fahrstil. Er steht im Rivalen-Lexikon, sobald du den Rivalen kennst.</p>
+<p>Jeder Rivale hat einen Fahrstil. Den musst du selbst herausfinden: Im Release steht er nirgends, nur die Dev-Version zeigt ihn im Rivalen-Lexikon (sobald du den Rivalen kennst).</p>
 <table>
 <tr><th>character</th><th>Im Spiel</th><th>Werte (driver.json characters)</th></tr>
 <tr><td><code>clean</code> (Fährt sauber)</td><td>lässt dir Platz, blockt selten, keine Bremstests</td><td>Fairness 0.9, Aggression −0.15</td></tr>
@@ -2433,7 +2433,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>Neu: Tagsüber gelten Tempolimits. Blitzer sind die 45 festen Radarfallen der C1, dazu macht die Polizei ab und an Laserkontrollen. Nachts wird nicht gemessen.</li>
 <li>Blitzer: wer zu schnell an einer Radarfalle vorbeifährt, wird geblitzt und zahlt ein Bußgeld, je schneller desto teurer. Gezählt wird pro Spieltag: 1. und 2. Mal nur Geld, ab dem 3. Mal kommt zusätzlich die Polizei.</li>
 <li>Laserkontrolle: an ein paar Polizeistellen steht pro Tag für ein paar Stunden ein Streifenwagen. Wer dort zu schnell ist, wird sofort verfolgt. Am Anfang sind es 1 bis 2 Kontrollen am Tag, mit steigendem Rang werden es mehr, weil sich die nächtlichen Rennen herumsprechen.</li>
-<li>Minimap und Radar zeigen eine Kontrolle erst, wenn du sie an dem Tag schon gesehen hast. Streifenwagen einer Fahndung blinken dort rot und blau.</li>
+<li>Minimap und Radar zeigen eine Kontrolle erst, wenn du sie an dem Tag schon gesehen hast. Streifenwagen einer Fahndung blinken dort rot, Kontrollen sind weißgrau. Alles Polizeilicht ist rot wie in Japan, auch die Blitzlichter am Sunburst-Streifenwagen und „POLIZEI“ im Status.</li>
 <li>Fahndung mit 1 bis 3 Sternen oben rechts im Status. 1 Stern: die Polizei fährt hinterher und will, dass du anhältst (Strafzettel). 2 Sterne (weiter geflohen, Unfälle, noch mal geblitzt oder heute schon einen Strafzettel): sie überholt dich und bremst dich aus. 3 Sterne: sie rammt dich. Anhalten bei 3 Sternen = Festnahme, hohe Strafe und Abschleppen zur Garage.</li>
 <li>Entkommen: bleib lange genug außer Sicht, dann gibt die Polizei auf. Das bringt etwas Ruf (weniger als ein Rivalensieg, nur 3 Mal pro Tag).</li>
 <li>Während einer Fahndung gehen Speichern, Nickerchen, Abschleppen, Parkplatz-Menüs und Herausfordern nicht.</li>
@@ -2668,7 +2668,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>Jeder Rivale hat jetzt einen Fahrstil: Fährt sauber, Blocker oder Rempler.</li>
 <li>Saubere Fahrer lassen dir Platz. Blocker machen dir vorne öfter die Linie zu. Rempler suchen neben dir kurz Kontakt und machen Bremstests.</li>
 <li>Wer keinen festen Stil hat, bekommt einen passend zu seiner Aggression. Bosse sind nie von selbst Rempler.</li>
-<li>Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst.</li>
+<li>Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst (seit Alpha 0.9.2 nur in der Dev-Version, im Release findest du ihn selbst heraus).</li>
 </ul>
 <h4>Neu: Musik steuern</h4>
 <ul>

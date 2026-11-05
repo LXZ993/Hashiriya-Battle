@@ -406,8 +406,9 @@ local function lexicon()
       desc = hidden and hintText(r, save) or pr.loc(r.desc),
       quote = (not hidden and r.lines) and pr.loc(r.lines.challenge) or nil,
       leader = r.leader or false, boss = r.boss or false,
-      -- Alpha 0.9: Fahrstil (sauber, Blocker, Rempler), erst wenn man ihn kennt
-      style = (not hidden and extensions.hashiriyaBattle_driver) and c.t('char.' .. extensions.hashiriyaBattle_driver.character(r)) or nil,
+      -- Alpha 0.9: Fahrstil (sauber, Blocker, Rempler), erst wenn man ihn kennt.
+      -- JDMArsch 05.11.2026: soll man selbst herausfinden, darum im Release nicht sichtbar (nur Dev-Version)
+      style = (not hidden and not (c.isRelease and c.isRelease()) and extensions.hashiriyaBattle_driver) and c.t('char.' .. extensions.hashiriyaBattle_driver.character(r)) or nil,
       beaten = beaten,
       id = r.id, watched = M.isWatched(r.id),
       -- Siegel/Emblem erst nach dem Sieg (wie die Aufkleber in TXR), Leader zeigen das goldene Crew-Logo

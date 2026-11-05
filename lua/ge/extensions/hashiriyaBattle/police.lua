@@ -14,7 +14,7 @@
 -- Entkommen gibt etwas Ruf (escapeRep, etwas unter einem normalen Sieg, höchstens escapeRepMaxPerDay-mal am Tag).
 --
 -- Fahndung (Sterne wie bei GTA, aber "indirekt": man sieht die Stufe, nicht die Punkte):
---   1 Stern  = Streifenwagen fährt mit Blaulicht hinterher und fordert zum Anhalten auf. Anhalten = Strafzettel.
+--   1 Stern  = Streifenwagen fährt mit Rotlicht hinterher und fordert zum Anhalten auf. Anhalten = Strafzettel.
 --   2 Sterne = Polizei ist gereizt: überholt und bremst vor dem Spieler aus. Gibt es, wenn man weiterfährt,
 --              Unfälle mit dem Verkehr baut, die Polizei rammt, noch mal geblitzt wird, oder wenn man am selben
 --              Spieltag schon einen Strafzettel bekommen hat (startLevelAfterTicket).
@@ -939,8 +939,11 @@ local function onDrawOnMinimap(td)
     mmFwd:set(m.dir.x, m.dir.y, 0)
     if mmFwd:length() > 0.001 then
       mmFwd:normalize()
-      -- Fahndung: blinkt blau/rot; Laserkontrolle: ruhiges Blau
-      local col = (m.chase and not blink) and color(227, 38, 43, 255) or color(30, 64, 255, 255)
+      -- Fahndung: blinkt rot (in Japan ist das Rotlicht der Polizei immer rot, JDMArsch 05.11.2026);
+      -- Laserkontrolle: ruhiges Weißgrau wie die weiß-schwarzen Streifenwagen
+      local col
+      if m.chase then col = blink and color(255, 59, 48, 255) or color(90, 12, 10, 255)
+      else col = color(201, 201, 209, 255) end
       td:vehicleMarker(mmPos.x, mmPos.y, mmFwd.x, mmFwd.y, col, bg, m.laser and 0.85 or 1.0, false, scale, dpi, xx, xy, yx, yy, xo, yo, 96)
     end
   end

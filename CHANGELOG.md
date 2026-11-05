@@ -13,7 +13,7 @@
 - Neu: Tagsüber gelten Tempolimits. Blitzer sind die 45 festen Radarfallen der C1, dazu macht die Polizei ab und an Laserkontrollen. Nachts wird nicht gemessen.
 - Blitzer: wer zu schnell an einer Radarfalle vorbeifährt, wird geblitzt und zahlt ein Bußgeld, je schneller desto teurer. Gezählt wird pro Spieltag: 1. und 2. Mal nur Geld, ab dem 3. Mal kommt zusätzlich die Polizei.
 - Laserkontrolle: an ein paar Polizeistellen steht pro Tag für ein paar Stunden ein Streifenwagen. Wer dort zu schnell ist, wird sofort verfolgt. Am Anfang sind es 1 bis 2 Kontrollen am Tag, mit steigendem Rang werden es mehr, weil sich die nächtlichen Rennen herumsprechen.
-- Minimap und Radar zeigen eine Kontrolle erst, wenn du sie an dem Tag schon gesehen hast. Streifenwagen einer Fahndung blinken dort rot und blau.
+- Minimap und Radar zeigen eine Kontrolle erst, wenn du sie an dem Tag schon gesehen hast. Streifenwagen einer Fahndung blinken dort rot, Kontrollen sind weißgrau. Alles Polizeilicht ist rot wie in Japan, auch die Blitzlichter am Sunburst-Streifenwagen und „POLIZEI“ im Status.
 - Fahndung mit 1 bis 3 Sternen oben rechts im Status. 1 Stern: die Polizei fährt hinterher und will, dass du anhältst (Strafzettel). 2 Sterne (weiter geflohen, Unfälle, noch mal geblitzt oder heute schon einen Strafzettel): sie überholt dich und bremst dich aus. 3 Sterne: sie rammt dich. Anhalten bei 3 Sternen = Festnahme, hohe Strafe und Abschleppen zur Garage.
 - Entkommen: bleib lange genug außer Sicht, dann gibt die Polizei auf. Das bringt etwas Ruf (weniger als ein Rivalensieg, nur 3 Mal pro Tag).
 - Während einer Fahndung gehen Speichern, Nickerchen, Abschleppen, Parkplatz-Menüs und Herausfordern nicht.
@@ -210,7 +210,7 @@
 - Jeder Rivale hat jetzt einen Fahrstil: Fährt sauber, Blocker oder Rempler.
 - Saubere Fahrer lassen dir Platz. Blocker machen dir vorne öfter die Linie zu. Rempler suchen neben dir kurz Kontakt und machen Bremstests.
 - Wer keinen festen Stil hat, bekommt einen passend zu seiner Aggression. Bosse sind nie von selbst Rempler.
-- Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst.
+- Der Fahrstil steht im Rivalen-Lexikon, sobald du den Rivalen kennst (seit Alpha 0.9.2 nur in der Dev-Version, im Release findest du ihn selbst heraus).
 
 ### Neu: Musik steuern
 - Neue Musik: vier KI-Platzhalter-Songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) laufen vorerst in allen Situationen. Sie sind in den Credits als KI gekennzeichnet, lassen sich pro Situation abschalten und werden durch echte Tracks ersetzt. Die alten Kevin-MacLeod-Stücke sind raus.
