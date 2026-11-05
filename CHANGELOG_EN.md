@@ -3,6 +3,8 @@
 ## Alpha 0.9.2 (as of 2026-11-04)
 
 ### Colorable Japan liveries
+- New: 4 modern Factory Tech styles after new references by JDMArsch (LXZ aka. LXZockt): wedge with slash cuts, layered bars, chevron band and checker. Available on Pessima Mk2, Covet, Sunburst and SBR4.
+- Changed: each car now only gets the styles that fit its era and drivetrain. No drift on front-wheel drive cars, no Bosozoku, Kaido or two-tone on modern cars, drift added on the Sunburst. 44 paint designs in total.
 - New: 63 paint designs for all 9 Japanese cars (Pessima Mk1 and Mk2, 200BX, Covet, Hopper, Miramar, Pigeon, Sunburst, SBR4) in 7 styles: Street Drift Flames, Street Drift Team, Factory Sports, Bosozoku, Kaido Racer, Factory Two-Tone and Factory Race Team.
 - All designs are drawn in VectorCraft after references by JDMArsch (LXZ aka. LXZockt) and run cleanly over pillars, roof and hood.
 - Colorable like the vanilla "Custom" skin: paint 1 is the base coat, paints 2 and 3 color the livery. Found in the configurator under Paint Design as "Hashiriya: ... (Colorable)". All sponsors are made up or BeamNG lore.

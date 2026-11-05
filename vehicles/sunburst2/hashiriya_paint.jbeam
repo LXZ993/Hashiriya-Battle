@@ -17,33 +17,6 @@
     "slotType": "paint_design",
     "skinName": "hb_factorysports"
   },
-  "sunburst2_skin_hb_bosozoku": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Bosozoku (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_bosozoku"
-  },
-  "sunburst2_skin_hb_kaido": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Kaido Racer (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_kaido"
-  },
-  "sunburst2_skin_hb_twotone": {
-    "information": {
-      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
-      "name": "Hashiriya: Factory Two-Tone (Colorable)",
-      "value": 3000
-    },
-    "slotType": "paint_design",
-    "skinName": "hb_twotone"
-  },
   "sunburst2_skin_hb_raceteam": {
     "information": {
       "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
@@ -61,5 +34,41 @@
     },
     "slotType": "paint_design",
     "skinName": "hb_streetdrift_team"
+  },
+  "sunburst2_skin_hb_tech_wedge": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Factory Tech Wedge (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_tech_wedge"
+  },
+  "sunburst2_skin_hb_tech_layers": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Factory Tech Layers (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_tech_layers"
+  },
+  "sunburst2_skin_hb_tech_chevron": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Factory Tech Chevrons (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_tech_chevron"
+  },
+  "sunburst2_skin_hb_tech_checker": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Factory Tech Checker (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_tech_checker"
   }
 }

@@ -2,6 +2,19 @@
 200BX bleibt immer Variante 0 (so wie von Alex abgenommen)."""
 MODELS = ['bx', 'pessima', 'midsize', 'covet', 'miramar', 'sunburst2', 'sbr', 'hopper', 'pigeon']
 SHIFT = {'streetdrift_a': 0, 'streetdrift_b': 1, 'factorysports_a': 2, 'bosozoku_a': 0, 'kaido_a': 1, 'twotone_a': 2, 'raceteam_a': 0}
+# Welche Stile zu welchem Auto passen (Baujahr + Antrieb, Alex 2026-11-05): kein Drift auf Fronttrieblern,
+# kein Bosozoku/Kaido/Zweifarben auf modernen Autos, Tech nur auf neueren Modellen.
+ALLOWED = {
+    'bx': ['streetdrift_a', 'streetdrift_b', 'kaido_a', 'bosozoku_a', 'factorysports_a'],
+    'miramar': ['bosozoku_a', 'kaido_a', 'twotone_a', 'streetdrift_a'],
+    'pessima': ['bosozoku_a', 'kaido_a', 'twotone_a', 'factorysports_a'],
+    'midsize': ['twotone_a', 'factorysports_a', 'raceteam_a', 'tech_a', 'tech_b', 'tech_c', 'tech_d'],
+    'covet': ['factorysports_a', 'raceteam_a', 'tech_a', 'tech_b', 'tech_c', 'tech_d'],
+    'sunburst2': ['raceteam_a', 'factorysports_a', 'streetdrift_a', 'streetdrift_b', 'tech_a', 'tech_b', 'tech_c', 'tech_d'],
+    'sbr': ['tech_a', 'tech_b', 'tech_c', 'tech_d', 'raceteam_a', 'streetdrift_a', 'streetdrift_b'],
+    'hopper': ['twotone_a', 'factorysports_a'],
+    'pigeon': ['twotone_a'],
+}
 def variant(model, style):
     import os
     if os.environ.get('HB_V'): return int(os.environ['HB_V'])

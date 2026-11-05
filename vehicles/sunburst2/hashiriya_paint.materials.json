@@ -87,138 +87,6 @@
     "materialTag1": "vehicle",
     "version": 1.5
   },
-  "sunburst2_main.skin.hb_bosozoku": {
-    "name": "sunburst2_main.skin.hb_bosozoku",
-    "mapTo": "sunburst2_main.skin.hb_bosozoku",
-    "class": "Material",
-    "Stages": [
-      {
-        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
-        "baseColorMap": "/vehicles/sunburst2/sunburst2_main_b.color.png",
-        "metallicFactor": 1,
-        "metallicMap": "/vehicles/sunburst2/sunburst2_main_m.data.png",
-        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
-        "roughnessMap": "/vehicles/sunburst2/sunburst2_main_r.data.png"
-      },
-      {
-        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
-        "clearCoatFactor": 1,
-        "clearCoatMap": "/vehicles/sunburst2/sunburst2_main_cc.data.png",
-        "colorPaletteMapUseUV": 1,
-        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
-        "detailNormalMapStrength": 0.100000001,
-        "detailScale": [
-          128,
-          64
-        ],
-        "diffuseMapUseUV": 1,
-        "instanceDiffuse": true,
-        "metallicFactor": 1,
-        "metallicMapUseUV": 1,
-        "normalDetailMapUseUV": 1,
-        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
-        "opacityMap": "/vehicles/sunburst2/sunburst2_main_c.data.png",
-        "roughnessMapUseUV": 1,
-        "baseColorMap": "/vehicles/sunburst2/hashiriya_paint/hb_bosozoku_b.color.png",
-        "colorPaletteMap": "/vehicles/sunburst2/hashiriya_paint/hb_bosozoku_p.color.png"
-      },
-      {},
-      {}
-    ],
-    "activeLayers": 2,
-    "dynamicCubemap": true,
-    "materialTag0": "beamng",
-    "materialTag1": "vehicle",
-    "version": 1.5
-  },
-  "sunburst2_main.skin.hb_kaido": {
-    "name": "sunburst2_main.skin.hb_kaido",
-    "mapTo": "sunburst2_main.skin.hb_kaido",
-    "class": "Material",
-    "Stages": [
-      {
-        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
-        "baseColorMap": "/vehicles/sunburst2/sunburst2_main_b.color.png",
-        "metallicFactor": 1,
-        "metallicMap": "/vehicles/sunburst2/sunburst2_main_m.data.png",
-        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
-        "roughnessMap": "/vehicles/sunburst2/sunburst2_main_r.data.png"
-      },
-      {
-        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
-        "clearCoatFactor": 1,
-        "clearCoatMap": "/vehicles/sunburst2/sunburst2_main_cc.data.png",
-        "colorPaletteMapUseUV": 1,
-        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
-        "detailNormalMapStrength": 0.100000001,
-        "detailScale": [
-          128,
-          64
-        ],
-        "diffuseMapUseUV": 1,
-        "instanceDiffuse": true,
-        "metallicFactor": 1,
-        "metallicMapUseUV": 1,
-        "normalDetailMapUseUV": 1,
-        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
-        "opacityMap": "/vehicles/sunburst2/sunburst2_main_c.data.png",
-        "roughnessMapUseUV": 1,
-        "baseColorMap": "/vehicles/sunburst2/hashiriya_paint/hb_kaido_b.color.png",
-        "colorPaletteMap": "/vehicles/sunburst2/hashiriya_paint/hb_kaido_p.color.png"
-      },
-      {},
-      {}
-    ],
-    "activeLayers": 2,
-    "dynamicCubemap": true,
-    "materialTag0": "beamng",
-    "materialTag1": "vehicle",
-    "version": 1.5
-  },
-  "sunburst2_main.skin.hb_twotone": {
-    "name": "sunburst2_main.skin.hb_twotone",
-    "mapTo": "sunburst2_main.skin.hb_twotone",
-    "class": "Material",
-    "Stages": [
-      {
-        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
-        "baseColorMap": "/vehicles/sunburst2/sunburst2_main_b.color.png",
-        "metallicFactor": 1,
-        "metallicMap": "/vehicles/sunburst2/sunburst2_main_m.data.png",
-        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
-        "roughnessMap": "/vehicles/sunburst2/sunburst2_main_r.data.png"
-      },
-      {
-        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
-        "clearCoatFactor": 1,
-        "clearCoatMap": "/vehicles/sunburst2/sunburst2_main_cc.data.png",
-        "colorPaletteMapUseUV": 1,
-        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
-        "detailNormalMapStrength": 0.100000001,
-        "detailScale": [
-          128,
-          64
-        ],
-        "diffuseMapUseUV": 1,
-        "instanceDiffuse": true,
-        "metallicFactor": 1,
-        "metallicMapUseUV": 1,
-        "normalDetailMapUseUV": 1,
-        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
-        "opacityMap": "/vehicles/sunburst2/sunburst2_main_c.data.png",
-        "roughnessMapUseUV": 1,
-        "baseColorMap": "/vehicles/sunburst2/hashiriya_paint/hb_twotone_b.color.png",
-        "colorPaletteMap": "/vehicles/sunburst2/hashiriya_paint/hb_twotone_p.color.png"
-      },
-      {},
-      {}
-    ],
-    "activeLayers": 2,
-    "dynamicCubemap": true,
-    "materialTag0": "beamng",
-    "materialTag1": "vehicle",
-    "version": 1.5
-  },
   "sunburst2_main.skin.hb_raceteam": {
     "name": "sunburst2_main.skin.hb_raceteam",
     "mapTo": "sunburst2_main.skin.hb_raceteam",
@@ -297,6 +165,182 @@
         "roughnessMapUseUV": 1,
         "baseColorMap": "/vehicles/sunburst2/hashiriya_paint/hb_streetdrift_team_b.color.png",
         "colorPaletteMap": "/vehicles/sunburst2/hashiriya_paint/hb_streetdrift_team_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "sunburst2_main.skin.hb_tech_wedge": {
+    "name": "sunburst2_main.skin.hb_tech_wedge",
+    "mapTo": "sunburst2_main.skin.hb_tech_wedge",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "baseColorMap": "/vehicles/sunburst2/sunburst2_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/sunburst2/sunburst2_main_m.data.png",
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "roughnessMap": "/vehicles/sunburst2/sunburst2_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/sunburst2/sunburst2_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.100000001,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "opacityMap": "/vehicles/sunburst2/sunburst2_main_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/sunburst2/hashiriya_paint/hb_tech_wedge_b.color.png",
+        "colorPaletteMap": "/vehicles/sunburst2/hashiriya_paint/hb_tech_wedge_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "sunburst2_main.skin.hb_tech_layers": {
+    "name": "sunburst2_main.skin.hb_tech_layers",
+    "mapTo": "sunburst2_main.skin.hb_tech_layers",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "baseColorMap": "/vehicles/sunburst2/sunburst2_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/sunburst2/sunburst2_main_m.data.png",
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "roughnessMap": "/vehicles/sunburst2/sunburst2_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/sunburst2/sunburst2_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.100000001,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "opacityMap": "/vehicles/sunburst2/sunburst2_main_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/sunburst2/hashiriya_paint/hb_tech_layers_b.color.png",
+        "colorPaletteMap": "/vehicles/sunburst2/hashiriya_paint/hb_tech_layers_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "sunburst2_main.skin.hb_tech_chevron": {
+    "name": "sunburst2_main.skin.hb_tech_chevron",
+    "mapTo": "sunburst2_main.skin.hb_tech_chevron",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "baseColorMap": "/vehicles/sunburst2/sunburst2_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/sunburst2/sunburst2_main_m.data.png",
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "roughnessMap": "/vehicles/sunburst2/sunburst2_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/sunburst2/sunburst2_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.100000001,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "opacityMap": "/vehicles/sunburst2/sunburst2_main_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/sunburst2/hashiriya_paint/hb_tech_chevron_b.color.png",
+        "colorPaletteMap": "/vehicles/sunburst2/hashiriya_paint/hb_tech_chevron_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "sunburst2_main.skin.hb_tech_checker": {
+    "name": "sunburst2_main.skin.hb_tech_checker",
+    "mapTo": "sunburst2_main.skin.hb_tech_checker",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "baseColorMap": "/vehicles/sunburst2/sunburst2_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/sunburst2/sunburst2_main_m.data.png",
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "roughnessMap": "/vehicles/sunburst2/sunburst2_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/sunburst2/sunburst2_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.100000001,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "metallicMapUseUV": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "opacityMap": "/vehicles/sunburst2/sunburst2_main_c.data.png",
+        "roughnessMapUseUV": 1,
+        "baseColorMap": "/vehicles/sunburst2/hashiriya_paint/hb_tech_checker_b.color.png",
+        "colorPaletteMap": "/vehicles/sunburst2/hashiriya_paint/hb_tech_checker_p.color.png"
       },
       {},
       {}
