@@ -2,6 +2,14 @@
 
 ## Alpha 0.9.2 (as of 2026-11-04)
 
+### New main parking areas and travel
+- New: two main parking areas placed by JDMArsch (LXZ aka. LXZockt): **Heiwajima PA** and **Oi PA (Westbound)**, each with 16 parking bays. Cars park there, drivers wait to talk, rivals hang out, and you can nap in your car.
+- All main parking areas (Shibaura and Tatsumi too) are now on the big map (M), with name, description and preview picture. The pictures are still placeholders in `art/pa/`.
+- Dev version: the main parking areas have a Quick Travel button on the big map, and "Go" in the dev menu takes you to the arrival point.
+- New: travel. Leave the C1 slowly at an exit, then pick a destination in the left menu: the garage or a main parking area you have visited. Travelling skips time and costs fuel.
+- Start PA: in the garage (Service tab) use "Head out from ..." to start at a visited main parking area, at the same cost.
+- All 66 on- and off-ramps by JDMArsch are in. The on-ramps are prepared for the map change after 1.0.
+
 ### Colorable Japan liveries
 - New: 4 modern Factory Tech styles after new references by JDMArsch (LXZ aka. LXZockt): wedge with slash cuts, layered bars, chevron band and checker. Available on Pessima Mk2, Covet, Sunburst and SBR4.
 - Changed: each car now only gets the styles that fit its era and drivetrain. No drift on front-wheel drive cars, no Bosozoku, Kaido or two-tone on modern cars, drift added on the Sunburst. 44 paint designs in total.
@@ -15,7 +23,7 @@
 - New: speed limits apply during the day. Speed cameras are the 45 fixed speed traps on C1, and now and then the police run laser checks. Nothing is measured at night.
 - Speed camera: drive past a speed trap too fast and you get flashed and fined, the faster the pricier. Counted per game day: 1st and 2nd time only money, from the 3rd time the police come as well.
 - Laser check: on each day a patrol car waits at a few police spots for a few hours. Too fast there and it chases you right away. At first there are 1 to 2 checks a day, more as your rank rises because word of the night races gets around.
-- The minimap and radar only show a check once you have seen it that day. Patrol cars in a chase flash red and blue there.
+- The minimap and radar only show a check once you have seen it that day. Patrol cars in a chase flash red there, checks are white-grey. All police lights are red like in Japan, including the flashers on the Sunburst patrol car and "POLICE" in the status.
 - Chase with 1 to 3 stars in the status at the top right. 1 star: the police follow you and want you to stop (ticket). 2 stars (kept fleeing, crashes, flashed again or already ticketed today): they overtake you and brake you down. 3 stars: they ram you. Stopping at 3 stars = arrest, a big fine and a tow to the garage.
 - Escape: stay out of sight long enough and the police give up. That earns a little REP (less than beating a rival, only 3 times a day).
 - During a chase, saving, napping, towing, parking menus and challenges are blocked.
@@ -176,6 +184,7 @@
 
 ### Handbook
 - Every file and folder name in the handbook is now a link: click opens the file, the folder icon next to it opens its folder. New in "Folders and files": quick access to the most important files and folders.
+- Chapter "Testing" links the tick-off test list, now with 114 new tests for all features from 1 to 4 Nov 2026.
 - Links open in the browser, in Explorer or directly in the editor (set up Explorer/editor once with tools\Handbuch-Links-einrichten.bat).
 
 ### Bug fixes
@@ -211,7 +220,7 @@
 - Every rival now has a driving style: clean racer, blocker or rammer.
 - Clean racers leave you room. Blockers close the line in front of you more often. Rammers look for contact beside you and brake-check.
 - Rivals without a fixed style get one that matches their aggression. Bosses are never rammers on their own.
-- The style is shown in the rival lexicon once you know the rival.
+- The style is shown in the rival lexicon once you know the rival (since Alpha 0.9.2 as a colourless symbol, the text only in the dev version).
 
 ### New: Music controls
 - New music: four AI placeholder songs (Full Throttle Soul, Kaze ni Nare, Midnight King, Moeagare) play in all situations for now. They are marked as AI in the credits, can be switched off per situation and will be replaced by real tracks. The old Kevin MacLeod tracks are gone.

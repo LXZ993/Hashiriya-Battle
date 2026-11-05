@@ -35,7 +35,7 @@ angular.module('beamng.apps')
           '.hbn-police .hbn-hole{animation:hbnPolice .7s ease-in-out infinite alternate;}',
           '.hbn-pol{position:absolute;left:8px;bottom:-18px;font-size:11px;font-weight:900;font-style:italic;letter-spacing:1px;text-transform:uppercase;color:#ff5a3c;}',
           '.hbn-pol-low{color:#8fa3bf;}',
-          '@keyframes hbnPolice{from{box-shadow:inset 0 0 10px 3px rgba(255,40,40,.9);}to{box-shadow:inset 0 0 10px 3px rgba(40,90,255,.9);}}',
+          '@keyframes hbnPolice{from{box-shadow:inset 0 0 10px 3px rgba(255,40,40,.9);}to{box-shadow:inset 0 0 10px 3px rgba(255,40,40,.15);}}',
         '</style>',
       '</div>'
     ].join(''),

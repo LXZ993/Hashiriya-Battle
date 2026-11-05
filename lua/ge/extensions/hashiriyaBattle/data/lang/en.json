@@ -1004,5 +1004,20 @@
   "police.hud.stopping": "Stopping …",
   "police.hud.check": "Police check",
   "police.hud.evading": "Out of sight",
-  "police.hud.cams": "Speed cameras today: %d"
+  "police.hud.cams": "Speed cameras today: %d",
+  "travel.menu": "Travel",
+  "travel.fromRamp": "Exit %s: choose a destination",
+  "travel.fromGarage": "Head out from ...",
+  "travel.poiDesc": "Main parking area: drivers to talk to, rivals, parking, nap in the car.",
+  "travel.rampHint": "%s: leave the C1? Menu (%s) > Travel",
+  "travel.arrived": "Arrived: %s (%s on the road, %s l fuel)",
+  "travel.note": "Travelling skips time and costs fuel. Only to parking areas you have visited.",
+  "travel.no.battle": "Not during a battle.",
+  "travel.no.police": "Not during a pursuit.",
+  "travel.no.job": "Finish the side job first.",
+  "travel.no.noCar": "You can only travel by car.",
+  "travel.no.here": "You can only travel from an exit or from the garage.",
+  "travel.no.notVisited": "Not visited yet",
+  "travel.no.fuel": "Not enough fuel",
+  "travel.no.busy": "Already on the way."
 }
