@@ -1,5 +1,6 @@
 # Street Drift B: Team-Schriftzug + duennes Tribal + Sponsoren (Variante 0 abgenommen), Texte je Auto aus cars.py
 from vcsvg import Doc
+from lore_common import sticker
 from flame import tongue
 from txt import text
 from cars import variant, CAR, sponsors
@@ -25,7 +26,7 @@ else:         # kein Seitentribal, grosser Schriftzug flach, Tribal nur auf der 
 for t in tri: D.side('Farbe_3_Tribal_BLAU', t, 3)
 D.side_text('Farbe_2_Schriftzug_GRUEN', C['team'], KS, 42, sx, sy, 2, rot=rot, stroke=1, sw=7)
 D.side_text('Schwarz_Sticker', 'Team', KS, 19, tx, ty, 'k', rot=rot, stroke=1, sw=4, xr=D.lw - 2 * sx + tx, yr=ty)
-for s, h, x, y in stk: D.side_logo('Schwarz_Sticker', s, x, y, h)
+for s, h, x, y in stk: sticker(D, 'Fest_Aufkleber', s, x, y, h * 0.8)
 cx = D.tw / 2
 if V == 2:
     hood = [tongue([(30, 20), (40, 100), (54, 190), (72, 280)], 20, head=0.25, bulge=0.6),

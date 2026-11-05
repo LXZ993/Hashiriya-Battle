@@ -6,7 +6,7 @@ from vcsvg import Doc
 from txt import text
 from cars import CAR
 from tribal import to_d, union
-from lore_common import pg
+from lore_common import pg, sticker
 D = Doc(); M = D.model; C = CAR[M]; L, TW = D.lw, D.tw
 RB, ZK = 'RobotoCondensed.ttf', 'ZenKakuGothicNew-Bold.ttf'
 SHOP = {'bx': 'tuningstudio', 'miramar': 'grunt_1', 'pessima': 'tuningstudio', 'midsize': 'grunt_1',
@@ -30,14 +30,14 @@ elif M == 'pessima':   # Band auf Tuermitte, laeuft hinten in drei kleiner werde
     D.side(S3, to_d(box(150, 161, 590, 163)), 3)
     D.side_logo(S3, SHOP, 380, 120, 26 * GH, key=3)
     D.side_text(W, NAME + '  ·  DEMO CAR', RB, 6.5, 370, 149, 1, track=0.3)
-    for i, s in enumerate(STK): D.side_logo(S3, s, 800, 120 + i * 13, 7, key=3)
+    for i, s in enumerate(STK): sticker(D, 'Fest_Aufkleber', s, 800, 118 + i * 15, 7)
     D.top(S2, to_d(box(TW / 2 - 16, 0, TW / 2 + 16, 300)), 2)
     D.top_logo(S3, SHOP, TW / 2, 840, 24 * GH, key=3)
 elif M == 'midsize':   # grosses Shop-Logo hinten in Farbe 2, Schriftzeile unter dem Fenster, Keil vorn unten
     D.side_logo(S2, SHOP, 560, 140, 46 * GH, key=2)
     D.side_text(S3, NAME + '  ·  ' + model + ' DEMO', RB, 6.5, 420, 110, 3, track=0.35)
     D.side(S3, to_d(pg([(280, 192), (L - 40, 188), (L - 40, 190.5), (280, 194.5)])), 3)
-    for i, s in enumerate(STK[:2]): D.side_logo(S3, s, 160 + i * 0, 118 + i * 14, 8, key=3)
+    for i, s in enumerate(STK[:2]): sticker(D, 'Fest_Aufkleber', s, 160, 116 + i * 17, 8)
     D.top_logo(S2, SHOP, TW / 2, 520, 40 * GH, key=2)
     D.top_logo(S3, SHOP, TW / 2, 840, 22 * GH, key=3)
 elif M == 'covet':   # Hot-Hatch: Heckkeil unten in Farbe 2, Logo darin in Farbe 1
@@ -45,7 +45,7 @@ elif M == 'covet':   # Hot-Hatch: Heckkeil unten in Farbe 2, Logo darin in Farbe
     D.side(S3, to_d(pg([(166, 216), (414, 134), (L + 20, 134), (L + 20, 137), (417, 137), (172, 216)])), 3)
     D.side_logo(W, SHOP, 435, 182, 30 * GH, key=1)
     D.side_text(S3, model + ' DEMO', RB, 6.5, 300, 120, 3, track=0.3)
-    D.side_logo(S3, STK[0], 170, 120, 9, key=3)
+    sticker(D, 'Fest_Aufkleber', STK[0], 170, 120, 9)
     D.top(S2, to_d(box(-20, 760, TW + 20, 920)), 2)
     D.top_logo(W, SHOP, TW / 2, 840, 24 * GH, key=1)
 elif M == 'sunburst2':   # Haube + Dach in Farbe 2 (Carbon-Look), feine Schulterlinie, dezentes Seitenlogo
@@ -68,6 +68,6 @@ else:   # 200BX (abgenommen): Schwellerband in Farbe 2, Logo auf der Tuer
     D.side(S3, to_d(Polygon([(-20, 161), (L + 20, 153), (L + 20, 155.5), (-20, 163.5)])), 3)
     D.side_text(W, NAME + '  ·  DEMO CAR', RB, 8, 445, 177, 1, track=0.3)
     D.side_logo(S3, SHOP, 450, 128, 38 if SHOP == 'tuningstudio' else 22, key=3)
-    for i, s in enumerate(STK): D.side_logo(S3, s, 828, 124 + i * 14, 8, key=3)
+    for i, s in enumerate(STK): sticker(D, 'Fest_Aufkleber', s, 828, 120 + i * 16, 8)
     D.top_logo(S3, SHOP, TW / 2, 840, 30 if SHOP == 'tuningstudio' else 20, key=3)
 D.write('bx_shopdemo_a')
