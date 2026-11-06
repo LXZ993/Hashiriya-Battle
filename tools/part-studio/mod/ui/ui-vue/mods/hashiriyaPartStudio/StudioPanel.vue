@@ -152,26 +152,21 @@
         </div>
         <div class="hps-check" :class="{ 'is-on': s.studioPaint }" @click="set('studioPaint', !s.studioPaint)"><i></i>Einheitlicher Studio-Lack (silbergrau)</div>
         <div class="hps-check" :class="{ 'is-on': s.skipExisting }" @click="set('skipExisting', !s.skipExisting)"><i></i>Vorhandene Bilder überspringen</div>
-        <div class="hps-check" :class="{ 'is-on': s.noonLight }" @click="set('noonLight', !s.noonLight)"><i></i>Mittagslicht während der Aufnahme (bei „Tageslicht“)</div>
+        <div class="hps-check" :class="{ 'is-on': s.noonLight }" @click="set('noonLight', !s.noonLight)"><i></i>Mittagsfarbe des Sonnenlichts während der Aufnahme</div>
         <div class="hps-check" :class="{ 'is-on': s.singlePair }" @click="set('singlePair', !s.singlePair)"><i></i>Paare nur einmal zeigen (Felgen, Reifen, Bremsen …)</div>
         <div class="hps-check" :class="{ 'is-on': s.autoView }" @click="set('autoView', !s.autoView)"><i></i>Besten Blickwinkel automatisch suchen (5 Ansichten je Teil, die mit dem meisten Inhalt gewinnt)</div>
         <div class="hps-sec">Licht</div>
-        <div class="hps-row"><span>Licht</span>
-          <span class="hps-chip" :class="{ 'is-on': s.lighting !== 'studio' }" @click="set('lighting', 'day')">Tageslicht</span>
-          <span class="hps-chip" :class="{ 'is-on': s.lighting === 'studio' }" @click="set('lighting', 'studio')">Studio (Versuch)</span>
-        </div>
-        <div class="hps-rgb hps-slider"><span>Studio-Lampen</span>
-          <input type="range" min="0" max="3" step="0.1" :value="s.light" @change="set('light', Number($event.target.value))" /><em>{{ Number(s.light || 0).toFixed(1) }}×</em></div>
-        <div class="hps-rgb hps-slider"><span>Belichtung</span>
-          <input type="range" min="-2" max="3" step="0.25" :value="s.exposure" @change="set('exposure', Number($event.target.value))" /><em>{{ (Number(s.exposure) > 0 ? "+" : "") + Number(s.exposure || 0).toFixed(2) }}</em></div>
-        <div class="hps-note">Neue Licht-Einstellungen gelten für neue Bilder. Alte Bilder neu machen: „Vorhandene Bilder überspringen“ ausschalten oder in der Galerie „Neu aufnehmen“.</div>
+        <div class="hps-note">Die Sonne steht bei jedem Bild hinter der Kamera. Zu Beginn jedes Laufs misst das Studio am ganzen Auto die Belichtung ein; danach gilt sie für alle Teile gleich.</div>
+        <div class="hps-rgb hps-slider"><span>Helligkeit</span>
+          <input type="range" min="-2" max="2" step="0.25" :value="s.brightness" @change="set('brightness', Number($event.target.value))" /><em>{{ (Number(s.brightness) > 0 ? "+" : "") + Number(s.brightness || 0).toFixed(2) }}</em></div>
+        <div class="hps-note">Neue Einstellungen gelten für neue Bilder. Alte Bilder neu machen: „Vorhandene Bilder überspringen“ ausschalten oder in der Galerie „Neu aufnehmen“.</div>
         <div class="hps-sec">Kamera</div>
         <div class="hps-rgb hps-slider"><span>Abstand ums Teil</span>
           <input type="range" min="1" max="1.6" step="0.02" :value="s.padding" @change="set('padding', Number($event.target.value))" /><em>{{ Number(s.padding).toFixed(2) }}</em></div>
         <div class="hps-rgb hps-slider"><span>Blickwinkel</span>
           <input type="range" min="15" max="50" step="1" :value="s.fov" @change="set('fov', Number($event.target.value))" /><em>{{ s.fov }}°</em></div>
         <div class="hps-rgb hps-slider"><span>Wartezeit je Bild</span>
-          <input type="range" min="0.2" max="2" step="0.1" :value="s.settleDelay" @change="set('settleDelay', Number($event.target.value))" /><em>{{ Number(s.settleDelay).toFixed(1) }} s</em></div>
+          <input type="range" min="1" max="2.5" step="0.1" :value="s.settleDelay" @change="set('settleDelay', Number($event.target.value))" /><em>{{ Number(s.settleDelay).toFixed(1) }} s</em></div>
         <div class="hps-note">Die Bilder liegen im BeamNG-Benutzerordner unter art/partPreviews/ (ein Bild je Teilname).</div>
         <div class="hps-btns">
           <span class="hps-btn" @click="openFolder">Ordner öffnen</span>

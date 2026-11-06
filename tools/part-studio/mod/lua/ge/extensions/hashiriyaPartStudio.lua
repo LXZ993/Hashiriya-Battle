@@ -30,18 +30,16 @@ local defaults = {
   supersampling = 2,             -- intern größer rendern und verkleinern (glattere Kanten)
   fov = 28,                      -- Blickwinkel der Studio-Kamera (Grad, vertikal)
   padding = 1.12,                -- Abstand um das Teil (1 = randvoll)
-  settleDelay = 0.6,             -- Wartezeit vor jedem Bild (Belichtung der neuen Kamera)
+  settleDelay = 1.0,             -- Wartezeit vor jedem Bild (eine neue Kamera braucht ~1 s, bis die Nachbearbeitung stimmt)
   background = 'focus',          -- 'focus' = nur das Teil, 'scene' = Teil vor dem Himmel/der Umgebung
   bgColor = { 0.10, 0.11, 0.13 },-- Hintergrundfarbe im Modus 'focus'
   studioPaint = true,            -- alle Teile im gleichen silbergrauen Lack (einheitlicher Katalog)
   skipExisting = true,           -- schon vorhandene Bilder nicht neu machen
   noonLight = true,              -- während der Aufnahme Mittag einstellen (gleiches Licht für alle Bilder)
   heightAboveCamera = 150,       -- Studio-Auto so weit über der Kamera
-  light = 1.0,                   -- Stärke der Studio-Lampen (Haupt-, Füll-, Kantenlicht), 0 = aus
-  exposure = 1.0,                -- Belichtung in Blendenstufen (+1 = doppelt so hell)
+  brightness = 0,                -- Helligkeit in Blendenstufen gegenüber der gemessenen Standard-Belichtung (+1 = doppelt so hell)
   singlePair = true,             -- Paare (Felgen, Reifen, Bremsen links/rechts) nur einmal zeigen
   autoView = true,               -- mehrere Blickwinkel gleichzeitig aufnehmen und den besten nehmen
-  lighting = 'day',              -- 'day' = Tageslicht + Lampen als Aufhellung; 'studio' = Nacht, nur Lampen (Versuch, Lampen gehen noch nicht)
   types = { Car = true, Truck = true }, -- Fahrzeugtypen in der Modell-Liste
 }
 
@@ -440,178 +438,12 @@ local function restoreAA()
   if aaRestore then settings.setValue('GraphicAntialias', aaRestore); aaRestore = nil end
 end
 
-local function mainExposure()
-  local le = scenetree.findObject('PostEffectLocalExposureObject')
-  if not le then return nil, nil end
-  local view = RenderViewManagerInstance:getView('main')
-  if le.autoExposure == true then return nil, view and view.currentExposure or nil end
-  return le.manualEV, nil
-end
-
--- Studio-Lampen: sechs Spots rundum (vier schräg von oben, eins von oben, eins schwach von unten).
--- Sie hängen nicht an der Kamera, damit mehrere Blickwinkel gleichzeitig gleich hell aufgenommen werden können.
--- lux = Beleuchtungsstärke am Teil; wie bei den BeamNG-Thumbnails (1000 lx bei Belichtung EV 8.3).
-local studioLights = {}
-local lightRoles = {
-  { name = 'fr', az = 45,  el = 35, lux = 700 },
-  { name = 'fl', az = -45, el = 35, lux = 600 },
-  { name = 'rr', az = 135, el = 35, lux = 450 },
-  { name = 'rl', az = -135, el = 35, lux = 450 },
-  { name = 'top', az = 0,  el = 89, lux = 500 },
-  { name = 'low', az = 90, el = -35, lux = 200 },
-}
-
-local function createLights()
-  if #studioLights > 0 then return end
-  for _, r in ipairs(lightRoles) do
-    local ok, l = pcall(function()
-      local o = createObject('SpotLight')
-      o:setField('color', 0, '1 1 1 1')
-      o:setField('isEnabled', 0, '1')
-      o:registerObject('hashiriyaPartStudio_' .. r.name)
-      o.canSave = false
-      if scenetree.MissionGroup then scenetree.MissionGroup:addObject(o) end
-      return o
-    end)
-    if ok and l then table.insert(studioLights, l) else log('W', logTag, 'Studio-Lampe nicht angelegt: ' .. tostring(l)) end
-  end
-end
-
-local function deleteLights()
-  for _, l in ipairs(studioLights) do pcall(function() l:delete() end) end
-  studioLights = {}
-end
-
-local lightErrLogged, lightInfoLogged = false, false
-local function studioMode() return cfg.lighting == 'studio' and cfg.background == 'focus' end
-
--- Lampen um das Teil stellen (Richtungen in Fahrzeugachsen: az 0 = vorne, 90 = rechts)
-local function placeLights(frame, center)
-  local mult = tonumber(cfg.light) or 1
-  if not studioMode() then mult = mult * 3 end -- bei Tageslicht nur als Aufhellung
-  local radius = frame.half:length()
-  for i, l in ipairs(studioLights) do
-    local r = lightRoles[i]
-    local d = math.max(3, radius * 3 + 2)
-    local a, e = math.rad(r.az), math.rad(r.el)
-    local dirLocal = vec3(math.sin(a) * math.cos(e), math.cos(a) * math.cos(e), math.sin(e))
-    local dir = (frame.right * dirLocal.x + frame.fwd * dirLocal.y + frame.up * dirLocal.z):normalized()
-    local pos = center + dir * d
-    local up = math.abs(dir.z) > 0.98 and frame.fwd or vec3(0, 0, 1)
-    local q = quatFromDir((center - pos):normalized(), up)
-    local okL, errL = pcall(function()
-      local m = QuatF(q.x, q.y, q.z, q.w):getMatrix()
-      m:setPosition(pos)
-      l:setTransform(m)
-      local cone = math.min(150, 2 * math.deg(math.asin(math.min(1, (radius + 0.5) / d))) + 5)
-      l:setField('intensity', 0, tostring(r.lux * mult * d * d))
-      l:setField('range', 0, tostring(d + radius * 2 + 5))
-      l:setField('innerAngle', 0, tostring(cone))
-      l:setField('outerAngle', 0, tostring(math.min(170, cone + 20)))
-      l:setField('castShadows', 0, '0')
-      l:setField('isEnabled', 0, mult > 0 and '1' or '0')
-      if l.postApply then l:postApply() end
-    end)
-    if not okL and not lightErrLogged then
-      lightErrLogged = true
-      log('W', logTag, 'Studio-Lampe nicht gestellt: ' .. tostring(errL))
-    end
-  end
-  if not lightInfoLogged and studioLights[1] then
-    lightInfoLogged = true
-    local l = studioLights[1]
-    pcall(function()
-      log('I', logTag, string.format('Lampe 1: Klasse=%s an=%s Stärke=%s Reichweite=%s Pos=%s', tostring(l:getClassName()),
-        tostring(l:getField('isEnabled', 0)), tostring(l:getField('intensity', 0)), tostring(l:getField('range', 0)),
-        tostring(l:getPosition())))
-    end)
-  end
-end
 
 local function fileSize(path)
   local ok, data = pcall(readFile, path)
   if ok and type(data) == 'string' then return #data end
-  local ok2, st = pcall(function() return FS:stat(path) end)
-  if ok2 and type(st) == 'table' then return tonumber(st.filesize) or 0 end
-  return 0
-end
-
--- Offscreen-Bilder über eigene RenderViews (eine je Blickwinkel, alle gleichzeitig).
--- Der Bildschirm und die Oberfläche bleiben unverändert. Bei mehreren Blickwinkeln gewinnt das Bild
--- mit dem meisten Inhalt (größte JPG-Datei; leerer Hintergrund packt sich klein), der geschätzte Blickwinkel
--- bekommt einen Vorsprung (35 %), der Blick von oben einen kleinen Nachteil.
-local function shoot(veh, shots, filename, done)
-  local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
-  local w, h = math.floor(cfg.width * ss), math.floor(cfg.height * ss)
-  local manualEV, curExp = mainExposure()
-  local boost = tonumber(cfg.exposure) or 0
-  local views_ = {}
-  for i, sh in ipairs(shots) do
-    local name = VIEW_NAME .. i
-    local rv = RenderViewManagerInstance:getOrCreateView(name)
-    rv.luaOwned = true
-    local mat = QuatF(sh.rot.x, sh.rot.y, sh.rot.z, sh.rot.w):getMatrix()
-    mat:setPosition(sh.pos)
-    rv.renderCubemap = false
-    rv.cameraMatrix = mat
-    rv.resolution = Point2I(w, h)
-    rv.viewPort = RectI(0, 0, w, h)
-    rv.namedTexTargetColor = name
-    rv.frustum = Frustum.construct(false, math.rad(cfg.fov), w / h, 0.05, 2000)
-    rv.fov = cfg.fov
-    rv.renderEditorIcons = false
-    if cfg.background == 'focus' then
-      pcall(function()
-        rv:enterFocusObjectsMode()
-        rv:addFocusObject(veh)
-        for _, l in ipairs(studioLights) do rv:addFocusObject(l) end
-      end)
-      local c = cfg.bgColor or defaults.bgColor
-      pcall(function() rv.clearColor = ColorF(c[1], c[2], c[3], 1) end)
-    end
-    if studioMode() then
-      -- feste Belichtung wie im BeamNG-Thumbnail-Studio (EV 8.3), Regler „Belichtung“: +1 = doppelt so hell
-      rv.useManualEV = true
-      rv.manualEV = 9.3 - boost
-    else
-      rv.useManualEV = manualEV ~= nil
-      -- Tageslicht: eine Blendenstufe heller als die Hauptansicht als Grundwert (die Schattenseite ist sonst zu dunkel)
-      local stops = boost + 1.75
-      rv.manualEV = (manualEV or 0) - stops
-      if not rv.useManualEV and curExp and curExp > 0 then rv.currentExposure = curExp * (2 ^ stops) end
-    end
-    table.insert(views_, rv)
-  end
-
-  core_jobsystem.create(function(j)
-    j.sleep(cfg.settleDelay or 0.6)
-    local best, bestScore, bestBmp = nil, -1, nil
-    for i, rv in ipairs(views_) do
-      local tmp = filename .. '.tmp' .. i .. '.png'
-      FS:removeFile(tmp)
-      if rv:saveToDisk(tmp) then
-        local bmp = GBitmap()
-        if bmp:loadFile(tmp) then
-          bmp:setFormat(10) -- R8G8B8
-          local out = ss > 1 and bmp:createDownscaledBitmap(ss) or bmp
-          if out then
-            local score = 1
-            if #views_ > 1 then
-              local cand = filename .. '.cand' .. i .. '.jpg'
-              if out:saveFile(cand) then score = fileSize('/' .. cand) end
-              FS:removeFile(cand)
-              if i == 1 then score = score * 1.35 elseif i == 5 then score = score * 0.85 end
-            end
-            if score > bestScore then best, bestScore, bestBmp = i, score, out end
-          end
-        end
-      end
-      FS:removeFile(tmp)
-      RenderViewManagerInstance:destroyView(rv)
-    end
-    local ok = bestBmp and bestBmp:saveFile(filename) or false
-    done(ok and true or false, best)
-  end)
+  local ok2, n = pcall(function() return FS:fileSize(path) end)
+  return ok2 and tonumber(n) or 0
 end
 
 local function now() return os.clock() end
@@ -676,6 +508,290 @@ local function spawnStudio(model, config)
   local vd = core_vehicle_manager.getVehicleData(job.vehId)
   if not veh2 or not vd or not vd.vdata then return nil end
   return veh2, vd
+end
+
+-- Licht: die Sonne ist das Studio-Licht ---------------------------------------------------------------
+-- Eigene Lampen leuchten in einer Fokus-RenderView nicht (getestet). Die Sonne wirkt dort sicher.
+-- Darum wird für jedes Bild die Sonne als Hauptlicht hinter die Kamera gestellt (leicht seitlich, 40° hoch),
+-- wie ein Fotograf mit der Sonne im Rücken. So sind die sichtbaren Flächen neutral von der Sonne beleuchtet
+-- und nicht nur bläulich vom Himmel.
+-- Die Sonne wird über core_celestial.setDriver gestellt (Azimut/Elevation in Grad, wie im Spiel).
+-- Welche Welt-Richtung zu welchem Azimut gehört, misst das Studio einmal pro Lauf selbst nach (calibrate).
+
+local sunTarget = nil        -- { az, el } in Grad, solange das Studio die Sonne stellt
+local sunPrevDriver = false  -- vorheriger celestial-Treiber (false = keiner gesetzt)
+local sunMapCache = {}       -- Level -> Nummer der Azimut-Formel
+local sunSaved = nil         -- Sonnenstand vor dem Lauf (wird danach zurückgesetzt)
+
+local azFormulas = {
+  function(d) return math.deg(math.atan2(d.x, d.y)) end,
+  function(d) return math.deg(math.atan2(-d.x, d.y)) end,
+  function(d) return math.deg(math.atan2(d.x, -d.y)) end,
+  function(d) return math.deg(math.atan2(-d.x, -d.y)) end,
+}
+
+local function findSky()
+  local ok, names = pcall(scenetree.findClassObjects, 'ScatterSky')
+  if ok and type(names) == 'table' and names[1] then return scenetree.findObject(names[1]) end
+  return nil
+end
+
+local function applySunDirect()
+  if not sunTarget then return end
+  local sky = findSky()
+  if sky then
+    pcall(function()
+      sky.azimuth = sunTarget.az
+      sky.elevation = sunTarget.el
+    end)
+  end
+end
+
+local function setSunDir(worldDir, formula)
+  local d = worldDir:normalized()
+  local az = azFormulas[formula or 1](d) % 360
+  local el = math.deg(math.asin(math.max(-1, math.min(1, d.z))))
+  if not sunSaved then
+    local sky = findSky()
+    if sky then pcall(function() sunSaved = { az = tonumber(sky.azimuth), el = tonumber(sky.elevation) } end) end
+  end
+  sunTarget = { az = az, el = el }
+  if sunPrevDriver == false and core_celestial and core_celestial.setDriver then
+    sunPrevDriver = core_celestial.getDriver and core_celestial.getDriver() or nil
+    core_celestial.setDriver(function(ctx)
+      if sunTarget then ctx.sunAz = sunTarget.az; ctx.sunEl = sunTarget.el end
+    end)
+  end
+  applySunDirect()
+end
+
+local function restoreSun()
+  sunTarget = nil
+  if sunSaved and sunSaved.az and sunSaved.el then
+    local sky = findSky()
+    if sky then pcall(function() sky.azimuth = sunSaved.az; sky.elevation = sunSaved.el end) end
+  end
+  sunSaved = nil
+  if sunPrevDriver ~= false and core_celestial and core_celestial.setDriver then
+    pcall(core_celestial.setDriver, sunPrevDriver)
+  end
+  sunPrevDriver = false
+end
+
+-- Sonnenrichtung zu einer Kamera-Richtung (vom Teil zur Kamera): seitlich versetzt und angehoben
+local function keyDir(camDir, azOffsetDeg, elDeg)
+  local h = vec3(camDir.x, camDir.y, 0)
+  if h:length() < 1e-3 then h = vec3(0, 1, 0) end
+  h = h:normalized()
+  local a = math.rad(azOffsetDeg)
+  local hr = vec3(h.x * math.cos(a) - h.y * math.sin(a), h.x * math.sin(a) + h.y * math.cos(a), 0)
+  local e = math.rad(elDeg)
+  return vec3(hr.x * math.cos(e), hr.y * math.cos(e), math.sin(e))
+end
+
+-- Aufnahme ---------------------------------------------------------------------------------------------
+
+local function makeView(i, veh, shot, ev)
+  local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
+  local w, h = math.floor(cfg.width * ss), math.floor(cfg.height * ss)
+  local name = VIEW_NAME .. i
+  local rv = RenderViewManagerInstance:getOrCreateView(name)
+  rv.luaOwned = true
+  local mat = QuatF(shot.rot.x, shot.rot.y, shot.rot.z, shot.rot.w):getMatrix()
+  mat:setPosition(shot.pos)
+  rv.renderCubemap = false
+  rv.cameraMatrix = mat
+  rv.resolution = Point2I(w, h)
+  rv.viewPort = RectI(0, 0, w, h)
+  rv.namedTexTargetColor = name
+  rv.frustum = Frustum.construct(false, math.rad(cfg.fov), w / h, 0.05, 2000)
+  rv.fov = cfg.fov
+  rv.renderEditorIcons = false
+  if cfg.background == 'focus' then
+    pcall(function()
+      rv:enterFocusObjectsMode()
+      rv:addFocusObject(veh)
+    end)
+    local c = cfg.bgColor or defaults.bgColor
+    pcall(function() rv.clearColor = ColorF(c[1], c[2], c[3], 1) end)
+  end
+  rv.useManualEV = true
+  rv.manualEV = ev
+  return rv
+end
+
+-- Bild der RenderView holen, verkleinert (GBitmap) oder nil
+local function grab(rv, base, i)
+  local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
+  local tmp = base .. '.tmp' .. i .. '.png'
+  FS:removeFile(tmp)
+  local out = nil
+  if rv:saveToDisk(tmp) then
+    local bmp = GBitmap()
+    if bmp:loadFile(tmp) then
+      bmp:setFormat(10) -- R8G8B8
+      out = ss > 1 and bmp:createDownscaledBitmap(ss) or bmp
+    end
+  end
+  FS:removeFile(tmp)
+  return out
+end
+
+local function dropView(rv) pcall(function() RenderViewManagerInstance:destroyView(rv) end) end
+
+-- Helligkeit messen: Mittelwert (0..255, sRGB) und Anteil ausgebrannter Pixel, nur über die Pixel des Teils
+-- (alles, was sich von der Hintergrundfarbe oben links unterscheidet). nil, wenn kaum Teil im Bild ist.
+local function measure(bmp)
+  if cfg.background ~= 'focus' or not bmp then return nil end
+  local ok, mean, clip = pcall(function()
+    local w, h = bmp:getWidth(), bmp:getHeight()
+    local c = ColorI(0, 0, 0, 255)
+    local function px(x, y)
+      bmp:getColor(x, y, c)
+      return (c.red or c.r or 0), (c.green or c.g or 0), (c.blue or c.b or 0)
+    end
+    local br, bgc, bb = px(0, 0)
+    local sum, n, clipN = 0, 0, 0
+    for y = 0, h - 1, 2 do
+      for x = 0, w - 1, 2 do
+        local r, g, b = px(x, y)
+        if math.abs(r - br) + math.abs(g - bgc) + math.abs(b - bb) > 18 then
+          local l = 0.2126 * r + 0.7152 * g + 0.0722 * b
+          sum = sum + l; n = n + 1
+          if l >= 248 then clipN = clipN + 1 end
+        end
+      end
+    end
+    if n < 40 then return nil end
+    return sum / n, clipN / n
+  end)
+  if not ok then return nil end
+  return mean, clip
+end
+
+-- Zielhelligkeit für das ganze Auto im Studio-Lack (Mittelwert der Auto-Pixel)
+local function targetMean()
+  local b = tonumber(cfg.brightness) or 0
+  return math.max(50, math.min(200, 118 * 2 ^ (b / 2.2)))
+end
+local function stopsTo(target, mean) return 2.2 * math.log(target / math.max(1, mean)) / math.log(2) end
+
+local function mainEV()
+  local le = scenetree.findObject('PostEffectLocalExposureObject')
+  if le and le.autoExposure ~= true and tonumber(le.manualEV) then return tonumber(le.manualEV) end
+  return 13
+end
+
+-- Einmal pro Lauf: Sonnen-Formel und Belichtung am ganzen Auto (Studio-Lack) messen.
+-- 1) bei fester Belichtung die vier möglichen Azimut-Formeln probieren: die hellste stellt die Sonne
+--    wirklich hinter die Kamera. 2) Belichtung so lange anpassen, bis das Auto die Zielhelligkeit hat.
+local function calibrate(veh, vd)
+  local car = carBox(veh, vd.vdata)
+  if not car then return end
+  local right, fwd, up = axesOf(veh)
+  local frame = { local_ = car.center, half = car.half, right = right, fwd = fwd, up = up }
+  local all = meshesOf(vd.vdata, nil)
+  for _, m in ipairs(all) do veh:setMeshAlpha(1, m, false) end
+  local dirLocal = vec3(0.75, 0.6, 0.35):normalized()
+  local pos, rot, center = cameraFrom(veh, frame, dirLocal, nil)
+  local shot = { pos = pos, rot = rot }
+  local camDir = (pos - center):normalized()
+  local settle = math.max(1.0, tonumber(cfg.settleDelay) or 1)
+  local lvl = tostring(getCurrentLevelIdentifier and getCurrentLevelIdentifier() or '')
+  local ev = job.ev or mainEV()
+
+  local function shootMean(formula)
+    setSunDir(keyDir(camDir, -30, 40), formula)
+    local rv = makeView(9, veh, shot, ev)
+    waitSeconds(settle)
+    local bmp = grab(rv, OUT_DIR .. '_calibrate', 9)
+    dropView(rv)
+    return measure(bmp)
+  end
+
+  -- erst grob belichten, damit die Messung nicht ganz schwarz oder ganz weiß ist
+  for _ = 1, 8 do
+    if job.stop then return end
+    setText('Licht einmessen: Belichtung …')
+    local mean, clip = shootMean(sunMapCache[lvl] or 1)
+    if not mean then break end
+    local st = stopsTo(targetMean(), mean)
+    if clip and clip > 0.05 and st > -0.5 then st = -1 end
+    if math.abs(st) < 1.5 then break end
+    ev = ev - math.max(-4, math.min(4, st))
+  end
+  if not sunMapCache[lvl] then
+    local best, bestMean = 1, -1
+    for f = 1, #azFormulas do
+      if job.stop then return end
+      setText('Licht einmessen: Sonnenstand ' .. f .. '/4')
+      local mean = shootMean(f)
+      if mean and mean > bestMean then best, bestMean = f, mean end
+    end
+    sunMapCache[lvl] = best
+    log('I', logTag, 'Sonnen-Formel ' .. best .. ' (hellste Messung ' .. string.format('%.0f', bestMean) .. ')')
+  end
+  job.sunFormula = sunMapCache[lvl]
+  for _ = 1, 6 do
+    if job.stop then return end
+    setText('Licht einmessen: Belichtung')
+    local mean, clip = shootMean(job.sunFormula)
+    if not mean then break end
+    local st = stopsTo(targetMean(), mean)
+    if clip and clip > 0.03 and st > -0.25 then st = -0.5 end
+    if math.abs(st) < 0.25 then break end
+    ev = ev - math.max(-3, math.min(3, st))
+  end
+  job.ev = ev
+  job.calibrated = true
+  log('I', logTag, string.format('Licht eingemessen: EV %.2f, Sonnen-Formel %d', ev, job.sunFormula or 1))
+end
+
+-- Ein Teil aufnehmen. Mehrere Blickwinkel: zuerst alle gleichzeitig (Sonne hoch) und den mit dem meisten
+-- Inhalt nehmen, dann das eigentliche Bild mit der Sonne hinter der Kamera. Die Belichtung ist für alle Teile
+-- gleich (eingemessen), damit schwarze Teile schwarz und helle hell bleiben; nur ausgebrannte oder fast
+-- schwarze Bilder werden um höchstens eine Blendenstufe nachkorrigiert.
+local function shootPart(veh, shots, file)
+  local ev = job.ev or mainEV()
+  local formula = job.sunFormula or 1
+  local best = 1
+  if #shots > 1 then
+    setSunDir(keyDir(shots[1].dir, -30, 70), formula)
+    local rvs = {}
+    for i, sh in ipairs(shots) do rvs[i] = makeView(i, veh, sh, ev) end
+    waitSeconds(0.5)
+    local bestScore = -1
+    for i, rv in ipairs(rvs) do
+      local bmp = grab(rv, file, i)
+      dropView(rv)
+      if bmp then
+        local cand = file .. '.cand' .. i .. '.jpg'
+        local score = 0
+        if bmp:saveFile(cand) then score = fileSize('/' .. cand) end
+        FS:removeFile(cand)
+        if i == 1 then score = score * 1.35 elseif i == 5 then score = score * 0.85 end
+        if score > bestScore then best, bestScore = i, score end
+      end
+    end
+  end
+  local sh = shots[best]
+  setSunDir(keyDir(sh.dir, -30, 40), formula)
+  local settle = math.max(1.0, tonumber(cfg.settleDelay) or 1)
+  local bmp, corr = nil, 0
+  for attempt = 1, 2 do
+    local rv = makeView(1, veh, sh, ev - corr)
+    waitSeconds(settle)
+    bmp = grab(rv, file, 0)
+    dropView(rv)
+    if not bmp then return false, best end
+    local mean, clip = measure(bmp)
+    if attempt == 2 or not mean then break end
+    if clip > 0.06 then corr = -1
+    elseif mean < 30 then corr = 1
+    else break end
+  end
+  local ok = bmp and bmp:saveFile(file) or false
+  return ok and true or false, best
 end
 
 -- Ein Teil fotografieren: andere Meshes aus, Kamera ausrichten, Bild speichern
@@ -744,19 +860,18 @@ local function capturePart(veh, vd, partPath, partName, slotId)
   else
     list = dirs
   end
-  local shots, center = {}, nil
+  local shots = {}
   for _, d in ipairs(list) do
     local pos, rot, c = cameraFrom(veh, frame, d, view)
-    center = c
-    table.insert(shots, { pos = pos, rot = rot })
+    table.insert(shots, { pos = pos, rot = rot, dir = (pos - c):normalized() })
   end
-  placeLights(frame, center)
   waitFrames(2)
   local file = fileOf(partName)
-  local finished, result, bestIdx = false, false, nil
-  shoot(veh, shots, file, function(ok, idx) finished, result, bestIdx = true, ok, idx end)
-  local t = now() + (cfg.settleDelay or 0.6) + 8
-  while not finished and now() < t do coroutine.yield() end
+  local okShot, result, bestIdx = pcall(shootPart, veh, shots, file)
+  if not okShot then
+    log('W', logTag, 'Aufnahme-Fehler bei ' .. tostring(partName) .. ': ' .. tostring(result))
+    result = false
+  end
   if result then
     if #list > 1 and bestIdx then views._auto[partName] = bestIdx; job.viewsChanged = true end
     job.done = job.done + 1
@@ -882,6 +997,7 @@ local function runBase(model, startCfg, label, covered, queue)
   veh, vd = spawnStudio(model, deepcopy(base))
   if not veh then job.failed = job.failed + 1; return end
   job.car = carBox(veh, vd.vdata)
+  if not job.calibrated then calibrate(veh, vd) end
   for _, s in ipairs(baseWanted) do
     if job.stop then return end
     local node = findSlotNode(vd.config.partsTree, s.path)
@@ -965,6 +1081,7 @@ local function runSingle(s)
       job.failed = job.failed + 1
     else
       job.car = carBox(veh, vd.vdata)
+      if not job.calibrated then calibrate(veh, vd) end
       local node = findSlotNode(vd.config.partsTree, s.path)
       if node and node.chosenPartName == part and node.partPath then
         capturePart(veh, vd, node.partPath, part, s.slotId)
@@ -982,24 +1099,22 @@ local function prepareScene()
   local ok, running = pcall(function() return be:getPhysicsRunning() end)
   saved.physics = (not ok) or running == true
   pcall(function() be:setPhysicsRunning(false) end)
-  if (cfg.noonLight or studioMode()) and core_environment and core_environment.getTimeOfDay then
+  if cfg.noonLight and core_environment and core_environment.getTimeOfDay then
     local okT, tod = pcall(core_environment.getTimeOfDay)
     if okT and type(tod) == 'table' then
       saved.tod = deepcopy(tod)
       local t = deepcopy(tod)
-      -- BeamNG: 0 = 12:00 Uhr, 0.5 = Mitternacht. Im Studio-Modus Nacht, damit nur die Studio-Lampen leuchten.
-      t.time = studioMode() and 0.5 or 0
+      t.time = 0 -- BeamNG: 0 = 12:00 Uhr (Farbe des Sonnenlichts); die Richtung stellt das Studio selbst
       t.play = false
       pcall(core_environment.setTimeOfDay, t)
     end
   end
   disableTemporalAA()
-  createLights()
   pcall(FS.directoryCreate, FS, OUT_DIR, true)
 end
 
 local function restoreScene()
-  deleteLights()
+  restoreSun()
   if not saved then return end
   if saved.tod then pcall(core_environment.setTimeOfDay, saved.tod) end
   if saved.physics ~= false then pcall(function() be:setPhysicsRunning(true) end) end
@@ -1307,6 +1422,7 @@ end
 
 local galleryTimer = 0
 function M.onUpdate(dtReal)
+  if sunTarget then applySunDirect() end
   if job and job.co and coroutine.status(job.co) ~= 'dead' then
     local ok, err = coroutine.resume(job.co)
     if not ok then
