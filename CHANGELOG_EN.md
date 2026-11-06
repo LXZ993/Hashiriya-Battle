@@ -15,6 +15,7 @@
 - Save only at home or in the garage, quitting without saving = towed with double fine, quitting mid-battle = loss.
 - Rivals not on minimap and radar, no fast travel to parking areas or the garage.
 - Unstuck only 3 times per game day, each time with a service fee.
+- Trophies from hardcore saves get a red hardcore frame.
 - Every rule can be set separately in `data/hardcore.json`.
 
 ### Oil and water temperature gauges

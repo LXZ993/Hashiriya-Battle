@@ -180,6 +180,7 @@ end
 -- Frei ist eine Trophäe, sobald der Gegner in save.defeated steht (alte Spielstände haben ihre sofort).
 -- Beim ersten Sieg merkt sich save.trophies[id] = { day, car, time } (Tag, dein Auto, Battle-Zeit) für die Infozeile.
 M.trophyArt = { leader = '/art/trophies/plaque.svg', boss = '/art/trophies/cup.svg', final = '/art/trophies/final.svg' }
+M.hardcoreFrame = '/art/trophies/hardcore_frame.svg' -- liegt über Trophäen aus einem Hardcore-Spielstand
 
 local function trophyList(save)
   local rv = rivals()
@@ -214,7 +215,8 @@ function M.recordTrophy(rival, result)
   save.trophies = save.trophies or {}
   if save.trophies[id] then return nil end
   local car = save.cars and save.cars[save.activeCar or 1]
-  save.trophies[id] = { day = save.day or 1, car = car and car.name or nil, time = result and result.time or nil }
+  save.trophies[id] = { day = save.day or 1, car = car and car.name or nil, time = result and result.time or nil,
+    hc = save.hardcore and true or nil } -- Hardcore-Rahmen
   c.writeSave()
   if rival.leader and rival.team then return rivals().teamName(rival.team) or rival.name end
   return rival.name
@@ -262,6 +264,7 @@ function M.getTrophyUi()
       sub = (not hidden) and e.sub or nil, nick = (not hidden) and e.nick ~= '' and e.nick or nil,
       info = info, hint = hint,
       plate = (e.unlocked and r and r.day) and c.t('trophy.day', r.day) or nil,   -- Gravur auf dem Schild
+      frame = (e.unlocked and (save.hardcore or (r and r.hc))) and M.hardcoreFrame or nil, -- Hardcore-Rahmen
     })
   end
   for _, g in ipairs(groups) do g.total = #g.list end

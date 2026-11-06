@@ -500,7 +500,8 @@ angular.module('beamng.apps')
                     '<div class="hbm-tro" ng-repeat="t in g.list" ng-class="[\'hbm-tro-\' + t.kind, {\'is-locked\': !t.unlocked, \'is-info\': trophySelId == t.id}]" ng-click="trophyPick(t)" title="{{ t.unlocked ? t.name : t.hint }}">' +
                       '<div class="hbm-tro-art"><img class="hbm-tro-base" ng-src="{{ t.art }}" alt="">' +
                         '<img class="hbm-tro-logo" ng-if="t.logo" ng-src="{{ t.logo }}" alt=""><span class="hbm-tro-q" ng-if="!t.logo">?</span>' +
-                        '<span class="hbm-tro-plate" ng-style="t.color && t.unlocked ? {\'border-bottom-color\': t.color} : {}">{{ t.unlocked ? (t.plate || \'\u2605\') : \'\u2014\' }}</span></div>' +
+                        '<span class="hbm-tro-plate" ng-style="t.color && t.unlocked ? {\'border-bottom-color\': t.color} : {}">{{ t.unlocked ? (t.plate || \'\u2605\') : \'\u2014\' }}</span>' +
+                        '<img class="hbm-tro-frame" ng-if="t.frame" ng-src="{{ t.frame }}" alt=""></div>' +
                       '<span class="hbm-tro-name">{{ t.name }}</span>' +
                     '</div>' +
                   '</div>' +
@@ -1015,6 +1016,7 @@ angular.module('beamng.apps')
           '.hbm-tro{position:relative;min-width:0;padding:6px 4px 4px;cursor:pointer;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);}' +
           '.hbm-tro:hover,.hbm-tro.is-info{background:linear-gradient(135deg,rgba(255,102,0,.2),rgba(255,102,0,.03));border-color:rgba(255,102,0,.5);}' +
           '.hbm-tro-art{position:relative;width:100%;padding-top:120%;}' +
+          '.hbm-tro-frame{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;pointer-events:none;}' +
           '.hbm-tro-base{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 5px rgba(0,0,0,.8));}' +
           /* Logo-Platz im Grundbild (200x240): Plakette Kreis 100/98 r57, Pokal 100/74 r40 */
           '.hbm-tro-logo{position:absolute;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}' +
