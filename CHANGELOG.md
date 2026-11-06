@@ -9,6 +9,7 @@
 
 ### Neue Haupt-PAs und Reisen
 - Neu: zwei Haupt-PAs, gesetzt von JDMArsch (LXZ aka. LXZockt): **Heiwajima PA** und **Oi PA (Westbound)**, je mit 16 Parkbuchten. Dort parken Autos, Fahrer stehen zum Reden bereit, Rivalen warten, und man kann im Auto ein Nickerchen machen.
+- Neu: **Kameibashi PA** am C1 City Loop bei Shintomichō, unter dem Tsukijigawa-Kameibashi-Park, mit 2 Parkbuchten.
 - Alle Haupt-PAs (auch Shibaura und Tatsumi) stehen jetzt auf der großen Karte (M), mit Name, Beschreibung und Vorschaubild. Die Bilder sind noch Platzhalter in `art/pa/`.
 - Dev-Version: auf der großen Karte gibt es bei den Haupt-PAs den Knopf Quick Travel, im Dev-Menü bringt „Hin“ dich zum Ankunftspunkt der PA.
 - Neu: Reisen. Fährst du an einer Ausfahrt langsam vom C1 ab, kannst du im Menü links ein Ziel wählen: die Garage oder eine Haupt-PA, an der du schon warst. Die Reise spult die Uhr vor und kostet Sprit.
