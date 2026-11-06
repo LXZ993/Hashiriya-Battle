@@ -152,13 +152,13 @@
         </div>
         <div class="hps-check" :class="{ 'is-on': s.studioPaint }" @click="set('studioPaint', !s.studioPaint)"><i></i>Einheitlicher Studio-Lack (silbergrau)</div>
         <div class="hps-check" :class="{ 'is-on': s.skipExisting }" @click="set('skipExisting', !s.skipExisting)"><i></i>Vorhandene Bilder überspringen</div>
-        <div class="hps-check" :class="{ 'is-on': s.noonLight }" @click="set('noonLight', !s.noonLight)"><i></i>Mittagslicht während der Aufnahme (nur bei Licht „Tageslicht“)</div>
+        <div class="hps-check" :class="{ 'is-on': s.noonLight }" @click="set('noonLight', !s.noonLight)"><i></i>Mittagslicht während der Aufnahme (bei „Tageslicht“)</div>
         <div class="hps-check" :class="{ 'is-on': s.singlePair }" @click="set('singlePair', !s.singlePair)"><i></i>Paare nur einmal zeigen (Felgen, Reifen, Bremsen …)</div>
         <div class="hps-check" :class="{ 'is-on': s.autoView }" @click="set('autoView', !s.autoView)"><i></i>Besten Blickwinkel automatisch suchen (5 Ansichten je Teil, die mit dem meisten Inhalt gewinnt)</div>
         <div class="hps-sec">Licht</div>
         <div class="hps-row"><span>Licht</span>
-          <span class="hps-chip" :class="{ 'is-on': s.lightMode !== 'day' }" @click="set('lightMode', 'studio')">Studio (nur Lampen)</span>
-          <span class="hps-chip" :class="{ 'is-on': s.lightMode === 'day' }" @click="set('lightMode', 'day')">Tageslicht</span>
+          <span class="hps-chip" :class="{ 'is-on': s.lighting !== 'studio' }" @click="set('lighting', 'day')">Tageslicht</span>
+          <span class="hps-chip" :class="{ 'is-on': s.lighting === 'studio' }" @click="set('lighting', 'studio')">Studio (Versuch)</span>
         </div>
         <div class="hps-rgb hps-slider"><span>Studio-Lampen</span>
           <input type="range" min="0" max="3" step="0.1" :value="s.light" @change="set('light', Number($event.target.value))" /><em>{{ Number(s.light || 0).toFixed(1) }}×</em></div>

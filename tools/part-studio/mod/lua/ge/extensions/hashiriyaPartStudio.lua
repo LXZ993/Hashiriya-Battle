@@ -41,7 +41,7 @@ local defaults = {
   exposure = 1.0,                -- Belichtung in Blendenstufen (+1 = doppelt so hell)
   singlePair = true,             -- Paare (Felgen, Reifen, Bremsen links/rechts) nur einmal zeigen
   autoView = true,               -- mehrere Blickwinkel gleichzeitig aufnehmen und den besten nehmen
-  lightMode = 'studio',          -- 'studio' = nur Studio-Lampen, feste Belichtung (wie BeamNG-Thumbnails); 'day' = Tageslicht
+  lighting = 'day',              -- 'day' = Tageslicht + Lampen als Aufhellung; 'studio' = Nacht, nur Lampen (Versuch, Lampen gehen noch nicht)
   types = { Car = true, Truck = true }, -- Fahrzeugtypen in der Modell-Liste
 }
 
@@ -448,8 +448,11 @@ local function createLights()
   for _, r in ipairs(lightRoles) do
     local ok, l = pcall(function()
       local o = createObject('SpotLight')
+      o:setField('color', 0, '1 1 1 1')
+      o:setField('isEnabled', 0, '1')
       o:registerObject('hashiriyaPartStudio_' .. r.name)
       o.canSave = false
+      if scenetree.MissionGroup then scenetree.MissionGroup:addObject(o) end
       return o
     end)
     if ok and l then table.insert(studioLights, l) else log('W', logTag, 'Studio-Lampe nicht angelegt: ' .. tostring(l)) end
@@ -461,7 +464,8 @@ local function deleteLights()
   studioLights = {}
 end
 
-local function studioMode() return cfg.lightMode ~= 'day' and cfg.background == 'focus' end
+local lightErrLogged, lightInfoLogged = false, false
+local function studioMode() return cfg.lighting == 'studio' and cfg.background == 'focus' end
 
 -- Lampen um das Teil stellen (Richtungen in Fahrzeugachsen: az 0 = vorne, 90 = rechts)
 local function placeLights(frame, center)
@@ -477,7 +481,7 @@ local function placeLights(frame, center)
     local pos = center + dir * d
     local up = math.abs(dir.z) > 0.98 and frame.fwd or vec3(0, 0, 1)
     local q = quatFromDir((center - pos):normalized(), up)
-    pcall(function()
+    local okL, errL = pcall(function()
       local m = QuatF(q.x, q.y, q.z, q.w):getMatrix()
       m:setPosition(pos)
       l:setTransform(m)
@@ -489,6 +493,19 @@ local function placeLights(frame, center)
       l:setField('castShadows', 0, '0')
       l:setField('isEnabled', 0, mult > 0 and '1' or '0')
       if l.postApply then l:postApply() end
+    end)
+    if not okL and not lightErrLogged then
+      lightErrLogged = true
+      log('W', logTag, 'Studio-Lampe nicht gestellt: ' .. tostring(errL))
+    end
+  end
+  if not lightInfoLogged and studioLights[1] then
+    lightInfoLogged = true
+    local l = studioLights[1]
+    pcall(function()
+      log('I', logTag, string.format('Lampe 1: Klasse=%s an=%s Stärke=%s Reichweite=%s Pos=%s', tostring(l:getClassName()),
+        tostring(l:getField('isEnabled', 0)), tostring(l:getField('intensity', 0)), tostring(l:getField('range', 0)),
+        tostring(l:getPosition())))
     end)
   end
 end
@@ -540,8 +557,10 @@ local function shoot(veh, shots, filename, done)
       rv.manualEV = 9.3 - boost
     else
       rv.useManualEV = manualEV ~= nil
-      rv.manualEV = (manualEV or 0) - boost
-      if not rv.useManualEV and curExp and curExp > 0 then rv.currentExposure = curExp * (2 ^ boost) end
+      -- Tageslicht: eine Blendenstufe heller als die Hauptansicht als Grundwert (die Schattenseite ist sonst zu dunkel)
+      local stops = boost + 1
+      rv.manualEV = (manualEV or 0) - stops
+      if not rv.useManualEV and curExp and curExp > 0 then rv.currentExposure = curExp * (2 ^ stops) end
     end
     table.insert(views_, rv)
   end
