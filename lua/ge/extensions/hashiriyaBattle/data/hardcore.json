@@ -26,5 +26,9 @@
   "ironman": true,
 
   "_hinweisHud": "hideRivalMarks = Rivalen erscheinen nicht farbig auf Minimap und Radar (nur als normales Auto). Die Polizei bleibt sichtbar.",
-  "hideRivalMarks": true
+  "hideRivalMarks": true,
+
+  "_hinweisBefreien": "unstuckPerDay = so oft darf man pro Spieltag Befreien benutzen (0 = unbegrenzt). unstuckFeeYen = Servicegebühr je Befreien (kommt noch mal priceFactor dazu). Ein weiterer Druck, weil man direkt danach noch hängt, zählt nicht extra und kostet nichts.",
+  "unstuckPerDay": 3,
+  "unstuckFeeYen": 10000
 }

@@ -10,6 +10,7 @@
 - Mehr mobile Polizeikontrollen am Tag (2 mehr), 30 % mehr Verkehr.
 - Speichern nur zu Hause oder in der Garage, Beenden ohne Speichern = abschleppen mit doppeltem Bußgeld, Beenden mitten im Battle = Niederlage.
 - Rivalen nicht auf Minimap und Radar, keine Schnellreise zu PAs oder zur Garage.
+- Befreien nur 3-mal pro Spieltag, jedes Mal mit Servicegebühr.
 - Alle Regeln einzeln einstellbar in `data/hardcore.json`.
 
 ### Öl- und Wassertemperatur-Anzeige
