@@ -3,7 +3,7 @@
 ## Alpha 0.9.2 (as of 2026-11-06)
 
 ### Fix: broken cars at PAs
-- PA drivers without a fixed config got a random config of their model, including configs from other mods and from the user folder. That put e.g. an Ibishu conversion with floating wheels, struts and driveshaft at a PA. Now only official BeamNG configs are used (fixed configs from `chat.json`, like the Agent cars, stay as they are).
+- PA drivers without a fixed config got a random config of their model, including configs from other mods and from the user folder. That put e.g. an Ibishu conversion with floating wheels, struts and driveshaft at a PA. Now these drivers take a car from the predefined parked-car pool (Agent Traffic JP, same as parking lots). Only without the Agent mod an official BeamNG config is used. Fixed configs from `chat.json` stay as they are.
 
 ### Stage rivals with their own configs
 - Hinata Oda, Tadashi Hirota and Taiga Shimizu now drive Alex's own builds with skins in stage 2 and 3 instead of the stock config: Hinata in the Covet, Tadashi in the Sunburst, Taiga in the 200BX.

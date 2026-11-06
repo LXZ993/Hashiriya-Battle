@@ -3,7 +3,7 @@
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
 ### Fix: kaputte Autos an der PA
-- PA-Fahrer ohne feste Config bekamen eine zufällige Config des Modells, auch aus anderen Mods und aus dem Benutzerordner. So stand z. B. ein Ibishu-Umbau mit schwebenden Rädern, Federbeinen und Kardanwelle an der PA. Jetzt kommen nur noch Original-Configs von BeamNG (feste Configs aus `chat.json` wie die Agent-Autos bleiben wie sie sind).
+- PA-Fahrer ohne feste Config bekamen eine zufällige Config des Modells, auch aus anderen Mods und aus dem Benutzerordner. So stand z. B. ein Ibishu-Umbau mit schwebenden Rädern, Federbeinen und Kardanwelle an der PA. Jetzt nehmen diese Fahrer ein Auto aus dem vordefinierten Pool der geparkten Autos (Agent Traffic JP, wie auf den Parkplätzen). Nur ohne Agent-Mod kommt eine Original-Config von BeamNG. Feste Configs aus `chat.json` bleiben wie sie sind.
 
 ### Stufen-Gegner mit eigenen Configs
 - Hinata Oda, Tadashi Hirota und Taiga Shimizu fahren in Stufe 2 und 3 jetzt Alex' eigene Umbauten mit Skins statt der Serien-Config: Hinata im Covet (Kanjo Loop, später Wa Pattern), Tadashi im Sunburst (Factory Tech Layers, später Splinter Camo), Taiga im 200BX (Street Drift Team, später Street Drift Flames).
