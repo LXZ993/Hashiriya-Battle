@@ -655,6 +655,8 @@
   "hud.target": "Ziel",
   "hud.powertrain": "Antrieb",
   "hud.ignitionTip": "Halten: Motor starten / abstellen",
+  "hud.water": "Wasser",
+  "hud.oil": "Öl",
   "keys.talk": "Reden",
   "keys.talk.d": "Zu Fuß an einer PA mit Fahrern reden, nächster Satz (Standard: T)",
   "talk.prompt": "Reden",

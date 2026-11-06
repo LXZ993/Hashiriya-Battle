@@ -599,6 +599,8 @@
   "hud.target": "Target",
   "hud.powertrain": "Powertrain",
   "hud.ignitionTip": "Hold: start / stop engine",
+  "hud.water": "Water",
+  "hud.oil": "Oil",
   "keys.talk": "Talk",
   "keys.talk.d": "Talk to drivers at a parking area on foot, next line (default: T)",
   "talk.prompt": "Talk",

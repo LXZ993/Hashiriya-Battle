@@ -58,6 +58,17 @@
    }
   },
   {
+   "appName": "hashiriyaTemps",
+   "appVersion": 1,
+   "placement": {
+    "bottom": "84px",
+    "height": "125px",
+    "position": "absolute",
+    "right": "315px",
+    "width": "250px"
+   }
+  },
+  {
    "appName": "inputHints",
    "appVersion": 8,
    "placement": {
@@ -184,5 +195,5 @@
  "removedApps": {},
  "title": "Hashiriya Battle",
  "type": "hashiriyaBattle",
- "version": 11
+ "version": 12
 }

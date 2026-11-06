@@ -1,6 +1,11 @@
 # Hashiriya Battle Changelog
 
-## Alpha 0.9.2 (as of 2026-11-04)
+## Alpha 0.9.2 (as of 2026-11-06)
+
+### Oil and water temperature gauges
+- New: two small round gauges left of the tachometer, in the same style (segment arc, big italic number, slanted badge): coolant and oil.
+- Colors: blue = still cold, white = operating temperature, orange = getting hot, red = the engine takes damage from here (water from 120 °C, oil from 150 °C). In the red zone the number turns red and the badge flashes.
+- Shows °C or °F depending on the game setting. Hidden on electric cars.
 
 ### New main parking areas and travel
 - New: two main parking areas placed by JDMArsch (LXZ aka. LXZockt): **Heiwajima PA** and **Oi PA (Westbound)**, each with 16 parking bays. Cars park there, drivers wait to talk, rivals hang out, and you can nap in your car.
