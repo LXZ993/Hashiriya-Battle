@@ -5,6 +5,7 @@
 ### LKWs im Verkehr
 - Neu: Cherrier Percheron fährt als europäischer Import im Verkehr mit (Koffer, Pritsche, Tank, Mischer, Cola-Laster), etwa jedes 20. Auto. Im Hardcore-Modus doppelt so viele.
 - Einstellbar in `data/cars.json` unter `trafficTrucks`.
+- Neu: 12 eigene LKW-Skins, frei erfunden: je 3 japanische Speditionen und 3 Dekotora für Koffer und Tank (Fahrerhaus + Aufbau). Die Verkehrs-LKWs fahren mit 43 eigenen Configs nur noch damit.
 
 ### Hardcore-Modus
 - Neu: **Hardcore-Modus**. Beim Anlegen eines neuen Spielstands im letzten Schritt Normal oder Hardcore wählen. Gilt fest für diesen Spielstand, in der Spielstand-Liste mit rotem Schild.
