@@ -20,6 +20,7 @@ local M = {}
 local logTag = 'partStudio'
 local OUT_DIR = 'art/partPreviews/'
 local SETTINGS_FILE = 'settings/hashiriya_partstudio/settings.json'
+local VIEWS_FILE = 'settings/hashiriya_partstudio/views.json' -- Blickwinkel pro Teil (von Hand korrigiert)
 local LAST_RUN_FILE = 'settings/hashiriya_partstudio/last_run.json'
 local STUDIO_LEVEL = 'smallgrid'   -- Level, wenn das Studio aus dem Hauptmenü gestartet wird
 local VIEW_NAME = 'hashiriyaPartStudioView'
@@ -36,6 +37,9 @@ local defaults = {
   skipExisting = true,           -- schon vorhandene Bilder nicht neu machen
   noonLight = true,              -- während der Aufnahme Mittag einstellen (gleiches Licht für alle Bilder)
   heightAboveCamera = 150,       -- Studio-Auto so weit über der Kamera
+  light = 1.0,                   -- Stärke der Studio-Lampen (Haupt-, Füll-, Kantenlicht), 0 = aus
+  exposure = 1.0,                -- Belichtung in Blendenstufen (+1 = doppelt so hell)
+  singlePair = true,             -- Paare (Felgen, Reifen, Bremsen links/rechts) nur einmal zeigen
   types = { Car = true, Truck = true }, -- Fahrzeugtypen in der Modell-Liste
 }
 
@@ -47,6 +51,7 @@ local job = nil              -- laufende Bilderstellung
 local galleryVehId = nil     -- Fahrzeug, für das die Galerie zuletzt gesendet wurde
 local galleryDirty = false
 local modelsCache = nil
+local views = {}             -- Teilname -> { yaw, pitch, zoom } (Grad, Grad, Faktor)
 
 local function send(data) guihooks.trigger('HashiriyaPartStudio', data) end
 local function jbeamIO() return rawget(_G, 'jbeamIO') or require('jbeam/io') end
@@ -71,6 +76,15 @@ end
 
 local function saveSettings()
   pcall(jsonWriteFile, SETTINGS_FILE, cfg, true)
+end
+
+local function loadViews()
+  local ok, data = pcall(jsonReadFile, VIEWS_FILE)
+  views = (ok and type(data) == 'table') and data or {}
+end
+
+local function saveViews()
+  pcall(jsonWriteFile, VIEWS_FILE, views, true)
 end
 
 -- Modelle -------------------------------------------------------------------------------------------
@@ -190,6 +204,7 @@ end
 local function meshesOf(vdata, partPath)
   local all, allSeen, own, sub = {}, {}, {}, {}
   local ownFlex, subFlex = {}, {}
+  local ownEntries, subEntries = {}, {}
   local function scan(list, isFlex)
     for _, e in pairs(list or {}) do
       if type(e) == 'table' and isMeshName(e.mesh) then
@@ -197,9 +212,11 @@ local function meshesOf(vdata, partPath)
         if not isOccupant(e) and e.partPath and partPath then
           if e.partPath == partPath then
             own[e.mesh] = true
+            table.insert(ownEntries, e)
             if isFlex then table.insert(ownFlex, e) end
           elseif e.partPath:sub(1, #partPath) == partPath then
             sub[e.mesh] = true
+            table.insert(subEntries, e)
             if isFlex then table.insert(subFlex, e) end
           end
         end
@@ -208,8 +225,8 @@ local function meshesOf(vdata, partPath)
   end
   scan(vdata.flexbodies, true)
   scan(vdata.props, false)
-  if next(own) then return all, own, ownFlex, false end
-  return all, sub, subFlex, true
+  if next(own) then return all, own, ownFlex, ownEntries end
+  return all, sub, subFlex, subEntries
 end
 
 local function axesOf(veh)
@@ -262,7 +279,7 @@ end
 -- Die Knoten eines Teils sitzen innerhalb des sichtbaren Meshes: Größe kommt darum aus dem Mesh,
 -- die Lage aus den Knoten (Ruheposition von Mesh und Knoten vergleichen, dann auf die echten Knoten legen).
 -- jbeam-Achsen zeigen lokal als (-x, -y, z), weil rechts/vorne die negativen jbeam-Achsen sind.
-local function frameOf(veh, vdata, partPath, flexList)
+local function frameOf(veh, vdata, partPath, flexList, side)
   local ids, located = {}, false
   for key, node in pairs(vdata.nodes or {}) do
     if type(node) == 'table' and node.partPath == partPath then
@@ -277,9 +294,18 @@ local function frameOf(veh, vdata, partPath, flexList)
       end
     end
   end
+  local right, fwd, up = axesOf(veh)
+  -- nur eine Seite eines Paares: Knoten der anderen Seite weglassen
+  if side then
+    local kept = {}
+    for _, cid in ipairs(ids) do
+      local px, py, pz = veh:getNodePositionXYZ(cid)
+      if px and (vec3(px, py, pz):dot(right) - side.cx) * side.s > 0 then table.insert(kept, cid) end
+    end
+    if #kept > 0 then ids = kept end
+  end
   if #ids == 0 then return nil end
 
-  local right, fwd, up = axesOf(veh)
   local nMin, nMax = liveNodeBox(veh, ids, right, fwd, up)
   if not nMin then return nil end
   local c = (nMin + nMax) * 0.5
@@ -332,7 +358,7 @@ local function clamp1(v) return math.max(-1, math.min(1, v)) end
 
 -- Kamera: von der Seite des Autos, auf der das Teil sitzt (vorne/hinten, links/rechts), leicht von oben.
 -- Flache Teile an der Seite (Felgen, Spiegel, Türen, Schweller) eher von der Seite.
-local function cameraFor(veh, frame, car)
+local function cameraFor(veh, frame, car, view)
   local rel = frame.local_ - (car and car.center or vec3())
   local nx = car and clamp1(rel.x / math.max(car.half.x, 0.3)) or 0
   local ny = car and clamp1(rel.y / math.max(car.half.y, 0.5)) or 0
@@ -341,6 +367,13 @@ local function cameraFor(veh, frame, car)
   local h = frame.half
   if h.x < 0.4 * math.max(h.y, h.z) and math.abs(nx) > 0.5 then sy = sy * 0.3 end
   local dirLocal = vec3(sx, sy, 0.5):normalized()
+  -- von Hand korrigierter Blickwinkel (Galerie: drehen, kippen, zoomen)
+  if type(view) == 'table' then
+    local az = math.atan2(dirLocal.x, dirLocal.y) + math.rad(tonumber(view.yaw) or 0)
+    local el = math.asin(math.max(-1, math.min(1, dirLocal.z))) + math.rad(tonumber(view.pitch) or 0)
+    el = math.max(math.rad(-80), math.min(math.rad(85), el))
+    dirLocal = vec3(math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el))
+  end
   local dir = frame.right * dirLocal.x + frame.fwd * dirLocal.y + frame.up * dirLocal.z
   dir = dir:normalized()
 
@@ -351,10 +384,11 @@ local function cameraFor(veh, frame, car)
   local fovV = math.rad(cfg.fov)
   local fovH = 2 * math.atan(math.tan(fovV * 0.5) * aspect)
   local fit = math.min(fovV, fovH)
-  local dist = math.max(0.4, radius / math.sin(fit * 0.5) * cfg.padding)
+  local zoom = type(view) == 'table' and tonumber(view.zoom) or 1
+  local dist = math.max(0.4, radius / math.sin(fit * 0.5) * cfg.padding / math.max(0.3, zoom))
   local pos = center + dir * dist
   local rot = quatFromDir((center - pos):normalized(), vec3(0, 0, 1))
-  return pos, rot, dist
+  return pos, rot, dist, center, dir
 end
 
 -- Aufnahme -------------------------------------------------------------------------------------------
@@ -380,6 +414,69 @@ local function mainExposure()
   return le.manualEV, nil
 end
 
+-- Studio-Lampen: drei Spots (Haupt-, Füll-, Kantenlicht), die bei jedem Bild mit der Kamera ums Teil
+-- wandern. Ohne sie bleiben Teile im Fokus-Modus (ohne Himmel und Umgebung) zu dunkel.
+local studioLights = {}
+local lightRoles = {
+  { name = 'key',  az = -35, el = 30, lux = 2500 },
+  { name = 'fill', az = 60,  el = 15, lux = 1200 },
+  { name = 'rim',  az = 165, el = 35, lux = 1800 },
+  { name = 'top',  az = 0,   el = 80, lux = 900 },
+}
+
+local function createLights()
+  if #studioLights > 0 then return end
+  for _, r in ipairs(lightRoles) do
+    local ok, l = pcall(function()
+      local o = createObject('SpotLight')
+      o:registerObject('hashiriyaPartStudio_' .. r.name)
+      o.canSave = false
+      return o
+    end)
+    if ok and l then table.insert(studioLights, l) else log('W', logTag, 'Studio-Lampe nicht angelegt: ' .. tostring(l)) end
+  end
+end
+
+local function deleteLights()
+  for _, l in ipairs(studioLights) do pcall(function() l:delete() end) end
+  studioLights = {}
+end
+
+-- Richtung (Welt) um die Hochachse drehen und anheben, ausgehend von der Kamera-Richtung
+local function aroundDir(dir, azDeg, elDeg)
+  local flat = vec3(dir.x, dir.y, 0)
+  if flat:length() < 1e-4 then flat = vec3(0, 1, 0) end
+  flat = flat:normalized()
+  local a = math.rad(azDeg)
+  local h = vec3(flat.x * math.cos(a) - flat.y * math.sin(a), flat.x * math.sin(a) + flat.y * math.cos(a), 0)
+  local e = math.rad(elDeg)
+  return vec3(h.x * math.cos(e), h.y * math.cos(e), math.sin(e)):normalized()
+end
+
+local function placeLights(center, camDir, radius)
+  local mult = tonumber(cfg.light) or 1
+  for i, l in ipairs(studioLights) do
+    local r = lightRoles[i]
+    local d = math.max(1.5, radius * 3 + 1)
+    local dir = aroundDir(camDir, r.az, r.el)
+    local pos = center + dir * d
+    local q = quatFromDir((center - pos):normalized(), vec3(0, 0, 1))
+    pcall(function()
+      local m = QuatF(q.x, q.y, q.z, q.w):getMatrix()
+      m:setPosition(pos)
+      l:setTransform(m)
+      local cone = math.min(150, 2 * math.deg(math.atan((radius * 1.6 + 0.3) / d)) + 10)
+      l:setField('intensity', 0, tostring(r.lux * mult * d * d))
+      l:setField('range', 0, tostring(d + radius * 2 + 5))
+      l:setField('innerAngle', 0, tostring(cone))
+      l:setField('outerAngle', 0, tostring(math.min(170, cone + 20)))
+      l:setField('castShadows', 0, '0')
+      l:setField('isEnabled', 0, mult > 0 and '1' or '0')
+      if l.postApply then l:postApply() end
+    end)
+  end
+end
+
 -- Offscreen-Bild über eine eigene RenderView. Der Bildschirm und die Oberfläche bleiben unverändert.
 local function shoot(veh, pos, rot, filename, done)
   local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
@@ -400,14 +497,17 @@ local function shoot(veh, pos, rot, filename, done)
     pcall(function()
       rv:enterFocusObjectsMode()
       rv:addFocusObject(veh)
+      for _, l in ipairs(studioLights) do rv:addFocusObject(l) end
     end)
     local c = cfg.bgColor or defaults.bgColor
     pcall(function() rv.clearColor = ColorF(c[1], c[2], c[3], 1) end)
   end
+  -- Belichtung wie die Hauptansicht, plus cfg.exposure Blendenstufen heller
   local manualEV, curExp = mainExposure()
+  local boost = tonumber(cfg.exposure) or 0
   rv.useManualEV = manualEV ~= nil
-  rv.manualEV = manualEV or 0
-  if not rv.useManualEV and curExp and curExp > 0 then rv.currentExposure = curExp end
+  rv.manualEV = (manualEV or 0) - boost
+  if not rv.useManualEV and curExp and curExp > 0 then rv.currentExposure = curExp * (2 ^ boost) end
 
   core_jobsystem.create(function(j)
     j.sleep(cfg.settleDelay or 0.6)
@@ -437,8 +537,9 @@ local function waitSeconds(s)
 end
 local function waitFrames(n) for _ = 1, n do coroutine.yield() end end
 
+-- heller, kaum metallischer Lack: im Fokus-Modus gibt es keine Umgebung zum Spiegeln, Metallic wirkt dort fast schwarz
 local studioPaint = {
-  baseColor = { 0.60, 0.62, 0.65, 1.2 }, metallic = 0.65, roughness = 0.32, clearcoat = 0.8, clearcoatRoughness = 0.08,
+  baseColor = { 0.78, 0.79, 0.81, 1 }, metallic = 0.1, roughness = 0.45, clearcoat = 0.3, clearcoatRoughness = 0.2,
 }
 
 local function pushJob()
@@ -494,14 +595,54 @@ local function spawnStudio(model, config)
 end
 
 -- Ein Teil fotografieren: andere Meshes aus, Kamera ausrichten, Bild speichern
+-- Seite (lokal x, relativ zur Automitte) eines Mesh-Eintrags aus seinen Knoten
+local function entrySide(veh, e, right, cx)
+  local ids = e._group_nodes or (e.idRef and { e.idRef }) or {}
+  local sum, n = 0, 0
+  for _, cid in ipairs(ids) do
+    local px, py, pz = veh:getNodePositionXYZ(cid)
+    if px then sum = sum + vec3(px, py, pz):dot(right); n = n + 1 end
+  end
+  if n == 0 then return nil end
+  return sum / n - cx
+end
+
+-- Paar (z. B. Felgen links + rechts): alle Meshes klar links oder rechts, beide Seiten vorhanden.
+-- Dann nur die Seite behalten, die zum Betrachter zeigt (wie bei einer Einzelteil-Vorschau).
+local function splitPair(veh, entries, flexList, sel)
+  if not cfg.singlePair or not job.car then return sel, flexList, nil end
+  local right = axesOf(veh)
+  local cx = job.car.center.x
+  local sides, left, rightN = {}, 0, 0
+  for _, e in ipairs(entries) do
+    local x = entrySide(veh, e, right, cx)
+    if not x or math.abs(x) < 0.2 then return sel, flexList, nil end
+    sides[e] = x
+    if x < 0 then left = left + 1 else rightN = rightN + 1 end
+  end
+  if left == 0 or rightN == 0 then return sel, flexList, nil end
+  local keep = 1
+  local sel2, flex2 = {}, {}
+  for _, e in ipairs(entries) do
+    if sides[e] * keep > 0 then sel2[e.mesh] = true end
+  end
+  for _, f in ipairs(flexList) do
+    if sides[f] and sides[f] * keep > 0 then table.insert(flex2, f) end
+  end
+  return sel2, flex2, { s = keep, cx = cx }
+end
+
 local function capturePart(veh, vd, partPath, partName)
-  local all, sel, flexList = meshesOf(vd.vdata, partPath)
+  local all, sel, flexList, entries = meshesOf(vd.vdata, partPath)
   if not next(sel) then job.noMesh = job.noMesh + 1; return 'nomesh' end
-  local frame = frameOf(veh, vd.vdata, partPath, flexList)
+  local side
+  sel, flexList, side = splitPair(veh, entries, flexList, sel)
+  local frame = frameOf(veh, vd.vdata, partPath, flexList, side)
   if not frame then job.failed = job.failed + 1; return 'noframe' end
   for _, m in ipairs(all) do veh:setMeshAlpha(sel[m] and 1 or 0, m, false) end
+  local pos, rot, dist, center, camDir = cameraFor(veh, frame, job.car, views[partName])
+  placeLights(center, camDir, frame.half:length())
   waitFrames(2)
-  local pos, rot = cameraFor(veh, frame, job.car)
   local file = fileOf(partName)
   local finished, result = false, false
   shoot(veh, pos, rot, file, function(ok) finished, result = true, ok end)
@@ -649,6 +790,23 @@ local function runModel(model)
   end
 end
 
+-- Ein einzelnes Teil neu aufnehmen: Konfiguration des eigenen Autos mit genau diesem Teil im Slot
+local function runSingle(s)
+  job.model = s.model
+  job.planned = 1
+  setText('Neu aufnehmen: ' .. tostring(s.name or s.part))
+  local veh, vd = spawnStudio(s.model, deepcopy(s.config))
+  if not veh then job.failed = job.failed + 1; return end
+  job.car = carBox(veh, vd.vdata)
+  local node = findSlotNode(vd.config.partsTree, s.path)
+  if node and node.chosenPartName == s.part and node.partPath then
+    capturePart(veh, vd, node.partPath, s.part)
+  else
+    log('W', logTag, 'Teil nach dem Spawn nicht im Slot: ' .. tostring(s.part))
+    job.failed = job.failed + 1
+  end
+end
+
 local saved = nil
 local function prepareScene()
   saved = {}
@@ -666,10 +824,12 @@ local function prepareScene()
     end
   end
   disableTemporalAA()
+  createLights()
   pcall(FS.directoryCreate, FS, OUT_DIR, true)
 end
 
 local function restoreScene()
+  deleteLights()
   if not saved then return end
   if saved.tod then pcall(core_environment.setTimeOfDay, saved.tod) end
   if saved.physics ~= false then pcall(function() be:setPhysicsRunning(true) end) end
@@ -679,7 +839,16 @@ end
 
 local function runJob()
   prepareScene()
-  for i, m in ipairs(job.models) do
+  if job.single then
+    job.modelIndex = 1
+    job.modelName = job.models[1].name or job.models[1].key
+    local ok, err = pcall(runSingle, job.single)
+    if not ok then
+      log('E', logTag, 'Neu aufnehmen fehlgeschlagen: ' .. tostring(err))
+      job.failed = job.failed + 1
+    end
+  end
+  for i, m in ipairs(job.single and {} or job.models) do
     if job.stop then break end
     job.modelIndex = i
     job.modelName = m.name or m.key
@@ -709,6 +878,11 @@ local function studioPos()
   return vec3(p.x, p.y, p.z + (cfg.heightAboveCamera or 150))
 end
 
+local function newJob(models)
+  return { models = models, modelIndex = 0, done = 0, skipped = 0, failed = 0, noMesh = 0, planned = 0,
+    round = 0, rounds = 0, seen = {}, log = {}, started = now(), pos = studioPos(), stop = false, finished = false }
+end
+
 -- models: Liste von Modell-Schlüsseln, oder 'current' (Modell des eigenen Autos)
 function M.start(arg)
   if job and not job.finished then return end
@@ -725,11 +899,54 @@ function M.start(arg)
     table.insert(models, byKey[k] or { key = k, name = k })
   end
   if #models == 0 then send({ status = { ok = false, text = 'Kein Fahrzeug ausgewählt' } }); return end
-  job = { models = models, modelIndex = 0, done = 0, skipped = 0, failed = 0, noMesh = 0, planned = 0,
-    round = 0, rounds = 0, seen = {}, log = {}, started = now(), pos = studioPos(), stop = false, finished = false }
+  job = newJob(models)
   job.co = coroutine.create(runJob)
   log('I', logTag, 'Bilderstellung gestartet: ' .. #models .. ' Fahrzeug(e)')
   pushJob()
+end
+
+-- Ein Teil des eigenen Autos neu fotografieren (z. B. nach dem Korrigieren des Blickwinkels).
+-- arg: { key = Slot-Schlüssel, path = Slot-Pfad, part = Teilname, name = Anzeigename }
+function M.reshoot(arg)
+  local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
+  if job and not job.finished then
+    send({ status = { ok = false, text = 'Es läuft schon eine Bilderstellung' } }); return
+  end
+  local veh = getPlayerVehicle(0)
+  if not veh or not data.key or not data.part or data.part == '' then return end
+  local vd = core_vehicle_manager.getVehicleData(veh:getID())
+  if not vd or not vd.config then return end
+  local c = { parts = partsMapOf(vd.config.partsTree), vars = deepcopy(vd.config.vars or {}),
+    paints = deepcopy(vd.config.paints or {}) }
+  c.parts[data.key] = data.part
+  if cfg.studioPaint then c.paints = { deepcopy(studioPaint), deepcopy(studioPaint), deepcopy(studioPaint) } end
+  local model = veh:getJBeamFilename()
+  local name = model
+  for _, m in ipairs(modelList()) do if m.key == model then name = m.name end end
+  job = newJob({ { key = model, name = name } })
+  job.single = { model = model, key = data.key, path = data.path, part = data.part, name = data.name, config = c }
+  job.co = coroutine.create(runJob)
+  pushJob()
+end
+
+-- Blickwinkel eines Teils von Hand korrigieren und das Bild gleich neu machen.
+-- arg: { part, key, path, name, dyaw = Grad, dpitch = Grad, dzoom = Faktor, reset = true }
+function M.setView(arg)
+  local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
+  local part = data.part
+  if not part or part == '' then return end
+  local v = views[part] or { yaw = 0, pitch = 0, zoom = 1 }
+  if data.reset then
+    v = { yaw = 0, pitch = 0, zoom = 1 }
+  else
+    v.yaw = ((tonumber(v.yaw) or 0) + (tonumber(data.dyaw) or 0) + 180) % 360 - 180
+    v.pitch = math.max(-90, math.min(90, (tonumber(v.pitch) or 0) + (tonumber(data.dpitch) or 0)))
+    v.zoom = math.max(0.3, math.min(4, (tonumber(v.zoom) or 1) * (tonumber(data.dzoom) or 1)))
+  end
+  if v.yaw == 0 and v.pitch == 0 and math.abs(v.zoom - 1) < 0.001 then views[part] = nil else views[part] = v end
+  saveViews()
+  galleryDirty = true
+  if data.key then M.reshoot(data) end
 end
 
 function M.stop()
@@ -804,7 +1021,7 @@ local function galleryPayload()
         if img then withImg = withImg + 1 end
         total = total + 1
         table.insert(opts, { part = n, name = displayName(descs, n), img = img,
-          visual = partHasMesh(vd.ioCtx, n, meshCache), on = n == s.chosen })
+          visual = partHasMesh(vd.ioCtx, n, meshCache), on = n == s.chosen, view = views[n] })
       end
       table.sort(opts, function(a, b) return a.name:lower() < b.name:lower() end)
       table.insert(rows, { key = s.key, id = s.id, path = s.path, depth = s.depth,
@@ -954,6 +1171,7 @@ end
 
 function M.onExtensionLoaded()
   loadSettings()
+  loadViews()
 end
 
 function M.onExtensionUnloaded()
