@@ -5,6 +5,7 @@
 ### Trucks in traffic
 - New: the Cherrier Percheron drives in traffic as a European import (box, flatbed, tanker, mixer, cola truck), roughly every 20th car. Twice as many in hardcore mode.
 - Adjustable in `data/cars.json` under `trafficTrucks`.
+- New: 12 own truck liveries, all invented: 3 Japanese freight companies and 3 dekotora each for box and tanker (cab + body). Traffic trucks now only use these, via 43 own configs.
 
 ### Hardcore mode
 - New: **Hardcore mode**. When creating a new save, pick Normal or Hardcore in the last step. Fixed for that save, shown with a red tag in the save list.

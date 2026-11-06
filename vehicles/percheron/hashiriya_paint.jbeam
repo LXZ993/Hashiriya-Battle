@@ -1,0 +1,218 @@
+{
+  "percheron_skin_hb_hoshizora": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Hoshizora Express",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_hoshizora"
+  },
+  "skin_box_hb_hoshizora": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Hoshizora Express",
+      "value": 501
+    },
+    "slotType": "skin_boxTruck",
+    "skinName": "hb_hoshizora"
+  },
+  "percheron_skin_hb_aoba": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Aoba Logistics",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_aoba"
+  },
+  "skin_box_hb_aoba": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Aoba Logistics",
+      "value": 501
+    },
+    "slotType": "skin_boxTruck",
+    "skinName": "hb_aoba"
+  },
+  "percheron_skin_hb_hayate": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Hayate Moving",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_hayate"
+  },
+  "skin_box_hb_hayate": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Hayate Moving",
+      "value": 501
+    },
+    "slotType": "skin_boxTruck",
+    "skinName": "hb_hayate"
+  },
+  "percheron_skin_hb_yozakura": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Yozakura-maru",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_yozakura"
+  },
+  "skin_box_hb_yozakura": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Yozakura-maru",
+      "value": 501
+    },
+    "slotType": "skin_boxTruck",
+    "skinName": "hb_yozakura"
+  },
+  "percheron_skin_hb_fugaku": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Fugaku-maru",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_fugaku"
+  },
+  "skin_box_hb_fugaku": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Fugaku-maru",
+      "value": 501
+    },
+    "slotType": "skin_boxTruck",
+    "skinName": "hb_fugaku"
+  },
+  "percheron_skin_hb_nishikigoi": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Nishikigoi-maru",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_nishikigoi"
+  },
+  "skin_box_hb_nishikigoi": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Nishikigoi-maru",
+      "value": 501
+    },
+    "slotType": "skin_boxTruck",
+    "skinName": "hb_nishikigoi"
+  },
+  "percheron_skin_hb_hinode": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Hinode Oil",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_hinode"
+  },
+  "skin_tanker_hb_hinode": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Hinode Oil",
+      "value": 501
+    },
+    "slotType": "skin_tanker",
+    "skinName": "hb_hinode"
+  },
+  "percheron_skin_hb_raijin": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Raijin-maru",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_raijin"
+  },
+  "skin_tanker_hb_raijin": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Raijin-maru",
+      "value": 501
+    },
+    "slotType": "skin_tanker",
+    "skinName": "hb_raijin"
+  },
+  "percheron_skin_hb_hokkai": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Hokkai Milk",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_hokkai"
+  },
+  "skin_tanker_hb_hokkai": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Hokkai Milk",
+      "value": 501
+    },
+    "slotType": "skin_tanker",
+    "skinName": "hb_hokkai"
+  },
+  "percheron_skin_hb_toyogas": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Toyo Gas",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_toyogas"
+  },
+  "skin_tanker_hb_toyogas": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Toyo Gas",
+      "value": 501
+    },
+    "slotType": "skin_tanker",
+    "skinName": "hb_toyogas"
+  },
+  "percheron_skin_hb_momiji": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Momiji-maru",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_momiji"
+  },
+  "skin_tanker_hb_momiji": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Momiji-maru",
+      "value": 501
+    },
+    "slotType": "skin_tanker",
+    "skinName": "hb_momiji"
+  },
+  "percheron_skin_hb_tora": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Tora-maru",
+      "value": 501
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_tora"
+  },
+  "skin_tanker_hb_tora": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Dekotora Tora-maru",
+      "value": 501
+    },
+    "slotType": "skin_tanker",
+    "skinName": "hb_tora"
+  }
+}
