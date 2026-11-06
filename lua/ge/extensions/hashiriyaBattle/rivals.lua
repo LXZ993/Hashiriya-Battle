@@ -29,7 +29,7 @@ local function core() return extensions.hashiriyaBattle_core end
 -- Stärke relativ zur Stufe davor: spFactor (1.25), aggressionBonus (0.1), rewardFactor (1.5), repFactor (1.5).
 local stageSpecial = { chapter = true, spFactor = true, aggressionBonus = true, rewardFactor = true, repFactor = true,
   conditions = true, _info = true }
-local stageClearable = { team = true, leader = true, boss = true, wanderer = true, hint = true, aura = true }
+local stageClearable = { team = true, leader = true, boss = true, wanderer = true, hint = true, aura = true, paint = true }
 local function expandStages(d)
   local out = {}
   for _, r in ipairs(d.rivals or {}) do
@@ -60,6 +60,8 @@ local function expandStages(d)
           e.rewardUsd = math.floor((tonumber(prev.rewardUsd) or 1000) * rf)
           if tonumber(prev.rewardYen) then e.rewardYen = math.floor(tonumber(prev.rewardYen) * rf) end
           e.rep = math.floor((tonumber(prev.rep) or 30) * (tonumber(st.repFactor) or 1.5))
+          -- eigene Config: deren Lack (info_<config>.json) gilt, nicht der feste Lack der Stufe davor
+          if st.config ~= nil then e.paint = nil end
           for k, v in pairs(st) do
             if not stageSpecial[k] then
               if v == false and stageClearable[k] then e[k] = nil else e[k] = v end
@@ -195,7 +197,16 @@ local function infoPaints(path)
   local info = readPc(dir .. '/info_' .. name .. '.json')
   local setup = type(info) == 'table' and info.defaultMultiPaintSetup
   if type(setup) ~= 'table' or type(setup.paint1) ~= 'table' then return nil end
+  -- paint2/paint3 können auch Namen von Lackvorgaben des Autos sein ("Solar Yellow"): aus vehicles/<model>/info.json
+  local named
   local function one(p)
+    if type(p) == 'string' then
+      if named == nil then
+        local mi = readPc(dir .. '/info.json')
+        named = type(mi) == 'table' and type(mi.paints) == 'table' and mi.paints or false
+      end
+      p = named and named[p]
+    end
     if type(p) ~= 'table' or type(p.baseColor) ~= 'table' then return nil end
     return { baseColor = p.baseColor, metallic = p.metallic or 0, roughness = p.roughness or 0.5,
       clearcoat = p.clearcoat or 0, clearcoatRoughness = p.clearcoatRoughness or 0 }

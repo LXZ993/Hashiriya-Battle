@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Stage rivals with their own configs
+- Hinata Oda, Tadashi Hirota and Taiga Shimizu now drive Alex's own builds with skins in stage 2 and 3 instead of the stock config: Hinata in the Covet, Tadashi in the Sunburst, Taiga in the 200BX.
+- Named paint presets in a saved config (e.g. "Solar Yellow" as second color) are now applied correctly.
+
 ### Trucks in traffic
 - New: the Cherrier Percheron drives in traffic as a European import (box, flatbed, tanker, mixer, cola truck), roughly every 20th car. Twice as many in hardcore mode.
 - Adjustable in `data/cars.json` under `trafficTrucks`.

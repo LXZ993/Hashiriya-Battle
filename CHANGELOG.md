@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Stufen-Gegner mit eigenen Configs
+- Hinata Oda, Tadashi Hirota und Taiga Shimizu fahren in Stufe 2 und 3 jetzt Alex' eigene Umbauten mit Skins statt der Serien-Config: Hinata im Covet (Kanjo Loop, später Wa Pattern), Tadashi im Sunburst (Factory Tech Layers, später Splinter Camo), Taiga im 200BX (Street Drift Team, später Street Drift Flames).
+- Lackvorgaben mit Namen in einer gespeicherten Config (z. B. „Solar Yellow“ als zweite Farbe) werden jetzt richtig übernommen.
+
 ### LKWs im Verkehr
 - Neu: Cherrier Percheron fährt als europäischer Import im Verkehr mit (Koffer, Pritsche, Tank, Mischer, Cola-Laster), etwa jedes 20. Auto. Im Hardcore-Modus doppelt so viele.
 - Einstellbar in `data/cars.json` unter `trafficTrucks`.
