@@ -167,6 +167,7 @@ nav label.lm select { width: 100%; margin-top: 3px; padding: 5px 6px; border-rad
     <a href="#changelog">Changelog (alle Versionen)</a>
     <a href="#dev">Dev-Menü zum Testen</a>
     <a href="#gegner-garage">Gegner-Garage (Configs anpassen)</a>
+    <a href="#teile-studio">Teile-Studio (Vorschaubilder)</a>
     <a href="#spielstand">Spielstand</a>
     <a href="#probleme">Wenn etwas nicht geht</a>
     <a href="#lua">Lua-Dateien im Überblick</a>
@@ -216,6 +217,7 @@ nav label.lm select { width: 100%; margin-top: 3px; padding: 5px 6px; border-rad
   <a class="card" href="#texte"><b>Menütext umbenennen</b><small>lang/de.json, en.json</small></a>
   <a class="card" href="#dev"><b>Bestimmten Gegner testen</b><small>Dev-Menü (Umschalt+Ende)</small></a>
   <a class="card" href="#gegner-garage"><b>Auto eines Gegners anpassen</b><small>Hauptmenü &gt; More &gt; Gegner-Garage (Dev)</small></a>
+  <a class="card" href="#teile-studio"><b>Vorschaubilder für Teile</b><small>Teile-Studio (eigene Mod)</small></a>
   <a class="card" href="#modliste"><b>Mod für später merken</b><small>Mod-Sammelliste</small></a>
 </div>
 </section>
@@ -1004,6 +1006,35 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 </table>
 <div class="box warn"><b>Noch ungetestet im Spiel</b>Gebaut nach dem Spielcode des Livery-Editors (ui/liveries.lua, decal.lua, camera.lua). Zu prüfen: erscheint die Vorschau, sitzt der Aufkleber nach „Fertig“ dauerhaft auf dem Auto, und kommt der Skin direkt (sonst Meldung „erscheint nach dem nächsten Neuladen der Mods“). Autos ohne Platz für eigene Designs (manche Mod-Autos) zeigen einen Hinweis. Beschädigte Autos erst reparieren, weil das Auto beim Lackwechsel neu aufgebaut wird.</div>
 <div class="box tip"><b>Für mich: der Code</b><span class="path">lua\ge\extensions\hashiriyaBattle\stickers.lua</span> (start/finish, Vorschau setCursor, place/removeLast, Skin anlegen mit hasAvailablePart-Abfrage, danach Config speichern), Aktionen <code>sticker*</code> und <code>garageTab</code> in <span class="path">lua\ge\extensions\hashiriyaBattle\core.lua</span>, Reiter <code>s.garageTab == 'stickers'</code> in <span class="path">ui\modules\apps\HashiriyaMenu\app.js</span>. Spiel-API: <code>editor_api_dynamicDecals</code> (setup, setCursorPosition, setDecalTexturePath, addDecal, saveLayerStackToFile, exportSkin), <code>core_vehicle_partmgmt.setSkin</code>.</div>
+</section>
+
+
+<section id="teile-studio">
+<h2><span class="n">5g</span> Teile-Studio: Vorschaubilder für alle Fahrzeugteile <span class="tag">eigene Mod</span> <span class="tag">tools\part-studio\</span></h2>
+<p>Das Teile-Studio ist eine <b>eigenständige Mod</b>, die auch ohne Hashiriya Battle läuft (Free Roam und BeamNG-Garage). Es fotografiert jedes sichtbare Teil eines Autos einzeln und zeigt alle Teile als Bilder-Kacheln, statt langer Textlisten. Original- und Mod-Fahrzeuge gehen gleich. Erst wenn alles so ist, wie du es willst, kommt es in den Tuning-Shop von Hashiriya Battle.</p>
+<h3>Öffnen</h3>
+<ul>
+<li>BeamNG-Hauptmenü &gt; <b>Mehr</b> &gt; <b>Teile-Studio</b>: lädt die kleine Map Small Grid mit einem Auto und öffnet das Fenster.</li>
+<li>Schon in einer Map oder in der Garage: <b>Strg+Umschalt+P</b> (änderbar in den Optionen unter „Teile-Studio ein/aus“).</li>
+<li>Konsole: <code>extensions.hashiriyaPartStudio.toggle()</code></li>
+</ul>
+<h3>Reiter</h3>
+<table>
+<tr><th>Reiter</th><th>Was er macht</th></tr>
+<tr><td><b>Galerie</b></td><td>Alle Slots deines aktuellen Autos. Ein Klick auf einen Slot klappt die Kacheln auf, Maus drüber zeigt das Teil groß. Zweimal klicken baut das Teil ein (wie in der BeamNG-Teileauswahl, das Auto wird neu aufgebaut). Filter „nur mit Bild“ und „nur sichtbare Teile“, Suche nach Slot oder Teilname.</td></tr>
+<tr><td><b>Bilder erstellen</b></td><td>Fahrzeuge auswählen (aktuelles Auto, alle Original, alle Mods oder einzeln) und starten. Fortschritt, das zuletzt gemachte Bild, Abbrechen jederzeit. In der Galerie gibt es dafür auch den Knopf „Bilder für dieses Auto erstellen“.</td></tr>
+<tr><td><b>Einstellungen</b></td><td>Bildgröße, Hintergrund (nur das Teil oder mit Umgebung), einheitlicher Studio-Lack, vorhandene Bilder überspringen, Mittagslicht, Abstand und Blickwinkel der Kamera, Wartezeit je Bild.</td></tr>
+</table>
+<h3>So entstehen die Bilder</h3>
+<ol>
+<li>Ein unsichtbares Studio-Auto des Modells schwebt hoch über der Kamera (die Physik ist so lange angehalten, die Uhr steht auf Mittag).</li>
+<li>In jedem Durchgang bekommt jeder Slot ein anderes Teil. Slots, die ineinander stecken (z. B. Karosserie und Stoßstange daran), wechseln nie gleichzeitig. So braucht ein Auto nur so viele Durchgänge, wie sein größter Slot Teile hat.</li>
+<li>Pro Teil werden alle anderen Teile ausgeblendet, die Kamera richtet sich nach Größe und Lage des Teils aus (Felgen und Spiegel von der Seite, vordere Teile von vorne, hintere von hinten) und eine zweite, unsichtbare Kamera speichert das Bild. Dein Bildschirm bleibt dabei unverändert.</li>
+<li>Teile ohne sichtbares Mesh (Steuergerät, Motor-Innenleben, Abstimmung) bekommen kein Bild.</li>
+</ol>
+<div class="box"><b>Wo die Bilder liegen</b>Im BeamNG-Userordner unter <span class="path">art\partPreviews\</span>, ein JPG pro Teilname (gleiche Teile an mehreren Autos nur einmal). Knopf „Ordner öffnen“ im Fenster. Das Protokoll des letzten Laufs steht in <span class="path">settings\hashiriya_partstudio\last_run.json</span>, die Einstellungen in <span class="path">settings\hashiriya_partstudio\settings.json</span>.</div>
+<div class="box warn"><b>Noch ungetestet im Spiel</b>Zu prüfen: Hintergrund „nur das Teil“ (falls das Teil trotzdem vor Himmel und Map steht oder schwarz bleibt, in den Einstellungen auf „Umgebung“ stellen und mir sagen), Bildausschnitt bei verschiedenen Teilen, Dauer pro Auto, Einbauen per Klick.</div>
+<div class="box tip"><b>Für mich: der Code</b>Quelle im Mod-Ordner unter <span class="path">tools\part-studio\mod\</span>: Lua <span class="path">tools\part-studio\mod\lua\ge\extensions\hashiriyaPartStudio.lua</span> (Plan je Slot, Durchgänge, setMeshAlpha, Rahmen aus Mesh- und Knoten-Box, eigene RenderView mit Fokus-Modus und GBitmap-Verkleinerung), Fenster <span class="path">tools\part-studio\mod\ui\ui-vue\mods\hashiriyaPartStudio\StudioPanel.vue</span>, Hauptmenü-Eintrag <code>index.js</code>, Taste in <code>input_actions_hashiriya_partstudio.json</code>. Auf deinem PC liegt die Mod entpackt in <span class="path">mods\unpacked\Hashiriya-Part-Studio\</span>. Als Zip zum Weitergeben: <span class="path">tools\part-studio\Teile-Studio-bauen.bat</span> (legt <code>dist\hashiriya_part_studio.zip</code> an).</div>
 </section>
 
 
@@ -2525,6 +2556,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Mod BeamMP-fähig machen (Mehrspieler), wenn sie ausgereift genug ist.</td><td>nach 1.0</td><td>Überlegung wert (JDMArsch 04.11.2026)</td></tr>
 <tr><td>Lokaler Koop (seit BeamNG 0.40, auch für PS5 gebaut): zwei Spieler an einem PC, jeder mit eigenem Auto, eigener Lichthupe, eigenem SP-Battle und HUD in seiner Bildhälfte. Wunsch aus dem Forum (SeanSwizzy).</td><td>nach 1.0</td><td>JDMArsch 05.11.2026: auf die Liste für nach 1.0. Zuerst den Koop-Code des Spiels ansehen, dann zusammen mit der BeamMP-Version planen.</td></tr>
 <tr><td>Auto-Drive (angelehnt an den Kilometer-Trick aus TXR3): das Auto fährt von selbst, damit man die km-Voraussetzungen mancher Gegner schneller erreicht. Nur im normalen Modus, nie im <a href="#hardcore">Hardcore-Modus</a>.</td><td>offen (Community-Entscheidung)</td><td>JDMArsch 06.11.2026: nur als Idee, nichts gebaut. Kommt in den Release-Post unter „Community-Entscheidungen“ (<span class="path">release/release-community-entscheidungen.txt</span> im Projektordner).</td></tr>
+<tr><td>Teile-Vorschaubilder im Tuning-Shop: Kacheln mit Bild statt Textlisten, für alle Teile von Original- und Mod-Autos (wie Wheel Preview, aber für jedes Teil).</td><td>nach Test des Teile-Studios</td><td>JDMArsch 06.11.2026. Erst als eigene Mod <a href="#teile-studio">Teile-Studio</a> gebaut (ungetestet), danach kommt es in den Shop.</td></tr>
 <tr><td>Drift-Battles in Zonen (gegen Geist oder Tandem) und Rundstreckenrennen mit Strafpunkten und Strafboxenstopp (wie C1 Grand Prix).</td><td>nach 1.0 (DLC-Maps)</td><td>nur auf Rennstrecken-/Touge-Maps</td></tr>
 </table>
 </section>
