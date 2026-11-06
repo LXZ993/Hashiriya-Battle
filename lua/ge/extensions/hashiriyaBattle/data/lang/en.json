@@ -1033,5 +1033,9 @@
   "hardcore.wiped": "Hardcore: the save was deleted.",
   "hardcore.gameOverNote": "Hardcore: this save will be deleted as soon as you leave this screen.",
   "hardcore.pinkForced": "With me it's pink slips only. Whoever loses hands over their car. You in?",
-  "save.reason.hardcore": "Hardcore: only at home or in the garage"
+  "save.reason.hardcore": "Hardcore: only at home or in the garage",
+  "unstuck.reason.hcLimit": "Hardcore: already freed %d times today. Try tomorrow or call a tow.",
+  "unstuck.reason.hcMoney": "Hardcore: not enough money for the service fee.",
+  "msg.unstuck.hcPaid": "Freed. Service fee %s, %d of %d left today.",
+  "menu.unstuckHc": "Hardcore: %d of %d left today · %s"
 }

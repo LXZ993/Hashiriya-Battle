@@ -12,6 +12,7 @@
 --   Speichern / Ironman  savepoint.lua, battle.lua, core.lua
 --   HUD                  rivals.lua (Minimap), core.lua (Radar)
 --   Reisen               travel.lua (keine Schnellreise zu PAs/Garage)
+--   Befreien             unstuck.lua (3x pro Spieltag, Servicegebühr)
 local M = {}
 
 local logTag = 'hashiriya.hardcore'
@@ -27,6 +28,7 @@ local defaults = {
   laserExtra = 2, trafficFactor = 1.3, noPaTravel = true,
   saveOnlyHome = true, towFineFactor = 2, ironman = true,
   hideRivalMarks = true,
+  unstuckPerDay = 3, unstuckFeeYen = 10000,
 }
 
 local data = nil

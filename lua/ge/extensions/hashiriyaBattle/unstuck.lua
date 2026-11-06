@@ -16,6 +16,8 @@
 -- Schlafen, nicht im Shop; nur langsam (maxSpeedKmh); nicht wenn das Auto auf dem Dach/der Seite liegt
 -- (das ist ein Fall fürs Abschleppen); Wartezeit cooldownSeconds zwischen zwei Benutzungen.
 -- Einstellungen: data/world.json "unstuck".
+-- Hardcore (hardcore.json unstuckPerDay, unstuckFeeYen): nur so oft pro Spieltag und gegen Servicegebühr.
+-- Ein weiterer Druck, weil man noch hängt (Kette), zählt nicht extra.
 local M = {}
 
 local logTag = 'hashiriya'
@@ -104,6 +106,28 @@ local function record(veh)
   while #trail > 2 and walked - trail[1].d > cfg.keepMeters do table.remove(trail, 1) end
 end
 
+-- Hardcore: Zähler und Gebühr --------------------------------------------------
+
+local function hc() return extensions.hashiriyaBattle_hardcore end
+
+-- nil außerhalb von Hardcore, sonst { left, perDay, fee }
+local function hcInfo()
+  local h = hc()
+  if not h or not h.on() then return nil end
+  local perDay = math.floor(tonumber(h.cfg().unstuckPerDay) or 0)
+  local fee = h.price(tonumber(h.cfg().unstuckFeeYen) or 0)
+  local c = core()
+  local day = home() and home().getDay and home().getDay() or (c.save.day or 1)
+  local u = c.save.hcUnstuck
+  local used = (type(u) == 'table' and u.day == day) and (u.n or 0) or 0
+  return { left = perDay > 0 and math.max(0, perDay - used) or nil, perDay = perDay, fee = fee, day = day, used = used }
+end
+
+local function chainActive(pos)
+  local cfg = M.cfg()
+  return chain and clock - chain.t <= cfg.chainSeconds and pos and (pos - chain.pos):length() <= cfg.chainMoveMeters
+end
+
 -- Darf man gerade? -------------------------------------------------------------
 
 local function speedKmh(veh)
@@ -132,6 +156,14 @@ local function blockReason(veh)
     if okU and up and up.z < 0.5 then return 'unstuck.reason.flipped' end
   end
   if cooldown > 0 then return 'unstuck.reason.cooldown' end
+  local h = hcInfo()
+  if h then
+    local okP, pos = pcall(function() return (currentSpot(veh)) end)
+    if not chainActive(okP and pos or nil) then
+      if h.left and h.left <= 0 then return 'unstuck.reason.hcLimit' end
+      if h.fee > 0 and (c.save.money or 0) < h.fee then return 'unstuck.reason.hcMoney' end
+    end
+  end
   return nil
 end
 
@@ -177,7 +209,7 @@ function M.unstuck()
     if reason == 'unstuck.reason.cooldown' then
       c.msg(c.t('msg.unstuck.wait', math.ceil(cooldown)), 2)
     elseif reason ~= 'unstuck.reason.off' then
-      c.msg(c.t(reason, M.cfg().maxSpeedKmh), 3)
+      c.msg(c.t(reason, reason == 'unstuck.reason.hcLimit' and (hcInfo() or {}).perDay or M.cfg().maxSpeedKmh), 3)
     end
     return false
   end
@@ -186,7 +218,8 @@ function M.unstuck()
   if veh:getID() ~= trailId or onFoot ~= trailOnFoot then resetTrail(veh:getID(), onFoot) end
   -- hängt immer noch? dann weiter zurück
   local step = 1
-  if chain and clock - chain.t <= cfg.chainSeconds and (pos - chain.pos):length() <= cfg.chainMoveMeters then
+  local chained = chainActive(pos)
+  if chained then
     step = math.min(chain.step + 1, #cfg.backMeters)
   end
   local back = tonumber(cfg.backMeters[step]) or 0.5
@@ -214,7 +247,16 @@ function M.unstuck()
   chain = { step = step, t = clock, pos = target and target.pos or pos }
   if c.save then pcall(function() extensions.hashiriyaBattle_progress.bump(c.save, 'unstucks') end) end
   log('I', logTag, string.format('Befreien: %s, Stufe %d, %.1f m zurück (Spur %d Punkte)', onFoot and 'zu Fuß' or 'Auto', step, back, #trail))
-  c.msg(c.t(step > 1 and 'msg.unstuck.further' or 'msg.unstuck.done'), 2)
+  local h = not chained and hcInfo() or nil
+  if h then
+    -- Hardcore: Servicegebühr abziehen und Benutzung zählen
+    c.save.money = (c.save.money or 0) - h.fee
+    c.save.hcUnstuck = { day = h.day, n = h.used + 1 }
+    c.writeSave()
+    c.msg(c.t('msg.unstuck.hcPaid', c.economy().formatYen(h.fee), h.left and (h.left - 1) or 0, h.perDay), 5)
+  else
+    c.msg(c.t(step > 1 and 'msg.unstuck.further' or 'msg.unstuck.done'), 2)
+  end
   pcall(function() c.sound('click') end)
   return true
 end
@@ -228,7 +270,9 @@ function M.getUiState()
   local okK, key = pcall(extensions.hashiriyaBattle_career.keyFor, 'hashiriyaUnstuck')
   local text
   if reason == 'unstuck.reason.cooldown' then text = c.t('msg.unstuck.wait', math.ceil(cooldown))
-  elseif reason and reason ~= 'unstuck.reason.off' then text = c.t(reason, M.cfg().maxSpeedKmh) end
+  elseif reason and reason ~= 'unstuck.reason.off' then text = c.t(reason, reason == 'unstuck.reason.hcLimit' and (hcInfo() or {}).perDay or M.cfg().maxSpeedKmh) end
+  local h = hcInfo()
+  if h and not text then text = c.t('menu.unstuckHc', h.left or 0, h.perDay, c.economy().formatYen(h.fee)) end
   return { can = reason == nil, reason = text, key = okK and key or nil }
 end
 

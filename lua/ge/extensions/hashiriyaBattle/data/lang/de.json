@@ -1089,5 +1089,9 @@
   "hardcore.wiped": "Hardcore: Der Spielstand wurde gelöscht.",
   "hardcore.gameOverNote": "Hardcore: Dieser Spielstand wird gelöscht, sobald du diesen Bildschirm verlässt.",
   "hardcore.pinkForced": "Bei mir geht es nur um die Papiere. Wer verliert, gibt sein Auto ab. Bist du dabei?",
-  "save.reason.hardcore": "Hardcore: nur zu Hause oder in der Garage"
+  "save.reason.hardcore": "Hardcore: nur zu Hause oder in der Garage",
+  "unstuck.reason.hcLimit": "Hardcore: heute schon %d-mal befreit. Morgen wieder oder abschleppen lassen.",
+  "unstuck.reason.hcMoney": "Hardcore: zu wenig Geld für die Servicegebühr.",
+  "msg.unstuck.hcPaid": "Befreit. Servicegebühr %s, heute noch %d von %d.",
+  "menu.unstuckHc": "Hardcore: noch %d von %d heute · %s"
 }

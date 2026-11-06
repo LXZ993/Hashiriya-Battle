@@ -1817,6 +1817,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <tr><td>Speichern</td><td>Speichern nur zu Hause oder in der Garagenbucht, nicht geparkt unterwegs. Wer ohne zu speichern beendet, wird immer abgeschleppt, mit doppeltem Bußgeld (dazu der Preisfaktor).</td><td><code>saveOnlyHome</code>, <code>towFineFactor</code> (2)</td></tr>
 <tr><td>Ironman</td><td>Wer während eines laufenden Battles beendet oder abstürzt, hat das Battle beim nächsten Laden verloren (Niederlage, Siegesserie weg).</td><td><code>ironman</code></td></tr>
 <tr><td>HUD</td><td>Rivalen erscheinen nicht farbig auf Minimap und Radar, nur als normales Auto. Die Polizei bleibt sichtbar.</td><td><code>hideRivalMarks</code></td></tr>
+<tr><td>Befreien</td><td>Befreien (Shift+U) geht nur 3-mal pro Spieltag und kostet jedes Mal eine Servicegebühr (10.000 Yen, mal Preisfaktor = 15.000 Yen). Drückst du direkt danach noch einmal, weil das Auto immer noch hängt, zählt das nicht extra. Die Kachel im Menü zeigt, wie oft es heute noch geht.</td><td><code>unstuckPerDay</code> (3), <code>unstuckFeeYen</code> (10000)</td></tr>
 </table>
 
 <h3>Ändern</h3>
@@ -2497,7 +2498,8 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Trophäen-Regal: Trophäe oder Plakette pro besiegtem Leader/Boss als Seite im Menü.</td><td>vor 1.0</td><td>JDMArsch: ja, als 2D-Bilder in einer Sammlung. <b>Gebaut</b> (Alpha 0.9.2): Plakette pro Leader, Pokal pro Boss, Reiter in der <a href="#trophaeen">Trophäenwand</a></td></tr>
 <tr><td>Wartung in der Garage: Reifen, Öl, Wasser anzeigen und gegen Geld warten.</td><td>vor 1.0</td><td>JDMArsch: ja. <b>Gebaut</b> (Alpha 0.9.2), siehe <a href="#wartung">Wartung</a></td></tr>
 <tr><td>Hardcore-Modus beim neuen Spielstand: Kaltstart, Wartung doppelt, wenig Tank, Preise höher, Pink Slip Pflicht, Game Over löscht den Spielstand, mehr Polizei und Verkehr, Speichern nur zu Hause, Ironman, keine Rivalen auf der Minimap, kein Teleport.</td><td>Alpha 0.9.2</td><td>JDMArsch 06.11.2026 (Idee Kaltstart). <b>Gebaut</b>, siehe <a href="#hardcore">Hardcore-Modus</a></td></tr>
-<tr><td>Hardcore: Befreien (Unstuck) begrenzen, z. B. 3-mal pro Spieltag oder gegen Geld. Eigener Trophäen-Rahmen für Hardcore-Spielstände. LKWs im Nachtverkehr.</td><td>offen</td><td>Vorschlag, erst mit JDMArsch besprechen</td></tr>
+<tr><td>Hardcore: Befreien 3-mal pro Spieltag mit Servicegebühr.</td><td>Alpha 0.9.2</td><td>JDMArsch 06.11.2026: ja. <b>Gebaut</b>, siehe <a href="#hardcore">Hardcore-Modus</a></td></tr>
+<tr><td>Hardcore-Trophäenrahmen. LKWs (Cherrier Percheron) mit eigenen Skins im Verkehr, im Hardcore doppelt so viele.</td><td>vor 1.0</td><td>JDMArsch 06.11.2026: ja, in Arbeit</td></tr>
 <tr><td>Rivale lehnt Herausforderung sichtbar ab: Blinker links/rechts wie beim Spieler und Stopp-/Kreuz-Symbol in der Bildschirmmitte (wie in TXR).</td><td>vor 1.0</td><td>gebaut (Alpha 0.9.2, <a href="#crewbattle">Crew-Battles</a>)</td></tr>
 <tr><td>Handy-Nachrichten deutlicher: Handy-Symbol an der Sprechblase.</td><td>vor 1.0</td><td>JDMArsch 04.11.2026. <b>Gebaut</b> (Alpha 0.9.2), siehe <a href="#story">Story</a></td></tr>
 <tr><td>Deutlich mehr Spitznamen nach Fahrstil, alle erhaltenen nachträglich wählbar wie in TXR; eventuell mehr Ränge.</td><td>vor 1.0</td><td>JDMArsch 04.11.2026. <b>Gebaut</b> (Alpha 0.9.2): 89 Spitznamen statt 7, alle wählbar; 20 Ränge statt 15, siehe <a href="#spitznamen">Ränge und Spitznamen</a></td></tr>
@@ -2554,6 +2556,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <li>Mehr mobile Polizeikontrollen am Tag (2 mehr), 30 % mehr Verkehr.</li>
 <li>Speichern nur zu Hause oder in der Garage, Beenden ohne Speichern = abschleppen mit doppeltem Bußgeld, Beenden mitten im Battle = Niederlage.</li>
 <li>Rivalen nicht auf Minimap und Radar, keine Schnellreise zu PAs oder zur Garage.</li>
+<li>Befreien nur 3-mal pro Spieltag, jedes Mal mit Servicegebühr.</li>
 <li>Alle Regeln einzeln einstellbar in <code>data/hardcore.json</code>.</li>
 </ul>
 <h4>Öl- und Wassertemperatur-Anzeige</h4>
