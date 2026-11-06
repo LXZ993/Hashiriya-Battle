@@ -141,14 +141,23 @@ local function freeSpots(center, radius)
 end
 
 -- Config fürs geparkte Auto: zufällig aus den Configs des Modells, ohne Polizei, Rennwagen usw.
+-- Nur Original-Configs von BeamNG (Source 'BeamNG - Official'): Configs aus anderen Mods (z. B. Umbauten mit
+-- schwebenden Teilen) und eigene .pc aus dem Benutzerordner (Rivalen-Autos, Tests) parken nie zufällig an der PA.
+-- Gibt es für ein Modell gar keine Original-Config, kommt nil (Spawn mit der Standard-Config des Modells).
+local function officialConfig(info)
+  return type(info) == 'table' and info.Source == 'BeamNG - Official' and info.isAuxiliary ~= true
+end
+
 local function pickConfig(model, match, rand)
   local ok, m = pcall(function() return core_vehicles.getModel(model) end)
   if not ok or not m or type(m.configs) ~= 'table' then return nil end
   local keys = {}
-  for key in pairs(m.configs) do
+  for key, info in pairs(m.configs) do
     local k = tostring(key):lower()
-    local good = true
-    if match and match ~= '' then
+    local good = officialConfig(info)
+    if not good then
+      -- keine Original-Config
+    elseif match and match ~= '' then
       good = k:find(match:lower(), 1, true) ~= nil
     else
       for _, bad in ipairs(cfg().excludeConfigs or {}) do
