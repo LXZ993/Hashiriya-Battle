@@ -464,6 +464,34 @@ local function buildTrafficList(pool, amount)
   return out, kinds
 end
 
+-- LKWs (cars.json trafficTrucks): ersetzt im fahrenden Verkehr einen Anteil der Autos durch LKWs (Cherrier Percheron).
+-- BeamNG/Agent lassen große Fahrzeuge (isLarge) sonst ganz weg. Im Hardcore-Modus mal hardcoreFactor (doppelt so viele).
+local function trucksFor(amount)
+  local t = (M.carsData or {}).trafficTrucks
+  if type(t) ~= 'table' or t.enabled == false or type(t.configs) ~= 'table' or not t.configs[1] then return {} end
+  local share = tonumber(t.share) or 0.05
+  if extensions.hashiriyaBattle_hardcore.on() then share = share * (tonumber(t.hardcoreFactor) or 2) end
+  local n = math.floor(amount * share + 0.5)
+  if n <= 0 then return {} end
+  local models, pool = {}, {}
+  for _, e in ipairs(t.configs) do
+    if e.model and e.config then
+      if models[e.model] == nil then
+        local okM, m = pcall(core_vehicles.getModel, e.model)
+        models[e.model] = (okM and m and type(m.configs) == 'table') and m.configs or false
+      end
+      if models[e.model] and models[e.model][e.config] then table.insert(pool, e) end
+    end
+  end
+  local out = {}
+  for i = 1, (#pool > 0 and n or 0) do
+    local e = pool[math.random(1, #pool)]
+    table.insert(out, { model = e.model, config = e.config, paintName = e.paintName or 'random' })
+  end
+  return out
+end
+M.trafficHardcore = nil -- mit welchem Modus der Verkehr gestartet wurde (für die LKW-Menge)
+
 -- Lack-Bibliothek von BeamNG laden: sie entsteht erst beim ersten Fahrzeug-Spawn. Im Titelbildschirm direkt nach
 -- dem Spielstart gibt es noch keins, dann bricht der Verkehr mit "paintsByIdCache (a nil value)" ab.
 local function warmPaintLibrary()
@@ -475,6 +503,14 @@ local trafficRetry = nil -- Sekunden bis zum nächsten Versuch, falls der Start 
 local trafficTries = 0
 
 function M.startTraffic()
+  -- Verkehr lief schon (Titelbildschirm), aber mit anderer LKW-Menge (Hardcore an/aus): neu aufbauen
+  if trafficStarted and M.trafficHardcore ~= nil and M.trafficHardcore ~= extensions.hashiriyaBattle_hardcore.on() then
+    local tr0 = rawget(_G, 'gameplay_traffic') or extensions.gameplay_traffic
+    if tr0 and tr0.deleteVehicles and pcall(tr0.deleteVehicles) then
+      log('I', logTag, 'Verkehr neu (Hardcore-Modus geändert, andere LKW-Menge)')
+      trafficStarted, M.trafficTotal, M.trafficActive, M.trafficHardcore = false, nil, nil, nil
+    end
+  end
   if trafficStarted or (M.carsData and M.carsData.careerTraffic == false) then return end
   local tr = rawget(_G, 'gameplay_traffic') or extensions.gameplay_traffic
   if not tr or not tr.setupTrafficHelper then return end
@@ -510,6 +546,14 @@ function M.startTraffic()
   if pool then
     spawnN = n + math.max(0, tonumber(M.carsData.trafficPoolExtra) or 0)
     local list, kinds = buildTrafficList(pool, spawnN)
+    -- LKWs einmischen (an zufälligen Stellen, Liste ist schon gemischt)
+    local trucks = trucksFor(spawnN)
+    for i, tk in ipairs(trucks) do if list[i] then list[i] = tk end end
+    if #trucks > 0 then
+      for i = #list, 2, -1 do local j = math.random(1, i); list[i], list[j] = list[j], list[i] end
+      log('I', logTag, string.format('Verkehr: %d LKWs eingemischt', #trucks))
+    end
+    M.trafficHardcore = extensions.hashiriyaBattle_hardcore.on()
     tOpts.vehGroup = list
     tOpts.activeAmount = n -- setupTraffic: nur n sichtbar, der Rest wartet versteckt im Pool
     local pp = trafficPool(true) or pool

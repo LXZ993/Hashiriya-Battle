@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### LKWs im Verkehr
+- Neu: Cherrier Percheron fährt als europäischer Import im Verkehr mit (Koffer, Pritsche, Tank, Mischer, Cola-Laster), etwa jedes 20. Auto. Im Hardcore-Modus doppelt so viele.
+- Einstellbar in `data/cars.json` unter `trafficTrucks`.
+
 ### Hardcore-Modus
 - Neu: **Hardcore-Modus**. Beim Anlegen eines neuen Spielstands im letzten Schritt Normal oder Hardcore wählen. Gilt fest für diesen Spielstand, in der Spielstand-Liste mit rotem Schild.
 - Motor startet kalt (erst warmfahren), Wartung doppelt so schnell fällig und mit stärkerer Wirkung, Startauto mit 12 % Tank, Spritverbrauch anderthalbfach.
