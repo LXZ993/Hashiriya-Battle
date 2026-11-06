@@ -1,16 +1,20 @@
 -- Hashiriya Part Studio (eigenständige Mod, läuft ohne Hashiriya Battle)
 --
 -- Erstellt Vorschaubilder für Fahrzeugteile (Original- und Mod-Fahrzeuge) und zeigt sie in einer Galerie,
--- in der man ein Teil per Klick an das eigene Auto baut. Läuft im normalen Free Roam und in der BeamNG-Garage.
+-- in der man ein Teil per Klick an das eigene Auto baut. Fotografiert wird in der BeamNG-Garage (garage_v2),
+-- mit deren eigenem Licht (Deckenlampen, Fenster, warmes Umgebungslicht). Das Studio ändert am Licht nichts:
+-- keine Sonne, keine Tageszeit, keine eigenen Lampen. Die Belichtung übernimmt es von der Spielkamera, genau
+-- wie die BeamNG-eigenen Vorschaubilder (util/screenshotCreator).
 --
 -- So entsteht ein Bild:
---   1. Ein "Studio-Auto" des Modells wird hoch über der Kamera gespawnt (Physik angehalten, damit es schwebt).
+--   1. Ein "Studio-Auto" des Modells wird auf den Stellplatz der Garage gespawnt (Physik angehalten),
+--      das eigene Auto und andere Fahrzeuge werden solange ausgeblendet.
 --   2. In einem Durchgang bekommt jeder Slot ein anderes Teil (Slots, die ineinander stecken, nie gleichzeitig),
 --      so braucht ein Auto nur so viele Respawns, wie der größte Slot Teile hat.
 --   3. Für jedes Teil werden alle anderen Meshes unsichtbar (setMeshAlpha), die Kamera richtet sich nach der
 --      Größe des Teils aus, und eine zweite, unsichtbare Kamera (RenderView) speichert das Bild.
 --      Der Bildschirm und die Oberfläche bleiben dabei unverändert.
---   4. Bilder liegen im BeamNG-Benutzerordner unter art/partPreviews/<Teilname>.jpg (ein Bild je Teilname,
+--   4. Bilder liegen im BeamNG-Benutzerordner unter art/partPreviews_garage/<Teilname>.jpg (ein Bild je Teilname,
 --      gleiche Teile an mehreren Autos werden nur einmal fotografiert).
 --
 -- Bedienung: BeamNG-Hauptmenü > Mehr > "Teile-Studio", im Spiel Strg+Umschalt+P oder in der Konsole
@@ -18,11 +22,12 @@
 local M = {}
 
 local logTag = 'partStudio'
-local OUT_DIR = 'art/partPreviews/'
+local OUT_DIR = 'art/partPreviews_garage/' -- neuer Ordner: die alten Bilder aus art/partPreviews/ (Gridmap, blau) werden nicht mehr benutzt
 local SETTINGS_FILE = 'settings/hashiriya_partstudio/settings.json'
 local VIEWS_FILE = 'settings/hashiriya_partstudio/views.json' -- Blickwinkel pro Teil (von Hand korrigiert)
 local LAST_RUN_FILE = 'settings/hashiriya_partstudio/last_run.json'
-local STUDIO_LEVEL = 'smallgrid'   -- Level, wenn das Studio aus dem Hauptmenü gestartet wird
+local STUDIO_LEVEL = 'garage_v2'   -- hier wird fotografiert (BeamNG-Garage mit ihrem eigenen Licht)
+local CEILING_Z = 107.5            -- Kamera bleibt unter der Garagendecke (Lampen bei z 108,5)
 local VIEW_NAME = 'hashiriyaPartStudioView'
 
 local defaults = {
@@ -31,13 +36,8 @@ local defaults = {
   fov = 28,                      -- Blickwinkel der Studio-Kamera (Grad, vertikal)
   padding = 1.12,                -- Abstand um das Teil (1 = randvoll)
   settleDelay = 1.0,             -- Wartezeit vor jedem Bild (eine neue Kamera braucht ~1 s, bis die Nachbearbeitung stimmt)
-  background = 'focus',          -- 'focus' = nur das Teil, 'scene' = Teil vor dem Himmel/der Umgebung
-  bgColor = { 0.10, 0.11, 0.13 },-- Hintergrundfarbe im Modus 'focus'
   studioPaint = true,            -- alle Teile im gleichen silbergrauen Lack (einheitlicher Katalog)
   skipExisting = true,           -- schon vorhandene Bilder nicht neu machen
-  noonLight = true,              -- während der Aufnahme Mittag einstellen (gleiches Licht für alle Bilder)
-  heightAboveCamera = 150,       -- Studio-Auto so weit über der Kamera
-  brightness = 0,                -- Helligkeit in Blendenstufen gegenüber der gemessenen Standard-Belichtung (+1 = doppelt so hell)
   singlePair = true,             -- Paare (Felgen, Reifen, Bremsen links/rechts) nur einmal zeigen
   autoView = true,               -- mehrere Blickwinkel gleichzeitig aufnehmen und den besten nehmen
   types = { Car = true, Truck = true }, -- Fahrzeugtypen in der Modell-Liste
@@ -47,6 +47,8 @@ local cfg = deepcopy and deepcopy(defaults) or defaults
 local active = false         -- Panel offen
 local pendingOpen = false    -- Studio-Level lädt gerade, danach Panel öffnen
 local openFallback = nil
+local pendingStart = nil     -- Bilderstellung, die nach dem Laden der Garage startet
+local startTimer = nil
 local job = nil              -- laufende Bilderstellung
 local galleryVehId = nil     -- Fahrzeug, für das die Galerie zuletzt gesendet wurde
 local galleryDirty = false
@@ -419,6 +421,10 @@ local function cameraFrom(veh, frame, dirLocal, view)
     end
   end
   local pos = center + dir * dist
+  -- in der Garage: nicht durch die Decke und nicht unter den Boden
+  if job and job.floorZ then
+    pos.z = math.max(job.floorZ + 0.15, math.min(CEILING_Z, pos.z))
+  end
   local rot = quatFromDir((center - pos):normalized(), vec3(0, 0, 1))
   return pos, rot, center
 end
@@ -438,14 +444,6 @@ local function restoreAA()
   if aaRestore then settings.setValue('GraphicAntialias', aaRestore); aaRestore = nil end
 end
 
-
-local function fileSize(path)
-  local ok, data = pcall(readFile, path)
-  if ok and type(data) == 'string' then return #data end
-  local ok2, n = pcall(function() return FS:fileSize(path) end)
-  return ok2 and tonumber(n) or 0
-end
-
 local function now() return os.clock() end
 local function waitSeconds(s)
   local t = now() + s
@@ -453,7 +451,7 @@ local function waitSeconds(s)
 end
 local function waitFrames(n) for _ = 1, n do coroutine.yield() end end
 
--- heller, kaum metallischer Lack: im Fokus-Modus gibt es keine Umgebung zum Spiegeln, Metallic wirkt dort fast schwarz
+-- einheitlicher heller, kaum metallischer Lack: Formen sind gut zu erkennen, Farben stören den Katalog nicht
 local studioPaint = {
   baseColor = { 0.78, 0.79, 0.81, 1 }, metallic = 0.1, roughness = 0.45, clearcoat = 0.3, clearcoatRoughness = 0.2,
 }
@@ -484,7 +482,7 @@ end
 local function spawnStudio(model, config)
   deleteStudio()
   table.clear(meshBoundsCache)
-  local opt = { pos = job.pos, rot = quat(0, 0, 0, 1), autoEnterVehicle = false, cling = false,
+  local opt = { pos = job.pos, rot = job.rot or quat(0, 0, 0, 1), autoEnterVehicle = false, cling = true,
     canSpawnAnotherVehicleCheck = false, licenseText = 'STUDIO' }
   if config then opt.config = config end
   local ok, veh = pcall(core_vehicles.spawnNewVehicle, model, opt)
@@ -510,88 +508,18 @@ local function spawnStudio(model, config)
   return veh2, vd
 end
 
--- Licht: die Sonne ist das Studio-Licht ---------------------------------------------------------------
--- Eigene Lampen leuchten in einer Fokus-RenderView nicht (getestet). Die Sonne wirkt dort sicher.
--- Darum wird für jedes Bild die Sonne als Hauptlicht hinter die Kamera gestellt (leicht seitlich, 40° hoch),
--- wie ein Fotograf mit der Sonne im Rücken. So sind die sichtbaren Flächen neutral von der Sonne beleuchtet
--- und nicht nur bläulich vom Himmel.
--- Die Sonne wird über core_celestial.setDriver gestellt (Azimut/Elevation in Grad, wie im Spiel).
--- Welche Welt-Richtung zu welchem Azimut gehört, misst das Studio einmal pro Lauf selbst nach (calibrate).
-
-local sunTarget = nil        -- { az, el } in Grad, solange das Studio die Sonne stellt
-local sunPrevDriver = false  -- vorheriger celestial-Treiber (false = keiner gesetzt)
-local sunMapCache = {}       -- Level -> Nummer der Azimut-Formel
-local sunSaved = nil         -- Sonnenstand vor dem Lauf (wird danach zurückgesetzt)
-
-local azFormulas = {
-  function(d) return math.deg(math.atan2(d.x, d.y)) end,
-  function(d) return math.deg(math.atan2(-d.x, d.y)) end,
-  function(d) return math.deg(math.atan2(d.x, -d.y)) end,
-  function(d) return math.deg(math.atan2(-d.x, -d.y)) end,
-}
-
-local function findSky()
-  local ok, names = pcall(scenetree.findClassObjects, 'ScatterSky')
-  if ok and type(names) == 'table' and names[1] then return scenetree.findObject(names[1]) end
-  return nil
+-- Belichtung der Spielkamera, wie BeamNG sie für die eigenen Vorschaubilder übernimmt
+-- (util/screenshotCreator/capture.lua: copyMainViewExposure)
+local function mainExposure()
+  local le = scenetree.findObject('PostEffectLocalExposureObject')
+  if not le then return nil end
+  local auto = le.autoExposure == true
+  local mv = RenderViewManagerInstance:getView('main')
+  return { manualEV = (not auto) and tonumber(le.manualEV) or nil,
+    currentExposure = auto and mv and tonumber(mv.currentExposure) or nil }
 end
 
-local function applySunDirect()
-  if not sunTarget then return end
-  local sky = findSky()
-  if sky then
-    pcall(function()
-      sky.azimuth = sunTarget.az
-      sky.elevation = sunTarget.el
-    end)
-  end
-end
-
-local function setSunDir(worldDir, formula)
-  local d = worldDir:normalized()
-  local az = azFormulas[formula or 1](d) % 360
-  local el = math.deg(math.asin(math.max(-1, math.min(1, d.z))))
-  if not sunSaved then
-    local sky = findSky()
-    if sky then pcall(function() sunSaved = { az = tonumber(sky.azimuth), el = tonumber(sky.elevation) } end) end
-  end
-  sunTarget = { az = az, el = el }
-  if sunPrevDriver == false and core_celestial and core_celestial.setDriver then
-    sunPrevDriver = core_celestial.getDriver and core_celestial.getDriver() or nil
-    core_celestial.setDriver(function(ctx)
-      if sunTarget then ctx.sunAz = sunTarget.az; ctx.sunEl = sunTarget.el end
-    end)
-  end
-  applySunDirect()
-end
-
-local function restoreSun()
-  sunTarget = nil
-  if sunSaved and sunSaved.az and sunSaved.el then
-    local sky = findSky()
-    if sky then pcall(function() sky.azimuth = sunSaved.az; sky.elevation = sunSaved.el end) end
-  end
-  sunSaved = nil
-  if sunPrevDriver ~= false and core_celestial and core_celestial.setDriver then
-    pcall(core_celestial.setDriver, sunPrevDriver)
-  end
-  sunPrevDriver = false
-end
-
--- Sonnenrichtung zu einer Kamera-Richtung (vom Teil zur Kamera): seitlich versetzt und angehoben
-local function keyDir(camDir, azOffsetDeg, elDeg)
-  local h = vec3(camDir.x, camDir.y, 0)
-  if h:length() < 1e-3 then h = vec3(0, 1, 0) end
-  h = h:normalized()
-  local a = math.rad(azOffsetDeg)
-  local hr = vec3(h.x * math.cos(a) - h.y * math.sin(a), h.x * math.sin(a) + h.y * math.cos(a), 0)
-  local e = math.rad(elDeg)
-  return vec3(hr.x * math.cos(e), hr.y * math.cos(e), math.sin(e))
-end
-
--- Aufnahme ---------------------------------------------------------------------------------------------
-
-local function makeView(i, veh, shot, ev)
+local function makeView(i, veh, shot, silhouette)
   local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
   local w, h = math.floor(cfg.width * ss), math.floor(cfg.height * ss)
   local name = VIEW_NAME .. i
@@ -607,16 +535,21 @@ local function makeView(i, veh, shot, ev)
   rv.frustum = Frustum.construct(false, math.rad(cfg.fov), w / h, 0.05, 2000)
   rv.fov = cfg.fov
   rv.renderEditorIcons = false
-  if cfg.background == 'focus' then
+  if silhouette then
+    -- nur für die Wahl des Blickwinkels: das Teil als Umriss vor einer Farbe, Licht egal
     pcall(function()
       rv:enterFocusObjectsMode()
       rv:addFocusObject(veh)
+      rv.clearColor = ColorF(1, 0, 1, 1)
     end)
-    local c = cfg.bgColor or defaults.bgColor
-    pcall(function() rv.clearColor = ColorF(c[1], c[2], c[3], 1) end)
   end
-  rv.useManualEV = true
-  rv.manualEV = ev
+  -- das eigentliche Bild: normale Szene (Garage samt Licht), Belichtung von der Spielkamera
+  local ex = job and job.exposure or mainExposure()
+  rv.useManualEV = ex and ex.manualEV ~= nil or false
+  rv.manualEV = ex and ex.manualEV or 0
+  if not rv.useManualEV and ex and ex.currentExposure and ex.currentExposure > 0 then
+    rv.currentExposure = ex.currentExposure
+  end
   return rv
 end
 
@@ -639,11 +572,10 @@ end
 
 local function dropView(rv) pcall(function() RenderViewManagerInstance:destroyView(rv) end) end
 
--- Helligkeit messen: Mittelwert (0..255, sRGB) und Anteil ausgebrannter Pixel, nur über die Pixel des Teils
--- (alles, was sich von der Hintergrundfarbe oben links unterscheidet). nil, wenn kaum Teil im Bild ist.
-local function measure(bmp)
-  if cfg.background ~= 'focus' or not bmp then return nil end
-  local ok, mean, clip = pcall(function()
+-- Wie viel vom Bild das Teil bedeckt (Umriss-Bild, Hintergrund = Farbe oben links), 0..1
+local function coverage(bmp)
+  if not bmp then return 0 end
+  local ok, frac = pcall(function()
     local w, h = bmp:getWidth(), bmp:getHeight()
     local c = ColorI(0, 0, 0, 255)
     local function px(x, y)
@@ -651,145 +583,42 @@ local function measure(bmp)
       return (c.red or c.r or 0), (c.green or c.g or 0), (c.blue or c.b or 0)
     end
     local br, bgc, bb = px(0, 0)
-    local sum, n, clipN = 0, 0, 0
+    local n, all = 0, 0
     for y = 0, h - 1, 2 do
       for x = 0, w - 1, 2 do
         local r, g, b = px(x, y)
-        if math.abs(r - br) + math.abs(g - bgc) + math.abs(b - bb) > 18 then
-          local l = 0.2126 * r + 0.7152 * g + 0.0722 * b
-          sum = sum + l; n = n + 1
-          if l >= 248 then clipN = clipN + 1 end
-        end
+        all = all + 1
+        if math.abs(r - br) + math.abs(g - bgc) + math.abs(b - bb) > 40 then n = n + 1 end
       end
     end
-    if n < 40 then return nil end
-    return sum / n, clipN / n
+    return all > 0 and n / all or 0
   end)
-  if not ok then return nil end
-  return mean, clip
+  return ok and frac or 0
 end
 
--- Zielhelligkeit für das ganze Auto im Studio-Lack (Mittelwert der Auto-Pixel)
-local function targetMean()
-  local b = tonumber(cfg.brightness) or 0
-  return math.max(50, math.min(200, 118 * 2 ^ (b / 2.2)))
-end
-local function stopsTo(target, mean) return 2.2 * math.log(target / math.max(1, mean)) / math.log(2) end
-
-local function mainEV()
-  local le = scenetree.findObject('PostEffectLocalExposureObject')
-  if le and le.autoExposure ~= true and tonumber(le.manualEV) then return tonumber(le.manualEV) end
-  return 13
-end
-
--- Einmal pro Lauf: Sonnen-Formel und Belichtung am ganzen Auto (Studio-Lack) messen.
--- 1) bei fester Belichtung die vier möglichen Azimut-Formeln probieren: die hellste stellt die Sonne
---    wirklich hinter die Kamera. 2) Belichtung so lange anpassen, bis das Auto die Zielhelligkeit hat.
-local function calibrate(veh, vd)
-  local car = carBox(veh, vd.vdata)
-  if not car then return end
-  local right, fwd, up = axesOf(veh)
-  local frame = { local_ = car.center, half = car.half, right = right, fwd = fwd, up = up }
-  local all = meshesOf(vd.vdata, nil)
-  for _, m in ipairs(all) do veh:setMeshAlpha(1, m, false) end
-  local dirLocal = vec3(0.75, 0.6, 0.35):normalized()
-  local pos, rot, center = cameraFrom(veh, frame, dirLocal, nil)
-  local shot = { pos = pos, rot = rot }
-  local camDir = (pos - center):normalized()
-  local settle = math.max(1.0, tonumber(cfg.settleDelay) or 1)
-  local lvl = tostring(getCurrentLevelIdentifier and getCurrentLevelIdentifier() or '')
-  local ev = job.ev or mainEV()
-
-  local function shootMean(formula)
-    setSunDir(keyDir(camDir, -30, 40), formula)
-    local rv = makeView(9, veh, shot, ev)
-    waitSeconds(settle)
-    local bmp = grab(rv, OUT_DIR .. '_calibrate', 9)
-    dropView(rv)
-    return measure(bmp)
-  end
-
-  -- erst grob belichten, damit die Messung nicht ganz schwarz oder ganz weiß ist
-  for _ = 1, 8 do
-    if job.stop then return end
-    setText('Licht einmessen: Belichtung …')
-    local mean, clip = shootMean(sunMapCache[lvl] or 1)
-    if not mean then break end
-    local st = stopsTo(targetMean(), mean)
-    if clip and clip > 0.05 and st > -0.5 then st = -1 end
-    if math.abs(st) < 1.5 then break end
-    ev = ev - math.max(-4, math.min(4, st))
-  end
-  if not sunMapCache[lvl] then
-    local best, bestMean = 1, -1
-    for f = 1, #azFormulas do
-      if job.stop then return end
-      setText('Licht einmessen: Sonnenstand ' .. f .. '/4')
-      local mean = shootMean(f)
-      if mean and mean > bestMean then best, bestMean = f, mean end
-    end
-    sunMapCache[lvl] = best
-    log('I', logTag, 'Sonnen-Formel ' .. best .. ' (hellste Messung ' .. string.format('%.0f', bestMean) .. ')')
-  end
-  job.sunFormula = sunMapCache[lvl]
-  for _ = 1, 6 do
-    if job.stop then return end
-    setText('Licht einmessen: Belichtung')
-    local mean, clip = shootMean(job.sunFormula)
-    if not mean then break end
-    local st = stopsTo(targetMean(), mean)
-    if clip and clip > 0.03 and st > -0.25 then st = -0.5 end
-    if math.abs(st) < 0.25 then break end
-    ev = ev - math.max(-3, math.min(3, st))
-  end
-  job.ev = ev
-  job.calibrated = true
-  log('I', logTag, string.format('Licht eingemessen: EV %.2f, Sonnen-Formel %d', ev, job.sunFormula or 1))
-end
-
--- Ein Teil aufnehmen. Mehrere Blickwinkel: zuerst alle gleichzeitig (Sonne hoch) und den mit dem meisten
--- Inhalt nehmen, dann das eigentliche Bild mit der Sonne hinter der Kamera. Die Belichtung ist für alle Teile
--- gleich (eingemessen), damit schwarze Teile schwarz und helle hell bleiben; nur ausgebrannte oder fast
--- schwarze Bilder werden um höchstens eine Blendenstufe nachkorrigiert.
+-- Ein Teil aufnehmen. Bei mehreren möglichen Blickwinkeln zuerst alle als Umriss gleichzeitig aufnehmen und
+-- den nehmen, in dem man am meisten vom Teil sieht (einseitige Meshes sind von hinten unsichtbar).
+-- Dann das eigentliche Bild in der Garage mit ihrem Licht, nach mindestens einer Sekunde Wartezeit
+-- (so lange braucht eine neue Kamera, bis die Nachbearbeitung stimmt).
 local function shootPart(veh, shots, file)
-  local ev = job.ev or mainEV()
-  local formula = job.sunFormula or 1
   local best = 1
   if #shots > 1 then
-    setSunDir(keyDir(shots[1].dir, -30, 70), formula)
     local rvs = {}
-    for i, sh in ipairs(shots) do rvs[i] = makeView(i, veh, sh, ev) end
+    for i, sh in ipairs(shots) do rvs[i] = makeView(i, veh, sh, true) end
     waitSeconds(0.5)
     local bestScore = -1
     for i, rv in ipairs(rvs) do
-      local bmp = grab(rv, file, i)
+      local score = coverage(grab(rv, file, i))
       dropView(rv)
-      if bmp then
-        local cand = file .. '.cand' .. i .. '.jpg'
-        local score = 0
-        if bmp:saveFile(cand) then score = fileSize('/' .. cand) end
-        FS:removeFile(cand)
-        if i == 1 then score = score * 1.35 elseif i == 5 then score = score * 0.85 end
-        if score > bestScore then best, bestScore = i, score end
-      end
+      -- die geschätzte Richtung bevorzugen, die Draufsicht nur, wenn sie klar mehr zeigt
+      if i == 1 then score = score * 1.25 elseif i == 5 then score = score * 0.85 end
+      if score > bestScore then best, bestScore = i, score end
     end
   end
-  local sh = shots[best]
-  setSunDir(keyDir(sh.dir, -30, 40), formula)
-  local settle = math.max(1.0, tonumber(cfg.settleDelay) or 1)
-  local bmp, corr = nil, 0
-  for attempt = 1, 2 do
-    local rv = makeView(1, veh, sh, ev - corr)
-    waitSeconds(settle)
-    bmp = grab(rv, file, 0)
-    dropView(rv)
-    if not bmp then return false, best end
-    local mean, clip = measure(bmp)
-    if attempt == 2 or not mean then break end
-    if clip > 0.06 then corr = -1
-    elseif mean < 30 then corr = 1
-    else break end
-  end
+  local rv = makeView(0, veh, shots[best], false)
+  waitSeconds(math.max(1.0, tonumber(cfg.settleDelay) or 1))
+  local bmp = grab(rv, file, 0)
+  dropView(rv)
   local ok = bmp and bmp:saveFile(file) or false
   return ok and true or false, best
 end
@@ -997,7 +826,7 @@ local function runBase(model, startCfg, label, covered, queue)
   veh, vd = spawnStudio(model, deepcopy(base))
   if not veh then job.failed = job.failed + 1; return end
   job.car = carBox(veh, vd.vdata)
-  if not job.calibrated then calibrate(veh, vd) end
+  if job.car then job.floorZ = job.car.center.z - job.car.half.z end
   for _, s in ipairs(baseWanted) do
     if job.stop then return end
     local node = findSlotNode(vd.config.partsTree, s.path)
@@ -1042,6 +871,7 @@ local function runBase(model, startCfg, label, covered, queue)
       job.failed = job.failed + #picks
     else
       job.car = carBox(veh, vd.vdata) or job.car
+      if job.car then job.floorZ = job.car.center.z - job.car.half.z end
       for _, p in ipairs(picks) do
         if job.stop then return end
         local node = findSlotNode(vd.config.partsTree, p.slot.path)
@@ -1081,7 +911,7 @@ local function runSingle(s)
       job.failed = job.failed + 1
     else
       job.car = carBox(veh, vd.vdata)
-      if not job.calibrated then calibrate(veh, vd) end
+  if job.car then job.floorZ = job.car.center.z - job.car.half.z end
       local node = findSlotNode(vd.config.partsTree, s.path)
       if node and node.chosenPartName == part and node.partPath then
         capturePart(veh, vd, node.partPath, part, s.slotId)
@@ -1095,28 +925,32 @@ end
 
 local saved = nil
 local function prepareScene()
-  saved = {}
+  saved = { hidden = {} }
   local ok, running = pcall(function() return be:getPhysicsRunning() end)
   saved.physics = (not ok) or running == true
   pcall(function() be:setPhysicsRunning(false) end)
-  if cfg.noonLight and core_environment and core_environment.getTimeOfDay then
-    local okT, tod = pcall(core_environment.getTimeOfDay)
-    if okT and type(tod) == 'table' then
-      saved.tod = deepcopy(tod)
-      local t = deepcopy(tod)
-      t.time = 0 -- BeamNG: 0 = 12:00 Uhr (Farbe des Sonnenlichts); die Richtung stellt das Studio selbst
-      t.play = false
-      pcall(core_environment.setTimeOfDay, t)
+  -- Belichtung der Spielkamera übernehmen (vor dem Ausblenden, die Kamera sieht gerade die Garage)
+  job.exposure = mainExposure()
+  -- eigenes Auto und andere Fahrzeuge ausblenden, sie stehen sonst auf dem Stellplatz im Bild
+  pcall(function()
+    for i = 0, be:getObjectCount() - 1 do
+      local v = be:getObject(i)
+      if v and v:getActive() then
+        v:setActive(0)
+        table.insert(saved.hidden, v:getID())
+      end
     end
-  end
+  end)
   disableTemporalAA()
   pcall(FS.directoryCreate, FS, OUT_DIR, true)
 end
 
 local function restoreScene()
-  restoreSun()
   if not saved then return end
-  if saved.tod then pcall(core_environment.setTimeOfDay, saved.tod) end
+  for _, id in ipairs(saved.hidden or {}) do
+    local v = getObjectByID(id)
+    if v then pcall(function() v:setActive(1) end) end
+  end
   if saved.physics ~= false then pcall(function() be:setPhysicsRunning(true) end) end
   restoreAA()
   saved = nil
@@ -1158,21 +992,62 @@ end
 
 -- Öffentliche Funktionen (Oberfläche) ----------------------------------------------------------------
 
-local function studioPos()
-  local ok, p = pcall(core_camera.getPosition)
-  if not ok or not p then p = vec3(0, 0, 0) end
-  return vec3(p.x, p.y, p.z + (cfg.heightAboveCamera or 150))
+local function inGarage()
+  local ok, n = pcall(function() return getCurrentLevelIdentifier and getCurrentLevelIdentifier() end)
+  return ok and n == STUDIO_LEVEL
+end
+
+-- Stellplatz der Garage (wie gameplay/garageMode.lua: SpawnSphere spawn_default, Auto um 180° gedreht)
+local function studioSpot()
+  local sp = scenetree.findObject('spawn_default')
+  if not sp then
+    local ok, names = pcall(scenetree.findClassObjects, 'SpawnSphere')
+    if ok and type(names) == 'table' and names[1] then sp = scenetree.findObject(names[1]) end
+  end
+  if not sp then return vec3(0.04, -0.05, 100.34), quat(0, 0, 1, 0) end
+  local p = sp:getPosition()
+  local okR, rot = pcall(function() return quat(0, 0, 1, 0) * sp:getRotation() end)
+  if not okR or not rot then rot = quat(0, 0, 1, 0) end
+  return vec3(p.x, p.y, p.z), rot
 end
 
 local function newJob(models)
+  local pos, rot = studioSpot()
   return { models = models, modelIndex = 0, done = 0, skipped = 0, failed = 0, noMesh = 0, planned = 0,
-    round = 0, rounds = 0, seen = {}, log = {}, started = now(), pos = studioPos(), stop = false, finished = false }
+    round = 0, rounds = 0, seen = {}, log = {}, started = now(), pos = pos, rot = rot, 
+    stop = false, finished = false }
+end
+
+-- Garage laden (mit dem eigenen Auto, wie die BeamNG-Garage), danach Panel öffnen und ggf. einen Lauf starten
+local function goGarage(startArg)
+  pendingOpen = true
+  pendingStart = startArg
+  send({ status = { ok = true, text = 'Wechsle in die Garage …' } })
+  local veh = getPlayerVehicle(0)
+  local spawnVeh = nil
+  if veh then
+    local okC, cfgData = pcall(function()
+      local vd = core_vehicle_manager.getVehicleData(veh:getID())
+      return vd and vd.config
+    end)
+    if okC and cfgData then spawnVeh = { veh:getJBeamFilename(), { config = serialize(cfgData) } } end
+  end
+  if spawnVeh and core_levels and core_levels.startLevel then
+    local ok = pcall(core_levels.startLevel, path.getPathLevelMain(STUDIO_LEVEL), true, nil, spawnVeh)
+    if ok then return true end
+  end
+  local ff = rawget(_G, 'freeroam_freeroam') or (extensions.load('freeroam_freeroam') and freeroam_freeroam)
+  if ff and ff.startFreeroamByName and ff.startFreeroamByName(STUDIO_LEVEL) then return true end
+  pendingOpen, pendingStart = false, nil
+  send({ status = { ok = false, text = 'Garage (garage_v2) konnte nicht geladen werden' } })
+  return false
 end
 
 -- models: Liste von Modell-Schlüsseln, oder 'current' (Modell des eigenen Autos)
 function M.start(arg)
   if job and not job.finished then return end
   local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
+  if not inGarage() then goGarage(data); return end
   local keys = data.models
   if keys == 'current' then
     local v = getPlayerVehicle(0)
@@ -1197,6 +1072,10 @@ function M.reshoot(arg)
   local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
   if job and not job.finished then
     send({ status = { ok = false, text = 'Es läuft schon eine Bilderstellung' } }); return
+  end
+  if not inGarage() then
+    send({ status = { ok = false, text = 'Neu aufnehmen geht nur in der Garage. Erst mit „In die Garage“ wechseln.' } })
+    return
   end
   local veh = getPlayerVehicle(0)
   if not veh or not data.key then return end
@@ -1374,7 +1253,7 @@ function M.install(arg)
 end
 
 function M.requestState()
-  send({ active = active, settings = cfg, models = modelList() })
+  send({ active = active, settings = cfg, models = modelList(), inGarage = inGarage() })
   pushJob()
 end
 
@@ -1392,12 +1271,8 @@ end
 
 function M.open()
   if not levelLoaded() then
-    -- aus dem Hauptmenü: kleines Test-Level laden, danach das Panel öffnen
-    local ff = rawget(_G, 'freeroam_freeroam') or (extensions.load('freeroam_freeroam') and freeroam_freeroam)
-    if ff and ff.startFreeroamByName and ff.startFreeroamByName(STUDIO_LEVEL) then
-      pendingOpen = true
-      return
-    end
+    -- aus dem Hauptmenü: Garage laden, danach das Panel öffnen
+    if goGarage(nil) then return end
   end
   active = true
   -- Aus dem Menü (Esc > Mehr) geöffnet: das Menü schließen, sonst bleibt es über dem Spiel stehen
@@ -1408,6 +1283,9 @@ function M.open()
   M.requestState()
   M.requestGallery()
 end
+
+-- Knopf „In die Garage“ in der Oberfläche
+function M.goGarage() goGarage(nil) end
 
 function M.close()
   active = false
@@ -1422,7 +1300,14 @@ end
 
 local galleryTimer = 0
 function M.onUpdate(dtReal)
-  if sunTarget then applySunDirect() end
+  if startTimer then
+    startTimer.t = startTimer.t - (dtReal or 0)
+    if startTimer.t <= 0 then
+      local a = startTimer.arg
+      startTimer = nil
+      if inGarage() then M.start(a) end
+    end
+  end
   if job and job.co and coroutine.status(job.co) ~= 'dead' then
     local ok, err = coroutine.resume(job.co)
     if not ok then
@@ -1466,6 +1351,11 @@ function M.onLoadingScreenFadeout()
   active = true
   M.requestState()
   M.requestGallery()
+  if pendingStart then
+    local a = pendingStart
+    pendingStart = nil
+    startTimer = { t = 2.0, arg = a } -- die Spielkamera erst an die Garage gewöhnen lassen
+  end
 end
 
 function M.onVehicleSpawned(vid)
