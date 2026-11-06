@@ -1,0 +1,43 @@
+{
+  "sunburst2_main.skin.hb_police": {
+    "name": "sunburst2_main.skin.hb_police",
+    "mapTo": "sunburst2_main.skin.hb_police",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "baseColorMap": "/vehicles/sunburst2/sunburst2_main_b.color.png",
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/sunburst2/sunburst2_main_m.data.png",
+        "roughnessMap": "/vehicles/sunburst2/sunburst2_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/sunburst2/sunburst2_main_ao.data.png",
+        "baseColorMap": "/vehicles/sunburst2/hashiriya_liveries/hb_police.color.png",
+        "diffuseMapUseUV": 1,
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/sunburst2/sunburst2_main_cc.data.png",
+        "clearCoatRoughnessFactor": 0.08,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.15,
+        "detailScale": [
+          128,
+          64
+        ],
+        "normalDetailMapUseUV": 1,
+        "metallicFactor": 0.4,
+        "roughnessFactor": 0.35,
+        "normalMap": "/vehicles/sunburst2/sunburst2_main_nm.normal.png",
+        "opacityMap": "/vehicles/sunburst2/sunburst2_main_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  }
+}

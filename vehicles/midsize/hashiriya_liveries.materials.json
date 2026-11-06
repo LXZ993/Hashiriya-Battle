@@ -1,0 +1,43 @@
+{
+  "midsize_body.skin.hb_police": {
+    "name": "midsize_body.skin.hb_police",
+    "mapTo": "midsize_body.skin.hb_police",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "baseColorMap": "/vehicles/midsize/midsize_body_b.color.png",
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/midsize/midsize_body_m.data.png",
+        "roughnessMap": "/vehicles/midsize/midsize_body_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/midsize/midsize_body_ao.data.png",
+        "baseColorMap": "/vehicles/midsize/hashiriya_liveries/hb_police.color.png",
+        "diffuseMapUseUV": 1,
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/midsize/midsize_body_cc.data.png",
+        "clearCoatRoughnessFactor": 0.08,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.15,
+        "detailScale": [
+          128,
+          64
+        ],
+        "normalDetailMapUseUV": 1,
+        "metallicFactor": 0.4,
+        "roughnessFactor": 0.35,
+        "normalMap": "/vehicles/midsize/midsize_body_nm.normal.png",
+        "opacityMap": "/vehicles/midsize/midsize_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  }
+}

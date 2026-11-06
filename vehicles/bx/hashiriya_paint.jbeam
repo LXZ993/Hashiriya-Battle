@@ -1,0 +1,128 @@
+{
+  "bx_skin_hb_streetdrift": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Street Drift Flames (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_streetdrift"
+  },
+  "bx_skin_hb_factorysports": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Factory Sports (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_factorysports"
+  },
+  "bx_skin_hb_bosozoku": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Bosozoku (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_bosozoku"
+  },
+  "bx_skin_hb_kaido": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Kaido Racer (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_kaido"
+  },
+  "bx_skin_hb_streetdrift_team": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Street Drift Team (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_streetdrift_team"
+  },
+  "bx_skin_hb_sponsor_race": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Sponsor Race Car (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_sponsor_race"
+  },
+  "bx_skin_hb_d1_drift": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Pro Drift (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_d1_drift"
+  },
+  "bx_skin_hb_shop_demo": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Tuning Shop Demo Car (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_shop_demo"
+  },
+  "bx_skin_hb_wa": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Wa Pattern (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_wa"
+  },
+  "bx_skin_hb_manga": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Manga Speed (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_manga"
+  },
+  "bx_skin_hb_splinter": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Splinter Camo (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_splinter"
+  },
+  "bx_skin_hb_groupc": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Group C Retro (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_groupc"
+  },
+  "bx_skin_hb_jgtc": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: GT Waves (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_jgtc"
+  },
+  "bx_skin_hb_kanjo": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Kanjo Loop (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_kanjo"
+  }
+}

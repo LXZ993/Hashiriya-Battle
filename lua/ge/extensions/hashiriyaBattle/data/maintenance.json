@@ -1,0 +1,23 @@
+{
+  "_hinweis": "Wartung (maintenance.lua): jedes eigene Auto hat Öl, Kühlwasser und Reifen von 100 % bis 0 %. Die Werte sinken mit den gefahrenen Kilometern: intervalKm = nach so vielen km ist der Wert bei 0 %. In der Garage (Tab Service) bringt ein Service den Wert wieder auf 100 %. priceYen = Preis je Service in Yen; Reifen kosten mindestens priceYen.tires, bei teuren Autos tiresValueShare × Wagenwert (0.02 = 2 %). effectBelow = ab diesem Wert (0.5 = 50 %) merkt man es im Auto, bei 0 % voll: effect.oilFriction = mehr Motorreibung (0.6 = +60 %), effect.coolantRadiator = schwächerer Kühler (0.5 = halbe Kühlleistung), effect.tiresGrip = weniger Grip (0.12 = 12 % weniger). warnBelow = Warnung unterwegs, wenn ein Wert darunter fällt. usedStart = Startwerte für Gebrauchtwagen ohne Wartungsdaten (von, bis), je nach Zustand des Autos. enabled false schaltet die Wartung ganz ab. Die km sind Spiel-km: eine Nacht auf dem C1 sind grob 100 bis 200 km.",
+  "enabled": true,
+  "intervalKm": {
+    "oil": 1200,
+    "coolant": 2500,
+    "tires": 900
+  },
+  "priceYen": {
+    "oil": 6980,
+    "coolant": 4980,
+    "tires": 29800
+  },
+  "tiresValueShare": 0.02,
+  "effectBelow": 0.5,
+  "effect": {
+    "oilFriction": 0.6,
+    "coolantRadiator": 0.5,
+    "tiresGrip": 0.12
+  },
+  "warnBelow": 0.2,
+  "usedStart": [0.35, 0.9]
+}

@@ -1,0 +1,74 @@
+{
+  "miramar_skin_hb_streetdrift": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Street Drift Flames (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_streetdrift"
+  },
+  "miramar_skin_hb_bosozoku": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Bosozoku (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_bosozoku"
+  },
+  "miramar_skin_hb_kaido": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Kaido Racer (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_kaido"
+  },
+  "miramar_skin_hb_twotone": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Factory Two-Tone (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_twotone"
+  },
+  "miramar_skin_hb_d1_drift": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Pro Drift (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_d1_drift"
+  },
+  "miramar_skin_hb_shop_demo": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Tuning Shop Demo Car (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_shop_demo"
+  },
+  "miramar_skin_hb_wa": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Wa Pattern (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_wa"
+  },
+  "miramar_skin_hb_splinter": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Splinter Camo (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_splinter"
+  }
+}

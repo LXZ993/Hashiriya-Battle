@@ -1,0 +1,164 @@
+{
+  "pessima.skin.hb_taxi_shinonome": {
+    "name": "pessima.skin.hb_taxi_shinonome",
+    "mapTo": "pessima.skin.hb_taxi_shinonome",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_liveries/hb_taxi_shinonome.color.png",
+        "diffuseMapUseUV": 1,
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "clearCoatRoughnessFactor": 0.08,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.15,
+        "detailScale": [
+          128,
+          64
+        ],
+        "normalDetailMapUseUV": 1,
+        "metallicFactor": 0.4,
+        "roughnessFactor": 0.35,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_taxi_shinonome": {
+    "name": "pessima_aftermarket.skin.hb_taxi_shinonome",
+    "mapTo": "pessima_aftermarket.skin.hb_taxi_shinonome",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "metallicFactor": 0.001,
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_liveries/hb_taxi_shinonome.color.png",
+        "diffuseMapUseUV": 1,
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "clearCoatRoughnessFactor": 0.08,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.15,
+        "detailScale": [
+          128,
+          64
+        ],
+        "normalDetailMapUseUV": 1,
+        "metallicFactor": 0.4,
+        "roughnessFactor": 0.35,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_taxi_gekko": {
+    "name": "pessima.skin.hb_taxi_gekko",
+    "mapTo": "pessima.skin.hb_taxi_gekko",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_liveries/hb_taxi_gekko.color.png",
+        "diffuseMapUseUV": 1,
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "clearCoatRoughnessFactor": 0.08,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.15,
+        "detailScale": [
+          128,
+          64
+        ],
+        "normalDetailMapUseUV": 1,
+        "metallicFactor": 0.4,
+        "roughnessFactor": 0.35,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_taxi_gekko": {
+    "name": "pessima_aftermarket.skin.hb_taxi_gekko",
+    "mapTo": "pessima_aftermarket.skin.hb_taxi_gekko",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "metallicFactor": 0.001,
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_liveries/hb_taxi_gekko.color.png",
+        "diffuseMapUseUV": 1,
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "clearCoatRoughnessFactor": 0.08,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.15,
+        "detailScale": [
+          128,
+          64
+        ],
+        "normalDetailMapUseUV": 1,
+        "metallicFactor": 0.4,
+        "roughnessFactor": 0.35,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  }
+}

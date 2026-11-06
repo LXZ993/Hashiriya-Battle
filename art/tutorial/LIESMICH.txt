@@ -1,0 +1,1 @@
+Tutorial-Bilder: page1.png bis page7.png, 1600x900 PNG (siehe data/tutorial.json).

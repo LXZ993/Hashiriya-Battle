@@ -1,0 +1,15 @@
+{
+  "domElement": "<hashiriya-tacho></hashiriya-tacho>",
+  "name": "Hashiriya Battle: Drehzahlmesser",
+  "types": ["ui.apps.categories.vehicle_info"],
+  "description": "Eigener Drehzahlmesser im HashiNet-Design (abgeleitet vom BeamNG Advanced Tachometer): Drehzahl, Geschwindigkeit, Gang, Tank, Temperatur, Blinker, ABS, Handbremse, Licht.",
+  "css": { "right": "5px", "bottom": "5px", "width": "300px", "height": "300px" },
+  "preserveAspectRatio": true,
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaTacho",
+  "appName": "hashiriyaTacho",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}

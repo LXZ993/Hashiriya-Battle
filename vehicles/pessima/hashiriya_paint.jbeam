@@ -1,0 +1,83 @@
+{
+  "pessima_skin_hb_kaido": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Kaido Racer (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_kaido"
+  },
+  "pessima_skin_hb_factorysports": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Factory Sports (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_factorysports"
+  },
+  "pessima_skin_hb_bosozoku": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Bosozoku (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_bosozoku"
+  },
+  "pessima_skin_hb_twotone": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Factory Two-Tone (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_twotone"
+  },
+  "pessima_skin_hb_shop_demo": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Tuning Shop Demo Car (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_shop_demo"
+  },
+  "pessima_skin_hb_rally": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Group A Rally (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_rally"
+  },
+  "pessima_skin_hb_wa": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Wa Pattern (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_wa"
+  },
+  "pessima_skin_hb_groupc": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Group C Retro (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_groupc"
+  },
+  "pessima_skin_hb_kanjo": {
+    "information": {
+      "authors": "JDMArsch (LXZ aka. LXZockt), Hashiriya Battle",
+      "name": "Hashiriya: Kanjo Loop (Colorable)",
+      "value": 3000
+    },
+    "slotType": "paint_design",
+    "skinName": "hb_kanjo"
+  }
+}

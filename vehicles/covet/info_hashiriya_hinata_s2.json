@@ -1,0 +1,22 @@
+{
+  "Configuration": "hashiriya_hinata_s2",
+  "defaultMultiPaintSetup": {
+    "name": "hashiriya_hinata_s2 Multi Paint Setup",
+    "paint1": {
+      "baseColor": [
+        0.15999999642372,
+        0.28000000119209,
+        0.56000000238419,
+        1
+      ],
+      "class": "hidden",
+      "clearcoat": 0.825999975,
+      "clearcoatRoughness": 0,
+      "metallic": 0.234999999,
+      "name": "hashiriya_hinata_s2 Paint 1",
+      "roughness": 0.0700000003
+    },
+    "paint2": "Solar Yellow",
+    "paint3": "White"
+  }
+}

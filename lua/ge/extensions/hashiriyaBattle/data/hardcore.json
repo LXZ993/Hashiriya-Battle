@@ -1,0 +1,34 @@
+{
+  "_hinweis": "Hardcore-Modus (hardcore.lua). Wird beim Anlegen eines neuen Spielstands im letzten Schritt gewählt und gilt nur für diesen Spielstand (save.hardcore = true, danach nicht mehr umschaltbar). Alle Werte hier wirken NUR auf Hardcore-Spielstände; normale Spielstände bleiben unverändert. enabled = false blendet die Auswahl beim neuen Spiel aus und schaltet alle Regeln ab (auch für schon angelegte Hardcore-Spielstände).",
+  "enabled": true,
+
+  "_hinweisAuto": "coldStart = Motor startet kalt (BeamNG-Einstellung startThermalsPreHeated wird für die Dauer des Hardcore-Spielstands ausgeschaltet und danach wieder auf deinen Wert gesetzt; die Öl/Wasser-Anzeige zeigt dann blau). Gilt ab dem nächsten Spawn des Autos (Laden, Garage, Teilewechsel). maintIntervalFactor = Wartungsintervalle (maintenance.json intervalKm) mal diesen Wert (0.5 = Öl, Wasser, Reifen sind doppelt so schnell fällig). maintEffectFactor = Wirkung schlechter Wartung (Reibung, Kühler, Grip) mal diesen Wert: bei leerem Öl/Wasser wird der Motor so heiß, dass BeamNG ihn wirklich beschädigt. startFuel = Tank des Startautos (Anteil, 0.12 = 12 %; ersetzt conditionMinFuel). fuelUseFactor = Spritverbrauch mal diesen Wert (1.5 = anderthalbfach; das Spiel zieht alle paar Sekunden den Mehrverbrauch ab).",
+  "coldStart": true,
+  "maintIntervalFactor": 0.5,
+  "maintEffectFactor": 1.6,
+  "startFuel": 0.12,
+  "fuelUseFactor": 1.5,
+
+  "_hinweisGeld": "priceFactor = Preise mal diesen Wert: Reparatur, Abschleppen, Teile und Lacke im Shop, Wartung, Sprit, Händlerautos, Kennzeichen und Polizeistrafen. rewardFactor = Preisgeld für Siege mal diesen Wert (gilt nicht für Rivalen mit festem rewardYen). pinkSlipForced = Rivalen, die um Autos fahren, fahren nur noch um Autos (kein normales Battle mehr). gameOverDeletesSave = nach dem Game-Over-Bildschirm (Neue Karriere oder Beenden) wird der Spielstand gelöscht.",
+  "priceFactor": 1.5,
+  "rewardFactor": 0.75,
+  "pinkSlipForced": true,
+  "gameOverDeletesSave": true,
+
+  "_hinweisWelt": "laserExtra = so viele Laserkontrollen (mobile Blitzer, police.json laser) zusätzlich je Spieltag, zum Wert für den Rang (min und max). Die festen Blitzer der Karte bleiben gleich. trafficFactor = Verkehr mal diesen Wert (1.3 = 30 % mehr, höchstens so viele Autos wie gespawnt sind). noPaTravel = keine Schnellreise zu anderen PAs oder zur Garage (weder an Ausfahrten noch aus der Garage); Ausfahrten bleiben für den Map-Wechsel nach 1.0.",
+  "laserExtra": 2,
+  "trafficFactor": 1.3,
+  "noPaTravel": true,
+
+  "_hinweisSpeichern": "saveOnlyHome = Speichern nur zu Hause oder in der Garagenbucht (nicht geparkt unterwegs). Wer ohne zu speichern beendet, wird immer abgeschleppt (world.json saving.unsavedExit gilt dann nicht), towFineFactor = Bußgeld fürs Abschleppen nach unsauberem Beenden mal diesen Wert. ironman = wer während eines laufenden Battles beendet (oder das Spiel abstürzt), hat das Battle beim nächsten Laden verloren.",
+  "saveOnlyHome": true,
+  "towFineFactor": 2,
+  "ironman": true,
+
+  "_hinweisHud": "hideRivalMarks = Rivalen erscheinen nicht farbig auf Minimap und Radar (nur als normales Auto). Die Polizei bleibt sichtbar.",
+  "hideRivalMarks": true,
+
+  "_hinweisBefreien": "unstuckPerDay = so oft darf man pro Spieltag Befreien benutzen (0 = unbegrenzt). unstuckFeeYen = Servicegebühr je Befreien (kommt noch mal priceFactor dazu). Ein weiterer Druck, weil man direkt danach noch hängt, zählt nicht extra und kostet nichts.",
+  "unstuckPerDay": 3,
+  "unstuckFeeYen": 10000
+}
