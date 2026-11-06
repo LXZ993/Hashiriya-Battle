@@ -438,6 +438,8 @@ local function trafficPool(parked)
   return pool
 end
 
+M.trafficPool = trafficPool -- auch für die Autos der PA-Fahrer (talk.lua)
+
 -- Liste mit genau amount Autos ziehen: nach Population gewichtet, aber jede schon gezogene Config wird seltener
 -- (wie Agents Traffic Tool), damit möglichst viele verschiedene Autos unterwegs sind.
 local function buildTrafficList(pool, amount)

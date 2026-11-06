@@ -171,6 +171,17 @@ local function pickConfig(model, match, rand)
   return keys[math.floor(rand() * #keys) + 1]
 end
 
+-- zufälliges Auto aus dem Pool der geparkten Autos (core.trafficPool, nach Population gewichtet), nil ohne Agent-Mod
+local parkedPool = nil
+local function poolCar(rand)
+  if not parkedPool then
+    local ok, p = pcall(function() return core().trafficPool(true) end)
+    if ok and type(p) == 'table' and p[1] then parkedPool = p end
+  end
+  if not parkedPool then return nil end
+  return pickWeighted(parkedPool, function(e) return e.w or 1 end, rand)
+end
+
 local function paintFromColor(c)
   c = type(c) == 'table' and c or { 0.6, 0.6, 0.6 }
   local ok, p = pcall(createVehiclePaint, { x = c[1] or 0.6, y = c[2] or 0.6, z = c[3] or 0.6, w = 1 })
@@ -548,11 +559,17 @@ local function spawnCrowd(i, pa)
       local ps = spots[spotIdx]
       spotIdx = spotIdx + 1
       local car = cars[math.floor(rand() * #cars) + 1]
-      -- eigene Config (chat.json cars[].config = Name der .pc ohne Endung) geht vor, wenn es sie gibt
-      local config = car.config
-      config = config or pickConfig(car.model, car.match, rand)
-      if not config and car.match then config = pickConfig(car.model, nil, rand) end
-      n.carId = spawnCar(car.model, config, ps, rand)
+      -- eigene Config (chat.json cars[].config = Name der .pc ohne Endung) geht vor, wenn es sie gibt.
+      -- Einträge ohne Config (nur Modell) nehmen ein Auto aus dem vordefinierten Pool für geparkte Autos
+      -- (Agent Traffic JP, dieselben wie auf den Parkplätzen). Nur ohne Agent-Mod: Original-Config des Modells.
+      local model, config = car.model, car.config
+      if not config then
+        local pc = poolCar(rand)
+        if pc then model, config = pc.model, pc.config end
+      end
+      config = config or pickConfig(model, car.match, rand)
+      if not config and car.match then config = pickConfig(model, nil, rand) end
+      n.carId = spawnCar(model, config, ps, rand)
       if n.carId then placeBeside(n, ps, rand) end
     end
     local free = (not n.carId and (#cars == 0 or #spots == 0)) and takeStand(pa.name, nil) or nil
