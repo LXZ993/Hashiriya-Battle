@@ -27,9 +27,21 @@
         <div class="hps-note" v-if="!g.vehicle">Steig in ein Auto (oder spawne eins), dann zeigt die Galerie seine Teile.</div>
         <template v-else>
           <div class="hps-big">
-            <img v-if="hover && hover.img" :src="imgUrl(hover.img)" />
-            <div v-else class="hps-big-empty">{{ hover ? (hover.visual ? "Noch kein Bild" : "Teil ohne sichtbares Mesh") : "Fahr mit der Maus über ein Teil" }}</div>
-            <div class="hps-big-cap" v-if="hover"><b>{{ hover.name }}</b><span>{{ hover.part }}</span></div>
+            <img v-if="shown && shown.img" :src="imgUrl(shown.img)" />
+            <div v-else class="hps-big-empty">{{ shown ? (shown.visual ? "Noch kein Bild" : "Teil ohne sichtbares Mesh") : "Fahr mit der Maus über ein Teil, Klick wählt es aus" }}</div>
+            <div class="hps-big-cap" v-if="shown"><b>{{ shown.name }}</b><span>{{ shown.part }}</span></div>
+          </div>
+          <div class="hps-view" v-if="pinOpt" :class="{ 'is-busy': running }">
+            <span class="hps-view-l" :title="pinOpt.name">Ansicht</span>
+            <span class="hps-btn hps-ib" title="nach links drehen" @click="view({ dyaw: -20 })">⟲</span>
+            <span class="hps-btn hps-ib" title="nach rechts drehen" @click="view({ dyaw: 20 })">⟳</span>
+            <span class="hps-btn hps-ib" title="von weiter oben" @click="view({ dpitch: 15 })">▲</span>
+            <span class="hps-btn hps-ib" title="von weiter unten" @click="view({ dpitch: -15 })">▼</span>
+            <span class="hps-btn hps-ib" title="näher" @click="view({ dzoom: 1.2 })">+</span>
+            <span class="hps-btn hps-ib" title="weiter weg" @click="view({ dzoom: 1 / 1.2 })">−</span>
+            <span class="hps-btn" title="automatischen Blickwinkel nehmen" @click="view({ reset: true })">Auto</span>
+            <span class="hps-btn hps-btn-o" title="nur dieses Teil neu fotografieren" @click="reshoot">Neu aufnehmen</span>
+            <em class="hps-view-v">{{ pinOpt.name }}<template v-if="pinOpt.view"> · {{ viewText(pinOpt.view) }}</template></em>
           </div>
           <input class="hps-search" type="text" v-model="q.text" placeholder="Suchen: Slot, Teilname …"
             @focus="typing(true)" @blur="typing(false)" @keydown.stop @keyup.stop />
@@ -50,9 +62,9 @@
               </span>
               <span class="hps-count">{{ r.opts.length }}</span>
             </div>
-            <div class="hps-tiles" v-if="openKey === r.key || q.text">
+            <div class="hps-tiles" v-if="openKey === r.key || q.text" @mouseleave="hover = null">
               <div v-for="o in r.opts" :key="o.part" class="hps-tile"
-                :class="{ 'is-on': o.on, 'is-noimg': !o.img, 'is-armed': armed === r.key + '|' + o.part }"
+                :class="{ 'is-on': o.on, 'is-noimg': !o.img, 'is-armed': armed === r.key + '|' + o.part, 'is-pin': pin && pin.key === r.key && pin.part === o.part }"
                 @mouseenter="hover = o" @click="pick(r, o)">
                 <div class="hps-tile-img">
                   <img v-if="o.img" :src="imgUrl(o.img)" loading="lazy" />
@@ -137,6 +149,13 @@
         <div class="hps-check" :class="{ 'is-on': s.studioPaint }" @click="set('studioPaint', !s.studioPaint)"><i></i>Einheitlicher Studio-Lack (silbergrau)</div>
         <div class="hps-check" :class="{ 'is-on': s.skipExisting }" @click="set('skipExisting', !s.skipExisting)"><i></i>Vorhandene Bilder überspringen</div>
         <div class="hps-check" :class="{ 'is-on': s.noonLight }" @click="set('noonLight', !s.noonLight)"><i></i>Während der Aufnahme Mittagslicht</div>
+        <div class="hps-check" :class="{ 'is-on': s.singlePair }" @click="set('singlePair', !s.singlePair)"><i></i>Paare nur einmal zeigen (Felgen, Reifen, Bremsen …)</div>
+        <div class="hps-sec">Licht</div>
+        <div class="hps-rgb hps-slider"><span>Studio-Lampen</span>
+          <input type="range" min="0" max="3" step="0.1" :value="s.light" @change="set('light', Number($event.target.value))" /><em>{{ Number(s.light || 0).toFixed(1) }}×</em></div>
+        <div class="hps-rgb hps-slider"><span>Belichtung</span>
+          <input type="range" min="-2" max="3" step="0.25" :value="s.exposure" @change="set('exposure', Number($event.target.value))" /><em>{{ (Number(s.exposure) > 0 ? "+" : "") + Number(s.exposure || 0).toFixed(2) }}</em></div>
+        <div class="hps-note">Neue Licht-Einstellungen gelten für neue Bilder. Alte Bilder neu machen: „Vorhandene Bilder überspringen“ ausschalten oder in der Galerie „Neu aufnehmen“.</div>
         <div class="hps-sec">Kamera</div>
         <div class="hps-rgb hps-slider"><span>Abstand ums Teil</span>
           <input type="range" min="1" max="1.6" step="0.02" :value="s.padding" @change="set('padding', Number($event.target.value))" /><em>{{ Number(s.padding).toFixed(2) }}</em></div>
@@ -275,8 +294,36 @@ const rows = computed(() => {
 })
 function toggleSlot(key) { openKey.value = openKey.value === key ? null : key }
 
+// Ausgewähltes Teil (Klick): bleibt in der großen Vorschau, dort lässt sich der Blickwinkel korrigieren
+const pin = ref(null)
+const pinOpt = computed(() => {
+  const p = pin.value
+  if (!p) return null
+  const r = arr(g.value.rows).find(x => x.key === p.key)
+  return (r && arr(r.options).find(o => o.part === p.part)) || null
+})
+const shown = computed(() => hover.value || pinOpt.value)
+function view(change) {
+  const p = pin.value
+  if (!p || running.value) return
+  call("setView", { ...p, ...change })
+}
+function reshoot() {
+  const p = pin.value
+  if (!p || running.value) return
+  call("reshoot", p)
+}
+function viewText(v) {
+  const t = []
+  if (Number(v.yaw)) t.push("gedreht " + Math.round(v.yaw) + "°")
+  if (Number(v.pitch)) t.push("gekippt " + Math.round(v.pitch) + "°")
+  if (Number(v.zoom) && Math.abs(v.zoom - 1) > 0.01) t.push("Zoom " + Number(v.zoom).toFixed(2) + "×")
+  return t.join(" · ")
+}
+
 let armTimer = null
 function pick(r, o) {
+  if (o.part) pin.value = { key: r.key, path: r.path, part: o.part, name: o.name }
   if (o.on) return
   const key = r.key + "|" + o.part
   if (armed.value !== key) {
@@ -420,6 +467,14 @@ onUnmounted(() => {
 
 /* große Vorschau */
 .hps-big { position: relative; width: 100%; height: 220px; background: #18191c; border: 1px solid rgba(255, 255, 255, 0.08); margin: 2px 0 6px; overflow: hidden; }
+.hps-view { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin: -2px 0 6px; }
+.hps-view .hps-btn { padding: 4px 8px; }
+.hps-ib { min-width: 26px; font-size: 13px; line-height: 13px; }
+.hps-btn-o { background: rgba(255, 102, 0, 0.35); }
+.hps-view-l { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); margin-right: 3px; }
+.hps-view-v { flex-basis: 100%; font-size: 10px; color: var(--dim); font-style: normal; }
+.hps-view.is-busy { opacity: 0.45; }
+.hps-tile.is-pin { outline: 1px solid rgba(255, 255, 255, 0.55); }
 .hps-big img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .hps-big-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--dim); font-size: 12px; }
 .hps-big-cap { position: absolute; left: 0; right: 0; bottom: 0; padding: 5px 8px; background: linear-gradient(0deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0)); }
