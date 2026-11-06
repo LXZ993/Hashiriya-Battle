@@ -2097,8 +2097,8 @@
       },
       "stages": [
         {
-          "_info": "Config 2 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
           "chapter": "ch3",
+          "config": "vehicles/covet/hashiriya_hinata_s2.pc",
           "nick": {
             "de": "Omas Schülerin",
             "en": "Grandma's Student"
@@ -2128,8 +2128,8 @@
           "spFactor": 1.3
         },
         {
-          "_info": "Config 3 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
           "chapter": "ch5",
+          "config": "vehicles/covet/hashiriya_hinata_s3.pc",
           "nick": {
             "de": "Erbin der Laterne",
             "en": "Heir of the Lantern"
@@ -2261,8 +2261,8 @@
       },
       "stages": [
         {
-          "_info": "Config 2 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
           "chapter": "ch3",
+          "config": "vehicles/sunburst2/hashiriya_tadashi_s2.pc",
           "nick": {
             "de": "Feierabend",
             "en": "Clocked Out"
@@ -2292,8 +2292,8 @@
           "spFactor": 1.3
         },
         {
-          "_info": "Config 3 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
           "chapter": "ch5",
+          "config": "vehicles/sunburst2/hashiriya_tadashi_s3.pc",
           "nick": {
             "de": "Der Aussteiger",
             "en": "The Dropout"
@@ -4159,8 +4159,8 @@
       },
       "stages": [
         {
-          "_info": "Config 2 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
           "chapter": "ch3",
+          "config": "vehicles/bx/hashiriya_taiga_s2.pc",
           "nick": {
             "de": "Tauwetter",
             "en": "Thaw"
@@ -4190,8 +4190,8 @@
           "spFactor": 1.3
         },
         {
-          "_info": "Config 3 baut Alex in der Gegner-Garage (Gegner wählen, Auto umbauen, speichern). Bis dahin fährt die Stufe die Config davor.",
           "chapter": "ch5",
+          "config": "vehicles/bx/hashiriya_taiga_s3.pc",
           "nick": {
             "de": "Schneesturm",
             "en": "Blizzard"

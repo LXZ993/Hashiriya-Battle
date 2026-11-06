@@ -1,0 +1,22 @@
+{
+  "Configuration": "hashiriya_taiga_s3",
+  "defaultMultiPaintSetup": {
+    "name": "hashiriya_taiga_s3 Multi Paint Setup",
+    "paint1": {
+      "baseColor": [
+        0.94999998807907,
+        0.94999998807907,
+        0.94999998807907,
+        1.2000000476837
+      ],
+      "class": "hidden",
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.0500000007,
+      "metallic": 0,
+      "name": "hashiriya_taiga_s3 Paint 1",
+      "roughness": 0.349999994
+    },
+    "paint2": "Black",
+    "paint3": "Scarlet Red"
+  }
+}
