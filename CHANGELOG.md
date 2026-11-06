@@ -2,6 +2,16 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Hardcore-Modus
+- Neu: **Hardcore-Modus**. Beim Anlegen eines neuen Spielstands im letzten Schritt Normal oder Hardcore wählen. Gilt fest für diesen Spielstand, in der Spielstand-Liste mit rotem Schild.
+- Motor startet kalt (erst warmfahren), Wartung doppelt so schnell fällig und mit stärkerer Wirkung, Startauto mit 12 % Tank, Spritverbrauch anderthalbfach.
+- Alles kostet anderthalbfach (Reparatur, Abschleppen, Teile, Wartung, Sprit, Händler, Strafen), Preisgeld nur drei Viertel.
+- Pink-Slip-Rivalen fahren nur um Autos. Game Over löscht den Spielstand.
+- Mehr mobile Polizeikontrollen am Tag (2 mehr), 30 % mehr Verkehr.
+- Speichern nur zu Hause oder in der Garage, Beenden ohne Speichern = abschleppen mit doppeltem Bußgeld, Beenden mitten im Battle = Niederlage.
+- Rivalen nicht auf Minimap und Radar, keine Schnellreise zu PAs oder zur Garage.
+- Alle Regeln einzeln einstellbar in `data/hardcore.json`.
+
 ### Öl- und Wassertemperatur-Anzeige
 - Neu: zwei kleine Rundanzeigen links neben dem Drehzahlmesser, im selben Stil (Segment-Bogen, große kursive Zahl, schräges Abzeichen): Kühlwasser und Öl.
 - Farben: blau = noch kalt, weiß = Betriebstemperatur, orange = wird heiß, rot = ab hier nimmt der Motor Schaden (Wasser ab 120 °C, Öl ab 150 °C). Im roten Bereich wird die Zahl rot und das Abzeichen blinkt.

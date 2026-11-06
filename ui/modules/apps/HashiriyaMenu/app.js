@@ -353,6 +353,7 @@ angular.module('beamng.apps')
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'gameOver.days\'] }}</span><b>{{ s.gameOver.days }}</b></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.record\'] }}</span><b>{{ s.gameOver.wins }} <i>/</i> {{ s.gameOver.losses }}</b></div>' +
             '<div class="hbm-stat"><span class="hbm-label">{{ s.t[\'menu.money\'] }}</span><b>{{ s.gameOver.money }}</b></div>' +
+            '<div class="hbm-note" ng-if="s.gameOver.wipe">{{ s.t[\'hardcore.gameOverNote\'] }}</div>' +
             '<div class="hbm-item" ng-click="act(\'gameOverNew\')"><i class="hbm-ico" ng-bind-html="ico(\'playRound\')"></i>{{ s.t[\'gameOver.new\'] }}</div>' +
             '<div class="hbm-item hbm-sub" ng-click="act(\'stop\')"><i class="hbm-ico" ng-bind-html="ico(\'exit\')"></i>{{ s.t[\'menu.stop\'] }}</div>' +
           '</div>' +

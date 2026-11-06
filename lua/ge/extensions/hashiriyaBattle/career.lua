@@ -543,6 +543,7 @@ local function startCareer()
     slot = flow.slot,
     playerName = flow.name,
     experience = flow.experience,
+    hardcore = flow.hardcore and extensions.hashiriyaBattle_hardcore.cfg().enabled or nil,
     carPrice = starterPriceYen(starter),
     condition = starter.condition,
     car = { model = starter.model, config = cfg, name = starter.name, plate = plate, plateDesign = flow.plateDesign or plates.defaultDesign, seeded = true,
@@ -694,7 +695,8 @@ function M.action(arg)
     elseif cmd == 'selectPaint' then selectPaint(val)
     elseif cmd == 'next' and flow.carId then flow.step = 'confirm' end
   elseif step == 'confirm' then
-    if cmd == 'next' then startCareer() end
+    if cmd == 'next' then startCareer()
+    elseif cmd == 'mode' then flow.hardcore = (val == 'hardcore') or nil end -- Spielmodus: normal | hardcore
   end
 end
 
@@ -854,6 +856,10 @@ function M.getUiState()
       carPrice = starter and eco.formatYen(starterPriceYen(starter)) or nil,
       rest = eco.formatYen(c.startMoney() - (starter and starterPriceYen(starter) or 0)),
     }
+    -- Spielmodus (hardcore.lua): Auswahl nur, wenn hardcore.json enabled
+    local hcCfg = extensions.hashiriyaBattle_hardcore.cfg()
+    st.hardcoreOffer = hcCfg.enabled and true or nil
+    st.hardcore = (hcCfg.enabled and flow.hardcore) and true or nil
     if st.summary.plate == '—' then
       local veh = c.getPlayerVehicle()
       local okP, p = pcall(function() return veh and core_vehicles.getVehicleLicenseText(veh) end)

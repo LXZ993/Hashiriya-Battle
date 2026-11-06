@@ -23,7 +23,7 @@ end
 local function savePath() return slotFile(readSlotState()) end
 local capturePath = saveDir .. 'captured_positions.json'
 
-local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura', 'hashiriyaBattle_stickers', 'hashiriyaBattle_police', 'hashiriyaBattle_travel' }
+local subExtensions = { 'hashiriyaBattle_logger', 'hashiriyaBattle_plates', 'hashiriyaBattle_economy', 'hashiriyaBattle_rivals', 'hashiriyaBattle_driver', 'hashiriyaBattle_battle', 'hashiriyaBattle_parking', 'hashiriyaBattle_shop', 'hashiriyaBattle_setup', 'hashiriyaBattle_career', 'hashiriyaBattle_home', 'hashiriyaBattle_fuel', 'hashiriyaBattle_dealer', 'hashiriyaBattle_progress', 'hashiriyaBattle_style', 'hashiriyaBattle_condition', 'hashiriyaBattle_damage', 'hashiriyaBattle_release', 'hashiriyaBattle_talk', 'hashiriyaBattle_pinkslip', 'hashiriyaBattle_music', 'hashiriyaBattle_story', 'hashiriyaBattle_jobs', 'hashiriyaBattle_savepoint', 'hashiriyaBattle_unstuck', 'hashiriyaBattle_logos', 'hashiriyaBattle_maintenance', 'hashiriyaBattle_crew', 'hashiriyaBattle_board', 'hashiriyaBattle_aura', 'hashiriyaBattle_stickers', 'hashiriyaBattle_police', 'hashiriyaBattle_travel', 'hashiriyaBattle_hardcore' }
 
 M.active = false -- läuft der Modus gerade?
 M.save = nil
@@ -320,6 +320,7 @@ function M.slotList()
       e.day = d.day or 1
       e.cars = #(d.cars or {})
       e.gameOver = d.gameOver and true or nil
+      e.hardcore = d.hardcore and true or nil
       local okR, rank = pcall(function() return pr.rankName(d) end)
       e.rank = okR and rank or nil
       e.savedAt = d.savedAt and os.date('%d.%m.%Y %H:%M', d.savedAt) or nil
@@ -483,7 +484,7 @@ function M.startTraffic()
   if okL and type(list) == 'table' and next(list) then -- läuft schon
     local n = 0
     for _ in pairs(list) do n = n + 1 end
-    M.trafficTotal, M.trafficActive = n, nil
+    M.trafficTotal, M.trafficActive, M.trafficSpawned = n, nil, n
     return
   end
   local amount = M.carsData and tonumber(M.carsData.trafficAmount) or -1
@@ -519,6 +520,7 @@ function M.startTraffic()
     log('I', logTag, string.format('Agent Traffic JP: %d Configs verfügbar, fahrend %d Autos (%d aktiv) aus %d Configs, geparkt %d verschiedene', #pool, spawnN, n, kinds, pkinds))
   end
   local ok, err = pcall(tr.setupTrafficHelper, spawnN, tOpts, parked, pOpts)
+  M.trafficSpawned = spawnN
   if ok then
     trafficRetry, trafficTries = nil, 0
     log('I', logTag, 'Verkehr gestartet' .. (pool and ' (Agent Traffic JP)' or ''))
@@ -555,7 +557,10 @@ local function updateTrafficDensity(dt)
   local h = home.hour()
   if type(byHour) ~= 'table' or not h then return end
   local pct = tonumber(byHour[math.floor(h) % 24 + 1]) or 100
+  -- Hardcore: mehr Verkehr (hardcore.json trafficFactor), höchstens so viele wie gespawnt
+  pct = pct * extensions.hashiriyaBattle_hardcore.num('trafficFactor')
   local target = math.max(1, math.floor(M.trafficTotal * pct / 100 + 0.5))
+  if M.trafficSpawned then target = math.min(target, M.trafficSpawned) end
   local tr = rawget(_G, 'gameplay_traffic')
   if target == M.trafficActive then
     -- Pool-Autos kommen erst nach dem ersten Setzen dazu: sind mehr aktiv als gewollt, nochmal setzen
@@ -634,6 +639,10 @@ function M.newCareer(data)
   pcall(function() extensions.hashiriyaBattle_story.reset() end)
   M.save.playerName = data.playerName
   M.save.experience = data.experience
+  -- Hardcore-Modus (hardcore.lua): steht ab jetzt fest im Spielstand
+  if data.hardcore then M.save.hardcore = true end
+  local hc = extensions.hashiriyaBattle_hardcore
+  pcall(hc.onSaveLoaded)
   -- Startkapital minus Kaufpreis des Starterautos
   if data.carPrice and data.carPrice > 0 then
     M.save.money = math.max(0, M.save.money - data.carPrice)
@@ -645,7 +654,15 @@ function M.newCareer(data)
   M.save.activeCar = 1
   -- Starterautos sind gebraucht (cars.json: condition)
   local veh = M.getPlayerVehicle()
-  extensions.hashiriyaBattle_condition.initUsedCar(data.car, data.condition, veh)
+  local cond = data.condition
+  if M.save.hardcore and type(cond) == 'table' then
+    -- Hardcore: Startauto mit fast leerem Tank (hardcore.json startFuel)
+    local copy = {}
+    for k, v in pairs(cond) do copy[k] = v end
+    cond = copy
+    cond.fuel = tonumber(hc.cfg().startFuel) or cond.fuel
+  end
+  extensions.hashiriyaBattle_condition.initUsedCar(data.car, cond, veh)
   -- Aus dem Showroom in die Garagenbucht
   if veh and extensions.hashiriyaBattle_parking.hasShowroom() then
     local pos, rot = extensions.hashiriyaBattle_parking.spawnTransform(extensions.hashiriyaBattle_parking.find('garage'))
@@ -676,6 +693,9 @@ function M.continueCareer(slot)
   extensions.hashiriyaBattle_shop.loadSettings(M.save)
   extensions.hashiriyaBattle_condition.syncStarterWear(M.save)
   pcall(function() extensions.hashiriyaBattle_story.reset() end)
+  -- Hardcore (hardcore.lua): Kaltstart vor dem Spawn setzen, offenes Battle (Ironman) = Niederlage
+  pcall(extensions.hashiriyaBattle_hardcore.onSaveLoaded)
+  pcall(extensions.hashiriyaBattle_hardcore.checkForfeit)
   local car = M.save.cars[M.save.activeCar or 1]
   if not car then
     -- Alpha 0.8: Spielstand ohne Auto (Pink Slip verloren): zu Fuß an der Garage, Händler oder Game Over
@@ -771,6 +791,7 @@ function M.stopGame()
   M.active = false
   extensions.hashiriyaBattle_battle.reset()
   extensions.hashiriyaBattle_rivals.despawnAll()
+  pcall(extensions.hashiriyaBattle_hardcore.onStop)
 end
 
 -- Parkplätze (vom Parking-Modul aufgerufen) --------------------------------
@@ -839,7 +860,9 @@ function M.onBattleResult(rival, won, result)
       -- rewardYen: genauer Yen-Betrag (z. B. 777777), ohne Umrechnung, Rundung, rewardScale und Serien-Bonus
       reward = math.floor(exact)
     else
-      reward = math.floor(M.economy().usdToPrice(rival.rewardUsd or 1000) * scale * moneyF / 100 + 0.5) * 100
+      -- Hardcore: weniger Preisgeld (hardcore.json rewardFactor)
+      local hcF = extensions.hashiriyaBattle_hardcore.num('rewardFactor')
+      reward = math.floor(M.economy().usdToPrice(rival.rewardUsd or 1000) * scale * moneyF * hcF / 100 + 0.5) * 100
     end
     M.save.money = M.save.money + reward
     M.save.defeated[rival.id] = true
@@ -852,6 +875,7 @@ function M.onBattleResult(rival, won, result)
     M.save.lastLossDay = M.save.day or 1 -- Bedingung minDaysNoLoss
     msg(M.t('msg.lose', rival.name), 6)
   end
+  pcall(extensions.hashiriyaBattle_hardcore.battleEnded) -- Ironman: Battle ist sauber zu Ende
   M.writeSave()
   -- Logo-Sammlung: Crew-Logo (Leader besiegt), Wanderer-Siegel oder Boss-Emblem neu freigeschaltet
   if won then
@@ -1062,7 +1086,8 @@ local function buildUiState()
     local rival = extensions.hashiriyaBattle_rivals.getActiveRival()
     st.rival = rival and rival.data.name or nil
     st.rivalKind = rival and extensions.hashiriyaBattle_rivals.markerKind(rival.data) or nil
-    st.radar = extensions.hashiriyaBattle_rivals.radarInfo(600)
+    -- Hardcore: Rivalen nicht im Radar (hardcore.json hideRivalMarks)
+    if not extensions.hashiriyaBattle_hardcore.rule('hideRivalMarks') then st.radar = extensions.hashiriyaBattle_rivals.radarInfo(600) end
     -- Polizei: Streifenwagen der Fahndung und gesehene Laserkontrollen auch im Radar
     local okP, polRadar = pcall(function() return extensions.hashiriyaBattle_police.radarItems(600) end)
     if okP and polRadar then
@@ -1131,7 +1156,8 @@ local function buildUiState()
       st.screen = 'gameOver'
       st.menuVisible = true
       st.gameOver = { days = M.save.day or 1, wins = M.save.wins or 0, losses = M.save.losses or 0, money = eco.formatYen(M.save.money or 0),
-        rank = extensions.hashiriyaBattle_progress.rankName(M.save) }
+        rank = extensions.hashiriyaBattle_progress.rankName(M.save),
+        wipe = extensions.hashiriyaBattle_hardcore.rule('gameOverDeletesSave') or nil }
     elseif showBoard then
       st.screen = 'board'
       st.board = extensions.hashiriyaBattle_board.getUiState()
@@ -1166,7 +1192,7 @@ local function buildUiState()
       local plates = extensions.hashiriyaBattle_plates
       st.plateOptions = plates.uiOptions(M.t)
       st.plateRegion, st.plateType = plates.splitDesign(car and car.plateDesign)
-      st.platePrice = eco.formatYen(platePriceYen)
+      st.platePrice = eco.formatYen(extensions.hashiriyaBattle_hardcore.price(platePriceYen))
       local cost = parking.repairCost()
       st.repairCost = cost > 0 and eco.formatYen(cost) or nil
       st.canAffordRepair = cost <= M.save.money
@@ -1236,6 +1262,7 @@ function M.changePlate(arg)
   if design and not plates.validDesign(design) then design = nil end
   local newDesign = design or car.plateDesign or plates.defaultDesign
   if newText == car.plate and newDesign == car.plateDesign then return end
+  local platePriceYen = extensions.hashiriyaBattle_hardcore.price(platePriceYen)
   if M.save.money < platePriceYen then
     msg(M.t('msg.noMoney'))
     return
@@ -1480,8 +1507,11 @@ function M.uiAction(action, arg)
     local area = arrivedArea()
     if area and area.type == 'garage' then extensions.hashiriyaBattle_dealer.sellCar(tonumber(arg)) end
   elseif action == 'gameOverNew' then
-    extensions.hashiriyaBattle_dealer.clearGameOver()
+    -- Hardcore: Spielstand nach dem Game-Over-Bildschirm löschen
+    local wiped = extensions.hashiriyaBattle_hardcore.wipeAfterGameOver()
+    if not wiped then extensions.hashiriyaBattle_dealer.clearGameOver() end
     extensions.hashiriyaBattle_career.openTitle()
+    if wiped then msg(M.t('hardcore.wiped'), 8) end
   elseif action == 'buyPaint' then
     local area = arrivedArea()
     if area and area.type == 'shop' then extensions.hashiriyaBattle_shop.selectPaint(tostring(arg)) end
@@ -1644,7 +1674,7 @@ function M.uiAction(action, arg)
   elseif action == 'setLanguage' then
     M.setLanguage(arg)
   elseif action == 'stop' then
-    M.stopGame()
+    if not extensions.hashiriyaBattle_hardcore.wipeAfterGameOver() then M.stopGame() end
   elseif action == 'report' then
     -- Fehlerbericht für den Entwickler (alle Infos in einer Datei)
     local path = extensions.hashiriyaBattle_logger.writeReport(arg)

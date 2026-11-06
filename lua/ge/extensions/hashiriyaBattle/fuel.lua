@@ -32,7 +32,9 @@ local function isNight()
 end
 
 local function pricePerLiter()
-  return isNight() and math.floor(yenPerLiter * nightFactor + 0.5) or yenPerLiter
+  local p = isNight() and math.floor(yenPerLiter * nightFactor + 0.5) or yenPerLiter
+  local f = extensions.hashiriyaBattle_hardcore.num('priceFactor') -- Hardcore: teurer
+  return f ~= 1 and math.floor(p * f + 0.5) or p
 end
 
 -- Fragt den Tankinhalt beim Auto ab; Antwort kommt über onFuelInfo.
@@ -54,8 +56,19 @@ local function activeCar()
 end
 
 function M.onFuelInfo(capacity, remaining)
-  if session then return end -- während des Tankens zählen wir selbst
+  if session then extensions.hashiriyaBattle_hardcore.resetFuel() return end -- während des Tankens zählen wir selbst
   info = { capacity = tonumber(capacity) or 0, remaining = tonumber(remaining) or 0 }
+  -- Hardcore: Mehrverbrauch (hardcore.json fuelUseFactor) zusätzlich abziehen
+  local veh = core().getPlayerVehicle()
+  if veh and not restoreTimer and restoreWindow <= 0 and info.capacity > 0 then
+    local want = extensions.hashiriyaBattle_hardcore.extraFuel(veh:getID(), info.remaining)
+    if want and want < info.remaining then
+      setTotal(veh, want)
+      info.remaining = want
+    end
+  else
+    extensions.hashiriyaBattle_hardcore.resetFuel()
+  end
   -- Tankinhalt am Auto im Spielstand merken (nicht, solange ein Respawn noch zurückgesetzt wird)
   local car = activeCar()
   if car and info.capacity > 0 and not restoreTimer and restoreWindow <= 0 then car.fuel = info.remaining end

@@ -103,7 +103,9 @@ function M.level(car, item)
   local s = M.settings()
   local driven = math.max(0, odoKm(car) - car.maint[item])
   if item == 'tires' then driven = tireDriven(car, driven) end
-  return clamp01(1 - driven / (s.intervalKm[item] or 1000))
+  -- Hardcore: kürzere Intervalle (hardcore.json maintIntervalFactor)
+  local interval = (s.intervalKm[item] or 1000) * extensions.hashiriyaBattle_hardcore.num('maintIntervalFactor')
+  return clamp01(1 - driven / math.max(1, interval))
 end
 
 -- Stärke der Wirkung 0..1 (0 über effectBelow, 1 bei 0 %)
@@ -118,9 +120,11 @@ function M.factors(car)
   local s = M.settings()
   if not s.enabled or not car or not car.maint then return 1, 1, 1 end
   local e = s.effect
-  local oil = 1 + (e.oilFriction or 0) * strength(M.level(car, 'oil'))
-  local cool = 1 - (e.coolantRadiator or 0) * strength(M.level(car, 'coolant'))
-  local grip = 1 - (e.tiresGrip or 0) * strength(M.level(car, 'tires'))
+  -- Hardcore: stärkere Wirkung (hardcore.json maintEffectFactor), Kühler und Grip nie ganz weg
+  local hf = extensions.hashiriyaBattle_hardcore.num('maintEffectFactor')
+  local oil = 1 + (e.oilFriction or 0) * hf * strength(M.level(car, 'oil'))
+  local cool = math.max(0.1, 1 - (e.coolantRadiator or 0) * hf * strength(M.level(car, 'coolant')))
+  local grip = math.max(0.5, 1 - (e.tiresGrip or 0) * hf * strength(M.level(car, 'tires')))
   return oil, cool, grip
 end
 
@@ -197,7 +201,7 @@ function M.price(car, item)
     local okV, value = pcall(function() return extensions.hashiriyaBattle_dealer.baseValue(car) end)
     if okV and value and value * s.tiresValueShare > p then p = math.floor(value * s.tiresValueShare / 100 + 0.5) * 100 end
   end
-  return math.floor(p)
+  return extensions.hashiriyaBattle_hardcore.price(math.floor(p)) -- Hardcore: priceFactor
 end
 
 function M.service(item)

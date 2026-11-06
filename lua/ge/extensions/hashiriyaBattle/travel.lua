@@ -229,6 +229,8 @@ end
 -- Woher wird gereist? 'ramp' (nach dem Abfahren an einer Ausfahrt) oder 'garage' (in der Garagenbucht)
 local function origin()
   local c = core()
+  -- Hardcore: keine Schnellreise zu PAs oder zur Garage (hardcore.json noPaTravel)
+  if extensions.hashiriyaBattle_hardcore.rule('noPaTravel') then return nil end
   local parking = extensions.hashiriyaBattle_parking
   if parking.isArrived() then
     local area = parking.getCurrent()
@@ -315,6 +317,7 @@ local function checkRamps(dt)
     if offer.t <= 0 or far or not veh then offer = nil end
   end
   if blocked() then return end
+  if extensions.hashiriyaBattle_hardcore.rule('noPaTravel') then return end -- Hardcore: kein Reise-Hinweis an Ausfahrten
   local veh = c.getPlayerVehicle()
   local p = vec3(veh:getPosition())
   local kmh = vec3(veh:getVelocity()):length() * 3.6
