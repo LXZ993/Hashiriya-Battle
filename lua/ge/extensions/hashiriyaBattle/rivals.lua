@@ -1255,6 +1255,7 @@ local function onDrawOnMinimap(td)
   if not c or not c.active then return end
   wrapMinimapPlayer()
   if #onRoad == 0 then return end
+  if extensions.hashiriyaBattle_hardcore.rule('hideRivalMarks') then return end -- Hardcore: keine Rivalen-Markierung
   local utils, minimap = ui_apps_minimap_utils, ui_apps_minimap_minimap
   if not utils or not minimap or not utils.getWorldToMapTransform then return end
   local scale = minimap.getScale and minimap.getScale()

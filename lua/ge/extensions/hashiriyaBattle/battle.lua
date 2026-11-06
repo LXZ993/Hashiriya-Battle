@@ -127,6 +127,7 @@ function M.reset(cooldown, keepChain)
   end
   state = 'idle'
   battle = nil
+  pcall(extensions.hashiriyaBattle_hardcore.battleEnded) -- Ironman: kein offenes Battle mehr
   -- Kette vorbei oder gerissen (Niederlage, Frühstart, Gegner weg): die Gruppe fährt wieder zusammen,
   -- beim nächsten Mal geht es wieder beim ersten Begleiter los
   local group = (not keepChain) and chain and chain.group or nil
@@ -957,6 +958,7 @@ local function onUpdate(dtReal, dtSim)
       releasePlayerSpeed()
       state = 'battle'
       core().msg(core().t('msg.battle'), 2)
+      pcall(extensions.hashiriyaBattle_hardcore.battleStarted, battle.rival) -- Ironman: Abbruch = Niederlage
     end
   elseif state == 'battle' then
     battle.time = battle.time + dtSim

@@ -131,6 +131,15 @@ angular.module('beamng.apps')
               '<div class="hbt-spec"><span>{{ t(\'new.startMoney\') }}</span><b>{{ f.summary.money }}</b></div>' +
               '<div class="hbt-spec" ng-if="f.summary.carPrice"><span>{{ t(\'new.carPrice\') }}</span><b>− {{ f.summary.carPrice }}</b></div>' +
               '<div class="hbt-money"><span>{{ t(\'new.restMoney\') }}</span><b>{{ f.summary.rest }}</b></div>' +
+              // Spielmodus: Normal oder Hardcore (hardcore.lua, data/hardcore.json)
+              '<div ng-if="f.hardcoreOffer">' +
+                '<div class="hbt-key-g">{{ t(\'new.mode\') }}</div>' +
+                '<div class="hbt-exp hbt-exp-s" ng-class="{\'is-on\': !f.hardcore}" ng-click="cmd(\'mode\', \'normal\')">' +
+                  '<div><div class="hbt-exp-t">{{ t(\'new.modeNormal\') }}</div><div class="hbt-exp-d">{{ t(\'new.modeNormalD\') }}</div></div></div>' +
+                '<div class="hbt-exp hbt-exp-s hbt-exp-hc" ng-class="{\'is-on\': f.hardcore}" ng-click="cmd(\'mode\', \'hardcore\')">' +
+                  '<div><div class="hbt-exp-t">{{ t(\'new.modeHardcore\') }}</div><div class="hbt-exp-d">{{ t(\'new.modeHardcoreD\') }}</div>' +
+                  '<div class="hbt-exp-d hbt-hc-rules" ng-if="f.hardcore">{{ t(\'new.modeHardcoreRules\') }}</div></div></div>' +
+              '</div>' +
               '<div class="hbt-note">{{ t(\'new.confirmNote\') }}</div>' +
               '<div class="hbt-beta hbt-beta-wiz"><span class="hbt-beta-tag">{{ t(\'title.betaTag\') }}</span>{{ t(\'new.balanceNote\') }}</div>' +
               '<div class="hbt-beta hbt-beta-wiz hbt-music"><span class="hbt-beta-tag">{{ t(\'title.musicTag\') }}</span>{{ t(\'new.musicNote\') }}</div>' +
@@ -181,6 +190,7 @@ angular.module('beamng.apps')
                     '<div class="hbt-slot-name">{{ s.name }}' +
                       '<span class="hbt-slot-tag" ng-if="s.running">{{ t(\'slots.running\') }}</span>' +
                       '<span class="hbt-slot-tag hbt-slot-tag-go" ng-if="s.gameOver">{{ t(\'slots.gameOver\') }}</span>' +
+                      '<span class="hbt-slot-tag hbt-slot-tag-hc" ng-if="s.hardcore">{{ t(\'slots.hardcore\') }}</span>' +
                     '</div>' +
                     '<div class="hbt-slot-meta"><span ng-if="s.rank">{{ s.rank }}</span><span>{{ s.car }}</span><span>{{ t(\'slots.cars\') }} {{ s.cars }}</span><span>{{ t(\'slots.day\') }} {{ s.day }}</span><span class="hbt-yen">{{ s.money }}</span></div>' +
                     '<div class="hbt-slot-meta hbt-slot-date" ng-if="s.savedAt">{{ t(\'slots.savedAt\') }}: {{ s.savedAt }}</div>' +
@@ -331,6 +341,10 @@ angular.module('beamng.apps')
           '.hbt-exp-n{font-size:28px;font-weight:900;font-style:italic;color:var(--o);line-height:1;}' +
           '.hbt-exp-t{font-size:20px;font-weight:900;font-style:italic;letter-spacing:1.5px;text-transform:uppercase;}' +
           '.hbt-exp-d{font-size:12px;line-height:1.5;color:var(--dim);margin-top:4px;}' +
+          '.hbt-exp-s{padding:10px 14px;margin-bottom:8px;} .hbt-exp-s .hbt-exp-t{font-size:15px;}' +
+          '.hbt-exp-hc.is-on{border-left-color:#c0392b;background:rgba(192,57,43,.18);} .hbt-exp-hc:hover{background:rgba(192,57,43,.14);}' +
+          '.hbt-hc-rules{white-space:pre-line;color:#e8b4ad;}' +
+          '.hbt-slot-tag-hc{background:#7b1f16;color:#fff;}' +
           '.hbt-tut{position:absolute;z-index:4;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(8,8,10,.55);animation:hbtIn .3s ease-out;}' +
           '.hbt-tut-box{width:min(1100px,86vw);max-height:90vh;overflow-y:auto;padding:34px 44px;box-sizing:border-box;background:linear-gradient(160deg,rgba(26,26,29,.96),rgba(14,14,16,.94));border-left:5px solid var(--o);box-shadow:0 12px 40px rgba(0,0,0,.6);}' +
           '.hbt-tut-img{margin:4px 0 16px;background:#000;} .hbt-tut-img img{display:block;width:100%;max-height:52vh;object-fit:contain;}' +

@@ -162,7 +162,8 @@ local function playerDamage()
 end
 
 function M.repairCost()
-  return math.floor(playerDamage() * repairYenPerDamage / 10) * 10
+  -- Hardcore: Preise mal hardcore.json priceFactor
+  return extensions.hashiriyaBattle_hardcore.price(math.floor(playerDamage() * repairYenPerDamage / 10) * 10)
 end
 
 function M.repair()
@@ -187,7 +188,7 @@ end
 -- Teuer genug, dass es keine Abkürzung ist; nicht während eines Battles und nur im Stand.
 
 -- Abschleppgebühr für km Luftlinie zur Garage (auch nach unsauberem Beenden, savepoint.lua)
-function M.towCost(km) return math.floor((towBaseYen + km * towYenPerKm) / 100) * 100 end
+function M.towCost(km) return extensions.hashiriyaBattle_hardcore.price(math.floor((towBaseYen + km * towYenPerKm) / 100) * 100) end
 
 function M.towInfo()
   local c = core()
@@ -195,7 +196,7 @@ function M.towInfo()
   local garage = M.find('garage')
   if not veh or not garage or not c.save then return nil end
   local km = (veh:getPosition() - toVec(garage.pos)):length() / 1000
-  local cost = math.floor((towBaseYen + km * towYenPerKm) / 100) * 100
+  local cost = M.towCost(km)
   local reason = nil
   if current == garage then reason = 'atGarage'
   elseif extensions.hashiriyaBattle_battle.isBusy() then reason = 'battle'

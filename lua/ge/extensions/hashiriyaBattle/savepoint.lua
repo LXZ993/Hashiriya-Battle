@@ -136,6 +136,8 @@ function M.saveInfo()
   local p = parking()
   local area = p.isArrived() and p.getCurrent() or nil
   if area and (area.type == 'home' or area.type == 'garage') then return { can = true, kind = area.type } end
+  -- Hardcore: speichern nur zu Hause oder in der Garage (hardcore.json saveOnlyHome)
+  if extensions.hashiriyaBattle_hardcore.rule('saveOnlyHome') then return { can = false, reason = 'hardcore' } end
   local veh = carVeh()
   if not veh then return { can = false, reason = 'noCar' } end
   if veh:getVelocity():length() * 3.6 > M.cfg().maxSpeedKmh then return { can = false, reason = 'moving' } end
@@ -190,7 +192,7 @@ function M.getUiState()
   end
   if popup then st.popup = { kind = popup.kind, title = popup.title, text = popup.text, hint = popup.hint, ok = popup.ok } end
   local k = M.kind()
-  if k == 'auto' and M.cfg().unsavedExit == 'resume' then k = 'autoResume' end
+  if k == 'auto' and M.cfg().unsavedExit == 'resume' and not extensions.hashiriyaBattle_hardcore.rule('saveOnlyHome') then k = 'autoResume' end
   st.where = k and c.t('save.where.' .. k) or nil
   st.unparked = (k == 'auto' or k == 'autoResume') or nil
   return st
@@ -288,9 +290,11 @@ function M.planLoad(save)
     local d = r.footDir and v3(r.footDir) or vec3(0, 1, 0)
     plan.footRot = quatFromDir(d, vec3(0, 0, 1))
   end
-  if r.kind == 'parked' then return plan end
-  -- nicht ordentlich geparkt
-  if M.cfg().unsavedExit == 'resume' then
+  local hc = extensions.hashiriyaBattle_hardcore
+  local hcSave = hc.rule('saveOnlyHome', save)
+  if r.kind == 'parked' and not hcSave then return plan end
+  -- nicht ordentlich geparkt (Hardcore: immer abschleppen, auch "geparkt" aus einem alten Stand)
+  if M.cfg().unsavedExit == 'resume' and not hcSave then
     plan.unsaved = 'resumed'
     return plan
   end
@@ -300,6 +304,7 @@ function M.planLoad(save)
   local times = tonumber(save.unparkedTows) or 0
   local function fineFor(n)
     local f = (tonumber(cfg.towFineYen) or 0) * (tonumber(cfg.towFineFactor) or 2) ^ n
+    if hc.on(save) then f = f * (tonumber(hc.cfg().towFineFactor) or 1) * (tonumber(hc.cfg().priceFactor) or 1) end -- Hardcore: härter
     local cap = tonumber(cfg.towFineMaxYen) or 0
     if cap > 0 then f = math.min(f, cap) end
     return math.floor(f / 100 + 0.5) * 100

@@ -22,6 +22,13 @@ local function activeCar()
   return save and save.cars and save.cars[save.activeCar or 1] or nil
 end
 
+-- Mindest-Tankfüllung beim Kauf: cars.json conditionMinFuel, im Hardcore-Modus hardcore.json startFuel
+local function minFuelShare(cd)
+  local hc = extensions.hashiriyaBattle_hardcore
+  if hc and hc.on() then return tonumber(hc.cfg().startFuel) or 0.12 end
+  return cd.conditionMinFuel or 0.25
+end
+
 -- Zustand ins Auto schreiben: parts = { [partId] = { o, i, v } } oder nur Grundwerte (frisch gekaufter Gebrauchtwagen)
 local function apply(veh, car, fresh)
   -- gekauft, aber noch nie gespawnt (Händlerauto): beim ersten Spawn Kaufzustand inkl. Tank setzen
@@ -80,7 +87,7 @@ local function apply(veh, car, fresh)
       end
       pcall(partCondition.createConditionSnapshot, 'reset')
     end
-  ]], tostring(fresh == true), cd.conditionMinFuel or 0.25, cd.conditionMisfireScale or 0.1, cd.conditionCoolingScale or 0.4,
+  ]], tostring(fresh == true), minFuelShare(cd), cd.conditionMisfireScale or 0.1, cd.conditionCoolingScale or 0.4,
       wear.fuel or -1,
       tbl, odo, integ, vis, odo, radInteg))
   -- Wartung (maintenance.lua): Öl, Kühlwasser, Reifen nach dem Zustand setzen

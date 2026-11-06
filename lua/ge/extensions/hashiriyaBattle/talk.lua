@@ -715,7 +715,8 @@ local function rivalLines(n, save)
     table.insert(lines, l)
   end
   if n.talked then
-    say(co.t('talk.rivalAgain'), { choice = true, pinkOk = n.pinkOk })
+    say(co.t('talk.rivalAgain'), { choice = true, pinkOk = n.pinkOk,
+      pinkForced = n.pinkOk and not extensions.hashiriyaBattle_pinkslip.heldBy(r, save) and extensions.hashiriyaBattle_hardcore.rule('pinkSlipForced', save) or nil })
     return lines
   end
   local challenge = type(r.lines) == 'table' and loc(r.lines.challenge) or ''
@@ -725,7 +726,10 @@ local function rivalLines(n, save)
   if held then say(co.t('talk.pinkHeld', held.name or held.model)) end
   local pinkOk, why = pk.canOffer(r, save)
   n.pinkOk = pinkOk
-  if pinkOk then
+  if pinkOk and not held and extensions.hashiriyaBattle_hardcore.rule('pinkSlipForced', save) then
+    -- Hardcore: wer um Autos fährt, fährt nur um Autos
+    say(co.t('hardcore.pinkForced'), { choice = true, pinkOk = true, pinkForced = true })
+  elseif pinkOk then
     say(co.t(held and 'talk.rivalAskPinkBack' or 'talk.rivalAskPink'), { choice = true, pinkOk = true })
   else
     if why then say(co.t(why)) end
@@ -1152,7 +1156,7 @@ function M.interact()
   if convo then
     local line = convo.lines[convo.index]
     if line and line.choice then
-      acceptBattle(convo.npc, false)
+      acceptBattle(convo.npc, line.pinkForced and true or false) -- Hardcore: Pink Slip Pflicht
       return
     end
     convo.index = convo.index + 1
@@ -1183,8 +1187,8 @@ function M.getHudState()
     local nextText = c.t(last and 'talk.end' or 'talk.next')
     local alt = nil
     if line.choice then
-      nextText = c.t('talk.accept')
-      if line.pinkOk then alt = { key = M.keyName('hashiriyaTalkAlt'), text = c.t('talk.acceptPink') } end
+      nextText = c.t(line.pinkForced and 'talk.acceptPink' or 'talk.accept')
+      if line.pinkOk and not line.pinkForced then alt = { key = M.keyName('hashiriyaTalkAlt'), text = c.t('talk.acceptPink') } end
     end
     return {
       talk = { text = line.text, name = speakerName(convo.npc), portrait = portraitOf(convo.npc), side = 'left', kind = 'pa',

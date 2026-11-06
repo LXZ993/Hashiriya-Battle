@@ -1021,5 +1021,17 @@
   "travel.no.here": "You can only travel from an exit or from the garage.",
   "travel.no.notVisited": "Not visited yet",
   "travel.no.fuel": "Not enough fuel",
-  "travel.no.busy": "Already on the way."
+  "travel.no.busy": "Already on the way.",
+  "slots.hardcore": "Hardcore",
+  "new.mode": "Game mode",
+  "new.modeNormal": "Normal",
+  "new.modeNormalD": "The regular Hashiriya Battle.",
+  "new.modeHardcore": "Hardcore",
+  "new.modeHardcoreD": "For those who want to find out. Fixed for this save and cannot be switched later.",
+  "new.modeHardcoreRules": "Engine starts cold, warm it up first.\nMaintenance is due twice as fast, running out of oil or coolant destroys the engine.\nStarter car with an almost empty tank, fuel use one and a half times.\nEverything costs one and a half times as much, prize money only three quarters.\nPink slip rivals only race for cars.\nMore mobile police checks by day, more traffic.\nSave only at home or in the garage, quitting mid-battle counts as a loss.\nRivals not on minimap and radar, no fast travel to PAs.\nGame over deletes the save.",
+  "hardcore.forfeit": "Hardcore: the battle against %s was abandoned and counts as a loss.",
+  "hardcore.wiped": "Hardcore: the save was deleted.",
+  "hardcore.gameOverNote": "Hardcore: this save will be deleted as soon as you leave this screen.",
+  "hardcore.pinkForced": "With me it's pink slips only. Whoever loses hands over their car. You in?",
+  "save.reason.hardcore": "Hardcore: only at home or in the garage"
 }

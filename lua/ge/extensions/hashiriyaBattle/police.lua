@@ -368,14 +368,17 @@ local function perDay(rank)
   local list = M.cfg().laser.perDayByRank or { { 0, 1, 2 } }
   local best = list[1]
   for _, e in ipairs(list) do if rank >= (tonumber(e[1]) or 0) then best = e end end
-  return tonumber(best[2]) or 1, tonumber(best[3]) or tonumber(best[2]) or 1
+  -- Hardcore: mehr mobile Kontrollen (hardcore.json laserExtra)
+  local extra = math.floor(extensions.hashiriyaBattle_hardcore.num('laserExtra', 0))
+  return (tonumber(best[2]) or 1) + extra, (tonumber(best[3]) or tonumber(best[2]) or 1) + extra
 end
 
 -- Dienstplan des Tages: welche Laserkontrollen besetzt sind und von wann bis wann
 function M.dayPlan()
   local c = core()
   local day = home() and home().getDay() or 1
-  if planCache[day] then return planCache[day] end
+  local hcKey = extensions.hashiriyaBattle_hardcore.on() and 'hc' or 'n'
+  if planCache[day] and planCache[day].hcKey == hcKey then return planCache[day] end
   local seed = tostring(c and c.save and c.save.dealerSeed or 1)
   local rank = 0
   pcall(function() rank = extensions.hashiriyaBattle_progress.rankIndex(c.save) end)
@@ -391,7 +394,7 @@ function M.dayPlan()
   local sh = lc.shiftHours or { 2, 5 }
   local hrs = lc.hours or { 7, 19 }
   local from, to = hrs[1] or 7, hrs[2] or 19
-  local plan = { count = count, rank = rank, shifts = {} }
+  local plan = { count = count, rank = rank, shifts = {}, hcKey = hcKey }
   for i = 1, count do
     local key = list[i].pl.key
     local id = key .. '#' .. day
@@ -595,7 +598,7 @@ local function finishCheck()
   local fine = pick(cf.ticketYen, lvl)
   local off = pursuit.offenses
   fine = fine + (off.hitTraffic or 0) * (cf.offenseYen.hitTraffic or 0) + (off.hitPolice or 0) * (cf.offenseYen.hitPolice or 0)
-  fine = round100(fine)
+  fine = round100(extensions.hashiriyaBattle_hardcore.price(fine)) -- Hardcore: höhere Strafen
   local paid = charge(fine, lvl >= 3 and 'arrest' or 'ticket')
   local p = dayState()
   if p then
@@ -760,7 +763,7 @@ local function onSpeedcam(pl, kmh)
   stat('speedcamHits')
   local n = p.camHits
   local over = math.max(0, math.floor(kmh - pl.limit + 0.5))
-  local fine = round100((cf.speedcam.baseYen + over * cf.speedcam.perKmhYen) * pick(cf.speedcam.repeatFactor, n))
+  local fine = round100(extensions.hashiriyaBattle_hardcore.price((cf.speedcam.baseYen + over * cf.speedcam.perKmhYen) * pick(cf.speedcam.repeatFactor, n)))
   flash()
   local paid = charge(fine, 'speedcam')
   local dispatch = n >= (cf.speedcam.dispatchFrom or 3)

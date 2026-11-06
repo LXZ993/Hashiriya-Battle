@@ -2,6 +2,16 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Hardcore mode
+- New: **Hardcore mode**. When creating a new save, pick Normal or Hardcore in the last step. Fixed for that save, shown with a red tag in the save list.
+- Engine starts cold (warm it up first), maintenance due twice as fast with stronger effects, starter car with 12 % fuel, fuel use one and a half times.
+- Everything costs one and a half times as much (repair, towing, parts, maintenance, fuel, dealer, fines), prize money only three quarters.
+- Pink slip rivals only race for cars. Game over deletes the save.
+- More mobile police checks by day (2 more), 30 % more traffic.
+- Save only at home or in the garage, quitting without saving = towed with double fine, quitting mid-battle = loss.
+- Rivals not on minimap and radar, no fast travel to parking areas or the garage.
+- Every rule can be set separately in `data/hardcore.json`.
+
 ### Oil and water temperature gauges
 - New: two small round gauges left of the tachometer, in the same style (segment arc, big italic number, slanted badge): coolant and oil.
 - Colors: blue = still cold, white = operating temperature, orange = getting hot, red = the engine takes damage from here (water from 120 °C, oil from 150 °C). In the red zone the number turns red and the badge flashes.

@@ -1077,5 +1077,17 @@
   "travel.no.here": "Reisen geht nur an einer Ausfahrt oder aus der Garage.",
   "travel.no.notVisited": "Noch nicht besucht",
   "travel.no.fuel": "Zu wenig Sprit",
-  "travel.no.busy": "Gerade unterwegs."
+  "travel.no.busy": "Gerade unterwegs.",
+  "slots.hardcore": "Hardcore",
+  "new.mode": "Spielmodus",
+  "new.modeNormal": "Normal",
+  "new.modeNormalD": "Das ganz normale Hashiriya Battle.",
+  "new.modeHardcore": "Hardcore",
+  "new.modeHardcoreD": "Für Leute, die es wissen wollen. Gilt für diesen Spielstand fest und lässt sich später nicht mehr umschalten.",
+  "new.modeHardcoreRules": "Motor startet kalt, erst warmfahren.\nWartung doppelt so schnell fällig, leeres Öl oder Wasser zerstört den Motor.\nStartauto mit fast leerem Tank, Verbrauch anderthalbfach.\nAlles kostet anderthalbfach, Preisgeld nur drei Viertel.\nPink-Slip-Rivalen fahren nur um Autos.\nMehr mobile Polizeikontrollen am Tag, mehr Verkehr.\nSpeichern nur zu Hause oder in der Garage, Beenden mitten im Battle zählt als Niederlage.\nRivalen nicht auf Minimap und Radar, keine Schnellreise zu PAs.\nGame Over löscht den Spielstand.",
+  "hardcore.forfeit": "Hardcore: Das Battle gegen %s wurde abgebrochen und zählt als Niederlage.",
+  "hardcore.wiped": "Hardcore: Der Spielstand wurde gelöscht.",
+  "hardcore.gameOverNote": "Hardcore: Dieser Spielstand wird gelöscht, sobald du diesen Bildschirm verlässt.",
+  "hardcore.pinkForced": "Bei mir geht es nur um die Papiere. Wer verliert, gibt sein Auto ab. Bist du dabei?",
+  "save.reason.hardcore": "Hardcore: nur zu Hause oder in der Garage"
 }

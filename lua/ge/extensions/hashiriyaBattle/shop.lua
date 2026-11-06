@@ -174,7 +174,8 @@ local function unlockText()
   return ''
 end
 
-local function yen(usd) return core().economy().usdToPrice(usd or 0) end
+-- Hardcore: Preise mal hardcore.json priceFactor
+local function yen(usd) return extensions.hashiriyaBattle_hardcore.price(core().economy().usdToPrice(usd or 0)) end
 
 -- Zollgröße aus dem Teilenamen ("steelwheel_11a_13x7_F" -> 13")
 local function sizeOf(part, name)

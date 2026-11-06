@@ -168,6 +168,7 @@ local function makeOffers()
     local kmFactor = 1 - math.min(0.3, km / 190000 * 0.3)
     local base = c.economy().usdToPrice(tonumber(pick.info.Value))
     local price = math.max(10000, math.floor(base * cond.factor * kmFactor / 10000 + 0.5) * 10000)
+    price = math.floor(extensions.hashiriyaBattle_hardcore.price(price) / 10000 + 0.5) * 10000 -- Hardcore: priceFactor
     -- Gebrauchtzustand wie bei den Startautos (condition.lua): viele km = etwas mehr Verschleiß
     local function roll(range) return range[1] + rand() * (range[2] - range[1]) end
     local kmWear = math.min(0.04, km / 190000 * 0.04)
