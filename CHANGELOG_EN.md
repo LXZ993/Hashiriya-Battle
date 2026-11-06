@@ -9,6 +9,7 @@
 
 ### New main parking areas and travel
 - New: two main parking areas placed by JDMArsch (LXZ aka. LXZockt): **Heiwajima PA** and **Oi PA (Westbound)**, each with 16 parking bays. Cars park there, drivers wait to talk, rivals hang out, and you can nap in your car.
+- New: **Kameibashi PA** on the C1 City Loop near Shintomichō, below Tsukijigawa Kameibashi Park, with 2 parking bays.
 - All main parking areas (Shibaura and Tatsumi too) are now on the big map (M), with name, description and preview picture. The pictures are still placeholders in `art/pa/`.
 - Dev version: the main parking areas have a Quick Travel button on the big map, and "Go" in the dev menu takes you to the arrival point.
 - New: travel. Leave the C1 slowly at an exit, then pick a destination in the left menu: the garage or a main parking area you have visited. Travelling skips time and costs fuel.
