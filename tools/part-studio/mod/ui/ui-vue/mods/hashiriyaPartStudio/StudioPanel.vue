@@ -110,6 +110,11 @@
           </div>
         </template>
         <template v-else>
+          <div class="hps-note hps-warn" v-if="!inGarage">
+            Fotografiert wird in der BeamNG-Garage. Beim Start wechselt das Studio mit deinem Auto dorthin
+            und legt danach los.
+            <span class="hps-btn hps-btn-o" @click="call('goGarage')">Jetzt in die Garage</span>
+          </div>
           <div class="hps-note">
             Wähle die Fahrzeuge. Das Studio baut jedes sichtbare Teil einzeln an ein unsichtbares Studio-Auto
             und fotografiert es. Ein Auto dauert je nach Teilezahl ein paar Minuten, alle Fahrzeuge deutlich länger.
@@ -146,19 +151,12 @@
             <option :value="400">400 × 250</option><option :value="512">512 × 320</option>
           </select>
         </div>
-        <div class="hps-row"><span>Hintergrund</span>
-          <span class="hps-chip" :class="{ 'is-on': s.background === 'focus' }" @click="set('background', 'focus')">nur das Teil</span>
-          <span class="hps-chip" :class="{ 'is-on': s.background === 'scene' }" @click="set('background', 'scene')">Umgebung</span>
-        </div>
         <div class="hps-check" :class="{ 'is-on': s.studioPaint }" @click="set('studioPaint', !s.studioPaint)"><i></i>Einheitlicher Studio-Lack (silbergrau)</div>
         <div class="hps-check" :class="{ 'is-on': s.skipExisting }" @click="set('skipExisting', !s.skipExisting)"><i></i>Vorhandene Bilder überspringen</div>
-        <div class="hps-check" :class="{ 'is-on': s.noonLight }" @click="set('noonLight', !s.noonLight)"><i></i>Mittagsfarbe des Sonnenlichts während der Aufnahme</div>
         <div class="hps-check" :class="{ 'is-on': s.singlePair }" @click="set('singlePair', !s.singlePair)"><i></i>Paare nur einmal zeigen (Felgen, Reifen, Bremsen …)</div>
-        <div class="hps-check" :class="{ 'is-on': s.autoView }" @click="set('autoView', !s.autoView)"><i></i>Besten Blickwinkel automatisch suchen (5 Ansichten je Teil, die mit dem meisten Inhalt gewinnt)</div>
+        <div class="hps-check" :class="{ 'is-on': s.autoView }" @click="set('autoView', !s.autoView)"><i></i>Besten Blickwinkel automatisch suchen (5 Ansichten je Teil, es gewinnt die, auf der man am meisten vom Teil sieht)</div>
         <div class="hps-sec">Licht</div>
-        <div class="hps-note">Die Sonne steht bei jedem Bild hinter der Kamera. Zu Beginn jedes Laufs misst das Studio am ganzen Auto die Belichtung ein; danach gilt sie für alle Teile gleich.</div>
-        <div class="hps-rgb hps-slider"><span>Helligkeit</span>
-          <input type="range" min="-2" max="2" step="0.25" :value="s.brightness" @change="set('brightness', Number($event.target.value))" /><em>{{ (Number(s.brightness) > 0 ? "+" : "") + Number(s.brightness || 0).toFixed(2) }}</em></div>
+        <div class="hps-note">Fotografiert wird in der BeamNG-Garage mit ihrem eigenen Licht, so wie du dein Auto dort siehst. Das Studio ändert am Licht und an der Belichtung nichts, es übernimmt die Belichtung der Spielkamera.</div>
         <div class="hps-note">Neue Einstellungen gelten für neue Bilder. Alte Bilder neu machen: „Vorhandene Bilder überspringen“ ausschalten oder in der Galerie „Neu aufnehmen“.</div>
         <div class="hps-sec">Kamera</div>
         <div class="hps-rgb hps-slider"><span>Abstand ums Teil</span>
@@ -167,7 +165,7 @@
           <input type="range" min="15" max="50" step="1" :value="s.fov" @change="set('fov', Number($event.target.value))" /><em>{{ s.fov }}°</em></div>
         <div class="hps-rgb hps-slider"><span>Wartezeit je Bild</span>
           <input type="range" min="1" max="2.5" step="0.1" :value="s.settleDelay" @change="set('settleDelay', Number($event.target.value))" /><em>{{ Number(s.settleDelay).toFixed(1) }} s</em></div>
-        <div class="hps-note">Die Bilder liegen im BeamNG-Benutzerordner unter art/partPreviews/ (ein Bild je Teilname).</div>
+        <div class="hps-note">Die Bilder liegen im BeamNG-Benutzerordner unter art/partPreviews_garage/ (ein Bild je Teilname).</div>
         <div class="hps-btns">
           <span class="hps-btn" @click="openFolder">Ordner öffnen</span>
           <span class="hps-btn" @click="resetSettings">Standard</span>
@@ -195,6 +193,7 @@ const g = ref({ vehicle: false, rows: [], withImg: 0, total: 0 })
 const job = ref(null)
 const s = ref({})
 const models = ref([])
+const inGarage = ref(true)
 const status = ref(null)
 const hover = ref(null)
 const openKey = ref(null)
@@ -401,6 +400,7 @@ function onData(d) {
     setW.value = Number(d.settings.width) || 320
   }
   if (d.models) models.value = arr(d.models)
+  if (d.inGarage !== undefined) inGarage.value = !!d.inGarage
   if (d.gallery) {
     const gal = d.gallery
     gal.rows = arr(gal.rows)
@@ -487,6 +487,8 @@ onUnmounted(() => {
 .hps-view .hps-btn { padding: 4px 8px; }
 .hps-ib { min-width: 26px; font-size: 13px; line-height: 13px; }
 .hps-btn-o { background: rgba(255, 102, 0, 0.35); }
+.hps-warn { border-left: 3px solid var(--o); padding-left: 8px; }
+.hps-warn .hps-btn { display: inline-block; margin-top: 6px; }
 .hps-view-l { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); margin-right: 3px; }
 .hps-view-scope { display: inline-flex; gap: 3px; margin-left: 4px; }
 .hps-view-v { flex-basis: 100%; font-size: 10px; color: var(--dim); font-style: normal; }
