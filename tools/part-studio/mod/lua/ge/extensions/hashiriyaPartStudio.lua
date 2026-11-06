@@ -858,6 +858,13 @@ local function levelLoaded()
   return ok and n ~= nil and n ~= ''
 end
 
+local closeMenuTimer = nil
+function M.closeMenu()
+  local router = extensions.ui_router or rawget(_G, 'ui_router')
+  if not router then pcall(extensions.load, 'ui_router'); router = extensions.ui_router end
+  if router and router.navigate then pcall(router.navigate, 'play') end
+end
+
 function M.open()
   if not levelLoaded() then
     -- aus dem Hauptmenü: kleines Test-Level laden, danach das Panel öffnen
@@ -868,6 +875,11 @@ function M.open()
     end
   end
   active = true
+  -- Aus dem Menü (Esc > Mehr) geöffnet: das Menü schließen, sonst bleibt es über dem Spiel stehen
+  -- und das Fenster (nur im Spiel sichtbar) erscheint nie. Kurz danach noch einmal, falls das Menü
+  -- nach dem Klick selbst noch einmal umschaltet.
+  M.closeMenu()
+  closeMenuTimer = 0.4
   M.requestState()
   M.requestGallery()
 end
@@ -896,6 +908,10 @@ function M.onUpdate(dtReal)
       pushJob()
     end
   end
+  if closeMenuTimer then
+    closeMenuTimer = closeMenuTimer - (dtReal or 0)
+    if closeMenuTimer <= 0 then closeMenuTimer = nil; M.closeMenu() end
+  end
   if openFallback then
     openFallback = openFallback - (dtReal or 0)
     if openFallback <= 0 then openFallback = nil; M.onLoadingScreenFadeout() end
@@ -920,8 +936,7 @@ function M.onLoadingScreenFadeout()
   if not pendingOpen then return end
   pendingOpen = false
   openFallback = nil
-  local router = extensions.ui_router or rawget(_G, 'ui_router')
-  if router and router.navigate then pcall(router.navigate, 'play') end
+  M.closeMenu()
   active = true
   M.requestState()
   M.requestGallery()
