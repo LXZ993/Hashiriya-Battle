@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Trucks in traffic
+- New: the Cherrier Percheron drives in traffic as a European import (box, flatbed, tanker, mixer, cola truck), roughly every 20th car. Twice as many in hardcore mode.
+- Adjustable in `data/cars.json` under `trafficTrucks`.
+
 ### Hardcore mode
 - New: **Hardcore mode**. When creating a new save, pick Normal or Hardcore in the last step. Fixed for that save, shown with a red tag in the save list.
 - Engine starts cold (warm it up first), maintenance due twice as fast with stronger effects, starter car with 12 % fuel, fuel use one and a half times.
