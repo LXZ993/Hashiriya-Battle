@@ -40,7 +40,11 @@
             <span class="hps-btn hps-ib" title="näher" @click="view({ dzoom: 1.2 })">+</span>
             <span class="hps-btn hps-ib" title="weiter weg" @click="view({ dzoom: 1 / 1.2 })">−</span>
             <span class="hps-btn" title="automatischen Blickwinkel nehmen" @click="view({ reset: true })">Auto</span>
-            <span class="hps-btn hps-btn-o" title="nur dieses Teil neu fotografieren" @click="reshoot">Neu aufnehmen</span>
+            <span class="hps-btn hps-btn-o" title="neu fotografieren" @click="reshoot">Neu aufnehmen</span>
+            <span class="hps-view-scope">
+              <span class="hps-chip" :class="{ 'is-on': ui.viewScope !== 'part' }" @click="setScope('slot')" title="Korrektur gilt für alle Teile in diesem Slot">ganzer Slot ({{ pinParts.length }})</span>
+              <span class="hps-chip" :class="{ 'is-on': ui.viewScope === 'part' }" @click="setScope('part')">nur dieses Teil</span>
+            </span>
             <em class="hps-view-v">{{ pinOpt.name }}<template v-if="pinOpt.view"> · {{ viewText(pinOpt.view) }}</template></em>
           </div>
           <input class="hps-search" type="text" v-model="q.text" placeholder="Suchen: Slot, Teilname …"
@@ -148,9 +152,14 @@
         </div>
         <div class="hps-check" :class="{ 'is-on': s.studioPaint }" @click="set('studioPaint', !s.studioPaint)"><i></i>Einheitlicher Studio-Lack (silbergrau)</div>
         <div class="hps-check" :class="{ 'is-on': s.skipExisting }" @click="set('skipExisting', !s.skipExisting)"><i></i>Vorhandene Bilder überspringen</div>
-        <div class="hps-check" :class="{ 'is-on': s.noonLight }" @click="set('noonLight', !s.noonLight)"><i></i>Während der Aufnahme Mittagslicht</div>
+        <div class="hps-check" :class="{ 'is-on': s.noonLight }" @click="set('noonLight', !s.noonLight)"><i></i>Mittagslicht während der Aufnahme (nur bei Licht „Tageslicht“)</div>
         <div class="hps-check" :class="{ 'is-on': s.singlePair }" @click="set('singlePair', !s.singlePair)"><i></i>Paare nur einmal zeigen (Felgen, Reifen, Bremsen …)</div>
+        <div class="hps-check" :class="{ 'is-on': s.autoView }" @click="set('autoView', !s.autoView)"><i></i>Besten Blickwinkel automatisch suchen (5 Ansichten je Teil, die mit dem meisten Inhalt gewinnt)</div>
         <div class="hps-sec">Licht</div>
+        <div class="hps-row"><span>Licht</span>
+          <span class="hps-chip" :class="{ 'is-on': s.lightMode !== 'day' }" @click="set('lightMode', 'studio')">Studio (nur Lampen)</span>
+          <span class="hps-chip" :class="{ 'is-on': s.lightMode === 'day' }" @click="set('lightMode', 'day')">Tageslicht</span>
+        </div>
         <div class="hps-rgb hps-slider"><span>Studio-Lampen</span>
           <input type="range" min="0" max="3" step="0.1" :value="s.light" @change="set('light', Number($event.target.value))" /><em>{{ Number(s.light || 0).toFixed(1) }}×</em></div>
         <div class="hps-rgb hps-slider"><span>Belichtung</span>
@@ -202,7 +211,7 @@ const setW = ref(320)
 
 // --- Fenster (Position, Einklappen, Reiter im Browser-Speicher) ----------------------------------
 const STORE = "hashiriyaPartStudioPanel"
-const ui = reactive({ min: false, tab: "gallery" })
+const ui = reactive({ min: false, tab: "gallery", viewScope: "slot" })
 const win = reactive({ x: 0, y: 0 })
 const maxH = ref(700)
 function load() {
@@ -211,11 +220,12 @@ function load() {
     if (st) {
       win.x = st.x; win.y = st.y; ui.min = !!st.min
       if (tabs.some(t => t.id === st.tab)) ui.tab = st.tab
+      if (st.viewScope === "part") ui.viewScope = "part"
     }
   } catch (e) {}
 }
 function remember() {
-  try { window.localStorage.setItem(STORE, JSON.stringify({ x: win.x, y: win.y, min: ui.min, tab: ui.tab })) } catch (e) {}
+  try { window.localStorage.setItem(STORE, JSON.stringify({ x: win.x, y: win.y, min: ui.min, tab: ui.tab, viewScope: ui.viewScope })) } catch (e) {}
 }
 function clampWin() {
   const w = window.innerWidth || 1920, h = window.innerHeight || 1080
@@ -303,15 +313,26 @@ const pinOpt = computed(() => {
   return (r && arr(r.options).find(o => o.part === p.part)) || null
 })
 const shown = computed(() => hover.value || pinOpt.value)
-function view(change) {
+// alle sichtbaren Teile im Slot des ausgewählten Teils (für „ganzer Slot“)
+const pinParts = computed(() => {
   const p = pin.value
-  if (!p || running.value) return
-  call("setView", { ...p, ...change })
+  if (!p) return []
+  const r = arr(g.value.rows).find(x => x.key === p.key)
+  return r ? arr(r.options).filter(o => o.visual || o.img).map(o => o.part) : []
+})
+function setScope(v) { ui.viewScope = v; remember() }
+function target() {
+  const p = pin.value
+  const slot = ui.viewScope !== "part"
+  return { ...p, scope: slot ? "slot" : "part", parts: slot ? pinParts.value : [p.part] }
+}
+function view(change) {
+  if (!pin.value || running.value) return
+  call("setView", { ...target(), ...change })
 }
 function reshoot() {
-  const p = pin.value
-  if (!p || running.value) return
-  call("reshoot", p)
+  if (!pin.value || running.value) return
+  call("reshoot", target())
 }
 function viewText(v) {
   const t = []
@@ -323,7 +344,7 @@ function viewText(v) {
 
 let armTimer = null
 function pick(r, o) {
-  if (o.part) pin.value = { key: r.key, path: r.path, part: o.part, name: o.name }
+  if (o.part) pin.value = { key: r.key, path: r.path, slotId: r.id, part: o.part, name: o.name }
   if (o.on) return
   const key = r.key + "|" + o.part
   if (armed.value !== key) {
@@ -472,6 +493,7 @@ onUnmounted(() => {
 .hps-ib { min-width: 26px; font-size: 13px; line-height: 13px; }
 .hps-btn-o { background: rgba(255, 102, 0, 0.35); }
 .hps-view-l { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); margin-right: 3px; }
+.hps-view-scope { display: inline-flex; gap: 3px; margin-left: 4px; }
 .hps-view-v { flex-basis: 100%; font-size: 10px; color: var(--dim); font-style: normal; }
 .hps-view.is-busy { opacity: 0.45; }
 .hps-tile.is-pin { outline: 1px solid rgba(255, 255, 255, 0.55); }

@@ -40,6 +40,8 @@ local defaults = {
   light = 1.0,                   -- Stärke der Studio-Lampen (Haupt-, Füll-, Kantenlicht), 0 = aus
   exposure = 1.0,                -- Belichtung in Blendenstufen (+1 = doppelt so hell)
   singlePair = true,             -- Paare (Felgen, Reifen, Bremsen links/rechts) nur einmal zeigen
+  autoView = true,               -- mehrere Blickwinkel gleichzeitig aufnehmen und den besten nehmen
+  lightMode = 'studio',          -- 'studio' = nur Studio-Lampen, feste Belichtung (wie BeamNG-Thumbnails); 'day' = Tageslicht
   types = { Car = true, Truck = true }, -- Fahrzeugtypen in der Modell-Liste
 }
 
@@ -51,7 +53,7 @@ local job = nil              -- laufende Bilderstellung
 local galleryVehId = nil     -- Fahrzeug, für das die Galerie zuletzt gesendet wurde
 local galleryDirty = false
 local modelsCache = nil
-local views = {}             -- Teilname -> { yaw, pitch, zoom } (Grad, Grad, Faktor)
+local views = { _auto = {} } -- Teilname -> { yaw, pitch, zoom } (Grad, Grad, Faktor)
 
 local function send(data) guihooks.trigger('HashiriyaPartStudio', data) end
 local function jbeamIO() return rawget(_G, 'jbeamIO') or require('jbeam/io') end
@@ -81,6 +83,7 @@ end
 local function loadViews()
   local ok, data = pcall(jsonReadFile, VIEWS_FILE)
   views = (ok and type(data) == 'table') and data or {}
+  if type(views._auto) ~= 'table' then views._auto = {} end
 end
 
 local function saveViews()
@@ -358,7 +361,9 @@ local function clamp1(v) return math.max(-1, math.min(1, v)) end
 
 -- Kamera: von der Seite des Autos, auf der das Teil sitzt (vorne/hinten, links/rechts), leicht von oben.
 -- Flache Teile an der Seite (Felgen, Spiegel, Türen, Schweller) eher von der Seite.
-local function cameraFor(veh, frame, car, view)
+-- Paare (nur die rechte Seite wird gezeigt): immer von rechts, leicht von vorne, damit alle Felgen gleich aussehen.
+local function autoDir(frame, car, side)
+  if side then return vec3(side.s * 1, 0.42, 0.42):normalized() end
   local rel = frame.local_ - (car and car.center or vec3())
   local nx = car and clamp1(rel.x / math.max(car.half.x, 0.3)) or 0
   local ny = car and clamp1(rel.y / math.max(car.half.y, 0.5)) or 0
@@ -366,20 +371,31 @@ local function cameraFor(veh, frame, car, view)
   local sy = math.abs(ny) < 0.15 and 0.8 or sign(ny) * (0.35 + 0.9 * math.abs(ny))
   local h = frame.half
   if h.x < 0.4 * math.max(h.y, h.z) and math.abs(nx) > 0.5 then sy = sy * 0.3 end
-  local dirLocal = vec3(sx, sy, 0.5):normalized()
-  -- von Hand korrigierter Blickwinkel (Galerie: drehen, kippen, zoomen)
-  if type(view) == 'table' then
-    local az = math.atan2(dirLocal.x, dirLocal.y) + math.rad(tonumber(view.yaw) or 0)
-    local el = math.asin(math.max(-1, math.min(1, dirLocal.z))) + math.rad(tonumber(view.pitch) or 0)
-    el = math.max(math.rad(-80), math.min(math.rad(85), el))
-    dirLocal = vec3(math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el))
-  end
-  local dir = frame.right * dirLocal.x + frame.fwd * dirLocal.y + frame.up * dirLocal.z
-  dir = dir:normalized()
+  return vec3(sx, sy, 0.5):normalized()
+end
 
+-- Kandidaten für die automatische Suche: die geschätzte Richtung, gespiegelt (andere Seite, vorne/hinten)
+-- und von oben. Einseitige Meshes sieht man nur von einer Seite, das Bild mit dem meisten Inhalt gewinnt.
+local function candidateDirs(frame, car, side)
+  local d = autoDir(frame, car, side)
+  if side then return { d } end
+  return { d, vec3(-d.x, d.y, d.z), vec3(d.x, -d.y, d.z), vec3(-d.x, -d.y, d.z), vec3(d.x * 0.25, d.y * 0.25, 1):normalized() }
+end
+
+-- von Hand korrigierter Blickwinkel (Galerie: drehen, kippen) auf eine Richtung anwenden
+local function applyView(dirLocal, view)
+  if type(view) ~= 'table' then return dirLocal end
+  local az = math.atan2(dirLocal.x, dirLocal.y) + math.rad(tonumber(view.yaw) or 0)
+  local el = math.asin(math.max(-1, math.min(1, dirLocal.z))) + math.rad(tonumber(view.pitch) or 0)
+  el = math.max(math.rad(-80), math.min(math.rad(85), el))
+  return vec3(math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el))
+end
+
+local function cameraFrom(veh, frame, dirLocal, view)
+  local dir = (frame.right * dirLocal.x + frame.fwd * dirLocal.y + frame.up * dirLocal.z):normalized()
   local vehPos = veh:getPosition()
   local center = vehPos + frame.right * frame.local_.x + frame.fwd * frame.local_.y + frame.up * frame.local_.z
-  local radius = h:length()
+  local radius = frame.half:length()
   local aspect = cfg.width / cfg.height
   local fovV = math.rad(cfg.fov)
   local fovH = 2 * math.atan(math.tan(fovV * 0.5) * aspect)
@@ -388,7 +404,7 @@ local function cameraFor(veh, frame, car, view)
   local dist = math.max(0.4, radius / math.sin(fit * 0.5) * cfg.padding / math.max(0.3, zoom))
   local pos = center + dir * dist
   local rot = quatFromDir((center - pos):normalized(), vec3(0, 0, 1))
-  return pos, rot, dist, center, dir
+  return pos, rot, center
 end
 
 -- Aufnahme -------------------------------------------------------------------------------------------
@@ -414,14 +430,17 @@ local function mainExposure()
   return le.manualEV, nil
 end
 
--- Studio-Lampen: drei Spots (Haupt-, Füll-, Kantenlicht), die bei jedem Bild mit der Kamera ums Teil
--- wandern. Ohne sie bleiben Teile im Fokus-Modus (ohne Himmel und Umgebung) zu dunkel.
+-- Studio-Lampen: sechs Spots rundum (vier schräg von oben, eins von oben, eins schwach von unten).
+-- Sie hängen nicht an der Kamera, damit mehrere Blickwinkel gleichzeitig gleich hell aufgenommen werden können.
+-- lux = Beleuchtungsstärke am Teil; wie bei den BeamNG-Thumbnails (1000 lx bei Belichtung EV 8.3).
 local studioLights = {}
 local lightRoles = {
-  { name = 'key',  az = -35, el = 30, lux = 2500 },
-  { name = 'fill', az = 60,  el = 15, lux = 1200 },
-  { name = 'rim',  az = 165, el = 35, lux = 1800 },
-  { name = 'top',  az = 0,   el = 80, lux = 900 },
+  { name = 'fr', az = 45,  el = 35, lux = 700 },
+  { name = 'fl', az = -45, el = 35, lux = 600 },
+  { name = 'rr', az = 135, el = 35, lux = 450 },
+  { name = 'rl', az = -135, el = 35, lux = 450 },
+  { name = 'top', az = 0,  el = 89, lux = 500 },
+  { name = 'low', az = 90, el = -35, lux = 200 },
 }
 
 local function createLights()
@@ -442,30 +461,27 @@ local function deleteLights()
   studioLights = {}
 end
 
--- Richtung (Welt) um die Hochachse drehen und anheben, ausgehend von der Kamera-Richtung
-local function aroundDir(dir, azDeg, elDeg)
-  local flat = vec3(dir.x, dir.y, 0)
-  if flat:length() < 1e-4 then flat = vec3(0, 1, 0) end
-  flat = flat:normalized()
-  local a = math.rad(azDeg)
-  local h = vec3(flat.x * math.cos(a) - flat.y * math.sin(a), flat.x * math.sin(a) + flat.y * math.cos(a), 0)
-  local e = math.rad(elDeg)
-  return vec3(h.x * math.cos(e), h.y * math.cos(e), math.sin(e)):normalized()
-end
+local function studioMode() return cfg.lightMode ~= 'day' and cfg.background == 'focus' end
 
-local function placeLights(center, camDir, radius)
+-- Lampen um das Teil stellen (Richtungen in Fahrzeugachsen: az 0 = vorne, 90 = rechts)
+local function placeLights(frame, center)
   local mult = tonumber(cfg.light) or 1
+  if not studioMode() then mult = mult * 3 end -- bei Tageslicht nur als Aufhellung
+  local radius = frame.half:length()
   for i, l in ipairs(studioLights) do
     local r = lightRoles[i]
-    local d = math.max(1.5, radius * 3 + 1)
-    local dir = aroundDir(camDir, r.az, r.el)
+    local d = math.max(3, radius * 3 + 2)
+    local a, e = math.rad(r.az), math.rad(r.el)
+    local dirLocal = vec3(math.sin(a) * math.cos(e), math.cos(a) * math.cos(e), math.sin(e))
+    local dir = (frame.right * dirLocal.x + frame.fwd * dirLocal.y + frame.up * dirLocal.z):normalized()
     local pos = center + dir * d
-    local q = quatFromDir((center - pos):normalized(), vec3(0, 0, 1))
+    local up = math.abs(dir.z) > 0.98 and frame.fwd or vec3(0, 0, 1)
+    local q = quatFromDir((center - pos):normalized(), up)
     pcall(function()
       local m = QuatF(q.x, q.y, q.z, q.w):getMatrix()
       m:setPosition(pos)
       l:setTransform(m)
-      local cone = math.min(150, 2 * math.deg(math.atan((radius * 1.6 + 0.3) / d)) + 10)
+      local cone = math.min(150, 2 * math.deg(math.asin(math.min(1, (radius + 0.5) / d))) + 5)
       l:setField('intensity', 0, tostring(r.lux * mult * d * d))
       l:setField('range', 0, tostring(d + radius * 2 + 5))
       l:setField('innerAngle', 0, tostring(cone))
@@ -477,58 +493,89 @@ local function placeLights(center, camDir, radius)
   end
 end
 
--- Offscreen-Bild über eine eigene RenderView. Der Bildschirm und die Oberfläche bleiben unverändert.
-local function shoot(veh, pos, rot, filename, done)
+local function fileSize(path)
+  local ok, data = pcall(readFile, path)
+  if ok and type(data) == 'string' then return #data end
+  local ok2, st = pcall(function() return FS:stat(path) end)
+  if ok2 and type(st) == 'table' then return tonumber(st.filesize) or 0 end
+  return 0
+end
+
+-- Offscreen-Bilder über eigene RenderViews (eine je Blickwinkel, alle gleichzeitig).
+-- Der Bildschirm und die Oberfläche bleiben unverändert. Bei mehreren Blickwinkeln gewinnt das Bild
+-- mit dem meisten Inhalt (größte JPG-Datei; leerer Hintergrund packt sich klein), der geschätzte Blickwinkel
+-- bekommt einen kleinen Vorsprung, der Blick von oben einen kleinen Nachteil.
+local function shoot(veh, shots, filename, done)
   local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
   local w, h = math.floor(cfg.width * ss), math.floor(cfg.height * ss)
-  local rv = RenderViewManagerInstance:getOrCreateView(VIEW_NAME)
-  rv.luaOwned = true
-  local mat = QuatF(rot.x, rot.y, rot.z, rot.w):getMatrix()
-  mat:setPosition(pos)
-  rv.renderCubemap = false
-  rv.cameraMatrix = mat
-  rv.resolution = Point2I(w, h)
-  rv.viewPort = RectI(0, 0, w, h)
-  rv.namedTexTargetColor = VIEW_NAME
-  rv.frustum = Frustum.construct(false, math.rad(cfg.fov), w / h, 0.05, 2000)
-  rv.fov = cfg.fov
-  rv.renderEditorIcons = false
-  if cfg.background == 'focus' then
-    pcall(function()
-      rv:enterFocusObjectsMode()
-      rv:addFocusObject(veh)
-      for _, l in ipairs(studioLights) do rv:addFocusObject(l) end
-    end)
-    local c = cfg.bgColor or defaults.bgColor
-    pcall(function() rv.clearColor = ColorF(c[1], c[2], c[3], 1) end)
-  end
-  -- Belichtung wie die Hauptansicht, plus cfg.exposure Blendenstufen heller
   local manualEV, curExp = mainExposure()
   local boost = tonumber(cfg.exposure) or 0
-  rv.useManualEV = manualEV ~= nil
-  rv.manualEV = (manualEV or 0) - boost
-  if not rv.useManualEV and curExp and curExp > 0 then rv.currentExposure = curExp * (2 ^ boost) end
+  local views_ = {}
+  for i, sh in ipairs(shots) do
+    local name = VIEW_NAME .. i
+    local rv = RenderViewManagerInstance:getOrCreateView(name)
+    rv.luaOwned = true
+    local mat = QuatF(sh.rot.x, sh.rot.y, sh.rot.z, sh.rot.w):getMatrix()
+    mat:setPosition(sh.pos)
+    rv.renderCubemap = false
+    rv.cameraMatrix = mat
+    rv.resolution = Point2I(w, h)
+    rv.viewPort = RectI(0, 0, w, h)
+    rv.namedTexTargetColor = name
+    rv.frustum = Frustum.construct(false, math.rad(cfg.fov), w / h, 0.05, 2000)
+    rv.fov = cfg.fov
+    rv.renderEditorIcons = false
+    if cfg.background == 'focus' then
+      pcall(function()
+        rv:enterFocusObjectsMode()
+        rv:addFocusObject(veh)
+        for _, l in ipairs(studioLights) do rv:addFocusObject(l) end
+      end)
+      local c = cfg.bgColor or defaults.bgColor
+      pcall(function() rv.clearColor = ColorF(c[1], c[2], c[3], 1) end)
+    end
+    if studioMode() then
+      -- feste Belichtung wie im BeamNG-Thumbnail-Studio (EV 8.3), Regler „Belichtung“: +1 = doppelt so hell
+      rv.useManualEV = true
+      rv.manualEV = 9.3 - boost
+    else
+      rv.useManualEV = manualEV ~= nil
+      rv.manualEV = (manualEV or 0) - boost
+      if not rv.useManualEV and curExp and curExp > 0 then rv.currentExposure = curExp * (2 ^ boost) end
+    end
+    table.insert(views_, rv)
+  end
 
   core_jobsystem.create(function(j)
     j.sleep(cfg.settleDelay or 0.6)
-    local tmp = filename .. '.tmp.png'
-    FS:removeFile(tmp)
-    local ok = false
-    if rv:saveToDisk(tmp) then
-      local bmp = GBitmap()
-      if bmp:loadFile(tmp) then
-        bmp:setFormat(10) -- R8G8B8
-        local out = ss > 1 and bmp:createDownscaledBitmap(ss) or bmp
-        ok = out and out:saveFile(filename) or false
+    local best, bestScore, bestBmp = nil, -1, nil
+    for i, rv in ipairs(views_) do
+      local tmp = filename .. '.tmp' .. i .. '.png'
+      FS:removeFile(tmp)
+      if rv:saveToDisk(tmp) then
+        local bmp = GBitmap()
+        if bmp:loadFile(tmp) then
+          bmp:setFormat(10) -- R8G8B8
+          local out = ss > 1 and bmp:createDownscaledBitmap(ss) or bmp
+          if out then
+            local score = 1
+            if #views_ > 1 then
+              local cand = filename .. '.cand' .. i .. '.jpg'
+              if out:saveFile(cand) then score = fileSize('/' .. cand) end
+              FS:removeFile(cand)
+              if i == 1 then score = score * 1.12 elseif i == 5 then score = score * 0.88 end
+            end
+            if score > bestScore then best, bestScore, bestBmp = i, score, out end
+          end
+        end
       end
+      FS:removeFile(tmp)
+      RenderViewManagerInstance:destroyView(rv)
     end
-    FS:removeFile(tmp)
-    RenderViewManagerInstance:destroyView(rv)
-    done(ok and true or false)
+    local ok = bestBmp and bestBmp:saveFile(filename) or false
+    done(ok and true or false, best)
   end)
 end
-
--- Bilderstellung (Koroutine, läuft in onUpdate) ------------------------------------------------------
 
 local function now() return os.clock() end
 local function waitSeconds(s)
@@ -632,7 +679,15 @@ local function splitPair(veh, entries, flexList, sel)
   return sel2, flex2, { s = keep, cx = cx }
 end
 
-local function capturePart(veh, vd, partPath, partName)
+-- Blickwinkel-Korrektur eines Teils: eigene, sonst die seines Slots (gilt für alle Teile im Slot)
+local function viewOf(partName, slotId)
+  local v = views[partName]
+  if type(v) == 'table' then return v end
+  v = slotId and views['slot:' .. tostring(slotId)]
+  return type(v) == 'table' and v or nil
+end
+
+local function capturePart(veh, vd, partPath, partName, slotId)
   local all, sel, flexList, entries = meshesOf(vd.vdata, partPath)
   if not next(sel) then job.noMesh = job.noMesh + 1; return 'nomesh' end
   local side
@@ -640,15 +695,33 @@ local function capturePart(veh, vd, partPath, partName)
   local frame = frameOf(veh, vd.vdata, partPath, flexList, side)
   if not frame then job.failed = job.failed + 1; return 'noframe' end
   for _, m in ipairs(all) do veh:setMeshAlpha(sel[m] and 1 or 0, m, false) end
-  local pos, rot, dist, center, camDir = cameraFor(veh, frame, job.car, views[partName])
-  placeLights(center, camDir, frame.half:length())
+
+  local dirs = candidateDirs(frame, job.car, side)
+  local view = viewOf(partName, slotId)
+  local picked = tonumber(views._auto[partName])
+  local list
+  if view or not cfg.autoView or #dirs == 1 then
+    -- feste Richtung: früher automatisch gefundene (falls vorhanden), darauf die Korrektur
+    local base = dirs[(picked and dirs[picked]) and picked or 1]
+    list = { applyView(base, view) }
+  else
+    list = dirs
+  end
+  local shots, center = {}, nil
+  for _, d in ipairs(list) do
+    local pos, rot, c = cameraFrom(veh, frame, d, view)
+    center = c
+    table.insert(shots, { pos = pos, rot = rot })
+  end
+  placeLights(frame, center)
   waitFrames(2)
   local file = fileOf(partName)
-  local finished, result = false, false
-  shoot(veh, pos, rot, file, function(ok) finished, result = true, ok end)
-  local t = now() + (cfg.settleDelay or 0.6) + 6
+  local finished, result, bestIdx = false, false, nil
+  shoot(veh, shots, file, function(ok, idx) finished, result, bestIdx = true, ok, idx end)
+  local t = now() + (cfg.settleDelay or 0.6) + 8
   while not finished and now() < t do coroutine.yield() end
   if result then
+    if #list > 1 and bestIdx then views._auto[partName] = bestIdx; job.viewsChanged = true end
     job.done = job.done + 1
     job.last = '/' .. file
     job.lastName = partName
@@ -738,7 +811,7 @@ local function runModel(model)
     local node = findSlotNode(vd.config.partsTree, s.path)
     if node and node.chosenPartName == s.chosen and node.partPath then
       setText(job.modelName .. ' · Serie · ' .. s.chosen)
-      capturePart(veh, vd, node.partPath, s.chosen)
+      capturePart(veh, vd, node.partPath, s.chosen, s.id)
     end
     job.seen[s.chosen] = true
   end
@@ -780,7 +853,7 @@ local function runModel(model)
         if job.stop then return end
         local node = findSlotNode(vd.config.partsTree, p.slot.path)
         if node and node.chosenPartName == p.part and node.partPath then
-          capturePart(veh, vd, node.partPath, p.part)
+          capturePart(veh, vd, node.partPath, p.part, p.slot.id)
         else
           job.failed = job.failed + 1
         end
@@ -790,20 +863,28 @@ local function runModel(model)
   end
 end
 
--- Ein einzelnes Teil neu aufnehmen: Konfiguration des eigenen Autos mit genau diesem Teil im Slot
+-- Teile neu aufnehmen: Konfiguration des eigenen Autos, nacheinander mit jedem dieser Teile im Slot
 local function runSingle(s)
   job.model = s.model
-  job.planned = 1
-  setText('Neu aufnehmen: ' .. tostring(s.name or s.part))
-  local veh, vd = spawnStudio(s.model, deepcopy(s.config))
-  if not veh then job.failed = job.failed + 1; return end
-  job.car = carBox(veh, vd.vdata)
-  local node = findSlotNode(vd.config.partsTree, s.path)
-  if node and node.chosenPartName == s.part and node.partPath then
-    capturePart(veh, vd, node.partPath, s.part)
-  else
-    log('W', logTag, 'Teil nach dem Spawn nicht im Slot: ' .. tostring(s.part))
-    job.failed = job.failed + 1
+  job.planned = #s.parts
+  for i, part in ipairs(s.parts) do
+    if job.stop then return end
+    setText(string.format('Neu aufnehmen %d/%d: %s', i, #s.parts, tostring(part)))
+    local c = deepcopy(s.config)
+    c.parts[s.key] = part
+    local veh, vd = spawnStudio(s.model, c)
+    if not veh then
+      job.failed = job.failed + 1
+    else
+      job.car = carBox(veh, vd.vdata)
+      local node = findSlotNode(vd.config.partsTree, s.path)
+      if node and node.chosenPartName == part and node.partPath then
+        capturePart(veh, vd, node.partPath, part, s.slotId)
+      else
+        log('W', logTag, 'Teil nach dem Spawn nicht im Slot: ' .. tostring(part))
+        job.failed = job.failed + 1
+      end
+    end
   end
 end
 
@@ -813,12 +894,13 @@ local function prepareScene()
   local ok, running = pcall(function() return be:getPhysicsRunning() end)
   saved.physics = (not ok) or running == true
   pcall(function() be:setPhysicsRunning(false) end)
-  if cfg.noonLight and core_environment and core_environment.getTimeOfDay then
+  if (cfg.noonLight or studioMode()) and core_environment and core_environment.getTimeOfDay then
     local okT, tod = pcall(core_environment.getTimeOfDay)
     if okT and type(tod) == 'table' then
       saved.tod = deepcopy(tod)
       local t = deepcopy(tod)
-      t.time = 0 -- BeamNG: 0 = 12:00 Uhr
+      -- BeamNG: 0 = 12:00 Uhr, 0.5 = Mitternacht. Im Studio-Modus Nacht, damit nur die Studio-Lampen leuchten.
+      t.time = studioMode() and 0.5 or 0
       t.play = false
       pcall(core_environment.setTimeOfDay, t)
     end
@@ -860,6 +942,7 @@ local function runJob()
   end
   deleteStudio()
   restoreScene()
+  if job.viewsChanged then saveViews() end
   job.finished = true
   job.text = job.stop and 'Abgebrochen' or 'Fertig'
   pcall(jsonWriteFile, LAST_RUN_FILE, {
@@ -905,37 +988,48 @@ function M.start(arg)
   pushJob()
 end
 
--- Ein Teil des eigenen Autos neu fotografieren (z. B. nach dem Korrigieren des Blickwinkels).
--- arg: { key = Slot-Schlüssel, path = Slot-Pfad, part = Teilname, name = Anzeigename }
+-- Teile des eigenen Autos neu fotografieren (z. B. nach dem Korrigieren des Blickwinkels).
+-- arg: { key = Slot-Schlüssel, path = Slot-Pfad, slotId, part = Teilname, parts = { Teilnamen } }
 function M.reshoot(arg)
   local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
   if job and not job.finished then
     send({ status = { ok = false, text = 'Es läuft schon eine Bilderstellung' } }); return
   end
   local veh = getPlayerVehicle(0)
-  if not veh or not data.key or not data.part or data.part == '' then return end
+  if not veh or not data.key then return end
+  local parts = {}
+  for _, p in ipairs(type(data.parts) == 'table' and data.parts or { data.part }) do
+    if type(p) == 'string' and p ~= '' then table.insert(parts, p) end
+  end
+  if #parts == 0 then return end
   local vd = core_vehicle_manager.getVehicleData(veh:getID())
   if not vd or not vd.config then return end
   local c = { parts = partsMapOf(vd.config.partsTree), vars = deepcopy(vd.config.vars or {}),
     paints = deepcopy(vd.config.paints or {}) }
-  c.parts[data.key] = data.part
   if cfg.studioPaint then c.paints = { deepcopy(studioPaint), deepcopy(studioPaint), deepcopy(studioPaint) } end
   local model = veh:getJBeamFilename()
   local name = model
   for _, m in ipairs(modelList()) do if m.key == model then name = m.name end end
   job = newJob({ { key = model, name = name } })
-  job.single = { model = model, key = data.key, path = data.path, part = data.part, name = data.name, config = c }
+  job.single = { model = model, key = data.key, path = data.path, slotId = data.slotId, parts = parts, config = c }
   job.co = coroutine.create(runJob)
   pushJob()
 end
 
--- Blickwinkel eines Teils von Hand korrigieren und das Bild gleich neu machen.
--- arg: { part, key, path, name, dyaw = Grad, dpitch = Grad, dzoom = Faktor, reset = true }
+-- Blickwinkel von Hand korrigieren und die Bilder gleich neu machen.
+-- arg: { scope = 'slot' (alle Teile im Slot) oder 'part', slotId, part, parts, key, path,
+--        dyaw = Grad, dpitch = Grad, dzoom = Faktor, reset = true }
 function M.setView(arg)
   local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
-  local part = data.part
-  if not part or part == '' then return end
-  local v = views[part] or { yaw = 0, pitch = 0, zoom = 1 }
+  local vkey
+  if data.scope == 'slot' and data.slotId then vkey = 'slot:' .. tostring(data.slotId)
+  elseif data.part and data.part ~= '' then vkey = data.part end
+  if not vkey then return end
+  local v = views[vkey]
+  if type(v) ~= 'table' then
+    -- vom Teil-Wert ausgehen, falls das Teil schon eine eigene Korrektur hatte
+    v = deepcopy(viewOf(data.part, data.slotId) or { yaw = 0, pitch = 0, zoom = 1 })
+  end
   if data.reset then
     v = { yaw = 0, pitch = 0, zoom = 1 }
   else
@@ -943,7 +1037,18 @@ function M.setView(arg)
     v.pitch = math.max(-90, math.min(90, (tonumber(v.pitch) or 0) + (tonumber(data.dpitch) or 0)))
     v.zoom = math.max(0.3, math.min(4, (tonumber(v.zoom) or 1) * (tonumber(data.dzoom) or 1)))
   end
-  if v.yaw == 0 and v.pitch == 0 and math.abs(v.zoom - 1) < 0.001 then views[part] = nil else views[part] = v end
+  local neutral = v.yaw == 0 and v.pitch == 0 and math.abs(v.zoom - 1) < 0.001
+  if neutral then views[vkey] = nil else views[vkey] = v end
+  if data.scope == 'slot' then
+    -- Slot-Korrektur ersetzt die eigenen Korrekturen der Teile in diesem Slot
+    for _, p in ipairs(type(data.parts) == 'table' and data.parts or {}) do views[p] = nil end
+  end
+  if data.reset then
+    -- „Auto“: auch die automatisch gefundene Richtung vergessen, damit neu gesucht wird
+    for _, p in ipairs(type(data.parts) == 'table' and data.parts or { data.part }) do
+      if type(p) == 'string' then views._auto[p] = nil end
+    end
+  end
   saveViews()
   galleryDirty = true
   if data.key then M.reshoot(data) end
@@ -1021,11 +1126,11 @@ local function galleryPayload()
         if img then withImg = withImg + 1 end
         total = total + 1
         table.insert(opts, { part = n, name = displayName(descs, n), img = img,
-          visual = partHasMesh(vd.ioCtx, n, meshCache), on = n == s.chosen, view = views[n] })
+          visual = partHasMesh(vd.ioCtx, n, meshCache), on = n == s.chosen, view = viewOf(n, s.id) })
       end
       table.sort(opts, function(a, b) return a.name:lower() < b.name:lower() end)
       table.insert(rows, { key = s.key, id = s.id, path = s.path, depth = s.depth,
-        name = slotDescription(vd.ioCtx, s, slotDescCache),
+        name = slotDescription(vd.ioCtx, s, slotDescCache), slotView = views['slot:' .. tostring(s.id)],
         parent = s.parentPart and displayName(descs, s.parentPart) or '', chosen = s.chosen,
         chosenName = s.chosen ~= '' and displayName(descs, s.chosen) or 'leer', options = opts })
     end
