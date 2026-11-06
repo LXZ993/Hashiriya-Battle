@@ -1,6 +1,11 @@
 # Changelog Hashiriya Battle
 
-## Alpha 0.9.2 (Stand 04.11.2026)
+## Alpha 0.9.2 (Stand 06.11.2026)
+
+### Öl- und Wassertemperatur-Anzeige
+- Neu: zwei kleine Rundanzeigen links neben dem Drehzahlmesser, im selben Stil (Segment-Bogen, große kursive Zahl, schräges Abzeichen): Kühlwasser und Öl.
+- Farben: blau = noch kalt, weiß = Betriebstemperatur, orange = wird heiß, rot = ab hier nimmt der Motor Schaden (Wasser ab 120 °C, Öl ab 150 °C). Im roten Bereich wird die Zahl rot und das Abzeichen blinkt.
+- Zeigt °C oder °F je nach Spiel-Einstellung. Bei E-Autos blendet die Anzeige aus.
 
 ### Neue Haupt-PAs und Reisen
 - Neu: zwei Haupt-PAs, gesetzt von JDMArsch (LXZ aka. LXZockt): **Heiwajima PA** und **Oi PA (Westbound)**, je mit 16 Parkbuchten. Dort parken Autos, Fahrer stehen zum Reden bereit, Rivalen warten, und man kann im Auto ein Nickerchen machen.
