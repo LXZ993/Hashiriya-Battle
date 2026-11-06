@@ -395,13 +395,31 @@ local function cameraFrom(veh, frame, dirLocal, view)
   local dir = (frame.right * dirLocal.x + frame.fwd * dirLocal.y + frame.up * dirLocal.z):normalized()
   local vehPos = veh:getPosition()
   local center = vehPos + frame.right * frame.local_.x + frame.fwd * frame.local_.y + frame.up * frame.local_.z
-  local radius = frame.half:length()
+  -- Abstand so, dass die 8 Ecken der Teil-Box gerade ins Bild passen (enger als eine Kugel um das Teil)
   local aspect = cfg.width / cfg.height
-  local fovV = math.rad(cfg.fov)
-  local fovH = 2 * math.atan(math.tan(fovV * 0.5) * aspect)
-  local fit = math.min(fovV, fovH)
+  local tanV = math.tan(math.rad(cfg.fov) * 0.5)
+  local tanH = tanV * aspect
   local zoom = type(view) == 'table' and tonumber(view.zoom) or 1
-  local dist = math.max(0.4, radius / math.sin(fit * 0.5) * cfg.padding / math.max(0.3, zoom))
+  local pad = (tonumber(cfg.padding) or 1.12) / math.max(0.3, zoom or 1)
+  local look = dir * -1
+  local camRight = look:cross(vec3(0, 0, 1))
+  if camRight:length() < 1e-3 then camRight = frame.right end
+  camRight = camRight:normalized()
+  local camUp = camRight:cross(look):normalized()
+  local h = frame.half
+  local dist = 0.3
+  for _, sx in ipairs({ -1, 1 }) do
+    for _, sy in ipairs({ -1, 1 }) do
+      for _, sz in ipairs({ -1, 1 }) do
+        local p = frame.right * (sx * h.x) + frame.fwd * (sy * h.y) + frame.up * (sz * h.z)
+        local depth = p:dot(dir)
+        dist = math.max(dist,
+          depth + math.abs(p:dot(camRight)) * pad / tanH,
+          depth + math.abs(p:dot(camUp)) * pad / tanV,
+          depth + 0.15)
+      end
+    end
+  end
   local pos = center + dir * dist
   local rot = quatFromDir((center - pos):normalized(), vec3(0, 0, 1))
   return pos, rot, center
@@ -521,7 +539,7 @@ end
 -- Offscreen-Bilder über eigene RenderViews (eine je Blickwinkel, alle gleichzeitig).
 -- Der Bildschirm und die Oberfläche bleiben unverändert. Bei mehreren Blickwinkeln gewinnt das Bild
 -- mit dem meisten Inhalt (größte JPG-Datei; leerer Hintergrund packt sich klein), der geschätzte Blickwinkel
--- bekommt einen kleinen Vorsprung, der Blick von oben einen kleinen Nachteil.
+-- bekommt einen Vorsprung (35 %), der Blick von oben einen kleinen Nachteil.
 local function shoot(veh, shots, filename, done)
   local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
   local w, h = math.floor(cfg.width * ss), math.floor(cfg.height * ss)
@@ -558,7 +576,7 @@ local function shoot(veh, shots, filename, done)
     else
       rv.useManualEV = manualEV ~= nil
       -- Tageslicht: eine Blendenstufe heller als die Hauptansicht als Grundwert (die Schattenseite ist sonst zu dunkel)
-      local stops = boost + 1
+      local stops = boost + 1.75
       rv.manualEV = (manualEV or 0) - stops
       if not rv.useManualEV and curExp and curExp > 0 then rv.currentExposure = curExp * (2 ^ stops) end
     end
@@ -582,7 +600,7 @@ local function shoot(veh, shots, filename, done)
               local cand = filename .. '.cand' .. i .. '.jpg'
               if out:saveFile(cand) then score = fileSize('/' .. cand) end
               FS:removeFile(cand)
-              if i == 1 then score = score * 1.12 elseif i == 5 then score = score * 0.88 end
+              if i == 1 then score = score * 1.35 elseif i == 5 then score = score * 0.85 end
             end
             if score > bestScore then best, bestScore, bestBmp = i, score, out end
           end
@@ -773,10 +791,29 @@ local function isAncestor(a, b) -- Slot-Pfad a enthält Slot-Pfad b
   return #a < #b and b:sub(1, #a) == a
 end
 
-local function runModel(model)
+-- Slot-Namen, die ein Teil mitbringt (z. B. Radnabe 5-Loch -> Slot für 5-Loch-Felgen)
+local function slotNamesOf(ioCtx, partName, cache)
+  if cache[partName] then return cache[partName] end
+  local names = {}
+  local ok, part = pcall(jbeamIO().getPart, ioCtx, partName)
+  if ok and type(part) == 'table' then
+    for _, sl in ipairs(part.slots2 or part.slots or {}) do
+      if type(sl) == 'table' and type(sl.name) == 'string' then table.insert(names, sl.name) end
+    end
+  end
+  cache[partName] = names
+  return names
+end
+
+local MAX_VARIANTS = 60 -- höchstens so viele Grund-Konfigurationen je Modell
+
+-- Eine Grund-Konfiguration abarbeiten. Dabei Teile merken, die Slots öffnen, die es noch in keiner
+-- Grund-Konfiguration gab (z. B. 5-Loch-Naben -> 5-Loch-Felgen); für die kommt eine neue Grund-Konfiguration
+-- in die Warteschlange.
+local function runBase(model, startCfg, label, covered, queue)
   job.model = model
-  setText('Lade ' .. tostring(job.modelName))
-  local veh, vd = spawnStudio(model, nil)
+  setText('Lade ' .. tostring(job.modelName) .. (label and (' · ' .. label) or ''))
+  local veh, vd = spawnStudio(model, startCfg and deepcopy(startCfg) or nil)
   if not veh then job.failed = job.failed + 1; return end
   if job.stop then return end
 
@@ -791,9 +828,29 @@ local function runModel(model)
     return
   end
 
+  local slots = collectSlots(tree)
+
+  -- weitere Grund-Konfigurationen suchen (Teile mit neuen Slots)
+  for _, sl in ipairs(slots) do covered[sl.id] = true end
+  local slotCache = {}
+  for _, sl in ipairs(slots) do
+    for _, n in ipairs(candidatesOf(vd.ioCtx, slotMap, sl)) do
+      if n ~= sl.chosen and #queue + job.variants < MAX_VARIANTS then
+        local names = slotNamesOf(vd.ioCtx, n, slotCache)
+        local opens = false
+        for _, sn in ipairs(names) do if not covered[sn] then opens = true; break end end
+        if opens then
+          for _, sn in ipairs(names) do covered[sn] = true end
+          local c = deepcopy(base)
+          c.parts[sl.key] = n
+          table.insert(queue, { cfg = c, label = n })
+        end
+      end
+    end
+  end
+
   -- Plan: je Slot die noch fehlenden Teile
   local meshCache = {}
-  local slots = collectSlots(tree)
   local pending, planned = {}, 0
   local planSeen = {}
   local function wanted(n)
@@ -829,7 +886,7 @@ local function runModel(model)
     if job.stop then return end
     local node = findSlotNode(vd.config.partsTree, s.path)
     if node and node.chosenPartName == s.chosen and node.partPath then
-      setText(job.modelName .. ' · Serie · ' .. s.chosen)
+      setText(job.modelName .. (label and (' · ' .. label) or ' · Serie') .. ' · ' .. s.chosen)
       capturePart(veh, vd, node.partPath, s.chosen, s.id)
     end
     job.seen[s.chosen] = true
@@ -861,7 +918,8 @@ local function runModel(model)
     job.round = job.round + 1
     local c = deepcopy(base)
     for _, p in ipairs(picks) do c.parts[p.slot.key] = p.part end
-    setText(string.format('%s · Durchgang %d/%d (%d Teile)', job.modelName, job.round, job.rounds, #picks))
+    setText(string.format('%s%s · Durchgang %d/%d (%d Teile)', job.modelName, label and (' · ' .. label) or '',
+      job.round, job.rounds, #picks))
     veh, vd = spawnStudio(model, c)
     if not veh then
       for _, p in ipairs(picks) do job.seen[p.part] = true end
@@ -879,6 +937,17 @@ local function runModel(model)
         job.seen[p.part] = true
       end
     end
+  end
+end
+
+local function runModel(model)
+  local covered, queue = {}, {}
+  job.variants = 0
+  runBase(model, nil, nil, covered, queue)
+  while #queue > 0 and not job.stop do
+    local v = table.remove(queue, 1)
+    job.variants = job.variants + 1
+    runBase(model, v.cfg, v.label, covered, queue)
   end
 end
 
