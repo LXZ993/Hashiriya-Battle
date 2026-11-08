@@ -24,17 +24,12 @@ angular.module('beamng.apps')
     var p1 = pt(cx, r2, a1), p2 = pt(cx, r2, a2), p3 = pt(cx, r1, a2), p4 = pt(cx, r1, a1)
     return 'M' + p1 + 'A' + r2 + ',' + r2 + ' 0 0 1 ' + p2 + 'L' + p3 + 'A' + r1 + ',' + r1 + ' 0 0 0 ' + p4 + 'Z'
   }
-  function arc(cx, r, a1, a2) {
-    var p1 = pt(cx, r, a1), p2 = pt(cx, r, a2)
-    return 'M' + p1 + 'A' + r + ',' + r + ' 0 ' + (a2 - a1 > 180 ? 1 : 0) + ' 1 ' + p2
-  }
 
   function gaugeSvg(g) {
     var c = g.cx
     return [
       '<g class="hxw-g hxw-' + g.key + '">',
         '<circle cx="' + c + '" cy="' + CY + '" r="62" fill="url(#hxwBg)"/>',
-        '<path class="hxw-accent" d="' + arc(c, 62, 120, 175) + '"/>',
         '<g class="hxw-segs"></g>',
         '<line class="hxw-needle" x1="' + c + '" y1="' + (CY - 40) + '" x2="' + c + '" y2="' + (CY - 60) + '"/>',
         // Skalen-Enden unter den Bogen-Enden, damit die große Zahl frei bleibt
@@ -61,7 +56,6 @@ angular.module('beamng.apps')
           '.hxw-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;}',
           '.hxw-root.is-off{opacity:0;}',
           '.hxw{width:100%;height:100%;overflow:visible;font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}',
-          '.hxw-accent{fill:none;stroke:#ff6600;stroke-width:2;opacity:.9;}',
           '.hxw-seg{fill:rgba(255,255,255,.1);}',
           '.hxw-seg.on{fill:#f4f4f4;}',
           '.hxw-seg.cold.on{fill:#4d93ec;}',

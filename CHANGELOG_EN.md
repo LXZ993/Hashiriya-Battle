@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Speedometer with separate gauges
+- RPM and speed are now two separate analog round gauges side by side. Right: the tachometer with the gear shown large in the centre. Left: the new speedometer with needle and a small number in the centre. Its scale starts at 200 km/h (120 mph) and grows when you drive faster.
+- New: pedal bars at the bottom of the gauges. Red for the brake pedal on the tachometer, green for the throttle on the speedometer. They show how far you are pressing the pedal right now.
+- Fuel now sits inside the speedometer below the number: small E to F bar with litres and tank size, orange below 25 %, flashing red below 10 %. The old water temperature bar in the tachometer is gone, the oil/water gauges replace it.
+- Boost is now a small round gauge like oil and water too (vacuum grey-blue, red from 80 % of the scale), above the tachometer. Oil/water sits above the speedometer, the powertrain bar to the left of it.
+- The orange decorative arcs at the edge of the round gauges are gone.
+
 ### Fix: broken cars at PAs
 - PA drivers without a fixed config got a random config of their model, including configs from other mods and from the user folder. That put e.g. an Ibishu conversion with floating wheels, struts and driveshaft at a PA. Now these drivers take a car from the predefined parked-car pool (Agent Traffic JP, same as parking lots). Only without the Agent mod an official BeamNG config is used. Fixed configs from `chat.json` stay as they are.
 

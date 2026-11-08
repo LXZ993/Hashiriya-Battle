@@ -1,38 +1,58 @@
-// Hashiriya Battle: Ladedruck-Anzeige im HashiNet-Design (abgeleitet von der BeamNG-App "Forced Induction").
-// Daten wie im Original (BeamNG 0.40 ui/modules/apps/Forcedinduction): Stream 'forcedInductionInfo' { boost, maxBoost } in kPa.
+// Hashiriya Battle: Ladedruck als kleine Rundanzeige im Stil des eigenen Drehzahlmessers (wie HashiriyaTemps).
+// Daten wie im BeamNG-Original (0.40 ui/modules/apps/Forcedinduction): Stream 'forcedInductionInfo' { boost, maxBoost } in kPa.
 // Skala wie im Original: von -100 kPa (Unterdruck) bis max(150 kPa, maxBoost), umgerechnet in die Spiel-Einheit (bar/psi/kPa).
-// Ab 80 % der Skala wird der Balken rot (wie die rote Zone im Original). Ohne Turbo/Kompressor blendet die App aus.
+// Segmente: Unterdruck grau-blau, Ladedruck weiß, ab RED (Anteil der Skala) rot. Große Zahl in der Mitte, Abzeichen BOOST
+// (blinkt rot im roten Bereich). Ohne Turbo/Kompressor blendet die App aus.
 angular.module('beamng.apps')
 .directive('hashiriyaBoost', [function () {
+  var SVGNS = 'http://www.w3.org/2000/svg'
+  var CX = 65, CY = 62, R_OUT = 56, R_IN = 46
+  var A0 = 150, SWEEP = 240, SEGS = 24
+  var RED = 0.8
+
+  function pt(r, deg) { var a = deg * Math.PI / 180; return [CX + r * Math.cos(a), CY + r * Math.sin(a)] }
+  function seg(r1, r2, a1, a2) {
+    var p1 = pt(r2, a1), p2 = pt(r2, a2), p3 = pt(r1, a2), p4 = pt(r1, a1)
+    return 'M' + p1 + 'A' + r2 + ',' + r2 + ' 0 0 1 ' + p2 + 'L' + p3 + 'A' + r1 + ',' + r1 + ' 0 0 0 ' + p4 + 'Z'
+  }
+  var pMin = pt(52, A0), pMax = pt(52, A0 + SWEEP)
+
   return {
     template: [
       '<div class="bngApp hxb-root is-off">',
-        '<div class="hxb">',
-          '<div class="hxb-val"><span class="hxb-net">Boost</span><b class="hxb-num">0.0</b><small class="hxb-unit">bar</small></div>',
-          '<div class="hxb-bar">',
-            '<span class="hxb-red"></span><span class="hxb-fill"></span><span class="hxb-zero"></span>',
-          '</div>',
-          '<div class="hxb-scale"><span class="hxb-min">-1</span><span class="hxb-max">1.5</span></div>',
-        '</div>',
+        '<svg class="hxb" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">',
+          '<defs>',
+            '<radialGradient id="hxbBg" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#16181c" stop-opacity=".42"/><stop offset=".75" stop-color="#0e0f12" stop-opacity=".32"/><stop offset="1" stop-color="#0e0f12" stop-opacity="0"/></radialGradient>',
+          '</defs>',
+          '<circle cx="' + CX + '" cy="' + CY + '" r="62" fill="url(#hxbBg)"/>',
+          '<g class="hxb-segs"></g>',
+          '<line class="hxb-needle" x1="' + CX + '" y1="' + (CY - 40) + '" x2="' + CX + '" y2="' + (CY - 60) + '"/>',
+          '<text class="hxb-num hxb-min" x="' + (pMin[0] - 4) + '" y="' + (pMin[1] + 9) + '">-1</text>',
+          '<text class="hxb-num hxb-max" x="' + (pMax[0] + 4) + '" y="' + (pMax[1] + 9) + '">1.5</text>',
+          '<text class="hxb-val" x="' + CX + '" y="' + (CY + 9) + '">0.0</text>',
+          '<text class="hxb-unit" x="' + CX + '" y="' + (CY + 22) + '">bar</text>',
+          '<g class="hxb-badge"><path class="hxb-badgebg" d="M' + (CX - 30) + ',' + (CY + 34) + ' L' + (CX + 34) + ',' + (CY + 34) + ' L' + (CX + 28) + ',' + (CY + 52) + ' L' + (CX - 36) + ',' + (CY + 52) + ' Z"/>',
+          '<text class="hxb-label" x="' + (CX - 1) + '" y="' + (CY + 47) + '">Boost</text></g>',
+        '</svg>',
         '<style>',
-          '.hxb-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;',
-            'font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;color:#f4f4f4;}',
+          '.hxb-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;}',
           '.hxb-root.is-off{opacity:0;}',
-          '.hxb{--ac:#ff6600;position:absolute;left:0;right:0;bottom:0;padding:3px 14px 5px 8px;box-sizing:border-box;',
-            'background:linear-gradient(90deg,rgba(10,11,14,.62),rgba(10,11,14,.3) 70%,rgba(10,11,14,0));border-left:3px solid var(--ac);',
-            'text-shadow:0 1px 2px rgba(0,0,0,.8);}',
-          '.hxb-net{font-size:10px;font-weight:900;font-style:italic;letter-spacing:2px;text-transform:uppercase;color:var(--ac);margin-right:4px;}',
-          '.hxb-val{display:flex;align-items:baseline;gap:5px;margin-bottom:3px;}',
-          '.hxb-num{font-size:20px;line-height:22px;font-weight:900;font-style:italic;font-variant-numeric:tabular-nums;}',
-          '.hxb-unit{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(244,244,244,.6);}',
-          '.hxb-bar{position:relative;height:4px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 5px,transparent 5px 7px);',
-            'clip-path:polygon(0 0,100% 0,calc(100% - 4px) 100%,0 100%);}',
-          '.hxb-fill{position:absolute;top:0;bottom:0;left:0;width:0;background:#f4f4f4;transition:width .08s linear;}',
-          '.hxb-fill.hi{background:#ff6600;}',
-          '.hxb-fill.red{background:#ff3a28;}',
-          '.hxb-red{position:absolute;top:0;bottom:0;left:80%;right:0;background:rgba(255,58,40,.3);}',
-          '.hxb-zero{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ac);}',
-          '.hxb-scale{display:flex;justify-content:space-between;font-size:9px;color:rgba(244,244,244,.45);margin-top:1px;font-variant-numeric:tabular-nums;}',
+          '.hxb{width:100%;height:100%;overflow:visible;font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}',
+          '.hxb-seg{fill:rgba(255,255,255,.1);}',
+          '.hxb-seg.on{fill:#f4f4f4;}',
+          '.hxb-seg.vac.on{fill:#8fa6c4;}',
+          '.hxb-seg.red{fill:rgba(255,58,40,.35);}',
+          '.hxb-seg.red.on{fill:#ff3a28;}',
+          '.hxb-num{fill:rgba(244,244,244,.55);font-size:8px;font-weight:900;font-style:italic;text-anchor:middle;}',
+          '.hxb-max{fill:#ff5a3c;}',
+          '.hxb-needle{stroke:#ff6600;stroke-width:2.5;stroke-linecap:round;}',
+          '.hxb-val{fill:#f4f4f4;font-size:28px;font-weight:900;font-style:italic;text-anchor:middle;font-variant-numeric:tabular-nums;letter-spacing:-1px;}',
+          '.hxb-root.is-red .hxb-val{fill:#ff3a28;}',
+          '.hxb-unit{fill:rgba(244,244,244,.55);font-size:8px;letter-spacing:1px;text-anchor:middle;text-transform:uppercase;}',
+          '.hxb-badgebg{fill:#9c3a2c;}',
+          '.hxb-root.is-red .hxb-badgebg{fill:#ff3a28;animation:hxbFlash .5s steps(2) infinite;}',
+          '.hxb-label{fill:#fff;font-size:11px;font-weight:900;font-style:italic;letter-spacing:1.5px;text-anchor:middle;text-transform:uppercase;}',
+          '@keyframes hxbFlash{50%{fill:#9c3a2c;}}',
         '</style>',
       '</div>'
     ].join(''),
@@ -41,11 +61,34 @@ angular.module('beamng.apps')
       'use strict'
       var root = element[0]
       var q = function (s) { return root.querySelector(s) }
-      var numEl = q('.hxb-num'), unitEl = q('.hxb-unit'), fillEl = q('.hxb-fill'), zeroEl = q('.hxb-zero')
+      var segG = q('.hxb-segs'), needle = q('.hxb-needle'), valEl = q('.hxb-val'), unitEl = q('.hxb-unit')
       var minEl = q('.hxb-min'), maxEl = q('.hxb-max')
       var streamsList = ['forcedInductionInfo']
       var hideTimer = null
-      var last = {}
+      var segs = []
+      var cache = {}
+
+      function set(key, val, fn) { if (cache[key] === val) return; cache[key] = val; fn(val) }
+
+      // Segmente neu bauen, wenn sich die Skala ändert (Null-Punkt verschiebt sich)
+      function build(zeroT) {
+        while (segG.firstChild) segG.removeChild(segG.firstChild)
+        segs = []
+        var gap = 1.4, w = SWEEP / SEGS
+        for (var i = 0; i < SEGS; i++) {
+          var a1 = A0 + i * w + gap / 2, a2 = A0 + (i + 1) * w - gap / 2
+          var t = (i + 1) / SEGS, tMid = (i + 0.5) / SEGS
+          var p = document.createElementNS(SVGNS, 'path')
+          p.setAttribute('d', seg(R_IN - 4 + t * 4, R_OUT, a1, a2))
+          var c = 'hxb-seg'
+          if (tMid >= RED) c += ' red'
+          else if (tMid < zeroT) c += ' vac'
+          p.setAttribute('class', c)
+          segG.appendChild(p)
+          segs.push(p)
+        }
+        delete cache.lit
+      }
 
       function conv(kpa) {
         try {
@@ -79,17 +122,18 @@ angular.module('beamng.apps')
         var maxR = Math.ceil(max), minR = Math.floor(min)
         if (maxR - minR < 3) { maxR = round(max, 1); minR = round(min, 1) }
         var dec = maxR > 10 ? 0 : 1
-        if (last.unit !== boost.unit) { unitEl.textContent = boost.unit; last.unit = boost.unit }
-        if (last.max !== maxR || last.min !== minR) {
-          maxEl.textContent = round(maxR, dec); minEl.textContent = round(minR, dec)
-          zeroEl.style.left = ((0 - minR) / (maxR - minR) * 100) + '%'
-          last.max = maxR; last.min = minR
-        }
-        numEl.textContent = boost.val.toFixed(dec === 0 ? 0 : 1)
-        var p = Math.max(0, Math.min(1, (boost.val - minR) / (maxR - minR)))
-        fillEl.style.width = (p * 100).toFixed(1) + '%'
-        fillEl.classList.toggle('red', p >= 0.8)
-        fillEl.classList.toggle('hi', p < 0.8 && boost.val > 0)
+        set('unit', boost.unit || 'bar', function (v) { unitEl.textContent = v })
+        set('scale', minR + '|' + maxR, function () {
+          minEl.textContent = round(minR, dec); maxEl.textContent = round(maxR, dec)
+          build((0 - minR) / (maxR - minR))
+        })
+        var t = Math.max(0, Math.min(1, (boost.val - minR) / (maxR - minR)))
+        var lit = Math.round(t * SEGS)
+        set('lit', lit, function (v) { for (var i = 0; i < segs.length; i++) segs[i].classList.toggle('on', i < v) })
+        var ang = Math.round((A0 + SWEEP * t + 90) * 10) / 10
+        set('ang', ang, function (v) { needle.setAttribute('transform', 'rotate(' + v + ',' + CX + ',' + CY + ')') })
+        set('val', boost.val.toFixed(dec === 0 ? 0 : 1), function (v) { valEl.textContent = v })
+        set('red', t >= RED, function (v) { root.classList.toggle('is-red', v) })
       })
 
       scope.$on('$destroy', function () {

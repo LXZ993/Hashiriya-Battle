@@ -6,7 +6,7 @@
   ],
   "description": "Antriebs-Steuerung im HashiNet-Design (abgeleitet von BeamNG Simple Powertrain Control): Start/Stop, Sperren, 4WD, ESC, N2O usw.",
   "css": {
-    "right": "315px",
+    "right": "540px",
     "bottom": "8px",
     "width": "260px",
     "height": "70px"

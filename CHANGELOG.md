@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Tacho mit getrennten Anzeigen
+- Drehzahl und Geschwindigkeit sind jetzt zwei eigene analoge Rundanzeigen nebeneinander. Rechts der Drehzahlmesser mit dem Gang groß in der Mitte, links der neue Geschwindigkeitsmesser mit Nadel und kleiner Zahl in der Mitte. Seine Skala startet bei 200 km/h (120 mph) und wächst mit, wenn du schneller fährst.
+- Neu: Pedal-Balken unten an den Rundanzeigen. Am Drehzahlmesser rot fürs Bremspedal, am Geschwindigkeitsmesser grün fürs Gaspedal. Sie zeigen, wie weit du das Pedal gerade drückst.
+- Der Tank sitzt jetzt im Geschwindigkeitsmesser unter der Zahl: kleiner Balken E bis F mit Litern und Tankgröße, orange unter 25 %, rot blinkend unter 10 %. Die alte Wassertemperatur unten im Tacho fällt weg, dafür gibt es die Öl/Wasser-Anzeige.
+- Der Ladedruck ist jetzt auch eine kleine Rundanzeige wie Öl und Wasser (Unterdruck grau-blau, ab 80 % der Skala rot), über dem Drehzahlmesser. Öl/Wasser sitzt über dem Geschwindigkeitsmesser, die Antriebs-Leiste links daneben.
+- Die orangen Deko-Bögen am Rand der Rundanzeigen sind weg.
+
 ### Fix: kaputte Autos an der PA
 - PA-Fahrer ohne feste Config bekamen eine zufällige Config des Modells, auch aus anderen Mods und aus dem Benutzerordner. So stand z. B. ein Ibishu-Umbau mit schwebenden Rädern, Federbeinen und Kardanwelle an der PA. Jetzt nehmen diese Fahrer ein Auto aus dem vordefinierten Pool der geparkten Autos (Agent Traffic JP, wie auf den Parkplätzen). Nur ohne Agent-Mod kommt eine Original-Config von BeamNG. Feste Configs aus `chat.json` bleiben wie sie sind.
 
