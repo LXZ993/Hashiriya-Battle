@@ -79,7 +79,7 @@ angular.module('beamng.apps')
             '<div class="hbd-sec">Neuen Ort merken <em>{{ posText() }}</em></div>' +
             '<div class="hbd-form">' +
               '<input type="text" ng-model="nw.name" placeholder="Name (leer = Typ + Nummer)" ng-keydown="$event.keyCode == 13 && capture()">' +
-              '<input type="text" ng-model="nw.note" placeholder="Notiz (optional)">' +
+              '<input type="text" ng-model="nw.note" placeholder="Notiz (optional)" ng-keydown="$event.keyCode == 13 && capture()">' +
             '</div>' +
             '<div class="hbd-chips">' +
               '<span class="hbd-chip" ng-repeat="t in d.types" ng-class="{\'is-on\': nw.type == t.id}" ng-click="nw.type = t.id"><i class="hbd-dot" ng-style="{background: t.color}"></i>{{ t.name }}</span>' +
@@ -155,8 +155,8 @@ angular.module('beamng.apps')
               '</div>' +
               '<div class="hbd-edit" ng-if="edit.id == p.id">' +
                 '<div class="hbd-form">' +
-                  '<input type="text" ng-model="edit.name" placeholder="Name" ng-keydown="$event.keyCode == 13 && saveEdit(p)">' +
-                  '<input type="text" ng-model="edit.note" placeholder="Notiz" ng-if="!p.map">' +
+                  '<input type="text" ng-model="edit.name" placeholder="Name" ng-keydown="$event.keyCode == 13 && saveEdit(p)" ng-blur="commitEdit()">' +
+                  '<input type="text" ng-model="edit.note" placeholder="Notiz" ng-if="!p.map" ng-keydown="$event.keyCode == 13 && saveEdit(p)" ng-blur="commitEdit()">' +
                 '</div>' +
                 '<div class="hbd-chips" ng-if="!p.map">' +
                   '<span class="hbd-chip" ng-repeat="t in d.types" ng-class="{\'is-on\': edit.type == t.id}" ng-click="edit.type = t.id"><i class="hbd-dot" ng-style="{background: t.color}"></i>{{ t.name }}</span>' +
@@ -372,7 +372,7 @@ angular.module('beamng.apps')
         // alte Dev-Aktionen ändern evtl. den Spielstand: danach Zustand neu holen
         setTimeout(function () { bngApi.engineLua('if extensions.hashiriyaBattle_devtools then extensions.hashiriyaBattle_devtools.refresh() end') }, 400)
       }
-      scope.close = function () { bngApi.engineLua('if extensions.hashiriyaBattle_devtools then extensions.hashiriyaBattle_devtools.close() end') }
+      scope.close = function () { scope.commitEdit(); bngApi.engineLua('if extensions.hashiriyaBattle_devtools then extensions.hashiriyaBattle_devtools.close() end') }
       scope.setTab = function (id) { scope.tab = id; scope.dev('tab', { tab: id }) }
 
       // --- Spielstand ----------------------------------------------------------------
@@ -480,15 +480,29 @@ angular.module('beamng.apps')
         var pc = p.police || {}
         return ' \u00b7 ' + (pc.kind === 'speedcam' ? 'Blitzer' : 'Laser') + ' ' + (pc.limit ? pc.limit + ' km/h' : 'Standard') + (pc.both ? ' \u2195' : '') + (pc.off ? ' (aus)' : '') + (pc.always ? ' (immer)' : '')
       }
+      // Bearbeiten: Änderungen werden immer übernommen, nicht nur mit "Speichern"
+      // (auch beim Verlassen eines Felds, mit Enter, beim Zuklappen, beim Wechsel zu einem anderen Ort und beim Schließen des Menüs)
+      function editKey(e) { return JSON.stringify([e.name, e.note, e.type, e.type === 'police' ? polOut(e.police) : null]) }
+      scope.commitEdit = function () {
+        var e = scope.edit
+        if (!e || !e.id) return
+        var k = editKey(e)
+        if (k === e.saved) return
+        e.saved = k
+        scope.dev('editPlace', { id: e.id, name: e.name, note: e.note, type: e.type, police: e.type === 'police' ? polOut(e.police) : undefined })
+      }
       scope.toggleEdit = function (p) {
+        scope.commitEdit()
         if (scope.edit.id === p.id) { scope.edit = { id: null }; return }
         scope.edit = { id: p.id, name: p.name, note: p.note || '', type: p.type, police: polCopy(p.police) }
+        scope.edit.saved = editKey(scope.edit)
       }
       scope.saveEdit = function (p) {
-        scope.dev('editPlace', { id: p.id, name: scope.edit.name, note: scope.edit.note, type: scope.edit.type, police: scope.edit.type === 'police' ? polOut(scope.edit.police) : undefined })
+        scope.commitEdit()
         scope.edit = { id: null }
       }
       scope.delPlace = function (p) {
+        scope.edit.saved = editKey(scope.edit) // gelöschten Ort nicht mehr speichern
         scope.dev('deletePlace', { id: p.id })
         scope.edit = { id: null }
       }
@@ -496,7 +510,7 @@ angular.module('beamng.apps')
       scope.$on('HashiriyaDev', function (event, msg) {
         scope.$evalAsync(function () {
           if (!msg) return
-          if (msg.open === false) { scope.d.open = false; return }
+          if (msg.open === false) { scope.commitEdit(); scope.d.open = false; return }
           if (msg.tick) {
             scope.d.player = msg.player
             scope.d.rec = msg.rec
