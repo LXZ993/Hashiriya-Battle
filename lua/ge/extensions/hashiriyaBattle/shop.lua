@@ -605,22 +605,70 @@ local function applyItem(cfg, it)
   end
 end
 
--- Lack ohne Neuladen des Autos (wie das BeamNG-Lackmenü): Farben live setzen und in die
--- Fahrzeug-Config schreiben, damit sie beim nächsten Respawn und in currentConfig() erhalten bleiben.
+-- Lack ohne Neuladen des Autos (wie das BeamNG-Lackmenü 0.40, core_vehicle_colors.setVehiclePaint): Farben live setzen
+-- und in die Fahrzeug-Config schreiben, damit sie beim nächsten Respawn und in currentConfig() erhalten bleiben.
+-- JDMArsch 08.11.2026: Vorschau und gekaufter Lack waren nicht auf dem Auto. Darum jetzt mit den Daten genau dieses
+-- Autos (getVehicleData(id) statt Spielerauto), danach nachprüfen (Farbe am Auto zurücklesen) und sonst neu spawnen.
+local function colorOnCar(veh, slot)
+  local field = slot == 1 and 'color' or (slot == 2 and 'colorPalette0' or 'colorPalette1')
+  local ok, c = pcall(function() return veh[field] end)
+  if not ok or c == nil then return nil end
+  local okX, r, g, b = pcall(function() return c.x, c.y, c.z end)
+  if okX and r then return { r, g, b } end
+  return nil
+end
+
+local function expectedLinear(paint)
+  local bc = paint.baseColor or {}
+  local ok, c = pcall(function() return ColorF(bc[1] or 0, bc[2] or 0, bc[3] or 0, bc[4] or 1):asLinear4F() end)
+  if ok and c then return { c.x, c.y, c.z } end
+  return nil
+end
+
+local function paintVisible(veh, slot, paint)
+  local now, want = colorOnCar(veh, slot), expectedLinear(paint)
+  if not now or not want then return true end -- nicht prüfbar: annehmen, dass es geklappt hat
+  for i = 1, 3 do
+    if math.abs((now[i] or 0) - (want[i] or 0)) > 0.02 then return false end
+  end
+  return true
+end
+
+local function liveColor(veh, slot, paint)
+  local vm = rawget(_G, 'core_vehicle_manager')
+  local id = veh:getID()
+  local vd = vm and vm.getVehicleData and vm.getVehicleData(id)
+  if vd and vd.config then
+    vd.config.paints = vd.config.paints or {}
+    vd.config.paints[slot] = paint
+  end
+  if vm and vm.liveUpdateVehicleColors then vm.liveUpdateVehicleColors(id, veh, slot, paint) end
+end
+
 function M.applyPaintsLive(paints)
   local veh = core().getPlayerVehicle()
   local vm = rawget(_G, 'core_vehicle_manager')
   if not veh or not vm or not vm.liveUpdateVehicleColors or type(paints) ~= 'table' then return false end
-  local ok = pcall(function()
-    local vd = vm.getPlayerVehicleData()
+  local ok, err = pcall(function()
+    local vd = vm.getVehicleData and vm.getVehicleData(veh:getID()) or vm.getPlayerVehicleData()
     if not vd or not vd.config then error('keine Fahrzeugdaten') end
     vd.config.paints = deepcopy and deepcopy(paints) or paints
     for i = 1, 3 do
-      if paints[i] then vm.liveUpdateVehicleColors(veh:getID(), veh, i, paints[i]) end
+      if paints[i] then liveColor(veh, i, paints[i]) end
     end
     veh:setField('partConfig', '', serialize(vd.config))
   end)
-  return ok
+  if not ok then
+    log('W', logTag, 'Shop: Lack live setzen fehlgeschlagen (' .. tostring(err) .. '), Auto wird neu gespawnt')
+    return false
+  end
+  for i = 1, 3 do
+    if paints[i] and not paintVisible(veh, i, paints[i]) then
+      log('W', logTag, 'Shop: Lack ' .. i .. ' ist nach dem Live-Setzen nicht am Auto, Auto wird neu gespawnt')
+      return false
+    end
+  end
+  return true
 end
 
 -- Nur der Lack ändert sich: live färben. Lief vorher eine Teile-Vorschau, muss das Auto neu gespawnt werden.
@@ -655,7 +703,13 @@ function M.previewPaintLive(arg)
     livePaint = { orig = deepcopy and deepcopy(cfg.paints or {}) or (cfg.paints or {}) }
   end
   local paint = { baseColor = { v[1], v[2], v[3], 1.2 }, metallic = v[4], roughness = v[5], clearcoat = v[6], clearcoatRoughness = v[7] }
-  pcall(vm.liveUpdateVehicleColors, veh:getID(), veh, paintSlot, paint)
+  local ok, err = pcall(liveColor, veh, paintSlot, paint)
+  if not ok then
+    log('W', logTag, 'Shop: Farb-Vorschau fehlgeschlagen: ' .. tostring(err))
+  elseif not livePaint.warned and not paintVisible(veh, paintSlot, paint) then
+    livePaint.warned = true
+    log('W', logTag, 'Shop: Farb-Vorschau kommt nicht am Auto an (Slot ' .. paintSlot .. ')')
+  end
 end
 
 function M.hasPreview() return cart ~= nil end
@@ -1326,8 +1380,13 @@ local function catalogPayload(cat)
           price = c.t('shop.free'), priceRaw = 0, owned = true, stock = true, free = true, sell = sv and sv > 0 and eco.formatYen(sv) or nil })
       end
     end
+    -- Ausbauen: kein eigener Eintrag „Nicht verbaut“ mehr, sondern ein X hinter dem verbauten Teil (JDMArsch 08.11.2026).
+    -- Den leeren Eintrag gibt es nur noch, solange der Slot wirklich leer ist bzw. das Ausbauen im Warenkorb liegt.
     if row.emptyOk and row.stockPart ~= '' then
-      add({ part = '', name = c.t('shop.notInstalled'), level = -1, price = c.t('shop.free'), priceRaw = 0, owned = true, free = true })
+      r.removable = true
+      if before == '' or inCart[row.slot] == '' then
+        add({ part = '', name = c.t('shop.notInstalled'), level = -1, price = c.t('shop.free'), priceRaw = 0, owned = true, free = true })
+      end
     end
     local sizes, seen = {}, {}
     for _, o in ipairs(row.options) do

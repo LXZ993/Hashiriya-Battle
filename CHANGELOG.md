@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Nach deinem dritten Test (08.11.)
+- Kameibashi ist keine PA mehr, sondern die Nothaltebucht, die sie in echt ist: kein Reiseziel, kein Kartenpunkt, kein Nickerchen. Nachts parken dort 2 bis 4 Rivalen (ansprechen und herausfordern wie an den PAs) und 1 bis 2 Leute stehen nur rum, wie ein kleines illegales Treffen. Tagsüber ist sie leer. Parkbuchten: deine Dev-Orte PA 1, PA 2 und neu PA 38 bis 41.
+- Behoben: Die Farb-Vorschau und gekaufte Lacke kamen im Shop nicht aufs Auto. Der Lack wird jetzt direkt an genau diesem Auto gesetzt und danach nachgeprüft. Kommt er nicht an, spawnt das Auto mit dem neuen Lack neu.
+- Shop: Statt eines eigenen Eintrags „Nicht verbaut“ hat jetzt das verbaute Teil ein rotes X dahinter. Ein Klick darauf baut es aus (landet wie vorher im Warenkorb).
+- Behoben: Streifenwagen fuhren nachts ohne Licht. Abends ab 18 Uhr, nachts und bis 7 Uhr früh fahren sie jetzt mit Abblendlicht.
+- Behoben: Die Wartung (Öl, Kühlwasser, Reifen) lief gar nicht, im Log stand ständig „maintenance.onUpdate … field init“. BeamNG hat unsere Funktion „init“ als eigene Ladefunktion behandelt und danach gelöscht. Sie heißt jetzt anders.
+
 ### Nach deinem zweiten Test (08.11.)
 - Behoben: Die Musik-Pause (Strg + Ende) hat die Musik nicht wirklich angehalten. Sie hält jetzt so an wie BeamNGs eigene Menümusik und ist dabei zusätzlich stumm.
 - Behoben: Der Musik-Regler wirkte erst nach mehrmaligem Verstellen. Die Mod liest jetzt auch den Live-Wert des Musik-Kanals und übernimmt jede Änderung sofort. Im Log steht bei jeder Änderung „Musik-Regler: Kanal …, Einstellung …“.

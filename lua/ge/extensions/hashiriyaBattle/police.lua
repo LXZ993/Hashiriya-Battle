@@ -40,6 +40,7 @@ local function battle() return extensions.hashiriyaBattle_battle end
 -- Einstellungen -------------------------------------------------------------------
 
 local defaults = {
+  lightsFrom = 18, lightsTo = 7, -- Abblendlicht der Streifenwagen (Uhr), nachts immer
   enabled = true,
   defaultLimitKmh = 60, toleranceKmh = 10, camWidth = 14, camHeight = 6, camCooldownSeconds = 30,
   laserRange = 110, laserSpawnRange = 600, laserDespawnRange = 800, defaultKind = 'laser',
@@ -108,6 +109,7 @@ local camState = {}       -- [placeKey] = { along = letzter Abstand längs, cool
 local nearPlaces = {}     -- Messstellen in der Nähe (alle Sekunde neu)
 local nearTimer = 0
 local tickTimer = 0
+local lightTimer = 0
 local collTimer = 0
 local recentHits = {}     -- [vehId] = s bis derselbe Zusammenstoß wieder zählt
 local frozen = false      -- Spielerauto während der Kontrolle gesperrt
@@ -250,9 +252,29 @@ local function spawnPoliceCar(pos, dir)
   return veh
 end
 
+-- Abblendlicht: nachts und in der Dämmerung an (JDMArsch 08.11.2026: Polizei fuhr nachts ohne Licht).
+-- police.json lightsFrom / lightsTo (Uhr), Standard 18 bis 7 Uhr, dazu immer während der Nacht (world.json).
+local function wantsHeadlights()
+  local h = home()
+  if not h then return false end
+  if h.isNight and h.isNight() then return true end
+  local okH, hour = pcall(h.hour)
+  hour = okH and tonumber(hour) or nil
+  if not hour then return false end
+  local from, to = tonumber(M.cfg().lightsFrom) or 18, tonumber(M.cfg().lightsTo) or 7
+  return hour >= from or hour < to
+end
+
+local function setHeadlights(veh, on)
+  local want = on and 1 or 0
+  vehCmd(veh, string.format('if (electrics.values.lights_state or 0) ~= %d then electrics.setLightsState(%d) end', want, want))
+end
+
 local function newUnit(veh, role)
   local u = { id = veh:getID(), role = role, mode = nil, born = clock, modeT = 0, retarget = 0 }
   units[u.id] = u
+  u.lights = wantsHeadlights()
+  setHeadlights(veh, u.lights)
   return u
 end
 
@@ -1084,6 +1106,21 @@ local function onUpdate(dtReal, dtSim)
     if collTimer <= 0 then
       collTimer = 0.1
       checkCollisions(0.1, player)
+    end
+  end
+
+  -- Licht aller Streifenwagen alle 2 s angleichen (auch wenn eine Fahndung in die Nacht hinein läuft)
+  lightTimer = lightTimer - dtReal
+  if lightTimer <= 0 then
+    lightTimer = 2
+    local want = wantsHeadlights()
+    for id, u in pairs(units) do
+      local veh = be:getObjectByID(id)
+      if veh and (u.lights ~= want or (u.lightsAge or 0) < 3) then
+        u.lights = want
+        u.lightsAge = (u.lightsAge or 0) + 1 -- die ersten Male wiederholen (frisch gespawnte Autos verpassen den Befehl)
+        setHeadlights(veh, want)
+      end
     end
   end
 

@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### After your third test (8 Nov)
+- Kameibashi is no longer a PA but the emergency bay it really is: no travel destination, no map point, no nap. At night 2 to 4 rivals park there (talk and challenge them like at the PAs) and 1 to 2 people just hang out, like a small illegal meet. Empty by day. Bays: your dev places PA 1, PA 2 and the new PA 38 to 41.
+- Fixed: the colour preview and bought paints in the shop did not show on the car. The paint is now set directly on this exact car and checked afterwards. If it does not show, the car respawns with the new paint.
+- Shop: instead of a separate "Not fitted" entry, the fitted part now has a red X behind it. Clicking it removes the part (goes into the cart as before).
+- Fixed: police cars drove without lights at night. From 18:00, at night and until 07:00 they now use low beams.
+- Fixed: maintenance (oil, coolant, tyres) did not run at all, the log kept showing "maintenance.onUpdate ... field init". BeamNG treated our function "init" as its own loader function and deleted it afterwards. It has a different name now.
+
 ### After your second test (8 Nov)
 - Fixed: the music pause (Ctrl + End) did not really pause the music. It now pauses like BeamNG's own menu music and is also muted while paused.
 - Fixed: the music slider only worked after moving it several times. The mod now also reads the live value of the music channel and applies every change right away. Each change is logged as "Musik-Regler: Kanal ..., Einstellung ...".

@@ -108,7 +108,7 @@ local function spots()
     end
   end
   for _, n in ipairs(md.napSpots or {}) do
-    if type(n.pos) == 'table' then table.insert(out, { name = n.name, pos = n.pos, kind = 'pa' }) end
+    if type(n.pos) == 'table' and n.kind ~= 'meet' then table.insert(out, { name = n.name, pos = n.pos, kind = 'pa' }) end
   end
   for _, j in ipairs(md.jobSpots or {}) do
     if type(j.pos) == 'table' then table.insert(out, { name = loc(j.name) ~= '' and loc(j.name) or 'Ziel', pos = j.pos, kind = 'job' }) end

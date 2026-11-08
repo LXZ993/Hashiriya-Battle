@@ -278,7 +278,7 @@ local napMaxSpeed = 1
 local function napSpotNear(pos)
   local md = core().mapData or {}
   for _, sp in ipairs(md.napSpots or {}) do
-    if (pos - vec3(sp.pos[1], sp.pos[2], sp.pos[3])):length() <= (sp.radius or 60) then return sp end
+    if sp.nap ~= false and (pos - vec3(sp.pos[1], sp.pos[2], sp.pos[3])):length() <= (sp.radius or 60) then return sp end
   end
   for _, a in ipairs(md.parkingAreas or {}) do
     if not a.footOnly and (pos - vec3(a.pos[1], a.pos[2], a.pos[3])):length() <= 40 then return a end

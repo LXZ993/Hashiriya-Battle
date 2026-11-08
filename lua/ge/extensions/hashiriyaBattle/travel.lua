@@ -102,8 +102,21 @@ end
 local injectedSites = nil
 local function bayName(pa, i) return 'hashiriya_' .. tostring(pa.id) .. '_' .. i end
 
+-- alle Orte mit eigenen Buchten: Haupt-PAs und Treffpunkte ohne Reiseziel (main = false, z. B. Kameibashi-Nothaltebucht)
+local function bayPlaces()
+  local md = core() and core().mapData or {}
+  local out = {}
+  for i, n in ipairs(md.napSpots or {}) do
+    if type(n.pos) == 'table' and type(n.bays) == 'table' then
+      n.id = n.id or ('pa' .. i)
+      table.insert(out, n)
+    end
+  end
+  return out
+end
+
 local function injectBays()
-  local pas = M.mainPas()
+  local pas = bayPlaces()
   local probe = nil -- Name einer unserer Buchten: fehlt sie, wurden die Parkplätze neu geladen
   for _, pa in ipairs(pas) do if type(pa.bays) == 'table' and pa.bays[1] then probe = bayName(pa, 1) break end end
   if not probe then return end

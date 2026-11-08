@@ -60,7 +60,8 @@ end
 local function odoKm(car) return tonumber(car.odometerKm) or tonumber((car.wear or {}).odometerKm) or tonumber(car.km) or 0 end
 
 -- Startwerte für ein Auto ohne Wartungsdaten: frisch (start = 1) oder gebraucht (aus Zustand und Name, fest je Auto)
-function M.init(car, start)
+-- Name nicht „init“: BeamNG ruft M.init() als alte Lade-Funktion auf und entfernt sie danach (Fehler „field init nil“)
+function M.initCar(car, start)
   if not car then return end
   local s = M.settings()
   local km = odoKm(car)
@@ -84,7 +85,7 @@ function M.ensure(car)
     car.wear = { odometerKm = tonumber(car.km) or 0, integrity = 1, visual = 1 }
     car.wearFrom = car.wearFrom or 'maint'
   end
-  if not car.maint then M.init(car, nil) end
+  if not car.maint then M.initCar(car, nil) end
 end
 
 -- Neue Reifen über den Shop: Reifen-Teile mit kleiner Laufleistung zählen als frisch
