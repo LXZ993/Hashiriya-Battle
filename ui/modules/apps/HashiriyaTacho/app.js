@@ -1,6 +1,6 @@
 // Hashiriya Battle: eigener Drehzahlmesser im HashiNet-Design (abgeleitet von der BeamNG-App "Tacho2" / Advanced Tachometer).
 // Seit 0.9.x (Tacho-Umbau) nur noch Drehzahl + Gang + Bremsanzeige; Geschwindigkeit hat eine eigene Rundanzeige
-// (HashiriyaSpeedo), der Tank einen eigenen Balken (HashiriyaFuel), Öl/Wasser stehen in HashiriyaTemps.
+// (HashiriyaSpeedo, dort auch der Tank), Öl/Wasser stehen in HashiriyaTemps.
 // Gleiche Daten wie das Original (BeamNG 0.40 ui/modules/apps/Tacho2/tacho.vue):
 //   engineInfo[1] = Höchstdrehzahl, [5] = Gang, [13] = Getriebeart ("manual" ...)
 //   electrics: rpmTacho, gear_A (Automatik P R N D 2 1), parkingbrake, abs, signal_L/R, lowbeam, highbeam,
@@ -20,10 +20,6 @@ angular.module('beamng.apps')
     var p1 = pt(r2, a1), p2 = pt(r2, a2), p3 = pt(r1, a2), p4 = pt(r1, a1)
     return 'M' + p1 + 'A' + r2 + ',' + r2 + ' 0 0 1 ' + p2 + 'L' + p3 + 'A' + r1 + ',' + r1 + ' 0 0 0 ' + p4 + 'Z'
   }
-  function arc(r, a1, a2) {
-    var p1 = pt(r, a1), p2 = pt(r, a2)
-    return 'M' + p1 + 'A' + r + ',' + r + ' 0 ' + (a2 - a1 > 180 ? 1 : 0) + ' 1 ' + p2
-  }
   // Pedal-Balken: 24 kleine schräge Segmente von x 78 bis 222
   function pedalSvg(cls) {
     var out = []
@@ -42,7 +38,6 @@ angular.module('beamng.apps')
             '<radialGradient id="hxtBg" cx="50%" cy="45%" r="55%"><stop offset="0" stop-color="#16181c" stop-opacity=".42"/><stop offset=".75" stop-color="#0e0f12" stop-opacity=".32"/><stop offset="1" stop-color="#0e0f12" stop-opacity="0"/></radialGradient>',
           '</defs>',
           '<circle cx="150" cy="150" r="146" fill="url(#hxtBg)"/>',
-          '<path class="hxt-accent" d="' + arc(146, 100, 170) + '"/>',
           '<g class="hxt-segs"></g>',
           '<g class="hxt-nums"></g>',
           '<text class="hxt-legend" x="150" y="96">x1000 RPM</text>',
@@ -65,7 +60,6 @@ angular.module('beamng.apps')
           '.hxt-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;transition:opacity .25s;}',
           '.hxt-root.is-off{opacity:0;}',
           '.hxt{width:100%;height:100%;font-family:"Overpass","Noto Sans JP","Segoe UI",sans-serif;filter:drop-shadow(0 1px 2px rgba(0,0,0,.8));}',
-          '.hxt-accent{fill:none;stroke:#ff6600;stroke-width:2;opacity:.9;}',
           '.hxt-seg{fill:rgba(255,255,255,.1);}',
           '.hxt-seg.on{fill:#f4f4f4;}',
           '.hxt-seg.hi.on{fill:#ff6600;}',

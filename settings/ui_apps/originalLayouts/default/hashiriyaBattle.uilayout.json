@@ -4,11 +4,11 @@
    "appName": "hashiriyaBoost",
    "appVersion": 1,
    "placement": {
-    "bottom": "316px",
-    "height": "56px",
+    "bottom": "262px",
+    "height": "125px",
     "position": "absolute",
-    "right": "20px",
-    "width": "220px"
+    "right": "70px",
+    "width": "130px"
    }
   },
   {
@@ -66,17 +66,6 @@
     "position": "absolute",
     "right": "270px",
     "width": "260px"
-   }
-  },
-  {
-   "appName": "hashiriyaFuel",
-   "appVersion": 1,
-   "placement": {
-    "bottom": "262px",
-    "height": "56px",
-    "position": "absolute",
-    "right": "20px",
-    "width": "220px"
    }
   },
   {

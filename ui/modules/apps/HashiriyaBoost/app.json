@@ -4,12 +4,12 @@
   "types": [
     "ui.apps.categories.vehicle_info"
   ],
-  "description": "Ladedruck (Turbo/Kompressor) im HashiNet-Design, abgeleitet von der BeamNG-App Forced Induction. Blendet ohne Aufladung aus.",
+  "description": "Ladedruck (Turbo/Kompressor) als kleine Rundanzeige im Stil des Hashiriya-Drehzahlmessers, abgeleitet von der BeamNG-App Forced Induction. Blendet ohne Aufladung aus.",
   "css": {
-    "right": "20px",
-    "bottom": "316px",
-    "width": "220px",
-    "height": "56px"
+    "right": "70px",
+    "bottom": "262px",
+    "width": "130px",
+    "height": "125px"
   },
   "author": "Hashiriya Battle",
   "version": "1.0",
@@ -17,5 +17,6 @@
   "appName": "hashiriyaBoost",
   "category": "Hashiriya Battle",
   "isAuxiliary": false,
-  "interactive": "no"
+  "interactive": "no",
+  "preserveAspectRatio": true
 }
