@@ -37,6 +37,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .filters button[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
 .filters button:focus-visible, .st button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .notice { margin-top: 12px; color: var(--dim); font-size: 13px; }
+.grp { display: none; font-size: 11px; color: var(--dim); margin-left: 6px; font-weight: 400; }
+#done-sec .grp { display: inline; }
 .divider { margin-top: 40px; padding-top: 10px; border-top: 2px solid var(--line); font-family: var(--display); font-style: italic; font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--dim); }
 section { margin-top: 28px; }
 section h2 { font-family: var(--display); font-style: italic; font-weight: 700; font-size: 17px; letter-spacing: 1px; text-transform: uppercase; margin: 0 0 8px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
@@ -93,6 +95,15 @@ textarea::placeholder { color: var(--todo); }
 const GROUPS = [
   // ===== NEU 01.–04.11.2026 =====
   // ===== NEU 05.–08.11.2026 =====
+  { neu: true, tag: 'NEU 08.11.', name: 'Nachtest 3 (08.11.): Kameibashi, Shop, Polizei, Wartung', tests: [
+    ['kameibashimeet', 'Kameibashi-Nothaltebucht nachts', 'Nachts zur Kameibashi-Bucht am City Loop fahren: 2 bis 4 Rivalen parken in den Buchten (PA 1, 2, 38 bis 41) und lassen sich ansprechen und herausfordern, 1 bis 2 Leute stehen nur rum. Tagsüber ist dort niemand.'],
+    ['kameibashigone', 'Kameibashi kein Reiseziel', 'Große Karte (M): kein Punkt „Kameibashi PA“ mehr. Garage > Losfahren ab: Kameibashi fehlt. An der Bucht geht kein Nickerchen.'],
+    ['shoppaintlive', 'Farb-Vorschau im Shop', 'Shop > Lackierer > Eigene Farbe: jede Regler-Bewegung färbt das Auto sofort um.'],
+    ['shoppaintbuy', 'Gekaufter Lack bleibt drauf', 'Werkslack oder eigene Farbe kaufen: das Auto hat danach die neue Farbe, auch nach Wegfahren und Neustart.'],
+    ['shopremovex', 'X zum Ausbauen', 'Shop oder Garagen-PC: hinter dem verbauten Teil ist ein rotes X, kein eigener Eintrag „Ausgebaut“ mehr. Klick aufs X: Teil ist aus, die Zeile „Ausgebaut“ erscheint (zurück mit Klick darauf).'],
+    ['policelights', 'Polizei mit Licht', 'Abends oder nachts eine Fahndung starten (Dev-Menü): Streifenwagen fahren mit Abblendlicht und Blaulicht.'],
+    ['maintfix', 'Wartung läuft', 'Ein paar Kilometer fahren: im Log kein „maintenance.onUpdate … init“ mehr, in der Garage sinken Öl, Kühlwasser und Reifen langsam.'],
+  ]},
   { neu: true, tag: 'NEU 08.11.', name: 'Nachtest 2 (08.11.): Musik-Pause und Musik-Regler', note: 'BeamNG nach dem Update komplett neu starten.', tests: [
     ['musicpause2', 'Musik-Pause hält wirklich an', 'Strg + Ende: Musik ist sofort still. Ein paar Sekunden warten, noch mal Strg + Ende: das Stück läuft an derselben Stelle weiter (nicht von vorn, kein neues Stück).'],
     ['musicvol2', 'Musik-Regler wirkt sofort', 'Esc > Optionen > Audio > Musik einmal auf 10 % ziehen: Mod-Musik wird gleich leiser. Dann einmal auf 100 %: gleich lauter. Klappt es nicht, schick mir die hashiriya.log (Zeilen „Musik-Regler“).'],
@@ -402,6 +413,7 @@ function build() {
     if (g.neu) { const n = document.createElement('span'); n.className = 'neu'; n.textContent = g.tag || 'NEU'; h.append(n); }
     const small = document.createElement('small');
     small.dataset.group = g.name;
+    sec._group = g;
     h.append(small);
     sec.append(h);
     if (g.note) { const p = document.createElement('p'); p.className = 'notice'; p.textContent = g.note; sec.append(p); }
@@ -418,7 +430,8 @@ function build() {
       const txt = document.createElement('div'); txt.className = 'txt';
       const t = document.createElement('div'); t.className = 't';
       const code = document.createElement('code'); code.textContent = id;
-      t.append(code, title);
+      const grp = document.createElement('span'); grp.className = 'grp'; grp.textContent = '· ' + g.name;
+      t.append(code, title, grp);
       const hw = document.createElement('div'); hw.className = 'how'; hw.textContent = how;
       txt.append(t, hw);
       const note = document.createElement('div'); note.className = 'note';
@@ -428,8 +441,22 @@ function build() {
       note.append(ta, saved);
       row.append(st, txt, note);
       sec.append(row);
+      row._home = sec;
     }
     list.append(sec);
+  }
+  // Erledigte (✓) wandern nach ganz unten (JDMArsch 08.11.2026: weniger scrollen)
+  const ds = document.createElement('section'); ds.id = 'done-sec';
+  const dh = document.createElement('h2'); dh.append('Erledigt (funktioniert)');
+  const dsm = document.createElement('small'); dh.append(dsm); ds.append(dh);
+  const dd = document.createElement('div'); dd.className = 'divider'; dd.id = 'done-divider'; dd.textContent = 'Abgehakt';
+  list.append(dd, ds);
+}
+
+function placeRows() {
+  const ds = document.getElementById('done-sec');
+  for (const row of [...list.querySelectorAll('.test')].sort((a, b) => ALL.indexOf(a.dataset.id) - ALL.indexOf(b.dataset.id))) {
+    (statusOf(row.dataset.id) === 'ok' ? ds : row._home).append(row);
   }
 }
 
@@ -441,6 +468,7 @@ function visible(id) {
 }
 
 function render() {
+  placeRows();
   const n = { ok: 0, fail: 0, todo: 0 };
   for (const id of ALL) n[statusOf(id)]++;
   for (const k of ['ok', 'fail', 'todo']) document.getElementById('n-' + k).textContent = n[k];
@@ -455,10 +483,17 @@ function render() {
   }
   for (const sec of list.querySelectorAll('section')) {
     const rows = [...sec.querySelectorAll('.test')];
-    const done = rows.filter(r => statusOf(r.dataset.id) !== 'todo').length;
-    sec.querySelector('h2 small').textContent = done + ' / ' + rows.length;
-    sec.hidden = rows.every(r => r.hidden);
+    if (sec._group) {
+      const ids = sec._group.tests.map(t => t[0]);
+      const done = ids.filter(id => statusOf(id) !== 'todo').length;
+      sec.querySelector('h2 small').textContent = done + ' / ' + ids.length;
+    } else {
+      sec.querySelector('h2 small').textContent = rows.length;
+    }
+    sec.hidden = rows.length === 0 || rows.every(r => r.hidden);
   }
+  const dd = document.getElementById('done-divider');
+  if (dd) dd.hidden = document.getElementById('done-sec').hidden;
   const div = document.getElementById('alt-divider');
   if (div) div.hidden = filter === 'neu' || filter === 'neu2';
 }

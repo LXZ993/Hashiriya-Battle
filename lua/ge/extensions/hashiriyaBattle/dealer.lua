@@ -221,7 +221,7 @@ function M.buy(i)
   -- Gebrauchtzustand: wird beim ersten Spawnen angewendet (wie beim Startauto)
   extensions.hashiriyaBattle_condition.initUsedCar(entry, offer.wear, nil)
   entry.freshWear, entry.wearFrom = true, 'dealer' -- wearFrom: nicht mit Startauto-Werten abgleichen
-  pcall(function() extensions.hashiriyaBattle_maintenance.init(entry) end) -- Wartung je nach Zustand
+  pcall(function() extensions.hashiriyaBattle_maintenance.initCar(entry) end) -- Wartung je nach Zustand
   table.insert(save.cars, entry)
   local wasEmpty = #save.cars == 1
   if wasEmpty then save.activeCar = 1 end
@@ -322,7 +322,7 @@ function M.buyRivalCar(id)
   }
   extensions.hashiriyaBattle_condition.initUsedCar(entry, { odometerKm = km, integrity = s.integrity, visual = s.visual, fuel = s.fuel }, nil)
   entry.freshWear, entry.wearFrom = true, 'rival'
-  pcall(function() extensions.hashiriyaBattle_maintenance.init(entry, 1) end) -- gepflegt übergeben
+  pcall(function() extensions.hashiriyaBattle_maintenance.initCar(entry, 1) end) -- gepflegt übergeben
   save.money = save.money - offer.price
   save.rivalCarsBought = save.rivalCarsBought or {}
   save.rivalCarsBought[r.id] = true

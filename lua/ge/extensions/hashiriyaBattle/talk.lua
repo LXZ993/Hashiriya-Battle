@@ -505,7 +505,9 @@ local function spawnCrowd(i, pa)
   local key = periodKey()
   local save = core().save
   local rand = seeded(hashStr(tostring(save and save.dealerSeed or 1) .. '|' .. key .. '|' .. tostring(pa.name or i)))
-  local c = cfg()
+  -- Werte der Kartendatei je Ort gehen vor (z. B. Kameibashi-Nothaltebucht: tagsüber leer, nachts Treffen)
+  local base = cfg()
+  local c = setmetatable({}, { __index = function(_, k) if pa[k] ~= nil then return pa[k] end return base[k] end })
   local night = home().isNight()
   local range = night and c.nightCount or c.dayCount
   local count = math.floor(range[1] + rand() * (range[2] - range[1] + 1))

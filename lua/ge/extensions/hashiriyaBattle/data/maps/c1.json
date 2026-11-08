@@ -486,28 +486,33 @@
     },
     {
       "id": "kameibashi",
-      "name": "Kameibashi PA",
-      "main": true,
+      "name": "Kameibashi Nothaltebucht",
+      "main": false,
+      "kind": "meet",
+      "nap": false,
       "pos": [
-        2395.091,
-        7730.072,
-        848.537
+        2389.0,
+        7719.0,
+        848.8
       ],
-      "radius": 60,
-      "spotRadius": 40,
-      "spawn": {
-        "pos": [
-          2397.103,
-          7738.314,
-          848.417
-        ],
-        "dir": [
-          -0.2359,
-          -0.9718,
-          0
-        ]
-      },
-      "preview": "/art/pa/kameibashi.jpg",
+      "radius": 40,
+      "spotRadius": 25,
+      "nightCount": [
+        1,
+        2
+      ],
+      "dayCount": [
+        0,
+        0
+      ],
+      "rivalNight": [
+        2,
+        4
+      ],
+      "rivalDay": [
+        0,
+        0
+      ],
       "bays": [
         {
           "pos": [
@@ -532,9 +537,57 @@
             0.1749,
             0
           ]
+        },
+        {
+          "pos": [
+            2389.692,
+            7720.962,
+            848.789
+          ],
+          "dir": [
+            -0.987,
+            0.156,
+            0
+          ]
+        },
+        {
+          "pos": [
+            2387.05,
+            7717.539,
+            848.875
+          ],
+          "dir": [
+            -0.983,
+            0.185,
+            0
+          ]
+        },
+        {
+          "pos": [
+            2384.538,
+            7714.285,
+            848.94
+          ],
+          "dir": [
+            -0.997,
+            0.076,
+            0
+          ]
+        },
+        {
+          "pos": [
+            2381.405,
+            7710.715,
+            849.001
+          ],
+          "dir": [
+            -0.993,
+            0.112,
+            0
+          ]
         }
       ],
-      "source": "Dev-Orte p235 (PA 48) + p103..p104; unter dem Tsukijigawa-Kameibashi-Park bei Shintomichō (echt 35.671017, 139.771732)"
+      "source": "Nothaltebucht unter dem Tsukijigawa-Kameibashi-Park (JDMArsch 08.11.2026: keine PA, kein Reiseziel). Nachts illegales Treffen: Rivalen parken dort (herausfordern) und Leute stehen nur rum. Buchten = Dev-Orte p103, p104, p236..p239 (PA 38..41)."
     }
   ],
   "playerSpawn": {

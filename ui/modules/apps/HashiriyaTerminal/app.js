@@ -97,7 +97,8 @@ angular.module('beamng.apps')
                     '<span class="hbt-opt-n">{{ o.name }}</span>' +
                     '<span class="hbt-dim">{{ o.locked ? o.lockText : \'\' }}</span>' +
                     '<span class="hbt-right" ng-class="{\'hbt-ok\': o.free}">{{ o.price }}</span>' +
-                    '<span class="hbt-right hbt-state">{{ stateText(o) }}</span></div>' +
+                    '<span class="hbt-right hbt-state">{{ stateText(o) }}</span>' +
+                    '<button class="hbt-x" ng-if="r.removable && o.part && o.installed" title="{{ t(\'term.remove\') }}" aria-label="{{ t(\'term.remove\') }}" ng-click="$event.stopPropagation(); act(\'buyPart\', r.slot + \'|\')">&#x2715;</button></div>' +
                 '</div>' +
               '</div>' +
             '</div>' +
@@ -215,7 +216,7 @@ angular.module('beamng.apps')
         '.hbt-grp-cur{color:#c7d2de;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%;}' +
         '.hbt-path{color:#8ea0b4;font-weight:400;font-size:11px;}' +
         '.hbt-hint{padding:4px 10px;font-size:11px;color:#ffe2b0;background:rgba(201,138,42,.12);}' +
-        '.hbt-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto 86px 78px;align-items:center;gap:8px;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;}' +
+        '.hbt-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto 86px 78px 20px;align-items:center;gap:8px;padding:5px 10px;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;}' +
         '.hbt-row:hover{background:rgba(255,255,255,.06);}' +
         '.hbt-row.is-on{cursor:default;}' +
         '.hbt-row.is-prev{background:rgba(255,102,0,.16);box-shadow:inset 0 0 0 1px rgba(255,140,60,.55);}' +
@@ -224,6 +225,8 @@ angular.module('beamng.apps')
         '.hbt-head{color:#8ea0b4;font-size:10px;text-transform:uppercase;letter-spacing:.05em;background:rgba(0,0,0,.25);}' +
         '.hbt-opt-n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
         '.hbt-state{color:#ffb070;font-size:12px;}' +
+        '.hbt-x{width:20px;height:20px;padding:0;border:1px solid rgba(255,120,90,.55);background:rgba(120,20,10,.35);color:#ffb0a0;font-size:11px;line-height:18px;cursor:pointer;}' +
+        '.hbt-x:hover{background:rgba(200,40,20,.6);color:#fff;}' +
         '.hbt-right{text-align:right;}' +
         '.hbt-dim{color:#8ea0b4;}' +
         '.hbt-small{display:block;font-size:11px;}' +
