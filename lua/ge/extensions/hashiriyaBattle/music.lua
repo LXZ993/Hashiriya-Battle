@@ -35,13 +35,32 @@ end
 
 local function cfg() return data or M.loadData() end
 
--- BeamNG-Regler „Musik“ (Optionen > Audio, Einstellung AudioMusicVol). Der Kanal AudioMusic übernimmt ihn
--- für unsere Quellen nicht selbst (JDMArsch 08.11.2026: Regler wirkte nicht), darum rechnen wir ihn hier ein.
+-- BeamNG-Regler „Musik“ (Optionen > Audio). Der Kanal AudioMusic übernimmt ihn für unsere Dateien nicht selbst
+-- (JDMArsch 08.11.2026: Regler wirkte nicht), darum rechnen wir ihn hier ein.
+-- Zweiter Test 08.11.: Regler wirkte erst nach mehrmaligem Verstellen. Die Einstellung AudioMusicVol wird
+-- vermutlich erst beim Loslassen/Übernehmen gespeichert, der Kanalwert (getChannelVolume(..., false)) ändert sich
+-- sofort. Darum beide lesen; welcher sich zuletzt geändert hat, gilt. Beide Werte stehen im Log (Musik-Regler).
+local lastSliderLog = nil
+local lastCh, lastSet, sliderFrom = nil, nil, 'set'
 local function musicSlider()
-  local ok, v = pcall(function() return settings and settings.getValue and settings.getValue('AudioMusicVol') end)
-  v = ok and tonumber(v) or nil
+  local v
+  local ok, cv = pcall(Engine.Audio.getChannelVolume, 'AudioChannelMusic', false)
+  cv = ok and tonumber(cv) or nil
+  local ok2, sv = pcall(function() return settings and settings.getValue and settings.getValue('AudioMusicVol') end)
+  sv = ok2 and tonumber(sv) or nil
+  -- der Wert, der sich zuletzt geändert hat, gewinnt (zu Beginn die gespeicherte Einstellung)
+  if cv and lastCh and math.abs(cv - lastCh) > 0.001 then sliderFrom = 'ch' end
+  if sv and lastSet and math.abs(sv - lastSet) > 0.001 then sliderFrom = 'set' end
+  lastCh, lastSet = cv or lastCh, sv or lastSet
+  if sliderFrom == 'ch' then v = cv or sv else v = sv or cv end
   if not v then return 1 end
-  return math.max(0, math.min(1, v))
+  v = math.max(0, math.min(1, v))
+  local key = string.format('%.2f/%.2f/%.2f', v, cv or -1, sv or -1)
+  if key ~= lastSliderLog then
+    lastSliderLog = key
+    log('I', logTag, string.format('Musik-Regler: Kanal %s, Einstellung %s', cv and string.format('%.2f', cv) or '-', sv and string.format('%.2f', sv) or '-'))
+  end
+  return v
 end
 
 local function targetVolume() return (cfg().volume or 0.8) * musicSlider() end
@@ -668,7 +687,13 @@ local function updatePlayback(dt)
   end
   if not cur then return end
   cur.age = cur.age + dt
-  cur.target = targetVolume()
+  local newTarget = targetVolume()
+  -- Regler verstellt: sofort übernehmen statt langsam einblenden (nur wenn das Stück schon voll lief)
+  if cur.target and math.abs(newTarget - cur.target) > 0.001 and cur.vol >= cur.target - 0.001 then
+    cur.vol = newTarget
+    setVol(cur, cur.vol)
+  end
+  cur.target = newTarget
   if cur.vol < cur.target then
     local st = cur.fadeDur and (targetVolume() * dt / cur.fadeDur) or step
     cur.vol = math.min(cur.target, cur.vol + st)
@@ -701,21 +726,39 @@ local function allSources()
   for _, s in ipairs(fading) do table.insert(list, s) end
   return list
 end
+-- Anhalten wie BeamNGs eigene Menümusik (main.lua: musicSource:setPaused). pause()/play() allein wirkte
+-- im Test 08.11. nicht (JDMArsch: Taste ohne Wirkung), darum zusätzlich stumm, solange angehalten.
+local function pauseSource(o, on)
+  local done = pcall(function() o:setPaused(on) end)
+  if not done then
+    if on then
+      if not pcall(function() o:pause(0) end) then pcall(function() o:pause() end) end
+    else
+      pcall(function() o:play(-1) end)
+    end
+  end
+  return done
+end
 local function holdMusic(on)
   on = on and true or false
   if on == musicHeld then return end
   musicHeld = on
+  local how = 'setPaused'
   for _, src in ipairs(allSources()) do
     local o = sourceObj(src.id)
     if o then
       if on then
-        if not pcall(function() o:pause(0) end) then pcall(function() o:pause() end) end
+        if not pauseSource(o, true) then how = 'pause' end
+        pcall(function() o:setVolume(0) end)
       else
-        pcall(function() o:play(-1) end)
+        if not pauseSource(o, false) then how = 'play' end
+        pcall(function() o:setVolume(math.max(0, src.vol or 0)) end)
       end
     end
   end
-  log('I', logTag, on and 'Musik angehalten' or 'Musik läuft weiter')
+  -- angehalten erkennt isPlaying kein „Stück zu Ende“, darum Alter zurücksetzen
+  if not on and cur then cur.age = 0 end
+  log('I', logTag, (on and 'Musik angehalten' or 'Musik läuft weiter') .. ' (' .. how .. ', ' .. #allSources() .. ' Quellen)')
 end
 M.isHeld = function() return musicHeld end
 M.setHeld = holdMusic

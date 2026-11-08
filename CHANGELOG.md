@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Nach deinem zweiten Test (08.11.)
+- Behoben: Die Musik-Pause (Strg + Ende) hat die Musik nicht wirklich angehalten. Sie hält jetzt so an wie BeamNGs eigene Menümusik und ist dabei zusätzlich stumm.
+- Behoben: Der Musik-Regler wirkte erst nach mehrmaligem Verstellen. Die Mod liest jetzt auch den Live-Wert des Musik-Kanals und übernimmt jede Änderung sofort. Im Log steht bei jeder Änderung „Musik-Regler: Kanal …, Einstellung …“.
+
 ### Nach deinem Test (08.11.)
 - Wassertemperatur und Öltemperatur sind jetzt zwei einzelne UI-Apps („Hashiriya Battle: Wassertemperatur“ und „… Öltemperatur“), einzeln verschieb- und abschaltbar. Die alte gemeinsame App gibt es noch für ältere Layouts.
 - Neu: Musik anhalten. Taste Strg + Ende oder im Menü links unter Werkzeuge „Musik anhalten“. Noch einmal drücken spielt an derselben Stelle weiter. Überspringen beendet die Pause auch.
