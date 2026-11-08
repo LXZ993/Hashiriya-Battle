@@ -131,7 +131,20 @@ local function modelList()
   local ok, res = pcall(core_vehicles.getModelList, true)
   for _, m in ipairs(ok and res and res.models or {}) do
     if m.key and cfg.types[m.Type or ''] then
-      local src = m.Source or ''
+      -- Quelle: getModelList liefert sie nur in m.aggregates.Source (m.Source ist dort leer).
+      -- Zur Sicherheit wie core/vehicles.lua selbst prüfen: liegt info.json im Spielordner, ist es Original.
+      local src = m.Source
+      if (not src or src == '') and type(m.aggregates) == 'table' and type(m.aggregates.Source) == 'table' then
+        for k in pairs(m.aggregates.Source) do src = k; break end
+      end
+      if src ~= 'BeamNG - Official' then
+        pcall(function()
+          local origin = FS:getFileOriginInfo('/vehicles/' .. m.key .. '/info.json')
+          local game = FS:getGamePath()
+          if origin and game and tostring(origin.mountPath or ''):sub(1, #game) == game then src = 'BeamNG - Official' end
+        end)
+      end
+      src = src or ''
       table.insert(out, {
         key = m.key,
         name = ((m.Brand and m.Brand ~= '') and (m.Brand .. ' ') or '') .. tostring(m.Name or m.key),
@@ -201,17 +214,23 @@ local function candidatesOf(ioCtx, slotMap, slot)
 end
 
 -- Hat das Teil überhaupt etwas Sichtbares? (Steuergeräte, Tuning-Teile usw. haben keine Meshes)
-local function partHasMesh(ioCtx, name, cache)
+-- Teil-Infos aus der JBeam: hat es ein sichtbares Mesh, und ist es ein gemeinsames Teil
+-- (liegt in /vehicles/common/, z. B. Felgen, Reifen, Radkappen, die viele Autos benutzen)
+local function partInfo(ioCtx, name, cache)
   if cache[name] ~= nil then return cache[name] end
-  local ok, part = pcall(jbeamIO().getPart, ioCtx, name)
-  local has = true
+  local ok, part, file = pcall(jbeamIO().getPart, ioCtx, name)
+  local info = { mesh = true, shared = false }
   if ok and type(part) == 'table' then
-    has = (type(part.flexbodies) == 'table' and next(part.flexbodies) ~= nil)
+    info.mesh = (type(part.flexbodies) == 'table' and next(part.flexbodies) ~= nil)
       or (type(part.props) == 'table' and next(part.props) ~= nil)
   end
-  cache[name] = has
-  return has
+  if ok and type(file) == 'string' then
+    info.shared = file:lower():find('^/?vehicles/common/') ~= nil
+  end
+  cache[name] = info
+  return info
 end
+local function partHasMesh(ioCtx, name, cache) return partInfo(ioCtx, name, cache).mesh end
 
 local function partDescriptions(ioCtx)
   local ok, descs = pcall(jbeamIO().getAvailableParts, ioCtx)
@@ -833,7 +852,11 @@ local function runBase(model, startCfg, label, covered, queue)
   local planSeen = {}
   local function wanted(n)
     if n == '' or job.seen[n] or planSeen[n] then return false end
-    if cfg.skipExisting and hasImage(n) then job.skipped = job.skipped + 1; job.seen[n] = true; return false end
+    -- vorhandene Bilder: immer behalten, außer „Vorhandene Bilder überspringen“ ist aus. Auch dann bleiben
+    -- gemeinsame Teile (Felgen, Reifen … aus /vehicles/common/), neu gemacht werden nur die eigenen Teile des Autos.
+    if hasImage(n) and (cfg.skipExisting or partInfo(vd.ioCtx, n, meshCache).shared) then
+      job.skipped = job.skipped + 1; job.seen[n] = true; return false
+    end
     -- Zwilling (gleiches Rad-Teil als _F/_R) wird in diesem Lauf schon fotografiert: Bild teilen
     local tw = twinOf(n)
     if tw and (planSeen[tw] or job.shotOk[tw]) then job.skipped = job.skipped + 1; job.seen[n] = true; return false end
