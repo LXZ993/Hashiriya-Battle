@@ -70,8 +70,8 @@ textarea::placeholder { color: var(--todo); }
   <header>
     <h1>HASHIRIYA <span>BATTLE</span> Testliste</h1>
     <p>Setz bei jedem Punkt ✓ (funktioniert), ✗ (funktioniert nicht) oder – (noch nicht getestet). Bei ✗ kurz notieren, was passiert ist. Ich lese die Ergebnisse direkt hier aus.</p>
-    <p>Oben stehen die neuen Tests vom 01. bis 04.11.2026 (Alpha 0.3.2 bis 0.9.2, markiert mit NEU). Darunter die alten Tests vom 28.10., deine Haken und Notizen dort bleiben erhalten. Tipp: Mit dem Dev-Menü (Umschalt+Ende) setzt du Rang, Uhrzeit, Tag und Geld oder spawnst einen bestimmten Rivalen, so kommst du schnell an spätere Inhalte.</p>
-    <div class="meta">Stand: Branch prototype-0.1 · Commit a6d12c3 (PR #123) · alte Tests: Commit 7a3d374</div>
+    <p>Ganz oben die neuesten Tests vom 05. bis 08.11.2026 (markiert mit NEU 08.11., Filter „08.11.“): Tacho und Temperaturen, Hardcore-Modus, Haupt-PAs und Reisen, LKWs, neue Liveries und das Teile-Studio. Danach die Tests vom 01. bis 04.11. (NEU). Darunter die alten Tests vom 28.10., deine Haken und Notizen dort bleiben erhalten. Tipp: Mit dem Dev-Menü (Umschalt+Ende) setzt du Rang, Uhrzeit, Tag und Geld oder spawnst einen bestimmten Rivalen, so kommst du schnell an spätere Inhalte.</p>
+    <div class="meta">Stand: Branch prototype-0.1 · Commit a774b0c (PR #154) · davor: a6d12c3 (PR #123) · alte Tests: Commit 7a3d374</div>
   </header>
 
   <div class="bar">
@@ -79,6 +79,7 @@ textarea::placeholder { color: var(--todo); }
     <div class="progress" aria-hidden="true"><i id="p-ok" style="background:var(--ok)"></i><i id="p-fail" style="background:var(--fail)"></i></div>
     <div class="filters" role="group" aria-label="Filter">
       <button id="f-all" aria-pressed="true" data-f="all">Alle</button>
+      <button id="f-neu2" aria-pressed="false" data-f="neu2">08.11.</button>
       <button id="f-neu" aria-pressed="false" data-f="neu">Neu</button>
       <button id="f-todo" aria-pressed="false" data-f="todo">Offen</button>
       <button id="f-fail" aria-pressed="false" data-f="fail">Fehler</button>
@@ -91,6 +92,57 @@ textarea::placeholder { color: var(--todo); }
 <script>
 const GROUPS = [
   // ===== NEU 01.–04.11.2026 =====
+  // ===== NEU 05.–08.11.2026 =====
+  { neu: true, tag: 'NEU 08.11.', name: 'Tacho und Temperaturen', tests: [
+    ['tacho3', 'Zwei Rundanzeigen', 'Rechts der Drehzahlmesser mit dem Gang groß in der Mitte, links der Geschwindigkeitsmesser mit Nadel und kleiner Zahl. Skala startet bei 200 km/h (120 mph) und wächst mit, wenn du schneller fährst. Keine orangen Deko-Bögen mehr.'],
+    ['pedalbars', 'Pedal-Balken', 'Unten am Drehzahlmesser ein roter Balken fürs Bremspedal, am Geschwindigkeitsmesser ein grüner fürs Gas. Sie folgen genau, wie weit du drückst (auch halb).'],
+    ['tankbar', 'Tank im Geschwindigkeitsmesser', 'Unter der Zahl ein Balken E bis F mit Litern und Tankgröße. Unter 25 % orange, unter 10 % rot blinkend.'],
+    ['boostround', 'Ladedruck als Rundanzeige', 'Turbo-Auto: kleine Rundanzeige über dem Drehzahlmesser. Unterdruck grau-blau, ab 80 % der Skala rot. Öl/Wasser über dem Geschwindigkeitsmesser, Antriebs-Leiste links daneben. Nichts überlappt.'],
+    ['temps', 'Öl- und Wassertemperatur', 'Kalt losfahren: blau, warm gefahren: weiß, heiß: orange. Rot ab Wasser 120 °C bzw. Öl 150 °C, dann ist die Zahl rot und das Abzeichen blinkt.'],
+    ['tempsunit', 'Einheit und E-Auto', 'In den Spiel-Optionen auf °F umstellen: Anzeige zeigt °F. Mit einem E-Auto ist die Anzeige weg.'],
+  ]},
+  { neu: true, tag: 'NEU 08.11.', name: 'Hardcore-Modus', note: 'Am besten mit einem eigenen Test-Spielstand (Game Over löscht ihn).', tests: [
+    ['hcnew', 'Hardcore wählen', 'Neues Spiel: im letzten Schritt Normal oder Hardcore. In „Spielstand laden“ hat der Hardcore-Platz ein rotes Schild.'],
+    ['hcstart', 'Kalter Motor, wenig Sprit', 'Start: Motor kalt (Temperaturanzeige blau, erst warmfahren), Tank nur 12 %, Verbrauch spürbar höher.'],
+    ['hcprice', 'Alles teurer', 'Reparatur, Abschleppen, Teile, Wartung, Sprit, Händler und Strafen kosten das 1,5-fache (mit Normal-Spielstand vergleichen). Preisgeld nur drei Viertel.'],
+    ['hcmaint', 'Wartung schneller', 'Öl, Kühlwasser und Reifen sinken etwa doppelt so schnell, niedrige Werte wirken stärker.'],
+    ['hcsave', 'Speichern nur zu Hause/Garage', 'Unterwegs „Hier parken & speichern“ geht nicht. Beenden ohne Speichern: Abschleppen mit doppeltem Bußgeld. Beenden mitten im Battle zählt als Niederlage.'],
+    ['hcradar', 'Kein Radar, keine Reisen', 'Rivalen fehlen auf Minimap und Radar. Keine Schnellreise zu PAs oder zur Garage (kein Reisen-Menü an Ausfahrten, kein „Losfahren ab …“).'],
+    ['hcunstuck', 'Befreien begrenzt', 'Befreien kostet jedes Mal eine Servicegebühr und geht nur 3-mal pro Spieltag, das 4. Mal ist gesperrt.'],
+    ['hcworld', 'Mehr Polizei und Verkehr', 'Tagsüber mehr Laserkontrollen (2 mehr), etwa 30 % mehr Verkehr, doppelt so viele LKWs.'],
+    ['hcpink', 'Pink Slip und Game Over', 'Pink-Slip-Rivalen fahren nur um Autos. Letztes Auto verloren und kein Geld: Game Over löscht den Spielstand.'],
+    ['hctrophy', 'Hardcore-Trophäen', 'Trophäen aus dem Hardcore-Spielstand haben in der Trophäenwand einen roten Hardcore-Rahmen.'],
+  ]},
+  { neu: true, tag: 'NEU 08.11.', name: 'Haupt-PAs und Reisen', tests: [
+    ['heiwaoi', 'Heiwajima und Oi PA', 'Heiwajima PA und Oi PA (Westbound): je 16 Buchten mit geparkten Autos, Fahrer zum Reden, nachts Rivalen, Nickerchen im Auto geht.'],
+    ['kameibashi', 'Kameibashi PA', 'Am C1 City Loop bei Shintomichō, unter dem Park: 2 Buchten, PA wird erkannt (Name im HUD).'],
+    ['bigmappa', 'PAs auf der großen Karte', 'Taste M: alle Haupt-PAs (auch Shibaura und Tatsumi) mit Name, Beschreibung und Vorschaubild (noch Platzhalter). Dev-Version: Knopf Quick Travel; Dev-Menü „Hin“ bringt dich zum Ankunftspunkt.'],
+    ['travel', 'Reisen an der Ausfahrt', 'Langsam an einer Ausfahrt vom C1 abfahren: im Menü links Ziel wählen (Garage oder schon besuchte Haupt-PA). Uhr springt vor, Sprit wird abgezogen, du stehst am Ziel.'],
+    ['startpa', 'Losfahren ab PA', 'Garage > Service > „Losfahren ab …“: an einer besuchten Haupt-PA starten, mit denselben Kosten. Nicht besuchte PAs sind nicht wählbar.'],
+    ['heiwashop', 'Heiwajima: Shop und Tanke', 'In den Shop-Bereich fahren und anhalten: Teile-Terminal mit allen Teilen geht auf. Die Tankstelle dort funktioniert.'],
+  ]},
+  { neu: true, tag: 'NEU 08.11.', name: 'Verkehr und Gegner', tests: [
+    ['trucks', 'LKWs im Verkehr', 'Etwa jedes 20. Auto ist ein Cherrier Percheron (Koffer, Pritsche, Tank, Mischer, Cola-Laster), mit den eigenen Skins (japanische Speditionen und Dekotora). Sie fahren normal mit und blockieren nicht.'],
+    ['pafix', 'PA-Autos ohne Bastel-Configs', 'An den PAs stehen keine Autos mehr mit schwebenden Rädern, Federbeinen oder Kardanwelle. Fahrer ohne feste Config haben Agent-JP-Autos.'],
+    ['stagecfg', 'Stufen-Gegner mit deinen Configs', 'Dev-Menü: Hinata, Tadashi und Taiga in Stufe 2 und 3 spawnen. Sie fahren deine Umbauten mit den richtigen Skins (z. B. Hinata Kanjo Loop, später Wa Pattern).'],
+    ['paintname', 'Lack mit Namen', 'Ein Stufen-Gegner mit benanntem Lack (z. B. „Solar Yellow“ als 2. Farbe) hat genau diese Farbe.'],
+  ]},
+  { neu: true, tag: 'NEU 08.11.', name: 'Neue Lackierungen', tests: [
+    ['livtech', 'Werks-Tech-Stile', 'Konfigurator > Lackdesign auf Pessima Mk2, Covet, Sunburst, SBR4: Keil, Schicht-Balken, Pfeilband, Zielflagge.'],
+    ['livsponsor', 'Sponsor, D1, Shop-Demo, Rallye, Firmenwagen', 'Je Auto eigenes Layout und eigener Hauptsponsor (BeamNG-Lore), Firmenwagen auf Pigeon und Hopper.'],
+    ['livwa', '6 aufwendige Stile', 'Wa-Muster, Manga-Speed, Splitter-Tarn, Gruppe C Retro, JGTC-Wellen und Kanjo-Zoku. Jedes Auto mit eigenem Layout.'],
+    ['livfixed', 'Feste Farben bleiben', 'Farbe 2/3 ändern: Gold, Stempel, Warnstreifen, weiße Nummernfelder und Sponsoren in Originalfarbe bleiben gleich, der Rest färbt sich um.'],
+    ['livfit', 'Stile passen zum Auto', 'Kein Drift-Stil auf Fronttrieblern, kein Bosozoku, Kaido oder Zweifarben auf modernen Autos; Drift gibt es auf dem Sunburst. Notiere, welche Designs du überarbeiten willst.'],
+  ]},
+  { neu: true, tag: 'NEU 08.11.', name: 'Teile-Studio (eigene Mod)', note: 'Nach dem Update BeamNG neu starten. Handbuch Kapitel 5g erklärt alles.', tests: [
+    ['psopen', 'Studio öffnen', 'BeamNG-Hauptmenü > Mehr > Teile-Studio: Garage lädt, Fenster geht auf. In einer Map: Strg+Umschalt+P öffnet und schließt es.'],
+    ['psrun', 'Bilder erstellen', 'Reiter „Bilder erstellen“ > aktuelles Auto > starten: Fortschritt und letztes Bild laufen mit, Abbrechen geht. Dein Auto ist danach wieder da.'],
+    ['psimg', 'Bildqualität', 'Bilder im Garagenlicht: nicht zu dunkel, kein Blaustich, Teil füllt das Bild gut aus, Stoßstangen von vorne bzw. hinten, Paare (Felgen, Spiegel) immer von rechts.'],
+    ['psvariant', 'Varianten', 'Bei einem Auto mit 5-Loch-Naben als Option: auch die 5-Loch-Felgen haben ein Bild.'],
+    ['psgallery', 'Galerie', 'Slot anklicken klappt Kacheln auf, Maus drüber zeigt groß, 1. Klick wählt, 2. Klick baut das Teil ein. Filter und Suche gehen.'],
+    ['psview', 'Blickwinkel korrigieren', 'Ansicht-Leiste: drehen, kippen, zoomen, „Neu aufnehmen“. Mit „ganzer Slot“ werden alle Teile des Slots neu fotografiert, „Auto“ setzt zurück.'],
+    ['psfolder', 'Ordner', '„Ordner öffnen“ zeigt art\\partPreviews_garage im Benutzerordner mit den JPGs.'],
+  ]},
   { neu: true, name: 'Nachtest 05.11. (deine Notizen umgesetzt)', tests: [
     ['polred', 'Polizeilicht nur rot', 'Fahndung auslösen: „POLIZEI“ im Status, Streifenwagen auf Minimap und Radar und der Rahmen der Minimap blinken nur rot. Kontrollen sind weißgrau. Am Sunburst-Streifenwagen sind auch die Blitzlichter rot. Pessima Mk2: sag mir, ob dir dort noch Blau auffällt.'],
     ['stylerel', 'Fahrstil als farbloses Symbol', 'Rivalen-Lexikon: hinter dem Auto ein kleines graues Symbol (Linie = sauber, Schild = Blocker, Stern = Rempler). Mit data/build.json "release": true nur das Symbol, in der Dev-Version (false) Symbol und Text.'],
@@ -319,6 +371,7 @@ const list = document.getElementById('list');
 const notice = document.getElementById('notice');
 const ALL = GROUPS.flatMap(g => g.tests.map(t => t[0]));
 const NEU = new Set(GROUPS.filter(g => g.neu).flatMap(g => g.tests.map(t => t[0])));
+const NEU2 = new Set(GROUPS.filter(g => g.tag).flatMap(g => g.tests.map(t => t[0])));
 const STATES = [['ok', '✓', 'Funktioniert'], ['fail', '✗', 'Funktioniert nicht'], ['todo', '–', 'Noch nicht getestet']];
 
 function statusOf(id) { return (results[id] && results[id].status) || 'todo'; }
@@ -335,7 +388,7 @@ function build() {
     const sec = document.createElement('section');
     const h = document.createElement('h2');
     h.append(g.name);
-    if (g.neu) { const n = document.createElement('span'); n.className = 'neu'; n.textContent = 'NEU'; h.append(n); }
+    if (g.neu) { const n = document.createElement('span'); n.className = 'neu'; n.textContent = g.tag || 'NEU'; h.append(n); }
     const small = document.createElement('small');
     small.dataset.group = g.name;
     h.append(small);
@@ -372,6 +425,7 @@ function build() {
 function visible(id) {
   if (filter === 'all') return true;
   if (filter === 'neu') return NEU.has(id);
+  if (filter === 'neu2') return NEU2.has(id);
   return statusOf(id) === filter;
 }
 
@@ -395,7 +449,7 @@ function render() {
     sec.hidden = rows.every(r => r.hidden);
   }
   const div = document.getElementById('alt-divider');
-  if (div) div.hidden = filter === 'neu';
+  if (div) div.hidden = filter === 'neu' || filter === 'neu2';
 }
 
 async function save(id) {
