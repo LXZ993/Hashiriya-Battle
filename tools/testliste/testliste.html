@@ -95,6 +95,13 @@ textarea::placeholder { color: var(--todo); }
 const GROUPS = [
   // ===== NEU 01.–04.11.2026 =====
   // ===== NEU 05.–08.11.2026 =====
+  { neu: true, tag: 'NEU 08.11.', name: 'Polizei: Straßensperre und Steckbrief', note: 'Am einfachsten über das Dev-Menü eine Fahndung mit 3 Sternen starten (tagsüber).', tests: [
+    ['roadblock', 'Straßensperre nach 2 Minuten', '2 Minuten bei 3 Sternen weiterfahren: Meldung „Straßensperre voraus!“, ca. 300 m vor dir stehen 2 Streifenwagen quer mit Blaulicht (auch auf der Minimap).'],
+    ['roadblockarrest', 'Festnahme an der Sperre', 'In die Sperre fahren oder davor anhalten: „An der Straßensperre gestellt“, Kontrolle, Festnahme mit Abschleppen.'],
+    ['roadblockpass', 'Sperre umfahren', 'An der Sperre vorbeikommen (schnell bleiben): keine Festnahme, Fahndung läuft weiter, nach weiteren 2 Minuten höchstens eine zweite Sperre.'],
+    ['wanted', 'Steckbrief nach Entkommen', 'Bei 3 Sternen entkommen: Meldung zum Steckbrief, oben rechts blinkt „Gesucht bis morgen“. Nächster Blitzer oder Laser: Fahndung startet sofort mit 3 Sternen.'],
+    ['wantedhome', 'Polizei wartet zu Hause', 'Mit Steckbrief langsam zur Garage oder nach Hause: Strafe 150.000 ¥, „Gesucht“ ist weg. Am nächsten Spieltag ist der Steckbrief auch so weg.'],
+  ]},
   { neu: true, tag: 'NEU 08.11.', name: 'Nachtest 3 (08.11.): Kameibashi, Shop, Polizei, Wartung', tests: [
     ['kameibashimeet', 'Kameibashi-Nothaltebucht nachts', 'Nachts zur Kameibashi-Bucht am City Loop fahren: 2 bis 4 Rivalen parken in den Buchten (PA 1, 2, 38 bis 41) und lassen sich ansprechen und herausfordern, 1 bis 2 Leute stehen nur rum. Tagsüber ist dort niemand.'],
     ['kameibashigone', 'Kameibashi kein Reiseziel', 'Große Karte (M): kein Punkt „Kameibashi PA“ mehr. Garage > Losfahren ab: Kameibashi fehlt. An der Bucht geht kein Nickerchen.'],

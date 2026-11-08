@@ -1306,6 +1306,8 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <li><b>Entkommen:</b> kein Streifenwagen sieht dich mehr (weiter als 350 m weg oder Sicht verdeckt, z. B. durch Kurven und Mauern) für 20 / 30 / 40 Sekunden je nach Stufe. Dann gibt die Polizei auf, schaltet das Blaulicht aus und fährt weg. Entkommen kostet nichts, die Blitzer des Tages bleiben aber gezählt. Dafür gibt es etwas <b>Ruf</b>: 40 / 55 / 65 je nach Stufe, also leicht unter einem normalen Rivalensieg (Schnitt ca. 70), und nur für die ersten 3 Fluchten pro Spieltag (<code>escapeRep</code>, <code>escapeRepMaxPerDay</code>). So lohnt es sich nicht, tagsüber damit zu grinden.</li>
 <li>Verstärkung kommt hinter dir, außer Sicht, alle 15 s, solange dich noch ein Streifenwagen sieht. Ein zu stark beschädigter Streifenwagen (ab 30.000 Schaden) bleibt liegen.</li>
 <li>Unfälle zählen nur, solange dich die Polizei gerade sieht.</li>
+<li><b>Straßensperre</b> (seit 08.11.2026): Bist du 2 Minuten bei 3 Sternen und hältst nicht an, stellen sich 2 Streifenwagen etwa 300 m vor dir quer auf die Straße (Blaulicht, auf Minimap und Radar). Fährst du hinein oder bleibst davor stehen (näher als 7 m, langsamer als 25 km/h), wirst du <b>festgenommen</b> wie beim Anhalten bei 3 Sternen. Kommst du vorbei, kann es nach weiteren 2 Minuten eine zweite Sperre geben (höchstens 2 je Fahndung). Einstellungen: <code>roadblock</code> in <span class="path">lua\ge\extensions\hashiriyaBattle\data\police.json</span>.</li>
+<li><b>Steckbrief</b> (seit 08.11.2026): Entkommst du bei 3 Sternen, bist du <b>bis zum nächsten Spieltag gesucht</b> (Status oben rechts: „Gesucht bis morgen“). Jede neue Fahndung startet sofort mit 3 Sternen, eine Laserkontrolle, die dich auf 150 m sieht, fährt sofort los, und kommst du langsam an deine Garage oder nach Hause, wartet die Polizei dort: Festnahme-Strafe 150.000 ¥ (ohne Abschleppen), danach ist der Steckbrief weg. Eine Festnahme löscht ihn auch. Einstellungen: <code>wanted</code> in police.json.</li>
 </ul>
 <div class="box warn"><b>Gesperrt während einer Fahndung</b>Speichern am Standort, Nickerchen, Abschleppen aus dem Menü, Parkplatz-Menüs (PA, Shop, Garage öffnen sich nicht) und Herausfordern per Lichthupe. Wer das Spiel mitten in der Fahndung beendet, gilt als nicht ordentlich geparkt (Abschleppen + Bußgeld beim nächsten Start, siehe <a href="#speicherort">Speichern am Standort</a>).</div>
 
@@ -2608,6 +2610,11 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <details class="cl">
 <summary><b>Alpha 0.9.2</b> <small>Stand 06.11.2026</small></summary>
 <div>
+<h4>Polizei: Straßensperre und Steckbrief (08.11.)</h4>
+<ul>
+<li>Neu: Hältst du bei 3 Sternen 2 Minuten lang nicht an, stellen sich 2 Streifenwagen etwa 300 m vor dir quer auf die Straße. Reinfahren oder davor anhalten heißt Festnahme. Höchstens 2 Sperren je Fahndung.</li>
+<li>Neu: Steckbrief. Entkommst du bei 3 Sternen, bist du bis zum nächsten Spieltag gesucht („Gesucht bis morgen“ im Status). Jede Fahndung startet dann sofort mit 3 Sternen, Laserkontrollen fahren los, sobald sie dich sehen, und an Garage oder Zuhause wartet die Polizei mit der Festnahme-Strafe (150.000 ¥).</li>
+</ul>
 <h4>Nach deinem dritten Test (08.11.)</h4>
 <ul>
 <li>Kameibashi ist keine PA mehr, sondern die Nothaltebucht, die sie in echt ist: kein Reiseziel, kein Kartenpunkt, kein Nickerchen. Nachts parken dort 2 bis 4 Rivalen (ansprechen und herausfordern wie an den PAs) und 1 bis 2 Leute stehen nur rum, wie ein kleines illegales Treffen. Tagsüber ist sie leer. Parkbuchten: deine Dev-Orte PA 1, PA 2 und neu PA 38 bis 41.</li>

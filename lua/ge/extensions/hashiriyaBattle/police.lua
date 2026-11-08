@@ -41,6 +41,12 @@ local function battle() return extensions.hashiriyaBattle_battle end
 
 local defaults = {
   lightsFrom = 18, lightsTo = 7, -- Abblendlicht der Streifenwagen (Uhr), nachts immer
+  -- Straßensperre bei 3 Sternen (JDMArsch 08.11.2026): nach afterSeconds bei 3 Sternen 2 Streifenwagen quer vor dir.
+  -- Reinfahren oder davor stehen bleiben (arrestRadius) = Festnahme. Höchstens max Sperren je Fahndung.
+  roadblock = { enabled = true, afterSeconds = 120, distance = { 320, 260, 380, 220 }, gap = 2.6, arrestRadius = 7, max = 2, removeRange = 500 },
+  -- Steckbrief: bei 3 Sternen entkommen = bis zum nächsten Spieltag gesucht. Jede Polizei startet mit 3 Sternen,
+  -- eine Laserkontrolle, die dich sieht (seeRange), fährt sofort los, an Garage/Zuhause kostet es die Festnahme-Strafe.
+  wanted = { enabled = true, seeRange = 150, homeRadius = 30 },
   enabled = true,
   defaultLimitKmh = 60, toleranceKmh = 10, camWidth = 14, camHeight = 6, camCooldownSeconds = 30,
   laserRange = 110, laserSpawnRange = 600, laserDespawnRange = 800, defaultKind = 'laser',
@@ -187,6 +193,7 @@ local function dayState()
     p.tickets = 0
     p.seen = {}      -- heute schon gesehene Laserkontrollen (Minimap/Radar)
     p.escapeRep = 0  -- heute schon für Entkommen belohnt
+    p.wanted = nil   -- Steckbrief gilt bis zum nächsten Spieltag
   end
   if type(p.seen) ~= 'table' then p.seen = {} end
   p.camHits = p.camHits or 0
@@ -475,6 +482,43 @@ local function updateLaserCars(ppos)
   end
 end
 
+-- Steckbrief: Laserkontrolle sieht dich -> sofort 3 Sterne; an Garage oder Zuhause angekommen -> Festnahme-Strafe
+local function updateWanted(ppos)
+  local p = dayState()
+  if not (p and p.wanted) or pursuit then return end
+  local cf = M.cfg()
+  for _, id in pairs(laserCars) do
+    local veh = be:getObjectByID(id)
+    if veh and units[id] and units[id].role == 'laser' then
+      local ok, d = canSee(veh, ppos)
+      if ok and d < (cf.wanted.seeRange or 150) then
+        log('I', logTag, 'Steckbrief: Laserkontrolle hat dich erkannt')
+        M.startPursuit(3, 'wanted', id)
+        return
+      end
+    end
+  end
+  local md = core().mapData or {}
+  local player = playerVeh()
+  if not player then return end
+  if player:getVelocity():length() * 3.6 > 15 then return end
+  for _, a in ipairs(md.parkingAreas or {}) do
+    if (a.type == 'home' or a.type == 'garage') and type(a.pos) == 'table'
+      and (ppos - vec3(a.pos[1], a.pos[2], a.pos[3])):length() < (cf.wanted.homeRadius or 30) then
+      local fine = round100(extensions.hashiriyaBattle_hardcore.price(pick(cf.ticketYen, 3)))
+      local paid = charge(fine, 'wanted')
+      p.wanted = nil
+      p.arrests = (p.arrests or 0) + 1
+      stat('policeArrests')
+      msg(t('police.wantedHome', yen(fine)) .. (paid < fine and (' ' .. t('police.cantPay', yen(paid))) or ''), 8)
+      pcall(function() core().sound('lose') end)
+      log('I', logTag, 'Steckbrief: an ' .. tostring(a.type) .. ' gestellt, Strafe ' .. fine)
+      pcall(function() core().writeSave() end)
+      return
+    end
+  end
+end
+
 -- Gesehen? Besetzte Kontrolle in Sichtweite = ab jetzt (heute) auf Minimap und Radar
 local function updateSeen(ppos)
   local p = dayState()
@@ -553,8 +597,9 @@ function M.startPursuit(level, reason, unitId)
   if pursuit then return end -- Kontrolle läuft gerade
   local cf = M.cfg()
   if p and p.tickets > 0 then level = math.max(level, cf.startLevelAfterTicket or 1) end
+  if p and p.wanted then level = 3 end -- Steckbrief: sofort 3 Sterne
   level = math.max(1, math.min(3, level))
-  pursuit = { level = level, heat = heatForLevel(level), reason = reason, phase = 'active', stopT = 0, unseenT = 0,
+  pursuit = { level = level, heat = heatForLevel(level), reason = reason, phase = 'active', stopT = 0, unseenT = 0, lvl3T = 0, blocks = 0,
     seen = false, reinforce = unitId and cf.reinforceSeconds or 0, offenses = {}, started = clock, approach = true }
   if p then p.pursuits = (p.pursuits or 0) + 1 end
   if unitId and units[unitId] then
@@ -563,7 +608,7 @@ function M.startPursuit(level, reason, unitId)
     lightbar(veh, 2)
   end
   stat('policeChases')
-  msg(t(reason == 'laser' and 'police.startLaser' or 'police.start'), 6)
+  msg(t((p and p.wanted) and 'police.startWanted' or (reason == 'laser' and 'police.startLaser' or 'police.start')), 6)
   pcall(function() core().sound('challenge') end)
   log('I', logTag, string.format('Fahndung gestartet (%s), %d Sterne', tostring(reason), level))
 end
@@ -587,9 +632,17 @@ local function endPursuit(result)
       u.leaveT = 0
       local veh = be:getObjectByID(id)
       if veh then setMode(u, veh, 'leave') end
+    elseif u.role == 'block' then
+      u.role = 'wreck' -- Sperre bleibt stehen, bis du weg bist
+      u.leaveT = 0
     end
   end
   local p = dayState()
+  if result == 'escape' and lvl >= 3 and p and M.cfg().wanted.enabled then
+    p.wanted = true
+    msg(t('police.wanted'), 8)
+    log('I', logTag, 'Steckbrief: bis zum nächsten Spieltag gesucht')
+  end
   if result == 'escape' and p then
     p.escapes = (p.escapes or 0) + 1
     stat('policeEscapes')
@@ -625,7 +678,7 @@ local function finishCheck()
   local p = dayState()
   if p then
     p.tickets = p.tickets + 1
-    if lvl >= 3 then p.arrests = (p.arrests or 0) + 1 end
+    if lvl >= 3 then p.arrests = (p.arrests or 0) + 1; p.wanted = nil end
   end
   stat(lvl >= 3 and 'policeArrests' or 'policeTickets')
   local key = lvl >= 3 and 'police.arrest' or 'police.ticket'
@@ -637,6 +690,78 @@ local function finishCheck()
     local okT = pcall(function() extensions.hashiriyaBattle_parking.towToGarage() end)
     if not okT then log('W', logTag, 'Abschleppen nach Festnahme fehlgeschlagen') end
   end
+end
+
+-- Straßensperre: 2 Streifenwagen quer auf der Fahrbahn vor dem Spieler (außer Sicht, auf seiner Straße)
+local function spawnRoadblock(player)
+  local cf = M.cfg()
+  local rb = cf.roadblock
+  local rv = rivals()
+  if not (rv and rv.findRoadSpawn) then return false end
+  local ppos, pdir = player:getPosition(), player:getDirectionVector()
+  for _, dist in ipairs(rb.distance or { 320 }) do
+    local ok, pos, dir = pcall(rv.findRoadSpawn, ppos, pdir, math.abs(dist))
+    if ok and pos and dir then
+      local d = vec3(dir.x, dir.y, 0):normalized()
+      local side = vec3(-d.y, d.x, 0)
+      local spots = { pos + side * (rb.gap or 2.6), pos - side * (rb.gap or 2.6) }
+      local free = true
+      if rv.spawnFree then
+        for _, sp in ipairs(spots) do if not rv.spawnFree(sp, 5) then free = false end end
+      end
+      if free then
+        local n = 0
+        for i, sp in ipairs(spots) do
+          local veh = spawnPoliceCar(sp + vec3(0, 0, 0.3), i == 1 and side or -side)
+          if veh then
+            local u = newUnit(veh, 'block')
+            setMode(u, veh, 'parked')
+            lightbar(veh, 2)
+            n = n + 1
+          end
+        end
+        if n > 0 then
+          log('I', logTag, string.format('Straßensperre: %d Streifenwagen, %.0f m voraus', n, dist))
+          return true
+        end
+      end
+    end
+  end
+  return false
+end
+
+local function updateRoadblock(dt, player, ppos, pSpeed)
+  local cf = M.cfg()
+  local rb = cf.roadblock
+  -- Sperren prüfen: angefahren oder davor stehen geblieben = Festnahme; weit weg = wegräumen
+  for id, u in pairs(units) do
+    if u.role == 'block' then
+      local veh = be:getObjectByID(id)
+      if not veh then
+        units[id] = nil
+      else
+        local d = (veh:getPosition() - ppos):length()
+        if d < (rb.arrestRadius or 7) and pSpeed * 3.6 < 25 then
+          return 'arrest'
+        elseif d > (rb.removeRange or 500) then
+          deleteUnit(id)
+        end
+      end
+    end
+  end
+  if not rb.enabled or pursuit.level < 3 then return nil end
+  pursuit.lvl3T = (pursuit.lvl3T or 0) + dt
+  if pursuit.lvl3T >= (rb.afterSeconds or 120) and (pursuit.blocks or 0) < (rb.max or 2) and pursuit.seen and unitCount('block') == 0 then
+    if spawnRoadblock(player) then
+      pursuit.blocks = (pursuit.blocks or 0) + 1
+      pursuit.lvl3T = 0
+      msg(t('police.roadblock'), 6)
+      pcall(function() core().sound('challenge') end)
+    else
+      pursuit.lvl3T = (rb.afterSeconds or 120) - 5 -- kein Platz: in 5 s noch mal versuchen
+    end
+  end
+  return nil
 end
 
 local function updatePursuit(dt)
@@ -696,6 +821,16 @@ local function updatePursuit(dt)
     end
   else
     pursuit.stopT = math.max(0, pursuit.stopT - dt * 2)
+  end
+
+  -- Straßensperre (3 Sterne)
+  if car and updateRoadblock(dt, player, ppos, pSpeed) == 'arrest' then
+    pursuit.level = 3
+    pursuit.phase = 'check'
+    pursuit.checkT = 0
+    frozen = true; vehCmd(car, 'controller.setFreeze(1)')
+    msg(t('police.roadblockArrest'), cf.checkSeconds + 1)
+    return
   end
 
   -- Fahndungsdruck: weiterfahren, obwohl die Polizei einen sieht
@@ -905,7 +1040,7 @@ local function markers()
   if not aktiv() then return out end
   local p = dayState()
   for id, u in pairs(units) do
-    if u.role == 'pursuit' then
+    if u.role == 'pursuit' or u.role == 'block' then -- Straßensperre sieht man auch (blinkt)
       local veh = be:getObjectByID(id)
       if veh then table.insert(out, { pos = veh:getPosition(), dir = veh:getDirectionVector(), chase = true }) end
     end
@@ -1010,9 +1145,10 @@ function M.getHudState()
     out = { level = pursuit.level, status = status, pct = pct,
       label = t('police.hud.level' .. pursuit.level), statusText = t('police.hud.' .. status) }
   end
-  local show = (p and p.camHits > 0 and isDaytime()) or out
+  local show = (p and p.camHits > 0 and isDaytime()) or out or (p and p.wanted)
   if not show and not lastFine then return nil end
   out = out or {}
+  if p and p.wanted and not pursuit then out.wanted = t('police.hud.wanted') end
   if p and p.camHits > 0 then
     out.cams = p.camHits
     out.camsMax = cf.speedcam.dispatchFrom or 3
@@ -1095,6 +1231,7 @@ local function onUpdate(dtReal, dtSim)
     end
     updateLaserCars(ppos)
     updateSeen(ppos)
+    updateWanted(ppos)
   end
 
   -- Sperrzeiten der Messstellen laufen immer ab (auch wenn man gerade weit weg ist)
