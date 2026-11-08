@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### After your second test (8 Nov)
+- Fixed: the music pause (Ctrl + End) did not really pause the music. It now pauses like BeamNG's own menu music and is also muted while paused.
+- Fixed: the music slider only worked after moving it several times. The mod now also reads the live value of the music channel and applies every change right away. Each change is logged as "Musik-Regler: Kanal ..., Einstellung ...".
+
 ### After your test (8 Nov)
 - Water temperature and oil temperature are now two separate UI apps ("Hashiriya Battle: Water temperature" and "... Oil temperature"), movable and removable on their own. The old combined app stays for older layouts.
 - New: pause music. Ctrl + End or "Pause music" under Tools in the left menu. Press again to continue at the same spot. Skipping also ends the pause.
