@@ -6,6 +6,8 @@ HB_MENU_ICONS.star = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24
 HB_MENU_ICONS.char_clean = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 20c5-1 4-7 8-8s3-7 8-8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>'
 HB_MENU_ICONS.char_blocker = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.5l8 3.2v5.6c0 4.8-3.3 8.6-8 10.2-4.7-1.6-8-5.4-8-10.2V5.7zm0 2.2L6 7.1v4.2c0 3.7 2.4 6.7 6 8.1 3.6-1.4 6-4.4 6-8.1V7.1z" fill="currentColor"/></svg>'
 HB_MENU_ICONS.char_rammer = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2l1.9 5.4 5-2.6-2.6 5L22 12l-5.7 2.2 2.6 5-5-2.6L12 22l-1.9-5.4-5 2.6 2.6-5L2 12l5.7-2.2-2.6-5 5 2.6z" fill="currentColor"/></svg>'
+// Musik anhalten (zwei Balken)
+HB_MENU_ICONS.musicPause = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 5h3.5v14H7zm6.5 0H17v14h-3.5z" fill="currentColor"/></svg>'
 // Wartung: Ölkanne, Kühlwasser (Tropfen mit Thermometer-Strichen)
 HB_MENU_ICONS.oilCan = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 9h3V7H5V5h6v2H9v2h4.5l5.2-2.6 3.3 1.5-6.2 7.1H4zM20.5 13.5c0 1-.7 1.8-1.5 1.8s-1.5-.8-1.5-1.8.9-2.3 1.5-3c.6.7 1.5 2 1.5 3z" fill="currentColor"/></svg>'
 HB_MENU_ICONS.coolant = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 2.5c2.3 3 5.5 6.8 5.5 10.3a5.5 5.5 0 0 1-11 0C4.5 9.3 7.7 5.5 10 2.5zm0 3.3c-1.6 2.2-3.5 4.8-3.5 7a3.5 3.5 0 0 0 7 0c0-2.2-1.9-4.8-3.5-7zM17 5h4v2h-4zm0 4h4v2h-4zm0 4h3v2h-3z" fill="currentColor"/></svg>'
@@ -99,6 +101,8 @@ angular.module('beamng.apps')
             '<div class="hbm-more-body" ng-if="more.open">' +
               '<div class="hbm-item hbm-sub" ng-if="s.music" ng-click="act(\'musicSkip\')" title="{{ s.t[\'menu.musicNow\'] }}: {{ s.music.title }}{{ s.music.artist ? \' \u2013 \' + s.music.artist : \'\' }}"><i class="hbm-ico" ng-bind-html="ico(\'next\')"></i>' +
                 '<span class="hbm-car-name">{{ s.t[\'menu.musicSkip\'] }}<small class="hbm-music-now">{{ s.music.title }}</small></span><span class="hbm-price" ng-if="s.music.key">{{ s.music.key }}</span></div>' +
+              '<div class="hbm-item hbm-sub" ng-if="s.music" ng-click="act(\'musicPause\')"><i class="hbm-ico" ng-bind-html="ico(s.music.held ? \'playRound\' : \'musicPause\')"></i>' +
+                '<span class="hbm-car-name">{{ s.music.held ? s.t[\'menu.musicResume\'] : s.t[\'menu.musicPause\'] }}</span><span class="hbm-price" ng-if="s.music.pauseKey">{{ s.music.pauseKey }}</span></div>' +
               '<div class="hbm-item hbm-sub" ng-click="act(\'toggleMarkers\')"><i class="hbm-ico" ng-bind-html="ico(\'parking\')"></i><span class="hbm-car-name">{{ s.t[\'menu.markers\'] }}</span>' +
                 '<span class="hbm-toggle" ng-class="{\'is-on\': s.markers}">{{ s.markers ? s.t[\'menu.on\'] : s.t[\'menu.off\'] }}</span></div>' +
               '<div class="hbm-item hbm-sub" ng-click="act(\'report\')"><i class="hbm-ico" ng-bind-html="ico(\'export\')"></i>{{ s.t[\'menu.report\'] }}</div>' +

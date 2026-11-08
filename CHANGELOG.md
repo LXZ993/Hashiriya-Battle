@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Nach deinem Test (08.11.)
+- Wassertemperatur und Öltemperatur sind jetzt zwei einzelne UI-Apps („Hashiriya Battle: Wassertemperatur“ und „… Öltemperatur“), einzeln verschieb- und abschaltbar. Die alte gemeinsame App gibt es noch für ältere Layouts.
+- Neu: Musik anhalten. Taste Strg + Ende oder im Menü links unter Werkzeuge „Musik anhalten“. Noch einmal drücken spielt an derselben Stelle weiter. Überspringen beendet die Pause auch.
+- Behoben: Der BeamNG-Regler „Musik“ (Optionen > Audio) wirkt jetzt auch auf die Mod-Musik.
+- Behoben: Der Geschwindigkeitsmesser war zu Fuß sichtbar. Er blendet jetzt wie der Drehzahlmesser aus.
+- Behoben: Bei der Lackwahl (Autokauf, Shop) standen interne Lacke unserer Gegner-Configs wie „hashiriya_tadashi_s2 Paint 1“. Versteckte und hashiriya_-Lacke werden nicht mehr angeboten.
+
 ### Tacho mit getrennten Anzeigen
 - Drehzahl und Geschwindigkeit sind jetzt zwei eigene analoge Rundanzeigen nebeneinander. Rechts der Drehzahlmesser mit dem Gang groß in der Mitte, links der neue Geschwindigkeitsmesser mit Nadel und kleiner Zahl in der Mitte. Seine Skala startet bei 200 km/h (120 mph) und wächst mit, wenn du schneller fährst.
 - Neu: Pedal-Balken unten an den Rundanzeigen. Am Drehzahlmesser rot fürs Bremspedal, am Geschwindigkeitsmesser grün fürs Gaspedal. Sie zeigen, wie weit du das Pedal gerade drückst.

@@ -1,6 +1,6 @@
 -- Hashiriya Battle: Musik.
 -- Lua entscheidet, welche Situation gerade ist (Titel, Tag, Nacht, Shop, Battle), und spielt die passende
--- Playlist über BeamNGs eigenes Audio (Kanal AudioMusic, folgt damit den Reglern Gesamt und Musik).
+-- Playlist über BeamNGs eigenes Audio (Kanal AudioMusic, Regler Gesamt). Der Musik-Regler wird in targetVolume() eingerechnet.
 -- HTML5-Audio im UI geht in BeamNG nicht zuverlässig (OGG wird nicht gestreamt, bleibt stumm).
 -- Solange Hashiriya läuft, wird die Hauptmenü-Musik von BeamNG angehalten.
 -- Einstellungen und Playlists: data/music.json.
@@ -35,7 +35,16 @@ end
 
 local function cfg() return data or M.loadData() end
 
-local function targetVolume() return cfg().volume or 0.8 end
+-- BeamNG-Regler „Musik“ (Optionen > Audio, Einstellung AudioMusicVol). Der Kanal AudioMusic übernimmt ihn
+-- für unsere Quellen nicht selbst (JDMArsch 08.11.2026: Regler wirkte nicht), darum rechnen wir ihn hier ein.
+local function musicSlider()
+  local ok, v = pcall(function() return settings and settings.getValue and settings.getValue('AudioMusicVol') end)
+  v = ok and tonumber(v) or nil
+  if not v then return 1 end
+  return math.max(0, math.min(1, v))
+end
+
+local function targetVolume() return (cfg().volume or 0.8) * musicSlider() end
 
 local function fadeTime() return math.max(0.05, cfg().fadeSeconds or 2) end
 
@@ -610,6 +619,7 @@ end
 -- Überspringen (Menü-Knopf, Taste): aktuelles Stück schnell ausblenden, nächstes passendes starten
 function M.skip()
   if not context or context == 'off' then return end
+  if M.setHeld then M.setHeld(false) end -- Überspringen beendet auch die Musik-Pause
   introPending = nil
   if cur then
     local s = cur
@@ -626,12 +636,12 @@ function M.nowPlaying()
   if not cur or not context or context == 'off' then return nil end
   local e = cur.entry or { key = cur.file:match('([^/]+)$') }
   if e.own then
-    return { title = (e.key or ''):gsub('%.[^.]+$', ''), own = true }
+    return { title = (e.key or ''):gsub('%.[^.]+$', ''), own = true, held = M.isHeld and M.isHeld() or nil }
   end
   local t = (cfg().tracks or {})[e.key] or {}
   local artist = t.artist
   if artist and artist:match('^%[') then artist = nil end
-  return { title = t.title or e.key, artist = artist }
+  return { title = t.title or e.key, artist = artist, held = M.isHeld and M.isHeld() or nil }
 end
 
 function M.stop()
@@ -681,12 +691,44 @@ local function updatePlayback(dt)
   end
 end
 
+-- Musik-Pause (JDMArsch 08.11.2026): Taste Strg + Ende oder Menü links > Werkzeuge hält die Musik an,
+-- noch einmal drücken spielt an derselben Stelle weiter. Gilt nur für die Mod-Musik, bis zum nächsten Druck
+-- (auch über Situationswechsel hinweg; die Situation wird beim Weiterspielen nachgeholt).
+local musicHeld = false
+local function allSources()
+  local list = {}
+  if cur then table.insert(list, cur) end
+  for _, s in ipairs(fading) do table.insert(list, s) end
+  return list
+end
+local function holdMusic(on)
+  on = on and true or false
+  if on == musicHeld then return end
+  musicHeld = on
+  for _, src in ipairs(allSources()) do
+    local o = sourceObj(src.id)
+    if o then
+      if on then
+        if not pcall(function() o:pause(0) end) then pcall(function() o:pause() end) end
+      else
+        pcall(function() o:play(-1) end)
+      end
+    end
+  end
+  log('I', logTag, on and 'Musik angehalten' or 'Musik läuft weiter')
+end
+M.isHeld = function() return musicHeld end
+M.setHeld = holdMusic
+M.togglePause = function() holdMusic(not musicHeld) end
+
 local function onUpdate(dtReal)
   -- Pausenmenü-Eintrag: so lange versuchen, bis BeamNGs Pausenmenü-Modul da ist
   if not pauseRegistered then
     pauseRetry = pauseRetry - dtReal
     if pauseRetry <= 0 then pauseRetry = 3; M.registerPauseButton() end
   end
+  -- angehalten: keine Überblendung, kein „Stück zu Ende“ (isPlaying ist im Pausenzustand false), kein Situationswechsel
+  if musicHeld then return end
   updatePlayback(dtReal)
   updateDuck(dtReal)
   checkTimer = checkTimer - dtReal

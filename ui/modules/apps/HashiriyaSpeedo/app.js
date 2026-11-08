@@ -184,8 +184,9 @@ angular.module('beamng.apps')
       try { StreamsManager.add(streamsList) } catch (e) {}
 
       scope.$on('streamsUpdate', function (e, s) {
-        var el = s && s.electrics
-        if (!el || (el.wheelspeed === undefined && el.airspeed === undefined)) { show(false); return }
+        var el = s && s.electrics, ei = s && s.engineInfo
+        // Zu Fuß (Unicycle-Bob) gibt es kein engineInfo: dann aus, wie der Drehzahlmesser (JDMArsch 08.11.2026)
+        if (!el || !ei || (el.wheelspeed === undefined && el.airspeed === undefined)) { show(false); return }
         show(true)
 
         var ms = el.wheelspeed !== undefined && el.wheelspeed !== null ? Number(el.wheelspeed) : Number(el.airspeed)

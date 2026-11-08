@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### After your test (8 Nov)
+- Water temperature and oil temperature are now two separate UI apps ("Hashiriya Battle: Water temperature" and "... Oil temperature"), movable and removable on their own. The old combined app stays for older layouts.
+- New: pause music. Ctrl + End or "Pause music" under Tools in the left menu. Press again to continue at the same spot. Skipping also ends the pause.
+- Fixed: the BeamNG "Music" slider (Options > Audio) now also affects the mod music.
+- Fixed: the speedometer was visible on foot. It now hides like the tachometer.
+- Fixed: the paint list (buying a car, shop) showed internal paints of our rival configs such as "hashiriya_tadashi_s2 Paint 1". Hidden and hashiriya_ paints are no longer offered.
+
 ### Speedometer with separate gauges
 - RPM and speed are now two separate analog round gauges side by side. Right: the tachometer with the gear shown large in the centre. Left: the new speedometer with needle and a small number in the centre. Its scale starts at 200 km/h (120 mph) and grows when you drive faster.
 - New: pedal bars at the bottom of the gauges. Red for the brake pedal on the tachometer, green for the throttle on the speedometer. They show how far you are pressing the pedal right now.

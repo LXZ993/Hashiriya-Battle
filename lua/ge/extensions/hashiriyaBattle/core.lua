@@ -1275,6 +1275,8 @@ local function buildUiState()
   if st.music and extensions.hashiriyaBattle_career.keyFor then
     local ok, k = pcall(extensions.hashiriyaBattle_career.keyFor, 'hashiriyaMusicSkip')
     st.music.key = ok and k or nil
+    local ok2, k2 = pcall(extensions.hashiriyaBattle_career.keyFor, 'hashiriyaMusicPause')
+    st.music.pauseKey = ok2 and k2 or nil
   end
   return st
 end
@@ -1443,6 +1445,8 @@ function M.uiAction(action, arg)
     extensions.hashiriyaBattle_progress.chooseNick(arg and tostring(arg) or nil)
   elseif action == 'musicSkip' then
     if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.skip() end
+  elseif action == 'musicPause' then
+    if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.togglePause() end
   elseif action == 'musicSource' then
     local id, dir = tostring(arg or ''):match('^([%w_]+)|(-?%d+)$')
     if id and extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.cycleSource(id, tonumber(dir)) end
@@ -1744,6 +1748,15 @@ end
 
 function M.skipMusic()
   if extensions.hashiriyaBattle_music then extensions.hashiriyaBattle_music.skip() end
+end
+
+-- Musik anhalten / weiterspielen (Taste Strg + Ende, JDMArsch 08.11.2026)
+function M.toggleMusicPause()
+  local mu = extensions.hashiriyaBattle_music
+  if not mu or not mu.togglePause then return end
+  mu.togglePause()
+  msg(M.t(mu.isHeld() and 'menu.musicPaused' or 'menu.musicResumed'), 2)
+  M.sendUiState()
 end
 
 function M.toggleMenu()

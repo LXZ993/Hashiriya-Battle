@@ -1,0 +1,22 @@
+{
+  "domElement": "<hashiriya-oil-temp></hashiriya-oil-temp>",
+  "name": "Hashiriya Battle: Öltemperatur",
+  "types": [
+    "ui.apps.categories.vehicle_info"
+  ],
+  "description": "Öltemperatur als kleine Rundanzeige im Stil des Hashiriya-Drehzahlmessers. Blendet ohne Verbrennungsmotor aus.",
+  "css": {
+    "right": "275px",
+    "bottom": "262px",
+    "width": "125px",
+    "height": "125px"
+  },
+  "preserveAspectRatio": true,
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaOilTemp",
+  "appName": "hashiriyaOilTemp",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}
