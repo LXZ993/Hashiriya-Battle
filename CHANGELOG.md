@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Dev-Menü: Notizen gehen nicht mehr verloren (08.11.)
+- Behoben: Name und Notiz beim Bearbeiten eines Orts wurden nur mit „Speichern“ übernommen. Jetzt werden sie automatisch gespeichert, auch beim Verlassen des Felds, mit Enter, mit „Zu“, beim Wechsel zu einem anderen Ort und beim Schließen des Dev-Menüs.
+
 ### Polizei: Straßensperre und Steckbrief (08.11.)
 - Neu: Hältst du bei 3 Sternen 2 Minuten lang nicht an, stellen sich 2 Streifenwagen etwa 300 m vor dir quer auf die Straße. Reinfahren oder davor anhalten heißt Festnahme. Höchstens 2 Sperren je Fahndung.
 - Neu: Steckbrief. Entkommst du bei 3 Sternen, bist du bis zum nächsten Spieltag gesucht („Gesucht bis morgen“ im Status). Jede Fahndung startet dann sofort mit 3 Sternen, Laserkontrollen fahren los, sobald sie dich sehen, und an Garage oder Zuhause wartet die Polizei mit der Festnahme-Strafe (150.000 ¥).

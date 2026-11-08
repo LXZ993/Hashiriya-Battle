@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Dev menu: notes are no longer lost (8 Nov)
+- Fixed: name and note of a place were only kept when you clicked "Save". They are now saved automatically: when leaving the field, on Enter, on "Close", when opening another place and when closing the dev menu.
+
 ### Police: roadblock and wanted list (8 Nov)
 - New: if you do not stop for 2 minutes at 3 stars, 2 police cars block the road about 300 m ahead. Hitting it or stopping in front of it means arrest. At most 2 roadblocks per pursuit.
 - New: wanted list. If you escape at 3 stars, you are wanted until the next game day ("Wanted until tomorrow" in the status). Every pursuit then starts at 3 stars right away, laser checks chase you as soon as they see you, and the police wait at your garage or home with the arrest fine (150,000 ¥).
