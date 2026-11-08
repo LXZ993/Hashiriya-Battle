@@ -853,8 +853,8 @@ local function runBase(model, startCfg, label, covered, queue)
   local function wanted(n)
     if n == '' or job.seen[n] or planSeen[n] then return false end
     -- vorhandene Bilder: immer behalten, außer „Vorhandene Bilder überspringen“ ist aus. Auch dann bleiben
-    -- gemeinsame Teile (Felgen, Reifen … aus /vehicles/common/), neu gemacht werden nur die eigenen Teile des Autos.
-    if hasImage(n) and (cfg.skipExisting or partInfo(vd.ioCtx, n, meshCache).shared) then
+    -- gemeinsame Teile (Felgen, Reifen … aus /vehicles/common/), außer „Gemeinsame Teile neu machen“ ist gewählt.
+    if hasImage(n) and (cfg.skipExisting or (not job.redoCommon and partInfo(vd.ioCtx, n, meshCache).shared)) then
       job.skipped = job.skipped + 1; job.seen[n] = true; return false
     end
     -- Zwilling (gleiches Rad-Teil als _F/_R) wird in diesem Lauf schon fotografiert: Bild teilen
@@ -1119,10 +1119,15 @@ function M.start(arg)
   for _, k in ipairs(type(keys) == 'table' and keys or {}) do
     table.insert(models, byKey[k] or { key = k, name = k })
   end
-  if #models == 0 then send({ status = { ok = false, text = 'Kein Fahrzeug ausgewählt' } }); return end
+  if #models == 0 then
+    send({ status = { ok = false, text = data.common and 'Gemeinsame Teile werden an Fahrzeugen fotografiert: bitte auch die Fahrzeuge wählen'
+      or 'Kein Fahrzeug ausgewählt' } })
+    return
+  end
   job = newJob(models)
+  job.redoCommon = data.common == true
   job.co = coroutine.create(runJob)
-  log('I', logTag, 'Bilderstellung gestartet: ' .. #models .. ' Fahrzeug(e)')
+  log('I', logTag, 'Bilderstellung gestartet: ' .. #models .. ' Fahrzeug(e)' .. (job.redoCommon and ', gemeinsame Teile neu' or ''))
   pushJob()
 end
 

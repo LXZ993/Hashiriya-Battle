@@ -128,7 +128,12 @@
             <span class="hps-chip" @click="selectSet('mod')">alle Mods</span>
             <span class="hps-chip" @click="selectSet('none')">keine</span>
           </div>
-          <div class="hps-sub2">{{ selCount }} von {{ models.length }} ausgewählt</div>
+          <div class="hps-li hps-common" :class="{ 'is-sel': m.common }" @click="m.common = !m.common">
+            <i class="hps-box"></i>
+            <span class="hps-li-main"><b>Gemeinsame Teile neu machen</b><span>Felgen, Reifen, Radkappen, Motoren … alles, was nicht aus einem Fahrzeug selbst kommt.
+              Nur wenn das hier an ist, werden ihre vorhandenen Bilder neu gemacht. Fehlende Bilder entstehen immer.</span></span>
+          </div>
+          <div class="hps-sub2">{{ selCount }} von {{ models.length }} Fahrzeugen ausgewählt</div>
           <div class="hps-list">
             <div v-for="x in modelMatches" :key="x.key" class="hps-li" :class="{ 'is-sel': m.sel[x.key] }" @click="m.sel[x.key] = !m.sel[x.key]">
               <i class="hps-box"></i>
@@ -152,7 +157,7 @@
           </select>
         </div>
         <div class="hps-check" :class="{ 'is-on': s.studioPaint }" @click="set('studioPaint', !s.studioPaint)"><i></i>Einheitlicher Studio-Lack (silbergrau)</div>
-        <div class="hps-check" :class="{ 'is-on': s.skipExisting }" @click="set('skipExisting', !s.skipExisting)"><i></i>Vorhandene Bilder überspringen (aus: die eigenen Teile der gewählten Autos neu machen; gemeinsame Teile wie Felgen, Reifen und Radkappen bleiben, wenn sie schon da sind)</div>
+        <div class="hps-check" :class="{ 'is-on': s.skipExisting }" @click="set('skipExisting', !s.skipExisting)"><i></i>Vorhandene Bilder überspringen (aus: die eigenen Teile der gewählten Autos neu machen; gemeinsame Teile wie Felgen, Reifen und Radkappen nur, wenn beim Start „Gemeinsame Teile neu machen“ gewählt ist)</div>
         <div class="hps-check" :class="{ 'is-on': s.singlePair }" @click="set('singlePair', !s.singlePair)"><i></i>Paare nur einmal zeigen (Felgen, Reifen, Bremsen …)</div>
         <div class="hps-check" :class="{ 'is-on': s.autoView }" @click="set('autoView', !s.autoView)"><i></i>Besten Blickwinkel automatisch suchen (5 Ansichten je Teil, es gewinnt die, auf der man am meisten vom Teil sieht)</div>
         <div class="hps-sec">Licht</div>
@@ -200,7 +205,7 @@ const openKey = ref(null)
 const armed = ref(null)
 const imgVer = ref(0)
 const q = reactive({ text: "", onlyImg: false, onlyVisual: true })
-const m = reactive({ text: "", sel: {} })
+const m = reactive({ text: "", sel: {}, common: false })
 const setW = ref(320)
 
 // --- Fenster (Position, Einklappen, Reiter im Browser-Speicher) ----------------------------------
@@ -381,7 +386,7 @@ function selectSet(kind) {
 function start() {
   const keys = models.value.filter(x => m.sel[x.key]).map(x => x.key)
   if (!keys.length) return
-  call("start", { models: keys })
+  call("start", { models: keys, common: !!m.common })
 }
 
 const statusIdle = computed(() => (running.value ? "Bilderstellung läuft …" : "Bereit"))
@@ -537,6 +542,8 @@ onUnmounted(() => {
 .hps-li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; background: rgba(255, 255, 255, 0.04); cursor: pointer; }
 .hps-li:hover { background: rgba(255, 102, 0, 0.14); }
 .hps-li.is-sel { background: rgba(255, 102, 0, 0.3); }
+.hps-common { margin: 6px 0 4px; border: 1px solid rgba(255, 255, 255, 0.12); }
+.hps-common .hps-li-main span { white-space: normal; }
 .hps-box { width: 12px; height: 12px; border: 1px solid rgba(255, 255, 255, 0.4); flex: none; }
 .hps-li.is-sel .hps-box { background: var(--o); border-color: var(--o); }
 .hps-li-main { flex: 1; min-width: 0; }
