@@ -1,0 +1,14 @@
+{
+  "domElement": "<hashiriya-fuel></hashiriya-fuel>",
+  "name": "Hashiriya Battle: Tank",
+  "types": ["ui.apps.categories.vehicle_info"],
+  "description": "Tankinhalt als waagerechter Balken im Stil der Ladedruck-Anzeige. Orange unter 25 %, rot blinkend unter 10 %.",
+  "css": { "right": "20px", "bottom": "262px", "width": "220px", "height": "56px" },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaFuel",
+  "appName": "hashiriyaFuel",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}

@@ -4,11 +4,11 @@
    "appName": "hashiriyaBoost",
    "appVersion": 1,
    "placement": {
-    "bottom": "300px",
+    "bottom": "316px",
     "height": "56px",
     "position": "absolute",
     "right": "20px",
-    "width": "200px"
+    "width": "220px"
    }
   },
   {
@@ -18,7 +18,7 @@
     "bottom": "8px",
     "height": "70px",
     "position": "absolute",
-    "right": "315px",
+    "right": "540px",
     "width": "260px"
    }
   },
@@ -51,20 +51,42 @@
    "appVersion": 1,
    "placement": {
     "bottom": "5px",
-    "height": "300px",
+    "height": "260px",
     "position": "absolute",
     "right": "5px",
-    "width": "300px"
+    "width": "260px"
+   }
+  },
+  {
+   "appName": "hashiriyaSpeedo",
+   "appVersion": 1,
+   "placement": {
+    "bottom": "5px",
+    "height": "260px",
+    "position": "absolute",
+    "right": "270px",
+    "width": "260px"
+   }
+  },
+  {
+   "appName": "hashiriyaFuel",
+   "appVersion": 1,
+   "placement": {
+    "bottom": "262px",
+    "height": "56px",
+    "position": "absolute",
+    "right": "20px",
+    "width": "220px"
    }
   },
   {
    "appName": "hashiriyaTemps",
    "appVersion": 1,
    "placement": {
-    "bottom": "84px",
+    "bottom": "262px",
     "height": "125px",
     "position": "absolute",
-    "right": "315px",
+    "right": "275px",
     "width": "250px"
    }
   },
@@ -195,5 +217,5 @@
  "removedApps": {},
  "title": "Hashiriya Battle",
  "type": "hashiriyaBattle",
- "version": 12
+ "version": 13
 }

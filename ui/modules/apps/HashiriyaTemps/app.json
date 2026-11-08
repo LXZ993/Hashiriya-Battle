@@ -1,9 +1,16 @@
 {
   "domElement": "<hashiriya-temps></hashiriya-temps>",
   "name": "Hashiriya Battle: Öl- und Wassertemperatur",
-  "types": ["ui.apps.categories.vehicle_info"],
+  "types": [
+    "ui.apps.categories.vehicle_info"
+  ],
   "description": "Öl- und Kühlwassertemperatur als zwei kleine Rundanzeigen im Stil des Hashiriya-Drehzahlmessers. Blendet ohne Verbrennungsmotor aus.",
-  "css": { "right": "315px", "bottom": "84px", "width": "250px", "height": "125px" },
+  "css": {
+    "right": "275px",
+    "bottom": "262px",
+    "width": "250px",
+    "height": "125px"
+  },
   "preserveAspectRatio": true,
   "author": "Hashiriya Battle",
   "version": "1.0",

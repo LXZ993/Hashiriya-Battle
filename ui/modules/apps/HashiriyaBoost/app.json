@@ -7,8 +7,8 @@
   "description": "Ladedruck (Turbo/Kompressor) im HashiNet-Design, abgeleitet von der BeamNG-App Forced Induction. Blendet ohne Aufladung aus.",
   "css": {
     "right": "20px",
-    "bottom": "300px",
-    "width": "200px",
+    "bottom": "316px",
+    "width": "220px",
     "height": "56px"
   },
   "author": "Hashiriya Battle",

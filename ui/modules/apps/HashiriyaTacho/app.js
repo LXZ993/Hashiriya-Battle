@@ -1,16 +1,19 @@
 // Hashiriya Battle: eigener Drehzahlmesser im HashiNet-Design (abgeleitet von der BeamNG-App "Tacho2" / Advanced Tachometer).
+// Seit 0.9.x (Tacho-Umbau) nur noch Drehzahl + Gang + Bremsanzeige; Geschwindigkeit hat eine eigene Rundanzeige
+// (HashiriyaSpeedo), der Tank einen eigenen Balken (HashiriyaFuel), Öl/Wasser stehen in HashiriyaTemps.
 // Gleiche Daten wie das Original (BeamNG 0.40 ui/modules/apps/Tacho2/tacho.vue):
-//   engineInfo[1] = Höchstdrehzahl, [5] = Gang, [11]/[12] = Tank jetzt/voll, [13] = Getriebeart ("manual" ...)
-//   electrics: rpmTacho, wheelspeed/airspeed (m/s), gear_A (Automatik P R N D 2 1), parkingbrake, abs,
-//              signal_L/R, lowbeam, highbeam, watertemp, ignition
+//   engineInfo[1] = Höchstdrehzahl, [5] = Gang, [13] = Getriebeart ("manual" ...)
+//   electrics: rpmTacho, gear_A (Automatik P R N D 2 1), parkingbrake, abs, signal_L/R, lowbeam, highbeam,
+//              brake_input (Bremspedal 0..1, sonst brake)
 // Skala wie im Original: Vollausschlag = Höchstdrehzahl auf 1000 aufgerundet + 1000, Teilung 500/1000/2000.
-// Aussehen: 270°-Bogen aus Segmenten (weiß, ab 85 % orange, ab Höchstdrehzahl rot), große kursive Geschwindigkeit,
-// Gang im schrägen Abzeichen (blinkt rot am Begrenzer), darunter Tank und Wassertemperatur als feine Balken.
+// Aussehen: 270°-Bogen aus Segmenten (weiß, ab 85 % orange, ab Höchstdrehzahl rot), großer Gang in der Mitte
+// im schrägen Abzeichen (blinkt rot am Begrenzer), unten ein feiner Segment-Balken für das Bremspedal.
 angular.module('beamng.apps')
 .directive('hashiriyaTacho', [function () {
   var SVGNS = 'http://www.w3.org/2000/svg'
   var CX = 150, CY = 150, R_OUT = 132, R_IN = 116, R_NUM = 100
   var A0 = 135, SWEEP = 270, SEGS = 54
+  var PSEGS = 24 // Segmente im Pedal-Balken
 
   function pt(r, deg) { var a = deg * Math.PI / 180; return [CX + r * Math.cos(a), CY + r * Math.sin(a)] }
   function seg(r1, r2, a1, a2) {
@@ -20,6 +23,15 @@ angular.module('beamng.apps')
   function arc(r, a1, a2) {
     var p1 = pt(r, a1), p2 = pt(r, a2)
     return 'M' + p1 + 'A' + r + ',' + r + ' 0 ' + (a2 - a1 > 180 ? 1 : 0) + ' 1 ' + p2
+  }
+  // Pedal-Balken: 24 kleine schräge Segmente von x 78 bis 222
+  function pedalSvg(cls) {
+    var out = []
+    for (var i = 0; i < PSEGS; i++) {
+      var x = 78 + i * 6
+      out.push('<path class="hxt-pseg ' + cls + '" d="M' + (x + 1) + ',266 L' + (x + 5) + ',266 L' + (x + 4) + ',272 L' + x + ',272 Z"/>')
+    }
+    return out.join('')
   }
 
   return {
@@ -35,19 +47,18 @@ angular.module('beamng.apps')
           '<g class="hxt-nums"></g>',
           '<text class="hxt-legend" x="150" y="96">x1000 RPM</text>',
           '<line class="hxt-needle" x1="150" y1="58" x2="150" y2="22"/>',
-          '<text class="hxt-speed" x="150" y="186">0</text>',
-          '<text class="hxt-unit" x="150" y="204">km/h</text>',
-          '<g class="hxt-gearbox"><path class="hxt-gearbg" d="M128,214 L182,214 L172,250 L118,250 Z"/><text class="hxt-gear" x="150" y="243">N</text></g>',
+          '<g class="hxt-gearbox"><path class="hxt-gearbg" d="M122,136 L190,136 L176,198 L108,198 Z"/><text class="hxt-gear" x="149" y="187">N</text></g>',
+          '<text class="hxt-gearlbl" x="150" y="214">GEAR</text>',
           '<g class="hxt-lamps">',
-            '<text class="hxt-lamp hxt-sigl" x="96" y="132">◀</text>',
-            '<text class="hxt-lamp hxt-sigr" x="204" y="132">▶</text>',
-            '<text class="hxt-lamp hxt-park" x="104" y="226">P</text>',
-            '<text class="hxt-lamp hxt-abs" x="196" y="226">ABS</text>',
-            '<text class="hxt-lamp hxt-beam" x="150" y="122">●</text>',
+            '<text class="hxt-lamp hxt-sigl" x="88" y="140">◀</text>',
+            '<text class="hxt-lamp hxt-sigr" x="212" y="140">▶</text>',
+            '<text class="hxt-lamp hxt-park" x="100" y="232">P</text>',
+            '<text class="hxt-lamp hxt-abs" x="200" y="232">ABS</text>',
+            '<text class="hxt-lamp hxt-beam" x="150" y="120">●</text>',
           '</g>',
-          '<g class="hxt-bars">',
-            '<text class="hxt-blabel" x="88" y="276">F</text><rect class="hxt-btrack" x="96" y="270" width="48" height="4"/><rect class="hxt-fuel" x="96" y="270" width="48" height="4"/>',
-            '<text class="hxt-blabel" x="212" y="276">T</text><rect class="hxt-btrack" x="156" y="270" width="48" height="4"/><rect class="hxt-temp" x="156" y="270" width="0" height="4"/>',
+          '<g class="hxt-pedal">',
+            '<text class="hxt-plabel" x="150" y="259">Bremse</text>',
+            pedalSvg('brake'),
           '</g>',
         '</svg>',
         '<style>',
@@ -64,23 +75,20 @@ angular.module('beamng.apps')
           '.hxt-num.red{fill:#ff5a3c;}',
           '.hxt-legend{fill:rgba(244,244,244,.4);font-size:8px;letter-spacing:1.5px;text-anchor:middle;}',
           '.hxt-needle{stroke:#ff6600;stroke-width:3;stroke-linecap:round;}',
-                    '.hxt-speed{fill:#f4f4f4;font-size:52px;font-weight:900;font-style:italic;text-anchor:middle;font-variant-numeric:tabular-nums;letter-spacing:-1px;}',
-          '.hxt-unit{fill:rgba(244,244,244,.55);font-size:10px;letter-spacing:2.5px;text-anchor:middle;text-transform:uppercase;}',
           '.hxt-gearbg{fill:#9c3a2c;}',
           '.hxt-gearbox{transition:opacity .1s;}',
           '.hxt-root.is-limit .hxt-gearbg{fill:#ff3a28;animation:hxtFlash .12s steps(2) infinite;}',
-          '.hxt-gear{fill:#fff;font-size:30px;font-weight:900;font-style:italic;text-anchor:middle;}',
+          '.hxt-gear{fill:#fff;font-size:56px;font-weight:900;font-style:italic;text-anchor:middle;letter-spacing:-2px;}',
+          '.hxt-gearlbl{fill:rgba(244,244,244,.4);font-size:8px;letter-spacing:2.5px;text-anchor:middle;}',
           '.hxt-lamp{fill:rgba(255,255,255,.12);font-size:12px;font-weight:900;text-anchor:middle;}',
           '.hxt-lamp.on{fill:#ff6600;}',
           '.hxt-sigl.on,.hxt-sigr.on{fill:#3fbf5a;}',
           '.hxt-beam.on{fill:#3fbf5a;}.hxt-beam.high{fill:#4d93ec;}',
           '.hxt-abs.on,.hxt-park.on{fill:#ff5a3c;}',
-          '.hxt-blabel{fill:rgba(244,244,244,.5);font-size:9px;font-weight:700;text-anchor:middle;}',
-          '.hxt-btrack{fill:rgba(255,255,255,.12);}',
-          '.hxt-fuel{fill:#f4f4f4;}.hxt-fuel.low{fill:#ff5a3c;animation:hxtBlink .8s ease-in-out infinite alternate;}',
-          '.hxt-temp{fill:#4d93ec;}.hxt-temp.hot{fill:#ff5a3c;}',
+          '.hxt-plabel{fill:rgba(244,244,244,.5);font-size:8px;font-weight:700;letter-spacing:2px;text-anchor:middle;text-transform:uppercase;}',
+          '.hxt-pseg{fill:rgba(255,255,255,.12);}',
+          '.hxt-pseg.brake.on{fill:#ff3a28;}',
           '@keyframes hxtFlash{50%{fill:#9c3a2c;}}',
-          '@keyframes hxtBlink{to{opacity:.3;}}',
         '</style>',
       '</div>'
     ].join(''),
@@ -90,9 +98,9 @@ angular.module('beamng.apps')
       var root = element[0]
       var q = function (s) { return root.querySelector(s) }
       var segG = q('.hxt-segs'), numG = q('.hxt-nums'), needle = q('.hxt-needle')
-      var speedEl = q('.hxt-speed'), unitEl = q('.hxt-unit'), gearEl = q('.hxt-gear'), legendEl = q('.hxt-legend')
+      var gearEl = q('.hxt-gear'), legendEl = q('.hxt-legend'), pLabel = q('.hxt-plabel')
       var lamps = { sigl: q('.hxt-sigl'), sigr: q('.hxt-sigr'), park: q('.hxt-park'), abs: q('.hxt-abs'), beam: q('.hxt-beam') }
-      var fuelEl = q('.hxt-fuel'), tempEl = q('.hxt-temp')
+      var psegs = root.querySelectorAll('.hxt-pseg')
       var segs = []
       var fullRange = 0, maxRpm = 0
       var cache = {}
@@ -100,7 +108,6 @@ angular.module('beamng.apps')
       var streamsList = ['electrics', 'engineInfo']
 
       function set(key, el, fn, val) { if (cache[key] === val) return; cache[key] = val; fn(el, val) }
-      function txt(el, v) { el.textContent = v }
       function cls(name) { return function (el, on) { el.classList.toggle(name, !!on) } }
 
       function build(engineMax) {
@@ -148,10 +155,18 @@ angular.module('beamng.apps')
         }
       }
 
-      function speedOf(ms) {
-        try { if (typeof UiUnits !== 'undefined' && UiUnits.speed) return UiUnits.speed(ms) } catch (e) {}
-        return { val: ms * 3.6, unit: 'km/h' }
+      // Pedalstellung 0..1: erst der Eingang (was der Spieler drückt), sonst der Wert nach Fahrhilfen
+      function pedal(el, field) {
+        var v = el[field + '_input']
+        if (v === undefined || v === null) v = el[field]
+        v = Number(v)
+        return isFinite(v) ? Math.max(0, Math.min(1, v)) : 0
       }
+
+      scope.$on('HashiriyaState', function (e, d) {
+        var t = d && d.t
+        if (t && t['hud.brake']) set('plabel', pLabel, function (n, v) { n.textContent = v }, t['hud.brake'])
+      })
 
       try { StreamsManager.add(streamsList) } catch (e) {}
       root.classList.add('is-off')
@@ -175,13 +190,6 @@ angular.module('beamng.apps')
         set('ang', needle, function (n, v) { n.setAttribute('transform', 'rotate(' + v + ',150,150)') }, ang)
         set('limit', root, cls('is-limit'), rpm >= maxRpm * 0.97)
 
-        // Geschwindigkeit
-        var ms = el.wheelspeed !== undefined && el.wheelspeed !== null ? Number(el.wheelspeed) : Number(el.airspeed)
-        var sp = speedOf(ms || 0)
-        set('speed', speedEl, txt, String(Math.round(Math.abs(sp.val))))
-        set('unit', unitEl, txt, sp.unit || '')
-
-        // Gang
         // Gang: engineInfo[5] kann Zahl oder schon Text sein ("N", "R", "1"), sonst electrics.gear
         var g
         if (ei[13] === 'manual' || ei[13] === undefined) {
@@ -195,7 +203,7 @@ angular.module('beamng.apps')
           if (isFinite(ga)) g = ['P', 'R', 'N', 'D', '2', '1'][Math.max(0, Math.min(5, Math.round(ga * 5)))]
           else g = el.gear !== undefined && el.gear !== null && String(el.gear) !== '' ? String(el.gear).toUpperCase().slice(0, 2) : 'N'
         }
-        set('gear', gearEl, txt, g)
+        set('gear', gearEl, function (n, v) { n.textContent = v }, g)
 
         // Lampen
         set('sigl', lamps.sigl, cls('on'), !!el.signal_L)
@@ -205,14 +213,12 @@ angular.module('beamng.apps')
         set('low', lamps.beam, cls('on'), el.lowbeam > 0.9 || el.highbeam > 0.9)
         set('high', lamps.beam, cls('high'), el.highbeam > 0.9)
 
-        // Tank und Temperatur
-        var fuel = Number(ei[11]) / Number(ei[12])
-        if (!isFinite(fuel)) fuel = 0
-        set('fuel', fuelEl, function (n, v) { n.setAttribute('width', v) }, Math.round(Math.max(0, Math.min(1, fuel)) * 48))
-        set('fuelLow', fuelEl, cls('low'), fuel < 0.1)
-        var temp = Math.max(0, Math.min(1, ((Number(el.watertemp) || 0) - 50) / 80))
-        set('temp', tempEl, function (n, v) { n.setAttribute('width', v) }, Math.round(temp * 48))
-        set('hot', tempEl, cls('hot'), temp > 0.8125)
+        // Bremspedal
+        var b = Math.round(pedal(el, 'brake') * PSEGS)
+        if (cache.brake !== b) {
+          for (var k = 0; k < psegs.length; k++) psegs[k].classList.toggle('on', k < b)
+          cache.brake = b
+        }
       })
 
       function resetCar() { maxRpm = 0; cache = {} }
