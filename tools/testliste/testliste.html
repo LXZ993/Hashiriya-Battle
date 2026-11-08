@@ -93,6 +93,13 @@ textarea::placeholder { color: var(--todo); }
 const GROUPS = [
   // ===== NEU 01.–04.11.2026 =====
   // ===== NEU 05.–08.11.2026 =====
+  { neu: true, tag: 'NEU 08.11.', name: 'Nachtest 08.11. (deine Meldungen umgesetzt)', tests: [
+    ['paintlist', 'Keine internen Lacke', 'Neues Spiel > Auto > Lackwahl beim Sunburst (und im Shop): keine Einträge wie „hashiriya_tadashi_s2 Paint 1“ mehr, nur echte Lacke.'],
+    ['speedofoot', 'Kein Tacho zu Fuß', 'Aussteigen: Geschwindigkeitsmesser und Drehzahlmesser sind beide weg. Einsteigen: beide wieder da.'],
+    ['musicvol', 'Musik-Regler wirkt', 'Esc > Optionen > Audio > Musik auf 10 % und dann auf 100 %: die Mod-Musik wird hörbar leiser bzw. lauter (Titel und im Spiel).'],
+    ['tempapps', 'Wasser und Öl einzeln', 'UI-Editor: „Hashiriya Battle: Wassertemperatur“ und „… Öltemperatur“ sind zwei Apps, einzeln verschieb- und entfernbar. Standard: Wasser links, Öl rechts über dem Geschwindigkeitsmesser.'],
+    ['musicpause', 'Musik anhalten', 'Strg + Ende: Meldung „Musik angehalten“, Musik ist still. Noch mal: „Musik läuft weiter“ an derselben Stelle. Im Menü links > Werkzeuge geht dasselbe mit „Musik anhalten / Musik weiter“. Taste steht im Tasten-Check.'],
+  ]},
   { neu: true, tag: 'NEU 08.11.', name: 'Tacho und Temperaturen', tests: [
     ['tacho3', 'Zwei Rundanzeigen', 'Rechts der Drehzahlmesser mit dem Gang groß in der Mitte, links der Geschwindigkeitsmesser mit Nadel und kleiner Zahl. Skala startet bei 200 km/h (120 mph) und wächst mit, wenn du schneller fährst. Keine orangen Deko-Bögen mehr.'],
     ['pedalbars', 'Pedal-Balken', 'Unten am Drehzahlmesser ein roter Balken fürs Bremspedal, am Geschwindigkeitsmesser ein grüner fürs Gas. Sie folgen genau, wie weit du drückst (auch halb).'],

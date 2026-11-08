@@ -420,6 +420,13 @@ local function cleanPaint(p)
   }
 end
 
+-- Versteckte Lacke (class "hidden", z. B. aus defaultMultiPaintSetup unserer Gegner-Configs wie
+-- "hashiriya_tadashi_s2 Paint 1") und eigene hashiriya_-Lacke nie zum Kauf anbieten (JDMArsch 08.11.2026)
+local function hiddenPaint(name, paint)
+  if type(paint) == 'table' and paint.class == 'hidden' then return true end
+  return tostring(name or ''):lower():find('^hashiriya_') ~= nil
+end
+
 local function factoryPaints(model)
   local list, seen = {}, {}
   local okM, m = pcall(core_vehicles.getModel, model)
@@ -430,7 +437,7 @@ local function factoryPaints(model)
     if okC and col then
       for _, pid in ipairs(col.paints or {}) do
         local okP, paint = pcall(vp.getPaintById, pid)
-        if okP and type(paint) == 'table' and not seen[pid] then
+        if okP and type(paint) == 'table' and not seen[pid] and not hiddenPaint(paint.name, paint) then
           seen[pid] = true
           table.insert(list, { id = tostring(pid), name = paint.name or tostring(pid), paint = cleanPaint(paint) })
         end
@@ -438,7 +445,7 @@ local function factoryPaints(model)
     end
   end
   for name, paint in pairs(type(md.paints) == 'table' and md.paints or {}) do
-    if not seen[name] and type(paint) == 'table' then
+    if not seen[name] and type(paint) == 'table' and not hiddenPaint(name, paint) and not hiddenPaint(paint.name, paint) then
       seen[name] = true
       table.insert(list, { id = tostring(name), name = tostring(name), paint = cleanPaint(paint) })
     end

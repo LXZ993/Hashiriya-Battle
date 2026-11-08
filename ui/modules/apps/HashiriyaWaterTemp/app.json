@@ -1,0 +1,22 @@
+{
+  "domElement": "<hashiriya-water-temp></hashiriya-water-temp>",
+  "name": "Hashiriya Battle: Wassertemperatur",
+  "types": [
+    "ui.apps.categories.vehicle_info"
+  ],
+  "description": "Kühlwassertemperatur als kleine Rundanzeige im Stil des Hashiriya-Drehzahlmessers. Blendet ohne Verbrennungsmotor aus.",
+  "css": {
+    "right": "400px",
+    "bottom": "262px",
+    "width": "125px",
+    "height": "125px"
+  },
+  "preserveAspectRatio": true,
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaWaterTemp",
+  "appName": "hashiriyaWaterTemp",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}

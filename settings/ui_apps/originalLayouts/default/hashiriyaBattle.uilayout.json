@@ -69,14 +69,25 @@
    }
   },
   {
-   "appName": "hashiriyaTemps",
+   "appName": "hashiriyaWaterTemp",
+   "appVersion": 1,
+   "placement": {
+    "bottom": "262px",
+    "height": "125px",
+    "position": "absolute",
+    "right": "400px",
+    "width": "125px"
+   }
+  },
+  {
+   "appName": "hashiriyaOilTemp",
    "appVersion": 1,
    "placement": {
     "bottom": "262px",
     "height": "125px",
     "position": "absolute",
     "right": "275px",
-    "width": "250px"
+    "width": "125px"
    }
   },
   {
@@ -206,5 +217,5 @@
  "removedApps": {},
  "title": "Hashiriya Battle",
  "type": "hashiriyaBattle",
- "version": 13
+ "version": 14
 }

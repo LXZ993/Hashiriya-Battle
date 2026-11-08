@@ -183,6 +183,7 @@ local keyActions = {
   { id = 'talkAlt', action = 'hashiriyaTalkAlt', group = 'mod', need = true },
   { id = 'unstuck', action = 'hashiriyaUnstuck', group = 'mod', need = true },
   { id = 'music', action = 'hashiriyaMusicSkip', group = 'mod' },
+  { id = 'musicPause', action = 'hashiriyaMusicPause', group = 'mod' },
   { id = 'walk', action = 'toggleWalkingMode', group = 'drive', need = true, probe = true },
   { id = 'camera', action = 'hashiriyaCaptureCamera', group = 'dev', dev = true },
   { id = 'dev', action = 'hashiriyaDevMenu', group = 'dev', dev = true },
