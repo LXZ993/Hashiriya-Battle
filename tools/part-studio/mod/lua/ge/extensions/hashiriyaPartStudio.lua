@@ -63,8 +63,41 @@ local function fileOf(partName)
 end
 M.fileOf = fileOf
 
+-- Räder, Reifen, Radkappen gibt es oft zweimal mit gleichem Mesh: als _F- und als _R-Teil
+-- (z. B. tire_F_245_40_15_race / tire_R_245_40_15_race). Solche Zwillinge teilen sich ein Bild.
+-- Nur für Rad-Teile: Stoßstangen, Bremsen, Federn usw. sind vorne und hinten verschieden.
+local WHEEL_WORDS = { 'tire', 'hubcap', 'wheel', 'trimring', 'rim', 'beadlock', 'centercap' }
+local function twinOf(partName)
+  local n = tostring(partName or '')
+  local low = n:lower()
+  local wheel = false
+  for _, w in ipairs(WHEEL_WORDS) do if low:find(w, 1, true) then wheel = true; break end end
+  if not wheel then return nil end
+  local t, k = n:gsub('_F_', '_R_', 1)
+  if k == 0 then t, k = n:gsub('_R_', '_F_', 1) end
+  if k == 0 then t, k = n:gsub('_F$', '_R') end
+  if k == 0 then t, k = n:gsub('_R$', '_F') end
+  if k == 0 or t == n then return nil end
+  return t
+end
+M.twinOf = twinOf
+
+-- Bild eines Teils (Pfad mit führendem /): eigenes, sonst das vom Zwilling (siehe twinOf), sonst nil
+local function imageOf(partName)
+  if not partName or partName == '' then return nil end
+  local own = '/' .. fileOf(partName)
+  if FS:fileExists(own) then return own end
+  local tw = twinOf(partName)
+  if tw then
+    local p = '/' .. fileOf(tw)
+    if FS:fileExists(p) then return p end
+  end
+  return nil
+end
+M.imageOf = imageOf
+
 local function hasImage(partName)
-  return partName and partName ~= '' and FS:fileExists('/' .. fileOf(partName)) or false
+  return imageOf(partName) ~= nil
 end
 
 -- Einstellungen -------------------------------------------------------------------------------------
@@ -704,6 +737,7 @@ local function capturePart(veh, vd, partPath, partName, slotId)
   if result then
     if #list > 1 and bestIdx then views._auto[partName] = bestIdx; job.viewsChanged = true end
     job.done = job.done + 1
+    job.shotOk[partName] = true
     job.last = '/' .. file
     job.lastName = partName
     galleryDirty = true
@@ -800,6 +834,9 @@ local function runBase(model, startCfg, label, covered, queue)
   local function wanted(n)
     if n == '' or job.seen[n] or planSeen[n] then return false end
     if cfg.skipExisting and hasImage(n) then job.skipped = job.skipped + 1; job.seen[n] = true; return false end
+    -- Zwilling (gleiches Rad-Teil als _F/_R) wird in diesem Lauf schon fotografiert: Bild teilen
+    local tw = twinOf(n)
+    if tw and (planSeen[tw] or job.shotOk[tw]) then job.skipped = job.skipped + 1; job.seen[n] = true; return false end
     if not partHasMesh(vd.ioCtx, n, meshCache) then job.seen[n] = true; return false end
     return true
   end
@@ -1014,7 +1051,7 @@ end
 local function newJob(models)
   local pos, rot = studioSpot()
   return { models = models, modelIndex = 0, done = 0, skipped = 0, failed = 0, noMesh = 0, planned = 0,
-    round = 0, rounds = 0, seen = {}, log = {}, started = now(), pos = pos, rot = rot, 
+    round = 0, rounds = 0, seen = {}, shotOk = {}, log = {}, started = now(), pos = pos, rot = rot, 
     stop = false, finished = false }
 end
 
@@ -1204,7 +1241,7 @@ local function galleryPayload()
     if #cands > 1 or (#cands == 1 and cands[1] ~= s.chosen) then
       local opts = {}
       for _, n in ipairs(cands) do
-        local img = hasImage(n) and ('/' .. fileOf(n)) or nil
+        local img = imageOf(n)
         if img then withImg = withImg + 1 end
         total = total + 1
         table.insert(opts, { part = n, name = displayName(descs, n), img = img,
