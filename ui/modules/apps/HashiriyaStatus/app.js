@@ -26,6 +26,7 @@ angular.module('beamng.apps')
             '<div class="hbt-police-cams" ng-if="s.police.cams">{{ s.police.camsText }}' +
               '<i ng-repeat="n in camPips(s.police.camsMax) track by $index" ng-class="{\'is-on\': $index < s.police.cams}"></i></div>' +
             '<div class="hbt-police-fine" ng-if="s.police.fine">{{ s.police.fine }}</div>' +
+            '<div class="hbt-police-wanted" ng-if="s.police.wanted">{{ s.police.wanted }}</div>' +
           '</div>' +
           // Story (Alpha 0.6): aktuelles Kapitelziel, unauffällig unter dem Geld
           '<div class="hbt-goal" ng-if="s.storyGoal && !(s.battle && s.battle.state !== \'idle\')"><span>{{ s.storyGoal.chapter }}</span>{{ s.storyGoal.text }}</div>' +
@@ -151,6 +152,8 @@ angular.module('beamng.apps')
           '.hbt-watch-row.k-boss i{background:var(--k-boss);} .hbt-watch-row.k-beaten i{background:var(--k-beaten);} .hbt-watch-row.k-lost i{background:var(--k-lost);}' +
           '.hbt-watch-row.is-near{color:#f4f4f4;font-weight:800;}' +
           '.hbt-watch-row.is-near i{animation:hbtPing .4s ease-in-out infinite alternate;}' +
+          '.hbt-police-wanted{text-align:right;margin-top:3px;font-size:10px;font-weight:900;font-style:italic;letter-spacing:1.2px;text-transform:uppercase;color:#ff3b30;animation:hbtWanted 1.2s ease-in-out infinite alternate;}' +
+          '@keyframes hbtWanted{from{opacity:1;}to{opacity:.45;}}' +
           '.hbt-police{margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,.12);}' +
           '.hbt-police-head{display:flex;align-items:center;justify-content:flex-end;gap:7px;}' +
           '.hbt-police-tag{font-size:9px;font-weight:900;font-style:italic;letter-spacing:.8px;text-transform:uppercase;color:#fff;padding:1px 5px 0;border-radius:2px;' +

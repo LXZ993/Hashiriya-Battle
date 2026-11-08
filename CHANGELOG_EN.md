@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Police: roadblock and wanted list (8 Nov)
+- New: if you do not stop for 2 minutes at 3 stars, 2 police cars block the road about 300 m ahead. Hitting it or stopping in front of it means arrest. At most 2 roadblocks per pursuit.
+- New: wanted list. If you escape at 3 stars, you are wanted until the next game day ("Wanted until tomorrow" in the status). Every pursuit then starts at 3 stars right away, laser checks chase you as soon as they see you, and the police wait at your garage or home with the arrest fine (150,000 ¥).
+
 ### After your third test (8 Nov)
 - Kameibashi is no longer a PA but the emergency bay it really is: no travel destination, no map point, no nap. At night 2 to 4 rivals park there (talk and challenge them like at the PAs) and 1 to 2 people just hang out, like a small illegal meet. Empty by day. Bays: your dev places PA 1, PA 2 and the new PA 38 to 41.
 - Fixed: the colour preview and bought paints in the shop did not show on the car. The paint is now set directly on this exact car and checked afterwards. If it does not show, the car respawns with the new paint.
