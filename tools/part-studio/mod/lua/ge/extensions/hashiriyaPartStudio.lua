@@ -39,7 +39,8 @@ local defaults = {
   studioPaint = true,            -- alle Teile im gleichen silbergrauen Lack (einheitlicher Katalog)
   skipExisting = true,           -- schon vorhandene Bilder nicht neu machen
   singlePair = true,             -- Paare (Felgen, Reifen, Bremsen links/rechts) nur einmal zeigen
-  autoView = true,               -- mehrere Blickwinkel gleichzeitig aufnehmen und den besten nehmen
+  autoView = true,
+  configThumbs = true,           -- Bilder in der BeamNG-Teileauswahl (Fahrzeugkonfigurator) zeigen               -- mehrere Blickwinkel gleichzeitig aufnehmen und den besten nehmen
   types = { Car = true, Truck = true }, -- Fahrzeugtypen in der Modell-Liste
 }
 
@@ -52,6 +53,8 @@ local startTimer = nil
 local job = nil              -- laufende Bilderstellung
 local galleryVehId = nil     -- Fahrzeug, für das die Galerie zuletzt gesendet wurde
 local galleryDirty = false
+local mapDirty = true         -- Bilder-Liste für den BeamNG-Konfigurator neu senden
+local mapTimer = 0
 local modelsCache = nil
 local views = { _auto = {} } -- Teilname -> { yaw, pitch, zoom } (Grad, Grad, Faktor)
 
@@ -1041,6 +1044,7 @@ local function runJob()
   restoreScene()
   if job.viewsChanged then saveViews() end
   job.finished = true
+  mapDirty = true
   job.text = job.stop and 'Abgebrochen' or 'Fertig'
   pcall(jsonWriteFile, LAST_RUN_FILE, {
     date = os.date('%Y-%m-%d %H:%M'), models = job.models, done = job.done, skipped = job.skipped,
@@ -1218,6 +1222,7 @@ function M.setSetting(key, value)
   end
   cfg[key] = value
   if key == 'types' then modelsCache = nil end
+  if key == 'configThumbs' then mapDirty = true end
   saveSettings()
   send({ settings = cfg })
 end
@@ -1287,6 +1292,40 @@ local function galleryPayload()
   for _, m in ipairs(modelList()) do if m.key == model then mName = m.name end end
   return { vehicle = true, vehId = veh:getID(), model = model, modelName = mName, rows = rows,
     withImg = withImg, total = total }
+end
+
+-- Für den BeamNG-Konfigurator (index.js): welche Teile des eigenen Autos ein Bild haben,
+-- und welcher Anzeigename (wie in der Teile-Liste) zu welchem Teil gehört.
+local function partMapPayload()
+  local veh = getPlayerVehicle(0)
+  if not veh then return { enabled = cfg.configThumbs ~= false, labels = {}, images = {} } end
+  local vd = core_vehicle_manager.getVehicleData(veh:getID())
+  if not vd or not vd.config or not vd.ioCtx then return { enabled = cfg.configThumbs ~= false, labels = {}, images = {} } end
+  local okMap, slotMap = pcall(jbeamIO().getAvailableSlotNameMap, vd.ioCtx)
+  if not okMap or type(slotMap) ~= 'table' then slotMap = {} end
+  local descs = partDescriptions(vd.ioCtx)
+  local labels, images = {}, {}
+  for _, s in ipairs(collectSlots(vd.config.partsTree)) do
+    for _, n in ipairs(candidatesOf(vd.ioCtx, slotMap, s)) do
+      if images[n] == nil then
+        local img = imageOf(n)
+        images[n] = img or false
+        if img then
+          local lb = displayName(descs, n)
+          if labels[lb] == nil then labels[lb] = n end
+        end
+      end
+    end
+  end
+  for n, v in pairs(images) do if not v then images[n] = nil end end
+  return { enabled = cfg.configThumbs ~= false, vehId = veh:getID(), labels = labels, images = images }
+end
+
+function M.requestPartMap()
+  mapDirty = false
+  local ok, data = pcall(partMapPayload)
+  if not ok then log('W', logTag, 'Konfigurator-Bilder: ' .. tostring(data)); return end
+  guihooks.trigger('HashiriyaPartStudioMap', data)
 end
 
 function M.requestGallery()
@@ -1388,6 +1427,11 @@ function M.onUpdate(dtReal)
     closeMenuTimer = closeMenuTimer - (dtReal or 0)
     if closeMenuTimer <= 0 then closeMenuTimer = nil; M.closeMenu() end
   end
+  -- Konfigurator-Bilder nachziehen (anderes Auto, Teil gewechselt, neue Bilder), nicht während eines Laufs
+  if mapDirty and (not job or job.finished) then
+    mapTimer = mapTimer - (dtReal or 0)
+    if mapTimer <= 0 then mapTimer = 1.0; M.requestPartMap() end
+  end
   if openFallback then
     openFallback = openFallback - (dtReal or 0)
     if openFallback <= 0 then openFallback = nil; M.onLoadingScreenFadeout() end
@@ -1424,10 +1468,10 @@ function M.onLoadingScreenFadeout()
 end
 
 function M.onVehicleSpawned(vid)
-  if not job or job.finished or job.vehId ~= vid then galleryDirty = true end
+  if not job or job.finished or job.vehId ~= vid then galleryDirty = true; mapDirty = true end
 end
 
-function M.onVehicleSwitched() galleryDirty = true end
+function M.onVehicleSwitched() galleryDirty = true; mapDirty = true end
 
 function M.onClientEndMission()
   if job and not job.finished then job.stop = true end
