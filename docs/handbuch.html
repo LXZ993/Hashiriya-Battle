@@ -2232,7 +2232,8 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <h3>1. Leader und Bosse mit Begleitern (Kette)</h3>
 <p>Ein Leader oder Boss kommt nicht mehr allein: zwei Begleiter fahren im Konvoi direkt hinter ihm (je 20 m Abstand). Gibst du einem aus der Gruppe Lichthupe (oder fordert der Leader dich heraus), beginnt die <b>Kette</b>: erst der hintere Begleiter, dann der vordere, zuletzt der Leader/Boss, jeweils ein normales SP-Battle. Oben in der SP-Anzeige steht <b>KETTE 1/3</b>, 2/3, 3/3.</p>
 <ul>
-<li>Gewinnst du, fällt der Begleiter zurück, und der nächste wartet auf dich: ist er vorne, fährt er langsamer, bis du dran bist; ist er hinten, holt er auf. Sobald ihr höchstens <code>chainStartDistance</code> (45 m) auseinander seid, geht das Angleichen los. Kommt er in <code>chainWaitSeconds</code> (60 s) nicht ran oder verschwindet, bricht die Kette ab.</li>
+<li>Gewinnst du, fällt der Begleiter zurück, und der nächste wartet auf dich: ist er vorne, fährt er langsamer, bis du dran bist; ist er hinten, holt er auf. Sobald ihr höchstens <code>chainStartDistance</code> (70 m) auseinander seid, geht das Angleichen los. Kommt er in <code>chainWaitSeconds</code> (90 s) nicht ran oder verschwindet, bricht die Kette ab.</li>
+<li><b>Anzeige</b> (seit 09.11.2026): Der Gegner, auf den es gerade ankommt, fährt mit <b>Warnblinker</b>. Oben in der SP-Anzeige steht statt der Balken ein Kasten „Crew-Battle 1/2“ mit seinem Namen, ob er vor dir (▲ ranfahren) oder hinter dir ist (▼ er holt auf, Tempo halten), dem Abstand in Metern (grün, sobald es losgeht), ab wie viel Metern es startet und der Restzeit.</li>
 <li><b>Eine Niederlage = die Kette reißt.</b> Die Gruppe fährt wieder zusammen (auch die schon geschlagenen Begleiter) und macht kurz Pause. Beim nächsten Mal geht es wieder beim ersten Begleiter los. Auch ein Frühstart lässt die Kette reißen.</li>
 <li>Jeder Sieg zählt wie ein normaler Sieg (Preisgeld, Ruf, Statistik). Begleiter, die du schon kennst, kämpfen als Revanche (weniger Geld).</li>
 <li>Wer begleitet wen: <b>Leader</b> nehmen Mitglieder ihrer eigenen Crew (bevorzugt welche, die du schon geschlagen hast). <b>Bosse</b> nehmen die Leader der Crews aus ihren <code>conditions.beatenTeams</code> (Shirotora z. B. zwei der Leader von Lanterns, Neon, Yamagumi, Kitsune), ohne Crews die Rivalen aus <code>conditions.beatenRivals</code> (Mugen also Shirotora und Kokuryū).</li>
@@ -2245,7 +2246,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td><code>spacing</code></td><td>20</td><td>m Abstand im Konvoi beim Erscheinen</td></tr>
 <tr><td><code>ai</code></td><td>"follow"</td><td>Begleiter folgen ihrem Vordermann mit der BeamNG-Folge-KI. <code>"traffic"</code> = normal im Verkehr fahren (falls "follow" komisch fährt)</td></tr>
 <tr><td><code>followExtraKmh</code></td><td>10</td><td>So viel schneller als das Reisetempo des Leaders dürfen sie, um dranzubleiben</td></tr>
-<tr><td><code>chainWaitSeconds</code> / <code>chainStartDistance</code> / <code>chainPauseSeconds</code></td><td>60 / 45 / 3</td><td>Kette: so lange wartet der nächste, so nah muss er sein, so viele Sekunden Pause mindestens</td></tr>
+<tr><td><code>chainWaitSeconds</code> / <code>chainStartDistance</code> / <code>chainPauseSeconds</code></td><td>90 / 70 / 3</td><td>Kette: so lange wartet der nächste, so nah muss er sein, so viele Sekunden Pause mindestens</td></tr>
 </table>
 
 <h3>2. Crew-Taktik: Blocken für den Leader</h3>
@@ -2620,6 +2621,11 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h4>Dev-Menü: Notizen gehen nicht mehr verloren (08.11.)</h4>
 <ul>
 <li>Behoben: Name und Notiz beim Bearbeiten eines Orts wurden nur mit „Speichern“ übernommen. Jetzt werden sie automatisch gespeichert, auch beim Verlassen des Felds, mit Enter, mit „Zu“, beim Wechsel zu einem anderen Ort und beim Schließen des Dev-Menüs.</li>
+</ul>
+<h4>Crew-Kette verständlicher (09.11.)</h4>
+<ul>
+<li>Bei einem Crew-Battle (Leader mit Begleitern) fährt der Gegner, an den du ranfahren musst, jetzt mit Warnblinker. Oben steht ein Kasten „Crew-Battle 1/2“ mit seinem Namen, ob er vor oder hinter dir ist, dem Abstand, ab wie viel Metern es losgeht und der Restzeit. Sobald ihr nah genug seid, startet das Angleichen von selbst.</li>
+<li>Die Meldungen sagen jetzt genau, was zu tun ist. Start schon ab 70 m statt 45 m, 90 s Zeit statt 60 s, und ein Begleiter vor dir wird deutlicher langsamer, damit du ihn einholst.</li>
 </ul>
 <h4>Nach deinem Test (09.11.)</h4>
 <ul>

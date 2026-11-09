@@ -5,6 +5,10 @@
 ### Dev-Menü: Notizen gehen nicht mehr verloren (08.11.)
 - Behoben: Name und Notiz beim Bearbeiten eines Orts wurden nur mit „Speichern“ übernommen. Jetzt werden sie automatisch gespeichert, auch beim Verlassen des Felds, mit Enter, mit „Zu“, beim Wechsel zu einem anderen Ort und beim Schließen des Dev-Menüs.
 
+### Crew-Kette verständlicher (09.11.)
+- Bei einem Crew-Battle (Leader mit Begleitern) fährt der Gegner, an den du ranfahren musst, jetzt mit Warnblinker. Oben steht ein Kasten „Crew-Battle 1/2“ mit seinem Namen, ob er vor oder hinter dir ist, dem Abstand, ab wie viel Metern es losgeht und der Restzeit. Sobald ihr nah genug seid, startet das Angleichen von selbst.
+- Die Meldungen sagen jetzt genau, was zu tun ist. Start schon ab 70 m statt 45 m, 90 s Zeit statt 60 s, und ein Begleiter vor dir wird deutlicher langsamer, damit du ihn einholst.
+
 ### Nach deinem Test (09.11.)
 - Behoben: An Shibaura PA und Tatsumi 1st PA standen keine geparkten Autos mehr. Wenn BeamNG die Parkplätze der Map kurz nicht lieferte, hat die Mod eigene Parkplatz-Daten nur mit unseren Buchten gesetzt, und die haben die Map-Parkplätze dauerhaft ersetzt. Jetzt wartet die Mod, bis die Map-Parkplätze da sind, und tauscht falsche Daten von früher wieder aus.
 - Behoben: Die Crew-Kette (z. B. gegen Riku Tanabe) endete immer mit „Frühstart“. Ein Frühstart zählt jetzt nur noch, wenn du selbst beschleunigst. Zieht der Begleiter beim Aufholen an dir vorbei, fährt er eben vorne weiter.

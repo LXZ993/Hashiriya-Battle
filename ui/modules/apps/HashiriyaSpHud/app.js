@@ -10,7 +10,17 @@ angular.module('beamng.apps')
   return {
     template:
       '<div class="bngApp hbh-root">' +
-        '<div class="hbh" ng-if="b" ng-class="{\'hbh-in\': b}">' +
+        // Crew-Kette: wartet auf den nächsten Gegner (JDMArsch 09.11.2026: man wusste nicht, was zu tun ist)
+        '<div class="hbh-cw" ng-if="b && b.chainWait">' +
+          '<div class="hbh-cw-head"><span class="hbh-cw-tag">{{ t[\'hud.chainWait.title\'] }} {{ b.chainWait.step }}/{{ b.chainWait.total }}</span>' +
+            '<span class="hbh-cw-lead" ng-if="b.chainWait.leader">{{ b.chainWait.leader }}</span></div>' +
+          '<div class="hbh-cw-name"><small>{{ t[\'hud.chainWait.next\'] }}</small>{{ b.chainWait.name }}<i class="hbh-cw-haz"></i><em>{{ t[\'hud.chainWait.hazard\'] }}</em></div>' +
+          '<div class="hbh-cw-dist" ng-class="{\'is-close\': b.chainWait.dist <= b.chainWait.startAt}">' +
+            '<span class="hbh-cw-arrow">{{ b.chainWait.ahead ? \'\u25B2\' : \'\u25BC\' }}</span><b>{{ b.chainWait.dist }}</b><i>m</i>' +
+            '<span>{{ b.chainWait.ahead ? t[\'hud.chainWait.ahead\'] : t[\'hud.chainWait.behind\'] }}</span></div>' +
+          '<div class="hbh-cw-foot"><span>{{ fmtStart(b.chainWait.startAt) }}</span><span>{{ b.chainWait.timer }} s</span></div>' +
+        '</div>' +
+        '<div class="hbh" ng-if="b && !b.chainWait" ng-class="{\'hbh-in\': b}">' +
 
           '<div class="hbh-row hbh-head">' +
             '<div class="hbh-id hbh-id-l">' +
@@ -77,6 +87,22 @@ angular.module('beamng.apps')
         '</div>' +
 
         '<style>' +
+          '.hbh-cw{width:340px;margin:0 auto;padding:8px 14px 9px;background:linear-gradient(180deg,rgba(10,10,12,.82),rgba(10,10,12,.55));border-top:3px solid #ff6600;color:#f4f4f4;text-shadow:0 1px 2px rgba(0,0,0,.8);animation:hbhCwIn .25s ease-out;}' +
+          '@keyframes hbhCwIn{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:none;}}' +
+          '.hbh-cw-head{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;font-weight:900;font-style:italic;letter-spacing:1.4px;text-transform:uppercase;}' +
+          '.hbh-cw-tag{color:#ff9a3c;}' +
+          '.hbh-cw-lead{color:rgba(244,244,244,.62);}' +
+          '.hbh-cw-name{margin-top:4px;font-size:17px;font-weight:900;font-style:italic;display:flex;align-items:center;gap:6px;}' +
+          '.hbh-cw-name small{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(244,244,244,.62);font-weight:700;margin-right:2px;}' +
+          '.hbh-cw-haz{width:10px;height:10px;background:#ffb000;clip-path:polygon(50% 0,100% 100%,0 100%);animation:hbhHaz .6s steps(1) infinite;}' +
+          '.hbh-cw-name em{font-size:9px;font-style:normal;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#ffb000;}' +
+          '@keyframes hbhHaz{50%{opacity:.15;}}' +
+          '.hbh-cw-dist{margin-top:4px;display:flex;align-items:baseline;gap:5px;font-size:12px;color:rgba(244,244,244,.8);}' +
+          '.hbh-cw-dist b{font-size:22px;font-weight:900;font-style:italic;color:#fff;}' +
+          '.hbh-cw-dist i{font-style:normal;font-size:11px;color:rgba(244,244,244,.62);margin-right:6px;}' +
+          '.hbh-cw-arrow{color:#ff9a3c;font-size:13px;}' +
+          '.hbh-cw-dist.is-close b,.hbh-cw-dist.is-close .hbh-cw-arrow{color:#5ae673;}' +
+          '.hbh-cw-foot{margin-top:3px;display:flex;justify-content:space-between;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(244,244,244,.55);}' +
           '.hbh-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;}' +
           '.hbh{--o:#ff6600;--o2:#ff9a3c;--o3:#b84a00;--w:#f4f4f4;--dim:rgba(244,244,244,.62);' +
             'font-family:"Overpass","Noto Sans","Segoe UI",sans-serif;color:var(--w);padding:6px 26px 0;' +
@@ -227,13 +253,15 @@ angular.module('beamng.apps')
         })
       })
 
+      scope.fmtStart = function (m) { return String((scope.t && scope.t['hud.chainWait.start']) || '%d m').replace('%d', m) }
+
       scope.$on('HashiriyaState', function (event, data) {
         scope.$evalAsync(function () {
           var b = (data && data.battle) || null
           if (b && (!scope.b || scope.b.state === 'result') && (b.state === 'countdown' || b.state === 'sync')) { lastP = null; lastR = null }
           scope.b = b
           scope.t = (data && data.t) || scope.t
-          if (!b) { lastP = null; lastR = null; return }
+          if (!b || b.chainWait) { lastP = null; lastR = null; return }
           if (lastP !== null && lastP - b.playerSp > b.playerMaxSp * 0.04) hit('hitP')
           if (lastR !== null && lastR - b.rivalSp > b.rivalMaxSp * 0.04) hit('hitR')
           lastP = b.playerSp
