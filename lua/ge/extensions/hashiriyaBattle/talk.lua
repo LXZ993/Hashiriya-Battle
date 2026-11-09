@@ -356,8 +356,14 @@ local function exitRoutesFor(center)
   for _, e in ipairs(core().spots('paexit')) do
     if type(e.points) == 'table' and #e.points >= 2 then
       local pts = {}
-      for _, q in ipairs(e.points) do table.insert(pts, toVec(q)) end
-      if (pts[1] - center):length() <= reach then table.insert(out, { name = e.name, points = pts }) end
+      -- gehört zur PA, wenn irgendein Punkt in Reichweite liegt (die Aufnahme beginnt oft schon vor der PA)
+      local near = false
+      for _, q in ipairs(e.points) do
+        local v = toVec(q)
+        table.insert(pts, v)
+        if not near and (v - center):length() <= reach then near = true end
+      end
+      if near then table.insert(out, { name = e.name, points = pts }) end
     end
   end
   return out
