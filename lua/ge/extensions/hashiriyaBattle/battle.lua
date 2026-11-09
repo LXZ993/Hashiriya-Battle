@@ -421,6 +421,11 @@ function M.onHighbeam(vehId, value)
   -- den Rivalen herausfordern, hinter dem man gerade fährt
   for _, e in ipairs(rivals().getOnRoad()) do
     local rivalVeh = be:getObjectByID(e.vehId)
+    -- Wanderer am Wartepunkt: Lichthupe in seiner Nähe lässt ihn losfahren, er fordert dann von hinten heraus
+    if e.waiting and rivalVeh and (rivalVeh:getPosition() - player:getPosition()):length() < 80 then
+      rivals().wakeWaiting(e)
+      return
+    end
     if rivalVeh and playerBehindRival(player, rivalVeh) then
       -- Rivale lehnt sichtbar ab (Blinker + Stopp-Zeichen): gerade erst gefahren, Nacht-Limit oder keine Lust
       local reason = crew() and crew().declineReason(e)

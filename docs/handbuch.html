@@ -113,6 +113,7 @@ nav label.lm select { width: 100%; margin-top: 3px; padding: 5px 6px; border-rad
     <a class="l2" href="#rivale-neu">Neuen Rivalen anlegen</a>
     <a class="l2" href="#crew">Neue Crew mit Leader</a>
     <a class="l2" href="#wanderer">Wanderer</a>
+    <a class="l2" href="#wartepunkte">Wanderer-Wartepunkte</a>
     <a class="l2" href="#boss">Bosse und Endboss</a>
     <a class="l2" href="#bedingungen">Bedingungen</a>
     <a class="l2" href="#kennzeichen">Kennzeichen</a>
@@ -538,6 +539,15 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 }</code></pre>
 <p>Im Lexikon bleiben Name, Spruch und Beschreibung von Wanderern und Bossen verborgen, bis du sie geschlagen hast. Auch der <code>hint</code> ist erst sichtbar, wenn man davon gehört hat (Spielstand <code>knownHints</code>, erfährt man durch die <a href="#chat">PA-Gespräche</a>). Vorher steht dort "Noch unbekannt" (Text <code>home.hintUnknown</code>).</p>
 <p>Für Wanderer aus der Community gibt es den <a href="#wanderer-builder">Wanderer-Builder</a> (Datei <span class="path">F:\BeamNG\current\hashiriya_tools\Wanderer-Builder\Hashiriya-Wanderer-Builder.html</span>, Kapitel 13b). Er speichert eine <code>hashiriya_wanderer_&lt;name&gt;.json</code>, die <code>import_wanderer.py</code> direkt ins richtige Format bringt.</p>
+<h4 id="wartepunkte">Wanderer-Wartepunkte</h4>
+<p>Seit 09.11.2026. Nachts steht an einem Wartepunkt manchmal ein Wanderer mit Warnblinker am Rand. Fährst du an ihm vorbei (näher als 45 m, mindestens 20 km/h, in seine Richtung) oder gibst in seiner Nähe Lichthupe, fährt er los, hängt sich hinter dich und fordert dich per Lichthupe heraus. Annehmen mit Warnblinker, ablehnen mit Blinker, wie bei jedem Rivalen, der von hinten herausfordert. Nach 2 Minuten ohne Battle fährt er normal im Verkehr weiter.</p>
+<ul>
+<li><b>Wer wartet:</b> ein Wanderer (kein Boss), der gerade auftauchen darf (seine <a href="#bedingungen">Bedingungen</a> sind erfüllt). Neue Wanderer kommen vor Revanchen. Ist keiner frei, bleibt der Punkt leer.</li>
+<li><b>Wann:</b> nur nachts. Liegt ein Wartepunkt 180 bis 700 m vor dir, steht dort mit 60 % Chance jemand. Danach bleibt der Punkt 15 Minuten leer. Es wartet immer nur einer gleichzeitig.</li>
+<li><b>Punkte:</b> deine 73 Dev-Orte vom Typ „Wanderer-Wartepunkt“ stehen in <span class="path">lua\ge\extensions\hashiriyaBattle\data\maps\c1.json</span> unter <code>wandererSpots</code>. Neue Punkte aus dem Dev-Menü wirken sofort. Stell das Auto beim Merken so hin, wie der Wanderer stehen soll, mit der Nase in Fahrtrichtung.</li>
+<li><b>Einstellungen</b> (optional in <code>rivals.json</code> unter <code>settings</code> als <code>"waitSpots": { ... }</code>): <code>enabled</code>, <code>chance</code> (0.6), <code>spawnMin</code> (180 m), <code>spawnMax</code> (700 m), <code>triggerDist</code> (45 m), <code>triggerMinKmh</code> (20), <code>chaseKmh</code> (180), <code>giveUpSeconds</code> (120), <code>spotCooldown</code> (900 s).</li>
+<li><b>Testen:</b> Dev-Menü, Reiter Rivalen, <b>Wanderer an Wartepunkt</b>. Das stellt sofort einen Wanderer an den nächsten Wartepunkt, ohne Chance und Bedingungen. Geht nur nachts (Reiter Spielstand, Uhrzeit z. B. auf 23 Uhr). Danach mit dem Auto vorbeifahren.</li>
+</ul>
 
 <h3 id="boss">Bosse und Endboss</h3>
 <p>Bosse haben <code>"boss": true</code>, der letzte zusätzlich <code>"final": true</code>. Den letzten Rang (Herr der Nacht) bekommt man nur nach dem Endboss (<code>requiresFinal</code> beim Rang). Zurzeit sind Shirotora, Kokuryū und Mugen Platzhalter (<code>_platzhalter</code>) mit einem Ersatzauto. Wenn deine Configs fertig sind, trägst du nur <code>model</code> und <code>config</code> ein und löschst <code>_platzhalter</code>:</p>
@@ -2540,7 +2550,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td>Game Over, wenn du kein Auto mehr hast und kein Geld für einen Gebrauchten.</td><td>Alpha 0.8</td><td>gebaut (02.11.2026)</td></tr>
 <tr><td>Tägliche Straßen-Events: Baustelle mit Spursperrung für 1-2 Tage, Panne oder Unfall auf dem Seitenstreifen, Polizei, Stau, Wetter und Nebel. Infos über HashiNet und PA-Gespräche.</td><td>noch keiner</td><td>Brainstorm</td></tr>
 <tr><td>Map auskundschaften und neue Orte setzen: neue Shop-Standorte (Mechaniker, Lackierer, Bodyshop), neue Tankstellen, 1-2 neue PAs. Orte sammelt Alex im <a href="#dev">Dev-Menü</a>, ich übernehme sie in <code>c1.json</code>.</td><td>noch keiner</td><td>Werkzeug fertig (01.11.2026)</td></tr>
-<tr><td>Wanderer-Wartepunkte: manche Wanderer stehen an einem festen Ort und warten auf dich, statt herumzufahren.</td><td>noch keiner</td><td>Orte sammelbar (Typ „Wanderer-Wartepunkt“), Spiel-Logik offen</td></tr>
+<tr><td>Wanderer-Wartepunkte: manche Wanderer stehen an einem festen Ort und warten auf dich, statt herumzufahren.</td><td>Alpha 0.9.2</td><td>Gebaut 09.11.2026, siehe <a href="#wartepunkte">Wanderer-Wartepunkte</a></td></tr>
 <tr><td>Polizei tagsüber an festen Stellen mit Geschwindigkeitsmessung.</td><td>Alpha 0.9.2</td><td>Gebaut 04.11.2026: Blitzer = 45 Radarfallen der C1, Laserkontrollen an JDMArschs Polizeistellen nur ab und an besetzt (Dienstplan je Tag, mehr mit steigendem Rang), Fahndung mit 1 bis 3 Sternen, Polizei auf Minimap/Radar erst nach dem Sehen, etwas Ruf fürs Entkommen (<a href="#polizei">9c</a>).</td></tr>
 <tr><td>Auf- und Ausfahrten für den Map-Wechsel: dort kommt man nach einem Map-Wechsel wieder auf die C1, oder fährt hin, um die Map zu wechseln.</td><td>nach 1.0 (Map-Reisen)</td><td>05.11.2026: alle 66 Auf-/Ausfahrten in <code>c1.json</code>. Ausfahrten gebaut: dort den C1 verlassen und zur Garage oder einer besuchten Haupt-PA reisen (Zeit und Sprit), siehe <a href="#reisen">Reisen</a>. Auffahrten warten auf den Map-Wechsel.</td></tr>
 <tr><td>Showroom im GT/TXR-Stil beim neuen Spielstand (Startauto und Farbe).</td><td>noch keiner</td><td>offen</td></tr>
@@ -2618,6 +2628,11 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <details class="cl">
 <summary><b>Alpha 0.9.2</b> <small>Stand 06.11.2026</small></summary>
 <div>
+<h4>Wanderer-Wartepunkte (09.11.)</h4>
+<ul>
+<li>Neu: Nachts steht an einem der 73 Wartepunkte von JDMArsch (LXZ aka. LXZockt) manchmal ein Wanderer mit Warnblinker am Rand. Fährst du vorbei oder gibst Lichthupe, hängt er sich hinter dich und fordert dich heraus.</li>
+<li>Dev-Menü: Knopf „Wanderer an Wartepunkt“ (Reiter Rivalen) zum Testen.</li>
+</ul>
 <h4>Daishi PA und neue Auf- und Ausfahrten (09.11.)</h4>
 <ul>
 <li>Neu: <b>Daishi PA (down)</b>, gesetzt von JDMArsch (LXZ aka. LXZockt), mit 5 Parkbuchten, Shop und Tankstelle. Sie steht auf der großen Karte und ist ein Reiseziel.</li>
@@ -3360,14 +3375,14 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 </ol>
 <table>
 <tr><th>Teil</th><th>Was er macht</th></tr>
-<tr><td>Typen</td><td>Garage / HQ, Zuhause, Parkplatz (PA) (Buchten), PA-Ankunft (Teleport) (Ankunftspunkt einer Haupt-PA), Shop (allgemein), Mechaniker, Lackierer, Bodyshop, Tankstelle, Wanderer-Wartepunkt, Nebenjob-Ziel, PA-Fahrer-Stehplatz (Fahrer an den PAs stehen dort, wirkt sofort), Foto-Spot (Ziel der Fotojobs, wirkt sofort), PA-Ausfahrt (Route, nur über „PA-Ausfahrt aufnehmen“, siehe <a href="#pinkslip">12b</a>), Schwarzes Brett (Aushang, wirkt sofort, siehe <a href="#brett">12d2</a>), Taxi: Fahrgast-Punkt und Taxi-Depot (wirken sofort, siehe <a href="#taxi">Taxischicht</a>), Polizei / Messstelle (Blitzer oder Laserkontrolle, wirkt sofort, siehe <a href="#polizei">9c</a>), Auffahrt, Ausfahrt, Map-Wechsel, Spawnpunkt, Showroom, Sonstiges</td></tr>
+<tr><td>Typen</td><td>Garage / HQ, Zuhause, Parkplatz (PA) (Buchten), PA-Ankunft (Teleport) (Ankunftspunkt einer Haupt-PA), Shop (allgemein), Mechaniker, Lackierer, Bodyshop, Tankstelle, Wanderer-Wartepunkt (wirkt sofort, siehe <a href="#wartepunkte">Wartepunkte</a>), Nebenjob-Ziel, PA-Fahrer-Stehplatz (Fahrer an den PAs stehen dort, wirkt sofort), Foto-Spot (Ziel der Fotojobs, wirkt sofort), PA-Ausfahrt (Route, nur über „PA-Ausfahrt aufnehmen“, siehe <a href="#pinkslip">12b</a>), Schwarzes Brett (Aushang, wirkt sofort, siehe <a href="#brett">12d2</a>), Taxi: Fahrgast-Punkt und Taxi-Depot (wirken sofort, siehe <a href="#taxi">Taxischicht</a>), Polizei / Messstelle (Blitzer oder Laserkontrolle, wirkt sofort, siehe <a href="#polizei">9c</a>), Auffahrt, Ausfahrt, Map-Wechsel, Spawnpunkt, Showroom, Sonstiges</td></tr>
 <tr><td>Liste</td><td>Alle Orte der Map: die aus der Kartendatei (<code>c1.json</code>, orange Linie links, „Kartendatei“) und deine eigenen. Mit Typ, Entfernung zu dir und Notiz. Suchfeld und Typ-Filter oben, „Nach Nähe“ sortiert die nächsten nach oben.</td></tr>
 <tr><td>Hin</td><td>Teleportiert dich hin (Auto oder zu Fuß, Schaden bleibt). Mit aktiver Freecam fliegt auch die Kamera mit.</td></tr>
 <tr><td>Bearb.</td><td>Name, Typ und Notiz ändern, <b>Auf aktuelle Stelle setzen</b> (Ort neu setzen) oder <b>Löschen</b> (zweimal klicken). Ganz unten stehen die Koordinaten. Bei Orten aus der Kartendatei lässt sich nur der Anzeigename ändern; die Kartendatei bleibt, wie sie ist.</td></tr>
 <tr><td>Markierungen</td><td>Solange das Dev-Menü offen ist, steht an jedem Ort eine farbige Säule mit dem Namen darüber. Die Säule wird mit der Entfernung dicker, so siehst du sie auch von weit weg (bis 6 km, Namen bis 1,5 km). Im Kasten <b>Markierungen</b>: Säulen, Namen und Orte aus der Kartendatei ein/aus, Höhe 15/40/80/150 m, <b>Farben ändern</b> = Farbe je Typ aus 16 Farben wählen (↺ = Standardfarbe). Die Farbe siehst du auch als Punkt bei den Typen und als Streifen links in der Liste. <b>Übersicht (Alpha 0.9.1):</b> Zeile „Typen“ blendet die Säulen ganzer Typen aus, in der Liste schaltet „Säule an/aus“ einzelne Orte aus (der Ort bleibt gespeichert), „Alle zeigen“ holt alles zurück. <b>Parkbuchten der Map</b> zeigt die Parkbuchten der Karte im Umkreis von 250 m als dünne Stäbe (weiß = frei, rot = belegt), also die Plätze, auf die der Parkverkehr und die Autos der PA-Fahrer gestellt werden. Gespeichert in <code>dev_places.json</code> unter <code>markers</code> (<code>hidden</code>, <code>hiddenTypes</code>, <code>parkSpots</code>).</td></tr>
 <tr><td>Alte Positionen</td><td>Alles, was du früher mit „Position merken“ gesammelt hast (<code>captured_positions.json</code>), wird beim ersten Öffnen einmal übernommen, als „Alt 1“, „Alt 2“ … Liegt eine alte Position bei einem bekannten Ort, steht er dahinter (z. B. „Alt 1 (bei Garage (Bucht))“) und der Typ ist schon gesetzt.</td></tr>
 </table>
-<div class="box tip"><b>Wo landen die Orte?</b>In <span class="path">F:\BeamNG\current\settings\hashiriya_battle\dev_places.json</span>, je Map getrennt (<code>levels.c1.places</code>). Eigene Namen für Orte aus der Kartendatei stehen unter <code>mapNames</code>. Sag mir einfach Bescheid, wenn ein Ort ins Spiel soll, dann übernehme ich ihn aus der Datei in <code>c1.json</code> (neuer Shop, neue Tankstelle, neue PA, Wartepunkt …). Wanderer-Wartepunkte und Map-Wechsel brauchen dafür noch eigene Spiel-Logik. Polizei-Messstellen wirken schon direkt aus dieser Datei (<a href="#polizei">9c</a>).</div>
+<div class="box tip"><b>Wo landen die Orte?</b>In <span class="path">F:\BeamNG\current\settings\hashiriya_battle\dev_places.json</span>, je Map getrennt (<code>levels.c1.places</code>). Eigene Namen für Orte aus der Kartendatei stehen unter <code>mapNames</code>. Sag mir einfach Bescheid, wenn ein Ort ins Spiel soll, dann übernehme ich ihn aus der Datei in <code>c1.json</code> (neuer Shop, neue Tankstelle, neue PA, Wartepunkt …). Map-Wechsel braucht dafür noch eigene Spiel-Logik. Wanderer-Wartepunkte wirken sofort (<a href="#wartepunkte">Wartepunkte</a>). Polizei-Messstellen wirken schon direkt aus dieser Datei (<a href="#polizei">9c</a>).</div>
 
 <h3>Reiter „Werkzeuge“</h3>
 <table>

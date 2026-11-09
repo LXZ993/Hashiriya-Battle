@@ -348,10 +348,11 @@ end
 -- kind 'board' = Aushänge des Schwarzen Bretts (boardSpots / Dev-Typ board), 'taxi' = Fahrgast-Punkte der Taxischicht
 -- (taxiSpots / Dev-Typ taxi), 'taxidepot' = Taxi-Depot, dort steht das Firmentaxi (taxiDepots / Dev-Typ taxidepot)
 -- kind 'police' = Messstellen für Blitzer und Laserkontrollen (policeSpots / Dev-Typ police, Einstellungen in police = { kind, limit, both, off })
+-- kind 'wanderer' = Wartepunkte, an denen nachts ein Wanderer am Rand steht (wandererSpots / Dev-Typ wanderer, rivals.lua)
 local spotKinds = { stand = { list = 'standSpots', dev = 'npc' }, photo = { list = 'photoSpots', dev = 'photo' },
   paexit = { list = 'paExitRoutes', dev = 'paexit' }, board = { list = 'boardSpots', dev = 'board' },
   taxi = { list = 'taxiSpots', dev = 'taxi' }, taxidepot = { list = 'taxiDepots', dev = 'taxidepot' },
-  police = { list = 'policeSpots', dev = 'police' } }
+  police = { list = 'policeSpots', dev = 'police' }, wanderer = { list = 'wandererSpots', dev = 'wanderer' } }
 local spotCache = {}
 function M.resetSpotCache() spotCache = {} end
 function M.spots(kind)

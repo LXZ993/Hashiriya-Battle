@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Wanderer-Wartepunkte (09.11.)
+- Neu: Nachts steht an einem der 73 Wartepunkte von JDMArsch (LXZ aka. LXZockt) manchmal ein Wanderer mit Warnblinker am Rand. Fährst du vorbei oder gibst Lichthupe, hängt er sich hinter dich und fordert dich heraus.
+- Dev-Menü: Knopf „Wanderer an Wartepunkt“ (Reiter Rivalen) zum Testen.
+
 ### Daishi PA und neue Auf- und Ausfahrten (09.11.)
 - Neu: **Daishi PA (down)**, gesetzt von JDMArsch (LXZ aka. LXZockt), mit 5 Parkbuchten, Shop und Tankstelle. Sie steht auf der großen Karte und ist ein Reiseziel.
 - Neu: Shop an der Oi PA. Beide neuen Shops verkaufen vorerst alles.
