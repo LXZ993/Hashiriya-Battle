@@ -19,6 +19,7 @@ local data = nil
 local onRoad = {}   -- { data = rivalData, vehId = id, spawnDir = vec3, spawnPos = vec3, age = s }
 local engaged = nil -- Eintrag aus onRoad, gegen den gerade das Battle läuft
 local cooldown = 10
+local updateWaitSpots -- Wanderer-Wartepunkte (weiter unten)
 
 local function core() return extensions.hashiriyaBattle_core end
 
@@ -1343,7 +1344,7 @@ local function onUpdate(dtReal, dtSim)
       -- Hängt fest (steht oder fährt kaum, ohne Battle): erst neu anschieben, dann verschwinden lassen, wenn weit genug weg
       -- (nicht bei Crew-Blockern: die fährt gerade der eigene Fahrer, crew.lua)
       local drv = extensions.hashiriyaBattle_driver
-      if e ~= engaged and e.launched and not (drv and drv.isRunning(e.vehId)) then
+      if e ~= engaged and e.launched and not e.waiting and not (drv and drv.isRunning(e.vehId)) then
         if veh:getVelocity():length() < 3 then e.stuck = (e.stuck or 0) + dtSim else e.stuck = 0 end
         if e.stuck > stuckSeconds * 0.5 and not e.nudged then e.nudged = true; M.resume(e) end
         if e.stuck > stuckSeconds and player and (veh:getPosition() - player:getPosition()):length() > 120 then
@@ -1362,6 +1363,11 @@ local function onUpdate(dtReal, dtSim)
     ::continue::
   end
 
+  if player and not busy then
+    local okW, errW = pcall(updateWaitSpots, dtSim, player, night)
+    if not okW then log('E', logTag, 'Wanderer-Wartepunkte: ' .. tostring(errW)) end
+  end
+
   calibTimer = calibTimer - dtSim
   if calibTimer <= 0 then
     calibTimer = 2
@@ -1375,6 +1381,167 @@ local function onUpdate(dtReal, dtSim)
     local ok, err = pcall(M.spawnNext, false)
     if not ok then log('E', logTag, 'Rivalen-Spawn fehlgeschlagen: ' .. tostring(err)) end
   end
+end
+
+-- Wanderer-Wartepunkte (JDMArsch 09.11.2026) -----------------------------------------
+-- Nachts steht an einem Wartepunkt (Kartendatei wandererSpots oder Dev-Ort "Wanderer-Wartepunkt") ein Wanderer
+-- mit Warnblinker am Rand. Fährst du an ihm vorbei (oder gibst Lichthupe), fädelt er hinter dir ein, holt auf
+-- und fordert dich per Lichthupe heraus (wie ein Rivale, der dich von hinten herausfordert, battle.lua).
+-- Einstellungen: optional "waitSpots" in settings von rivals.json, sonst die Werte hier.
+local waitDefaults = {
+  enabled = true,
+  chance = 0.6,         -- Chance, dass am nächsten Wartepunkt jemand steht (je Annäherung gewürfelt)
+  spawnMin = 180,       -- m: so weit weg muss der Punkt mindestens sein (außer Sicht)
+  spawnMax = 700,       -- m: so nah muss er sein
+  triggerDist = 45,     -- m: so nah vorbeifahren, damit er losfährt
+  triggerMinKmh = 20,   -- so schnell musst du dabei sein
+  chaseKmh = 180,       -- Tempo-Obergrenze beim Aufholen
+  giveUpSeconds = 120,  -- so lange versucht er, dich herauszufordern, dann fährt er normal weiter
+  spotCooldown = 900,   -- s: so lange bleibt ein Wartepunkt danach leer (Echtzeit)
+}
+local function waitCfg()
+  local w = (settings().waitSpots) or {}
+  return setmetatable({}, { __index = function(_, k) if w[k] ~= nil then return w[k] end return waitDefaults[k] end })
+end
+local waitCheck, spotCool = 0, {}
+
+local function spotKey(s) return s.id or string.format('%.0f/%.0f', s.pos[1], s.pos[2]) end
+local function spotDir(s)
+  local d = type(s.dir) == 'table' and vec3(s.dir[1], s.dir[2], 0) or vec3(0, 1, 0)
+  if d:length() < 0.01 then d = vec3(0, 1, 0) end
+  return d:normalized()
+end
+
+-- Wer wartet? Wanderer (keine Bosse), die gerade auftauchen dürfen; neue bevorzugt, sonst Revanche.
+-- anyFallback = Dev-Knopf: zur Not irgendein Wanderer, der nicht unterwegs ist
+local function pickWanderer(save, anyFallback)
+  local fresh, beaten, any = {}, {}, {}
+  for _, r in ipairs(data.rivals or {}) do
+    if r.wanderer and not r.boss and not isOnRoad(r.id) and not reserved[r.id] then
+      table.insert(any, r)
+      if isEligible(r, save) then table.insert(save.defeated[r.id] and beaten or fresh, r) end
+    end
+  end
+  local r
+  if #fresh > 0 then r = fresh[math.random(#fresh)]
+  elseif #beaten > 0 then return rematchOf(beaten[math.random(#beaten)], save)
+  elseif anyFallback and #any > 0 then r = any[math.random(#any)] end
+  if not r then return nil end
+  local copy = {}
+  for k, v in pairs(r) do copy[k] = v end
+  return copy
+end
+
+local function waitingEntry()
+  for _, e in ipairs(onRoad) do if e.waiting or e.waitChase then return e end end
+  return nil
+end
+
+local function spawnWaiting(spot, rival)
+  local pos, dir = vec3(spot.pos[1], spot.pos[2], spot.pos[3]), spotDir(spot)
+  local veh = spawnCar(rival, pos + vec3(0, 0, 0.3), dir)
+  if not veh then return nil end
+  rival.paChallenge = true -- fordert sicher heraus und lehnt nicht ab (wird nach dem Battle gelöscht)
+  local e = { data = rival, vehId = veh:getID(), spawnDir = dir, spawnPos = pos, age = 0, rotChecked = true,
+    launched = true, waiting = true, waitSpot = spotKey(spot) }
+  table.insert(onRoad, e)
+  veh:queueLuaCommand("ai.setMode('disabled') electrics.setIgnitionLevel(2) electrics.set_warn_signal(true)"
+    .. " if input and input.event then input.event('parkingbrake', 1, 1) end")
+  spotCool[e.waitSpot] = waitCfg().spotCooldown
+  log('I', logTag, 'Wanderer wartet: ' .. tostring(rival.id) .. ' an ' .. tostring(spot.name or e.waitSpot))
+  return e
+end
+
+-- Er fährt los und hängt sich hinter dich
+function M.wakeWaiting(e)
+  if not e or not e.waiting then return end
+  local veh = entryVeh(e)
+  local player = core().getPlayerVehicle()
+  e.waiting, e.waitChase = nil, 0
+  if not veh or not player then return end
+  core().freezeCar(veh, false)
+  veh:queueLuaCommand("electrics.set_warn_signal(false) if input and input.event then input.event('parkingbrake', 0, 1) end")
+  veh:queueLuaCommand(string.format(
+    "ai.setMode('follow') ai.setTargetObjectID(%d) ai.setAggressionMode('off') ai.setAvoidCars('on') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.setAggression(%f) ai.driveInLane('on')",
+    player:getID(), waitCfg().chaseKmh / 3.6, 0.5))
+  log('I', logTag, 'Wanderer fädelt hinter dir ein: ' .. tostring(e.data.id))
+end
+
+function updateWaitSpots(dt, player, night)
+  local wc = waitCfg()
+  for k, t in pairs(spotCool) do spotCool[k] = t - dt; if spotCool[k] <= 0 then spotCool[k] = nil end end
+  local w = waitingEntry()
+  local ppos = player:getPosition()
+  local pdir = player:getDirectionVector()
+  if w then
+    local veh = entryVeh(w)
+    if not veh then return end
+    if w.waiting then
+      -- kurz nach dem Spawn festhalten (steht dann sicher, auch am Hang)
+      if not w.frozen and w.age > 0.6 then w.frozen = true; core().freezeCar(veh, true) end
+      local rel = ppos - w.spawnPos
+      local speed = player:getVelocity():length()
+      -- vorbeigefahren: nah dran, schnell genug und schon auf seiner Höhe oder davor
+      if rel:length() < wc.triggerDist and speed >= wc.triggerMinKmh / 3.6 and rel:dot(w.spawnDir) > -5 and pdir:dot(w.spawnDir) > 0.3 then
+        M.wakeWaiting(w)
+      end
+    elseif w.waitChase then
+      w.waitChase = w.waitChase + dt
+      if w == engaged then w.waitChase = nil
+      elseif w.waitChase > wc.giveUpSeconds then
+        w.waitChase = nil
+        M.resume(w)
+      end
+    end
+    return
+  end
+  if not wc.enabled or not night then return end
+  waitCheck = waitCheck - dt
+  if waitCheck > 0 then return end
+  waitCheck = 2
+  local save = core().save
+  if not save or extensions.hashiriyaBattle_parking.getCurrent() then return end
+  if #onRoad >= (settings().maxOnRoad or 4) then return end
+  -- nächster Wartepunkt vor dir in Reichweite
+  local best, bestD = nil, math.huge
+  for _, s in ipairs(core().spots('wanderer')) do
+    if not spotCool[spotKey(s)] then
+      local sp = vec3(s.pos[1], s.pos[2], s.pos[3])
+      local rel = sp - ppos
+      local d = rel:length()
+      if d >= wc.spawnMin and d <= wc.spawnMax and rel:dot(pdir) > 0 and d < bestD then best, bestD = s, d end
+    end
+  end
+  if not best then return end
+  local key = spotKey(best)
+  if math.random() >= wc.chance then spotCool[key] = wc.spotCooldown return end
+  if not spawnFree(vec3(best.pos[1], best.pos[2], best.pos[3]), 8) then spotCool[key] = 60 return end
+  local r = pickWanderer(save)
+  if not r then spotCool[key] = wc.spotCooldown return end
+  spawnWaiting(best, r)
+end
+
+-- Dev-Menü: Wanderer an den nächsten Wartepunkt stellen (ohne Chance, Abstand und Bedingungen; nur nachts,
+-- weil Rivalen tagsüber verschwinden und nur nachts herausfordern)
+function M.devWaitSpawn()
+  if not data then M.loadData() end
+  local save = core().save
+  local player = core().getPlayerVehicle()
+  if not save or not player then return nil, 'noSave' end
+  if settings().nightOnly and not home().isNight() then return nil, 'day' end
+  local old = waitingEntry()
+  if old then despawn(old) end
+  local best, bestD = nil, math.huge
+  for _, s in ipairs(core().spots('wanderer')) do
+    local d = (vec3(s.pos[1], s.pos[2], s.pos[3]) - player:getPosition()):length()
+    if d < bestD then best, bestD = s, d end
+  end
+  if not best then return nil, 'noSpot' end
+  local r = pickWanderer(save, true)
+  if not r then return nil, 'noWanderer' end
+  local e = spawnWaiting(best, r)
+  if not e then return nil, 'spawn' end
+  return { name = r.name, spot = best.name or spotKey(best), dist = math.floor(bestD) }
 end
 
 local function onExtensionLoaded()

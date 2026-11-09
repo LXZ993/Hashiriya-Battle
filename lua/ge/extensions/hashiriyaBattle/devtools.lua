@@ -729,6 +729,18 @@ end
 local function police() return extensions.hashiriyaBattle_police end
 function actions.policeCam(a) if police() then police().devSpeedcam(a.kmh) end end
 function actions.policeLaser() if police() then police().devLaser() end end
+function actions.waitSpawn()
+  local rv = extensions.hashiriyaBattle_rivals
+  if not rv or not rv.devWaitSpawn then return end
+  local res, why = rv.devWaitSpawn()
+  if res then
+    msg(string.format('Wanderer %s wartet an %s (%d m)', tostring(res.name), tostring(res.spot), res.dist), 5)
+  else
+    msg(({ noSave = 'Nur in einer laufenden Karriere.', day = 'Nur nachts (Reiter Spielstand: Uhrzeit auf z. B. 23 Uhr stellen).', noSpot = 'Kein Wanderer-Wartepunkt auf dieser Map.',
+      noWanderer = 'Kein Wanderer frei.', spawn = 'Auto konnte nicht gespawnt werden.' })[why] or tostring(why), 4)
+  end
+end
+
 function actions.policeStart(a) if police() then police().devStart(a.level) end end
 function actions.policeStop() if police() then police().devStop() end end
 function actions.policeResetDay() if police() then police().devResetDay() msg('Dev: Blitzer und Strafzettel von heute zurückgesetzt', 3) end end

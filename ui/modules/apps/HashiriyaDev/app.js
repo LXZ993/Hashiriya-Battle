@@ -59,6 +59,7 @@ angular.module('beamng.apps')
               '<span class="hbd-btn" ng-click="act(\'devSpawnRival\', \'__random\')">Zufälliger Rivale</span>' +
               '<span class="hbd-btn" ng-click="act(\'devClearRivals\')">Alle entfernen</span>' +
               '<span class="hbd-btn" ng-click="act(\'devTalkRespawn\')">PA-Fahrer neu</span>' +
+              '<span class="hbd-btn" ng-click="dev(\'waitSpawn\')" title="Stellt einen Wanderer an den nächsten Wanderer-Wartepunkt (nur nachts, ohne Bedingungen). Danach vorbeifahren oder Lichthupe.">Wanderer an Wartepunkt</span>' +
               '<span class="hbd-btn hbd-warn" ng-click="armed(\'resetDef\') ? dev(\'resetDefeated\') : arm(\'resetDef\')">{{ isArmed(\'resetDef\') ? \'Sicher? Nochmal klicken\' : \'Alle wieder unbesiegt\' }}</span>' +
             '</div>' +
             '<input class="hbd-search" type="text" ng-model="q.rival" placeholder="Suchen: Name, ID oder Crew \u2026">' +

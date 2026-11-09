@@ -2,6 +2,10 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Wanderer waiting spots (9 Nov)
+- New: at night a wanderer sometimes waits with hazard lights on at one of the 73 waiting spots placed by JDMArsch (LXZ aka. LXZockt). Drive past or flash your high beams and he pulls in behind you and challenges you.
+- Dev menu: button "Wanderer an Wartepunkt" (Rivals tab) for testing.
+
 ### Daishi PA and new ramps (9 Nov)
 - New: **Daishi PA (down)**, placed by JDMArsch (LXZ aka. LXZockt), with 5 parking bays, a shop and a gas station. It is on the big map and is a travel destination.
 - New: shop at Oi PA. Both new shops sell everything for now.
