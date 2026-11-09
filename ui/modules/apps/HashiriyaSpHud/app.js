@@ -63,6 +63,16 @@ angular.module('beamng.apps')
               '</div>' +
           '</div>' +
 
+          // Gruppen-Battle: alle Gegner mit eigener SP-Leiste (▲ vor dir, ▼ hinter dir, RAUS = ausgeschieden)
+          '<div class="hbh-grp" ng-if="b.group">' +
+            '<div class="hbh-grp-r" ng-repeat="g in b.group" ng-class="{\'is-out\': g.out, \'is-lead\': g.lead, \'is-ahead\': g.ahead}">' +
+              '<span class="hbh-grp-pos">{{ g.out ? \'✕\' : (g.ahead ? \'▲\' : \'▼\') }}</span>' +
+              '<span class="hbh-grp-n">{{ g.name }}</span>' +
+              '<span class="hbh-grp-bar"><i ng-style="{width: pct(g.sp, g.maxSp)}"></i></span>' +
+              '<span class="hbh-grp-tag">{{ g.out ? t[\'hud.group.out\'] : \'\' }}</span>' +
+            '</div>' +
+          '</div>' +
+
           // Embleme fest in der Anzeige: links dein Logo (Logo-Sammlung, ohne Wahl das Zeichen 走), rechts Crew-Symbol / Wanderer-Siegel / Boss-Emblem
           '<img class="hbh-slot hbh-slot-l" ng-class="{\'hbh-slot-own\': b.playerLogo && b.playerLogo != playerMark}" ng-src="{{ b.playerLogo || playerMark }}" alt="">' +
           '<img class="hbh-slot hbh-slot-r" ng-if="b.rivalLogo" ng-src="{{ b.rivalLogo }}" alt="">' +
@@ -128,6 +138,17 @@ angular.module('beamng.apps')
           '.hbh-betoffer b{font-size:15px;font-weight:900;letter-spacing:1.5px;color:#8fe388;}' +
           '.hbh-bet-t{display:inline-block;margin-left:8px;min-width:20px;font-size:12px;font-weight:800;color:var(--dim);font-style:normal;}' +
           '.hbh-betoffer small{display:block;font-size:10px;letter-spacing:1px;color:var(--dim);font-style:normal;margin-top:1px;}' +
+          '.hbh-grp{margin:4px 0 0 auto;width:56%;display:flex;flex-direction:column;gap:3px;}' +
+          '.hbh-grp-r{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;font-style:italic;letter-spacing:.5px;}' +
+          '.hbh-grp-pos{width:12px;text-align:center;font-style:normal;font-size:10px;color:#5ae673;}' +
+          '.hbh-grp-r.is-ahead .hbh-grp-pos{color:var(--o);}' +
+          '.hbh-grp-n{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+          '.hbh-grp-r.is-lead .hbh-grp-n{color:var(--o2);}' +
+          '.hbh-grp-bar{flex:none;width:96px;height:6px;background:rgba(255,255,255,.14);transform:skewX(-20deg);overflow:hidden;}' +
+          '.hbh-grp-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--o3),var(--o));transition:width .2s linear;}' +
+          '.hbh-grp-r.is-out{opacity:.45;}' +
+          '.hbh-grp-r.is-out .hbh-grp-pos{color:#e01e12;}' +
+          '.hbh-grp-tag{flex:none;width:34px;text-align:right;font-size:9px;letter-spacing:1.5px;color:#e01e12;font-style:normal;}' +
           '.hbh-blockers{text-align:center;margin-top:6px;font-size:10px;font-weight:800;letter-spacing:2px;color:#ffd23f;}' +
           /* Stopp-Zeichen */
           '.hbh-fx{position:fixed;left:0;right:0;top:34%;display:flex;flex-direction:column;align-items:center;z-index:40;pointer-events:none;' +

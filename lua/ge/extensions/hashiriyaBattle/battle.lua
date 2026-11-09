@@ -109,6 +109,8 @@ local function falseStartCooldown()
   return d.falseStartRechallengeSeconds or 30
 end
 
+local setWarnSignal, groupHud -- weiter unten, wird schon in M.reset gebraucht
+
 -- keepChain = true: nur dieses eine Battle ist vorbei, die Kette geht mit dem nächsten Gegner weiter
 function M.reset(cooldown, keepChain)
   offer = nil
@@ -126,12 +128,23 @@ function M.reset(cooldown, keepChain)
     local veh = rivals() and rivals().getRivalVehicle()
     if veh then extensions.hashiriyaBattle_driver.cancelLaunch(veh) end
   end
+  -- Gruppen-Battle: Warnblinker aus, Ausgeschiedene wieder in den Konvoi (regroup unten)
+  local groupBattle = battle and battle.racers and battle.group or nil
+  if battle and battle.racers then
+    for _, r in ipairs(battle.racers) do
+      r.entry.battleOut = nil
+      local v = be:getObjectByID(r.entry.vehId)
+      if v then setWarnSignal(v, false) end
+    end
+    local lv = rivals() and rivals().getRivalVehicle()
+    if lv then setWarnSignal(lv, false) end
+  end
   state = 'idle'
   battle = nil
   pcall(extensions.hashiriyaBattle_hardcore.battleEnded) -- Ironman: kein offenes Battle mehr
   -- Kette vorbei oder gerissen (Niederlage, Frühstart, Gegner weg): die Gruppe fährt wieder zusammen,
   -- beim nächsten Mal geht es wieder beim ersten Begleiter los
-  local group = (not keepChain) and chain and chain.group or nil
+  local group = (not keepChain) and chain and chain.group or groupBattle
   if not keepChain then chain = nil end
   if rivals() and rivals().disengage then rivals().disengage(cooldown) end
   if group and rivals().regroup then
@@ -179,7 +192,7 @@ local function playerBehindRival(player, rivalVeh)
     and player:getVelocity():length() >= cfg.challengeMinSpeed
 end
 
-local function setWarnSignal(veh, on)
+function setWarnSignal(veh, on) -- (lokal, oben vordeklariert)
   veh:queueLuaCommand('electrics.set_warn_signal(' .. tostring(on) .. ')')
 end
 
@@ -289,6 +302,31 @@ local function beginChallenge(e, playerAhead)
     for i = #esc, 1, -1 do
       local m = esc[i]
       if not m.leftGroup and be:getObjectByID(m.vehId) then order[#order + 1] = m end
+    end
+    -- Gruppen-Battle (Standard seit 09.11.2026, JDMArsch): Leader/Boss und Begleiter fahren gleichzeitig.
+    -- crewbattle.json escorts.mode = "chain" holt die alte Kette zurück.
+    if #order > 0 and crew().cfg('escorts').mode ~= 'chain' then
+      local leaderVeh = be:getObjectByID(leader.vehId)
+      rivals().engage(leader)
+      startCountdown(rivals().challengeData(leader), leaderVeh, playerAhead)
+      local cc = crew().cfg('escorts')
+      battle.group = group
+      battle.racers = {}
+      for i = #order, 1, -1 do -- vorne nach hinten
+        local m = order[i]
+        local d = rivals().challengeData(m)
+        local sp = math.floor((d.maxSp or 1000) * (cc.groupEscortSp or 0.6) + 0.5)
+        battle.racers[#battle.racers + 1] = { entry = m, data = d, sp = sp, maxSp = sp, gap = 0 }
+        local v = be:getObjectByID(m.vehId)
+        if v then
+          setWarnSignal(v, true)
+          v:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", battle.rivalSpeed or 25))
+        end
+      end
+      local c = core()
+      c.msg(c.t('msg.groupStart', leader.data.name, #order), 6)
+      log('I', logTag, string.format('Gruppen-Battle gegen %s mit %d Begleitern', tostring(leader.data.id), #order))
+      return
     end
     if #order > 0 then
       order[#order + 1] = leader
@@ -457,6 +495,25 @@ local function getGap(player, rivalVeh)
   return (rivalVeh:getPosition() - player:getPosition()):dot(dir)
 end
 
+-- Gruppen-Battle: das Auto der Gruppe, das dir am nächsten ist (Angleichen und Countdown laufen gegen dieses)
+local function nearestParticipant(player, leaderVeh)
+  local best, bestD = leaderVeh, leaderVeh and math.abs(getGap(player, leaderVeh)) or math.huge
+  for _, r in ipairs(battle.racers or {}) do
+    local v = be:getObjectByID(r.entry.vehId)
+    if v then
+      local d = math.abs(getGap(player, v))
+      if d < bestD then best, bestD = v, d end
+    end
+  end
+  return best
+end
+
+local function groupLeft()
+  local n = battle.leaderOut and 0 or 1
+  for _, r in ipairs(battle.racers or {}) do if not r.out then n = n + 1 end end
+  return n
+end
+
 local function spanCommand(playerId)
   return string.format(
     "ai.setAvoidCars('on') ai.setTargetObjectID(%d) ai.setMode('span') ai.setSpeedMode('off') ai.driveInLane('off') ai.setAggressionMode('off') ai.setAggression(%f)",
@@ -623,12 +680,46 @@ local function updateGuard(dt, rivalVeh)
   end
 end
 
+-- Gruppen-Battle: Begleiter scheidet aus (SP leer, zu weit zurück oder Auto weg). Er zählt wie ein eigener Sieg
+-- (Preisgeld, Fortschritt), schaltet den Warnblinker an und fährt im Verkehr weiter.
+local function racerOut(r, veh, why)
+  r.out = true
+  r.sp = math.max(r.sp, 0)
+  r.entry.battleOut = true
+  r.entry.leftGroup = true
+  if crew() then pcall(crew().dropRacer, r.entry) end
+  if veh then setWarnSignal(veh, true) end
+  log('I', logTag, string.format('Gruppen-Battle: %s ist raus (%s), noch %d', tostring(r.data.id), why or '?', groupLeft()))
+  if veh then
+    local ok, err = pcall(core().onBattleResult, r.data, true,
+      { time = battle.time, playerSp = battle.playerSp, playerMaxSp = cfg.playerMaxSp, groupEscort = true })
+    if not ok then log('E', logTag, 'Gruppen-Battle Ergebnis: ' .. tostring(err)) end
+    pcall(extensions.hashiriyaBattle_hardcore.battleStarted, battle.rival) -- Battle läuft weiter
+  end
+end
+
+-- Gruppen-Battle: der Leader/Boss ist raus, die Begleiter fahren weiter
+local function leaderOut(why)
+  battle.leaderOut = true
+  battle.rivalSp = math.max(battle.rivalSp, 0)
+  local v = rivals().getRivalVehicle()
+  if v then
+    if battle.ownAi then driver().stop(v); battle.ownAi = false end
+    rivals().setCruise(v, battle.rival)
+    setWarnSignal(v, true)
+  end
+  log('I', logTag, string.format('Gruppen-Battle: Leader %s ist raus (%s), noch %d', tostring(battle.rival.id), why, groupLeft()))
+  if groupLeft() > 0 then core().msg(core().t('msg.groupLeaderOut', battle.rival.name, groupLeft()), 5) end
+end
+
 local function updateBattle(dt, player, rivalVeh)
   local gap = getGap(player, rivalVeh)
   battle.gap = gap
 
-  -- Gegner-KI: vorne -> flüchten, hinten -> jagen
-  if gap > cfg.modeSwitchHysteresis then
+  -- Gegner-KI: vorne -> flüchten, hinten -> jagen (im Gruppen-Battle nur, solange der Leader noch drin ist)
+  if battle.leaderOut then
+    -- nichts: er fährt im Verkehr weiter
+  elseif gap > cfg.modeSwitchHysteresis then
     setRivalAi(rivalVeh, 'flee')
   elseif gap < -cfg.modeSwitchHysteresis then
     setRivalAi(rivalVeh, 'chase')
@@ -636,7 +727,7 @@ local function updateBattle(dt, player, rivalVeh)
     setRivalAi(rivalVeh, gap >= 0 and 'flee' or 'chase')
   end
 
-  if battle.ownAi then
+  if battle.ownAi and not battle.leaderOut then
     driver().update(dt, rivalVeh, gap, battle.rivalSp / math.max(battle.rivalMaxSp, 1), battle.playerSp / math.max(cfg.playerMaxSp, 1))
   end
 
@@ -649,7 +740,7 @@ local function updateBattle(dt, player, rivalVeh)
     end
   end
 
-  if not battle.ownAi and aiMode(rivalVeh) == 'fleeGuard' and battle.rivalMode == 'flee' then
+  if not battle.leaderOut and not battle.ownAi and aiMode(rivalVeh) == 'fleeGuard' and battle.rivalMode == 'flee' then
     local ok, err = pcall(updateGuard, dt, rivalVeh)
     if not ok and not battle.guardWarned then
       battle.guardWarned = true
@@ -658,7 +749,7 @@ local function updateBattle(dt, player, rivalVeh)
   end
 
   -- Eigenes Gummiband im span-Modus (BeamNG hat dort keins): vorne etwas ruhiger, hinten mehr Druck
-  if battle.spanAi then
+  if battle.spanAi and not battle.leaderOut then
     battle.rubberTimer = (battle.rubberTimer or 0) - dt
     if battle.rubberTimer <= 0 then
       battle.rubberTimer = 1
@@ -671,6 +762,54 @@ local function updateBattle(dt, player, rivalVeh)
         rivalVeh:queueLuaCommand(string.format('ai.setAggression(%f)', a))
       end
     end
+  end
+
+  if battle.racers then
+    -- Gruppen-Battle: jeder Gegner hinter dir verliert SP, du verlierst SP durch den, der am weitesten vorne
+    -- liegt, plus etwas für jeden weiteren vor dir. Sieg, wenn alle raus sind.
+    local cc = crew().cfg('escorts')
+    local function drainOf(g) return math.min(cfg.drainBase + math.abs(g) * cfg.drainPerMeter, cfg.drainMax) * dt end
+    local front, ahead = nil, 0
+    if not battle.leaderOut then
+      front = gap
+      if gap > 0 then ahead = 1 else battle.rivalSp = battle.rivalSp - drainOf(gap) end
+      battle.rivalSp = battle.rivalSp - damageSp(rivalVeh:getID(), 'lastRivalDamage')
+    end
+    for _, r in ipairs(battle.racers) do
+      if not r.out then
+        local v = be:getObjectByID(r.entry.vehId)
+        if not v then
+          racerOut(r, nil, 'weg')
+        else
+          r.gap = getGap(player, v)
+          if r.gap > 0 then ahead = ahead + 1 else r.sp = r.sp - drainOf(r.gap) end
+          local dmg = getDamage(v:getID())
+          r.sp = r.sp - math.min(math.max(dmg - (r.lastDamage or dmg), 0) * cfg.spPerDamage, cfg.maxDamageSpPerTick)
+          r.lastDamage = dmg
+          if r.sp <= 0 then racerOut(r, v, 'SP')
+          elseif r.gap < -(cc.groupOutGap or 150) then racerOut(r, v, 'abgehängt')
+          elseif not front or r.gap > front then front = r.gap end
+        end
+      end
+    end
+    if front and front > 0 then
+      battle.playerSp = battle.playerSp - drainOf(front) - math.max(ahead - 1, 0) * (cc.groupExtraDrain or 3) * dt
+    end
+    local taken = damageSp(player:getID(), 'lastPlayerDamage')
+    battle.damageTaken = (battle.damageTaken or 0) + taken
+    battle.playerSp = battle.playerSp - taken
+    battle.gap = front or gap
+    battle.leaderGap = gap
+    if battle.playerSp <= 0 or (front and front > cfg.winGap) then
+      battle.playerSp = math.max(battle.playerSp, 0)
+      finishBattle(false)
+      return
+    end
+    if not battle.leaderOut and (battle.rivalSp <= 0 or gap < -cfg.winGap) then
+      leaderOut(battle.rivalSp <= 0 and 'SP' or 'abgehängt')
+    end
+    if groupLeft() == 0 then finishBattle(true) end
+    return
   end
 
   -- Wer hinten liegt, verliert SP
@@ -742,6 +881,16 @@ function M.auraInfo()
     playerSp = math.max(battle.playerSp or 0, 0) / math.max(cfg.playerMaxSp or 1, 1) }
 end
 
+function groupHud() -- (lokal, oben vordeklariert)
+  local out = { { name = battle.rival.name, sp = math.max(math.floor(battle.rivalSp), 0), maxSp = battle.rivalMaxSp,
+    out = battle.leaderOut or nil, lead = true, ahead = not battle.leaderOut and (battle.leaderGap or 0) > 0 or nil } }
+  for _, r in ipairs(battle.racers) do
+    out[#out + 1] = { name = r.data.name, sp = math.max(math.floor(r.sp), 0), maxSp = r.maxSp, out = r.out or nil,
+      ahead = not r.out and (r.gap or 0) > 0 or nil }
+  end
+  return out
+end
+
 function M.getHudState()
   if state == 'chainWait' and chain and chain.target then
     local leader = chain.group and chain.group.leader
@@ -786,6 +935,8 @@ function M.getHudState()
     -- Kette: Gegner Nr. step von total
     chain = battle.chainTotal and { step = battle.chainStep, total = battle.chainTotal } or nil,
     blockers = (crew() and crew().helperCount() > 0) and crew().helperCount() or nil,
+    -- Gruppen-Battle: alle Gegner mit eigener SP-Leiste (Leader zuerst)
+    group = battle.racers and groupHud() or nil,
     playerTitle = extensions.hashiriyaBattle_progress.nickname() or extensions.hashiriyaBattle_progress.rankName(),
   }
 end
@@ -815,6 +966,13 @@ local function onUpdate(dtReal, dtSim)
 
   local rivalVeh = rivals().getRivalVehicle()
   if not rivalVeh then M.reset(); return end
+  local leaderVeh = rivalVeh
+  -- Gruppen-Battle: Angleichen gegen das nächste Auto der Gruppe; im Countdown bleibt es dasselbe
+  if battle and battle.racers and (state == 'sync' or state == 'countdown') then
+    local ref = state == 'countdown' and battle.refVehId and be:getObjectByID(battle.refVehId)
+    rivalVeh = ref or nearestParticipant(player, leaderVeh) or leaderVeh
+    battle.refVehId = rivalVeh:getID()
+  end
 
   if state == 'chainWait' then
     local target = chain and chain.target
@@ -953,11 +1111,11 @@ local function onUpdate(dtReal, dtSim)
     -- Erfahrene Rivalen schalten kurz vor "Los" runter (eigener Fahrer)
     if battle.launchAt == nil then
       battle.launchAt = false
-      if aiMode(rivalVeh) == 'own' then battle.launchAt = driver().launchLead(battle.rival) or false end
+      if aiMode(leaderVeh) == 'own' then battle.launchAt = driver().launchLead(battle.rival) or false end
     end
     if battle.launchAt and not battle.launchDone and timer <= battle.launchAt then
       battle.launchDone = true
-      driver().prepareLaunch(rivalVeh)
+      driver().prepareLaunch(leaderVeh)
     end
     local count = math.ceil(timer)
     if count ~= battle.beep and count > 0 then
@@ -969,6 +1127,13 @@ local function onUpdate(dtReal, dtSim)
     if battle.warnTimer <= 0 then
       battle.warnTimer = 1
       ensureWarnSignal(rivalVeh)
+      if battle.racers then
+        ensureWarnSignal(leaderVeh)
+        for _, r in ipairs(battle.racers) do
+          local v = be:getObjectByID(r.entry.vehId)
+          if v then ensureWarnSignal(v) end
+        end
+      end
       if not battle.warnLogged and timer < cfg.countdown - 1 then
         battle.warnLogged = true
         logWarnSignal(rivalVeh)
@@ -1003,12 +1168,24 @@ local function onUpdate(dtReal, dtSim)
       setWarnSignal(rivalVeh, false)
       releasePlayerSpeed()
       state = 'battle'
+      -- Gruppen-Battle: alle los, die Begleiter fahren ab jetzt selbst (crew.addRacer)
+      if battle.racers then
+        setWarnSignal(leaderVeh, false)
+        for _, r in ipairs(battle.racers) do
+          local v = be:getObjectByID(r.entry.vehId)
+          if v then
+            setWarnSignal(v, false)
+            pcall(crew().addRacer, r.entry, player)
+            r.lastDamage = getDamage(v:getID())
+          end
+        end
+      end
       core().msg(core().t('msg.battle'), 2)
       pcall(extensions.hashiriyaBattle_hardcore.battleStarted, battle.rival) -- Ironman: Abbruch = Niederlage
     end
   elseif state == 'battle' then
     battle.time = battle.time + dtSim
-    updateBattle(dtSim, player, rivalVeh)
+    updateBattle(dtSim, player, leaderVeh)
   elseif state == 'result' then
     timer = timer - dtSim
     if timer <= 0 then

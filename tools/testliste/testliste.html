@@ -95,10 +95,16 @@ textarea::placeholder { color: var(--todo); }
 const GROUPS = [
   // ===== NEU 01.–04.11.2026 =====
   // ===== NEU 05.–08.11.2026 =====
-  { neu: true, tag: 'NEU 09.11.', name: 'Nachtest 4 (09.11.): PA-Autos, Crew-Kette, Tacho, Lexikon', tests: [
+  { neu: true, tag: 'NEU 09.11.', name: 'Gruppen-Battle (statt Kette)', note: 'Einen Leader mit Begleitern anblinken, z. B. Riku Tanabe. Die alte Kette gibt es nicht mehr.', tests: [
+    ['grpstart', 'Alle gleichzeitig am Start', 'Begleiter oder Leader anblinken: Meldung „Crew-Battle gegen … und 2 Begleiter, alle gleichzeitig!“. Alle drei Autos haben Warnblinker, du gleichst an das nächste Auto an, ein Countdown, dann fahren alle los.'],
+    ['grphud', 'Liste mit SP je Gegner', 'Unter der SP-Anzeige eine Liste: Leader (orange) und beide Begleiter, je ▲ vor dir / ▼ hinter dir und ein eigener SP-Balken. Wer hinter dir liegt, dessen Balken sinkt.'],
+    ['grpout', 'Begleiter scheidet aus', 'Einen Begleiter überholen und abhängen: bei 0 SP oder ca. 150 m Rückstand steht ✕ RAUS, er schaltet den Warnblinker an, fährt im Verkehr weiter, und du bekommst sofort die Sieg-Meldung mit Preisgeld für ihn.'],
+    ['grpwin', 'Sieg erst wenn alle raus', 'Ist der Leader zuerst raus: Meldung „… ist raus! Noch X Begleiter“, das Battle läuft weiter. Erst wenn alle raus sind: SIEG gegen den Leader.'],
+    ['grplose', 'Niederlage und Neustart', 'SP auf 0 fallen lassen: NIEDERLAGE, die Gruppe fährt wieder zusammen, nach der Pause kann man sie wieder anblinken und es beginnt neu mit allen.'],
+    ['grpblock', 'Begleiter blocken', 'Die Begleiter setzen sich knapp vor dich und machen die Linie zu. Hast du sie überholt, jagen sie dich. Es fährt keiner einfach im Konvoi hinter dem Leader weiter.'],
+  ]},
+  { neu: true, tag: 'NEU 09.11.', name: 'Nachtest 4 (09.11.): PA-Autos, Frühstart, Tacho, Lexikon', tests: [
     ['pabays2', 'Autos an Shibaura und Tatsumi', 'Shibaura PA und Tatsumi 1st PA: in den Buchten stehen wieder geparkte Autos, auch nach längerem Spielen und nach Reisen. Im Log steht „PA-Buchten eingefügt … zu den Parkplätzen der Map“, nie mehr „eigene Parkplatz-Daten“.'],
-    ['chainhud', 'Crew-Kette: Anzeige', 'Leader mit Begleitern anblinken (z. B. Riku Tanabe): ein Begleiter fährt mit Warnblinker, oben steht „Crew-Battle 1/2“ mit Name, ▲ vor dir / ▼ hinter dir, Abstand und Restzeit. Ranfahren: unter 70 m wird der Abstand grün und das Angleichen beginnt.'],
-    ['chainstart', 'Crew-Kette startet', 'Leader mit Begleitern herausfordern (z. B. Riku Tanabe): „Nächster Gegner … Fahr an ihn ran!“, ranfahren, Countdown läuft durch und das Battle startet. Kein „Frühstart“, nur weil der Begleiter von hinten vorbeizieht oder vor dir bremst.'],
     ['falsestart2', 'Echter Frühstart zählt noch', 'Bei einem normalen Rivalen im Countdown Gas geben bzw. vorfahren: „Frühstart!“ kommt weiterhin.'],
     ['speedofoot2', 'Kein Tacho zu Fuß', 'Aussteigen: Geschwindigkeitsmesser und Drehzahlmesser sind beide weg. Einsteigen: beide wieder da.'],
     ['stylerel2', 'Fahrstil-Symbol im Lexikon', 'Rivalen-Lexikon: vor dem Autonamen ein kleines graues Symbol (Linie = sauber, Schild = Blocker, Stern = Rempler). Dev-Version: dahinter „· Fahrstil“ als Text, Release: nur das Symbol. Fehlt es, bitte Screenshot.'],
