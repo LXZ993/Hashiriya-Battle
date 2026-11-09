@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Daishi PA und neue Auf- und Ausfahrten (09.11.)
+- Neu: **Daishi PA (down)**, gesetzt von JDMArsch (LXZ aka. LXZockt), mit 5 Parkbuchten, Shop und Tankstelle. Sie steht auf der großen Karte und ist ein Reiseziel.
+- Neu: Shop an der Oi PA. Beide neuen Shops verkaufen vorerst alles.
+- Neu: 46 weitere Auf- und Ausfahrten, jetzt 112. An allen 61 Ausfahrten kann man den C1 verlassen und reisen.
+- Behoben: Rivalen an Tatsumi, Oi, Heiwajima und Daishi PA fanden ihre aufgenommene Ausfahrt-Route nicht, weil die Aufnahme vor der PA begann. Jetzt zählt jeder Punkt der Route.
+- Dev-Menü: neuer Ort-Typ „PA-Ankunft (Teleport)“ für den Ankunftspunkt einer Haupt-PA, getrennt von den Buchten.
+
 ### Dev-Menü: Notizen gehen nicht mehr verloren (08.11.)
 - Behoben: Name und Notiz beim Bearbeiten eines Orts wurden nur mit „Speichern“ übernommen. Jetzt werden sie automatisch gespeichert, auch beim Verlassen des Felds, mit Enter, mit „Zu“, beim Wechsel zu einem anderen Ort und beim Schließen des Dev-Menüs.
 

@@ -2,6 +2,13 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Daishi PA and new ramps (9 Nov)
+- New: **Daishi PA (down)**, placed by JDMArsch (LXZ aka. LXZockt), with 5 parking bays, a shop and a gas station. It is on the big map and is a travel destination.
+- New: shop at Oi PA. Both new shops sell everything for now.
+- New: 46 more on- and off-ramps, 112 in total. You can leave the C1 and travel at all 61 exits.
+- Fixed: rivals at Tatsumi, Oi, Heiwajima and Daishi PA did not find their recorded exit route because the recording started before the PA. Every point of the route counts now.
+- Dev menu: new place type "PA arrival (teleport)" for the arrival point of a main PA, separate from the bays.
+
 ### Dev menu: notes are no longer lost (8 Nov)
 - Fixed: name and note of a place were only kept when you clicked "Save". They are now saved automatically: when leaving the field, on Enter, on "Close", when opening another place and when closing the dev menu.
 

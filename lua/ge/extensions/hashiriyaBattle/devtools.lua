@@ -31,6 +31,7 @@ local placeTypes = {
   { id = 'garage', name = 'Garage / HQ' },
   { id = 'home', name = 'Zuhause' },
   { id = 'pa', name = 'Parkplatz (PA)' },
+  { id = 'pa_main', name = 'PA-Ankunft (Teleport)' },
   { id = 'shop', name = 'Shop (allgemein)' },
   { id = 'shop_mech', name = 'Mechaniker' },
   { id = 'shop_paint', name = 'Lackierer' },
@@ -57,7 +58,7 @@ for _, t in ipairs(placeTypes) do typeName[t.id] = t.name end
 
 -- Säulen-Markierungen (nur bei offenem Dev-Menü): Standardfarbe je Typ, im Menü änderbar (dev_places.json markers.colors)
 local defaultColors = {
-  garage = '#ff6600', home = '#ffffff', pa = '#3fa9ff', shop = '#ffd400', shop_mech = '#ff9a3c', shop_paint = '#ff4fd8',
+  garage = '#ff6600', home = '#ffffff', pa = '#3fa9ff', pa_main = '#ffa0a0', shop = '#ffd400', shop_mech = '#ff9a3c', shop_paint = '#ff4fd8',
   shop_body = '#b07bff', gas = '#3ddc84', wanderer = '#9b30ff', police = '#1e40ff', ramp_on = '#00e5d4', ramp_off = '#ff3b3b',
   mapchange = '#c6ff00', job = '#ffb3e6', npc = '#7fffd4', photo = '#4fd18b', paexit = '#ff8c1a', board = '#d9b26f', taxi = '#ffe14d', taxidepot = '#3a9d5d', spawn = '#a0a0a0', showroom = '#ffe9a8', other = '#7a7a7a',
 }
