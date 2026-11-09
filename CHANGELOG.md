@@ -16,6 +16,11 @@
 ### Dev-Menü: Notizen gehen nicht mehr verloren (08.11.)
 - Behoben: Name und Notiz beim Bearbeiten eines Orts wurden nur mit „Speichern“ übernommen. Jetzt werden sie automatisch gespeichert, auch beim Verlassen des Felds, mit Enter, mit „Zu“, beim Wechsel zu einem anderen Ort und beim Schließen des Dev-Menüs.
 
+### Gruppen-Battle statt Kette (09.11.)
+- Neu auf Wunsch von JDMArsch (LXZ aka. LXZockt): Leader und Bosse fahren mit ihren Begleitern jetzt **gleichzeitig** gegen dich statt nacheinander. Ein Start, ein Countdown für alle.
+- Jeder Begleiter hat eine eigene kleine SP-Leiste unter der Anzeige (▲ vor dir, ▼ hinter dir, ✕ RAUS). Wer hinter dir liegt, verliert SP; du verlierst SP durch den, der am weitesten vorne liegt. Ein Begleiter mit 0 SP oder 150 m Rückstand ist raus und zählt sofort als Sieg. Du gewinnst, wenn alle raus sind.
+- Die alte Kette gibt es noch über `crewbattle.json` `"mode": "chain"`.
+
 ### Crew-Kette verständlicher (09.11.)
 - Bei einem Crew-Battle (Leader mit Begleitern) fährt der Gegner, an den du ranfahren musst, jetzt mit Warnblinker. Oben steht ein Kasten „Crew-Battle 1/2“ mit seinem Namen, ob er vor oder hinter dir ist, dem Abstand, ab wie viel Metern es losgeht und der Restzeit. Sobald ihr nah genug seid, startet das Angleichen von selbst.
 - Die Meldungen sagen jetzt genau, was zu tun ist. Start schon ab 70 m statt 45 m, 90 s Zeit statt 60 s, und ein Begleiter vor dir wird deutlicher langsamer, damit du ihn einholst.

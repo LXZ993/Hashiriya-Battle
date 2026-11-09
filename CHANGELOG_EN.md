@@ -16,6 +16,11 @@
 ### Dev menu: notes are no longer lost (8 Nov)
 - Fixed: name and note of a place were only kept when you clicked "Save". They are now saved automatically: when leaving the field, on Enter, on "Close", when opening another place and when closing the dev menu.
 
+### Group battle instead of chain (9 Nov)
+- New, requested by JDMArsch (LXZ aka. LXZockt): leaders and bosses now race you **at the same time** as their escorts instead of one after another. One start, one countdown for everyone.
+- Every escort has their own small SP bar below the HUD (▲ ahead of you, ▼ behind you, ✕ OUT). Whoever is behind you loses SP; you lose SP to the one furthest ahead. An escort with 0 SP or 150 m behind is out and counts as a win right away. You win when they are all out.
+- The old chain is still available via `crewbattle.json` `"mode": "chain"`.
+
 ### Clearer crew chain (9 Nov)
 - In a crew battle (leader with escorts) the opponent you have to close in on now drives with hazard lights. A box "Crew battle 1/2" at the top shows his name, whether he is ahead or behind, the distance, from how many metres it starts and the time left. Once you are close enough, the speed matching starts by itself.
 - The messages now say exactly what to do. Starts from 70 m instead of 45 m, 90 s instead of 60 s, and an escort ahead of you slows down more so you can catch him.

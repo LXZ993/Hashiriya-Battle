@@ -2239,8 +2239,18 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <h2><span class="n">17c</span> Crew-Battles, Ablehnen und Wetten <span class="tag">crew.lua</span> <span class="tag">data\crewbattle.json</span></h2>
 <p>Vier Battle-Funktionen aus dem Feature-Abgleich (Alpha 0.9.2). Alle Zahlen stehen in <span class="path">lua\ge\extensions\hashiriyaBattle\data\crewbattle.json</span>, die Logik in <span class="path">lua\ge\extensions\hashiriyaBattle\crew.lua</span> (Auswahl, Blocker, Ablehnen, Wette), <span class="path">lua\ge\extensions\hashiriyaBattle\battle.lua</span> (Kette, Wett-Angebot) und <span class="path">lua\ge\extensions\hashiriyaBattle\rivals.lua</span> (Konvoi spawnen). Nach einer Änderung BeamNG ganz neu starten.</p>
 
-<h3>1. Leader und Bosse mit Begleitern (Kette)</h3>
-<p>Ein Leader oder Boss kommt nicht mehr allein: zwei Begleiter fahren im Konvoi direkt hinter ihm (je 20 m Abstand). Gibst du einem aus der Gruppe Lichthupe (oder fordert der Leader dich heraus), beginnt die <b>Kette</b>: erst der hintere Begleiter, dann der vordere, zuletzt der Leader/Boss, jeweils ein normales SP-Battle. Oben in der SP-Anzeige steht <b>KETTE 1/3</b>, 2/3, 3/3.</p>
+<h3>1. Leader und Bosse mit Begleitern (Gruppen-Battle)</h3>
+<p>Ein Leader oder Boss kommt nicht allein: zwei Begleiter fahren im Konvoi direkt hinter ihm (je 20 m Abstand). Gibst du einem aus der Gruppe Lichthupe (oder fordert der Leader dich heraus), beginnt seit 09.11.2026 ein <b>Gruppen-Battle</b>: alle fahren <b>gleichzeitig</b> gegen dich (Wunsch JDMArsch (LXZ aka. LXZockt)).</p>
+<ul>
+<li><b>Start:</b> Alle aus der Gruppe schalten den Warnblinker an. Du gleichst das Tempo an das Auto der Gruppe an, das dir am nächsten ist (meist der hintere Begleiter), dann läuft der Countdown für alle. Überholst du dabei, ist es ein Frühstart.</li>
+<li><b>SP:</b> Der Leader/Boss hat seine normalen SP (große Leiste rechts). Jeder Begleiter hat eine eigene kleine Leiste darunter mit <code>groupEscortSp</code> (60 %) seiner SP. Jeder Gegner, der hinter dir liegt, verliert SP wie im normalen Battle. Du verlierst SP durch den, der am weitesten vor dir liegt, plus <code>groupExtraDrain</code> (3 SP/s) für jeden weiteren vor dir. Schaden kostet wie immer SP.</li>
+<li><b>Raus:</b> Ein Begleiter ist raus bei 0 SP oder <code>groupOutGap</code> (150 m) Rückstand, der Leader bei 0 SP oder 250 m Rückstand. Wer raus ist, schaltet den Warnblinker an und fährt im Verkehr weiter; in der Liste steht <b>RAUS</b>. Jeder ausgeschiedene Begleiter zählt sofort wie ein eigener Sieg (Preisgeld, Ruf, Statistik).</li>
+<li><b>Sieg</b>, wenn alle raus sind. <b>Niederlage</b> bei 0 SP oder wenn einer 250 m vor dir liegt; dann zählt es als Niederlage gegen den Leader/Boss (auch wenn er selbst schon raus war). Die Gruppe fährt danach wieder zusammen und macht Pause.</li>
+<li>Die Begleiter fahren dabei wie Blocker (siehe 2.): sie setzen sich knapp vor dich und machen die Linie zu. Überholst du sie, jagen sie dich.</li>
+<li>Anzeige: Liste unter der SP-Anzeige, je Gegner ▲ (vor dir), ▼ (hinter dir) oder ✕ (raus), Name (Leader in Orange) und SP-Balken.</li>
+<li>Die Wette gilt für das ganze Gruppen-Battle (Einsatz wie gegen den Leader).</li>
+</ul>
+<p><b>Alte Kette</b> (nur mit <code>"mode": "chain"</code>): Die Gruppe fährt nacheinander: erst der hintere Begleiter, dann der vordere, zuletzt der Leader/Boss, jeweils ein normales SP-Battle. Oben in der SP-Anzeige steht <b>KETTE 1/3</b>, 2/3, 3/3.</p>
 <ul>
 <li>Gewinnst du, fällt der Begleiter zurück, und der nächste wartet auf dich: ist er vorne, fährt er langsamer, bis du dran bist; ist er hinten, holt er auf. Sobald ihr höchstens <code>chainStartDistance</code> (70 m) auseinander seid, geht das Angleichen los. Kommt er in <code>chainWaitSeconds</code> (90 s) nicht ran oder verschwindet, bricht die Kette ab.</li>
 <li><b>Anzeige</b> (seit 09.11.2026): Der Gegner, auf den es gerade ankommt, fährt mit <b>Warnblinker</b>. Oben in der SP-Anzeige steht statt der Balken ein Kasten „Crew-Battle 1/2“ mit seinem Namen, ob er vor dir (▲ ranfahren) oder hinter dir ist (▼ er holt auf, Tempo halten), dem Abstand in Metern (grün, sobald es losgeht), ab wie viel Metern es startet und der Restzeit.</li>
@@ -2256,7 +2266,9 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td><code>spacing</code></td><td>20</td><td>m Abstand im Konvoi beim Erscheinen</td></tr>
 <tr><td><code>ai</code></td><td>"follow"</td><td>Begleiter folgen ihrem Vordermann mit der BeamNG-Folge-KI. <code>"traffic"</code> = normal im Verkehr fahren (falls "follow" komisch fährt)</td></tr>
 <tr><td><code>followExtraKmh</code></td><td>10</td><td>So viel schneller als das Reisetempo des Leaders dürfen sie, um dranzubleiben</td></tr>
-<tr><td><code>chainWaitSeconds</code> / <code>chainStartDistance</code> / <code>chainPauseSeconds</code></td><td>90 / 70 / 3</td><td>Kette: so lange wartet der nächste, so nah muss er sein, so viele Sekunden Pause mindestens</td></tr>
+<tr><td><code>mode</code></td><td>"group"</td><td>"group" = Gruppen-Battle (alle gleichzeitig), "chain" = alte Kette (nacheinander)</td></tr>
+<tr><td><code>groupEscortSp</code> / <code>groupOutGap</code> / <code>groupExtraDrain</code></td><td>0.6 / 150 / 3</td><td>Gruppen-Battle: Anteil der SP für Begleiter, ab so viel m Rückstand ist ein Begleiter raus, so viele SP/s mehr verlierst du für jeden weiteren Gegner vor dir</td></tr>
+<tr><td><code>chainWaitSeconds</code> / <code>chainStartDistance</code> / <code>chainPauseSeconds</code></td><td>90 / 70 / 3</td><td>Nur Kette: so lange wartet der nächste, so nah muss er sein, so viele Sekunden Pause mindestens</td></tr>
 </table>
 
 <h3>2. Crew-Taktik: Blocken für den Leader</h3>
@@ -2644,6 +2656,12 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h4>Dev-Menü: Notizen gehen nicht mehr verloren (08.11.)</h4>
 <ul>
 <li>Behoben: Name und Notiz beim Bearbeiten eines Orts wurden nur mit „Speichern“ übernommen. Jetzt werden sie automatisch gespeichert, auch beim Verlassen des Felds, mit Enter, mit „Zu“, beim Wechsel zu einem anderen Ort und beim Schließen des Dev-Menüs.</li>
+</ul>
+<h4>Gruppen-Battle statt Kette (09.11.)</h4>
+<ul>
+<li>Neu auf Wunsch von JDMArsch (LXZ aka. LXZockt): Leader und Bosse fahren mit ihren Begleitern jetzt <b>gleichzeitig</b> gegen dich statt nacheinander. Ein Start, ein Countdown für alle.</li>
+<li>Jeder Begleiter hat eine eigene kleine SP-Leiste unter der Anzeige (▲ vor dir, ▼ hinter dir, ✕ RAUS). Wer hinter dir liegt, verliert SP; du verlierst SP durch den, der am weitesten vorne liegt. Ein Begleiter mit 0 SP oder 150 m Rückstand ist raus und zählt sofort als Sieg. Du gewinnst, wenn alle raus sind.</li>
+<li>Die alte Kette gibt es noch über <code>crewbattle.json</code> <code>"mode": "chain"</code>.</li>
 </ul>
 <h4>Crew-Kette verständlicher (09.11.)</h4>
 <ul>

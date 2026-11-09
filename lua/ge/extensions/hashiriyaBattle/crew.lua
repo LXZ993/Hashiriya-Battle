@@ -20,7 +20,8 @@ local function progress() return extensions.hashiriyaBattle_progress end
 -- Grundwerte, falls crewbattle.json fehlt oder ein Wert nicht drinsteht
 local defaults = {
   escorts = { enabled = true, leaders = true, bosses = true, count = 2, spacing = 20, ai = 'follow', followExtraKmh = 10,
-    chainWaitSeconds = 90, chainStartDistance = 70, chainPauseSeconds = 3 },
+    chainWaitSeconds = 90, chainStartDistance = 70, chainPauseSeconds = 3,
+    mode = 'group', groupEscortSp = 0.6, groupOutGap = 150, groupExtraDrain = 3 },
   blocking = { enabled = true, range = 180, maxHelpers = 2, targetGap = 12, releaseDistance = 320 },
   decline = { enabled = true, chance = { rival = 0.08, leader = 0, wanderer = 0, boss = 0 }, moodCooldown = 90, blinkSeconds = 3.5, showSeconds = 2.6 },
   bet = { enabled = true, minRank = 1, chance = { rival = 0.3, leader = 0.6, wanderer = 0.5, boss = 1.0 }, stakeOfReward = 0.5,
@@ -112,6 +113,7 @@ local helpers = {} -- vehId -> { entry, timer }
 
 local function isHelperFor(e, engaged)
   if not e or not engaged or e == engaged then return false end
+  if e.battleOut then return false end -- im Gruppen-Battle ausgeschieden
   if e.data.wanderer or e.data.boss then return false end
   local group = engaged.group
   if group and e.group == group and e.escortOf then
@@ -153,24 +155,39 @@ function M.releaseHelpers()
   for id, h in pairs(helpers) do stopHelper(id, h) end
 end
 
+-- zählt nur echte Blocker; Begleiter im Gruppen-Battle (racer) haben eine eigene SP-Leiste
 function M.helperCount()
   local n = 0
-  for _ in pairs(helpers) do n = n + 1 end
+  for _, h in pairs(helpers) do if not h.racer then n = n + 1 end end
   return n
+end
+
+-- Gruppen-Battle (JDMArsch 09.11.2026): Begleiter fahren gleichzeitig mit dem Leader gegen dich.
+-- Sie fahren wie Blocker (knapp vor dir, Linie zu), werden aber nicht wegen Entfernung freigegeben.
+function M.addRacer(e, player)
+  local veh = e and be:getObjectByID(e.vehId)
+  if not veh or not player then return false end
+  if not helpers[e.vehId] then startHelper(e, veh, player) end
+  if helpers[e.vehId] then helpers[e.vehId].racer = true end
+  return true
+end
+
+function M.dropRacer(e)
+  if e and helpers[e.vehId] then stopHelper(e.vehId, helpers[e.vehId]) end
 end
 
 -- jedes Frame im Battle: Blocker suchen, steuern und wieder freigeben
 function M.updateHelpers(dt, player, engaged)
   local s = M.cfg('blocking')
-  if not s.enabled or not player or not engaged then M.releaseHelpers(); return end
+  if not player or not engaged then M.releaseHelpers(); return end
   -- laufende Blocker steuern
   for id, h in pairs(helpers) do
     local veh = be:getObjectByID(id)
-    if not veh or driver().hasFailed(id) or not isHelperFor(h.entry, engaged) then
+    if not veh or driver().hasFailed(id) or (not h.racer and (not s.enabled or not isHelperFor(h.entry, engaged))) then
       stopHelper(id, h)
     else
       local dist = (veh:getPosition() - player:getPosition()):length()
-      if dist > (s.releaseDistance or 320) then
+      if not h.racer and dist > (s.releaseDistance or 320) then
         stopHelper(id, h)
       else
         h.timer = h.timer - dt
@@ -188,6 +205,7 @@ function M.updateHelpers(dt, player, engaged)
     end
   end
   -- neue Blocker in der Nähe
+  if not s.enabled then return end
   if M.helperCount() >= (s.maxHelpers or 2) then return end
   for _, e in ipairs(rivals().getOnRoad()) do
     if M.helperCount() >= (s.maxHelpers or 2) then break end
