@@ -1326,6 +1326,10 @@ function M.requestPartMap()
   local ok, data = pcall(partMapPayload)
   if not ok then log('W', logTag, 'Konfigurator-Bilder: ' .. tostring(data)); return end
   guihooks.trigger('HashiriyaPartStudioMap', data)
+  local n = 0
+  for _ in pairs(data.images or {}) do n = n + 1 end
+  local veh = getPlayerVehicle(0)
+  log('I', logTag, string.format('Konfigurator-Bilder gesendet: %d Teile mit Bild (%s)', n, veh and veh:getJBeamFilename() or 'kein Auto'))
 end
 
 function M.requestGallery()

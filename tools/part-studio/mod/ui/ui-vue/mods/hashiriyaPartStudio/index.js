@@ -98,13 +98,36 @@ const CSS = `
 #hps-cfg-preview div { padding: 5px 8px; font-size: 12px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 `
 
+function norm(t) {
+  return String(t || "").replace(/^\s*\[!\]\s*/, "").replace(/\s+/g, " ").trim().toLowerCase()
+}
+let labelsNorm = {}
+
+function labelOf(el) {
+  const lab = el.querySelector(".dropdown-option-label")
+  return String((lab ? lab.textContent : el.textContent) || "").trim()
+}
+
 function partOf(el) {
   const key = el.__vnode && el.__vnode.key
   if (typeof key === "string" && partMap.images[key]) return key
-  const lab = el.querySelector(".dropdown-option-label")
-  const text = String((lab ? lab.textContent : el.textContent) || "").trim().replace(/^\[!\]\s*/, "")
+  const text = labelOf(el).replace(/^\[!\]\s*/, "")
   if (partMap.images[text]) return text
-  return partMap.labels[text] || null
+  return partMap.labels[text] || labelsNorm[norm(text)] || null
+}
+
+// Fehlersuche: einmal je aufgeklappter Liste ins BeamNG-Log schreiben, was gefunden wurde
+let lastReport = 0
+function report(opts) {
+  const now = Date.now()
+  if (now - lastReport < 3000 || !opts.length) return
+  lastReport = now
+  let hit = 0
+  for (const el of opts) if (el.dataset.hpsPart) hit++
+  const sample = opts.slice(0, 3).map(el => labelOf(el) + (el.__vnode ? " [key " + el.__vnode.key + "]" : ""))
+  const msg = "Konfigurator-Liste: " + opts.length + " Zeilen, " + hit + " mit Bild; Bilder bekannt: " +
+    Object.keys(partMap.images).length + ", an: " + partMap.enabled + "; Beispiele: " + sample.join(" | ")
+  lua("log('I', 'partStudio', " + JSON.stringify(msg) + ")")
 }
 
 function showPreview(el, part) {
@@ -157,12 +180,16 @@ function undecorateAll() {
 
 function decorateAll() {
   if (!partMap.enabled) return
-  document.querySelectorAll(".dropdown-option").forEach(decorate)
+  const opts = Array.from(document.querySelectorAll(".dropdown-option"))
+  opts.forEach(decorate)
+  report(opts)
 }
 
 function onMap(d) {
   if (!d) return
   partMap = { enabled: d.enabled !== false, labels: d.labels || {}, images: d.images || {} }
+  labelsNorm = {}
+  for (const k in partMap.labels) labelsNorm[norm(k)] = partMap.labels[k]
   undecorateAll()
   decorateAll()
 }
