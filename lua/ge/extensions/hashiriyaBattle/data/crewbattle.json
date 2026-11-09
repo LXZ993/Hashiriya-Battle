@@ -9,8 +9,8 @@
     "spacing": 20,
     "ai": "follow",
     "followExtraKmh": 10,
-    "chainWaitSeconds": 60,
-    "chainStartDistance": 45,
+    "chainWaitSeconds": 90,
+    "chainStartDistance": 70,
     "chainPauseSeconds": 3
   },
   "blocking": {

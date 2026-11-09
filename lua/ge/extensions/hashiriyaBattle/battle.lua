@@ -267,7 +267,11 @@ local function chainWaitFor(e)
   chain.target = e
   chain.pause = cc.chainPauseSeconds or 3
   chain.relock = 0
-  core().msg(core().t('msg.chainNext', e.data.name, chain.step, #chain.order), 5)
+  core().msg(core().t('msg.chainNext', e.data.name, chain.step, #chain.order), 6)
+  -- JDMArsch 09.11.2026: man wusste nicht, wen man suchen soll. Der nächste Gegner fährt mit Warnblinker,
+  -- und die SP-Anzeige zeigt, wo er ist (vor/hinter dir, Abstand, Restzeit).
+  local tv = be:getObjectByID(e.vehId)
+  if tv then setWarnSignal(tv, true) end
   log('I', logTag, string.format('Kette %d/%d: wartet auf %s', chain.step, #chain.order, tostring(e.data.id)))
 end
 
@@ -734,6 +738,15 @@ function M.auraInfo()
 end
 
 function M.getHudState()
+  if state == 'chainWait' and chain and chain.target then
+    local leader = chain.group and chain.group.leader
+    return { chainWait = {
+      name = chain.target.data.name, leader = leader and leader.data.name or '',
+      step = chain.step, total = #chain.order,
+      dist = math.floor(math.abs(chain.gap or 0) + 0.5), ahead = (chain.gap or 0) > 0,
+      startAt = chain.startAt or 70, timer = math.max(0, math.ceil(chain.timer or 0)),
+    } }
+  end
   if not battle then return nil end
   local quote, quoteKind = rivalQuote()
   return {
@@ -801,6 +814,7 @@ local function onUpdate(dtReal, dtSim)
   if state == 'chainWait' then
     local target = chain and chain.target
     if not target or not be:getObjectByID(target.vehId) or rivals().getActiveRival() ~= target then
+      log('I', logTag, 'Kette: nächster Gegner weg oder nicht mehr aktiv')
       core().msg(core().t('msg.chainLost'), 5)
       M.reset()
       return
@@ -810,12 +824,18 @@ local function onUpdate(dtReal, dtSim)
     chain.pause = (chain.pause or 0) - dtSim
     local gap = getGap(player, rivalVeh)
     local cc = crew().cfg('escorts')
-    if chain.pause <= 0 and math.abs(gap) <= (cc.chainStartDistance or 45) then
+    chain.gap = gap
+    chain.timer = timer
+    chain.startAt = cc.chainStartDistance or 70
+    if chain.pause <= 0 and math.abs(gap) <= (cc.chainStartDistance or 70) then
+      log('I', logTag, string.format('Kette %d/%d: %s ist da (%.0f m), Angleichen beginnt', chain.step, #chain.order, tostring(target.data.id), gap))
       startCountdown(rivals().challengeData(target), rivalVeh, gap < 0)
       return
     end
     if timer <= 0 then
-      core().msg(core().t('msg.chainLost'), 5)
+      setWarnSignal(rivalVeh, false)
+      core().msg(core().t('msg.chainTimeout', target.data.name), 6)
+      log('I', logTag, string.format('Kette %d/%d: Zeit abgelaufen, %s nicht erreicht (%.0f m)', chain.step, #chain.order, tostring(target.data.id), gap))
       M.reset()
       return
     end
@@ -826,7 +846,7 @@ local function onUpdate(dtReal, dtSim)
       local pv = player:getVelocity():length()
       if gap > 0 then
         -- vorne: er wartet auf dich (fährt langsamer)
-        local v = math.max(math.min(cruise, pv) * 0.75, 50 / 3.6)
+        local v = math.max(math.min(cruise, pv) * 0.6, 35 / 3.6)
         rivalVeh:queueLuaCommand(string.format("ai.setMode('traffic') ai.setSpeedMode('limit') ai.setSpeed(%f) ai.driveInLane('on')", v))
       else
         -- hinten: er holt auf

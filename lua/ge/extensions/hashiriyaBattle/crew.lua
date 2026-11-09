@@ -20,7 +20,7 @@ local function progress() return extensions.hashiriyaBattle_progress end
 -- Grundwerte, falls crewbattle.json fehlt oder ein Wert nicht drinsteht
 local defaults = {
   escorts = { enabled = true, leaders = true, bosses = true, count = 2, spacing = 20, ai = 'follow', followExtraKmh = 10,
-    chainWaitSeconds = 60, chainStartDistance = 45, chainPauseSeconds = 3 },
+    chainWaitSeconds = 90, chainStartDistance = 70, chainPauseSeconds = 3 },
   blocking = { enabled = true, range = 180, maxHelpers = 2, targetGap = 12, releaseDistance = 320 },
   decline = { enabled = true, chance = { rival = 0.08, leader = 0, wanderer = 0, boss = 0 }, moodCooldown = 90, blinkSeconds = 3.5, showSeconds = 2.6 },
   bet = { enabled = true, minRank = 1, chance = { rival = 0.3, leader = 0.6, wanderer = 0.5, boss = 1.0 }, stakeOfReward = 0.5,
