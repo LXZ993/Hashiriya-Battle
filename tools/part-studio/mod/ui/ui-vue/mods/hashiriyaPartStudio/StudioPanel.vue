@@ -159,6 +159,7 @@
         <div class="hps-check" :class="{ 'is-on': s.studioPaint }" @click="set('studioPaint', !s.studioPaint)"><i></i>Einheitlicher Studio-Lack (silbergrau)</div>
         <div class="hps-check" :class="{ 'is-on': s.skipExisting }" @click="set('skipExisting', !s.skipExisting)"><i></i>Vorhandene Bilder überspringen (aus: die eigenen Teile der gewählten Autos neu machen; gemeinsame Teile wie Felgen, Reifen und Radkappen nur, wenn beim Start „Gemeinsame Teile neu machen“ gewählt ist)</div>
         <div class="hps-check" :class="{ 'is-on': s.singlePair }" @click="set('singlePair', !s.singlePair)"><i></i>Paare nur einmal zeigen (Felgen, Reifen, Bremsen …)</div>
+        <div class="hps-check" :class="{ 'is-on': s.configThumbs }" @click="set('configThumbs', !s.configThumbs)"><i></i>Bilder auch in der BeamNG-Teileauswahl zeigen (kleines Bild je Teil, groß beim Drüberfahren)</div>
         <div class="hps-check" :class="{ 'is-on': s.autoView }" @click="set('autoView', !s.autoView)"><i></i>Besten Blickwinkel automatisch suchen (5 Ansichten je Teil, es gewinnt die, auf der man am meisten vom Teil sieht)</div>
         <div class="hps-sec">Licht</div>
         <div class="hps-note">Fotografiert wird in der BeamNG-Garage mit ihrem eigenen Licht, so wie du dein Auto dort siehst. Das Studio ändert am Licht und an der Belichtung nichts, es übernimmt die Belichtung der Spielkamera.</div>

@@ -1025,6 +1025,9 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><b>Bilder erstellen</b></td><td>Fahrzeuge auswählen (aktuelles Auto, alle Original, alle Mods oder einzeln) und starten. Fortschritt, das zuletzt gemachte Bild, Abbrechen jederzeit. In der Galerie gibt es dafür auch den Knopf „Bilder für dieses Auto erstellen“.</td></tr>
 <tr><td><b>Einstellungen</b></td><td>Bildgröße, einheitlicher Studio-Lack, vorhandene Bilder überspringen, Paare nur einmal zeigen, Blickwinkel automatisch suchen, Abstand und Blickwinkel der Kamera, Wartezeit je Bild. Für Licht und Belichtung gibt es absichtlich keine Regler: das macht die Garage.</td></tr>
 </table>
+<h3>Bilder im BeamNG-Konfigurator</h3>
+<p>Die fertigen Bilder erscheinen auch in der normalen BeamNG-Teileauswahl (Fahrzeugkonfigurator, Reiter Teile): Klappt man die Liste eines Slots auf, steht vor jedem Teil mit Bild ein kleines Vorschaubild. Fährt man mit der Maus (oder dem Controller) über ein Teil, erscheint das Bild groß neben der Liste. Teile ohne Bild bleiben wie gewohnt. Am Konfigurator selbst ändert die Mod nichts, sie hängt die Bilder nur in die aufgeklappte Liste ein. Abschalten: Teile-Studio &gt; Einstellungen &gt; „Bilder auch in der BeamNG-Teileauswahl zeigen“.</p>
+<div class="box tip"><b>Für mich: wie das geht</b>Lua <code>requestPartMap</code> schickt bei jedem Autowechsel das Ereignis <code>HashiriyaPartStudioMap</code> (welche Teile ein Bild haben, Anzeigename → Teilname). <code>index.js</code> beobachtet die Seite (MutationObserver) und findet jede Zeile <code>.dropdown-option</code> der BngDropdown-Liste über ihren Vue-Schlüssel (= Teilname) oder ihren Anzeigenamen.</div>
 <h3>So entstehen die Bilder</h3>
 <ol>
 <li>Ein Studio-Auto des Modells steht auf dem Stellplatz der Garage (dort, wo sonst dein Auto steht). Die Physik ist so lange angehalten, dein Auto und andere Fahrzeuge sind ausgeblendet und kommen danach wieder.</li>
