@@ -100,6 +100,7 @@ end
 -- Eigene Parkbuchten in die Parkplätze der Map einfügen ------------------------------
 
 local injectedSites = nil
+local injectedFresh = false
 local function bayName(pa, i) return 'hashiriya_' .. tostring(pa.id) .. '_' .. i end
 
 -- alle Orte mit eigenen Buchten: Haupt-PAs und Treffpunkte ohne Reiseziel (main = false, z. B. Kameibashi-Nothaltebucht)
@@ -124,10 +125,31 @@ local function injectBays()
   if not park then extensions.load('gameplay_parking') park = extensions.gameplay_parking end
   if not park then return end
   if not extensions.gameplay_city then extensions.load('gameplay_city') end
+  -- Parkplätze der Map (city.sites.json). JDMArsch 09.11.2026: an Shibaura/Tatsumi standen keine Autos mehr.
+  -- Ursache: lieferte BeamNG die Map-Parkplätze kurz nicht (z. B. während Laden/Verkehr-Neustart), haben wir eigene
+  -- Sites nur mit unseren Buchten gesetzt, und die haben die Map-Parkplätze dauerhaft ersetzt.
+  -- Jetzt: eigene Sites nur, wenn die Map wirklich keine Parkplatz-Datei hat; sonst später noch mal versuchen,
+  -- und eigene Sites von früher werden wieder gegen die Map-Parkplätze getauscht.
   local okL, list = pcall(park.getParkingSpots)
   local sites = okL and type(list) == 'table' and list.parent or nil
+  if sites and sites == injectedSites and injectedFresh then sites = nil end
+  if not sites then
+    local gc = extensions.gameplay_city
+    local okG, ms = pcall(function()
+      local s0 = gc.getSites and gc.getSites()
+      if not (s0 and s0.parkingSpots) and gc.loadSites then gc.loadSites(); s0 = gc.getSites() end
+      return s0
+    end)
+    if okG and ms and ms.parkingSpots and #(ms.parkingSpots.sorted or {}) > 0 then sites = ms end
+  end
   local fresh = false
   if not sites then
+    local lvl = core() and core().levelName
+    local okLv, lv = pcall(function() return getCurrentLevelIdentifier and getCurrentLevelIdentifier() end)
+    lvl = (okLv and lv) or lvl
+    local okE, hasFile = pcall(function() return lvl and FS:fileExists('/levels/' .. tostring(lvl) .. '/city.sites.json') end)
+    if okE and hasFile then return end -- Map hat Parkplätze, nur gerade nicht geladen: in 5 s noch mal
+    if injectedFresh and injectedSites then return end
     -- Map ohne Parkplatz-Daten: eigene Sites nur mit unseren Buchten
     local okS, s = pcall(function() return require('/lua/ge/extensions/gameplay/sites/sites')('hashiriya') end)
     if not okS or not s then return end
@@ -152,6 +174,7 @@ local function injectBays()
   if not okF then log('E', logTag, 'PA-Buchten einfügen fehlgeschlagen: ' .. tostring(err)) return end
   if park.setSites then pcall(park.setSites, sites) end
   injectedSites = sites
+  injectedFresh = fresh
   log('I', logTag, string.format('PA-Buchten eingefügt: %d (%s)', n, fresh and 'eigene Parkplatz-Daten' or 'zu den Parkplätzen der Map'))
 end
 

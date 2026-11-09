@@ -95,6 +95,14 @@ textarea::placeholder { color: var(--todo); }
 const GROUPS = [
   // ===== NEU 01.–04.11.2026 =====
   // ===== NEU 05.–08.11.2026 =====
+  { neu: true, tag: 'NEU 09.11.', name: 'Nachtest 4 (09.11.): PA-Autos, Crew-Kette, Tacho, Lexikon', tests: [
+    ['pabays2', 'Autos an Shibaura und Tatsumi', 'Shibaura PA und Tatsumi 1st PA: in den Buchten stehen wieder geparkte Autos, auch nach längerem Spielen und nach Reisen. Im Log steht „PA-Buchten eingefügt … zu den Parkplätzen der Map“, nie mehr „eigene Parkplatz-Daten“.'],
+    ['chainstart', 'Crew-Kette startet', 'Leader mit Begleitern herausfordern (z. B. Riku Tanabe): „Nächster Gegner … Fahr an ihn ran!“, ranfahren, Countdown läuft durch und das Battle startet. Kein „Frühstart“, nur weil der Begleiter von hinten vorbeizieht oder vor dir bremst.'],
+    ['falsestart2', 'Echter Frühstart zählt noch', 'Bei einem normalen Rivalen im Countdown Gas geben bzw. vorfahren: „Frühstart!“ kommt weiterhin.'],
+    ['speedofoot2', 'Kein Tacho zu Fuß', 'Aussteigen: Geschwindigkeitsmesser und Drehzahlmesser sind beide weg. Einsteigen: beide wieder da.'],
+    ['stylerel2', 'Fahrstil-Symbol im Lexikon', 'Rivalen-Lexikon: vor dem Autonamen ein kleines graues Symbol (Linie = sauber, Schild = Blocker, Stern = Rempler). Dev-Version: dahinter „· Fahrstil“ als Text, Release: nur das Symbol. Fehlt es, bitte Screenshot.'],
+    ['storylex2', 'Story im Lexikon übersichtlich', 'Lexikon > Story: Kapitel als orange Überschrift mit Linie, Szenen eingerückt darunter. Szene aufklappen: Dialog Zeile für Zeile, Sprechername klein darüber, lange Szenen scrollen.'],
+  ]},
   { neu: true, tag: 'NEU 08.11.', name: 'Polizei: Straßensperre und Steckbrief', note: 'Am einfachsten über das Dev-Menü eine Fahndung mit 3 Sternen starten (tagsüber).', tests: [
     ['roadblock', 'Straßensperre nach 2 Minuten', '2 Minuten bei 3 Sternen weiterfahren: Meldung „Straßensperre voraus!“, ca. 300 m vor dir stehen 2 Streifenwagen quer mit Blaulicht (auch auf der Minimap).'],
     ['roadblockarrest', 'Festnahme an der Sperre', 'In die Sperre fahren oder davor anhalten: „An der Straßensperre gestellt“, Kontrolle, Festnahme mit Abschleppen.'],
@@ -117,7 +125,7 @@ const GROUPS = [
   ]},
   { neu: true, tag: 'NEU 08.11.', name: 'Nachtest 08.11. (deine Meldungen umgesetzt)', tests: [
     ['paintlist', 'Keine internen Lacke', 'Neues Spiel > Auto > Lackwahl beim Sunburst (und im Shop): keine Einträge wie „hashiriya_tadashi_s2 Paint 1“ mehr, nur echte Lacke.'],
-    ['speedofoot', 'Kein Tacho zu Fuß', 'Aussteigen: Geschwindigkeitsmesser und Drehzahlmesser sind beide weg. Einsteigen: beide wieder da.'],
+    ['speedofoot', 'Kein Tacho zu Fuß (alt, siehe Nachtest 4)', 'Aussteigen: Geschwindigkeitsmesser und Drehzahlmesser sind beide weg. Einsteigen: beide wieder da.'],
     ['musicvol', 'Musik-Regler wirkt (alt, siehe Nachtest 2)', 'Esc > Optionen > Audio > Musik auf 10 % und dann auf 100 %: die Mod-Musik wird hörbar leiser bzw. lauter (Titel und im Spiel).'],
     ['tempapps', 'Wasser und Öl einzeln', 'UI-Editor: „Hashiriya Battle: Wassertemperatur“ und „… Öltemperatur“ sind zwei Apps, einzeln verschieb- und entfernbar. Standard: Wasser links, Öl rechts über dem Geschwindigkeitsmesser.'],
     ['musicpause', 'Musik anhalten (alt, siehe Nachtest 2)', 'Strg + Ende: Meldung „Musik angehalten“, Musik ist still. Noch mal: „Musik läuft weiter“ an derselben Stelle. Im Menü links > Werkzeuge geht dasselbe mit „Musik anhalten / Musik weiter“. Taste steht im Tasten-Check.'],
@@ -144,7 +152,6 @@ const GROUPS = [
   ]},
   { neu: true, tag: 'NEU 08.11.', name: 'Haupt-PAs und Reisen', tests: [
     ['heiwaoi', 'Heiwajima und Oi PA', 'Heiwajima PA und Oi PA (Westbound): je 16 Buchten mit geparkten Autos, Fahrer zum Reden, nachts Rivalen, Nickerchen im Auto geht.'],
-    ['kameibashi', 'Kameibashi PA', 'Am C1 City Loop bei Shintomichō, unter dem Park: 2 Buchten, PA wird erkannt (Name im HUD).'],
     ['bigmappa', 'PAs auf der großen Karte', 'Taste M: alle Haupt-PAs (auch Shibaura und Tatsumi) mit Name, Beschreibung und Vorschaubild (noch Platzhalter). Dev-Version: Knopf Quick Travel; Dev-Menü „Hin“ bringt dich zum Ankunftspunkt.'],
     ['travel', 'Reisen an der Ausfahrt', 'Langsam an einer Ausfahrt vom C1 abfahren: im Menü links Ziel wählen (Garage oder schon besuchte Haupt-PA). Uhr springt vor, Sprit wird abgezogen, du stehst am Ziel.'],
     ['startpa', 'Losfahren ab PA', 'Garage > Service > „Losfahren ab …“: an einer besuchten Haupt-PA starten, mit denselben Kosten. Nicht besuchte PAs sind nicht wählbar.'],
@@ -174,7 +181,7 @@ const GROUPS = [
   ]},
   { neu: true, name: 'Nachtest 05.11. (deine Notizen umgesetzt)', tests: [
     ['polred', 'Polizeilicht nur rot', 'Fahndung auslösen: „POLIZEI“ im Status, Streifenwagen auf Minimap und Radar und der Rahmen der Minimap blinken nur rot. Kontrollen sind weißgrau. Am Sunburst-Streifenwagen sind auch die Blitzlichter rot. Pessima Mk2: sag mir, ob dir dort noch Blau auffällt.'],
-    ['stylerel', 'Fahrstil als farbloses Symbol', 'Rivalen-Lexikon: hinter dem Auto ein kleines graues Symbol (Linie = sauber, Schild = Blocker, Stern = Rempler). Mit data/build.json "release": true nur das Symbol, in der Dev-Version (false) Symbol und Text.'],
+    ['stylerel', 'Fahrstil als farbloses Symbol (alt, siehe Nachtest 4)', 'Rivalen-Lexikon: hinter dem Auto ein kleines graues Symbol (Linie = sauber, Schild = Blocker, Stern = Rempler). Mit data/build.json "release": true nur das Symbol, in der Dev-Version (false) Symbol und Text.'],
   ]},
   { neu: true, name: 'Drei Spielstände', tests: [
     ['slotnew', 'Neues Spiel fragt nach Platz 1 bis 3', 'Titel > Neues Spiel: zuerst Platz wählen. Belegter Platz: Rückfrage, und er wird erst überschrieben, wenn du den Assistenten abschließt (vorher abbrechen = alter Stand noch da).'],
@@ -227,7 +234,7 @@ const GROUPS = [
   ]},
   { neu: true, name: 'Story und Handy', tests: [
     ['story', 'Prolog und Kapitelkarte', 'Neues Spiel: Prolog, Kapitelkarte mit Titel auf Deutsch und Japanisch. Szenen in der Sprechblase, weiter mit T. Kapitelziel steht unter dem Geld.'],
-    ['storylex', 'Story im Lexikon', 'Lexikon > Seite „Story“: alle Kapitel und gesehenen Szenen zum Nachlesen.'],
+    ['storylex', 'Story im Lexikon (alt, siehe Nachtest 4)', 'Lexikon > Seite „Story“: alle Kapitel und gesehenen Szenen zum Nachlesen.'],
     ['phone', 'Handy-Nachrichten', 'Beim Fahren laufen kurze Nachrichten von selbst weiter. Grüner Reiter „Handy-Nachricht“, Handy-Symbol an der Sprechblase, klingelndes Handy am Porträt.'],
     ['chapterwait', 'Kapitelkarte wartet', 'Nach einem wichtigen Sieg kommt die Kapitelkarte erst nach dem Battle und dem Spruch des Gegners.'],
     ['genzo', 'Genzō mit Porträt', 'Genzō zeigt in Szenen und Nachrichten sein Porträt.'],

@@ -5,6 +5,13 @@
 ### Dev menu: notes are no longer lost (8 Nov)
 - Fixed: name and note of a place were only kept when you clicked "Save". They are now saved automatically: when leaving the field, on Enter, on "Close", when opening another place and when closing the dev menu.
 
+### After your test (9 Nov)
+- Fixed: no parked cars at Shibaura PA and Tatsumi 1st PA any more. When BeamNG briefly did not deliver the map's parking data, the mod set its own data with only our bays, which replaced the map's parking spots for good. Now the mod waits for the map's parking spots and swaps out wrong data from before.
+- Fixed: the crew chain (e.g. against Riku Tanabe) always ended in "False start". A false start now only counts if you accelerate yourself. If the escort passes you while catching up, he simply leads.
+- Fixed: the speedometer was still visible on foot. It now checks for an engine like the tachometer.
+- Lexicon: the driving style icon now sits before the car name, a bit larger and brighter.
+- Lexicon > Story: chapters are orange headings, scenes are indented below, and an opened scene shows the dialogue line by line with speaker names.
+
 ### Police: roadblock and wanted list (8 Nov)
 - New: if you do not stop for 2 minutes at 3 stars, 2 police cars block the road about 300 m ahead. Hitting it or stopping in front of it means arrest. At most 2 roadblocks per pursuit.
 - New: wanted list. If you escape at 3 stars, you are wanted until the next game day ("Wanted until tomorrow" in the status). Every pursuit then starts at 3 stars right away, laser checks chase you as soon as they see you, and the police wait at your garage or home with the arrest fine (150,000 ¥).

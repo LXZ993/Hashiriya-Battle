@@ -1414,6 +1414,7 @@ Die Texte stehen in <span class="path">data\lang\de.json</span> / <code>en.json<
 <section id="reisen">
 <h2><span class="n">10b</span> Haupt-PAs und Reisen <span class="tag">travel.lua</span> <span class="tag">data\travel.json</span> <span class="tag">data\maps\c1.json</span></h2>
 <p>Seit 05.11.2026. Die Haupt-PAs stehen in <code>napSpots</code> der Kartendatei. Neu dazugekommen sind <b>Heiwajima PA</b> und <b>Oi PA (Westbound)</b>, aus deinen Dev-Orten mit der Notiz „Haupt Spawnpunkt (Map)“ und den Buchten daneben. Shibaura PA und Tatsumi 1st PA sind ebenfalls Haupt-PAs.</p>
+<p><b>Parkplätze der Map</b> (seit 09.11.2026): Die Buchten der PAs kommen zu den Parkplätzen der Map dazu (<code>city.sites.json</code> der Map). Liefert BeamNG sie gerade nicht, wartet die Mod 5 s und versucht es noch mal; eigene Parkplatz-Daten nur mit unseren Buchten gibt es nur auf Maps ohne diese Datei. Im Log: „PA-Buchten eingefügt: … (zu den Parkplätzen der Map)“.</p>
 <p><b>Treffpunkte ohne Reiseziel</b> (seit 08.11.2026): Ein Eintrag in <code>napSpots</code> mit <code>"main": false</code> ist keine Haupt-PA (nicht auf der großen Karte, kein Reiseziel). <code>"kind": "meet"</code> nimmt ihn aus den Job-Zielen, <code>"nap": false</code> verbietet das Nickerchen. Die Werte <code>nightCount</code>, <code>dayCount</code>, <code>rivalNight</code>, <code>rivalDay</code> (je <code>[von, bis]</code>) überschreiben für diesen Ort die Werte aus chat.json <code>pa</code>. Seine <code>bays</code> kommen trotzdem zu den Parkplätzen dazu. Beispiel: die <b>Kameibashi-Nothaltebucht</b> am City Loop (früher als PA eingebaut, in echt eine Nothaltebucht): tagsüber leer, nachts 2 bis 4 Rivalen und 1 bis 2 Leute, Buchten = Dev-Orte PA 1, PA 2, PA 38 bis 41.</p>
 <h3>Was eine Haupt-PA kann</h3>
 <ul>
@@ -2208,7 +2209,7 @@ Reihenfolge oder Titel der Meilensteine kannst du in <code>roadmap.json</code> �
 <tr><td><code>challengeQuoteTime</code></td><td>6</td><td>So lange steht der Spruch des Rivalen in der Sprechblase, wenn ihr euch angleicht. Erst danach startet der Countdown (ohne Spruch hat der Rivale keine Wartezeit).</td></tr>
 <tr><td><code>countdown</code></td><td>5</td><td>Sekunden Countdown</td></tr>
 <tr><td><code>syncToleranceKmh</code> / <code>syncTimeout</code></td><td>5 / 25</td><td>Angleichen: so nah am Tempo, spätestens nach 25 s startet der Countdown. Der Rivale fährt dabei mit der BeamNG-KI und bremst für Verkehr und Kurven; dein Tempomat folgt seinem echten Tempo und hält im Countdown den Abstand.</td></tr>
-<tr><td><code>falseStartGap</code> / <code>falseStartKmh</code></td><td>3 / 10</td><td>Ab wann es ein Frühstart ist. Rollst du nur heran, weil der Rivale gebremst hat (du bist nicht schneller als er), ist es kein Frühstart.</td></tr>
+<tr><td><code>falseStartGap</code> / <code>falseStartKmh</code></td><td>3 / 10</td><td>Ab wann es ein Frühstart ist. Rollst du nur heran, weil der Rivale gebremst hat (du bist nicht schneller als er), ist es kein Frühstart. Seit 09.11.2026 zählt ein Frühstart nur, wenn du selbst beschleunigst (<code>falseStartAccel</code>, 0,6 m/s²). Zieht ein Rivale, der von hinten aufholt, an dir vorbei, ist das kein Frühstart: er fährt dann vorne.</td></tr>
 <tr><td><code>resultTime</code></td><td>9</td><td>Sekunden Ergebnisanzeige mit Spruch</td></tr>
 <tr><td><code>rivalAiMode</code></td><td>'own'</td><td>KI des Rivalen im Battle. <code>'own'</code> = unser eigener Fahrer (siehe <a href="#fahrer">Gegner-Fahrer</a>); gibt er auf, übernimmt automatisch <code>'fleeGuard'</code>. <code>'fleeGuard'</code> = vorne die BeamNG-Flucht-KI (zügig, weicht seitlich aus) plus unser Bremsschutz, hinten <code>'span'</code>. <code>'span'</code> = freie Fahrt ohne Tempolimit und Spurzwang: weicht Verkehr aus, bremst nur wenn nötig. <code>'traffic'</code> = Verkehrsmodus, sehr vorsichtig. <code>'pursuit'</code> = BeamNG flee/chase: flee bremst nicht für Verkehr, chase rammt dich.</td></tr>
 <tr><td><code>guardTtc</code> / <code>guardLateral</code> / <code>guardLookAhead</code> / <code>guardHold</code> / <code>guardSpeedMargin</code></td><td>1.6 / 2.2 / 90 / 0.8 / 1.5</td><td>Nur bei <code>'fleeGuard'</code>: Bremsschutz für die Flucht-KI (BeamNG lässt sie wegen anderer Autos nie bremsen). Steht ein langsameres Auto bis 90 m voraus und höchstens 2,2 m seitlich versetzt, und würde der Rivale in weniger als 1,6 s auffahren, fährt er kurz höchstens 1,5 m/s langsamer als der Vordermann, mindestens 0,8 s lang. Fährt er noch auf: <code>guardTtc</code> höher (z. B. 2.2). Bremst er zu oft: <code>guardTtc</code> kleiner oder <code>guardLateral</code> kleiner.</td></tr>
@@ -2619,6 +2620,14 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <h4>Dev-Menü: Notizen gehen nicht mehr verloren (08.11.)</h4>
 <ul>
 <li>Behoben: Name und Notiz beim Bearbeiten eines Orts wurden nur mit „Speichern“ übernommen. Jetzt werden sie automatisch gespeichert, auch beim Verlassen des Felds, mit Enter, mit „Zu“, beim Wechsel zu einem anderen Ort und beim Schließen des Dev-Menüs.</li>
+</ul>
+<h4>Nach deinem Test (09.11.)</h4>
+<ul>
+<li>Behoben: An Shibaura PA und Tatsumi 1st PA standen keine geparkten Autos mehr. Wenn BeamNG die Parkplätze der Map kurz nicht lieferte, hat die Mod eigene Parkplatz-Daten nur mit unseren Buchten gesetzt, und die haben die Map-Parkplätze dauerhaft ersetzt. Jetzt wartet die Mod, bis die Map-Parkplätze da sind, und tauscht falsche Daten von früher wieder aus.</li>
+<li>Behoben: Die Crew-Kette (z. B. gegen Riku Tanabe) endete immer mit „Frühstart“. Ein Frühstart zählt jetzt nur noch, wenn du selbst beschleunigst. Zieht der Begleiter beim Aufholen an dir vorbei, fährt er eben vorne weiter.</li>
+<li>Behoben: Der Geschwindigkeitsmesser war zu Fuß immer noch sichtbar. Er prüft jetzt wie der Drehzahlmesser, ob ein Motor da ist.</li>
+<li>Lexikon: Das Fahrstil-Symbol steht jetzt vor dem Autonamen, etwas größer und heller.</li>
+<li>Lexikon &gt; Story: Kapitel sind orange Überschriften, die Szenen stehen eingerückt darunter, und eine aufgeklappte Szene zeigt den Dialog Zeile für Zeile mit Sprechernamen.</li>
 </ul>
 <h4>Polizei: Straßensperre und Steckbrief (08.11.)</h4>
 <ul>

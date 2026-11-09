@@ -186,7 +186,9 @@ angular.module('beamng.apps')
       scope.$on('streamsUpdate', function (e, s) {
         var el = s && s.electrics, ei = s && s.engineInfo
         // Zu Fuß (Unicycle-Bob) gibt es kein engineInfo: dann aus, wie der Drehzahlmesser (JDMArsch 08.11.2026)
-        if (!el || !ei || (el.wheelspeed === undefined && el.airspeed === undefined)) { show(false); return }
+        // 09.11.: der Bob hat doch ein engineInfo (ohne Motor, Höchstdrehzahl 0), darum wie der Drehzahlmesser prüfen
+        var engineMax = ei ? Number(ei[1]) : NaN
+        if (!el || !ei || !isFinite(engineMax) || engineMax <= 0 || (el.wheelspeed === undefined && el.airspeed === undefined)) { show(false); return }
         show(true)
 
         var ms = el.wheelspeed !== undefined && el.wheelspeed !== null ? Number(el.wheelspeed) : Number(el.airspeed)
