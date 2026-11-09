@@ -427,18 +427,20 @@ angular.module('beamng.apps')
                   '<i class="hbm-chev"></i></div>' +
                 '<div class="hbm-lex-body" ng-if="lexIsOpen(gi)">' +
                   '<div class="hbm-lex-desc" ng-if="g.desc && !lexFiltered()">{{ g.desc }}</div>' +
-                  '<div class="hbm-lex" ng-repeat="r in lexList(g)" ng-init="rk = lexKey(g, r, $index)" ng-class="{\'is-beaten\': r.beaten, \'is-open\': lex.open == rk, \'is-entry\': !r.id}">' +
+                  '<div class="hbm-lex" ng-repeat="r in lexList(g)" ng-init="rk = lexKey(g, r, $index)" ng-class="{\'is-beaten\': r.beaten, \'is-open\': lex.open == rk, \'is-entry\': !r.id, \'is-chapter\': r.chapter, \'is-scene\': r.scene}">' +
                     '<div class="hbm-lex-row" ng-click="lex.open = lex.open == rk ? null : rk">' +
                       '<span class="hbm-star" ng-if="r.id" ng-class="{\'is-on\': r.watched}" ng-click="$event.stopPropagation(); act(\'watch\', r.id)" title="{{ s.t[\'home.watchNote\'] }}" ng-bind-html="ico(\'star\')"></span>' +
                       '<img class="hbm-lex-seal" ng-if="r.logo" ng-src="{{ r.logo }}" alt="">' +
                       '<span class="hbm-lex-main"><span class="hbm-lex-name">{{ r.name }}<em ng-if="r.nick"> \u201e{{ r.nick }}\u201c</em></span>' +
-                        '<span class="hbm-lex-sub" ng-if="r.car">{{ r.car }}<i class="hbm-ico hbm-lex-char" ng-if="r.styleId" ng-bind-html="ico(\'char_\' + r.styleId)"></i><span ng-if="r.style">{{ r.style }}</span></span></span>' +
+                        '<span class="hbm-lex-sub" ng-if="r.car || r.styleId"><i class="hbm-ico hbm-lex-char" ng-if="r.styleId" title="{{ r.style }}" ng-bind-html="ico(\'char_\' + r.styleId)"></i>{{ r.car }}<span class="hbm-lex-style" ng-if="r.style"> · {{ r.style }}</span></span></span>' +
                       '<span class="hbm-lex-tag" ng-if="r.leader">{{ s.t[\'home.leader\'] }}</span>' +
                       '<span class="hbm-lex-tag hbm-lex-boss" ng-if="r.boss">{{ s.t[\'home.boss\'] }}</span>' +
                       '<span class="hbm-lex-state" ng-if="!r.scene && !r.chapter" title="{{ r.beaten ? s.t[\'home.beaten\'] : s.t[\'home.open\'] }}"></span></div>' +
                     '<div class="hbm-lex-detail" ng-if="lex.open == rk">' +
                       '<div class="hbm-lex-status" ng-if="r.status">{{ r.status }}</div>' +
-                      '<div class="hbm-lex-text" ng-if="r.desc">{{ r.desc }}</div>' +
+                      '<div class="hbm-lex-text" ng-if="r.desc && !r.lines">{{ r.desc }}</div>' +
+                      '<div class="hbm-lex-dlg" ng-if="r.lines"><div class="hbm-lex-say" ng-repeat="l in r.lines track by $index" ng-class="{\'is-same\': $index > 0 && r.lines[$index - 1].who == l.who}">' +
+                        '<b ng-if="l.who && !($index > 0 && r.lines[$index - 1].who == l.who)">{{ l.who }}</b><span>{{ l.text }}</span></div></div>' +
                       '<div class="hbm-lex-quote" ng-if="r.quote">\u201e{{ r.quote }}\u201c</div>' +
                       '<div class="hbm-lex-watch" ng-if="r.id" ng-click="act(\'watch\', r.id)">{{ r.watched ? s.t[\'lex.unwatch\'] : s.t[\'lex.watch\'] }}</div>' +
                     '</div>' +
@@ -1108,7 +1110,8 @@ angular.module('beamng.apps')
           '.hbm-lex-name{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
           '.hbm-lex-name em{font-weight:400;font-size:11px;color:var(--o2);}' +
           '.hbm-lex-sub{font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
-          '.hbm-lex-sub .hbm-lex-char{width:10px;height:10px;margin:0 3px 0 6px;vertical-align:-1px;color:rgba(244,244,244,.55);}' +
+          '.hbm-lex-sub .hbm-lex-char{display:inline-block;width:12px;height:12px;margin:0 5px 0 0;vertical-align:-2px;color:rgba(244,244,244,.8);}' +
+          '.hbm-lex-sub .hbm-lex-char svg{display:block;width:12px;height:12px;}' +
           '.hbm-lex-tag{flex:none;font-size:8.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#141414;background:var(--o2);padding:1px 4px;}' +
           '.hbm-lex-boss{background:#ff5a36;}' +
           '.hbm-lex-state{flex:none;box-sizing:border-box;width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(244,244,244,.35);}' +
@@ -1117,6 +1120,15 @@ angular.module('beamng.apps')
           '.hbm-lex-detail{padding:2px 14px 9px 42px;animation:hbmIn .15s ease-out;}' +
           '.hbm-lex.is-entry .hbm-lex-detail{padding-left:18px;}' +
           '.hbm-lex-status{font-size:11px;color:var(--tc);margin-bottom:3px;}' +
+          '.hbm-lex.is-chapter{margin-top:6px;border-top:1px solid rgba(255,102,0,.35);}' +
+          '.hbm-lex.is-chapter .hbm-lex-name{color:var(--o2);font-weight:900;font-style:italic;letter-spacing:.6px;text-transform:uppercase;}' +
+          '.hbm-lex.is-scene .hbm-lex-row{padding-left:34px;}' +
+          '.hbm-lex.is-scene .hbm-lex-row:before{content:"";width:6px;height:6px;border-left:1px solid rgba(244,244,244,.3);border-bottom:1px solid rgba(244,244,244,.3);margin:-6px 2px 0 -12px;flex:none;}' +
+          '.hbm-lex.is-scene .hbm-lex-detail{padding-left:34px;}' +
+          '.hbm-lex-dlg{display:flex;flex-direction:column;gap:2px;max-height:320px;overflow-y:auto;padding-right:4px;}' +
+          '.hbm-lex-say{font-size:11px;line-height:1.45;color:rgba(244,244,244,.78);padding:3px 0 1px 8px;border-left:2px solid rgba(255,102,0,.4);margin-top:4px;}' +
+          '.hbm-lex-say.is-same{margin-top:0;padding-top:0;}' +
+          '.hbm-lex-say b{display:block;font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--o2);margin-bottom:1px;}' +
           '.hbm-lex-text{font-size:11px;line-height:1.45;color:rgba(244,244,244,.75);white-space:pre-line;}' +
           '.hbm-lex-quote{margin-top:5px;font-size:11px;font-style:italic;color:rgba(244,244,244,.8);border-left:2px solid var(--tc,#ff6600);padding-left:7px;}' +
           '.hbm-lex-watch{display:inline-block;margin-top:7px;padding:3px 8px;font-size:9.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid rgba(255,255,255,.2);color:var(--dim);}' +

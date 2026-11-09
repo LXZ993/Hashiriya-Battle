@@ -327,13 +327,16 @@ function M.lexiconGroup()
       table.insert(g.list, { name = label .. ': ' .. loc(ch.title), nick = '', car = ch.jp or '', desc = loc(ch.intro), beaten = i < st.chapter, chapter = true })
       for _, s in ipairs(ch.scenes or {}) do
         if seenIn[s.id] then
-          local parts = {}
+          -- JDMArsch 09.11.2026: zu unübersichtlich. Jetzt Zeile für Zeile mit Sprecher (Menü zeigt sie als Dialog),
+          -- desc bleibt für die Suche
+          local parts, lines = {}, {}
           for _, line in ipairs(s.lines or {}) do
             local sp = speakerInfo(lineSpeaker(s, line))
             table.insert(parts, (sp.name ~= '' and (sp.name .. ': ') or '') .. lineText(line))
+            table.insert(lines, { who = sp.name or '', text = lineText(line) })
           end
           table.insert(g.list, { name = loc(s.title) ~= '' and loc(s.title) or '', nick = '', car = s.style == 'phone' and c.t('story.phone') or '',
-            desc = table.concat(parts, '\n'), beaten = true, scene = true })
+            desc = table.concat(parts, '\n'), lines = lines, beaten = true, scene = true })
         end
       end
     end

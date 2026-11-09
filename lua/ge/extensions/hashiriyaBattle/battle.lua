@@ -22,6 +22,7 @@ local cfg = {
   syncCatchUpPerMeter = 1.5,-- km/h mehr pro Meter über syncTargetGap
   falseStartGap = 3,        -- m: so viel näher am Rivalen als beim Herausfordern = Frühstart
   falseStartKmh = 10,       -- km/h über dem Tempomat-Tempo = Frühstart
+  falseStartAccel = 0.6,    -- m/s²: Frühstart zählt nur, wenn du selbst beschleunigst (nicht beim Mitrollen)
   playerMaxSp = 1000,
   drainBase = 8,            -- SP/s, die der Hintere immer verliert
   drainPerMeter = 0.25,     -- zusätzliche SP/s pro Meter Abstand
@@ -866,9 +867,19 @@ local function onUpdate(dtReal, dtSim)
     if battle.playerAhead then
       -- Der Rivale hat herausgefordert und fährt hinten: er holt auf, du hältst das Tempo
       if gap > -2 then
-        setWarnSignal(rivalVeh, false)
-        core().msg(core().t('msg.falseStart', battle.rival.name), 4)
-        M.reset(falseStartCooldown())
+        -- JDMArsch 09.11.2026 (Kette gegen Riku Tanabe startete nie): der Begleiter holt mit Extra-Tempo auf und
+        -- schießt dabei vorbei. Das ist nicht dein Fehler: nur wer selbst bremst, macht einen Frühstart.
+        -- Sonst geht es normal weiter, er ist jetzt eben vorne.
+        if player:getVelocity():length() < battle.rivalSpeed - 8 / 3.6 then
+          setWarnSignal(rivalVeh, false)
+          core().msg(core().t('msg.falseStart', battle.rival.name), 4)
+          log('I', logTag, 'Frühstart (gebremst, Rivale hinten) gegen ' .. tostring(battle.rival.id))
+          M.reset(falseStartCooldown())
+          return
+        end
+        battle.playerAhead = nil
+        rivalVeh:queueLuaCommand(string.format("ai.setSpeedMode('limit') ai.setSpeed(%f)", battle.rivalSpeed))
+        log('I', logTag, 'Angleichen: Rivale ist vorbeigezogen, er fährt jetzt vorne')
         return
       end
       local behind = -gap
@@ -944,12 +955,22 @@ local function onUpdate(dtReal, dtSim)
     if battle.startGap then
       battle.lockSpeed = math.max(battle.rivalV + math.max(-2, math.min(2, (gap - battle.startGap) * 0.4)), 5)
     end
-    local playerFaster = player:getVelocity():length() > battle.rivalV + 3 / 3.6
-    if battle.startGap and ((gap < battle.startGap - cfg.falseStartGap and playerFaster)
-        or player:getVelocity():length() > battle.lockSpeed + cfg.falseStartKmh / 3.6) then
+    local pv = player:getVelocity():length()
+    local playerFaster = pv > battle.rivalV + 3 / 3.6
+    -- Frühstart nur, wenn du selbst beschleunigst (geglättete Beschleunigung). Rollst du nur mit, weil der Rivale
+    -- langsamer wird (Kette: er hat auf dich gewartet, Verkehr), ist das kein Frühstart (JDMArsch 09.11.2026).
+    if battle.prevPV then
+      local a = (pv - battle.prevPV) / math.max(dtSim, 0.001)
+      battle.accel = (battle.accel or 0) + (a - (battle.accel or 0)) * math.min(1, dtSim * 4)
+    end
+    battle.prevPV = pv
+    local accelerating = (battle.accel or 0) > (cfg.falseStartAccel or 0.6)
+    if battle.startGap and accelerating and ((gap < battle.startGap - cfg.falseStartGap and playerFaster)
+        or pv > battle.lockSpeed + cfg.falseStartKmh / 3.6) then
       setWarnSignal(rivalVeh, false)
       core().msg(core().t('msg.falseStart', battle.rival.name), 4)
-      log('I', logTag, 'Frühstart gegen ' .. tostring(battle.rival.id))
+      log('I', logTag, string.format('Frühstart gegen %s (%.0f km/h, Tempomat %.0f, Abstand %.1f/%.1f m, Beschl. %.2f)',
+        tostring(battle.rival.id), pv * 3.6, battle.lockSpeed * 3.6, gap, battle.startGap, battle.accel or 0))
       M.reset(falseStartCooldown())
       return
     end
