@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Own loading screen (10 Nov)
+- New, requested by JDMArsch (LXZ aka. LXZockt): starting via "More" > Hashiriya Battle shows our own loading screen image instead of the BeamNG ones. Other maps keep their images. Drop more images into `art/loading/` and one is picked at random.
+
 ### Shorter sleep (10 Nov)
 - Requested by JDMArsch (LXZ aka. LXZockt): the black screen while sleeping is now half as long. At home 10 s instead of 20 s, nap in the car 5 s instead of 10 s. In-game hours slept are unchanged.
 

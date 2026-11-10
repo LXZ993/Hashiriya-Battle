@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Eigenes Ladebild (10.11.)
+- Neu auf Wunsch von JDMArsch (LXZ aka. LXZockt): Beim Start über „Mehr …“ > Hashiriya Battle zeigt der Ladebildschirm ein eigenes Bild statt der BeamNG-Bilder. Andere Maps behalten ihre Bilder. Weitere Bilder einfach in `art/loading/` legen, eins davon kommt zufällig.
+
 ### Kürzer schlafen (10.11.)
 - Auf Wunsch von JDMArsch (LXZ aka. LXZockt): Der schwarze Bildschirm beim Schlafen ist nur noch halb so lang. Zu Hause 10 s statt 20 s, Nickerchen im Auto 5 s statt 10 s. Die geschlafenen Spielstunden bleiben gleich.
 
