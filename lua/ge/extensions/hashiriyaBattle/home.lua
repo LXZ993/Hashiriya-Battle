@@ -202,7 +202,7 @@ end
 local function startRest(kind, fromHour, toHour, isNewDay, doneMsg, extra)
   local secs = M.world().restSeconds or {}
   rest = { kind = kind, from = fromHour, to = toHour, newDay = isNewDay, msg = doneMsg,
-           black = math.max(1, tonumber(extra and extra.black) or tonumber(secs[kind]) or (kind == 'home' and 20 or 10)), t = 0,
+           black = math.max(1, tonumber(extra and extra.black) or tonumber(secs[kind]) or (kind == 'home' and 10 or 5)), t = 0,
            onDark = extra and extra.onDark, onDone = extra and extra.onDone }
   pcall(extensions.hashiriyaBattle_rivals.despawnActive)
   if kind == 'nap' or kind == 'travel' then freezePlayer(true) end

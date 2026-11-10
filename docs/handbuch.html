@@ -97,7 +97,7 @@ nav label.lm select { width: 100%; margin-top: 3px; padding: 5px 6px; border-rad
 <div class="wrap">
 <nav>
   <div class="brand">Hashiriya <span>Battle</span></div>
-  <div class="sub">Handbuch für eigene Änderungen · Stand 08.11.2026</div>
+  <div class="sub">Handbuch für eigene Änderungen · Stand 10.11.2026</div>
   <input id="q" type="search" placeholder="Suchen (z. B. Kennzeichen, Uhrzeit)">
   <div id="toc">
     <div class="grp">Start</div>
@@ -1233,7 +1233,7 @@ git push origin prototype-0.1    # zu GitHub hochladen</code></pre>
 <tr><td><code>nightWakeHour</code></td><td>6</td><td>Aufwachen nach dem Nachtschlaf</td></tr>
 <tr><td><code>wakeHour</code></td><td>20</td><td>Aufwachen nach einem Schlaf tagsüber</td></tr>
 <tr><td><code>napHours</code></td><td>[0.5, 2]</td><td>Nickerchen im Auto auf einem Parkplatz: zufällig 0,5 bis 2 Stunden</td></tr>
-<tr><td><code>restSeconds</code></td><td>{ "nap": 10, "home": 20 }</td><td>So viele echte Sekunden bleibt der Bildschirm beim Schlafen schwarz, während die Uhr bis zur Aufwachzeit vorspult. <code>nap</code> = Nickerchen im Auto, <code>home</code> = zu Hause. Dazu kommt je 1 s Ab- und Aufblenden.</td></tr>
+<tr><td><code>restSeconds</code></td><td>{ "nap": 5, "home": 10 }</td><td>So viele echte Sekunden bleibt der Bildschirm beim Schlafen schwarz (seit 10.11.2026 halbiert, vorher 10 / 20), während die Uhr bis zur Aufwachzeit vorspult. <code>nap</code> = Nickerchen im Auto, <code>home</code> = zu Hause. Dazu kommt je 1 s Ab- und Aufblenden.</td></tr>
 <tr><td><code>restLockHours</code></td><td>6</td><td>Ruhesperre: nach dem Schlafen zu Hause oder einem Nickerchen im Auto geht <b>beides</b> erst nach so vielen Spielstunden wieder (gegen Dauerschlafen). <code>0</code> = keine Sperre. Zählt ab dem Aufwachen.</td></tr>
 <tr><td><code>jobRewards</code></td><td>garageToGarage</td><td>Lohn in Yen für Tagesjobs (BeamNG-Missionen) je Missionstyp: <code>passed</code> = geschafft, <code>completed</code> = alle Sterne, <code>repeatFactor</code> = dieselbe Mission am selben Spieltag nochmal (0.5 = halber Lohn, beim dritten Mal ein Viertel)</td></tr>
 <tr><td><code>shopHours</code></td><td>[8, 20]</td><td>Öffnungszeiten der Shops (pro Parkplatz mit <code>hours</code> überschreibbar)</td></tr>
@@ -2640,6 +2640,10 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <details class="cl">
 <summary><b>Alpha 0.9.2</b> <small>Stand 06.11.2026</small></summary>
 <div>
+<h4>Kürzer schlafen (10.11.)</h4>
+<ul>
+<li>Auf Wunsch von JDMArsch (LXZ aka. LXZockt): Der schwarze Bildschirm beim Schlafen ist nur noch halb so lang. Zu Hause 10 s statt 20 s, Nickerchen im Auto 5 s statt 10 s. Die geschlafenen Spielstunden bleiben gleich.</li>
+</ul>
 <h4>Wanderer-Wartepunkte (09.11.)</h4>
 <ul>
 <li>Neu: Nachts steht an einem der 73 Wartepunkte von JDMArsch (LXZ aka. LXZockt) manchmal ein Wanderer mit Warnblinker am Rand. Fährst du vorbei oder gibst Lichthupe, hängt er sich hinter dich und fordert dich heraus.</li>
@@ -3519,7 +3523,7 @@ Ich sehe dieselbe Liste und kann sie auch lesen und ergänzen.</div>
 <tr><td>Kein Verkehr</td><td><code>cars.json</code>: <code>careerTraffic</code>, <code>trafficMinAmount</code>; Agent Traffic installiert? Im Log "Verkehr starten fehlgeschlagen": die Mod versucht es bis zu 5-mal alle 2 Sekunden neu (beim allerersten Start nach dem Spielstart fehlte BeamNG die Lack-Bibliothek, die wird jetzt vorher geladen).</td></tr>
 <tr><td>Shop öffnet nicht</td><td>Öffnungszeiten (<code>shopHours</code>), Auto nicht ganz in der Bucht oder zu schnell (unter 8 km/h).</td></tr>
 <tr><td>Irgendetwas stimmt nicht, Ursache unklar</td><td><code>hashiriya.log</code> öffnen und nach <code>FEHLER</code> oder <code>Datencheck</code> suchen. Oder Fehlerbericht erstellen und mir geben.</td></tr>
-<tr><td>Bildschirm bleibt nach dem Schlafen schwarz</td><td>Sollte nicht passieren (nach 10 bzw. 20 s wird es hell). Im Log nach <code>Ruhephase</code> suchen und Fehlerbericht schicken. Notlösung: Konsole (<code>^</code>) und <code>ui_fadeScreen.stop(1)</code> eingeben.</td></tr>
+<tr><td>Bildschirm bleibt nach dem Schlafen schwarz</td><td>Sollte nicht passieren (nach 5 bzw. 10 s wird es hell). Im Log nach <code>Ruhephase</code> suchen und Fehlerbericht schicken. Notlösung: Konsole (<code>^</code>) und <code>ui_fadeScreen.stop(1)</code> eingeben.</td></tr>
 <tr><td>Kein Geld für Garage2Garage</td><td>Nur bei geschaffter Mission und nur für Typen in <code>jobRewards</code> (world.json). Im Log steht <code>Job-Lohn</code> oder <code>Job nicht geschafft</code>.</td></tr>
 <tr><td>Nach <code>git pull</code> nichts neu</td><td>BeamNG komplett neu starten. Im Mod-Ordner <code>git log --oneline -1</code> zeigt den aktuellen Stand.</td></tr>
 <tr><td>Lua-Fehler nach eigener Änderung</td><td>Meist Komma oder Klammer vergessen. <code>git diff</code> zeigt deine Änderung, <code>git checkout -- datei.lua</code> macht sie rückgängig.</td></tr>

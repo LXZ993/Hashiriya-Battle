@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (Stand 06.11.2026)
 
+### Kürzer schlafen (10.11.)
+- Auf Wunsch von JDMArsch (LXZ aka. LXZockt): Der schwarze Bildschirm beim Schlafen ist nur noch halb so lang. Zu Hause 10 s statt 20 s, Nickerchen im Auto 5 s statt 10 s. Die geschlafenen Spielstunden bleiben gleich.
+
 ### Wanderer-Wartepunkte (09.11.)
 - Neu: Nachts steht an einem der 73 Wartepunkte von JDMArsch (LXZ aka. LXZockt) manchmal ein Wanderer mit Warnblinker am Rand. Fährst du vorbei oder gibst Lichthupe, hängt er sich hinter dich und fordert dich heraus.
 - Dev-Menü: Knopf „Wanderer an Wartepunkt“ (Reiter Rivalen) zum Testen.

@@ -10,7 +10,7 @@
   "sleepFrom": 22,
   "nightWakeHour": 6,
   "napHours": [0.5, 2],
-  "restSeconds": { "nap": 10, "home": 20 },
+  "restSeconds": { "nap": 5, "home": 10 },
   "restLockHours": 6,
   "_hinweisJobs": "jobRewards = Lohn in Yen für Tagesjobs (BeamNG-Missionen) je Missionstyp. passed = geschafft, completed = alle Sterne. repeatFactor = dieselbe Mission am selben Spieltag nochmal: Lohn mal diesen Wert (0.5 = halb, beim dritten Mal ein Viertel).",
   "jobRewards": {
