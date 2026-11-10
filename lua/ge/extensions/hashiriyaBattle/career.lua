@@ -333,8 +333,37 @@ local function endTutorial()
   flow.step = 'driver'
 end
 
+-- Eigenes Ladebild (nur beim Start über das Hauptmenü): zufällig eins aus art/loading/ (.jpg/.jpeg/.png).
+-- Die UI (ui/ui-vue/mods/hashiriyaBattle/index.js) tauscht damit das BeamNG-Ladebild aus.
+local function pickLoadingImage()
+  local list = {}
+  for _, f in ipairs(FS:findFiles('/art/loading/', '*.*', 0, false, false) or {}) do
+    local l = f:lower()
+    if l:match('%.jpe?g$') or l:match('%.png$') then list[#list + 1] = f end
+  end
+  if #list == 0 then return nil end
+  local f = list[math.random(#list)]
+  if f:sub(1, 1) ~= '/' then f = '/' .. f end
+  return f
+end
+
+local function loadingImage(show)
+  pcall(function()
+    if show then
+      local src = pickLoadingImage()
+      if src then
+        guihooks.trigger('HashiriyaLoadingImage', { src = src })
+        log('I', logTag, 'Ladebild: ' .. src)
+      end
+    else
+      guihooks.trigger('HashiriyaLoadingImage', { hide = true })
+    end
+  end)
+end
+
 -- Vom BeamNG-Hauptmenü: Level ohne Standardauto laden, dann Titelbildschirm.
 function M.startFromMainMenu()
+  loadingImage(true)
   local level = (core().carsData and core().carsData.careerLevel) or 'c1'
   pendingTitle = true
   -- BeamNG-Hauptmenü-Musik sofort anhalten, die eigene Titelmusik kommt mit dem Titelbildschirm
@@ -343,6 +372,7 @@ function M.startFromMainMenu()
   local ok = ff and ff.startFreeroamByName and ff.startFreeroamByName(level, nil, nil, false)
   if not ok then
     pendingTitle = false
+    loadingImage(false)
     log('E', logTag, 'Karriere: Level ' .. tostring(level) .. ' nicht gefunden')
     core().msg(core().t('msg.levelMissing', level), 8)
   end
@@ -394,6 +424,7 @@ local function showTitleAfterLoad()
   if not pendingTitle then return end
   pendingTitle = false
   fallbackTimer = 0
+  loadingImage(false)
   local router = extensions.ui_router or (extensions.load('ui_router') and extensions.ui_router)
   if router and router.navigate then pcall(router.navigate, 'play') end
   garageCamera()
