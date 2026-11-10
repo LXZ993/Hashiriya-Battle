@@ -2,6 +2,9 @@
 
 ## Alpha 0.9.2 (as of 2026-11-06)
 
+### Shorter sleep (10 Nov)
+- Requested by JDMArsch (LXZ aka. LXZockt): the black screen while sleeping is now half as long. At home 10 s instead of 20 s, nap in the car 5 s instead of 10 s. In-game hours slept are unchanged.
+
 ### Wanderer waiting spots (9 Nov)
 - New: at night a wanderer sometimes waits with hazard lights on at one of the 73 waiting spots placed by JDMArsch (LXZ aka. LXZockt). Drive past or flash your high beams and he pulls in behind you and challenges you.
 - Dev menu: button "Wanderer an Wartepunkt" (Rivals tab) for testing.
