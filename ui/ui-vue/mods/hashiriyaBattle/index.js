@@ -21,11 +21,13 @@ function addButton(add) {
 // aus art/loading/ und nach dem Laden { hide = true }. Andere Maps und Modi behalten die BeamNG-Bilder.
 //
 // Weg 1: Bilder im BeamNG-Ladebildschirm austauschen (alles, dessen Bildpfad "/loading/" enthält).
+//        BeamNG 0.38+: LoadingScreen.vue setzt das Bild als Inline-Style auf .loading-background
+//        (images/loading/drive/N.jpg) und lädt es zusätzlich in ein <img> in .loading-cache.
 //        Dann bleiben Fortschrittsanzeige und Tipps von BeamNG sichtbar.
 // Weg 2 (falls Weg 1 nach kurzer Zeit nichts gefunden hat): eigenes Vollbild mit kleiner Ladeanzeige darüber.
 
 const OVERLAY_ID = "hashiriya-loading-overlay"
-const FALLBACK_MS = 1500   // so lange auf das BeamNG-Ladebild warten, dann eigenes Vollbild
+const FALLBACK_MS = 3000   // so lange auf das BeamNG-Ladebild warten, dann eigenes Vollbild
 const MAX_MS = 180000      // spätestens nach 3 Minuten alles zurücksetzen (falls das Ende-Event fehlt)
 
 let current = null   // { src, observer, swapped, fallbackTimer, maxTimer, originals }
