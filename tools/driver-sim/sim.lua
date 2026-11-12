@@ -207,6 +207,8 @@ end
 
 -- Test: stehendes Auto (z. B. nach Unfall), STOPCAR = { Anteil der Strecke, Querlage }
 if STOPCAR then addTraffic(20, STOPCAR[1], STOPCAR[2], 0) end
+-- Test: Auto auf der Auffahrt, MERGECAR = { Anteil, Querlage Start, Tempo m/s, Einfädeln ab Anteil, Ziel-Querlage }
+if MERGECAR then addTraffic(21, MERGECAR[1], MERGECAR[2], MERGECAR[3], MERGECAR[4], MERGECAR[5]) end
 
 local function trafficPos(t)
   local i = math.min(math.max(math.floor(t.idx), 1), #center - 1)
@@ -222,15 +224,18 @@ local function updateTraffic(dt)
   for _, t in ipairs(traffic) do
     t.idx = t.idx + t.speed * dt / segLen
     local frac = t.idx / #center
+    t.vlat = 0
     if t.lca and frac > t.lca then
       local d = t.newLat - t.lat
-      t.lat = t.lat + math.max(-1.2 * dt, math.min(1.2 * dt, d))
+      local step = math.max(-1.2 * dt, math.min(1.2 * dt, d))
+      t.lat = t.lat + step
+      t.vlat = dt > 0 and step / dt or 0
     end
     local p, tt = trafficPos(t)
     objects[t.id] = objects[t.id] or { pos = vec3(), vel = vec3(), dirVec = vec3() }
     local o = objects[t.id]
     o.pos = p
-    o.vel = tt * t.speed
+    o.vel = tt * t.speed + vec3(tt.y, -tt.x, 0) * (t.vlat or 0)
     o.len, o.wid = t.len, t.wid
   end
 end
