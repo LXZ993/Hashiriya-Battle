@@ -1,0 +1,37 @@
+{
+  "_hinweis": "Eigener Gegner-Fahrer im Battle (lua/vehicle/extensions/hashiriyaDriver.lua). enabled false = alte BeamNG-KI (battle.lua cfg.rivalAiMode fallback). debug true = Fahrlinie (Kugeln grün schnell bis rot langsam) und Entscheidung pro Verkehrsauto (blau links vorbei, gelb rechts vorbei, rot dahinter bleiben) im Spiel einzeichnen. tiers = Zuschlag auf die Fahrer-Werte je Stufe (rival, leader, wanderer, boss), z. B. {\"boss\": {\"courage\": 0.05}}. params = Feineinstellung des Fahrers für alle Gegner, gleiche Namen wie defaults in hashiriyaDriver.lua (z. B. cornerUseMax, sideGapMin, emergencyTtcMin, steerLookTime). Pro Rivale in rivals.json: \"driver\": {\"skill\": 0.7, \"courage\": 0.9, \"aggression\": 0.8, \"nerves\": 0.5, \"fairness\": 0.2} überschreibt die berechneten Werte (alle 0 bis 1). launch = Start-Runterschalten im Countdown: ab minSkill (Können) macht er es manchmal, ab fullSkill immer; leadMin/leadMax = Sekunden vor \"Los\" bei Können 0/1. Fahrcharakter (Alpha 0.9): rivals.json \"character\": \"clean\" (sauber), \"blocker\" (macht die Linie zu) oder \"rammer\" (Rempler, sucht neben dir Kontakt). characters = Werte je Charakter (Zahl ersetzt den Wert, Text wie \"-0.15\" verschiebt ihn; ram = Rempel-Neigung 0 bis 1, auch alle Fahrer-Feineinstellungen wie blockCooldown). characterAuto = Rivalen ohne Eintrag: ab blockerMinAggression Blocker, ab rammerMinAggression ein Anteil rammerShare Rempler (Bosse nie automatisch).",
+  "enabled": true,
+  "debug": false,
+  "tiers": {},
+  "params": {},
+  "launch": {
+    "minSkill": 0.3,
+    "fullSkill": 0.8,
+    "leadMin": 0.4,
+    "leadMax": 1.8
+  },
+  "characters": {
+    "clean": {
+      "fairness": 0.9,
+      "aggression": "-0.15",
+      "ram": 0
+    },
+    "blocker": {
+      "aggression": 0.85,
+      "fairness": 0.45,
+      "blockCooldown": 5,
+      "ram": 0
+    },
+    "rammer": {
+      "aggression": 0.95,
+      "fairness": 0.1,
+      "ram": 0.8,
+      "playerSideGap": 0.2
+    }
+  },
+  "characterAuto": {
+    "blockerMinAggression": 0.85,
+    "rammerMinAggression": 0.9,
+    "rammerShare": 0.3
+  }
+}

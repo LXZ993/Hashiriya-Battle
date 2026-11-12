@@ -1,0 +1,16 @@
+{
+  "_hinweis": "Vorlage für mod_info/HASHIRIYABATTLE/info.json in der Release-ZIP (BeamNG-Mod-Manager: Titel, Kurzbeschreibung, Bild, Beschreibung). Das Release-Werkzeug setzt {VERSION}, {DATE} und {CHANGES} (Changelog-Abschnitt der Version, englisch) ein. Texte hier ändern; html ist die Beschreibung (HTML).",
+  "title": "Hashiriya Battle",
+  "tag_line": "Night-time expressway career on the Shuto C1: flash a rival, win the SP battle, climb the ranks. ({VERSION})",
+  "version_string": "{VERSION}",
+  "username": "JDMArsch (LXZ aka. LXZockt)",
+  "category_title": "Gameplay",
+  "prefix_title": "Alpha",
+  "icon": "icon.jpg",
+  "attachments": [
+    {
+      "thumb_filename": "banner.jpg"
+    }
+  ],
+  "html": "<p><b>The city sleeps. The expressway doesn't.</b></p><p>A night-time expressway career for BeamNG.drive on the Shuto Expressway C1. Start with a used car, find rivals cruising in traffic, flash your lights and fight SP battles on the open road. Crews with leaders, lone wanderers, money, fuel, repairs, shops you visit on foot, a home to sleep in and a career that grows with you.</p><p><b>Required:</b> Shuto Expressway C1 map by Ezo, traffic and Japanese plates by AgentMooshroom5.</p><p><b>Important: balancing with the community</b><br>Hashiriya Battle is in early access and is balanced over time with your help. Prices, rival strength and rewards will change with updates, so a save may feel a little different afterwards. Is a rival, a part, a price or a job too strong, too weak or simply off? Tell me in the Hashiriya Battle thread on the BeamNG forum. For bugs, create a bug report in the Hashiriya menu and attach it.</p><p><b>Tip: play with your own music</b><br>For the best experience, put your own songs into the hashiriya_musik folder in your BeamNG user folder (one subfolder per situation: day, night, battle, shop and more). In the pause menu under Esc > Mods > Hashiriya Battle you pick for every situation which songs play, mod songs and your own.</p><p><b>Version {VERSION}</b> ({DATE})</p>{CHANGES}<p>Made by JDMArsch (LXZ aka. LXZockt). Full changelog in CHANGELOG_EN.md / CHANGELOG_DE.md inside the zip.</p>"
+}

@@ -1,0 +1,14 @@
+{
+  "domElement": "<hashiriya-utility></hashiriya-utility>",
+  "name": "Hashiriya Battle: Utility (Meldungen, Aufgaben, Scoreboard)",
+  "types": ["ui.apps.categories.utility"],
+  "description": "Eigene Version der BeamNG-Utility-Apps oben links (Messages, Tasks, Scoreboard) im HashiNet-Design.",
+  "css": { "top": "0px", "left": "0px", "width": "380px", "height": "600px" },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaUtility",
+  "appName": "hashiriyaUtility",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}

@@ -1,0 +1,1493 @@
+-- Hashiriya Part Studio (eigenständige Mod, läuft ohne Hashiriya Battle)
+--
+-- Erstellt Vorschaubilder für Fahrzeugteile (Original- und Mod-Fahrzeuge) und zeigt sie in einer Galerie,
+-- in der man ein Teil per Klick an das eigene Auto baut. Fotografiert wird in der BeamNG-Garage (garage_v2),
+-- mit deren eigenem Licht (Deckenlampen, Fenster, warmes Umgebungslicht). Das Studio ändert am Licht nichts:
+-- keine Sonne, keine Tageszeit, keine eigenen Lampen. Die Belichtung übernimmt es von der Spielkamera, genau
+-- wie die BeamNG-eigenen Vorschaubilder (util/screenshotCreator).
+--
+-- So entsteht ein Bild:
+--   1. Ein "Studio-Auto" des Modells wird auf den Stellplatz der Garage gespawnt (Physik angehalten),
+--      das eigene Auto und andere Fahrzeuge werden solange ausgeblendet.
+--   2. In einem Durchgang bekommt jeder Slot ein anderes Teil (Slots, die ineinander stecken, nie gleichzeitig),
+--      so braucht ein Auto nur so viele Respawns, wie der größte Slot Teile hat.
+--   3. Für jedes Teil werden alle anderen Meshes unsichtbar (setMeshAlpha), die Kamera richtet sich nach der
+--      Größe des Teils aus, und eine zweite, unsichtbare Kamera (RenderView) speichert das Bild.
+--      Der Bildschirm und die Oberfläche bleiben dabei unverändert.
+--   4. Bilder liegen im BeamNG-Benutzerordner unter art/partPreviews_garage/<Teilname>.jpg (ein Bild je Teilname,
+--      gleiche Teile an mehreren Autos werden nur einmal fotografiert).
+--
+-- Bedienung: BeamNG-Hauptmenü > Mehr > "Teile-Studio", im Spiel Strg+Umschalt+P oder in der Konsole
+-- extensions.hashiriyaPartStudio.toggle(). Oberfläche: ui/ui-vue/mods/hashiriyaPartStudio/.
+local M = {}
+
+local logTag = 'partStudio'
+local OUT_DIR = 'art/partPreviews_garage/' -- neuer Ordner: die alten Bilder aus art/partPreviews/ (Gridmap, blau) werden nicht mehr benutzt
+local SETTINGS_FILE = 'settings/hashiriya_partstudio/settings.json'
+local VIEWS_FILE = 'settings/hashiriya_partstudio/views.json' -- Blickwinkel pro Teil (von Hand korrigiert)
+local LAST_RUN_FILE = 'settings/hashiriya_partstudio/last_run.json'
+local STUDIO_LEVEL = 'garage_v2'   -- hier wird fotografiert (BeamNG-Garage mit ihrem eigenen Licht)
+local CEILING_Z = 107.5            -- Kamera bleibt unter der Garagendecke (Lampen bei z 108,5)
+local VIEW_NAME = 'hashiriyaPartStudioView'
+
+local defaults = {
+  width = 320, height = 200,     -- Bildgröße in Pixeln
+  supersampling = 2,             -- intern größer rendern und verkleinern (glattere Kanten)
+  fov = 28,                      -- Blickwinkel der Studio-Kamera (Grad, vertikal)
+  padding = 1.12,                -- Abstand um das Teil (1 = randvoll)
+  settleDelay = 1.0,             -- Wartezeit vor jedem Bild (eine neue Kamera braucht ~1 s, bis die Nachbearbeitung stimmt)
+  studioPaint = true,            -- alle Teile im gleichen silbergrauen Lack (einheitlicher Katalog)
+  skipExisting = true,           -- schon vorhandene Bilder nicht neu machen
+  singlePair = true,             -- Paare (Felgen, Reifen, Bremsen links/rechts) nur einmal zeigen
+  autoView = true,
+  configThumbs = true,           -- Bilder in der BeamNG-Teileauswahl (Fahrzeugkonfigurator) zeigen               -- mehrere Blickwinkel gleichzeitig aufnehmen und den besten nehmen
+  types = { Car = true, Truck = true }, -- Fahrzeugtypen in der Modell-Liste
+}
+
+local cfg = deepcopy and deepcopy(defaults) or defaults
+local active = false         -- Panel offen
+local pendingOpen = false    -- Studio-Level lädt gerade, danach Panel öffnen
+local openFallback = nil
+local pendingStart = nil     -- Bilderstellung, die nach dem Laden der Garage startet
+local startTimer = nil
+local job = nil              -- laufende Bilderstellung
+local galleryVehId = nil     -- Fahrzeug, für das die Galerie zuletzt gesendet wurde
+local galleryDirty = false
+local mapDirty = true         -- Bilder-Liste für den BeamNG-Konfigurator neu senden
+local mapTimer = 0
+local modelsCache = nil
+local views = { _auto = {} } -- Teilname -> { yaw, pitch, zoom } (Grad, Grad, Faktor)
+
+local function send(data) guihooks.trigger('HashiriyaPartStudio', data) end
+local function jbeamIO() return rawget(_G, 'jbeamIO') or require('jbeam/io') end
+
+local function fileOf(partName)
+  return OUT_DIR .. tostring(partName):gsub('[^%w_%-%.]', '_') .. '.jpg'
+end
+M.fileOf = fileOf
+
+-- Räder, Reifen, Radkappen gibt es oft zweimal mit gleichem Mesh: als _F- und als _R-Teil
+-- (z. B. tire_F_245_40_15_race / tire_R_245_40_15_race). Solche Zwillinge teilen sich ein Bild.
+-- Nur für Rad-Teile: Stoßstangen, Bremsen, Federn usw. sind vorne und hinten verschieden.
+local WHEEL_WORDS = { 'tire', 'hubcap', 'wheel', 'trimring', 'rim', 'beadlock', 'centercap' }
+local function twinOf(partName)
+  local n = tostring(partName or '')
+  local low = n:lower()
+  local wheel = false
+  for _, w in ipairs(WHEEL_WORDS) do if low:find(w, 1, true) then wheel = true; break end end
+  if not wheel then return nil end
+  local t, k = n:gsub('_F_', '_R_', 1)
+  if k == 0 then t, k = n:gsub('_R_', '_F_', 1) end
+  if k == 0 then t, k = n:gsub('_F$', '_R') end
+  if k == 0 then t, k = n:gsub('_R$', '_F') end
+  if k == 0 or t == n then return nil end
+  return t
+end
+M.twinOf = twinOf
+
+-- Bild eines Teils (Pfad mit führendem /): eigenes, sonst das vom Zwilling (siehe twinOf), sonst nil
+local function imageOf(partName)
+  if not partName or partName == '' then return nil end
+  local own = '/' .. fileOf(partName)
+  if FS:fileExists(own) then return own end
+  local tw = twinOf(partName)
+  if tw then
+    local p = '/' .. fileOf(tw)
+    if FS:fileExists(p) then return p end
+  end
+  return nil
+end
+M.imageOf = imageOf
+
+local function hasImage(partName)
+  return imageOf(partName) ~= nil
+end
+
+-- Einstellungen -------------------------------------------------------------------------------------
+
+local function loadSettings()
+  local ok, data = pcall(jsonReadFile, SETTINGS_FILE)
+  if ok and type(data) == 'table' then
+    for k, v in pairs(data) do if defaults[k] ~= nil then cfg[k] = v end end
+  end
+end
+
+local function saveSettings()
+  pcall(jsonWriteFile, SETTINGS_FILE, cfg, true)
+end
+
+local function loadViews()
+  local ok, data = pcall(jsonReadFile, VIEWS_FILE)
+  views = (ok and type(data) == 'table') and data or {}
+  if type(views._auto) ~= 'table' then views._auto = {} end
+end
+
+local function saveViews()
+  pcall(jsonWriteFile, VIEWS_FILE, views, true)
+end
+
+-- Modelle -------------------------------------------------------------------------------------------
+
+local function modelList()
+  if modelsCache then return modelsCache end
+  local out = {}
+  local ok, res = pcall(core_vehicles.getModelList, true)
+  for _, m in ipairs(ok and res and res.models or {}) do
+    if m.key and cfg.types[m.Type or ''] then
+      -- Quelle: getModelList liefert sie nur in m.aggregates.Source (m.Source ist dort leer).
+      -- Zur Sicherheit wie core/vehicles.lua selbst prüfen: liegt info.json im Spielordner, ist es Original.
+      local src = m.Source
+      if (not src or src == '') and type(m.aggregates) == 'table' and type(m.aggregates.Source) == 'table' then
+        for k in pairs(m.aggregates.Source) do src = k; break end
+      end
+      if src ~= 'BeamNG - Official' then
+        pcall(function()
+          local origin = FS:getFileOriginInfo('/vehicles/' .. m.key .. '/info.json')
+          local game = FS:getGamePath()
+          if origin and game and tostring(origin.mountPath or ''):sub(1, #game) == game then src = 'BeamNG - Official' end
+        end)
+      end
+      src = src or ''
+      table.insert(out, {
+        key = m.key,
+        name = ((m.Brand and m.Brand ~= '') and (m.Brand .. ' ') or '') .. tostring(m.Name or m.key),
+        type = m.Type,
+        official = src == 'BeamNG - Official',
+        source = src,
+      })
+    end
+  end
+  table.sort(out, function(a, b) return a.name:lower() < b.name:lower() end)
+  modelsCache = out
+  return out
+end
+
+-- Teilebaum -----------------------------------------------------------------------------------------
+
+-- Alle Slots des Baums mit Pfad, Schlüssel (wie partsTreeToPartsMap: Slot-ID, bei doppelten IDs der Pfad),
+-- gewähltem Teil und Tiefe.
+local function collectSlots(tree)
+  local list, idCount = {}, {}
+  local function walk(node, depth)
+    for _, child in pairs(node.children or {}) do
+      if type(child) == 'table' and child.id then
+        idCount[child.id] = (idCount[child.id] or 0) + 1
+        table.insert(list, { id = child.id, path = child.path or child.id, chosen = child.chosenPartName or '',
+          partPath = child.partPath, parentPart = node.chosenPartName, depth = depth })
+        walk(child, depth + 1)
+      end
+    end
+  end
+  if type(tree) == 'table' then walk(tree, 1) end
+  for _, s in ipairs(list) do s.key = (idCount[s.id] or 0) > 1 and s.path or s.id end
+  return list
+end
+
+local function partsMapOf(tree)
+  local pm = rawget(_G, 'core_vehicle_partmgmt') or extensions.core_vehicle_partmgmt
+  if pm and pm.partsTreeToPartsMap then
+    local ok, map = pcall(pm.partsTreeToPartsMap, tree)
+    if ok and type(map) == 'table' then return map end
+  end
+  local map = {}
+  for _, s in ipairs(collectSlots(tree)) do map[s.key] = s.chosen end
+  return map
+end
+
+-- Passende Teile eines Slots (Slot-ID = Typ, sonst allowTypes aus dem Eltern-Teil)
+local function candidatesOf(ioCtx, slotMap, slot)
+  local out, seen = {}, {}
+  local function add(list)
+    for _, n in ipairs(list or {}) do
+      if n ~= '' and not seen[n] then seen[n] = true; table.insert(out, n) end
+    end
+  end
+  add(slotMap[slot.id])
+  if #out == 0 and slot.parentPart then
+    local ok, part = pcall(jbeamIO().getPart, ioCtx, slot.parentPart)
+    if ok and type(part) == 'table' then
+      for _, s in ipairs(part.slots2 or {}) do
+        if s.name == slot.id then
+          for _, t in ipairs(type(s.allowTypes) == 'table' and s.allowTypes or { s.type }) do add(slotMap[t]) end
+        end
+      end
+    end
+  end
+  return out
+end
+
+-- Hat das Teil überhaupt etwas Sichtbares? (Steuergeräte, Tuning-Teile usw. haben keine Meshes)
+-- Teil-Infos aus der JBeam: hat es ein sichtbares Mesh, und ist es ein gemeinsames Teil
+-- (liegt in /vehicles/common/, z. B. Felgen, Reifen, Radkappen, die viele Autos benutzen)
+local function partInfo(ioCtx, name, cache)
+  if cache[name] ~= nil then return cache[name] end
+  local ok, part, file = pcall(jbeamIO().getPart, ioCtx, name)
+  local info = { mesh = true, shared = false }
+  if ok and type(part) == 'table' then
+    info.mesh = (type(part.flexbodies) == 'table' and next(part.flexbodies) ~= nil)
+      or (type(part.props) == 'table' and next(part.props) ~= nil)
+  end
+  if ok and type(file) == 'string' then
+    info.shared = file:lower():find('^/?vehicles/common/') ~= nil
+  end
+  cache[name] = info
+  return info
+end
+local function partHasMesh(ioCtx, name, cache) return partInfo(ioCtx, name, cache).mesh end
+
+local function partDescriptions(ioCtx)
+  local ok, descs = pcall(jbeamIO().getAvailableParts, ioCtx)
+  return ok and type(descs) == 'table' and descs or {}
+end
+
+local function displayName(descs, name)
+  local d = descs[name]
+  local t = type(d) == 'table' and d.description or (type(d) == 'string' and d) or nil
+  if type(t) == 'table' then t = t.description end
+  return (type(t) == 'string' and t ~= '') and t or name
+end
+
+-- Meshes und Rahmen ---------------------------------------------------------------------------------
+
+local function isMeshName(m)
+  return type(m) == 'string' and m ~= '' and m ~= 'SPOTLIGHT' and m ~= 'POINTLIGHT'
+end
+
+local function isOccupant(entry)
+  local k = entry.originalMesh or entry.mesh
+  return (k == 'character_torso' or k == 'character_head')
+end
+
+-- Alle Meshes des Autos und die Meshes eines Teils (eigene; hat es keine, die seiner Kind-Teile)
+local function meshesOf(vdata, partPath)
+  local all, allSeen, own, sub = {}, {}, {}, {}
+  local ownFlex, subFlex = {}, {}
+  local ownEntries, subEntries = {}, {}
+  local function scan(list, isFlex)
+    for _, e in pairs(list or {}) do
+      if type(e) == 'table' and isMeshName(e.mesh) then
+        if not allSeen[e.mesh] then allSeen[e.mesh] = true; table.insert(all, e.mesh) end
+        if not isOccupant(e) and e.partPath and partPath then
+          if e.partPath == partPath then
+            own[e.mesh] = true
+            table.insert(ownEntries, e)
+            if isFlex then table.insert(ownFlex, e) end
+          elseif e.partPath:sub(1, #partPath) == partPath then
+            sub[e.mesh] = true
+            table.insert(subEntries, e)
+            if isFlex then table.insert(subFlex, e) end
+          end
+        end
+      end
+    end
+  end
+  scan(vdata.flexbodies, true)
+  scan(vdata.props, false)
+  if next(own) then return all, own, ownFlex, ownEntries end
+  return all, sub, subFlex, subEntries
+end
+
+local function axesOf(veh)
+  local fx, fy, fz = veh:getDirectionVectorXYZ()
+  local ux, uy, uz = veh:getDirectionVectorUpXYZ()
+  local fwd, up = vec3(fx, fy, fz), vec3(ux, uy, uz)
+  local right = fwd:cross(up)
+  return right, fwd, up
+end
+
+-- Knoten-Box (lokal in Fahrzeugachsen) aus den aktuellen Knotenpositionen
+local function liveNodeBox(veh, ids, right, fwd, up)
+  local mn = vec3(math.huge, math.huge, math.huge)
+  local mx = vec3(-math.huge, -math.huge, -math.huge)
+  for _, cid in ipairs(ids) do
+    local px, py, pz = veh:getNodePositionXYZ(cid)
+    if px then
+      local p = vec3(px, py, pz)
+      local x, y, z = p:dot(right), p:dot(fwd), p:dot(up)
+      mn.x, mn.y, mn.z = math.min(mn.x, x), math.min(mn.y, y), math.min(mn.z, z)
+      mx.x, mx.y, mx.z = math.max(mx.x, x), math.max(mx.y, y), math.max(mx.z, z)
+    end
+  end
+  if mn.x > mx.x then return nil end
+  return mn, mx
+end
+
+local meshBoundsCache = {}
+local function meshBounds(veh, flex)
+  local key = flex.mesh
+  if meshBoundsCache[key] ~= nil then return meshBoundsCache[key] or nil end
+  local b = false
+  local ok, obj = pcall(function() return flex.fid and veh:getFlexmesh(flex.fid) end)
+  local count = ok and obj and obj:getVertexCount() or 0
+  if count > 0 then
+    local mn = { math.huge, math.huge, math.huge }
+    local mx = { -math.huge, -math.huge, -math.huge }
+    for i = 0, count - 1 do
+      local p = obj:getInitVertexPos(i)
+      if p.x < mn[1] then mn[1] = p.x end; if p.y < mn[2] then mn[2] = p.y end; if p.z < mn[3] then mn[3] = p.z end
+      if p.x > mx[1] then mx[1] = p.x end; if p.y > mx[2] then mx[2] = p.y end; if p.z > mx[3] then mx[3] = p.z end
+    end
+    b = { mn, mx }
+  end
+  meshBoundsCache[key] = b
+  return b or nil
+end
+
+-- Mittelpunkt (Welt) und halbe Größe (lokal) eines Teils.
+-- Die Knoten eines Teils sitzen innerhalb des sichtbaren Meshes: Größe kommt darum aus dem Mesh,
+-- die Lage aus den Knoten (Ruheposition von Mesh und Knoten vergleichen, dann auf die echten Knoten legen).
+-- jbeam-Achsen zeigen lokal als (-x, -y, z), weil rechts/vorne die negativen jbeam-Achsen sind.
+local function frameOf(veh, vdata, partPath, flexList, side)
+  local ids, located = {}, false
+  for key, node in pairs(vdata.nodes or {}) do
+    if type(node) == 'table' and node.partPath == partPath then
+      table.insert(ids, node.cid or key); located = true
+    end
+  end
+  if not located then
+    local seen = {}
+    for _, f in ipairs(flexList) do
+      for _, cid in ipairs(f._group_nodes or {}) do
+        if not seen[cid] then seen[cid] = true; table.insert(ids, cid) end
+      end
+    end
+  end
+  local right, fwd, up = axesOf(veh)
+  -- nur eine Seite eines Paares: Knoten der anderen Seite weglassen
+  if side then
+    local kept = {}
+    for _, cid in ipairs(ids) do
+      local px, py, pz = veh:getNodePositionXYZ(cid)
+      if px and (vec3(px, py, pz):dot(right) - side.cx) * side.s > 0 then table.insert(kept, cid) end
+    end
+    if #kept > 0 then ids = kept end
+  end
+  if #ids == 0 then return nil end
+
+  local nMin, nMax = liveNodeBox(veh, ids, right, fwd, up)
+  if not nMin then return nil end
+  local c = (nMin + nMax) * 0.5
+  local half = (nMax - nMin) * 0.5
+
+  local mMin = { math.huge, math.huge, math.huge }
+  local mMax = { -math.huge, -math.huge, -math.huge }
+  for _, f in ipairs(flexList) do
+    local b = meshBounds(veh, f)
+    if b then
+      for i = 1, 3 do mMin[i] = math.min(mMin[i], b[1][i]); mMax[i] = math.max(mMax[i], b[2][i]) end
+    end
+  end
+  if mMin[1] <= mMax[1] then
+    local rMin = { math.huge, math.huge, math.huge }
+    local rMax = { -math.huge, -math.huge, -math.huge }
+    for _, cid in ipairs(ids) do
+      local n = vdata.nodes[cid]
+      local p = n and n.pos
+      if p then
+        rMin[1] = math.min(rMin[1], p.x); rMin[2] = math.min(rMin[2], p.y); rMin[3] = math.min(rMin[3], p.z)
+        rMax[1] = math.max(rMax[1], p.x); rMax[2] = math.max(rMax[2], p.y); rMax[3] = math.max(rMax[3], p.z)
+      end
+    end
+    if rMin[1] <= rMax[1] then
+      half = vec3((mMax[1] - mMin[1]) * 0.5, (mMax[2] - mMin[2]) * 0.5, (mMax[3] - mMin[3]) * 0.5)
+      c = c + vec3(-((mMin[1] + mMax[1]) - (rMin[1] + rMax[1])) * 0.5,
+                   -((mMin[2] + mMax[2]) - (rMin[2] + rMax[2])) * 0.5,
+                    ((mMin[3] + mMax[3]) - (rMin[3] + rMax[3])) * 0.5)
+    end
+  end
+  half = vec3(math.max(half.x, 0.06), math.max(half.y, 0.06), math.max(half.z, 0.06))
+  return { local_ = c, half = half, right = right, fwd = fwd, up = up }
+end
+
+-- Ganzes Auto (lokale Box aller Knoten), für die Blickrichtung
+local function carBox(veh, vdata)
+  local ids = {}
+  for key, node in pairs(vdata.nodes or {}) do
+    if type(node) == 'table' then table.insert(ids, node.cid or key) end
+  end
+  local right, fwd, up = axesOf(veh)
+  local mn, mx = liveNodeBox(veh, ids, right, fwd, up)
+  if not mn then return nil end
+  return { center = (mn + mx) * 0.5, half = (mx - mn) * 0.5 }
+end
+
+local function sign(v) return v < 0 and -1 or 1 end
+local function clamp1(v) return math.max(-1, math.min(1, v)) end
+
+-- Kamera: von der Seite des Autos, auf der das Teil sitzt (vorne/hinten, links/rechts), leicht von oben.
+-- Flache Teile an der Seite (Felgen, Spiegel, Türen, Schweller) eher von der Seite.
+-- Paare (nur die rechte Seite wird gezeigt): immer von rechts, leicht von vorne, damit alle Felgen gleich aussehen.
+local function autoDir(frame, car, side)
+  if side then return vec3(side.s * 1, 0.42, 0.42):normalized() end
+  local rel = frame.local_ - (car and car.center or vec3())
+  local nx = car and clamp1(rel.x / math.max(car.half.x, 0.3)) or 0
+  local ny = car and clamp1(rel.y / math.max(car.half.y, 0.5)) or 0
+  local sx = math.abs(nx) < 0.15 and -0.55 or sign(nx) * (0.35 + 0.9 * math.abs(nx))
+  local sy = math.abs(ny) < 0.15 and 0.8 or sign(ny) * (0.35 + 0.9 * math.abs(ny))
+  local h = frame.half
+  if h.x < 0.4 * math.max(h.y, h.z) and math.abs(nx) > 0.5 then sy = sy * 0.3 end
+  return vec3(sx, sy, 0.5):normalized()
+end
+
+-- Kandidaten für die automatische Suche: die geschätzte Richtung, gespiegelt (andere Seite, vorne/hinten)
+-- und von oben. Einseitige Meshes sieht man nur von einer Seite, das Bild mit dem meisten Inhalt gewinnt.
+local function candidateDirs(frame, car, side)
+  local d = autoDir(frame, car, side)
+  if side then return { d } end
+  return { d, vec3(-d.x, d.y, d.z), vec3(d.x, -d.y, d.z), vec3(-d.x, -d.y, d.z), vec3(d.x * 0.25, d.y * 0.25, 1):normalized() }
+end
+
+-- von Hand korrigierter Blickwinkel (Galerie: drehen, kippen) auf eine Richtung anwenden
+local function applyView(dirLocal, view)
+  if type(view) ~= 'table' then return dirLocal end
+  local az = math.atan2(dirLocal.x, dirLocal.y) + math.rad(tonumber(view.yaw) or 0)
+  local el = math.asin(math.max(-1, math.min(1, dirLocal.z))) + math.rad(tonumber(view.pitch) or 0)
+  el = math.max(math.rad(-80), math.min(math.rad(85), el))
+  return vec3(math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el))
+end
+
+local function cameraFrom(veh, frame, dirLocal, view)
+  local dir = (frame.right * dirLocal.x + frame.fwd * dirLocal.y + frame.up * dirLocal.z):normalized()
+  local vehPos = veh:getPosition()
+  local center = vehPos + frame.right * frame.local_.x + frame.fwd * frame.local_.y + frame.up * frame.local_.z
+  -- Abstand so, dass die 8 Ecken der Teil-Box gerade ins Bild passen (enger als eine Kugel um das Teil)
+  local aspect = cfg.width / cfg.height
+  local tanV = math.tan(math.rad(cfg.fov) * 0.5)
+  local tanH = tanV * aspect
+  local zoom = type(view) == 'table' and tonumber(view.zoom) or 1
+  local pad = (tonumber(cfg.padding) or 1.12) / math.max(0.3, zoom or 1)
+  local look = dir * -1
+  local camRight = look:cross(vec3(0, 0, 1))
+  if camRight:length() < 1e-3 then camRight = frame.right end
+  camRight = camRight:normalized()
+  local camUp = camRight:cross(look):normalized()
+  local h = frame.half
+  local dist = 0.3
+  for _, sx in ipairs({ -1, 1 }) do
+    for _, sy in ipairs({ -1, 1 }) do
+      for _, sz in ipairs({ -1, 1 }) do
+        local p = frame.right * (sx * h.x) + frame.fwd * (sy * h.y) + frame.up * (sz * h.z)
+        local depth = p:dot(dir)
+        dist = math.max(dist,
+          depth + math.abs(p:dot(camRight)) * pad / tanH,
+          depth + math.abs(p:dot(camUp)) * pad / tanV,
+          depth + 0.15)
+      end
+    end
+  end
+  local pos = center + dir * dist
+  -- in der Garage: nicht durch die Decke und nicht unter den Boden
+  if job and job.floorZ then
+    pos.z = math.max(job.floorZ + 0.15, math.min(CEILING_Z, pos.z))
+  end
+  local rot = quatFromDir((center - pos):normalized(), vec3(0, 0, 1))
+  return pos, rot, center
+end
+
+-- Aufnahme -------------------------------------------------------------------------------------------
+
+local aaRestore = nil
+local function disableTemporalAA()
+  local okType, aaType = pcall(settings.getValue, 'GraphicAntialiasType')
+  local okAA, aa = pcall(settings.getValue, 'GraphicAntialias')
+  if okType and okAA and aa == 4 and (aaType == 'fxaa' or aaType == 'smaaT2x') then
+    settings.setValue('GraphicAntialias', 0)
+    aaRestore = aa
+  end
+end
+local function restoreAA()
+  if aaRestore then settings.setValue('GraphicAntialias', aaRestore); aaRestore = nil end
+end
+
+local function now() return os.clock() end
+local function waitSeconds(s)
+  local t = now() + s
+  while now() < t do coroutine.yield() end
+end
+local function waitFrames(n) for _ = 1, n do coroutine.yield() end end
+
+-- einheitlicher heller, kaum metallischer Lack: Formen sind gut zu erkennen, Farben stören den Katalog nicht
+local studioPaint = {
+  baseColor = { 0.78, 0.79, 0.81, 1 }, metallic = 0.1, roughness = 0.45, clearcoat = 0.3, clearcoatRoughness = 0.2,
+}
+
+local function pushJob()
+  if not job then send({ job = false }); return end
+  local j = job
+  send({ job = {
+    running = not j.finished, stopping = j.stop, finished = j.finished,
+    model = j.modelName, modelIndex = j.modelIndex, modelCount = #j.models,
+    done = j.done, skipped = j.skipped, failed = j.failed, noMesh = j.noMesh, planned = j.planned,
+    round = j.round, rounds = j.rounds, last = j.last, lastName = j.lastName, text = j.text,
+    elapsed = math.floor(now() - j.started),
+  } })
+end
+
+local function setText(t) if job then job.text = t; pushJob() end end
+
+local function deleteStudio()
+  if job and job.vehId then
+    local v = getObjectByID(job.vehId)
+    if v then v:delete() end
+    job.vehId = nil
+  end
+end
+
+-- Studio-Auto mit dieser Konfiguration spawnen und warten, bis die Fahrzeugdaten da sind
+local function spawnStudio(model, config)
+  deleteStudio()
+  table.clear(meshBoundsCache)
+  local opt = { pos = job.pos, rot = job.rot or quat(0, 0, 0, 1), autoEnterVehicle = false, cling = true,
+    canSpawnAnotherVehicleCheck = false, licenseText = 'STUDIO' }
+  if config then opt.config = config end
+  local ok, veh = pcall(core_vehicles.spawnNewVehicle, model, opt)
+  if not ok or not veh then
+    log('E', logTag, 'Studio-Auto nicht gespawnt: ' .. tostring(model) .. ' ' .. tostring(veh))
+    return nil
+  end
+  job.vehId = veh:getID()
+  local t = now() + 8
+  while now() < t do
+    coroutine.yield()
+    local vd = core_vehicle_manager.getVehicleData(job.vehId)
+    if vd and vd.vdata and vd.config and vd.config.partsTree then
+      local fid = false
+      for _, f in pairs(vd.vdata.flexbodies or {}) do if f.fid then fid = true; break end end
+      if fid or not next(vd.vdata.flexbodies or {}) then break end
+    end
+  end
+  waitSeconds(0.3)
+  local veh2 = getObjectByID(job.vehId)
+  local vd = core_vehicle_manager.getVehicleData(job.vehId)
+  if not veh2 or not vd or not vd.vdata then return nil end
+  return veh2, vd
+end
+
+-- Belichtung der Spielkamera, wie BeamNG sie für die eigenen Vorschaubilder übernimmt
+-- (util/screenshotCreator/capture.lua: copyMainViewExposure)
+local function mainExposure()
+  local le = scenetree.findObject('PostEffectLocalExposureObject')
+  if not le then return nil end
+  local auto = le.autoExposure == true
+  local mv = RenderViewManagerInstance:getView('main')
+  return { manualEV = (not auto) and tonumber(le.manualEV) or nil,
+    currentExposure = auto and mv and tonumber(mv.currentExposure) or nil }
+end
+
+local function makeView(i, veh, shot, silhouette)
+  local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
+  local w, h = math.floor(cfg.width * ss), math.floor(cfg.height * ss)
+  local name = VIEW_NAME .. i
+  local rv = RenderViewManagerInstance:getOrCreateView(name)
+  rv.luaOwned = true
+  local mat = QuatF(shot.rot.x, shot.rot.y, shot.rot.z, shot.rot.w):getMatrix()
+  mat:setPosition(shot.pos)
+  rv.renderCubemap = false
+  rv.cameraMatrix = mat
+  rv.resolution = Point2I(w, h)
+  rv.viewPort = RectI(0, 0, w, h)
+  rv.namedTexTargetColor = name
+  rv.frustum = Frustum.construct(false, math.rad(cfg.fov), w / h, 0.05, 2000)
+  rv.fov = cfg.fov
+  rv.renderEditorIcons = false
+  if silhouette then
+    -- nur für die Wahl des Blickwinkels: das Teil als Umriss vor einer Farbe, Licht egal
+    pcall(function()
+      rv:enterFocusObjectsMode()
+      rv:addFocusObject(veh)
+      rv.clearColor = ColorF(1, 0, 1, 1)
+    end)
+  end
+  -- das eigentliche Bild: normale Szene (Garage samt Licht), Belichtung von der Spielkamera
+  local ex = job and job.exposure or mainExposure()
+  rv.useManualEV = ex and ex.manualEV ~= nil or false
+  rv.manualEV = ex and ex.manualEV or 0
+  if not rv.useManualEV and ex and ex.currentExposure and ex.currentExposure > 0 then
+    rv.currentExposure = ex.currentExposure
+  end
+  return rv
+end
+
+-- Bild der RenderView holen, verkleinert (GBitmap) oder nil
+local function grab(rv, base, i)
+  local ss = math.max(1, math.floor(tonumber(cfg.supersampling) or 1))
+  local tmp = base .. '.tmp' .. i .. '.png'
+  FS:removeFile(tmp)
+  local out = nil
+  if rv:saveToDisk(tmp) then
+    local bmp = GBitmap()
+    if bmp:loadFile(tmp) then
+      bmp:setFormat(10) -- R8G8B8
+      out = ss > 1 and bmp:createDownscaledBitmap(ss) or bmp
+    end
+  end
+  FS:removeFile(tmp)
+  return out
+end
+
+local function dropView(rv) pcall(function() RenderViewManagerInstance:destroyView(rv) end) end
+
+-- Wie viel vom Bild das Teil bedeckt (Umriss-Bild, Hintergrund = Farbe oben links), 0..1
+local function coverage(bmp)
+  if not bmp then return 0 end
+  local ok, frac = pcall(function()
+    local w, h = bmp:getWidth(), bmp:getHeight()
+    local c = ColorI(0, 0, 0, 255)
+    local function px(x, y)
+      bmp:getColor(x, y, c)
+      return (c.red or c.r or 0), (c.green or c.g or 0), (c.blue or c.b or 0)
+    end
+    local br, bgc, bb = px(0, 0)
+    local n, all = 0, 0
+    for y = 0, h - 1, 2 do
+      for x = 0, w - 1, 2 do
+        local r, g, b = px(x, y)
+        all = all + 1
+        if math.abs(r - br) + math.abs(g - bgc) + math.abs(b - bb) > 40 then n = n + 1 end
+      end
+    end
+    return all > 0 and n / all or 0
+  end)
+  return ok and frac or 0
+end
+
+-- Ein Teil aufnehmen. Bei mehreren möglichen Blickwinkeln zuerst alle als Umriss gleichzeitig aufnehmen und
+-- den nehmen, in dem man am meisten vom Teil sieht (einseitige Meshes sind von hinten unsichtbar).
+-- Dann das eigentliche Bild in der Garage mit ihrem Licht, nach mindestens einer Sekunde Wartezeit
+-- (so lange braucht eine neue Kamera, bis die Nachbearbeitung stimmt).
+local function shootPart(veh, shots, file)
+  local best = 1
+  if #shots > 1 then
+    local rvs = {}
+    for i, sh in ipairs(shots) do rvs[i] = makeView(i, veh, sh, true) end
+    waitSeconds(0.5)
+    local bestScore = -1
+    for i, rv in ipairs(rvs) do
+      local score = coverage(grab(rv, file, i))
+      dropView(rv)
+      -- die geschätzte Richtung bevorzugen, die Draufsicht nur, wenn sie klar mehr zeigt
+      if i == 1 then score = score * 1.25 elseif i == 5 then score = score * 0.85 end
+      if score > bestScore then best, bestScore = i, score end
+    end
+  end
+  local rv = makeView(0, veh, shots[best], false)
+  waitSeconds(math.max(1.0, tonumber(cfg.settleDelay) or 1))
+  local bmp = grab(rv, file, 0)
+  dropView(rv)
+  local ok = bmp and bmp:saveFile(file) or false
+  return ok and true or false, best
+end
+
+-- Ein Teil fotografieren: andere Meshes aus, Kamera ausrichten, Bild speichern
+-- Seite (lokal x, relativ zur Automitte) eines Mesh-Eintrags aus seinen Knoten
+local function entrySide(veh, e, right, cx)
+  local ids = e._group_nodes or (e.idRef and { e.idRef }) or {}
+  local sum, n = 0, 0
+  for _, cid in ipairs(ids) do
+    local px, py, pz = veh:getNodePositionXYZ(cid)
+    if px then sum = sum + vec3(px, py, pz):dot(right); n = n + 1 end
+  end
+  if n == 0 then return nil end
+  return sum / n - cx
+end
+
+-- Paar (z. B. Felgen links + rechts): alle Meshes klar links oder rechts, beide Seiten vorhanden.
+-- Dann nur die Seite behalten, die zum Betrachter zeigt (wie bei einer Einzelteil-Vorschau).
+local function splitPair(veh, entries, flexList, sel)
+  if not cfg.singlePair or not job.car then return sel, flexList, nil end
+  local right = axesOf(veh)
+  local cx = job.car.center.x
+  local sides, left, rightN = {}, 0, 0
+  for _, e in ipairs(entries) do
+    local x = entrySide(veh, e, right, cx)
+    if not x or math.abs(x) < 0.2 then return sel, flexList, nil end
+    sides[e] = x
+    if x < 0 then left = left + 1 else rightN = rightN + 1 end
+  end
+  if left == 0 or rightN == 0 then return sel, flexList, nil end
+  local keep = 1
+  local sel2, flex2 = {}, {}
+  for _, e in ipairs(entries) do
+    if sides[e] * keep > 0 then sel2[e.mesh] = true end
+  end
+  for _, f in ipairs(flexList) do
+    if sides[f] and sides[f] * keep > 0 then table.insert(flex2, f) end
+  end
+  return sel2, flex2, { s = keep, cx = cx }
+end
+
+-- Blickwinkel-Korrektur eines Teils: eigene, sonst die seines Slots (gilt für alle Teile im Slot)
+local function viewOf(partName, slotId)
+  local v = views[partName]
+  if type(v) == 'table' then return v end
+  v = slotId and views['slot:' .. tostring(slotId)]
+  return type(v) == 'table' and v or nil
+end
+
+local function capturePart(veh, vd, partPath, partName, slotId)
+  local all, sel, flexList, entries = meshesOf(vd.vdata, partPath)
+  if not next(sel) then job.noMesh = job.noMesh + 1; return 'nomesh' end
+  local side
+  sel, flexList, side = splitPair(veh, entries, flexList, sel)
+  local frame = frameOf(veh, vd.vdata, partPath, flexList, side)
+  if not frame then job.failed = job.failed + 1; return 'noframe' end
+  for _, m in ipairs(all) do veh:setMeshAlpha(sel[m] and 1 or 0, m, false) end
+
+  local dirs = candidateDirs(frame, job.car, side)
+  local view = viewOf(partName, slotId)
+  local picked = tonumber(views._auto[partName])
+  local list
+  if view or not cfg.autoView or #dirs == 1 then
+    -- feste Richtung: früher automatisch gefundene (falls vorhanden), darauf die Korrektur
+    local base = dirs[(picked and dirs[picked]) and picked or 1]
+    list = { applyView(base, view) }
+  else
+    list = dirs
+  end
+  local shots = {}
+  for _, d in ipairs(list) do
+    local pos, rot, c = cameraFrom(veh, frame, d, view)
+    table.insert(shots, { pos = pos, rot = rot, dir = (pos - c):normalized() })
+  end
+  waitFrames(2)
+  local file = fileOf(partName)
+  local okShot, result, bestIdx = pcall(shootPart, veh, shots, file)
+  if not okShot then
+    log('W', logTag, 'Aufnahme-Fehler bei ' .. tostring(partName) .. ': ' .. tostring(result))
+    result = false
+  end
+  if result then
+    if #list > 1 and bestIdx then views._auto[partName] = bestIdx; job.viewsChanged = true end
+    job.done = job.done + 1
+    job.shotOk[partName] = true
+    job.last = '/' .. file
+    job.lastName = partName
+    galleryDirty = true
+  else
+    job.failed = job.failed + 1
+    log('W', logTag, 'Bild fehlgeschlagen: ' .. tostring(partName))
+  end
+  table.insert(job.log, { part = partName, model = job.model, ok = result })
+  pushJob()
+  return result and 'ok' or 'fail'
+end
+
+local function findSlotNode(tree, path)
+  local found = nil
+  local function walk(node)
+    if found then return end
+    for _, child in pairs(node.children or {}) do
+      if type(child) == 'table' then
+        if child.path == path then found = child; return end
+        walk(child)
+      end
+    end
+  end
+  if type(tree) == 'table' then walk(tree) end
+  return found
+end
+
+local function isAncestor(a, b) -- Slot-Pfad a enthält Slot-Pfad b
+  return #a < #b and b:sub(1, #a) == a
+end
+
+-- Slot-Namen, die ein Teil mitbringt (z. B. Radnabe 5-Loch -> Slot für 5-Loch-Felgen)
+local function slotNamesOf(ioCtx, partName, cache)
+  if cache[partName] then return cache[partName] end
+  local names = {}
+  local ok, part = pcall(jbeamIO().getPart, ioCtx, partName)
+  if ok and type(part) == 'table' then
+    for _, sl in ipairs(part.slots2 or part.slots or {}) do
+      if type(sl) == 'table' and type(sl.name) == 'string' then table.insert(names, sl.name) end
+    end
+  end
+  cache[partName] = names
+  return names
+end
+
+local MAX_VARIANTS = 60 -- höchstens so viele Grund-Konfigurationen je Modell
+
+-- Eine Grund-Konfiguration abarbeiten. Dabei Teile merken, die Slots öffnen, die es noch in keiner
+-- Grund-Konfiguration gab (z. B. 5-Loch-Naben -> 5-Loch-Felgen); für die kommt eine neue Grund-Konfiguration
+-- in die Warteschlange.
+local function runBase(model, startCfg, label, covered, queue)
+  job.model = model
+  setText('Lade ' .. tostring(job.modelName) .. (label and (' · ' .. label) or ''))
+  local veh, vd = spawnStudio(model, startCfg and deepcopy(startCfg) or nil)
+  if not veh then job.failed = job.failed + 1; return end
+  if job.stop then return end
+
+  local tree = vd.config.partsTree
+  local baseParts = partsMapOf(tree)
+  local base = { parts = baseParts, vars = deepcopy(vd.config.vars or {}), paints = deepcopy(vd.config.paints or {}) }
+  if cfg.studioPaint then base.paints = { deepcopy(studioPaint), deepcopy(studioPaint), deepcopy(studioPaint) } end
+  local okMap, slotMap = pcall(jbeamIO().getAvailableSlotNameMap, vd.ioCtx)
+  if not okMap or type(slotMap) ~= 'table' then
+    log('E', logTag, 'Slot-Liste nicht lesbar: ' .. tostring(model))
+    job.failed = job.failed + 1
+    return
+  end
+
+  local slots = collectSlots(tree)
+
+  -- weitere Grund-Konfigurationen suchen (Teile mit neuen Slots)
+  for _, sl in ipairs(slots) do covered[sl.id] = true end
+  local slotCache = {}
+  for _, sl in ipairs(slots) do
+    for _, n in ipairs(candidatesOf(vd.ioCtx, slotMap, sl)) do
+      if n ~= sl.chosen and #queue + job.variants < MAX_VARIANTS then
+        local names = slotNamesOf(vd.ioCtx, n, slotCache)
+        local opens = false
+        for _, sn in ipairs(names) do if not covered[sn] then opens = true; break end end
+        if opens then
+          for _, sn in ipairs(names) do covered[sn] = true end
+          local c = deepcopy(base)
+          c.parts[sl.key] = n
+          table.insert(queue, { cfg = c, label = n })
+        end
+      end
+    end
+  end
+
+  -- Plan: je Slot die noch fehlenden Teile
+  local meshCache = {}
+  local pending, planned = {}, 0
+  local planSeen = {}
+  local function wanted(n)
+    if n == '' or job.seen[n] or planSeen[n] then return false end
+    -- vorhandene Bilder: immer behalten, außer „Vorhandene Bilder überspringen“ ist aus. Auch dann bleiben
+    -- gemeinsame Teile (Felgen, Reifen … aus /vehicles/common/), außer „Gemeinsame Teile neu machen“ ist gewählt.
+    if hasImage(n) and (cfg.skipExisting or (not job.redoCommon and partInfo(vd.ioCtx, n, meshCache).shared)) then
+      job.skipped = job.skipped + 1; job.seen[n] = true; return false
+    end
+    -- Zwilling (gleiches Rad-Teil als _F/_R) wird in diesem Lauf schon fotografiert: Bild teilen
+    local tw = twinOf(n)
+    if tw and (planSeen[tw] or job.shotOk[tw]) then job.skipped = job.skipped + 1; job.seen[n] = true; return false end
+    if not partHasMesh(vd.ioCtx, n, meshCache) then job.seen[n] = true; return false end
+    return true
+  end
+  for _, s in ipairs(slots) do
+    local list = {}
+    for _, n in ipairs(candidatesOf(vd.ioCtx, slotMap, s)) do
+      if n ~= s.chosen and wanted(n) then planSeen[n] = true; table.insert(list, n) end
+    end
+    pending[s.path] = list
+    planned = planned + #list
+  end
+  local baseWanted = {}
+  for _, s in ipairs(slots) do
+    if s.chosen ~= '' and wanted(s.chosen) then planSeen[s.chosen] = true; table.insert(baseWanted, s); planned = planned + 1 end
+  end
+  job.planned = job.planned + planned
+  local maxRounds = 0
+  for _, l in pairs(pending) do maxRounds = math.max(maxRounds, #l) end
+  job.round, job.rounds = 0, maxRounds + 1
+  pushJob()
+  if planned == 0 then return end
+
+  -- Durchgang 0: Serien-Teile
+  veh, vd = spawnStudio(model, deepcopy(base))
+  if not veh then job.failed = job.failed + 1; return end
+  job.car = carBox(veh, vd.vdata)
+  if job.car then job.floorZ = job.car.center.z - job.car.half.z end
+  for _, s in ipairs(baseWanted) do
+    if job.stop then return end
+    local node = findSlotNode(vd.config.partsTree, s.path)
+    if node and node.chosenPartName == s.chosen and node.partPath then
+      setText(job.modelName .. (label and (' · ' .. label) or ' · Serie') .. ' · ' .. s.chosen)
+      capturePart(veh, vd, node.partPath, s.chosen, s.id)
+    end
+    job.seen[s.chosen] = true
+  end
+
+  -- weitere Durchgänge: je Slot ein anderes Teil, ineinander steckende Slots nie gleichzeitig
+  local order = {}
+  for _, s in ipairs(slots) do table.insert(order, s) end
+  table.sort(order, function(a, b) return #a.path > #b.path end)
+  while true do
+    if job.stop then return end
+    local picks, pickedNames = {}, {}
+    for _, s in ipairs(order) do
+      local list = pending[s.path]
+      while list and #list > 0 and (job.seen[list[1]] or pickedNames[list[1]]) do table.remove(list, 1) end
+      if list and #list > 0 then
+        local free = true
+        for _, p in ipairs(picks) do
+          if isAncestor(p.slot.path, s.path) or isAncestor(s.path, p.slot.path) then free = false; break end
+        end
+        if free then
+          local n = table.remove(list, 1)
+          pickedNames[n] = true
+          table.insert(picks, { slot = s, part = n })
+        end
+      end
+    end
+    if #picks == 0 then break end
+    job.round = job.round + 1
+    local c = deepcopy(base)
+    for _, p in ipairs(picks) do c.parts[p.slot.key] = p.part end
+    setText(string.format('%s%s · Durchgang %d/%d (%d Teile)', job.modelName, label and (' · ' .. label) or '',
+      job.round, job.rounds, #picks))
+    veh, vd = spawnStudio(model, c)
+    if not veh then
+      for _, p in ipairs(picks) do job.seen[p.part] = true end
+      job.failed = job.failed + #picks
+    else
+      job.car = carBox(veh, vd.vdata) or job.car
+      if job.car then job.floorZ = job.car.center.z - job.car.half.z end
+      for _, p in ipairs(picks) do
+        if job.stop then return end
+        local node = findSlotNode(vd.config.partsTree, p.slot.path)
+        if node and node.chosenPartName == p.part and node.partPath then
+          capturePart(veh, vd, node.partPath, p.part, p.slot.id)
+        else
+          job.failed = job.failed + 1
+        end
+        job.seen[p.part] = true
+      end
+    end
+  end
+end
+
+local function runModel(model)
+  local covered, queue = {}, {}
+  job.variants = 0
+  runBase(model, nil, nil, covered, queue)
+  while #queue > 0 and not job.stop do
+    local v = table.remove(queue, 1)
+    job.variants = job.variants + 1
+    runBase(model, v.cfg, v.label, covered, queue)
+  end
+end
+
+-- Teile neu aufnehmen: Konfiguration des eigenen Autos, nacheinander mit jedem dieser Teile im Slot
+local function runSingle(s)
+  job.model = s.model
+  job.planned = #s.parts
+  for i, part in ipairs(s.parts) do
+    if job.stop then return end
+    setText(string.format('Neu aufnehmen %d/%d: %s', i, #s.parts, tostring(part)))
+    local c = deepcopy(s.config)
+    c.parts[s.key] = part
+    local veh, vd = spawnStudio(s.model, c)
+    if not veh then
+      job.failed = job.failed + 1
+    else
+      job.car = carBox(veh, vd.vdata)
+  if job.car then job.floorZ = job.car.center.z - job.car.half.z end
+      local node = findSlotNode(vd.config.partsTree, s.path)
+      if node and node.chosenPartName == part and node.partPath then
+        capturePart(veh, vd, node.partPath, part, s.slotId)
+      else
+        log('W', logTag, 'Teil nach dem Spawn nicht im Slot: ' .. tostring(part))
+        job.failed = job.failed + 1
+      end
+    end
+  end
+end
+
+local saved = nil
+local function prepareScene()
+  saved = { hidden = {} }
+  local ok, running = pcall(function() return be:getPhysicsRunning() end)
+  saved.physics = (not ok) or running == true
+  pcall(function() be:setPhysicsRunning(false) end)
+  -- Belichtung der Spielkamera übernehmen (vor dem Ausblenden, die Kamera sieht gerade die Garage)
+  job.exposure = mainExposure()
+  -- eigenes Auto und andere Fahrzeuge ausblenden, sie stehen sonst auf dem Stellplatz im Bild
+  pcall(function()
+    for i = 0, be:getObjectCount() - 1 do
+      local v = be:getObject(i)
+      if v and v:getActive() then
+        v:setActive(0)
+        table.insert(saved.hidden, v:getID())
+      end
+    end
+  end)
+  disableTemporalAA()
+  pcall(FS.directoryCreate, FS, OUT_DIR, true)
+end
+
+local function restoreScene()
+  if not saved then return end
+  for _, id in ipairs(saved.hidden or {}) do
+    local v = getObjectByID(id)
+    if v then pcall(function() v:setActive(1) end) end
+  end
+  if saved.physics ~= false then pcall(function() be:setPhysicsRunning(true) end) end
+  restoreAA()
+  saved = nil
+end
+
+local function runJob()
+  prepareScene()
+  if job.single then
+    job.modelIndex = 1
+    job.modelName = job.models[1].name or job.models[1].key
+    local ok, err = pcall(runSingle, job.single)
+    if not ok then
+      log('E', logTag, 'Neu aufnehmen fehlgeschlagen: ' .. tostring(err))
+      job.failed = job.failed + 1
+    end
+  end
+  for i, m in ipairs(job.single and {} or job.models) do
+    if job.stop then break end
+    job.modelIndex = i
+    job.modelName = m.name or m.key
+    local ok, err = pcall(runModel, m.key)
+    if not ok then
+      log('E', logTag, 'Fehler bei ' .. tostring(m.key) .. ': ' .. tostring(err))
+      job.failed = job.failed + 1
+    end
+  end
+  deleteStudio()
+  restoreScene()
+  if job.viewsChanged then saveViews() end
+  job.finished = true
+  mapDirty = true
+  job.text = job.stop and 'Abgebrochen' or 'Fertig'
+  pcall(jsonWriteFile, LAST_RUN_FILE, {
+    date = os.date('%Y-%m-%d %H:%M'), models = job.models, done = job.done, skipped = job.skipped,
+    failed = job.failed, noMesh = job.noMesh, seconds = math.floor(now() - job.started), parts = job.log,
+  }, true)
+  log('I', logTag, string.format('Bilder: %d neu, %d schon da, %d fehlgeschlagen, %d ohne Mesh', job.done, job.skipped, job.failed, job.noMesh))
+  pushJob()
+end
+
+-- Öffentliche Funktionen (Oberfläche) ----------------------------------------------------------------
+
+local function inGarage()
+  local ok, n = pcall(function() return getCurrentLevelIdentifier and getCurrentLevelIdentifier() end)
+  return ok and n == STUDIO_LEVEL
+end
+
+-- Stellplatz der Garage (wie gameplay/garageMode.lua: SpawnSphere spawn_default, Auto um 180° gedreht)
+local function studioSpot()
+  local sp = scenetree.findObject('spawn_default')
+  if not sp then
+    local ok, names = pcall(scenetree.findClassObjects, 'SpawnSphere')
+    if ok and type(names) == 'table' and names[1] then sp = scenetree.findObject(names[1]) end
+  end
+  if not sp then return vec3(0.04, -0.05, 100.34), quat(0, 0, 1, 0) end
+  local p = sp:getPosition()
+  local okR, rot = pcall(function() return quat(0, 0, 1, 0) * sp:getRotation() end)
+  if not okR or not rot then rot = quat(0, 0, 1, 0) end
+  return vec3(p.x, p.y, p.z), rot
+end
+
+local function newJob(models)
+  local pos, rot = studioSpot()
+  return { models = models, modelIndex = 0, done = 0, skipped = 0, failed = 0, noMesh = 0, planned = 0,
+    round = 0, rounds = 0, seen = {}, shotOk = {}, log = {}, started = now(), pos = pos, rot = rot, 
+    stop = false, finished = false }
+end
+
+-- Garage laden (mit dem eigenen Auto, wie die BeamNG-Garage), danach Panel öffnen und ggf. einen Lauf starten
+local function goGarage(startArg)
+  pendingOpen = true
+  pendingStart = startArg
+  send({ status = { ok = true, text = 'Wechsle in die Garage …' } })
+  local veh = getPlayerVehicle(0)
+  local spawnVeh = nil
+  if veh then
+    local okC, cfgData = pcall(function()
+      local vd = core_vehicle_manager.getVehicleData(veh:getID())
+      return vd and vd.config
+    end)
+    if okC and cfgData then spawnVeh = { veh:getJBeamFilename(), { config = serialize(cfgData) } } end
+  end
+  if spawnVeh and core_levels and core_levels.startLevel then
+    local ok = pcall(core_levels.startLevel, path.getPathLevelMain(STUDIO_LEVEL), true, nil, spawnVeh)
+    if ok then return true end
+  end
+  local ff = rawget(_G, 'freeroam_freeroam') or (extensions.load('freeroam_freeroam') and freeroam_freeroam)
+  if ff and ff.startFreeroamByName and ff.startFreeroamByName(STUDIO_LEVEL) then return true end
+  pendingOpen, pendingStart = false, nil
+  send({ status = { ok = false, text = 'Garage (garage_v2) konnte nicht geladen werden' } })
+  return false
+end
+
+-- models: Liste von Modell-Schlüsseln, oder 'current' (Modell des eigenen Autos)
+function M.start(arg)
+  if job and not job.finished then return end
+  local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
+  if not inGarage() then goGarage(data); return end
+  local keys = data.models
+  if keys == 'current' then
+    local v = getPlayerVehicle(0)
+    keys = v and { v:getJBeamFilename() } or {}
+  end
+  local byKey = {}
+  for _, m in ipairs(modelList()) do byKey[m.key] = m end
+  local models = {}
+  for _, k in ipairs(type(keys) == 'table' and keys or {}) do
+    table.insert(models, byKey[k] or { key = k, name = k })
+  end
+  if #models == 0 then
+    send({ status = { ok = false, text = data.common and 'Gemeinsame Teile werden an Fahrzeugen fotografiert: bitte auch die Fahrzeuge wählen'
+      or 'Kein Fahrzeug ausgewählt' } })
+    return
+  end
+  job = newJob(models)
+  job.redoCommon = data.common == true
+  job.co = coroutine.create(runJob)
+  log('I', logTag, 'Bilderstellung gestartet: ' .. #models .. ' Fahrzeug(e)' .. (job.redoCommon and ', gemeinsame Teile neu' or ''))
+  pushJob()
+end
+
+-- Teile des eigenen Autos neu fotografieren (z. B. nach dem Korrigieren des Blickwinkels).
+-- arg: { key = Slot-Schlüssel, path = Slot-Pfad, slotId, part = Teilname, parts = { Teilnamen } }
+function M.reshoot(arg)
+  local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
+  if job and not job.finished then
+    send({ status = { ok = false, text = 'Es läuft schon eine Bilderstellung' } }); return
+  end
+  if not inGarage() then
+    send({ status = { ok = false, text = 'Neu aufnehmen geht nur in der Garage. Erst mit „In die Garage“ wechseln.' } })
+    return
+  end
+  local veh = getPlayerVehicle(0)
+  if not veh or not data.key then return end
+  local parts = {}
+  for _, p in ipairs(type(data.parts) == 'table' and data.parts or { data.part }) do
+    if type(p) == 'string' and p ~= '' then table.insert(parts, p) end
+  end
+  if #parts == 0 then return end
+  local vd = core_vehicle_manager.getVehicleData(veh:getID())
+  if not vd or not vd.config then return end
+  local c = { parts = partsMapOf(vd.config.partsTree), vars = deepcopy(vd.config.vars or {}),
+    paints = deepcopy(vd.config.paints or {}) }
+  if cfg.studioPaint then c.paints = { deepcopy(studioPaint), deepcopy(studioPaint), deepcopy(studioPaint) } end
+  local model = veh:getJBeamFilename()
+  local name = model
+  for _, m in ipairs(modelList()) do if m.key == model then name = m.name end end
+  job = newJob({ { key = model, name = name } })
+  job.single = { model = model, key = data.key, path = data.path, slotId = data.slotId, parts = parts, config = c }
+  job.co = coroutine.create(runJob)
+  pushJob()
+end
+
+-- Blickwinkel von Hand korrigieren und die Bilder gleich neu machen.
+-- arg: { scope = 'slot' (alle Teile im Slot) oder 'part', slotId, part, parts, key, path,
+--        dyaw = Grad, dpitch = Grad, dzoom = Faktor, reset = true }
+function M.setView(arg)
+  local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
+  local vkey
+  if data.scope == 'slot' and data.slotId then vkey = 'slot:' .. tostring(data.slotId)
+  elseif data.part and data.part ~= '' then vkey = data.part end
+  if not vkey then return end
+  local v = views[vkey]
+  if type(v) ~= 'table' then
+    -- vom Teil-Wert ausgehen, falls das Teil schon eine eigene Korrektur hatte
+    v = deepcopy(viewOf(data.part, data.slotId) or { yaw = 0, pitch = 0, zoom = 1 })
+  end
+  if data.reset then
+    v = { yaw = 0, pitch = 0, zoom = 1 }
+  else
+    v.yaw = ((tonumber(v.yaw) or 0) + (tonumber(data.dyaw) or 0) + 180) % 360 - 180
+    v.pitch = math.max(-90, math.min(90, (tonumber(v.pitch) or 0) + (tonumber(data.dpitch) or 0)))
+    v.zoom = math.max(0.3, math.min(4, (tonumber(v.zoom) or 1) * (tonumber(data.dzoom) or 1)))
+  end
+  local neutral = v.yaw == 0 and v.pitch == 0 and math.abs(v.zoom - 1) < 0.001
+  if neutral then views[vkey] = nil else views[vkey] = v end
+  if data.scope == 'slot' then
+    -- Slot-Korrektur ersetzt die eigenen Korrekturen der Teile in diesem Slot
+    for _, p in ipairs(type(data.parts) == 'table' and data.parts or {}) do views[p] = nil end
+  end
+  if data.reset then
+    -- „Auto“: auch die automatisch gefundene Richtung vergessen, damit neu gesucht wird
+    for _, p in ipairs(type(data.parts) == 'table' and data.parts or { data.part }) do
+      if type(p) == 'string' then views._auto[p] = nil end
+    end
+  end
+  saveViews()
+  galleryDirty = true
+  if data.key then M.reshoot(data) end
+end
+
+function M.stop()
+  if job and not job.finished then job.stop = true; setText('Wird abgebrochen …') end
+end
+
+function M.setSetting(key, value)
+  if defaults[key] == nil then return end
+  if type(value) == 'string' then
+    if value == 'true' then value = true
+    elseif value == 'false' then value = false
+    elseif tonumber(value) then value = tonumber(value)
+    elseif value:match('^[%[{]') then
+      local ok, v = pcall(jsonDecode, value)
+      if ok and v ~= nil then value = v end
+    end
+  end
+  cfg[key] = value
+  if key == 'types' then modelsCache = nil end
+  if key == 'configThumbs' then mapDirty = true end
+  saveSettings()
+  send({ settings = cfg })
+end
+
+function M.resetSettings()
+  cfg = deepcopy(defaults)
+  modelsCache = nil
+  saveSettings()
+  send({ settings = cfg })
+end
+
+function M.openFolder()
+  pcall(FS.directoryCreate, FS, OUT_DIR, true)
+  pcall(function() Engine.Platform.exploreFolder('/' .. OUT_DIR) end)
+end
+
+-- Anzeigename eines Slots aus dem Eltern-Teil (slots2 description), sonst die Slot-ID
+local function slotDescription(ioCtx, slot, cache)
+  local parent = slot.parentPart
+  if parent and cache[parent] == nil then
+    local map = {}
+    local ok, part = pcall(jbeamIO().getPart, ioCtx, parent)
+    if ok and type(part) == 'table' then
+      for _, s in ipairs(part.slots2 or part.slots or {}) do
+        if type(s) == 'table' and s.name and type(s.description) == 'string' then map[s.name] = s.description end
+      end
+    end
+    cache[parent] = map
+  end
+  local d = parent and cache[parent][slot.id]
+  if d and d ~= '' then return d end
+  return (tostring(slot.id):gsub('_', ' '))
+end
+
+-- Galerie: Slots des eigenen Autos mit allen passenden Teilen und ihren Bildern
+local function galleryPayload()
+  local veh = getPlayerVehicle(0)
+  if not veh then return { vehicle = false } end
+  local vd = core_vehicle_manager.getVehicleData(veh:getID())
+  if not vd or not vd.config or not vd.ioCtx then return { vehicle = false } end
+  local okMap, slotMap = pcall(jbeamIO().getAvailableSlotNameMap, vd.ioCtx)
+  if not okMap or type(slotMap) ~= 'table' then return { vehicle = false } end
+  local descs = partDescriptions(vd.ioCtx)
+  local meshCache, slotDescCache = {}, {}
+  local rows = {}
+  local withImg, total = 0, 0
+  for _, s in ipairs(collectSlots(vd.config.partsTree)) do
+    local cands = candidatesOf(vd.ioCtx, slotMap, s)
+    if #cands > 1 or (#cands == 1 and cands[1] ~= s.chosen) then
+      local opts = {}
+      for _, n in ipairs(cands) do
+        local img = imageOf(n)
+        if img then withImg = withImg + 1 end
+        total = total + 1
+        table.insert(opts, { part = n, name = displayName(descs, n), img = img,
+          visual = partHasMesh(vd.ioCtx, n, meshCache), on = n == s.chosen, view = viewOf(n, s.id) })
+      end
+      table.sort(opts, function(a, b) return a.name:lower() < b.name:lower() end)
+      table.insert(rows, { key = s.key, id = s.id, path = s.path, depth = s.depth,
+        name = slotDescription(vd.ioCtx, s, slotDescCache), slotView = views['slot:' .. tostring(s.id)],
+        parent = s.parentPart and displayName(descs, s.parentPart) or '', chosen = s.chosen,
+        chosenName = s.chosen ~= '' and displayName(descs, s.chosen) or 'leer', options = opts })
+    end
+  end
+  local model = veh:getJBeamFilename()
+  local mName = model
+  for _, m in ipairs(modelList()) do if m.key == model then mName = m.name end end
+  return { vehicle = true, vehId = veh:getID(), model = model, modelName = mName, rows = rows,
+    withImg = withImg, total = total }
+end
+
+-- Für den BeamNG-Konfigurator (index.js): welche Teile des eigenen Autos ein Bild haben,
+-- und welcher Anzeigename (wie in der Teile-Liste) zu welchem Teil gehört.
+local function partMapPayload()
+  local veh = getPlayerVehicle(0)
+  if not veh then return { enabled = cfg.configThumbs ~= false, labels = {}, images = {} } end
+  local vd = core_vehicle_manager.getVehicleData(veh:getID())
+  if not vd or not vd.config or not vd.ioCtx then return { enabled = cfg.configThumbs ~= false, labels = {}, images = {} } end
+  local okMap, slotMap = pcall(jbeamIO().getAvailableSlotNameMap, vd.ioCtx)
+  if not okMap or type(slotMap) ~= 'table' then slotMap = {} end
+  local descs = partDescriptions(vd.ioCtx)
+  local labels, images = {}, {}
+  for _, s in ipairs(collectSlots(vd.config.partsTree)) do
+    for _, n in ipairs(candidatesOf(vd.ioCtx, slotMap, s)) do
+      if images[n] == nil then
+        local img = imageOf(n)
+        images[n] = img or false
+        if img then
+          local lb = displayName(descs, n)
+          if labels[lb] == nil then labels[lb] = n end
+        end
+      end
+    end
+  end
+  for n, v in pairs(images) do if not v then images[n] = nil end end
+  return { enabled = cfg.configThumbs ~= false, vehId = veh:getID(), labels = labels, images = images }
+end
+
+function M.requestPartMap()
+  mapDirty = false
+  local ok, data = pcall(partMapPayload)
+  if not ok then log('W', logTag, 'Konfigurator-Bilder: ' .. tostring(data)); return end
+  guihooks.trigger('HashiriyaPartStudioMap', data)
+  local n = 0
+  for _ in pairs(data.images or {}) do n = n + 1 end
+  local veh = getPlayerVehicle(0)
+  log('I', logTag, string.format('Konfigurator-Bilder gesendet: %d Teile mit Bild (%s)', n, veh and veh:getJBeamFilename() or 'kein Auto'))
+end
+
+function M.requestGallery()
+  local ok, data = pcall(galleryPayload)
+  if not ok then log('E', logTag, 'Galerie: ' .. tostring(data)); data = { vehicle = false, error = tostring(data) } end
+  galleryVehId = data.vehId
+  galleryDirty = false
+  send({ gallery = data })
+end
+
+-- Teil am eigenen Auto einbauen (wie die BeamNG-Teileauswahl: das Auto wird neu aufgebaut)
+function M.install(arg)
+  local data = type(arg) == 'string' and jsonDecode(arg) or arg or {}
+  local veh = getPlayerVehicle(0)
+  if not veh or not data.key then return end
+  local vd = core_vehicle_manager.getVehicleData(veh:getID())
+  if not vd or not vd.config then return end
+  local c = { parts = partsMapOf(vd.config.partsTree), vars = deepcopy(vd.config.vars or {}),
+    paints = deepcopy(vd.config.paints or {}) }
+  c.parts[data.key] = data.part or ''
+  local ok, err = pcall(core_vehicles.replaceVehicle, veh:getJBeamFilename(), { config = c })
+  if not ok then
+    log('E', logTag, 'Einbau fehlgeschlagen: ' .. tostring(err))
+    send({ status = { ok = false, text = 'Einbau fehlgeschlagen' } })
+    return
+  end
+  send({ status = { ok = true, text = 'Eingebaut: ' .. tostring(data.name or data.part) } })
+  galleryDirty = true
+end
+
+function M.requestState()
+  send({ active = active, settings = cfg, models = modelList(), inGarage = inGarage() })
+  pushJob()
+end
+
+local function levelLoaded()
+  local ok, n = pcall(function() return getCurrentLevelIdentifier and getCurrentLevelIdentifier() end)
+  return ok and n ~= nil and n ~= ''
+end
+
+local closeMenuTimer = nil
+function M.closeMenu()
+  local router = extensions.ui_router or rawget(_G, 'ui_router')
+  if not router then pcall(extensions.load, 'ui_router'); router = extensions.ui_router end
+  if router and router.navigate then pcall(router.navigate, 'play') end
+end
+
+function M.open()
+  if not levelLoaded() then
+    -- aus dem Hauptmenü: Garage laden, danach das Panel öffnen
+    if goGarage(nil) then return end
+  end
+  active = true
+  -- Aus dem Menü (Esc > Mehr) geöffnet: das Menü schließen, sonst bleibt es über dem Spiel stehen
+  -- und das Fenster (nur im Spiel sichtbar) erscheint nie. Kurz danach noch einmal, falls das Menü
+  -- nach dem Klick selbst noch einmal umschaltet.
+  M.closeMenu()
+  closeMenuTimer = 0.4
+  M.requestState()
+  M.requestGallery()
+end
+
+-- Knopf „In die Garage“ in der Oberfläche
+function M.goGarage() goGarage(nil) end
+
+function M.close()
+  active = false
+  send({ active = false })
+end
+
+function M.toggle()
+  if active then M.close() else M.open() end
+end
+
+-- Hooks ---------------------------------------------------------------------------------------------
+
+local galleryTimer = 0
+function M.onUpdate(dtReal)
+  if startTimer then
+    startTimer.t = startTimer.t - (dtReal or 0)
+    if startTimer.t <= 0 then
+      local a = startTimer.arg
+      startTimer = nil
+      if inGarage() then M.start(a) end
+    end
+  end
+  if job and job.co and coroutine.status(job.co) ~= 'dead' then
+    local ok, err = coroutine.resume(job.co)
+    if not ok then
+      log('E', logTag, 'Bilderstellung abgebrochen: ' .. tostring(err))
+      pcall(deleteStudio)
+      restoreScene()
+      job.finished = true
+      job.text = 'Fehler: ' .. tostring(err)
+      pushJob()
+    end
+  end
+  if closeMenuTimer then
+    closeMenuTimer = closeMenuTimer - (dtReal or 0)
+    if closeMenuTimer <= 0 then closeMenuTimer = nil; M.closeMenu() end
+  end
+  -- Konfigurator-Bilder nachziehen (anderes Auto, Teil gewechselt, neue Bilder), nicht während eines Laufs
+  if mapDirty and (not job or job.finished) then
+    mapTimer = mapTimer - (dtReal or 0)
+    if mapTimer <= 0 then mapTimer = 1.0; M.requestPartMap() end
+  end
+  if openFallback then
+    openFallback = openFallback - (dtReal or 0)
+    if openFallback <= 0 then openFallback = nil; M.onLoadingScreenFadeout() end
+  end
+  -- Galerie nachziehen (neue Bilder, anderes Auto, Teil eingebaut)
+  if active then
+    galleryTimer = galleryTimer - (dtReal or 0)
+    if galleryTimer <= 0 then
+      galleryTimer = 1.5
+      local v = getPlayerVehicle(0)
+      local id = v and v:getID() or nil
+      if galleryDirty or id ~= galleryVehId then M.requestGallery() end
+    end
+  end
+end
+
+function M.onClientStartMission()
+  if pendingOpen then openFallback = 6 end
+end
+
+function M.onLoadingScreenFadeout()
+  if not pendingOpen then return end
+  pendingOpen = false
+  openFallback = nil
+  M.closeMenu()
+  active = true
+  M.requestState()
+  M.requestGallery()
+  if pendingStart then
+    local a = pendingStart
+    pendingStart = nil
+    startTimer = { t = 2.0, arg = a } -- die Spielkamera erst an die Garage gewöhnen lassen
+  end
+end
+
+function M.onVehicleSpawned(vid)
+  if not job or job.finished or job.vehId ~= vid then galleryDirty = true; mapDirty = true end
+end
+
+function M.onVehicleSwitched() galleryDirty = true; mapDirty = true end
+
+function M.onClientEndMission()
+  if job and not job.finished then job.stop = true end
+end
+
+function M.onExtensionLoaded()
+  loadSettings()
+  loadViews()
+end
+
+function M.onExtensionUnloaded()
+  if job and not job.finished then pcall(deleteStudio); restoreScene() end
+end
+
+return M

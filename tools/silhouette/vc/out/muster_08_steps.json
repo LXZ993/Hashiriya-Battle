@@ -1,0 +1,452 @@
+[
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00004",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00007",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 5
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00008",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds00010",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 45,
+"x": 0,
+"y": 5,
+"blur": 7
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00013",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 6
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00014",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 4
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00015",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 2
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00016",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 4
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00017",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 6
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00020",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 26.0
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00021",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 20.22222222222222
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00022",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 2
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00023",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 18.2
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00026",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 10
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00027",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 9
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00028",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 9
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00029",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 10
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds00032",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 40,
+"x": 0,
+"y": 2,
+"blur": 3
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00035",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 12.571428571428571
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00036",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 9.777777777777779
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00037",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 2
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00038",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8.8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds00039",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 35,
+"x": 0,
+"y": 8,
+"blur": 10
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxglowled00041",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.outerGlow",
+"params": {
+"color": "#bfe0ff",
+"opacity": 85,
+"blur": 6,
+"mode": "screen"
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds00045",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 40,
+"x": 0,
+"y": 2,
+"blur": 3
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxblur00048",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "blur.gaussian",
+"params": {
+"radius": 8
+}
+}
+},
+{
+"command": "document.find",
+"params": {
+"name": "fxds00049",
+"select": true
+}
+},
+{
+"command": "effect.apply",
+"params": {
+"effect": "stylize.dropShadow",
+"params": {
+"opacity": 45,
+"x": 0,
+"y": 5,
+"blur": 7
+}
+}
+}
+]

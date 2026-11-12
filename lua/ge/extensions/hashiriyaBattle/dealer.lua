@@ -1,0 +1,566 @@
+-- Hashiriya Battle: Autohändler (Auktionsseite) und eigene Autos
+-- Jeden Spieltag gibt es eine Auswahl aus data/dealer.json (offersPerDay Angebote, zufällig je Spielstand und Tag).
+-- Gekaufte Autos stehen in der Garage; dort wechselt man das aktive Auto.
+-- Wie in den Originalspielen gibt es nur Autos, die zum Fortschritt passen: Leistungsgrenze (PS) aus den Rivalen,
+-- die man beim aktuellen Rang schon treffen kann (powerCap in dealer.json). Die Grenze gilt jeweils für den ganzen Tag.
+-- Jedes Angebot hat einen Mindestrang (minRank) und eine Seltenheit (rarity): Importe sind sehr selten, je älter und teurer, desto seltener.
+local M = {}
+
+local logTag = 'hashiriya'
+-- Meldungen gehen ins BeamNG-Log und zusätzlich in settings/hashiriya_battle/logs/hashiriya.log (logger.lua)
+local function log(level, tag, text) local L = rawget(_G, 'hashiriyaBattle_logger') if L then L.log(level, tag, text) else _G.log(level, tag, text) end end
+local dataPath = '/lua/ge/extensions/hashiriyaBattle/data/dealer.json'
+
+local data = nil
+local offersCache = nil -- { key = 'seed:day', list = {...} }
+
+local function core() return extensions.hashiriyaBattle_core end
+
+local function loadData()
+  data = data or jsonReadFile(dataPath) or { cars = {}, offersPerDay = 5 }
+  return data
+end
+
+-- Einfacher Zufallsgenerator mit festem Startwert (gleiche Angebote den ganzen Tag)
+local function rng(seed)
+  local state = seed % 2147483647
+  if state <= 0 then state = state + 2147483646 end
+  return function(a, b)
+    state = (state * 16807) % 2147483647
+    local r = (state - 1) / 2147483646
+    if a then return a + math.floor(r * (b - a + 1)) end
+    return r
+  end
+end
+
+local function excluded(key, info)
+  local text = (tostring(key) .. ' ' .. tostring(info.Configuration or '')):lower()
+  for _, word in ipairs(loadData().exclude or {}) do
+    if text:find(word, 1, true) then return true end
+  end
+  return false
+end
+
+-- Leistung einer Config in PS (nil, wenn BeamNG keinen Wert kennt)
+local powerCache = {}
+local function configPower(model, key)
+  local id = tostring(model) .. '/' .. tostring(key)
+  if powerCache[id] == nil then
+    local okM, m = pcall(core_vehicles.getModel, model)
+    local info = okM and m and m.configs and m.configs[key]
+    powerCache[id] = info and tonumber(info.Power) or false
+  end
+  return powerCache[id] or nil
+end
+
+-- Ab welchem Rang ein Rivale auftauchen kann (Team-Rang oder eigene Bedingung)
+local function rivalMinRank(r, teams)
+  local rank = r.conditions and r.conditions.minRank or 0
+  if r.team and teams[r.team] then rank = math.max(rank, teams[r.team].minRank or 0) end
+  return rank
+end
+
+-- PS-Grenze für die Angebote: stärkster Rivale, den man beim aktuellen Rang treffen kann, mal factor.
+-- Bosse zählen erst, wenn sie geschlagen sind. byRank (Liste je Rang) überschreibt die Rechnung.
+local function computeCap(save)
+  local set = loadData().powerCap
+  if not set or set.enabled == false then return nil end
+  local rank = extensions.hashiriyaBattle_progress.rankIndex(save)
+  local fixed = set.byRank and set.byRank[rank + 1]
+  if tonumber(fixed) then return tonumber(fixed) end
+  local rd = extensions.hashiriyaBattle_rivals.getData() or {}
+  local teams = {}
+  for _, t in ipairs(rd.teams or {}) do teams[t.id] = t end
+  local best = 0
+  for _, r in ipairs(rd.rivals or {}) do
+    -- Crew-Mitglieder zählen ab ihrem Rang; Leader, Wanderer und Bosse erst nach dem Sieg
+    -- (sonst würden einzelne starke Sonderautos die Grenze früh hochziehen)
+    local counts
+    if r.boss or r.leader or r.wanderer then counts = save.defeated and save.defeated[r.id]
+    else counts = rivalMinRank(r, teams) <= rank end
+    if counts and r.model and r.config then
+      local key = tostring(r.config):match('([^/]+)%.pc$') or tostring(r.config)
+      local ps = configPower(r.model, key)
+      if ps and ps > best then best = ps end
+    end
+  end
+  local cap = math.max(tonumber(set.minPs) or 0, best * (tonumber(set.factor) or 1.1))
+  return math.floor(cap / 10 + 0.5) * 10
+end
+
+-- Grenze einmal pro Tag festlegen (bessere Autos gibt es ab dem nächsten Tag, Angebote bleiben stabil)
+local function dayCap(save)
+  local day = save.day or 1
+  if not save.dealerCap or save.dealerCap.day ~= day then
+    save.dealerCap = { day = day, ps = computeCap(save) }
+    if save.dealerCap.ps then log('I', logTag, string.format('Autohändler: Angebote bis %d PS (Tag %d)', save.dealerCap.ps, day)) end
+  end
+  return save.dealerCap.ps
+end
+
+-- Alle möglichen Angebote: Einträge mit config = genau diese Config, ohne config = jede passende Config des Modells
+local function pool(cap, rank)
+  local list = {}
+  for _, entry in ipairs(loadData().cars or {}) do
+    if not (rank and entry.minRank and rank < entry.minRank) then
+      local okM, m = pcall(core_vehicles.getModel, entry.model)
+      if okM and m and m.configs then
+        local brand = m.model and m.model.Brand or ''
+        local name = m.model and m.model.Name or entry.model
+        local function add(key, info)
+          local ps = tonumber(info.Power)
+          if cap and (not ps or ps > cap) then return end
+          if tonumber(info.Value) and tonumber(info.Value) > 0 then
+            table.insert(list, { model = entry.model, key = key, info = info, brand = brand, name = name,
+              weight = tonumber(entry.rarity) or 1 })
+          end
+        end
+        if entry.config and entry.config ~= '' then
+          local key = entry.config:match('([^/]+)%.pc$') or entry.config
+          if m.configs[key] then add(key, m.configs[key]) end
+        else
+          local keys = {}
+          for key in pairs(m.configs) do table.insert(keys, key) end
+          table.sort(keys)
+          for _, key in ipairs(keys) do
+            if not excluded(key, m.configs[key]) then add(key, m.configs[key]) end
+          end
+        end
+      end
+    end
+  end
+  return list
+end
+
+-- Gewichtete Auswahl: rarity in dealer.json (1 = normal, 0.01 = sehr selten)
+local function pickWeighted(all, rand)
+  local total = 0
+  for _, o in ipairs(all) do total = total + math.max(0.0001, o.weight or 1) end
+  local x = rand() * total
+  for i, o in ipairs(all) do
+    x = x - math.max(0.0001, o.weight or 1)
+    if x <= 0 then return table.remove(all, i) end
+  end
+  return table.remove(all, #all)
+end
+
+-- Zustandsklassen der Händlerautos: Preisfaktor und Gebrauchtzustand (Motor = integrity, Lack = visual, je [von, bis])
+local conditions = {
+  { id = 'A', factor = 1.0, integrity = { 0.93, 0.98 }, visual = { 0.80, 0.95 } },
+  { id = 'B', factor = 0.88, integrity = { 0.87, 0.93 }, visual = { 0.65, 0.85 } },
+  { id = 'C', factor = 0.75, integrity = { 0.80, 0.88 }, visual = { 0.50, 0.72 } },
+}
+
+local function makeOffers()
+  local c = core()
+  local save = c.save
+  if not save then return {} end
+  local key = tostring(save.dealerSeed or 1) .. ':' .. tostring(save.day or 1)
+  if offersCache and offersCache.key == key then return offersCache.list end
+  local rand = rng((save.dealerSeed or 1) * 31 + (save.day or 1) * 7919)
+  local all = pool(dayCap(save), extensions.hashiriyaBattle_progress.rankIndex(save))
+  local list = {}
+  local count = math.min(loadData().offersPerDay or 5, #all)
+  for i = 1, count do
+    local pick = pickWeighted(all, rand)
+    local cond = conditions[rand(1, #conditions)]
+    local km = rand(8, 190) * 1000
+    local kmFactor = 1 - math.min(0.3, km / 190000 * 0.3)
+    local base = c.economy().usdToPrice(tonumber(pick.info.Value))
+    local price = math.max(10000, math.floor(base * cond.factor * kmFactor / 10000 + 0.5) * 10000)
+    price = math.floor(extensions.hashiriyaBattle_hardcore.price(price) / 10000 + 0.5) * 10000 -- Hardcore: priceFactor
+    -- Gebrauchtzustand wie bei den Startautos (condition.lua): viele km = etwas mehr Verschleiß
+    local function roll(range) return range[1] + rand() * (range[2] - range[1]) end
+    local kmWear = math.min(0.04, km / 190000 * 0.04)
+    local wear = {
+      odometerKm = km,
+      integrity = math.floor((roll(cond.integrity) - kmWear) * 100 + 0.5) / 100,
+      visual = math.floor(roll(cond.visual) * 100 + 0.5) / 100,
+      fuel = math.floor((0.25 + rand() * 0.35) * 100 + 0.5) / 100,
+    }
+    table.insert(list, {
+      index = i, model = pick.model, key = pick.key, info = pick.info,
+      title = (pick.brand ~= '' and (pick.brand .. ' ') or '') .. pick.name,
+      config = pick.info.Configuration or pick.key,
+      preview = pick.info.preview or ('/vehicles/' .. pick.model .. '/' .. pick.key .. '.jpg'),
+      km = km, condition = cond.id, price = price, wear = wear,
+      lot = string.format('%02d-%03d', (save.day or 1) % 100, rand(100, 999)),
+    })
+  end
+  offersCache = { key = key, list = list }
+  return list
+end
+
+local function soldKey(i)
+  local save = core().save
+  return tostring(save.day or 1) .. ':' .. tostring(i)
+end
+
+function M.buy(i)
+  local c = core()
+  local save = c.save
+  if not save or not i then return end
+  local offer = makeOffers()[i]
+  if not offer then return end
+  save.dealerSold = save.dealerSold or {}
+  if save.dealerSold[soldKey(i)] then return end
+  if save.money < offer.price then
+    c.msg(c.t('msg.noMoney'))
+    return
+  end
+  save.money = save.money - offer.price
+  extensions.hashiriyaBattle_progress.bump(save, 'carsBought')
+  save.dealerSold[soldKey(i)] = true
+  local name = offer.title .. ' ' .. offer.config
+  local plates = extensions.hashiriyaBattle_plates
+  local entry = {
+    model = offer.model, config = '/vehicles/' .. offer.model .. '/' .. offer.key .. '.pc',
+    name = name, plate = plates.random(), plateDesign = plates.defaultDesign, km = offer.km,
+    price = offer.price, baseKey = offer.key, -- für den Wiederverkauf (Alpha 0.8)
+  }
+  -- Gebrauchtzustand: wird beim ersten Spawnen angewendet (wie beim Startauto)
+  extensions.hashiriyaBattle_condition.initUsedCar(entry, offer.wear, nil)
+  entry.freshWear, entry.wearFrom = true, 'dealer' -- wearFrom: nicht mit Startauto-Werten abgleichen
+  pcall(function() extensions.hashiriyaBattle_maintenance.initCar(entry) end) -- Wartung je nach Zustand
+  table.insert(save.cars, entry)
+  local wasEmpty = #save.cars == 1
+  if wasEmpty then save.activeCar = 1 end
+  c.writeSave()
+  c.msg(c.t('msg.carBought', name, c.economy().formatYen(offer.price)), 6)
+  -- Ohne Auto gekauft: steht gleich in der Garagenbucht
+  if wasEmpty then
+    save.noCar = nil
+    pcall(function() c.spawnActiveCar() end)
+  end
+  log('I', logTag, string.format('Autohändler: %s/%s für %d Yen', offer.model, offer.key, offer.price))
+end
+
+-- Rivalen-Autos ------------------------------------------------------------------
+-- Nach dem Sieg gegen einen Crew-Leader, Boss oder Wanderer steht sein Auto (seine Config mit Lack) beim Händler.
+-- Preis = BeamNG-Wert der Config × Faktor je Typ (dealer.json rivalCars, 5- bis 10-fach). Jedes Auto gibt es nur einmal.
+-- Spielstand: save.rivalCarsBought[rivalId] = true.
+local rivalDefaults = { enabled = true, factorLeader = 5, factorWanderer = 7, factorBoss = 10, minPriceYen = 1500000,
+  integrity = 0.97, visual = 0.95, fuel = 0.5, kmFrom = 15000, kmTo = 60000 }
+
+local function rivalSettings()
+  local r = type(loadData().rivalCars) == 'table' and loadData().rivalCars or {}
+  return setmetatable({}, { __index = function(_, k) if r[k] ~= nil then return r[k] end return rivalDefaults[k] end })
+end
+
+local function rivalKind(r)
+  if r.boss then return 'boss' elseif r.leader then return 'leader' elseif r.wanderer then return 'wanderer' end
+end
+
+-- BeamNG-Wert der Rivalen-Config in $; eigene Configs ohne Wert: teuerste Config des Modells
+local function rivalValueUsd(r)
+  local okM, m = pcall(core_vehicles.getModel, r.model)
+  local configs = okM and m and m.configs or {}
+  local key = tostring(r.config or ''):match('([^/]+)%.pc$') or tostring(r.config or '')
+  local v = configs[key] and tonumber(configs[key].Value)
+  if not v or v <= 0 then
+    for _, info in pairs(configs) do
+      local x = tonumber(info.Value)
+      if x and (not v or x > v) then v = x end
+    end
+  end
+  return v
+end
+
+function M.rivalCarPrice(r)
+  local s = rivalSettings()
+  local kind = rivalKind(r)
+  local f = kind == 'boss' and s.factorBoss or kind == 'wanderer' and s.factorWanderer or s.factorLeader
+  local usd = rivalValueUsd(r)
+  local yen = usd and core().economy().usdToPrice(usd * (tonumber(r.carPriceFactor) or f)) or 0
+  return math.max(tonumber(s.minPriceYen) or 0, math.floor(yen / 10000 + 0.5) * 10000)
+end
+
+-- Welche Rivalen-Autos stehen gerade beim Händler?
+function M.rivalCarOffers()
+  local c = core()
+  local save = c.save
+  local s = rivalSettings()
+  local list = {}
+  if not save or not s.enabled then return list end
+  local rd = extensions.hashiriyaBattle_rivals.getData() or {}
+  for _, r in ipairs(rd.rivals or {}) do
+    local kind = rivalKind(r)
+    -- Stufen ohne eigene Config fahren dasselbe Auto wie die Stufe davor: nicht doppelt anbieten
+    if kind and r.carForSale ~= false and not (r.stageOf and not r.stageOwnConfig) and save.defeated and save.defeated[r.id]
+      and not (save.rivalCarsBought and save.rivalCarsBought[r.id])
+      and not (save.pinkHeld and save.pinkHeld[r.id])
+      and not (save.pinkWon and save.pinkWon[r.id])
+      and r.model and r.config and r.config ~= '' then
+      table.insert(list, { rival = r, kind = kind, price = M.rivalCarPrice(r) })
+    end
+  end
+  local order = { boss = 1, leader = 2, wanderer = 3 }
+  table.sort(list, function(a, b)
+    if order[a.kind] ~= order[b.kind] then return order[a.kind] < order[b.kind] end
+    return tostring(a.rival.name) < tostring(b.rival.name)
+  end)
+  return list
+end
+
+function M.buyRivalCar(id)
+  local c = core()
+  local save = c.save
+  if not save or not id then return end
+  local offer
+  for _, o in ipairs(M.rivalCarOffers()) do if o.rival.id == id then offer = o break end end
+  if not offer then return end
+  if save.money < offer.price then c.msg(c.t('msg.noMoney')) return end
+  local r = offer.rival
+  local s = rivalSettings()
+  local model, cfg = extensions.hashiriyaBattle_rivals.carFor(r)
+  local plates = extensions.hashiriyaBattle_plates
+  local km = math.random(tonumber(s.kmFrom) or 15000, tonumber(s.kmTo) or 60000)
+  local entry = {
+    model = model, config = cfg, name = c.t('pink.carName', extensions.hashiriyaBattle_rivals.vehicleName(r.model), r.name),
+    plate = plates.random(), plateDesign = (r.plate and r.plate.design) or plates.defaultDesign, km = km,
+    price = offer.price, baseKey = tostring(r.config):match('([^/]+)%.pc$'), rivalCar = r.id,
+  }
+  extensions.hashiriyaBattle_condition.initUsedCar(entry, { odometerKm = km, integrity = s.integrity, visual = s.visual, fuel = s.fuel }, nil)
+  entry.freshWear, entry.wearFrom = true, 'rival'
+  pcall(function() extensions.hashiriyaBattle_maintenance.initCar(entry, 1) end) -- gepflegt übergeben
+  save.money = save.money - offer.price
+  save.rivalCarsBought = save.rivalCarsBought or {}
+  save.rivalCarsBought[r.id] = true
+  extensions.hashiriyaBattle_progress.bump(save, 'carsBought')
+  extensions.hashiriyaBattle_progress.bump(save, 'rivalCarsBought')
+  table.insert(save.cars, entry)
+  local wasEmpty = #save.cars == 1
+  if wasEmpty then save.activeCar = 1 end
+  c.writeSave()
+  c.msg(c.t('msg.rivalCarBought', entry.name, c.economy().formatYen(offer.price)), 7)
+  c.sound('buy')
+  if wasEmpty then
+    save.noCar = nil
+    pcall(function() c.spawnActiveCar() end)
+  end
+  log('I', logTag, string.format('Rivalen-Auto gekauft: %s (%s) für %d Yen', tostring(r.id), tostring(model), offer.price))
+end
+
+-- Nach einem Sieg: Hinweis, dass sein Auto jetzt beim Händler steht (core.onBattleResult)
+function M.onRivalBeaten(rival)
+  local id = rival and (rival.baseId or rival.id)
+  local save = core().save
+  if not id or not save or not rivalSettings().enabled then return end
+  save.rivalCarsAnnounced = save.rivalCarsAnnounced or {}
+  if save.rivalCarsAnnounced[id] then return end -- nur beim ersten Sieg, nicht bei jeder Revanche
+  for _, o in ipairs(M.rivalCarOffers()) do
+    if o.rival.id == id then
+      local c = core()
+      save.rivalCarsAnnounced[id] = true
+      c.msg(c.t('msg.rivalCarForSale', c.t('pink.carName', extensions.hashiriyaBattle_rivals.vehicleName(o.rival.model), o.rival.name),
+        c.economy().formatYen(o.price)), 7)
+      return
+    end
+  end
+end
+
+-- Auswahl der Specs für die Auktionskarte
+local function specs(info)
+  local t = {}
+  local function add(v) if v and v ~= '' then table.insert(t, v) end end
+  local power, weight = tonumber(info.Power), tonumber(info.Weight)
+  add(power and string.format('%d PS', math.floor(power + 0.5)))
+  add(weight and string.format('%d kg', math.floor(weight + 0.5)))
+  add(info.Drivetrain)
+  add(info.Transmission)
+  return t
+end
+
+local function formatKm(km)
+  local s = tostring(math.floor(km)):reverse():gsub('(%d%d%d)', '%1.'):reverse()
+  if s:sub(1, 1) == '.' then s = s:sub(2) end
+  return s .. ' km'
+end
+
+function M.getUiState()
+  local c = core()
+  local save = c.save
+  if save then makeOffers() end
+  local st = { day = save and save.day or 1, offers = {} }
+  local cap = save and save.dealerCap and save.dealerCap.ps
+  if cap then st.capText = c.t('dealer.cap', cap) end
+  for i, o in ipairs(makeOffers()) do
+    local sold = save and save.dealerSold and save.dealerSold[soldKey(i)] or false
+    table.insert(st.offers, {
+      index = i, title = o.title, config = o.config, preview = o.preview,
+      specs = (function()
+        local t = specs(o.info)
+        if o.wear then
+          table.insert(t, c.t('spec.condition') .. ' ' .. math.floor(o.wear.integrity * 100 + 0.5) .. ' %')
+          table.insert(t, c.t('spec.fuel') .. ' ' .. math.floor(o.wear.fuel * 100 + 0.5) .. ' %')
+        end
+        return t
+      end)(),
+      km = formatKm(o.km), condition = o.condition, lot = o.lot,
+      price = c.economy().formatYen(o.price), sold = sold,
+      affordable = save and save.money >= o.price,
+    })
+  end
+  -- Rivalen-Autos (nach Sieg gegen Leader, Boss, Wanderer)
+  st.rivalCars = {}
+  for _, o in ipairs(save and M.rivalCarOffers() or {}) do
+    local r = o.rival
+    local key = tostring(r.config):match('([^/]+)%.pc$') or tostring(r.config)
+    local okM, m = pcall(core_vehicles.getModel, r.model)
+    local info = okM and m and m.configs and m.configs[key] or {}
+    local nick = type(r.nick) == 'table' and (r.nick[c.lang or 'de'] or r.nick.en or r.nick.de) or r.nick
+    table.insert(st.rivalCars, {
+      id = r.id, kind = o.kind, kindText = c.t('dealer.rivalKind.' .. o.kind),
+      title = extensions.hashiriyaBattle_rivals.vehicleName(r.model), config = info.Configuration or key,
+      owner = r.name .. ((nick and nick ~= '') and (' „' .. nick .. '“') or ''),
+      preview = info.preview or ('/' .. tostring(r.config):gsub('^/', ''):gsub('%.pc$', '.jpg')),
+      specs = specs(info), price = c.economy().formatYen(o.price), affordable = save.money >= o.price,
+    })
+  end
+  return st
+end
+
+-- Eigene Autos (Garage) -----------------------------------------------------------
+
+-- Wert eines eigenen Autos: Kaufpreis, sonst BeamNG-Wert der Config (Value), sonst die billigste Config des Modells
+local function configKey(car)
+  if car.baseKey then return car.baseKey end
+  local path = type(car.config) == 'string' and car.config or (type(car.config) == 'table' and car.config.partConfigFilename) or nil
+  return path and tostring(path):match('([^/]+)%.pc$') or nil
+end
+
+function M.carValue(car)
+  if not car then return 0 end
+  if tonumber(car.price) and car.price > 0 then return car.price end
+  return M.baseValue(car)
+end
+
+-- BeamNG-Wert der Config in Yen, ohne Kaufpreis (z. B. für Reifenpreise in maintenance.lua)
+function M.baseValue(car)
+  if not car then return 0 end
+  local okM, m = pcall(core_vehicles.getModel, car.model)
+  local configs = okM and m and m.configs or {}
+  local key = configKey(car)
+  local v = key and configs[key] and tonumber(configs[key].Value)
+  if not v then
+    for _, info in pairs(configs) do
+      local x = tonumber(info.Value)
+      if x and (not v or x < v) then v = x end
+    end
+  end
+  return v and core().economy().usdToPrice(v) or 300000
+end
+
+-- Verkaufspreis: Wagenwert und gekaufte Teile, dann Zustand und gefahrene Kilometer (dealer.json sell)
+-- Wert = (Wagenwert × sellFactor + Teile × sell.partsFactor) × Zustand × Kilometer
+local function conditionFactor(car, s)
+  local sumI, sumV, n = 0, 0, 0
+  for _, p in pairs(car.parts or {}) do
+    sumI = sumI + (tonumber(p.i) or 1); sumV = sumV + (tonumber(p.v) or 1); n = n + 1
+  end
+  local wear = car.wear or {}
+  local i = n > 0 and sumI / n or (tonumber(wear.integrity) or 1)
+  local v = n > 0 and sumV / n or (tonumber(wear.visual) or 1)
+  local cond = 0.75 * i + 0.25 * v
+  local minF = tonumber(s.conditionMin) or 0.5
+  return minF + (1 - minF) * math.max(0, math.min(1, cond))
+end
+
+local function kmFactor(car, s)
+  local driven = math.max(0, (tonumber(car.odometerKm) or 0) - (tonumber((car.wear or {}).odometerKm) or 0))
+  local per = tonumber(s.lossPer10000Km) or 0.05
+  return math.max(tonumber(s.kmMin) or 0.6, 1 - driven / 10000 * per)
+end
+
+function M.sellPrice(car)
+  local d = loadData()
+  local s = type(d.sell) == 'table' and d.sell or {}
+  local f = tonumber(d.sellFactor) or 0.5
+  local partsF = tonumber(s.partsFactor) or 0.3
+  local v = (M.carValue(car) * f + (tonumber(car.partsValue) or 0) * partsF) * conditionFactor(car, s) * kmFactor(car, s)
+  return math.max(0, math.floor(v / 10000 + 0.5) * 10000)
+end
+
+function M.ownedCars()
+  local c = core()
+  local save = c.save
+  local list = {}
+  for i, car in ipairs(save and save.cars or {}) do
+    local active = i == (save.activeCar or 1)
+    table.insert(list, { index = i, name = car.name or car.model, plate = car.plate, active = active,
+      sell = (not active) and c.economy().formatYen(M.sellPrice(car)) or nil })
+  end
+  return list
+end
+
+-- Alpha 0.8: Auto verkaufen (nur in der Garage, nie das aktive). Teile im Lager dieses Autos gehen mit.
+function M.sellCar(i)
+  local c = core()
+  local save = c.save
+  if not save or not i or not save.cars[i] then return end
+  if i == (save.activeCar or 1) then c.msg(c.t('msg.sellActiveCar'), 4) return end
+  local car = save.cars[i]
+  local price = M.sellPrice(car)
+  table.remove(save.cars, i)
+  if i < (save.activeCar or 1) then save.activeCar = (save.activeCar or 1) - 1 end
+  save.money = save.money + price
+  extensions.hashiriyaBattle_progress.bump(save, 'carsSold')
+  c.writeSave()
+  c.msg(c.t('msg.carSold', car.name or car.model, c.economy().formatYen(price)), 6)
+  log('I', logTag, string.format('Auto verkauft: %s für %d Yen', tostring(car.name or car.model), price))
+end
+
+-- Kein Auto mehr (Pink Slip verloren): zu Fuß in der Garage. Reicht das Geld für das billigste Angebot,
+-- geht es mit dem Händler weiter, sonst ist die Karriere vorbei (dealer.json gameOver).
+function M.cheapestOffer()
+  local save = core().save
+  local best = nil
+  for i, o in ipairs(makeOffers()) do
+    local sold = save.dealerSold and save.dealerSold[soldKey(i)]
+    if not sold and (not best or o.price < best) then best = o.price end
+  end
+  return best
+end
+
+function M.checkNoCar()
+  local c = core()
+  local save = c.save
+  if not save or #(save.cars or {}) > 0 then return false end
+  local cheapest = M.cheapestOffer()
+  if loadData().gameOver ~= false and (not cheapest or save.money < cheapest) then
+    save.gameOver = true
+    c.writeSave()
+    c.sound('lose')
+    log('I', logTag, 'Game Over: kein Auto, ' .. tostring(save.money) .. ' Yen, billigstes Angebot ' .. tostring(cheapest))
+  else
+    save.noCar = true
+    c.msg(c.t('msg.noCarDealer'), 10)
+  end
+  return true
+end
+
+function M.clearGameOver()
+  local save = core().save
+  if save then save.gameOver = nil end
+end
+
+-- Anderes Auto aus der Garage holen (nur in der Garage)
+function M.switchCar(i)
+  local c = core()
+  local save = c.save
+  if not save or not i or not save.cars[i] or i == (save.activeCar or 1) then return end
+  local p = extensions.hashiriyaBattle_parking
+  local area = p.isArrived() and p.getCurrent()
+  if not area or area.type ~= 'garage' then return end
+  -- aktuellen Stand des alten Autos sichern
+  local old = save.cars[save.activeCar or 1]
+  local cfg = extensions.hashiriyaBattle_shop.currentConfig()
+  if old and cfg then old.config = cfg end
+  extensions.hashiriyaBattle_shop.cancelPreview(true)
+  save.activeCar = i
+  c.spawnActiveCar()
+  c.writeSave()
+  c.msg(c.t('msg.carSwitched', save.cars[i].name or save.cars[i].model), 4)
+end
+
+return M

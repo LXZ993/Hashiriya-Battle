@@ -1,0 +1,5 @@
+dist/
+
+tools/release-stand.json
+__pycache__/
+tools/logos/out/

@@ -1,0 +1,32 @@
+{
+  "_hinweis": "Siegesserie und Fahrstil-Combo. Alle Werte zum Feintuning.",
+  "streak": {
+    "moneyPerWin": 0.1,
+    "moneyMax": 2.0,
+    "repPerWin": 0.05,
+    "repMax": 1.5,
+    "resetAtGarage": true,
+    "resetAtHome": true,
+    "resetAtDaybreak": true
+  },
+  "combo": {
+    "enabled": true,
+    "nightOnly": true,
+    "battleOnly": true,
+    "window": 4.0,
+    "multPerChain": 0.25,
+    "multMax": 4.0,
+    "yenPerPoint": 8,
+    "pointsPerRep": 400,
+    "crashDamage": 150,
+    "minSpeedKmh": 80,
+    "maneuvers": {
+      "nearMiss":   { "points": 100, "lateral": 2.9, "minRelKmh": 20 },
+      "razor":      { "points": 250, "lateral": 2.25 },
+      "rivalPass":  { "points": 300, "lateral": 3.2 },
+      "slipstream": { "points": 80,  "seconds": 2.0, "minKmh": 120, "maxGap": 15, "lateral": 1.4 },
+      "drift":      { "points": 60,  "angle": 15, "minKmh": 60, "seconds": 1.0 },
+      "highSpeed":  { "points": 50,  "minKmh": 200, "seconds": 3.0, "trafficRange": 60 }
+    }
+  }
+}

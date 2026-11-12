@@ -1,0 +1,1184 @@
+{
+  "percheron_body.skin.hb_hoshizora": {
+    "name": "percheron_body.skin.hb_hoshizora",
+    "mapTo": "percheron_body.skin.hb_hoshizora",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hoshizora_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_hoshizora": {
+    "name": "percheron_body_paint.skin.hb_hoshizora",
+    "mapTo": "percheron_body_paint.skin.hb_hoshizora",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hoshizora_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hoshizora_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_flatbed.skin_boxTruck.hb_hoshizora": {
+    "name": "percheron_flatbed.skin_boxTruck.hb_hoshizora",
+    "mapTo": "percheron_flatbed.skin_boxTruck.hb_hoshizora",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_truck_flatbed_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_truck_flatbed_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_truck_flatbed_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hoshizora_box_b.color.png",
+        "diffuseMapUseUV": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_truck_flatbed_o.data.png",
+        "roughnessFactor": 0.064000003
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "subSurfaceIntensity": 0,
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_aoba": {
+    "name": "percheron_body.skin.hb_aoba",
+    "mapTo": "percheron_body.skin.hb_aoba",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_aoba_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_aoba": {
+    "name": "percheron_body_paint.skin.hb_aoba",
+    "mapTo": "percheron_body_paint.skin.hb_aoba",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_aoba_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_aoba_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_flatbed.skin_boxTruck.hb_aoba": {
+    "name": "percheron_flatbed.skin_boxTruck.hb_aoba",
+    "mapTo": "percheron_flatbed.skin_boxTruck.hb_aoba",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_truck_flatbed_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_truck_flatbed_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_truck_flatbed_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_aoba_box_b.color.png",
+        "diffuseMapUseUV": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_truck_flatbed_o.data.png",
+        "roughnessFactor": 0.064000003
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "subSurfaceIntensity": 0,
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_hayate": {
+    "name": "percheron_body.skin.hb_hayate",
+    "mapTo": "percheron_body.skin.hb_hayate",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hayate_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_hayate": {
+    "name": "percheron_body_paint.skin.hb_hayate",
+    "mapTo": "percheron_body_paint.skin.hb_hayate",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hayate_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hayate_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_flatbed.skin_boxTruck.hb_hayate": {
+    "name": "percheron_flatbed.skin_boxTruck.hb_hayate",
+    "mapTo": "percheron_flatbed.skin_boxTruck.hb_hayate",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_truck_flatbed_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_truck_flatbed_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_truck_flatbed_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hayate_box_b.color.png",
+        "diffuseMapUseUV": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_truck_flatbed_o.data.png",
+        "roughnessFactor": 0.064000003
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "subSurfaceIntensity": 0,
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_yozakura": {
+    "name": "percheron_body.skin.hb_yozakura",
+    "mapTo": "percheron_body.skin.hb_yozakura",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_yozakura_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_yozakura": {
+    "name": "percheron_body_paint.skin.hb_yozakura",
+    "mapTo": "percheron_body_paint.skin.hb_yozakura",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_yozakura_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_yozakura_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_flatbed.skin_boxTruck.hb_yozakura": {
+    "name": "percheron_flatbed.skin_boxTruck.hb_yozakura",
+    "mapTo": "percheron_flatbed.skin_boxTruck.hb_yozakura",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_truck_flatbed_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_truck_flatbed_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_truck_flatbed_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_yozakura_box_b.color.png",
+        "diffuseMapUseUV": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_truck_flatbed_o.data.png",
+        "roughnessFactor": 0.064000003
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "subSurfaceIntensity": 0,
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_fugaku": {
+    "name": "percheron_body.skin.hb_fugaku",
+    "mapTo": "percheron_body.skin.hb_fugaku",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_fugaku_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_fugaku": {
+    "name": "percheron_body_paint.skin.hb_fugaku",
+    "mapTo": "percheron_body_paint.skin.hb_fugaku",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_fugaku_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_fugaku_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_flatbed.skin_boxTruck.hb_fugaku": {
+    "name": "percheron_flatbed.skin_boxTruck.hb_fugaku",
+    "mapTo": "percheron_flatbed.skin_boxTruck.hb_fugaku",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_truck_flatbed_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_truck_flatbed_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_truck_flatbed_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_fugaku_box_b.color.png",
+        "diffuseMapUseUV": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_truck_flatbed_o.data.png",
+        "roughnessFactor": 0.064000003
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "subSurfaceIntensity": 0,
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_nishikigoi": {
+    "name": "percheron_body.skin.hb_nishikigoi",
+    "mapTo": "percheron_body.skin.hb_nishikigoi",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_nishikigoi_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_nishikigoi": {
+    "name": "percheron_body_paint.skin.hb_nishikigoi",
+    "mapTo": "percheron_body_paint.skin.hb_nishikigoi",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_nishikigoi_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_nishikigoi_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_flatbed.skin_boxTruck.hb_nishikigoi": {
+    "name": "percheron_flatbed.skin_boxTruck.hb_nishikigoi",
+    "mapTo": "percheron_flatbed.skin_boxTruck.hb_nishikigoi",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_truck_flatbed_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_truck_flatbed_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_truck_flatbed_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_truck_flatbed_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_nishikigoi_box_b.color.png",
+        "diffuseMapUseUV": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_truck_flatbed_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_truck_flatbed_o.data.png",
+        "roughnessFactor": 0.064000003
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "subSurfaceIntensity": 0,
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_hinode": {
+    "name": "percheron_body.skin.hb_hinode",
+    "mapTo": "percheron_body.skin.hb_hinode",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_hinode": {
+    "name": "percheron_body_paint.skin.hb_hinode",
+    "mapTo": "percheron_body_paint.skin.hb_hinode",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_tanker.skin_tanker.hb_hinode": {
+    "name": "percheron_tanker.skin_tanker.hb_hinode",
+    "mapTo": "percheron_tanker.skin_tanker.hb_hinode",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_b.color.png",
+        "clearCoatFactor": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_o.data.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessFactor": 0.0669999719
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "clearCoatRoughnessFactor": 0,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicDetailMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_hinode_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      }
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "subSurfaceIntensity": 0,
+    "translucentBlendOp": "None",
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_raijin": {
+    "name": "percheron_body.skin.hb_raijin",
+    "mapTo": "percheron_body.skin.hb_raijin",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_raijin": {
+    "name": "percheron_body_paint.skin.hb_raijin",
+    "mapTo": "percheron_body_paint.skin.hb_raijin",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_tanker.skin_tanker.hb_raijin": {
+    "name": "percheron_tanker.skin_tanker.hb_raijin",
+    "mapTo": "percheron_tanker.skin_tanker.hb_raijin",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_b.color.png",
+        "clearCoatFactor": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_o.data.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessFactor": 0.0669999719
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "clearCoatRoughnessFactor": 0,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicDetailMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_raijin_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      }
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "subSurfaceIntensity": 0,
+    "translucentBlendOp": "None",
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_hokkai": {
+    "name": "percheron_body.skin.hb_hokkai",
+    "mapTo": "percheron_body.skin.hb_hokkai",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_hokkai": {
+    "name": "percheron_body_paint.skin.hb_hokkai",
+    "mapTo": "percheron_body_paint.skin.hb_hokkai",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_tanker.skin_tanker.hb_hokkai": {
+    "name": "percheron_tanker.skin_tanker.hb_hokkai",
+    "mapTo": "percheron_tanker.skin_tanker.hb_hokkai",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_b.color.png",
+        "clearCoatFactor": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_o.data.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessFactor": 0.0669999719
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "clearCoatRoughnessFactor": 0,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicDetailMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_hokkai_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      }
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "subSurfaceIntensity": 0,
+    "translucentBlendOp": "None",
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_toyogas": {
+    "name": "percheron_body.skin.hb_toyogas",
+    "mapTo": "percheron_body.skin.hb_toyogas",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_toyogas": {
+    "name": "percheron_body_paint.skin.hb_toyogas",
+    "mapTo": "percheron_body_paint.skin.hb_toyogas",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_tanker.skin_tanker.hb_toyogas": {
+    "name": "percheron_tanker.skin_tanker.hb_toyogas",
+    "mapTo": "percheron_tanker.skin_tanker.hb_toyogas",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_b.color.png",
+        "clearCoatFactor": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_o.data.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessFactor": 0.0669999719
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "clearCoatRoughnessFactor": 0,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicDetailMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_toyogas_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      }
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "subSurfaceIntensity": 0,
+    "translucentBlendOp": "None",
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_momiji": {
+    "name": "percheron_body.skin.hb_momiji",
+    "mapTo": "percheron_body.skin.hb_momiji",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_momiji": {
+    "name": "percheron_body_paint.skin.hb_momiji",
+    "mapTo": "percheron_body_paint.skin.hb_momiji",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_tanker.skin_tanker.hb_momiji": {
+    "name": "percheron_tanker.skin_tanker.hb_momiji",
+    "mapTo": "percheron_tanker.skin_tanker.hb_momiji",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_b.color.png",
+        "clearCoatFactor": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_o.data.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessFactor": 0.0669999719
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "clearCoatRoughnessFactor": 0,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicDetailMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_momiji_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      }
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "subSurfaceIntensity": 0,
+    "translucentBlendOp": "None",
+    "version": 1.5
+  },
+  "percheron_body.skin.hb_tora": {
+    "name": "percheron_body.skin.hb_tora",
+    "mapTo": "percheron_body.skin.hb_tora",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/percheron_body_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/percheron/percheron_body_m.data.png",
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_ao.data.png",
+        "roughnessMap": "/vehicles/percheron/percheron_body_r.data.png"
+      },
+      {
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_tora_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/percheron/percheron_body_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_body_paint.skin.hb_tora": {
+    "name": "percheron_body_paint.skin.hb_tora",
+    "mapTo": "percheron_body_paint.skin.hb_tora",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/percheron/percheron_body_paint_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_tora_cab_b.color.png",
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_tora_cab_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "opacityMap": "/vehicles/percheron/percheron_body_c.data.png"
+      },
+      {},
+      {},
+      {}
+    ],
+    "dynamicCubemap": true,
+    "version": 1.5
+  },
+  "percheron_tanker.skin_tanker.hb_tora": {
+    "name": "percheron_tanker.skin_tanker.hb_tora",
+    "mapTo": "percheron_tanker.skin_tanker.hb_tora",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_b.color.png",
+        "clearCoatFactor": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_tora_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/generic_mat_tex/tiled_plain_noise/tile_plain_noise_small_nm.normal.png",
+        "detailNormalMapStrength": 0.0500000007,
+        "detailScale": [
+          30,
+          30
+        ],
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_o.data.png",
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_tora_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_tora_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicFactor": 1,
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_tora_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessFactor": 0.0669999719
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_ao.data.png",
+        "baseColorMap": "/vehicles/percheron/hashiriya_paint/hb_tora_tank_b.color.png",
+        "clearCoatFactor": 1,
+        "clearCoatRoughnessFactor": 0,
+        "colorPaletteMap": "/vehicles/percheron/hashiriya_paint/hb_tora_tank_p.color.png",
+        "colorPaletteMapUseUV": 1,
+        "diffuseMapUseUV": 1,
+        "metallicDetailMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_m.data.png",
+        "normalMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_nm.normal.png",
+        "opacityMap": "/vehicles/percheron/hashiriya_paint/hb_tora_tank_o.data.png",
+        "opacityMapUseUV": 1,
+        "roughnessMap": "/vehicles/common/eu_truck/eu_tanker/eu_tanker_r.data.png"
+      }
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "subSurfaceIntensity": 0,
+    "translucentBlendOp": "None",
+    "version": 1.5
+  }
+}

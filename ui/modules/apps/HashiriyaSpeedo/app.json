@@ -1,0 +1,22 @@
+{
+  "domElement": "<hashiriya-speedo></hashiriya-speedo>",
+  "name": "Hashiriya Battle: Geschwindigkeit",
+  "types": [
+    "ui.apps.categories.vehicle_info"
+  ],
+  "description": "Analoger Geschwindigkeitsmesser im Stil des Hashiriya-Drehzahlmessers, mit kleiner Digitalzahl, Tank-Balken und Gas-Balken. Skala wächst mit (km/h oder mph).",
+  "css": {
+    "right": "270px",
+    "bottom": "5px",
+    "width": "260px",
+    "height": "260px"
+  },
+  "preserveAspectRatio": true,
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaSpeedo",
+  "appName": "hashiriyaSpeedo",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}

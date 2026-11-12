@@ -1,0 +1,13 @@
+{
+  "domElement": "<hashiriya-terminal></hashiriya-terminal>",
+  "name": "Hashiriya Battle: Teile-Terminal",
+  "types": ["ui.apps.categories.gameplay"],
+  "description": "HashiNet Teile-Terminal im Shop und Garagen-PC (Katalog, Suche, Warenkorb, Live-Vorschau). Läuft im eigenen Layout hashiriyaShop.",
+  "css": { "top": "0px", "left": "0px", "width": "100%", "height": "100%" },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaTerminal",
+  "appName": "hashiriyaTerminal",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false
+}

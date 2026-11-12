@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 240">
+  <!-- Hashiriya Battle: Großer Pokal für den Endboss. Das Boss-Emblem legt das Menü auf den Kelch (Mitte 100/74, ca. 76 px). -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#5c6470"/><stop offset=".22" stop-color="#ffffff"/><stop offset=".42" stop-color="#aab3bf"/><stop offset=".7" stop-color="#f4f7fb"/><stop offset="1" stop-color="#4a515c"/>
+    </linearGradient>
+    <linearGradient id="goldV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#7c8591"/>
+    </linearGradient>
+    <linearGradient id="base" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2e35"/><stop offset="1" stop-color="#0b0c0f"/>
+    </linearGradient>
+    <linearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff6b5e"/><stop offset="1" stop-color="#9c1d14"/>
+    </linearGradient>
+  </defs>
+  <path d="M44 34 C14 30 12 72 52 92" fill="none" stroke="url(#goldV)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M156 34 C186 30 188 72 148 92" fill="none" stroke="url(#goldV)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M36 18 L164 18 L164 34 C164 92 136 124 100 128 C64 124 36 92 36 34 Z" fill="url(#gold)"/>
+  <path d="M36 18 L164 18 L164 26 L36 26 Z" fill="#ffffff" opacity=".7"/>
+  <ellipse cx="100" cy="18" rx="64" ry="5" fill="#2a2f37"/>
+  <path d="M58 40 C60 84 76 108 92 118" fill="none" stroke="#ffffff" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="100" cy="74" r="40" fill="#1a0606" fill-opacity=".55"/>
+  <circle cx="100" cy="74" r="40" fill="none" stroke="#ff3b30" stroke-opacity=".6" stroke-width="1.5"/>
+  <path d="M88 126 L112 126 L108 150 L92 150 Z" fill="url(#gold)"/>
+  <ellipse cx="100" cy="152" rx="20" ry="5" fill="url(#gold)"/>
+  <path d="M74 156 L126 156 L132 172 L68 172 Z" fill="url(#gold)"/>
+  <path d="M54 172 L146 172 L152 230 L48 230 Z" fill="url(#base)"/>
+  <path d="M54 172 L146 172 L146.6 178 L53.4 178 Z" fill="#ffffff" opacity=".08"/>
+  <rect x="62" y="194" width="76" height="22" fill="url(#plate)"/>
+  <rect x="62" y="194" width="76" height="3" fill="#ffd0cb" opacity=".6"/>
+  <path d="M100 -2 L104.7 9.5 L117 10 L107.3 17.6 L110.6 29.5 L100 22.6 L89.4 29.5 L92.7 17.6 L83 10 L95.3 9.5 Z" fill="#ff3b30" stroke="#ffffff" stroke-width="1.5" transform="translate(0 0.5)"/>
+  <g fill="none" stroke="#ff3b30" stroke-width="3" stroke-linecap="round" opacity=".9">
+    <path d="M46 228 C30 214 24 196 30 178"/><path d="M154 228 C170 214 176 196 170 178"/>
+  </g>
+  <g fill="#ff3b30"><ellipse cx="30" cy="190" rx="4" ry="8" transform="rotate(-20 30 190)"/><ellipse cx="34" cy="206" rx="4" ry="8" transform="rotate(-40 34 206)"/><ellipse cx="170" cy="190" rx="4" ry="8" transform="rotate(20 170 190)"/><ellipse cx="166" cy="206" rx="4" ry="8" transform="rotate(40 166 206)"/></g>
+</svg>

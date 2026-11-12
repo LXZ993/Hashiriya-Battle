@@ -1,0 +1,67 @@
+{
+  "_hinweis": "Blitzer, Laserkontrollen und Polizei-Fahndung (police.lua). Blitzer = die festen Radarfallen der Karte (BeamNG, auf C1 45 Stück; mapSpeedTraps = false schaltet sie ab). Polizeistellen = Orte vom Typ 'Polizei / Messstelle' (Dev-Menü > Orte) oder policeSpots in der Kartendatei maps/<level>.json; dort steht nur ab und an ein Streifenwagen mit Laser (siehe laser). Je Stelle im Dev-Menü: Art (Laserkontrolle oder eigener Blitzer), immer besetzt (nur zum Testen), Tempolimit (leer = defaultLimitKmh) und Richtung (nur in Fahrtrichtung beim Merken oder beide). Alles nur tagsüber (nicht zwischen nightFrom und nightTo aus world.json); eine laufende Fahndung geht aber auch in die Nacht weiter. enabled = false schaltet alles ab.",
+  "enabled": true,
+  "mapSpeedTraps": true,
+
+  "_hinweisMessen": "defaultLimitKmh = Tempolimit, wenn die Messstelle keins hat. toleranceKmh = so viel darüber wird noch nicht geblitzt (ausgelöst ab Limit + Toleranz + 1). camWidth = Meter seitlich vom Messpunkt, in denen gemessen wird (Fahrbahnbreite). camHeight = Höhenunterschied in Metern (Brücken übereinander). camCooldownSeconds = dieselbe Messstelle löst danach so lange nicht noch einmal aus. laserRange = Meter, in denen eine Laserkontrolle misst (Kreis um den Streifenwagen). laserSpawnRange/laserDespawnRange = ab welcher Entfernung der Streifenwagen der Laserkontrolle erscheint bzw. wieder verschwindet. defaultKind = Art einer Polizeistelle ohne eigene Angabe (laser = Laserkontrolle, speedcam = eigener Blitzer). Die Radarfallen der Karte messen selbst (BeamNG: ab Limit + 10 %, nur in ihrer Fahrtrichtung), dort gelten camWidth/toleranceKmh nicht.",
+  "defaultLimitKmh": 60,
+  "toleranceKmh": 10,
+  "camWidth": 14,
+  "camHeight": 6,
+  "camCooldownSeconds": 30,
+  "laserRange": 110,
+  "laserSpawnRange": 600,
+  "laserDespawnRange": 800,
+  "defaultKind": "laser",
+
+  "_hinweisLaser": "Wie oft Polizeistellen besetzt sind. perDayByRank = Liste {ab Rang (0 = erster Rang), min, max}: so viele Stellen sind an einem Spieltag besetzt (zufällig zwischen min und max, je Spielstand und Tag fest). Je höher der Rang, desto mehr hat sich herumgesprochen, dass nachts auf dem Expressway Rennen laufen. shiftHours = wie lange eine Schicht dauert (min, max Spielstunden), hours = frühester Schichtbeginn und spätestes Schichtende (Uhrzeit). seeRange = ab so viel Meter Nähe gilt eine besetzte Stelle als gesehen; erst dann erscheint sie für den Rest des Spieltags auf Minimap und Radar.",
+  "laser": { "perDayByRank": [[0, 1, 2], [3, 2, 3], [7, 3, 4], [11, 4, 5], [15, 5, 7]], "shiftHours": [3, 6], "hours": [7, 19], "seeRange": 200 },
+
+  "_hinweisBlitzer": "Bußgeld beim Blitzer: baseYen + perKmhYen je km/h über dem Limit, mal repeatFactor (1. Blitzer des Spieltags = erster Wert, 2. = zweiter, ab dem letzten Wert bleibt er gleich). dispatchFrom = ab dem wievielten Blitzer am selben Spieltag zusätzlich die Polizei kommt (3 = beim 3. Mal). Geld, das fehlt, wird nicht abgebucht (Konto geht nie ins Minus).",
+  "speedcam": { "baseYen": 6000, "perKmhYen": 400, "repeatFactor": [1, 1.5, 2], "dispatchFrom": 3 },
+
+  "_hinweisStufen": "Fahndungsstufen (Sterne). heat = Fahndungsdruck: ab level2Heat 2 Sterne, ab level3Heat 3 Sterne. Druck kommt durch Weiterfahren statt Anhalten (fleePerSecond je Sekunde, sobald die Polizei den Spieler sieht und er schneller als fleeMinKmh fährt), Unfälle mit Verkehr (hitTraffic), Rammen der Polizei (hitPolice), Blitzer/Laser während der Fahndung (speeding). startLevelAfterTicket = hat man am selben Spieltag schon einen Strafzettel bekommen, startet die nächste Fahndung gleich mit so vielen Sternen. units = Streifenwagen je Stufe (1, 2, 3 Sterne).",
+  "heat": { "level2Heat": 100, "level3Heat": 260, "fleePerSecond": 2, "fleeMinKmh": 30, "hitTraffic": 30, "hitPolice": 60, "speeding": 40 },
+  "startLevelAfterTicket": 2,
+  "units": [1, 2, 3],
+
+  "_hinweisAnhalten": "Anhalten: Spieler langsamer als stopKmh und ein Streifenwagen näher als stopRadius Meter, so viele Sekunden lang (stopSeconds je Stufe) = Kontrolle. checkSeconds = so lange steht man während der Kontrolle (Auto gesperrt). Strafen: ticketYen je Stufe (Strafzettel bei 1 und 2 Sternen, Festnahme bei 3) plus je Unfall/Rammen offenseYen. arrestTow = bei 3 Sternen wird das Auto danach zur Garage abgeschleppt (normale Abschleppgebühr).",
+  "stopKmh": 6,
+  "stopRadius": 40,
+  "stopSeconds": [3, 4, 4],
+  "checkSeconds": 4,
+  "ticketYen": [15000, 45000, 150000],
+  "offenseYen": { "hitTraffic": 10000, "hitPolice": 25000 },
+  "arrestTow": true,
+
+  "_hinweisEntkommen": "Entkommen: kein Streifenwagen sieht den Spieler (weiter weg als sightRange Meter oder Sicht verdeckt) für evadeSeconds je Stufe. Danach geben die Streifenwagen auf, schalten das Blaulicht aus und fahren weg. Wer entkommt, zahlt nichts; die Blitzer des Tages bleiben gezählt.",
+  "sightRange": 350,
+  "evadeSeconds": [20, 30, 40],
+  "_hinweisRuf": "escapeRep = Ruf fürs Abhängen der Polizei je Stufe (1, 2, 3 Sterne), bewusst etwas unter dem Durchschnitt eines Rivalensiegs (ca. 70), damit man tagsüber nicht damit grinden kann. escapeRepMaxPerDay = nur so viele Fluchten pro Spieltag bringen Ruf.",
+  "escapeRep": [40, 55, 65],
+  "escapeRepMaxPerDay": 3,
+
+  "_hinweisFahrzeuge": "Streifenwagen (Modell + Config, Configs liegen im Mod unter vehicles/). spawnBehind = Meter hinter dem Spieler, wo die Polizei bei einem Einsatz auftaucht (mehrere Versuche). reinforceSeconds = Abstand, in dem Verstärkung kommt, solange weniger Streifenwagen da sind als units für die Stufe. wreckDamage = ab so viel Schaden ist ein Streifenwagen aus dem Spiel. lostRange = weiter weg als das (und nicht zu sehen) = Streifenwagen wird entfernt. leaveSeconds = so lange fahren die Streifenwagen nach Ende der Fahndung noch, bevor sie verschwinden (außer sie sind vorher außer Sicht).",
+  "vehicles": [
+    { "model": "midsize", "config": "hashiriya_police" },
+    { "model": "sunburst2", "config": "hashiriya_police" }
+  ],
+  "spawnBehind": [220, 160, 300, 120],
+  "reinforceSeconds": 15,
+  "wreckDamage": 30000,
+  "lostRange": 700,
+  "leaveSeconds": 60,
+
+  "_hinweisKi": "Fahrverhalten. 1 Stern: hinterherfahren mit Rotlicht und zum Anhalten auffordern (follow). 2 Sterne: überholen (overtakeExtraKmh schneller als der Spieler) und vor ihm ausbremsen; ist der Streifenwagen vorne, bremst er auf das Tempo des Spielers runter (block). 3 Sterne: rammen (chase, ramAggression). Fährt der Spieler langsamer als calmKmh, nähert sich jeder Streifenwagen ruhig an (follow), damit beim Anhalten niemand mehr reinfährt.",
+  "overtakeExtraKmh": 30,
+  "blockAggression": 0.6,
+  "ramAggression": 0.9,
+  "calmKmh": 20,
+  "_hinweisLicht": "Abblendlicht der Streifenwagen: ab lightsFrom Uhr bis lightsTo Uhr und immer nachts (world.json).",
+  "lightsFrom": 18,
+  "lightsTo": 7,
+  "_hinweisSperre": "Straßensperre bei 3 Sternen: nach afterSeconds Sekunden bei 3 Sternen stellen sich 2 Streifenwagen distance Meter voraus quer auf die Straße (gap = Abstand von der Mitte). Näher als arrestRadius Meter und langsamer als 25 km/h (reingefahren oder davor angehalten) = Festnahme. Höchstens max Sperren je Fahndung, weggeräumt ab removeRange Metern.",
+  "roadblock": { "enabled": true, "afterSeconds": 120, "distance": [320, 260, 380, 220], "gap": 2.6, "arrestRadius": 7, "max": 2, "removeRange": 500 },
+  "_hinweisSteckbrief": "Steckbrief: wer bei 3 Sternen entkommt, ist bis zum nächsten Spieltag gesucht. Jede Fahndung startet dann mit 3 Sternen, eine Laserkontrolle, die dich auf seeRange Meter sieht, fährt sofort los, und wer langsam näher als homeRadius Meter an Garage oder Zuhause kommt, zahlt die Festnahme-Strafe (ticketYen Stufe 3).",
+  "wanted": { "enabled": true, "seeRange": 150, "homeRadius": 30 }
+}

@@ -1,0 +1,21 @@
+{
+  "domElement": "<hashiriya-minimap></hashiriya-minimap>",
+  "name": "Hashiriya Battle: Minimap",
+  "types": [
+    "ui.apps.categories.vehicle_info"
+  ],
+  "description": "Eigene Minimap im HashiNet-Design (ersetzt die BeamNG-App Navigation): Rahmen, Ortsname, Abstand zum Ziel, Polizei.",
+  "css": {
+    "left": "20px",
+    "bottom": "16px",
+    "width": "380px",
+    "height": "210px"
+  },
+  "author": "Hashiriya Battle",
+  "version": "1.0",
+  "directive": "hashiriyaMinimap",
+  "appName": "hashiriyaMinimap",
+  "category": "Hashiriya Battle",
+  "isAuxiliary": false,
+  "interactive": "no"
+}

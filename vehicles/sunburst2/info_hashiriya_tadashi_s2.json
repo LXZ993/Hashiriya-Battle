@@ -1,0 +1,48 @@
+{
+  "Configuration": "hashiriya_tadashi_s2",
+  "defaultMultiPaintSetup": {
+    "name": "hashiriya_tadashi_s2 Multi Paint Setup",
+    "paint1": {
+      "baseColor": [
+        0.69999998807907,
+        0.72000002861023,
+        0.74000000953674,
+        1.2000000476837
+      ],
+      "class": "hidden",
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.0500000007,
+      "metallic": 0.899999976,
+      "name": "hashiriya_tadashi_s2 Paint 1",
+      "roughness": 0.300000012
+    },
+    "paint2": {
+      "baseColor": [
+        0.69999998807907,
+        0.72000002861023,
+        0.74000000953674,
+        1.2000000476837
+      ],
+      "class": "hidden",
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.0500000007,
+      "metallic": 0.899999976,
+      "name": "hashiriya_tadashi_s2 Paint 2",
+      "roughness": 0.300000012
+    },
+    "paint3": {
+      "baseColor": [
+        0.69999998807907,
+        0.72000002861023,
+        0.74000000953674,
+        1.2000000476837
+      ],
+      "class": "hidden",
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.0500000007,
+      "metallic": 0.899999976,
+      "name": "hashiriya_tadashi_s2 Paint 3",
+      "roughness": 0.300000012
+    }
+  }
+}

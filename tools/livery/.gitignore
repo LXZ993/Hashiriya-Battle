@@ -1,0 +1,6 @@
+fonts/
+work/
+web/node_modules
+web/*.glb
+web/package*.json
+__pycache__/

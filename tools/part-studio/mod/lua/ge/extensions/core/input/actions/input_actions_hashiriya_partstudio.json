@@ -1,0 +1,3 @@
+{
+    "hashiriyaPartStudioToggle" :{"cat":"debug", "order": 140, "ctx": "tlua", "onDown" :"if extensions.hashiriyaPartStudio then extensions.hashiriyaPartStudio.toggle() end", "actionMap": "Global", "title": "Teile-Studio ein/aus", "desc": "Öffnet die Teile-Galerie mit Vorschaubildern und die Bilderstellung (Hashiriya Part Studio)" }
+}

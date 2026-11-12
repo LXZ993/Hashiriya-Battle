@@ -1,0 +1,176 @@
+// Hashiriya Battle: Sprechblase unten mit Porträt des Sprechers (Silhouetten aus art/portraits).
+// Der Rivale steht rechts neben der Blase (wie im SP-HUD rechts der Rivale), die Blase zeigt auf ihn.
+// Daten: Hook 'HashiriyaState' (battle.quote, quoteKind, portrait, rivalName, rivalNick, rivalTag).
+// PA-Gespräche (talk.lua): data.talk = { text, name, portrait, side: 'left', step, steps, key, next, hint, topic },
+// Bei Rivalen (Alpha 0.5): talk.alt = { key, text } (Pink Slip), talk.decline, talkPrompt.rival = Farbklasse.
+// data.talkPrompt = { name, key, text, again } = Hinweis "[T] Reden", wenn man zu Fuß vor einem Fahrer steht.
+// Story (Alpha 0.6, story.lua): talk.kind 'story' oder 'phone' (Handy-Nachricht, talk.timer 1..0 läuft ab;
+// Handy-Nachrichten haben einen grünen Reiter mit Handy-Symbol an der Blase und ein Handy-Symbol am Porträt),
+// data.storyCard = { label, title, jp, text, key, next } = Kapitelkarte (Vollbild, schwarz).
+angular.module('beamng.apps')
+.directive('hashiriyaTalk', [function () {
+  return {
+    template:
+      '<div class="bngApp hbk-root">' +
+        '<div class="hbk-flash" ng-if="flash" ng-class="{\'is-cam\': flashKind == \'speedcam\'}"></div>' +
+        '<div class="hbk" ng-if="line" ng-class="[\'hbk-\' + line.side, \'hbk-k-\' + line.kind, \'hbk-t-\' + line.tag]">' +
+          '<div class="hbk-picw" ng-if="line.side == \'left\'"><div class="hbk-pic"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
+            '<i class="hbk-pic-phone" ng-if="line.kind == \'phone\'"><svg viewBox="0 0 24 24"><rect x="6" y="1.5" width="12" height="21" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8.2" y="4.6" width="7.6" height="12.4" rx=".6" fill="currentColor" opacity=".35"/><circle cx="12" cy="19.6" r="1.1" fill="currentColor"/></svg></i>' +
+            '<img class="hbk-sticker" ng-if="line.logo" ng-src="{{ line.logo }}" alt=""></div>' +
+          '<div class="hbk-bubble">' +
+            // Handy-Nachricht: Reiter mit Handy-Symbol oben an der Blase (klingelt beim Erscheinen)
+            '<div class="hbk-phone" ng-if="line.kind == \'phone\'"><i class="hbk-phone-ico"><svg viewBox="0 0 24 24"><rect x="6" y="1.5" width="12" height="21" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8.2" y="4.6" width="7.6" height="12.4" rx=".6" fill="currentColor" opacity=".35"/><circle cx="12" cy="19.6" r="1.1" fill="currentColor"/></svg></i><span>{{ line.phoneTag || line.topic }}</span></div>' +
+            '<div class="hbk-who"><b>{{ line.name }}</b><span ng-if="line.nick">{{ line.nick }}</span></div>' +
+            '<div class="hbk-text">{{ line.text }}</div>' +
+            '<div class="hbk-foot" ng-if="line.key">' +
+              '<span class="hbk-hint" ng-if="line.hint">{{ line.hint }}</span>' +
+              '<span class="hbk-topic" ng-if="line.topic && !line.hint">{{ line.topic }}</span>' +
+              '<span class="hbk-dots" ng-if="line.steps > 1"><i ng-repeat="d in dots(line.steps) track by $index" ng-class="{on: $index < line.step}"></i></span>' +
+              '<span class="hbk-decline" ng-if="line.decline">{{ line.decline }}</span>' +
+              '<span class="hbk-key hbk-key-pink" ng-if="line.alt"><b>{{ line.alt.key }}</b>{{ line.alt.text }}</span>' +
+              '<span class="hbk-key"><b>{{ line.key }}</b>{{ line.next }}</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="hbk-picw" ng-if="line.side != \'left\'"><div class="hbk-pic"><img ng-if="line.portrait" ng-src="{{ line.portrait }}"><div class="hbk-pic-none" ng-if="!line.portrait">?</div></div>' +
+            '<i class="hbk-pic-phone" ng-if="line.kind == \'phone\'"><svg viewBox="0 0 24 24"><rect x="6" y="1.5" width="12" height="21" rx="2.6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="8.2" y="4.6" width="7.6" height="12.4" rx=".6" fill="currentColor" opacity=".35"/><circle cx="12" cy="19.6" r="1.1" fill="currentColor"/></svg></i>' +
+            '<img class="hbk-sticker" ng-if="line.logo" ng-src="{{ line.logo }}" alt=""></div>' +
+        '</div>' +
+        '<div class="hbk-timer" ng-if="line && line.timer != null"><i ng-style="{width: (line.timer * 100) + \'%\'}"></i></div>' +
+        '<div class="hbk-card" ng-if="card"><div class="hbk-card-in">' +
+          '<div class="hbk-card-label">{{ card.label }}</div>' +
+          '<div class="hbk-card-jp" ng-if="card.jp">{{ card.jp }}</div>' +
+          '<div class="hbk-card-title">{{ card.title }}</div>' +
+          '<div class="hbk-card-line"></div>' +
+          '<div class="hbk-card-text" ng-if="card.text">{{ card.text }}</div>' +
+          '<div class="hbk-card-key"><b>{{ card.key }}</b>{{ card.next }}</div>' +
+        '</div></div>' +
+        '<div class="hbk-prompt" ng-if="!line && prompt" ng-class="prompt.rival ? \'hbk-p-\' + prompt.rival : \'\'"><b>{{ prompt.key }}</b><span>{{ prompt.text }}</span><em>{{ prompt.name }}</em></div>' +
+        '<style>' +
+          '.hbk-root{width:100%;height:100%;background:transparent;box-shadow:none;pointer-events:none;overflow:visible;' +
+            '--o:#ff6600;--o2:#ff9a3c;--w:#f4f4f4;--dim:rgba(244,244,244,.65);font-family:"Overpass","Noto Sans JP",sans-serif;}' +
+          '.hbk{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;gap:14px;animation:hbkIn .35s ease-out;}' +
+          '.hbk-left{flex-direction:row;}' +
+          '.hbk-pic{flex:none;width:150px;height:150px;position:relative;clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);' +
+            'background:#0e1015;box-shadow:0 0 0 2px var(--o);}' +
+          '.hbk-pic img{width:100%;height:100%;display:block;}' +
+          '.hbk-picw{flex:none;position:relative;}' +
+          /* Crew-Symbol / Siegel als Aufkleber auf der Ecke des Porträts */
+          '.hbk-sticker{position:absolute;top:-22px;width:74px;height:74px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.8));pointer-events:none;}' +
+          '.hbk-right .hbk-sticker{left:-26px;transform:rotate(-8deg);}' +
+          '.hbk-left .hbk-sticker{right:-26px;transform:rotate(8deg);}' +
+          '.hbk-pic:after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--o);}' +
+          '.hbk-pic-none{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:64px;font-weight:900;color:rgba(255,255,255,.15);}' +
+          '.hbk-bubble{position:relative;flex:1;min-height:70px;margin-bottom:22px;padding:10px 18px 12px;background:rgba(10,11,14,.88);' +
+            'border:1px solid rgba(255,255,255,.12);border-top:3px solid var(--o);box-shadow:0 6px 20px rgba(0,0,0,.6);}' +
+          // Zipfel der Blase zeigt zum Porträt
+          '.hbk-bubble:after{content:"";position:absolute;bottom:18px;width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;}' +
+          '.hbk-right .hbk-bubble:after{right:-12px;border-left:12px solid rgba(10,11,14,.88);}' +
+          '.hbk-left .hbk-bubble:after{left:-12px;border-right:12px solid rgba(10,11,14,.88);}' +
+          '.hbk-who{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;}' +
+          '.hbk-who b{font-size:12px;font-weight:900;font-style:italic;letter-spacing:2px;text-transform:uppercase;color:var(--o2);}' +
+          '.hbk-who span{font-size:11px;color:var(--dim);font-style:italic;}' +
+          '.hbk-text{font-size:17px;line-height:23px;color:var(--w);}' +
+          '.hbk-k-win .hbk-bubble{border-top-color:#e2453c;}' +
+          '.hbk-k-lose .hbk-bubble{border-top-color:#8a8f99;}' +
+          '.hbk-t-wanderer .hbk-pic{box-shadow:0 0 0 2px #b77bff;}' +
+          '.hbk-t-boss .hbk-pic{box-shadow:0 0 0 2px #ff3b30;}' +
+          '.hbk-t-leader .hbk-pic{box-shadow:0 0 0 2px #ffd23f;}' +
+          '.hbk-t-hint .hbk-pic{box-shadow:0 0 0 2px #4fd18b;}' +
+          '.hbk-t-fact .hbk-bubble{border-top-color:#5aa9ff;}' +
+          '.hbk-k-pa .hbk-who b{color:#9ec3ff;}' +
+          '.hbk-foot{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:6px;font-size:11px;color:var(--dim);}' +
+          '.hbk-hint{margin-right:auto;color:#4fd18b;font-weight:700;letter-spacing:1px;text-transform:uppercase;}' +
+          '.hbk-topic{margin-right:auto;color:#7fb8ff;font-weight:700;letter-spacing:1px;text-transform:uppercase;}' +
+          '.hbk-dots i{display:inline-block;width:6px;height:6px;margin-left:4px;background:rgba(255,255,255,.2);transform:skewX(-20deg);}' +
+          '.hbk-dots i.on{background:var(--o);}' +
+          '.hbk-key b,.hbk-prompt b{display:inline-block;min-width:18px;padding:1px 6px;margin-right:6px;border:1px solid rgba(255,255,255,.5);border-radius:3px;' +
+            'font-style:normal;font-weight:900;color:var(--w);text-align:center;}' +
+          '.hbk-prompt{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:7px 14px;white-space:nowrap;' +
+            'background:rgba(10,11,14,.82);border-left:3px solid var(--o);font-size:14px;color:var(--w);animation:hbkIn .25s ease-out;}' +
+          '.hbk-prompt span{font-weight:800;letter-spacing:1px;text-transform:uppercase;}' +
+          '.hbk-prompt em{font-style:italic;color:var(--dim);}' +
+          '.hbk-p-rival,.hbk-p-beaten,.hbk-p-lost{border-left-color:#ff6600;}' +
+          '.hbk-p-leader{border-left-color:#ffd23f;}' +
+          '.hbk-p-wanderer{border-left-color:#b77bff;}' +
+          '.hbk-decline{color:var(--dim);font-style:italic;}' +
+          // Story: Szenen orange, Handy-Nachrichten grün, du selbst rechts
+          '.hbk-k-story .hbk-bubble{border-top-color:#ff6600;}' +
+          '.hbk-k-story .hbk-who b{color:#ffb070;}' +
+          '.hbk-k-phone .hbk-bubble{border-top-color:#4fd18b;}' +
+          '.hbk-k-phone .hbk-who b{color:#8de0b2;}' +
+          '.hbk-k-phone .hbk-topic{display:none;}' +
+          // Handy-Reiter oben links an der Blase + Handy-Symbol unten am Porträt; Text der Nachricht wie eine SMS
+          '.hbk-k-phone .hbk-bubble{margin-top:22px;background:linear-gradient(180deg,rgba(14,30,22,.92),rgba(10,11,14,.9) 60%);}' +
+          '.hbk-phone{position:absolute;left:-1px;top:-25px;height:22px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;' +
+            'background:#4fd18b;color:#0c1a12;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 100%,0 100%);}' +
+          '.hbk-phone-ico{display:block;width:16px;height:16px;animation:hbkRing .9s ease-in-out 2;}' +
+          '.hbk-phone-ico svg,.hbk-pic-phone svg{display:block;width:100%;height:100%;}' +
+          '.hbk-pic-phone{position:absolute;right:-6px;bottom:-6px;width:34px;height:34px;padding:6px;box-sizing:border-box;border-radius:50%;' +
+            'background:#4fd18b;color:#0c1a12;box-shadow:0 2px 6px rgba(0,0,0,.7);animation:hbkRing .9s ease-in-out 2;}' +
+          '@keyframes hbkRing{0%,100%{transform:rotate(0)}10%,30%,50%{transform:rotate(-14deg)}20%,40%,60%{transform:rotate(14deg)}70%{transform:rotate(0)}}' +
+          '.hbk-t-story .hbk-pic{box-shadow:0 0 0 2px #ff9a3c;}' +
+          '.hbk-t-phone .hbk-pic{box-shadow:0 0 0 2px #4fd18b;}' +
+          '.hbk-t-player .hbk-pic{box-shadow:0 0 0 2px #f4f4f4;}' +
+          '.hbk-timer{position:absolute;left:164px;right:0;bottom:22px;height:2px;background:rgba(255,255,255,.08);}' +
+          '.hbk-timer i{display:block;height:100%;background:#4fd18b;transition:width .4s linear;}' +
+          '.hbk-flash{position:fixed;left:0;top:0;right:0;bottom:0;z-index:60;background:#fff;pointer-events:none;animation:hbkFlash .45s ease-out forwards;}' +
+          '.hbk-flash.is-cam{background:radial-gradient(ellipse at 50% 40%,#fff 0%,#ffe9e6 45%,rgba(255,120,110,.85) 100%);animation:hbkFlash .35s ease-out forwards;}' +
+          '@keyframes hbkFlash{0%{opacity:.85}100%{opacity:0}}' +
+          '.hbk-card{position:fixed;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:50;' +
+            'background:radial-gradient(ellipse at center,rgba(8,8,10,.92) 0,rgba(0,0,0,.97) 70%);animation:hbkFade .8s ease-out;}' +
+          '.hbk-card-in{max-width:760px;padding:0 40px;text-align:center;color:var(--w);}' +
+          '.hbk-card-label{font-size:13px;font-weight:800;letter-spacing:6px;text-transform:uppercase;color:var(--o);}' +
+          '.hbk-card-jp{margin-top:18px;font-size:30px;letter-spacing:10px;color:rgba(255,255,255,.35);font-family:"Noto Sans JP",sans-serif;}' +
+          '.hbk-card-title{margin-top:6px;font-size:52px;font-weight:900;font-style:italic;letter-spacing:3px;text-transform:uppercase;}' +
+          '.hbk-card-line{width:120px;height:3px;margin:18px auto;background:var(--o);transform:skewX(-30deg);}' +
+          '.hbk-card-text{font-size:18px;line-height:28px;color:var(--dim);}' +
+          '.hbk-card-key{margin-top:34px;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}' +
+          '.hbk-card-key b{display:inline-block;min-width:18px;padding:1px 6px;margin-right:8px;border:1px solid rgba(255,255,255,.5);border-radius:3px;color:var(--w);}' +
+          '@keyframes hbkFade{from{opacity:0;}to{opacity:1;}}' +
+          '.hbk-key-pink{color:#ff7eb6;font-weight:800;}' +
+          '.hbk-key-pink b{border-color:#ff7eb6;color:#ff7eb6;}' +
+          '@keyframes hbkIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}' +
+        '</style>' +
+      '</div>',
+    replace: true,
+    link: function (scope) {
+      'use strict'
+      scope.line = null
+      scope.prompt = null
+      scope.card = null
+      scope.dots = function (n) { return new Array(n) }
+      var lastKey = null, lastPrompt = null, lastCard = null
+      // Fotojob: kurzer weißer Blitz (Hook HashiriyaFlash aus jobs.lua)
+      scope.flash = false
+      var flashTimer = null
+      // Blitzer (police.lua): Hook HashiriyaFlash { kind: 'speedcam' } = kürzerer, rötlich-weißer Blitz
+      scope.flashKind = null
+      scope.$on('HashiriyaFlash', function (event, data) {
+        scope.$evalAsync(function () { scope.flash = false; scope.flashKind = (data && data.kind) || null })
+        setTimeout(function () { scope.$evalAsync(function () { scope.flash = true }) }, 20)
+        if (flashTimer) clearTimeout(flashTimer)
+        flashTimer = setTimeout(function () { scope.$evalAsync(function () { scope.flash = false }) }, 600)
+      })
+      scope.$on('HashiriyaState', function (event, data) {
+        var b = data && data.battle
+        var line = null
+        if (b && b.quote) {
+          line = { text: b.quote, kind: b.quoteKind || 'challenge', name: b.rivalName, nick: b.rivalNick,
+            portrait: b.portrait, logo: b.rivalLogo, tag: b.rivalTag || 'rival', side: 'right' }
+        } else if (data && data.talk && data.talk.text) {
+          line = data.talk
+        }
+        var prompt = (data && data.talkPrompt) || null
+        var card = (data && data.storyCard) || null
+        var cKey = card ? (card.label + '|' + card.title) : null
+        var pKey = prompt ? (prompt.name + '|' + prompt.key) : null
+        var key = line ? (line.name + '|' + line.text + '|' + (line.step || 0) + '|' + (line.key || '') + '|' + (line.timer != null ? Math.round(line.timer * 20) : '')) : null
+        if (key === lastKey && pKey === lastPrompt && cKey === lastCard) return
+        lastKey = key
+        lastPrompt = pKey
+        lastCard = cKey
+        scope.$evalAsync(function () { scope.line = line; scope.prompt = prompt; scope.card = card })
+      })
+    }
+  }
+}]);

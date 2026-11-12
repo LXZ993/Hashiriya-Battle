@@ -1,0 +1,11 @@
+Musik in diesem Ordner
+
+daikoku.ogg, daikoku_loop.ogg (daikoku.wav = Version V3, hat Vorrang)
+  "Daikoku" von z3rdax (https://open.spotify.com/artist/2vyVqSAFL3msB5ll2p2VEd), für Hashiriya Battle, Nutzung mit Erlaubnis.
+
+*(AI).wav, *(AI) [Loop].wav
+  KI-Platzhalter von JDMArsch, erstellt mit ACE-Step (lokales Open-Source-Modell, MIT-Lizenz).
+  "Full Throttle Soul", "Kaze ni Nare", "Midnight King", "Moeagare".
+  Passende copyrightfreie Songs für diesen Zweck sind kaum zu finden, darum dienen diese Stücke als Platzhalter,
+  bis echte Tracks kommen. Im Spiel pro Situation abschaltbar (Esc > Mods > Hashiriya Battle).
+  Jeder darf diese Stücke frei nutzen.

@@ -1,0 +1,75 @@
+{
+  "_hinweis": "Credits im Titelbildschirm (Menüpunkt Credits). sections = feste Abschnitte (title und what zweisprachig {de, en} oder einfacher Text). community = angenommene Wanderer aus dem Google-Formular; trägt tools/community/import_wanderer.py ein (name = Credit-Name, role = Testing | Mod author | Other, wanderer = Name des Wanderers). Einträge mit leerem name werden nicht angezeigt.",
+  "sections": [
+    {
+      "title": {
+        "de": "Idee und Entwicklung",
+        "en": "Idea and development"
+      },
+      "entries": [
+        {
+          "name": "JDMArsch (LXZ aka. LXZockt)",
+          "what": {
+            "de": "Idee, Entwicklung, Game-Design, Rivalen und Crews, Fahrzeug-Configs, Balancing, Tutorial, Tests",
+            "en": "Idea, development, game design, rivals and crews, vehicle configs, balancing, tutorial, testing"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Tests",
+        "en": "Testing"
+      },
+      "entries": [
+        {
+          "name": "Slim Henry",
+          "what": {
+            "de": "Tester der ersten Stunde",
+            "en": "Tester from day one"
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Benötigte Mods",
+        "en": "Required mods"
+      },
+      "entries": [
+        {
+          "name": "Ezo",
+          "what": {
+            "de": "Shuto Expressway C1 (Map)",
+            "en": "Shuto Expressway C1 (map)"
+          }
+        },
+        {
+          "name": "AgentMooshroom5",
+          "what": "Agent's Japanese Plates Pack"
+        },
+        {
+          "name": "AgentMooshroom5",
+          "what": "Agents simplified realistic traffic"
+        }
+      ]
+    },
+    {
+      "title": {
+        "de": "Spiel",
+        "en": "Game"
+      },
+      "entries": [
+        {
+          "name": "BeamNG GmbH",
+          "what": "BeamNG.drive"
+        }
+      ]
+    }
+  ],
+  "community": [],
+  "thanks": {
+    "de": "Danke an alle, die getestet und geholfen haben. Wir sehen uns auf der Schnellstraße.",
+    "en": "Thanks to everyone who tested and helped. See you on the expressway."
+  }
+}

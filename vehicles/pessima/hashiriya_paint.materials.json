@@ -1,0 +1,740 @@
+{
+  "pessima.skin.hb_kaido": {
+    "name": "pessima.skin.hb_kaido",
+    "mapTo": "pessima.skin.hb_kaido",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_kaido_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_kaido_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_kaido": {
+    "name": "pessima_aftermarket.skin.hb_kaido",
+    "mapTo": "pessima_aftermarket.skin.hb_kaido",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_kaido_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_kaido_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_factorysports": {
+    "name": "pessima.skin.hb_factorysports",
+    "mapTo": "pessima.skin.hb_factorysports",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_factorysports_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_factorysports_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_factorysports": {
+    "name": "pessima_aftermarket.skin.hb_factorysports",
+    "mapTo": "pessima_aftermarket.skin.hb_factorysports",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_factorysports_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_factorysports_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_bosozoku": {
+    "name": "pessima.skin.hb_bosozoku",
+    "mapTo": "pessima.skin.hb_bosozoku",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_bosozoku_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_bosozoku_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_bosozoku": {
+    "name": "pessima_aftermarket.skin.hb_bosozoku",
+    "mapTo": "pessima_aftermarket.skin.hb_bosozoku",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_bosozoku_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_bosozoku_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_twotone": {
+    "name": "pessima.skin.hb_twotone",
+    "mapTo": "pessima.skin.hb_twotone",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_twotone_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_twotone_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_twotone": {
+    "name": "pessima_aftermarket.skin.hb_twotone",
+    "mapTo": "pessima_aftermarket.skin.hb_twotone",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_twotone_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_twotone_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_shop_demo": {
+    "name": "pessima.skin.hb_shop_demo",
+    "mapTo": "pessima.skin.hb_shop_demo",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_shop_demo_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_shop_demo_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_shop_demo": {
+    "name": "pessima_aftermarket.skin.hb_shop_demo",
+    "mapTo": "pessima_aftermarket.skin.hb_shop_demo",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_shop_demo_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_shop_demo_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_rally": {
+    "name": "pessima.skin.hb_rally",
+    "mapTo": "pessima.skin.hb_rally",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_rally_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_rally_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_rally": {
+    "name": "pessima_aftermarket.skin.hb_rally",
+    "mapTo": "pessima_aftermarket.skin.hb_rally",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_rally_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_rally_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_wa": {
+    "name": "pessima.skin.hb_wa",
+    "mapTo": "pessima.skin.hb_wa",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_wa_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_wa_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_wa": {
+    "name": "pessima_aftermarket.skin.hb_wa",
+    "mapTo": "pessima_aftermarket.skin.hb_wa",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_wa_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_wa_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_groupc": {
+    "name": "pessima.skin.hb_groupc",
+    "mapTo": "pessima.skin.hb_groupc",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_groupc_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_groupc_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_groupc": {
+    "name": "pessima_aftermarket.skin.hb_groupc",
+    "mapTo": "pessima_aftermarket.skin.hb_groupc",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_groupc_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_groupc_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima.skin.hb_kanjo": {
+    "name": "pessima.skin.hb_kanjo",
+    "mapTo": "pessima.skin.hb_kanjo",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_main_b.color.png",
+        "metallicFactor": 1,
+        "metallicMap": "/vehicles/pessima/pessima_main_m.data.png",
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "roughnessMap": "/vehicles/pessima/pessima_main_r.data.png"
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_main_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_main_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_main_n.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_main_alt_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_kanjo_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_kanjo_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  },
+  "pessima_aftermarket.skin.hb_kanjo": {
+    "name": "pessima_aftermarket.skin.hb_kanjo",
+    "mapTo": "pessima_aftermarket.skin.hb_kanjo",
+    "class": "Material",
+    "Stages": [
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "baseColorMap": "/vehicles/pessima/pessima_aftermarket_b.color.png",
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "roughnessFactor": 0.5
+      },
+      {
+        "ambientOcclusionMap": "/vehicles/pessima/pessima_aftermarket_ao.data.png",
+        "clearCoatFactor": 1,
+        "clearCoatMap": "/vehicles/pessima/pessima_aftermarket_cc.data.png",
+        "colorPaletteMapUseUV": 1,
+        "detailNormalMap": "/vehicles/common/orange_peel_n.normal.png",
+        "detailNormalMapStrength": 0.150000006,
+        "detailScale": [
+          128,
+          64
+        ],
+        "diffuseMapUseUV": 1,
+        "instanceDiffuse": true,
+        "metallicFactor": 1,
+        "normalDetailMapUseUV": 1,
+        "normalMap": "/vehicles/pessima/pessima_aftermarket_nm.normal.png",
+        "opacityMap": "/vehicles/pessima/pessima_aftermarket_c.data.png",
+        "baseColorMap": "/vehicles/pessima/hashiriya_paint/hb_kanjo_b.color.png",
+        "colorPaletteMap": "/vehicles/pessima/hashiriya_paint/hb_kanjo_p.color.png"
+      },
+      {},
+      {}
+    ],
+    "activeLayers": 2,
+    "dynamicCubemap": true,
+    "materialTag0": "beamng",
+    "materialTag1": "vehicle",
+    "version": 1.5
+  }
+}

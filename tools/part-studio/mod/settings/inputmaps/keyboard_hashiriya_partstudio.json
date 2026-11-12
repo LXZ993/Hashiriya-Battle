@@ -1,0 +1,5 @@
+{
+  "bindings":[
+    {"control":"ctrl shift p", "action":"hashiriyaPartStudioToggle"}
+  ]
+}
