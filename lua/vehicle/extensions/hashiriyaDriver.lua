@@ -65,6 +65,8 @@ local defaults = {
   -- Wahrnehmung
   perceiveMin = 80,      -- m Sichtweite für Verkehr bei Können 0
   perceiveMax = 170,     -- ... bei Können 1
+  perceiveTime = 3,      -- s: bei hohem Tempo sieht er mindestens so weit voraus (180 km/h: 150 m)
+  rampSideDist = 8,      -- m neben der Fahrbahn: Autos auf der Auffahrt, die herüberziehen, beachtet er schon vorher
   reactionMin = 0.2,     -- s Reaktionszeit bei Können 1
   reactionMax = 0.8,     -- ... bei Können 0
   -- Gummiband (nur außerhalb von Bossen)
@@ -856,7 +858,7 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
   local objs = mapmgr.getObjects()
   local list = pl.obstacles
   table.clear(list)
-  local perceive = lerp(p.perceiveMin, p.perceiveMax, p.skill)
+  local perceive = max(lerp(p.perceiveMin, p.perceiveMax, p.skill), ego.speed * p.perceiveTime)
   -- Reaktionszeit: Können, unter Druck (Gegner dicht dran) mit schwachen Nerven langsamer
   local pressure = clamp(1 - abs(race.gap or 0) / 40, 0, 1)
   local reaction = lerp(p.reactionMax, p.reactionMin, p.skill) * (1 + pressure * (1 - nerves) * 0.5)
@@ -883,8 +885,16 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
           end
           local lat = lateralAt(pl, bestK, cpos.x, cpos.y)
           local roadHalf = max(abs(pl.baseLo[bestK]), abs(pl.baseHi[bestK])) + ego.width
+          -- Auffahrt: Auto neben der Fahrbahn, das in unsere Richtung fährt und herüberzieht
+          local onRoad = abs(lat) < roadHalf + 2
+          local merging = false
+          if not onRoad and abs(lat) < roadHalf + p.rampSideDist then
+            local vInward = -(o.vel.x * pl.nx[bestK] + o.vel.y * pl.ny[bestK]) * (lat >= 0 and 1 or -1)
+            local vFwd = o.vel.x * pl.tx[bestK] + o.vel.y * pl.ty[bestK]
+            merging = vInward > 0.3 and vFwd > 3
+          end
           -- andere Ebene (Brücke, Tunnel darunter) oder andere Straße: ignorieren
-          if abs(cpos.z - pl.cz[bestK]) < 4 and abs(lat) < roadHalf + 2 then
+          if abs(cpos.z - pl.cz[bestK]) < 4 and (onRoad or merging) then
             local sObs = pl.s[bestK] + (cpos.x - pl.cx[bestK]) * pl.tx[bestK] + (cpos.y - pl.cy[bestK]) * pl.ty[bestK]
             local oLen = obj:getObjectInitialLength(id)
             local oWid = obj:getObjectInitialWidth(id)
@@ -911,8 +921,14 @@ local function planTraffic(pl, courage, nerves, dt, egoLat)
                   tr = { d = lat, t = simTime, v = clamp(vLatRaw, -1, 1) * 0.5 }
                   latTrack[id] = tr
                 end
+                -- Auffahrt: so tun, als wäre er schon am Fahrbahnrand (er fädelt gleich ein)
+                local dObs = lat
+                if merging then
+                  local edge = lat >= 0 and pl.baseHi[bestK] or pl.baseLo[bestK]
+                  dObs = abs(edge) < abs(lat) and edge or lat
+                end
                 list[#list + 1] = {
-                  id = id, s = sObs, d = lat, len = oLen, wid = oWid,
+                  id = id, s = sObs, d = dObs, len = oLen, wid = oWid, merging = merging or nil,
                   vAlong = o.vel.x * tx + o.vel.y * ty,
                   vLat = tr.v,
                   target = isTarget,
